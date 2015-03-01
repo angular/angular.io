@@ -1,4 +1,4 @@
-var app = angular.module('myApp', ['ngMaterial'])
+var angularIO = angular.module('angularIOApp', ['ngMaterial'])
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
     .primaryPalette('blue', {
@@ -14,9 +14,13 @@ var app = angular.module('myApp', ['ngMaterial'])
     });
 });
 
-app.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav){
+angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav){
   $scope.toggleSidenav = function(menuId) {
     $mdSidenav(menuId).toggle();
+  };
+
+  $scope.showVersionMenu = function() {
+    alert('hi');
   };
 }]);
 
