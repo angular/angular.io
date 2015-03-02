@@ -14,13 +14,27 @@ var angularIO = angular.module('angularIOApp', ['ngMaterial'])
     });
 });
 
-angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav){
+angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($scope, $mdSidenav, $mdDialog){
   $scope.toggleSidenav = function(menuId) {
     $mdSidenav(menuId).toggle();
   };
 
   $scope.showVersionMenu = function() {
     alert('hi');
+  };
+
+  $scope.showBio = function (event) {
+    var bio = angular.element(event.currentTarget).text();
+    console.log(bio);
+
+    $mdDialog.show(
+      $mdDialog.alert()
+        .title('This is an alert title')
+        .content(bio)
+        .ariaLabel('Password notification')
+        .ok('Done')
+        .targetEvent(event)
+    );
   };
 
   prettyPrint();
