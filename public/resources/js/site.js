@@ -20,7 +20,14 @@ angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($
   };
 
   $scope.showVersionMenu = function() {
-    alert('hi');
+    $mdDialog.show(
+      $mdDialog.alert()
+        .title('Choose a Version')
+        .content('libraries')
+        .ariaLabel('Angular Version Menu')
+        .ok('Done')
+        .targetEvent(event)
+    );
   };
 
   $scope.showBio = function (event) {
@@ -31,8 +38,8 @@ angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($
       $mdDialog.alert()
         .title('Full Bio')
         .content(bio)
-        .ariaLabel('Password notification')
-        .ok('Done')
+        .ariaLabel('Biography')
+        .ok('Close Bio')
         .targetEvent(event)
     );
   };
