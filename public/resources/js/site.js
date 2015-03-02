@@ -29,7 +29,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($
 
     $mdDialog.show(
       $mdDialog.alert()
-        .title('This is an alert title')
+        .title('Full Bio')
         .content(bio)
         .ariaLabel('Password notification')
         .ok('Done')
