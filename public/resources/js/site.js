@@ -22,6 +22,8 @@ angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', function($scope, $mdSid
   $scope.showVersionMenu = function() {
     alert('hi');
   };
+
+  prettyPrint();
 }]);
 
 
