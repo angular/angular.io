@@ -11,11 +11,11 @@ p.
 
   p.
     In a new directory, create a <code>pubspec.yaml</code> file.
-    Add angular2 and browser as dependencies,
-    and add the angular2 transformer:
-    [PENDING: if the transformer isn't working in time,
-    remove it and use reflection in Dartium instead.
-    Perhaps require Dart 1.9.]
+    Add angular2 and browser as dependencies:
+
+  // [PENDING: if the transformer isn't working in time,
+  // remove it and use reflection in Dartium instead.
+  // Perhaps require Dart 1.9.]
 
   pre.prettyprint.linenums
     code.
@@ -24,16 +24,14 @@ p.
       dependencies:
         angular2: "&gt;=2.0.0-alpha.6 &lt;3.0.0"
         browser: any
-      transformers:
-      - angular2
   p.
     In the same directory, run <code>pub get</code>
     to install the angular2 and browser packages
     (along with the packages they depend on):
 
-  pre.prettyprint.linenums
+  pre.prettyprint
     code.
-      > pub get
+      &gt; pub get
       Resolving dependencies... (7.3s)
       + angular2 2.0.0-alpha.6
       + browser 0.10.0+2
@@ -41,23 +39,28 @@ p.
       + stack_trace 1.2.3
       Changed 4 dependencies!
 
-  p.
-    PENDING: Create template? Link to pub/pubspec docs?
-    Is browser really needed?
-    TODO: make this an invisible note.
+  // PENDING: Create template? Link to pub/pubspec docs?
+  // Is browser really needed?
+  // TODO: make this an invisible note.
+
 
 // STEP 2 - Import Angular ##########################
 .l-main-section
   h2#section-transpile 2. Import Angular
 
   p.
-    Under the same directory, create a <code>web</code> directory.
+    Still in the same directory, create a <code>web</code> directory.
     Create a file under <code>web</code> named <code>main.dart</code>.
-    Edit <code>web/main.dart</code> to import the angular2 library:
+    Edit <code>web/main.dart</code> to import the angular2 library
+    and (for now) two reflection libraries:
 
   pre.prettyprint.linenums
-    code import 'package:angular2/angular2.dart';
+    code.
+      import 'package:angular2/angular2.dart';
 
+      // These imports will go away soon:
+      import 'package:angular2/src/reflection/reflection.dart' show reflector;
+      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
 
 // STEP 3 - Define a component ##########################
 .l-main-section
@@ -71,29 +74,31 @@ p.
     with annotations that describe the component.
 
   p.
-    Update <code>web/main.dart</code> to contain the following code,
+    Update <code>web/main.dart</code> to add the following code,
     which defines the app component:
 
   pre.prettyprint.linenums
     code.
-      import 'package:angular2/angular2.dart';
-
       @Component(
-          selector: 'app'
+        selector: 'app'
       )
-      @Template({
+      @Template(
         inline: '&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;'
-      })
+      )
       class AppComponent {
         String name = 'Alice';
       }
+
+  // TODO: Change or omit line numbers.
 
   .l-sub-section
     h3 Annotations
 
     p.
-      The <code>@Component</code> annotation defines the HTML tag for the component. [PENDING: component controller?]
-      The <code>selector</code> property specifies the tag. The <code>selector</code> property is a CSS selector. [PENDING: huh?]
+      The <code>@Component</code> annotation defines the HTML tag for the component.
+      The <code>selector</code> property specifies the tag. The <code>selector</code> property is a CSS selector.
+
+    // [PENDING: that last paragraph needs work!]
 
     p.
       The <code>@Template</code> annotation defines the template to apply to the
@@ -104,17 +109,17 @@ p.
     pre.prettyprint.linenums
       code.
         @Component(
-            selector: 'app'
+          selector: 'app'
         )
-        @Template({
+        @Template(
           inline: '&lt;h1&gt;Hello {{ name }}&lt;/h1&gt;'
-        })
+        )
 
     p.
       The annotations above specify an HTML tag of <code>&lt;app&gt;&lt;/app&gt;</code>
       and a template of <code>&lt;h1&gt;Hello &#123;&#123; name }}&lt;/h1&gt;</code>.
 
-    p TODO: make double-mustaches work in text (they do work in listings)
+    // TODO: In the preceding paragraph, that should be rendered as {{ name }}, like in the listing.
 
   .l-sub-section
     h3 The template and the component controller
@@ -122,24 +127,22 @@ p.
     p.
       A template has access to all the public properties and methods
       of its component controller.
-      [PENDING: Do we really want to use the term "component controller"?
-      If so, set it up beforehand.
-      In the original text, what does "the backing" mean, and is it
-      important that we keep it?]
+      The template above binds to a <code>name</code> property through
+      the double-mustache syntax (<code ng-non-bindable>{{ }}</code>).
+      The body of the constructor assigns "Alice" to the name property. When the
+      template renders, Alice appears instead of <code  ng-non-bindable>{{ name }}</code>.
+
+
+    // [PENDING: Do we really want to use the term "component controller"?
+    // If so, set it up beforehand.
+    // In the original text, what does "the backing" mean, and is it
+    // important that we keep it?]
 
     pre.prettyprint.linenums
       code.
         class AppComponent {
           String name = 'Alice';
         }
-
-    p.
-      The template above binds to a <code>name</code> property through the <code>{{ }}</code>
-      syntax.The body of the constructor assigns "Alice" to the name property. When the
-      template renders, Alice appears instead of <code>{{ name }}</code>.
-      [TODO: fix double mustaches]
-
-
 
 // STEP 4 - Bootstrap ##########################
 .l-main-section
@@ -150,15 +153,22 @@ p.
     add a <code>main()</code> function
     that calls Angular's <code>bootstrap()</code> function.
     The argument to <code>bootstrap()</code> is the name of the app class
-    you defined above:
+    you defined above.
+
+  p.
+    For now, you also need to set the value of
+    <code>reflector.reflectionCapabilities</code>.
 
   pre.prettyprint.linenums
     code.
       main() {
+        // Temporarily needed.
+        reflector.reflectionCapabilities = new ReflectionCapabilities();
+
         bootstrap(AppComponent);
       }
-  p.
-    [PENDING: change/remove line numbers. They should start at 12.]
+
+  // [PENDING: change/remove line numbers. They should start at 12.]
 
 // STEP 5 - Declare the HTML ##########################
 .l-main-section
@@ -179,33 +189,36 @@ p.
           &lt;/head&gt;
           &lt;body>
             &lt;app>&lt;/app>
+
             &lt;script type="application/dart" src="main.dart">&lt;/script>
             &lt;script src="packages/browser/dart.js">&lt;/script>
           &lt;/body>
         &lt;/html>
-  p.
-    [PENDING: When I select a bunch of code, it looks like I select the line #s too, making me fear that they'll get copied. But pasting doesn't include them. Fix!]
 
-// STEP 5 - Build and run ##########################
+  // [PENDING: When I select a bunch of code, it looks like I select the line #s too, making me fear that they'll get copied. But pasting doesn't include them. Can we fix that?]
+
+// STEP 6 - Build and run ##########################
 .l-main-section
 
-  h2#section-angular-run-app 5. Build and run your app
+  h2#section-angular-run-app 6. Build and run your app
 
   p.
-    You have many options.
-    One is to run the <code>pub serve</code>
-    command in the directory
-    that contains your app's <code>pubspec.yaml</code> file:
+    You have several options for running your app.
+    The quickest and easiest, for now,
+    is to open your project in <b>Dart Editor</b>,
+    right-click <code>web/index.html</code>,
+    and choose <b>Open in Dartium</b>.
 
-  pre.prettyprint.linenums
-    code.
-      > pub serve
-      Serving helloworld on http://localhost:8080
+  // TODO: screenshot?
 
   p.
-    In the browser, go to the index file—for example,
-    localhost:8080/web/index.html.
-    [PENDING: This isn't working right now. Fix!]
+    Another option is to build and serve the app using <code>pub serve</code>,
+    and then to run it by visiting http://localhost:8080/index.html in a browser.
+    The JavaScript generated using this option is large, for now;
+    it'll be much better soon, when a transformer becomes available
+    to convert the reflection code from dynamic to static code.
+
+  // [PENDING: Update when transformer is working!]
 
 // WHAT'S NEXT... ##########################
 .l-main-section
@@ -213,4 +226,5 @@ p.
 
   p.
     Learn some template syntax for extra credit.
-    [PENDING: really?]
+
+  // [PENDING: really?]
