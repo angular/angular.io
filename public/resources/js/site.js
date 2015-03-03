@@ -14,20 +14,16 @@ var angularIO = angular.module('angularIOApp', ['ngMaterial'])
     });
 });
 
+
 angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($scope, $mdSidenav, $mdDialog){
   $scope.toggleSidenav = function(menuId) {
     $mdSidenav(menuId).toggle();
   };
 
-  $scope.showVersionMenu = function() {
-    $mdDialog.show(
-      $mdDialog.alert()
-        .title('Choose a Version')
-        .content('libraries')
-        .ariaLabel('Angular Version Menu')
-        .ok('Done')
-        .targetEvent(event)
-    );
+  $scope.toggleVersionMenu = function(event) {
+    $scope.showMenu = !$scope.showMenu;
+
+    item.toggleClass('is-hidden');
   };
 
   $scope.showBio = function (event) {

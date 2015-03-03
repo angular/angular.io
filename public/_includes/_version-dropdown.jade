@@ -1,15 +1,45 @@
 language = current.path[1]
-version = current.path[2]
-title = "Some Version"
+title = "Javascript "
+filter = /(\.html$)/
+replace = /(\.html$)|(^index\.html$)/
 
+<!-- Replace _ undscores with . dots -->
+version = current.path[2].replace(/\_+/gm, ".")
+
+
+<!-- VERSION TREE CREATOR MIXIN -->
+mixin tree(directory, urlPrefix, name, latest)
+  ul
+    for val, semvar in directory
+      if semvar !== '.git' && semvar !== '_data'
+        libVersion = (semvar == "latest") ?  latest : semvar.replace(/\_+/gm, ".")
+        li <a href="#{urlPrefix}/#{semvar}/" md-button>#{name} #{libVersion}</a>
+
+
+<!-- BUTTON TITLE GENERATION  -->
 if language == 'js'
   if version == "latest"
     title = 'Javascript ' + jsLatest
+  else
+    title = 'Javascript ' + version
+
 
 if language == 'dart'
   if version == "latest"
     title = 'Dart ' + dartLatest
+  else
+    title = 'Dart ' + version
 
-h2.hero-subtitle.text-subhead
-  button(md-button ng-click="showVersionMenu($event)") #{title}  <span class="icon-arrow-drop-down"></span>
 
+<!-- DROPDOWN BUTTON -->
+nav.hero-subtitle.text-subhead.dropdown
+  button(md-button class="dropdown-button" ng-click="toggleVersionMenu($event)") #{title}  <span class="icon-arrow-drop-down"></span>
+  div(class="overlay ng-hide" ng-click="toggleVersionMenu($event)" ng-show="showMenu")
+
+  <!-- DROPDOWN MENU -->
+  div(class="dropdown-menu ng-hide" ng-show="showMenu")
+    mixin tree(public.docs.js, "/docs/js", "Javascript", jsLatest)
+    mixin tree(public.docs.dart, "/docs/dart", "Dart", dartLatest)
+    ul
+      li <a href="https://angularjs.org/" md-button>#{name} Angular 1.X</a>
+      li <a href="https://angulardart.org/" md-button>#{name} AngularDart 1.X</a>
