@@ -15,17 +15,26 @@ var angularIO = angular.module('angularIOApp', ['ngMaterial'])
 });
 
 
-angularIO.controller('AppCtrl', ['$scope', '$mdSidenav', '$mdDialog', function($scope, $mdSidenav, $mdDialog){
-  $scope.toggleSidenav = function(menuId) {
-    $mdSidenav(menuId).toggle();
+/*
+* Apllication Controller
+*
+*/
+
+angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog){
+
+  // TOGGLE MAIN NAV (TOP) ON MOBILE
+  $scope.toggleMainMenu = function(event) {
+    $scope.showMainNav = !$scope.showMainNav;
   };
 
+
+  // TOGGLE DOCS VERSION & LANGUAGE
   $scope.toggleVersionMenu = function(event) {
     $scope.showMenu = !$scope.showMenu;
-
-    item.toggleClass('is-hidden');
   };
 
+
+  // SHOW FULL ABOUT US PAGE BIO
   $scope.showBio = function (event) {
     var bio = angular.element(event.currentTarget).text();
     console.log(bio);
