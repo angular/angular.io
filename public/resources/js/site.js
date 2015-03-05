@@ -39,12 +39,14 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
 
   // SHOW FULL ABOUT US PAGE BIO
   $scope.showBio = function (event) {
-    var bio = angular.element(event.currentTarget).text();
-    console.log(bio);
+    var person = angular.element(event.currentTarget);
+    var bio = person.text();
+    var name = person.attr('data-name');
+    //var pic = person.data('data-pic');
 
     $mdDialog.show(
       $mdDialog.alert()
-        .title('Full Bio')
+        .title(name)
         .content(bio)
         .ariaLabel('Biography')
         .ok('Close Bio')
