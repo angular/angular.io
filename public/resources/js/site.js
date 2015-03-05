@@ -23,16 +23,19 @@ var angularIO = angular.module('angularIOApp', ['ngMaterial'])
 angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog){
 
   // TOGGLE MAIN NAV (TOP) ON MOBILE
+  $scope.toggleDocsMenu = function(event) {
+    $scope.showDocsNav = !$scope.showDocsNav;
+  };
+
+  // TOGGLE DOCS NAV
   $scope.toggleMainMenu = function(event) {
     $scope.showMainNav = !$scope.showMainNav;
   };
-
 
   // TOGGLE DOCS VERSION & LANGUAGE
   $scope.toggleVersionMenu = function(event) {
     $scope.showMenu = !$scope.showMenu;
   };
-
 
   // SHOW FULL ABOUT US PAGE BIO
   $scope.showBio = function (event) {
@@ -49,6 +52,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     );
   };
 
+  // INITIALIZE PRETTY PRINT
   prettyPrint();
 }]);
 
