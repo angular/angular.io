@@ -1,3 +1,8 @@
+/*
+* Apllication Module
+*
+*/
+
 var angularIO = angular.module('angularIOApp', ['ngMaterial'])
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
