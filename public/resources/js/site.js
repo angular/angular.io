@@ -37,25 +37,53 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     $scope.showMenu = !$scope.showMenu;
   };
 
-  // SHOW FULL ABOUT US PAGE BIO
-  $scope.showBio = function (event) {
-    var person = angular.element(event.currentTarget);
-    var bio = person.text();
+  // BIO MODAL
+  $scope.showBio = function($event) {
+    var parentEl = angular.element(document.body);
+    var person = angular.element($event.currentTarget);
     var name = person.attr('data-name');
-    //var pic = person.data('data-pic');
+    var bio = person.attr('data-bio');
+    var pic = person.attr('data-pic');
+    var twitter = person.attr('data-twitter');
+    var website =  person.attr('data-website');
+    var $twitter = twitter !== 'undefined' ? '<a class="button button-subtle button-small" href="https://twitter.com/' +  person.attr('data-twitter') + '" md-button>Twitter</a>' : '';
+    var $website = website !== 'undefined' ? '<a class="button button-subtle button-small" href="' + person.attr('data-website') + '" md-button>Website</a>' : '';
 
-    $mdDialog.show(
-      $mdDialog.alert()
-        .title(name)
-        .content(bio)
-        .ariaLabel('Biography')
-        .ok('Close Bio')
-        .targetEvent(event)
-    );
+    $mdDialog.show({
+      parent: parentEl,
+      targetEvent: $event,
+      template:
+        '<md-dialog class="modal" aria-label="List dialog">' +
+        '  <md-content>' +
+        '     <img class="left" src="' + pic + '" />' +
+        '     <h3 class="text-headline">' + name + '</h3>' +
+        '     <div class="modal-social">' + $twitter + $website + '</div>' +
+        '     <p class="text-body">' + bio + '</p>' +
+        '  </md-content>' +
+        '  <div class="md-actions">' +
+        '    <md-button ng-click="closeDialog()">' +
+        '      Close Bio' +
+        '    </md-button>' +
+        '  </div>' +
+        '</md-dialog>',
+      locals: {
+        items: $scope.items
+      },
+    controller: DialogController
+    });
+
+    function DialogController(scope, $mdDialog, items) {
+      scope.items = items;
+      scope.closeDialog = function() {
+        $mdDialog.hide();
+      };
+    }
   };
 
   // INITIALIZE PRETTY PRINT
   prettyPrint();
 }]);
+
+
 
 
