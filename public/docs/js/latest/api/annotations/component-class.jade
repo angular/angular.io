@@ -1,312 +1,144 @@
-p.
-  Directives allow you to attach behavior to elements in the DOM.
-  Directive is an abstract concept, instead use concrete directives: [Component], [DynamicComponent], [Decorator] or [Viewport].
-  A directive consists of a single directive annotation and a controller class. When the directive's [selector] matches elements in the DOM, the following steps occur:
 
 p.
-  For each directive, the [ElementInjector] attempts to resolve the directive's constructor arguments.
-  Angular instantiates directives for each matched element using [ElementInjector] in a depth-first order, as declared in the HTML.
+  <span class="location-badge">exported from <a href="/angular2/annotations">angular2/annotations</a></span>
+  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations/annotations.js#L516">angular2/src/core/annotations/annotations.js (line 516)</a>
 
+:markdown
+  Declare reusable UI building blocks for an application.
+  
+  Each Angular component requires a single `@Component` and at least one `@View` annotation. The `@Component`
+  annotation specifies when a component is instantiated, and which properties and hostListeners it binds to.
+  
+  When a component is instantiated, Angular
+  - creates a shadow DOM for the component.
+  - loads the selected template into the shadow DOM.
+  - creates a child [Injector] which is configured with the [Component.injectables].
+  
+  All template expressions and statements are then evaluated against the component instance.
+  
+  For details on the `@View` annotation, see [View].
+  
+  ## Example
+  
+  ```
+  @Component({
+    selector: 'greet'
+  })
+  @View({
+    template: 'Hello {{name}}!'
+  })
+  class Greet {
+    name: string;
+  
+    constructor() {
+      this.name = 'World';
+    }
+  }
+  ```
+  
 .l-main-section
-
-  h2 Understanding How Injection Works
-
-  p There are three stages of injection resolution.
-
-  ol
-    li <strong>Pre-existing Injectors:</strong>
-      ul
-        li The terminal [Injector] cannot resolve dependencies. It either throws an error or, if the dependency was specified as @Optional, returns null.
-        li The primordial injector resolves browser singleton resources, such as: cookies, title, location, and others.
-
-    li <strong>Component Injectors:</strong> Each @Component has its own [Injector], and they follow the same parent-child hierarchy as the components in the DOM.
-
-    li <strong>Element Injectors:</strong> Each component has a Shadow DOM. Within the Shadow DOM each element has an [ElementInjector] which follow the same parent-child hierarchy as the DOM elements themselves.
-
-
-  p When a template is instantiated, it also must instantiate the corresponding directives in a depth-first order. The current [ElementInjector] resolves the constructor dependencies for each directive.
-
-  p Angular then resolves dependencies as follows, according to the order in which they appear in the [View]:
-
-  ol
-    li Dependencies on the current element
-    li Dependencies on element injectors and their parents until it encounters a Shadow DOM boundary
-    li Dependencies on component injectors and their parents until it encounters the root component
-    li Dependencies on pre-existing injectors
-
-  p The [ElementInjector] can inject other directives, element-specific special objects, or it can delegate to the parent injector.
-
-  p To inject other directives, declare the constructor parameter as:
-
-  ul
-    li directive:DirectiveType: a directive on the current element only
-    li @Ancestor() directive:DirectiveType: any directive that matches the type between the current element and the Shadow DOM root. Current element is not included in the resolution, therefor even if it could resolve it, it will be ignored.
-    li @Parent() directive:DirectiveType: any directive that matches the type on a direct parent element only.
-    li @Children query:Query<DirectiveType>: A live collection of direct child directives [TO BE IMPLEMENTED].
-    li @Descendants query:Query<DirectiveType>: A live collection of any child directives [TO BE IMPLEMENTED].
-
-  p To inject element-specific special objects, declare the constructor parameter as:
-
-  ul
-    li element: NgElement to obtain a DOM element (DEPRECATED: replacement coming)
-    li viewContainer: ViewContainer to control child template instantiation, for [Viewport] directives only
-    li bindingPropagation: BindingPropagation to control change detection in a more granular way.
-
-.l-main-section
-  h2 Example of Injection
-
-  p The following example demonstrates how dependency injection resolves constructor arguments in practice.
-
-  p Assume this HTML template:
-
-  pre.prettyprint.linenums.lang-html
-    code.
-      &lt;div dependency=&quot;1&quot;&gt;
-        &lt;div dependency=&quot;2&quot;&gt;
-          &lt;div dependency=&quot;3&quot; my-directive&gt;
-            &lt;div dependency=&quot;4&quot;&gt;
-              &lt;div dependency=&quot;5&quot;&gt;&lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div dependency=&quot;6&quot;&gt;&lt;/div&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-
-  p With the following dependency decorator and SomeService injectable class.
-
-  pre.prettyprint.linenums
-    code.
-      @Injectable()
-      class SomeService {
-      }
-
-      @Decorator({
-        selector: '[dependency]',
-        bind: {
-          'id':'dependency'
-        }
-      })
-      class Dependency {
-        id:string;
-      }
-
-  p Let's step through the different ways in which MyDirective could be declared...
-
-  .l-sub-section
-    h3 No injection
-
-    p Here the constructor is declared with no arguments, therefore nothing is injected into MyDirective.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor() {
-          }
-        }
-
-    p This directive would be instantiated with no dependencies.
-
-  .l-sub-section
-    h3 Component-level injection
-
-    p Directives can inject any injectable instance from the closest component injector or any of its parents.
-
-    p Here, the constructor declares a parameter, someService, and injects the SomeService type from the parent component's injector.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(someService: SomeService) {
-          }
-        }
-
-    p This directive would be instantiated with a dependency on SomeService.
-
-
-  .l-sub-section
-    h3 Injecting a directive from the current element
-
-    p Directives can inject other directives declared on the current element.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(dependency: Dependency) {
-            expect(dependency.id).toEqual(3);
-          }
-        }
-
-    p This directive would be instantiated with Dependency declared at the same element, in this case dependency="3".
-
-
-  .l-sub-section
-    h3 Injecting a directive from a direct parent element
-
-    p Directives can inject other directives declared on a direct parent element. By definition, a directive with a @Parent annotation does not attempt to resolve dependencies for the current element, even if this would satisfy the dependency.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(@Parent() dependency: Dependency) {
-            expect(dependency.id).toEqual(2);
-          }
-        }
-
-    p This directive would be instantiated with Dependency declared at the parent element, in this case dependency="2".
-
-  .l-sub-section
-    h3 Injecting a directive from any ancestor elements
-
-    p Directives can inject other directives declared on any ancestor element (in the current Shadow DOM), i.e. on the parent element and its parents. By definition, a directive with an @Ancestor annotation does not attempt to resolve dependencies for the current element, even if this would satisfy the dependency.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(@Ancestor() dependency: Dependency) {
-            expect(dependency.id).toEqual(2);
-          }
-        }
-
-    p Unlike the @Parent which only checks the parent, @Ancestor checks the parent, as well as its parents recursively. If dependency="2" didn't exist on the direct parent, this injection would have returned dependency="1".
-
-  .l-sub-section
-    h3 Injecting a live collection of direct child directives [PENDING IMPLEMENTATION]
-    p A directive can also query for other child directives. Since parent directives are instantiated before child directives, a directive can't simply inject the list of child directives. Instead, the directive asynchronously injects a [Query], which updates as children are added, removed, or moved by any [ViewPort] directive such as a for, an if, or a switch.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(@Children() dependencies:Query<Maker>) {
-          }
-        }
-
-    p. This directive would be instantiated with a [Query] which contains Dependency 4 and 6. Here, Dependency 5 would not be included, because it is not a direct child.
-
-  .l-sub-section
-    h3 Injecting a live collection of direct descendant directives [PENDING IMPLEMENTATION]
-
-    p Similar to @Children above, but also includes the children of the child elements.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(@Children() dependencies:Query<Maker>) {
-          }
-        }
-
-    p This directive would be instantiated with a Query which would contain Dependency 4, 5 and 6.
-
-  .l-sub-section
-    h3 Optional injection
-
-    p The normal behavior of directives is to return an error when a specified dependency cannot be resolved. If you would like to inject null on unresolved dependency instead, you can annotate that dependency with @Optional(). This explicitly permits the author of a template to treat some of the surrounding directives as optional.
-
-    pre.prettyprint.linenums
-      code.
-        @Decorator({ selector: '[my-directive]' })
-        class MyDirective {
-          constructor(@Optional() dependency:Dependency) {
-          }
-        }
-
-    p This directive would be instantiated with a Dependency directive found on the current element. If none can be found, the injector supplies null instead of throwing an error.
-
-.l-main-section
-
   h2 Members
+  .l-sub-section
+    h3 constructor
 
-  p
-    strong constructor({ selector, bind, events, lifecycle }:{ selector:string, bind:any, events: any, lifecycle:List }={})
+    
+    pre.prettyprint
+      code.
+        ({
+        selector,
+        properties,
+        events,
+        hostListeners,
+        injectables,
+        lifecycle,
+        changeDetection = DEFAULT
+        }:{
+          selector:string,
+          properties:Object,
+          events:List,
+          hostListeners:Object,
+          injectables:List,
+          lifecycle:List,
+          changeDetection:string
+        }={})
+
+    
+
+    :markdown
+      
+
+
+
 
   .l-sub-section
-    h3 bind
+    h3 changeDetection
 
-    p Enumerates the set of properties that accept data binding for a directive.
+    
 
-    p The bind property defines a set of directiveProperty to bindingProperty key-value pairs:
+    :markdown
+      Defines the used change detection strategy.
+      
+      When a component is instantiated, Angular creates a change detector, which is responsible for propagating
+      the component's bindings.
+      
+      The `changeDetection` property defines, whether the change detection will be checked every time or only when the component
+      tells it to do so.
 
-    ul
-      li directiveProperty specifies the component property where the value is written.
-      li bindingProperty specifies the DOM property where the value is read from.
-
-    p You can include [Pipes] when specifying a bindingProperty to allow for data transformation and structural change detection of the value. These pipes will be evaluated in the context of this component.
 
 
-.l-main-section
-  h2 Syntax
 
-  pre.prettyprint.linenums
-    code.
-      @Directive({
-        bind: {
-          'directiveProperty1': 'bindingProperty1',
-          'directiveProperty2': 'bindingProperty2 | pipe1 | ...',
-          ...
-        }
+
+  .l-sub-section
+    h3 injectables
+
+    
+
+    :markdown
+      Defines the set of injectable objects that are visible to a Component and its children.
+      
+      The [injectables] defined in the Component annotation allow you to configure a set of bindings for the component's
+      injector.
+      
+      When a component is instantiated, Angular creates a new child Injector, which is configured with the bindings in
+      the Component [injectables] annotation. The injectable objects then become available for injection to the component
+      itself and any of the directives in the component's template, i.e. they are not available to the directives which
+      are children in the component's light DOM.
+      
+      
+      The syntax for configuring the [injectables] injectable is identical to [Injector] injectable configuration. See
+      [Injector] for additional detail.
+      
+      
+      ## Simple Example
+      
+      Here is an example of a class that can be injected:
+      
+      ```
+      class Greeter {
+         greet(name:string) {
+           return 'Hello ' + name + '!';
+         }
       }
-
-.l-main-section
-  h2 Basic Property Binding
-
-  p We can easily build a simple Tooltip directive that exposes a tooltip property, which can be used in templates with standard Angular syntax. For example:
-
-  pre.prettyprint.linenums
-    code.
-      @Decorator({
-        selector: '[tooltip]',
-        bind: {
-          'text': 'tooltip'
-        }
+      
+      @Component({
+        selector: 'greet',
+        injectables: [
+          Greeter
+        ]
       })
-      class Tooltip {
-        set text(text) {
-          // This will get called every time the 'tooltip' binding changes with the new value.
-        }
-      }
-
-  p We can then bind to the tooltip' property as either an expression (someExpression`) or as a string literal, as shown in the HTML template below:
-
-  pre.prettyprint.linenums
-    code.
-      &lt;div [tooltip]=&quot;someExpression&quot;&gt;...&lt;/div&gt;
-        &lt;div tooltip=&quot;Some Text&quot;&gt;...&lt;/div&gt;
-
-  p Whenever the someExpression expression changes, the bind declaration instructs Angular to update the Tooltip's text property.
-
-.l-main-section
-  h2 Bindings With Pipes
-
-  p You can also use pipes when writing binding definitions for a directive.
-
-  p For example, we could write a binding that updates the directive on structural changes, rather than on reference changes, as normally occurs in change detection. (See: [Pipe] and [keyValueDiff] documentation for more details.)
-
-  pre.prettyprint.linenums
-    code.
-      @Decorator({
-        selector: '[class-set]',
-        bind: {
-          'classChanges': 'classSet | keyValDiff'
-        }
+      @View({
+        template: `{{greeter.greet('world')}}!`,
+        directives: Child
       })
-      class ClassSet {
-        set classChanges(changes:KeyValueChanges) {
-          // This will get called every time the `class-set` expressions changes its structure.
+      class HelloWorld {
+        greeter:Greeter;
+      
+        constructor(greeter:Greeter) {
+          this.greeter = greeter;
         }
       }
+      ```
 
-  p The template that this directive is used in may also contain its own pipes. For example:
 
-  pre.prettyprint.linenums
-    code.
-      &lt;div [class-set]=&quot;someExpression | somePipe&quot;&gt;
 
-  p In this case, the two pipes compose as if they were inlined: someExpression | somePipe | keyValDiff.
 
-.location-badge exported from angular2/annotations

@@ -85,6 +85,13 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     }
   };
 
+
+  var $codeBoxes = $('pre');
+  if($codeBoxes.length) {
+    $codeBoxes.addClass('prettyprint linenums');
+  }
+
+
   // INITIALIZE PRETTY PRINT
   prettyPrint();
 }]);
