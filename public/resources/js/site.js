@@ -85,6 +85,17 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     }
   };
 
+  /*
+  * Code Formatting
+  *
+  */
+
+  $scope.language = 'es5';
+
+  // TOGGLE CODE LANGUAGE
+  $scope.toggleCodeLanguage = function(event) {
+    $scope.showMenu = !$scope.showMenu;
+  };
 
   var $codeBoxes = $('pre');
   if($codeBoxes.length) {
