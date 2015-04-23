@@ -42,6 +42,89 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     $scope.showMenu = !$scope.showMenu;
   };
 
+
+  /*
+  * Code Switcher
+  *
+  */
+
+  $scope.language = 'es5';
+
+  var $codeBoxes = $('.code-box');
+
+  if($codeBoxes.length) {
+    //UPDATE ALL CODE BOXES
+    $codeBoxes.each(function(index, codeBox) {
+      //REGISTER ELEMENTS
+      var $codeBox = $(codeBox);
+      var $examples = $codeBox.find('.prettyprint');
+      var $firstItem = $($examples[0]);
+      var $header = $("<header class='code-box-header'></header>");
+      var $nav = $("<nav class='code-box-nav'></nav>");
+      var selectedName = '';
+
+      //HIDE/SHOW CONTENT
+      $examples.addClass('is-hidden');
+      $firstItem.removeClass('is-hidden');
+
+      //UPDATE NAV FOR EACH CODE BOX
+      $examples.each(function(index, example) {
+        var $example = $(example);
+        var name = $example.data('name');
+        var selected = (index === 0) ? 'is-selected' : '';
+        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + name+ "</button>");
+
+        // ADD EVENTS FOR CODE SNIPPETS
+        $button.on('click', function(e) {
+          e.preventDefault();
+          var $currentButton = $(e.currentTarget);
+          var $buttons = $nav.find('.button');
+          var selectedName = $currentButton.data('name');
+          $buttons.removeClass('is-selected');
+          $currentButton.addClass('is-selected');
+
+          //UPDAT VIEW ON SELECTTION
+          $examples.addClass('is-hidden');
+          var $currentExample = $codeBox.find(".prettyprint[data-name='" + selectedName + "']");
+          $currentExample.removeClass('is-hidden').addClass('animated fadeIn');
+        });
+
+        $nav.append($button);
+      });
+
+      //ADD HEADER TO DOM
+      $header.append($nav);
+      $codeBox.prepend($header);
+    });
+
+    //FADEIN EXAMPLES
+    $codeBoxes.addClass('is-visible');
+  }
+
+  // TOGGLE CODE LANGUAGE
+  $scope.toggleCodeExample = function(event, name) {
+    console.log('hello');
+    event.preventDefault();
+    $scope.language = language;
+  };
+
+  /*
+  * Code Formatting
+  *
+  */
+
+  var $codeBlocks = $('pre');
+
+  if($codeBlocks.length) {
+    $codeBlocks.each(function(index, codeEl) {
+      var $codeEl = $(codeEl);
+
+      if(!$codeEl.hasClass('prettyprint')) {
+        $codeEl.addClass('prettyprint linenums');
+      }
+    });
+  }
+
   // BIO MODAL
   $scope.showBio = function($event) {
     var parentEl = angular.element(document.body);
@@ -84,6 +167,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
       };
     }
   };
+
 
   // INITIALIZE PRETTY PRINT
   prettyPrint();
