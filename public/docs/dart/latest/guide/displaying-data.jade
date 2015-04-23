@@ -1,75 +1,117 @@
 .l-main-section
   p.
-      Displaying data is job number one for any good application.  In Angular, you bind data to elements in HTML
-      templates and Angular automatically updates the UI as data changes.
+      Displaying data is job number one for any good application.
+      In Angular, you bind data to elements in HTML
+      templates, and Angular automatically updates the UI as data changes.
   p.
-      Let's walk through how we'd display a property, a list of properties, and then conditionally show content
+      Let's walk through how to display a property and a list of properties,
+      and then to conditionally show content
       based on state.
   p.
-      We'll end up with a UI that looks like this:
+      The final UI looks like this:
   figure.image-display
     img(src='displaying-data-example1.png')
 
 .l-main-section
-  h2#section-create-an-entry-point Create an entry point
+  h2#section-create-an-entry-point Create entry points and pubspec
 
-  p Open your favorite editor and create a <code>show-properties.html</code> file with the content:
-  pre.prettyprint.lang-html
+  p.
+    Open your favorite editor and create a directory with
+    a <code>web/main.dart</code> file,
+    a <code>web/index.html</code> file, and
+    a <code>pubspec.yaml</code> file:
+
+  .code-box
+    pre.prettyprint.lang-dart(data-name="dart")
       code.
-         //show-properties.html
-         &lt;display&gt;&lt;/display&gt;
-  p
-   | The <code>&lt;display&gt;</code> component here acts as the site where you'll insert your application.
-   | We'll assume a structure like this for the rest of the examples here and just focus on the parts that
-   | are different.
+        // web/main.dart
+        library displaying_data;
+
+        import 'package:angular2/angular2.dart';
+        import 'package:angular2/src/reflection/reflection.dart' show reflector;
+        import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
+
+        part 'show_properties.dart';
+
+        main() {
+          reflector.reflectionCapabilities = new ReflectionCapabilities();
+          bootstrap(DisplayComponent);
+        }
+    pre.prettyprint.lang-html(data-name="html")
+      code.
+        &lt;!-- web/index.html --&gt;
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+          &lt;head&gt;
+            &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
+
+            &lt;display&gt;&lt;/display&gt;
+
+            &lt;script type=&quot;application/dart&quot; src=&quot;main.dart&quot;&gt;&lt;/script&gt;
+            &lt;script src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
+          &lt;/body&gt;
+        &lt;/html&gt;
+    pre.prettyprint.lang-yaml(data-name="yaml")
+      code.
+        # pubspec.yaml
+        name: displaying_data
+        description: Dart version of Angular 2 example, Displaying Data
+        version: 0.0.1
+        dependencies:
+          angular2: 2.0.0-alpha.20
+          browser: any
+
+  p.
+   All of this code should look familiar from the previous page,
+   except for the <code>library</code> and <code>part</code> statements
+   in <code>main.dart</code>.
+   Those statements let you implement part of the app in a different Dart file.
+   All three of these files remain similar in the rest of the examples,
+   so we'll just focus on what's different.
 
 .l-main-section
   h2#section-showing-properties-with-interpolation Showing properties with interpolation
-  p.text-body
-   | The simple method for binding text into templates is through interpolation where you put the name of a property
-   | inside <strong>{{ }}</strong>.
-
-  p To see this working, create another file, <code>show-properties.dart</code>, and add the following:
-
-  pre.prettyprint.linenums.lang-javascript
-      code.
-        // Dart
-        part of displaying_data;
-
-        @Component(
-            selector: 'display'
-          )
-
-        @View(
-            template: '''
-          &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-          '''
-          )
-        class DisplayComponent {
-            String myName = 'Alice';
-          }
+  p.
+    The simple method for binding text into templates is through interpolation,
+    where you put the name of a property
+    inside <strong>{{ }}</strong>.
 
   p.
-   You've just defined a component that encompases a view and controller for the app. The view
-   defines a template:
+    To see this working, create a Dart file under <code>web</code>
+    named <code>show_properties.dart</code>,
+    and add the following:
+
+  pre.prettyprint.lang-dart
+    code.
+      // web/show_properties.dart
+      part of displaying_data;
+
+      @Component(
+        selector: 'display'
+      )
+      @View(
+        template: '''
+      &lt;p>My name: {{ myName }}&lt/p>
+      '''
+      )
+      class DisplayComponent {
+        String myName = 'Alice';
+      }
+
+  p.
+    You've just defined a component that encompasses a view and controller for the app. The view
+    defines a template:
+
   pre.prettyprint.lang-html
-   code.
-     &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
+    code.
+      &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
 
   p.
-   Angular will automatically pull the value of <code>myName</code> and insert it into the browser and
-   update it whenever it changes without work on your part.
-
-  p.
-   One thing to notice here is that though you've written your <code>DisplayComponent</code> class, you haven't
-   called new to create one anywhere.  By associating your class with elements named 'display' in
-   the DOM, Angular knows to automatically call new on <code>DisplayComponent</code> and bind its properties to
-   that part of the template.
-
-  p.
-   When you're building templates, data bindings like these have access to the same scope of
-   properties as your controller class does.  Here, your class is the <code>DisplayComponent</code> that has
-   just one property, myName.
+   Angular will automatically pull the value of <code>myName</code> and
+   insert it into the browser,
+   automatically updating it whenever it changes.
 
   .callout.is-helpful
     header Note
@@ -77,18 +119,34 @@
       While you've used <code>template:</code> to specify an inline view, for larger templates you'd
       want to move them to a separate file and load them with <code>templateUrl:</code> instead.
 
-  p So you can see Angular dynamically update content, add a line after
-
-      pre.prettyprint.lang-html
-          code.
-              &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-  p to this:
-      pre.prettyprint.lang-html
-          code.
-              &lt;p&gt;Current time: {{ time }}&lt;/p&gt;
   p.
-      Then give the <code>DisplayComponent</code> a starting value for time and a call to update time
-      via <code>setInterval</code>.
+   One thing to notice is that although you've written
+   your <code>DisplayComponent</code> class, you haven't
+   used <code>new</code> to instantiate it.
+   Because your class is associated with <code>&lt;display&gt;</code> elements in
+   the DOM, Angular automatically calls <code>new</code> on
+   <code>DisplayComponent</code> and bind its properties to
+   that part of the template.
+
+  p.
+   When you're building templates, data bindings like these have access to
+   the same scope of
+   properties as your controller class does.
+   Here your class is <code>DisplayComponent</code>, which has
+   just one property, <code>myName</code>.
+
+  p.
+    Add a second line to the template,
+    so you can see Angular dynamically update content:
+
+  pre.prettyprint.lang-html
+    code.
+      &lt;p&gt;Current time: {{ time }}&lt;/p&gt;
+
+  p.
+    Then give the <code>DisplayComponent</code> a starting value for time and
+    a call to update time
+    via <code>setInterval</code>:
 
   pre.prettyprint.lang-dart
     code.
@@ -107,43 +165,50 @@
         }
       }
 
-  p Reload the page in your browser and you'll now see the seconds updating automatically.
+  p Reload the app, and you'll now see the seconds updating automatically.
 
 .l-main-section
-  h2#Create-an-array Create an array property and use For on the view
-  p Moving up from a single property, create an array to display as a list.
+  h2#Create-an-array Display an iterable using *for
+  p Moving up from a single value, create a property that's a list of values.
 
   pre.prettyprint.lang-dart
     code.
       class DisplayComponent {
         String myName = 'Alice';
         List&lt;String&gt; friendNames = ['Aarav', 'Martín', 'Shannon', 'Ariana', 'Kai'];
-        ...
       }
 
   p.
-    You can then use this array in your template with the <code>for</code> directive to create copies of DOM elements
-    with one for each item in the array.
+    You can then use this list in your template with the <code>for</code> directive to create copies of DOM elements
+    with one for each item in the list.
+
   pre.prettyprint.lang-dart
     code.
-      //Dart
-        template: &#39;&#39;&#39;
-      &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-      &lt;p&gt;Friends:&lt;/p&gt;
-      &lt;ul&gt;
-         &lt;li *for=&quot;#name of friendNames&quot;&gt;
+      @View(
+        template: '''
+      &lt;p>My name: {{ myName }}&lt;/p>
+      &lt;p>Friends:&lt;/p>
+      &lt;ul>
+         &lt;li *for="#name of friendNames">
             {{ name }}
-         &lt;/li&gt;
-      &lt;/ul&gt;
-      ''',
-
+         &lt;/li>
+      &lt;/ul>
+        '''
+        )
   p.
-    To make this work, you'll also need to add the <code>angular.For</code> directive used by
-    the template to <code>show_properties.dart</code> so that Angular knows to include it:
+    To make this work, you'll also need to add the Angular <code>For</code> directive used by
+    the template to <code>show_properties.dart</code>, so that Angular knows to include it.
+    Add <code>For</code> using the optional <code>directives</code> parameter,
+    which contains a list of directives:
 
   pre.prettyprint.lang-dart
     code.
-          directives: const[For]
+      @View(
+        template: '''
+      // ...HTML...
+        ''',
+        directives: const[For]
+      )
 
   p Reload and you've got your list of friends!
   p.
@@ -162,47 +227,101 @@
   p The way to read this is:
   ul
     li.
-      <code>*for</code> : create a DOM element for each item in an
+      <code>*for</code>: Create a DOM element for each item in an
       <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterable</a>
-       like an array
-    li <code>#name</code> : refer to individual values of the iterable as 'name'
-    li <code>of friendNames</code> : the iterable to use is called 'friendNames' in the current controller
+       such as a list.
+    li <code>#name</code>: Refer to individual values of the iterable as <code>name</code>.
+    li <code>of friendNames</code>: The iterable to use is called <code>friendNames</code> in the current controller.
 
   p Using this syntax, you can build UI lists from any iterable object.
 
 .l-main-section
-  h2#Create-a-class Create a class for the array property and inject into component
+  h2#Create-a-class Create a model and inject it
   p.
-    Before we get too much further, we should mention that putting our model (array) directly in our controller isn't
+    Before we get too much further, we should mention that putting the model (list) directly into the controller isn't
     proper form.  We should separate the concerns by having another class serve the role of model and inject it into
     the controller.
 
   p.
-    Make a <code>FriendsService</code> class to provide the model with the list of friends. We'll put this in a new
-    <code>friends_service.dart</code> under <code>web/</code>, and add <code>part friends_service.dart</code>
-    to <code>main.dart</code>. Here's what the class looks like:
+    Make a <code>FriendsService</code> class to implement a model containing a list of friends. We'll put this in a new
+    <code>friends_service.dart</code> under <code>web/</code>. Here's what the class looks like:
 
   pre.prettyprint.lang-dart
     code.
+      // web/friends_service.dart
       part of displaying_data;
 
       class FriendsService {
         List&lt;String&gt; friendNames = ['Aarav', 'Martín', 'Shannon', 'Ariana', 'Kai'];
       }
 
+  .callout.is-helpful
+    header Note
+    p.
+      Remember to tie <code>friends_service.dart</code> into the library's main file:
+      add <code>part friends_service.dart</code> to <code>main.dart</code>.
   p.
-    Replace the current list of friends in DisplayComponent by passing in the FriendsService and setting the list of
-    names in DisplayComponent to the names provided by the service you passed in.
+    Now you can replace the current list of friends in DisplayComponent.
+    First add a FriendsService parameter to the constructor.
+    Then set <code>friendNames</code> to the names provided by the service.
 
   pre.prettyprint.lang-dart
     code.
-      DisplayComponent(FriendsService friendsService) {
-        friendNames = friendsService.names;
+      // In web/show_properties.dart
+      class DisplayComponent {
+        String myName = 'Alice';
+        List<String> friendNames;
+
+        DisplayComponent(FriendsService friendsService) {
+          friendNames = friendsService.names;
+        }
       }
-  p And then make FriendsService available to dependency injection
+
+  p.
+    Next, make FriendsService available to dependency injection
+    by adding an <code>injectables</code> parameter to DisplayComponent's
+    <code>@Component</code> annotation:
 
   pre.prettyprint.lang-dart
       code.
+        @Component(
+          selector: 'display',
+          injectables: const[FriendsService]
+        )
+
+.l-main-section
+  h2#Conditionally-displaying-data-with-If Conditionally display data using *if
+  p.
+    Lastly, before we move on, let's handle showing parts of our UI conditionally with <code>*if</code>.  The
+    <code>If</code> directive adds or removes elements from the DOM based on the expression you provide.
+
+  p See it in action by adding a paragraph at the end of your template:
+
+  pre.prettyprint.lang-html
+    code.
+      &lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;
+
+  p.
+    Also add <code>If</code> to the list of directives,
+    so Angular knows to include it:
+
+  pre.prettyprint.lang-dart
+    code.
+      directives: const[For, If]
+  p.
+    The list current has 5 items, so if you run the app you'll see the message
+    congratulating you on your many friends.
+    Remove two items from the list, reload your browser,
+    and see that the message no longer displays.
+    <!-- PENDING: mention somewhere that once you start a web server,
+    you can just refresh the browser to see your changes. -->
+
+  p Here's the final code.
+
+  .code-box
+    pre.prettyprint.lang-dart(data-name="show_properties.dart")
+      code.
+        // web/show_properties.dart
         part of displaying_data;
 
         @Component(
@@ -210,95 +329,120 @@
           injectables: const[FriendsService]
         )
         @View(
-          template: &#39;&#39;&#39;
-        &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-        &lt;p&gt;Friends:&lt;/p&gt;
-        &lt;ul&gt;
-          &lt;li *for=&quot;#name of friendNames&quot;&gt;
-            {{ name }}
-          &lt;/li&gt;
-        &lt;/ul&gt;
+          template: '''
+        &lt;p>My name: {{ myName }}&lt;/p>
+        &lt;p>Friends:&lt;/p>
+        &lt;ul>
+           &lt;li *for="#name of friendNames">
+              {{ name }}
+           &lt;/li>
+        &lt;/ul>
         ''',
           directives: const[For]
         )
-
         class DisplayComponent {
           String myName = 'Alice';
-          List&lt;String&gt; friendNames;
+          List&lt;String> friendNames;
 
           DisplayComponent(FriendsService friendsService) {
             friendNames = friendsService.names;
           }
         }
-
-.l-main-section
-  h2#Conditionally-displaying-data-with-If Conditionally displaying data with If
-  p.
-    Lastly, before we move on, let's handle showing parts of our UI conditionally with <code>If</code>.  The
-    <code>If</code> directive adds or removes elements from the DOM based on the expression you provide.
-
-  p See it in action by adding a paragraph at the end of your template
-
-  pre.prettyprint.lang-html
-    code.
-      &lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;
-
-  p You'll also need to add the If directive so Angular knows to include it.
-
-    pre.prettyprint.lang-dart
+    pre.prettyprint.lang-dart(data-name="friends_service.dart")
       code.
-        directives: const[For, If]
-  p.
-    As there are currently 5 items it the list, you'll see the message congratulating you on your many friends.
-    Remove two items from the list, reload your browser, and see that the message no longer displays.
+        // web/friends_service.dart
+        part of displaying_data;
 
-  p Here's our final <code>show_properties.dart</code>
+        class FriendsService {
+          List&lt;String> names = ['Aarav', 'Martín', 'Shannon', 'Ariana', 'Kai'];
+        }
+    pre.prettyprint.lang-dart(data-name="main.dart")
+      code.
+        // web/main.dart
+        library displaying_data;
 
-  pre.prettyprint.lang-dart
-    code.
-      part of displaying_data;
+        import 'dart:async';
 
-      @Component(
-         selector: 'display',
-         injectables: const[FriendsService]
-       )
-       @View(
-         template: '''
-       &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-       &lt;p&gt;Friends:&lt;/p&gt;
-       &lt;ul&gt;
-          &lt;li *for=&quot;#name of friendNames&quot;&gt;
-             {{ name }}
-          &lt;/li&gt;
-       &lt;/ul&gt;
-       &lt;p *if=&quot;friendNames.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;
-       ''',
-         directives: const[For, If]
-       )
-       class DisplayComponent {
-         String myName = 'Alice';
-         List&lt;String&gt; friendNames;
-                    DisplayComponent(FriendsService friendsService) {
-           friendNames = friendsService.names;
-         }
-       }
+        import 'package:angular2/angular2.dart';
+        import 'package:angular2/src/reflection/reflection.dart' show reflector;
+        import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
 
-  p And the accompanying <code>main.dart</code>:
+        part 'show_properties.dart';
+        part 'friends_service.dart';
 
-  pre.prettyprint.lang-dart
-    code.
-      library displaying_data;
+        main() {
+          reflector.reflectionCapabilities = new ReflectionCapabilities();
+          bootstrap(DisplayComponent);
+        }
+    pre.prettyprint.lang-html(data-name="html")
+      code.
+        &lt;!-- web/index.html --&gt;
+        &lt;!DOCTYPE html&gt;
+        &lt;html&gt;
+          &lt;head&gt;
+            &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+          &lt;/head&gt;
+          &lt;body&gt;
 
-      import 'dart:async';
+            &lt;display&gt;&lt;/display&gt;
 
-      import 'package:angular2/angular2.dart';
-      import 'package:angular2/src/reflection/reflection.dart' show reflector;
-      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
+            &lt;script type=&quot;application/dart&quot; src=&quot;main.dart&quot;&gt;&lt;/script&gt;
+            &lt;script src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
+          &lt;/body&gt;
+        &lt;/html&gt;
+    pre.prettyprint.lang-yaml(data-name="yaml")
+      code.
+        # pubspec.yaml
+        name: displaying_data
+        description: Dart version of Angular 2 example, Displaying Data
+        version: 0.0.1
+        dependencies:
+          angular2: 2.0.0-alpha.20
+          browser: any
+.l-main-section
+  h2#section-explanations Explanations
 
-      part 'show_properties.dart';
-      part 'friends_service.dart';
+  .l-sub-section
+    h3 Using multiple Dart files in an Angular app
 
-      main() {
-        reflector.reflectionCapabilities = new ReflectionCapabilities();
-        bootstrap(DisplayComponent);
-      }
+      p.
+        Dart offers a few ways to implement an app in multiple files.
+        In this guide, all the code for each example is in a single library;
+        each Dart file under <code>web</code> is part of that library.
+
+      p.
+        To let the code in <code>main.dart</code>
+        use the code in <code>show_properties.dart</code>,
+        declare a library in <code>main.dart</code>.
+        Then make <code>show_properties.dart</code> part of that library.
+
+      .code-box
+        pre.prettyprint.lang-dart(data-name="main library file")
+          code.
+            // web/main.dart
+            library displaying_data;
+            // imports...
+            part 'show_properties.dart';
+            // Code goes here...
+        pre.prettyprint.lang-dart(data-name="additional library file")
+          code.
+            // web/show_properties.dart
+            part of displaying_data;
+            // Code goes here...
+
+      p.
+        Another way to split Dart code is to
+        define multiple libraries in a single package.
+        The additional libraries go under a <code>lib</code> directory
+        parallel to <code>web</code>.
+        <!-- PENDING: show or point to an example -->
+
+      p.
+        Yet another approach, often used when some of the code is highly reusable,
+        is to split the code into libraries in two or more packages.
+
+      p.
+        For more information on implementing Dart libraries, see
+        <a href="https://www.dartlang.org/docs/dart-up-and-running/ch02.html#libraries-and-visibility">Libraries and visibility</a>
+        in the
+        <a href="https://www.dartlang.org/docs/dart-up-and-running/ch02.html">Dart language tour</a>.
