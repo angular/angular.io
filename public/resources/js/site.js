@@ -27,6 +27,10 @@ var angularIO = angular.module('angularIOApp', ['ngMaterial', 'ngTouch'])
 
 angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog){
 
+  $scope.showDocsNav = false;
+  $scope.showMainNav = false;
+  $scope.showMenu = false;
+
   // TOGGLE MAIN NAV (TOP) ON MOBILE
   $scope.toggleDocsMenu = function(event) {
     event.preventDefault();
@@ -105,7 +109,6 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
 
   // TOGGLE CODE LANGUAGE
   $scope.toggleCodeExample = function(event, name) {
-    console.log('hello');
     event.preventDefault();
     $scope.language = language;
   };
