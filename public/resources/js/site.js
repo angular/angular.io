@@ -3,7 +3,7 @@
 *
 */
 
-var angularIO = angular.module('angularIOApp', ['ngMaterial'])
+var angularIO = angular.module('angularIOApp', ['ngMaterial', 'ngTouch'])
 .config(function($mdThemingProvider) {
   $mdThemingProvider.theme('default')
     .primaryPalette('blue', {
@@ -49,7 +49,6 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
   */
 
   $scope.language = 'es5';
-
   var $codeBoxes = $('.code-box');
 
   if($codeBoxes.length) {
