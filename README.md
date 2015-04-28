@@ -1,5 +1,5 @@
 # Angular.io
-Angular.io is currently the preview site for Angular 2. This site also includes links to other helpful angular resources including Angular 1.X, Angular Material, and AngularFire.
+Angular.io is currently the preview site for Angular 2. This site also includes links to other helpful angular resources including Angular 1, Angular Material, and AngularFire.
 
 ## How you can help
 - [File an issue on github](https://github.com/angular/angular.io/issues)
