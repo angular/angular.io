@@ -13,91 +13,60 @@
   h2#section-install-router Import the Component Router
 
   p.
-    Create two files, <code>index.html</code> and <code>app.js</code>, both at the root of the project:
+    Create two files, <code>index.html</code> and <code>app.dart</code>, both at the web directory of the project:
 
   pre.prettyprint.lang-bash
     code.
       touch index.html
-      touch app.js
+      touch app.dart
 
   p.
-    Because the component is an addition to the core, you must install Angular's Component Router into your app.
-    For example, using <code>npm</code> to install both <code>angular</code> and <code>angular-new-router</code>, like
-    this:
-
-  //- TODO: angular 2 router bits are not published yet
-  pre.prettyprint.lang-bash
-    code.
-      npm install angular angular-new-router
-
-  p Your app directory should look something like:
-  pre.prettyprint.lang-bash
-    code.
-      app.js
-      index.html
-      package.json
-      node_modules/
-      └── ...
+    The router is part of the angular2 package as published on pub.
 
   p.
-    Add Angular and Component Router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
-    <code>index.html</code>:
-
-  //- TODO: component router is not yet published for Angular 2, so it's not obvious how this should work
-  pre.prettyprint.lang-html
-    code.
-      &lt;!doctype html&gt;
-      &lt;html lang=&quot;en&quot;&gt;
-      &lt;head&gt;
-        &lt;meta charset=&quot;utf-8&quot;&gt;
-        &lt;base href=&quot;/&quot;&gt;
-        &lt;title&gt;My app&lt;/title&gt;
-      &lt;/head&gt;
-      &lt;body&gt;
-        &lt;my-app&gt;&lt;/my-app&gt;
-        &lt;script src=&quot;/node_modules/angular/angular.js&quot;&gt;&lt;/script&gt;
-        &lt;script src=&quot;/node_modules/component-router/component-router.es5.js&quot;&gt;&lt;/script&gt;
-        &lt;script src=&quot;/app.js&quot;&gt;&lt;/script&gt;
-      &lt;/body&gt;
-      &lt;/html&gt;
-
-
-  p.
-    Then you can add the router into your app by importing the Router module in your <code>app.js</code> file:
+    Then you can add the router into your app by importing the Router library in your <code>app.dart</code> file:
 
   pre.prettyprint.linenums.lang-dart
     code.
-      import {Component, View, bootstrap} from 'angular2/angular2';
-      import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+      import 'package:angular2/angular2.dart';
+      import 'package:angular2/router.dart';
 
   p.
     This is the same as you've seen in the rest of Angular 2, except the <code>router-outlet</code> directive.
     <code>router-outlet</code> is a placeholder for part of your app loaded dynamically based on the route configuration.
 
-  p So how do we configure the app? Let's open <code>app.js</code> and find out. Add this to the file:
+  p So how do we configure the app? Let's open <code>app.dart</code> and find out. Add this to the file:
 
   //- TODO: inlined HTML is broken; see: https://github.com/angular/angular.io/issues/64
   pre.prettyprint.linenums.lang-dart
     code.
-      import {Component, View, bootstrap} from 'angular2/angular2';
-      import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+      import 'package:angular2/angular2.dart';
+      import 'package:angular2/router.dart';
+      import 'package:angular2/di.dart';
 
-      import {HomeComp} from './components/home';
+      import 'package:router_demo/components/home/home.dart';
 
-      @Component({
+      import 'package:angular2/src/reflection/reflection.dart' show reflector;
+      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
+
+      @Component(
         selector: 'my-app'
-      })
-      @View({
+      )
+      @View(
         template: '<router-outlet></router-outlet>',
-        directives: [RouterOutlet]
-      })
-      @RouteConfig([
-        {path: '/', component: HomeComp }
-      ])
-      class AppComp () {}
+        directives: const [RouterOutlet]
+      )
+      @RouteConfig(
+        path: '/',
+        component: HomeComp
+      )
+      class AppComp {}
 
-      bootstrap(AppComp);
-
+      main() {
+        reflector.reflectionCapabilities = new ReflectionCapabilities();
+        bootstrap(AppComp, [bind(Router).toValue(Router.getRoot())]);
+      }
+      
 .l-main-section
   h2#section-map-paths-to-components Map paths to components
 
@@ -110,10 +79,10 @@
 
   pre.prettyprint.lang-bash
     code.
-      mkdir -p components/home
-      touch components/home/home.html components/home/home.js
+      mkdir -p lib/components/home
+      touch lib/components/home/home.html lib/components/home/home.dart
 
-  p This creates our component directory and its corresponding files: a template and a JavaScript component.
+  p This creates our component directory and its corresponding files: a template and a Dart component.
 
   p Let's open <code>home.html</code> and add some content:
 
@@ -125,15 +94,13 @@
 
   pre.prettyprint.linenums.lang-dart
     code.
-      @Component
-      @View({
+      @Component()
+      @View(
         template: 'Hello {{name}}'
-      })
-      class HomeHomponent {
-        name:string;
-        constructor() {
-          this.name = 'Friend';
-        }
+      )
+      class HomeComp {
+        String name;
+        HomeComp() : name = 'Friend' {}
       }
 
   p If you load up the app, you should see <code>Hello Friend!</code>
@@ -143,16 +110,16 @@
 
   p Let's add another route and then link to it. This route will have a route parameter, <code>id</code>.
 
-  p In <code>app.js</code>:
+  p In <code>app.dart</code>:
 
   pre.prettyprint.linenums.lang-dart
     code.
       @Component()
-      @RouteConfig([
-        { path: '/',           component: HomeComp },
-        { path: '/detail/:id', component: DetailComp }
+      @RouteConfig(const [
+        const { path: '/',           component: HomeComp },
+        const { path: '/detail/:id', component: DetailComp }
       ])
-      function AppComp () {}
+      class AppComp {}
 
 
   p.
@@ -172,22 +139,20 @@
   pre.prettyprint.lang-bash
     code.
       mkdir components/detail
-      touch components/detail/detail.html components/detail/detail.js
+      touch components/detail/detail.html components/detail/detail.dart
 
-  p In <code>detail.js</code>, we implement a controller that uses the <code>id</code> route parameter:
+  p In <code>detail.dart</code>, we implement a controller that uses the <code>id</code> route parameter:
 
   pre.prettyprint.linenums.lang-dart
     code.
       //TODO: imports
       @Component()
-      @View({
+      @View(
         template: 'User ID: {{id}}'
-      })
-      export class DetailComp {
-        id;
-        constructor(routeParams:RouteParams) {
-          this.id = routeParams.get('id');
-        }
+      )
+      class DetailComp {
+        number id;
+        DetailComp(RouteParams routeParams) : id = routeParams.get('id') {}
       }
 
 .l-main-section
@@ -202,8 +167,8 @@
     code.
       @Component()
       @View()
-      @RouteConfig([
-        { path: '/user', component: 'user' }
+      @RouteConfig(const [
+        const { path: '/user', component: 'user' }
       ])
       class MyComp {}
 
@@ -218,18 +183,18 @@
     pre.prettyprint.linenums.lang-dart
       code.
         @Component()
-        @View({
+        @View(
           template:
             `<div router-outlet="master"></div>
              <div router-outlet="detail"></div>`,
           directives: [RouterOutlet, RouterLink]
-        })
-        @RouteConfig({
-          path: '/user', components: {
+        )
+        @RouteConfig(
+          path: '/user', components: const {
             master: UserListComp,
             detail: UserComp
           }
-        })
+        )
         class MyComponent {}
 
 
@@ -264,13 +229,13 @@
 
     pre.prettyprint.linenums.lang-dart
       code.
-        @Component({})
-        @View({
+        @Component()
+        @View(
           directives: [RouterOutlet]
-        })
-        @RouteConfig([
-          { path: '/', redirectTo: '/user' },
-          { path: '/user', component: UserComp }
+        )
+        @RouteConfig(const [
+          const { path: '/', redirectTo: '/user' },
+          const { path: '/user', component: UserComp }
         ])
         class MyComp {}
 
@@ -287,11 +252,11 @@
     pre.prettyprint.linenums.lang-dart
       code.
         @Component()
-        @View({
+        @View(
           directives: [RouterOutlet]
-        })
-        @RouteConfig([
-          { path: '/', component: 'user' }
+        )
+        @RouteConfig(const [
+          const { path: '/', component: 'user' }
         ])
         class MyComp {}
 
@@ -309,8 +274,8 @@
       code.
         @Component()
         @View()
-        @RouteConfig([
-          { path: '/', component: UserComp, as: 'myUser' }
+        @RouteConfig(const [
+          const { path: '/', component: UserComp, as: 'myUser' }
         ])
         class MyComp {}
 
@@ -328,8 +293,8 @@
 
     pre.prettyprint.linenums.lang-dart
       code.
-        @RouteConfig([
-          { path: '/', components:
+        @RouteConfig(const [
+          const { path: '/', components:
               { master: UserListComp, detail: UserComp },
           as: 'myUser' }
         ])
