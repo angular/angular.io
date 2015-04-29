@@ -25,6 +25,7 @@
     For example, using <code>npm</code> to install both <code>angular</code> and <code>angular-new-router</code>, like
     this:
 
+  //- TODO: angular 2 router bits are not published yet
   pre.prettyprint.lang-bash
     code.
       npm install angular angular-new-router
@@ -39,16 +40,12 @@
       └── ...
 
   //Angular 1
-  p.is-hidden.
-    Then you can add the router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
-    <code class="is-hidden">index.html</code>:
-
-
-  p.is-angular2.
-    Then you can add the router into your app by importing the Router module in your <code>app.js</code> file:
+  p.
+    Add Angular and Component Router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
+    <code>index.html</code>:
 
   //ANGULAR 1
-  pre.prettyprint.lang-html.is-hidden
+  pre.prettyprint.lang-html.is-angular1.is-hidden
     code.
       &lt;!doctype html&gt;
       &lt;html lang=&quot;en&quot;&gt;
@@ -65,32 +62,58 @@
       &lt;/body&gt;
       &lt;/html&gt;
 
+  //ANGULAR 2
+  //- TODO: component router is not yet published for Angular 2, so it's not obvious how this should work
+  pre.prettyprint.lang-html.is-angular2
+    code.
+      &lt;!doctype html&gt;
+      &lt;html lang=&quot;en&quot;&gt;
+      &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;base href=&quot;/&quot;&gt;
+        &lt;title&gt;My app&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;my-app&gt;&lt;/my-app&gt;
+        &lt;script src=&quot;/node_modules/angular/angular.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/node_modules/component-router/component-router.es5.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/app.js&quot;&gt;&lt;/script&gt;
+      &lt;/body&gt;
+      &lt;/html&gt;
+
+
+  p.is-angular2.
+    Then you can add the router into your app by importing the Router module in your <code>app.js</code> file:
+
   // ANGULAR 2
-  .code-box
+  .code-box.is-angular2
     pre.prettyprint.linenums.lang-javascript(data-name="es5")
       code.
         //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        import {Component, Template, bootstrap} from 'angular2/angular2';
+        import {Component, View, bootstrap} from 'angular2/angular2';
         import {Router, RouterOutlet, RouterLink} from 'angular2/router';
 
-
-  p.
+  p.is-angular1.is-hidden.
     This is a pretty typical angular app, except the <code>ng-outlet</code> directive. <code>ng-outlet</code> is like
     <code>ng-view</code>; it's a placeholder for part of your app loaded dynamically based on the route configuration.
 
+  p.is-angular2.
+    This is the same as you've seen in the rest of Angular 2, except the <code>router-outlet</code> directive.
+    <code>router-outlet</code> is a placeholder for part of your app loaded dynamically based on the route configuration.
 
   p So how do we configure the app? Let's open <code>app.js</code> and find out. Add this to the file:
 
   //ANGULAR 1
-  pre.prettyprint.lang-javascript.is-hidden
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
     code.
       angular.module('app', ['ngNewRouter'])
         .controller('AppController', ['$router', AppController]);
-          AppController.$routeConfig([
+
+      AppController.$routeConfig = [
         {path: '/', component: 'home' }
-      ]);
+      ];
       function AppController ($router) {}
 
   // ANGULAR 2
@@ -98,22 +121,40 @@
     pre.prettyprint.linenums.lang-javascript(data-name="es5")
       code.
         //TODO Need Angular2 Example here for ES5
+    //- TODO: inlined HTML is broken; see: https://github.com/angular/angular.io/issues/64
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TODO Need Angular2 Example here for TypeScript
+        import {Component, View, bootstrap} from 'angular2/angular2';
+        import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+
+        import {HomeComp} from './components/home';
+
+        @Component({
+          selector: 'my-app'
+        })
+        @View({
+          template: '<router-outlet></router-outlet>',
+          directives: [RouterOutlet]
+        })
+        @RouteConfig([
+          {path: '/', component: HomeComp }
+        ])
+        class AppComp () {}
+
+        bootstrap(AppComp);
 
 
-  p.
+  p.is-angular1.is-hidden.
     The <code>ngNewRouter</code> module provides a new service, <code>$router</code>. In the configuration, we map paths
     to components. What's a component? Let's talk about that for a bit.
 
 .l-main-section
   h2#section-map-paths-to-components Map paths to components
 
-  p.angular1.
+  //- TODO - Alex - would it make more sense to have some paragraph styles conditionalized like this??
+  p.angular1.is-hidden.
     In Angular 1, a "routable component" is a template, plus a controller, plus a router. You can configure how to map
     component names to controllers and templates in the <code>$componentLoader</code> service.
-    TODO - Alex - would it make more sense to have some paragraph styles conditionalized like this?? -->
 
   p.
     A component's template can have "outlets," which are holes in the DOM for loading parts of your app based on the
@@ -135,13 +176,13 @@
     code.
       &lt;h1&gt;Hello {{home.name}}!&lt;/h1&gt;
 
-  p.
+  p.is-angular1.is-hidden.
     Components use the "controller as" syntax, so if we want to access property <code>name</code> of the controller, we
     write the binding as <code>home.name</code>.
 
   p Let's make a controller:
   //ANGULAR 1
-  pre.prettyprint.lang-javascript.is-hidden
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
     code.
       angular.module('app.home', [])
         .controller('HomeController', [function () {
@@ -155,18 +196,29 @@
         //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TODO Need Angular2 Example here for TypeScript
+        @Component
+        @View({
+          template: 'Hello {{name}}'
+        })
+        class HomeHomponent {
+          name:string;
+          constructor() {
+            this.name = 'Friend';
+          }
+        }
 
 
-  p To wire this up, We need to add a <code>&lt;script&gt;</code> tag to our <code>index.html</code>:
+  p.is-angular1.is-hidden.
+    To wire this up, We need to add a <code>&lt;script&gt;</code> tag to our <code>index.html</code>:
     pre.prettyprint.lang-html
       code.
         ...
         &lt;script src=&quot;./components/home/home.js&quot;&gt;&lt;/script&gt;
 
-  p And add the controller's module as a dependency to our main module in <code>app.js</code>:
   //ANGULAR 1
-  pre.prettyprint.lang-javascript.is-hidden
+  p.is-angular1.is-hidden.
+    And add the controller's module as a dependency to our main module in <code>app.js</code>:
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
     code.
       angular.module('app', ['ngNewRouter', 'app.home'])
         .controller('AppController', ['$router', AppController]);
@@ -208,10 +260,18 @@
         //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TODO Need Angular2 Example here for TypeScript
+        @Component()
+        @RouteConfig([
+          { path: '/',           component: HomeComp },
+          { path: '/detail/:id', component: DetailComp }
+        ])
+        function AppComp () {}
 
 
-  p We can link to our detail component using the <code>ng-link</code> directive. Add this to <code>index.html</code>:
+  p.
+    We can link to our detail component using the <code class="is-angular1">ng-link</code> directive.
+    <code class="is-angular1">ng-link</code>
+    Add this to <code>index.html</code>:
 
   pre.prettyprint.lang-html
     code.
@@ -246,10 +306,22 @@
         //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TODO Need Angular2 Example here for TypeScript
+        //TypeScript
+        //TODO: imports
+        @Component()
+        @View({
+          template: 'User ID: {{id}}'
+        })
+        export class DetailComp {
+          id;
+          constructor(routeParams:RouteParams) {
+            this.id = routeParams.get('id');
+          }
+        }
 
 
-  p And then we can display the <code>id</code> in our template by adding this to <code>detail.html</code>:
+  p.is-angular1.is-hidden.
+    And then we can display the <code>id</code> in our template by adding this to <code>detail.html</code>:
 
   pre.prettyprint.lang-html
     code.
@@ -269,7 +341,7 @@
     this:
 
   //ANGULAR 1
-  .code-box.is-hidden
+  .code-box.is-angular1.is-hidden
     pre.prettyprint.linenums.lang-javascript(data-name="es5")
       code.
         //ES5
@@ -279,10 +351,20 @@
 
 
   //ANGULAR 2
-  .code-box
+  .code-box.is-angular2
     pre.prettyprint.linenums.lang-javascript(data-name="es5")
       code.
         //TODO Need Angular2 Example here for ES5 and TS
+  .code-box.is-angular2
+    pre.prettyprint.linenums.lang-javascript(data-name="typescript")
+      code.
+        @Component()
+        @View()
+        @RouteConfig([
+          { path: '/user', component: 'user' }
+        ])
+        class MyComp {}
+
 
 
 
@@ -293,7 +375,7 @@
     p You can configure multiple outlets on the same path like this:
 
     //ANGULAR 1
-    .code-box.is-hidden
+    .code-box.is-angular1.is-hidden
       pre.prettyprint.linenums.lang-javascript(data-name="es5")
         code.
           //ES5
@@ -313,7 +395,7 @@
 
 
     //ANGULAR 2
-    .code-box
+    .code-box.is-angular2
       pre.prettyprint.linenums.lang-javascript(data-name="es5")
         code.
           //ES5
@@ -331,8 +413,8 @@
           })
           @RouteConfig({
             path: '/user', components: {
-              master: 'userList',
-              detail: 'user'
+              master: UserListComp,
+              detail: UserComp
             }
           })
           class MyComponent {}
@@ -425,7 +507,7 @@
     p Consider the following route configuration:
 
     //ANGULAR 1
-    pre.prettyprint.linenums.is-hiddenlang-javascript(data-name="es5")
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
       code.
         //ES5
         MyController.$routeConfig = [
@@ -441,7 +523,7 @@
       pre.prettyprint.linenums.lang-typescript(data-name="typescript")
         code.
           //TypeScript
-          @Component({})
+          @Component()
           @View({
             directives: [RouterOutlet]
           })
@@ -464,11 +546,10 @@
         //HTML
         &lt;a router-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
 
-
     p Or, we can define an alias <code>myUser</code> like this:
 
     //ANGULAR 1
-    pre.prettyprint.linenums.is-hiddenlang-javascript(data-name="es5")
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
       code.
         //ES5
         MyController.$routeConfig = [
@@ -476,7 +557,7 @@
         ];
 
     //ANGULAR 2
-    .code-box
+    .code-box.is-angular2
       pre.prettyprint.linenums.lang-javascript(data-name="es5")
         code.
           //ES5
@@ -484,12 +565,17 @@
       pre.prettyprint.linenums.lang-typescript(data-name="typescript")
         code.
           //TypeScript
-          //TODO: Need Angular 2 TS Example here
+          @Component()
+          @View()
+          @RouteConfig([
+            { path: '/', component: UserComp, as: 'myUser' }
+          ])
+          class MyComp {}
 
 
     p And refer instead to the alias for the component in our template, with the same end-result:
     //ANGULAR 1
-    pre.prettyprint.linenums.lang-html.is-hidden
+    pre.prettyprint.linenums.lang-html.is-angular1.is-hidden
       code.
         //HTML
         &lt;a ng-link=&quot;myUser&quot;&gt;link to user component&lt;/a&gt;
@@ -506,7 +592,7 @@
       your controller. For example:
 
     //ANGULAR 1
-    pre.prettyprint.linenums.is-hiddenlang-javascript(data-name="es5")
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
       code.
         //ES5
         MyController.$routeConfig = [
@@ -520,7 +606,7 @@
         ];
 
     //ANGULAR 2
-    .code-box
+    .code-box.is-angular2
       pre.prettyprint.linenums.lang-javascript(data-name="es5")
         code.
           //ES5
@@ -528,13 +614,22 @@
       pre.prettyprint.linenums.lang-typescript(data-name="typescript")
         code.
           //TypeScript
-          //TODO: Need Angular 2 TS Example here
+          @RouteConfig([
+            { path: '/', components:
+                { master: UserListComp, detail: UserComp },
+            as: 'myUser' }
+          ])
 
 
+  //- TODO(btford): expand on this.
   .l-sub-section
     h3#dynamic-configuration Dynamic Configuration
 
-    p You can configure dynamic routing by making a request for <code>$router</code>.
+    p.is-angular2.
+      You can configure dynamic routing by asking the DI system for a <code>Router</code>.
+
+    p.is-angular1.is-hidden.
+      You can configure dynamic routing by making a request for <code>$router</code>.
 
 
 
