@@ -7,7 +7,7 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 
 ## Development Setup
-1. Install Harp `sudo npm install -g harp@v0.15.2`
+1. Install Harp `npm install -g harp@v0.15.2` or `sudo npm install -g harp@v0.15.2` depending on your permissions 
 2. cd into root directory `angular.io/`
 3. run `harp server`
 4. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
