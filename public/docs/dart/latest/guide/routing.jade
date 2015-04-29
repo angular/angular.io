@@ -1,2 +1,343 @@
 .l-main-section
-  h2 Dart browser docs live here
+
+  h2#section-route-use Using the Component Router
+  p There are three steps to setting up routing with Angular's Component Router
+  ol
+    li Install the Component Router
+    li Map paths to components
+    li Link to routes
+
+
+.l-main-section
+
+  h2#section-install-router Import the Component Router
+
+  p.
+    Create two files, <code>index.html</code> and <code>app.js</code>, both at the root of the project:
+
+  pre.prettyprint.lang-bash
+    code.
+      touch index.html
+      touch app.js
+
+  p.
+    Because the component is an addition to the core, you must install Angular's Component Router into your app.
+    For example, using <code>npm</code> to install both <code>angular</code> and <code>angular-new-router</code>, like
+    this:
+
+  //- TODO: angular 2 router bits are not published yet
+  pre.prettyprint.lang-bash
+    code.
+      npm install angular angular-new-router
+
+  p Your app directory should look something like:
+  pre.prettyprint.lang-bash
+    code.
+      app.js
+      index.html
+      package.json
+      node_modules/
+      └── ...
+
+  p.
+    Add Angular and Component Router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
+    <code>index.html</code>:
+
+  //- TODO: component router is not yet published for Angular 2, so it's not obvious how this should work
+  pre.prettyprint.lang-html
+    code.
+      &lt;!doctype html&gt;
+      &lt;html lang=&quot;en&quot;&gt;
+      &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;base href=&quot;/&quot;&gt;
+        &lt;title&gt;My app&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body&gt;
+        &lt;my-app&gt;&lt;/my-app&gt;
+        &lt;script src=&quot;/node_modules/angular/angular.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/node_modules/component-router/component-router.es5.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/app.js&quot;&gt;&lt;/script&gt;
+      &lt;/body&gt;
+      &lt;/html&gt;
+
+
+  p.
+    Then you can add the router into your app by importing the Router module in your <code>app.js</code> file:
+
+  pre.prettyprint.linenums.lang-dart
+    code.
+      import {Component, View, bootstrap} from 'angular2/angular2';
+      import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+
+  p.
+    This is the same as you've seen in the rest of Angular 2, except the <code>router-outlet</code> directive.
+    <code>router-outlet</code> is a placeholder for part of your app loaded dynamically based on the route configuration.
+
+  p So how do we configure the app? Let's open <code>app.js</code> and find out. Add this to the file:
+
+  //- TODO: inlined HTML is broken; see: https://github.com/angular/angular.io/issues/64
+  pre.prettyprint.linenums.lang-dart
+    code.
+      import {Component, View, bootstrap} from 'angular2/angular2';
+      import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+
+      import {HomeComp} from './components/home';
+
+      @Component({
+        selector: 'my-app'
+      })
+      @View({
+        template: '<router-outlet></router-outlet>',
+        directives: [RouterOutlet]
+      })
+      @RouteConfig([
+        {path: '/', component: HomeComp }
+      ])
+      class AppComp () {}
+
+      bootstrap(AppComp);
+
+.l-main-section
+  h2#section-map-paths-to-components Map paths to components
+
+  p.
+    A component's template can have "outlets," which are holes in the DOM for loading parts of your app based on the
+    route configuration and it can ask the DI system for an instance of Router. A component's router tells the component what to put
+    inside the outlets based on URL. The configuration maps routes to components for each outlet.
+
+  p Let's make a <code>home</code> component that our app can route to:
+
+  pre.prettyprint.lang-bash
+    code.
+      mkdir -p components/home
+      touch components/home/home.html components/home/home.js
+
+  p This creates our component directory and its corresponding files: a template and a JavaScript component.
+
+  p Let's open <code>home.html</code> and add some content:
+
+  pre.prettyprint.lang-html
+    code.
+      &lt;h1&gt;Hello {{home.name}}!&lt;/h1&gt;
+
+  p Let's make a component:
+
+  pre.prettyprint.linenums.lang-dart
+    code.
+      @Component
+      @View({
+        template: 'Hello {{name}}'
+      })
+      class HomeHomponent {
+        name:string;
+        constructor() {
+          this.name = 'Friend';
+        }
+      }
+
+  p If you load up the app, you should see <code>Hello Friend!</code>
+
+.l-main-section
+  h2#section-link-to-routes Link to routes
+
+  p Let's add another route and then link to it. This route will have a route parameter, <code>id</code>.
+
+  p In <code>app.js</code>:
+
+  pre.prettyprint.linenums.lang-dart
+    code.
+      @Component()
+      @RouteConfig([
+        { path: '/',           component: HomeComp },
+        { path: '/detail/:id', component: DetailComp }
+      ])
+      function AppComp () {}
+
+
+  p.
+    We can link to our detail component using the <code>router-link</code> directive.
+    Add this to <code>index.html</code>:
+
+  pre.prettyprint.lang-html
+    code.
+      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
+        &lt;a router-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
+        ...
+
+  p This directive will generate an <code>href</code> and update the browser URL.
+
+  p We should also implement our detail component. Let's make these new files:
+
+  pre.prettyprint.lang-bash
+    code.
+      mkdir components/detail
+      touch components/detail/detail.html components/detail/detail.js
+
+  p In <code>detail.js</code>, we implement a controller that uses the <code>id</code> route parameter:
+
+  pre.prettyprint.linenums.lang-dart
+    code.
+      //TODO: imports
+      @Component()
+      @View({
+        template: 'User ID: {{id}}'
+      })
+      export class DetailComp {
+        id;
+        constructor(routeParams:RouteParams) {
+          this.id = routeParams.get('id');
+        }
+      }
+
+.l-main-section
+
+  h2#section-configuring-the-router Configuring the Router
+
+  p.
+    Unlike other routing systems, Component Router maps URLs to components. A router takes an array of pairings like
+    this:
+
+  pre.prettyprint.linenums.lang-javascript(data-name="typescript")
+    code.
+      @Component()
+      @View()
+      @RouteConfig([
+        { path: '/user', component: 'user' }
+      ])
+      class MyComp {}
+
+
+
+
+  .l-sub-section
+    h3#section-sibling-outlets Sibling Outlets
+
+    p You can configure multiple outlets on the same path like this:
+
+    pre.prettyprint.linenums.lang-dart
+      code.
+        @Component()
+        @View({
+          template:
+            `<div router-outlet="master"></div>
+             <div router-outlet="detail"></div>`,
+          directives: [RouterOutlet, RouterLink]
+        })
+        @RouteConfig({
+          path: '/user', components: {
+            master: UserListComp,
+            detail: UserComp
+          }
+        })
+        class MyComponent {}
+
+
+
+    p You can link to any sibling just as you normally would:
+
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a router-link=&quot;userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a router-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+
+    p Or, you can explicitly link to a outlet-component pair like this:
+
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a router-link=&quot;master:userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a router-link=&quot;detail:user&quot;&gt;link to user component&lt;/a&gt;
+
+  .l-sub-section
+    h3#section-redirecting-routes Redirecting routes
+
+    p You can use `redirectTo` for migrating to a new URL scheme and setting up default routes.
+
+    p.
+      For example, as specified below, when a user navigates to `/`, the URL changes to `/user` and the outlet
+      at that level loads the `user` component.
+
+    pre.prettyprint.linenums.lang-dart
+      code.
+        @Component({})
+        @View({
+          directives: [RouterOutlet]
+        })
+        @RouteConfig([
+          { path: '/', redirectTo: '/user' },
+          { path: '/user', component: UserComp }
+        ])
+        class MyComp {}
+
+
+  .l-sub-section
+    h3#section-aliases Aliases
+
+    p.
+      When linking to a route, you normally use the name of the component. You can also specify an alias to use
+      instead.
+
+    p Consider the following route configuration:
+
+    pre.prettyprint.linenums.lang-dart
+      code.
+        @Component()
+        @View({
+          directives: [RouterOutlet]
+        })
+        @RouteConfig([
+          { path: '/', component: 'user' }
+        ])
+        class MyComp {}
+
+
+    p We can link to the route in our template with the name of the component:
+
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;a router-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+    p Or, we can define an alias <code>myUser</code> like this:
+
+    pre.prettyprint.linenums.lang-dart
+      code.
+        @Component()
+        @View()
+        @RouteConfig([
+          { path: '/', component: UserComp, as: 'myUser' }
+        ])
+        class MyComp {}
+
+
+    p And refer instead to the alias for the component in our template, with the same end-result:
+
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;a router-link=&quot;myUser&quot;&gt;link to user component&lt;/a&gt;
+
+    p.
+      This is especially useful when you have sibling components, but want to refer to an entire level of routing in
+      your controller. For example:
+
+    pre.prettyprint.linenums.lang-dart
+      code.
+        @RouteConfig([
+          { path: '/', components:
+              { master: UserListComp, detail: UserComp },
+          as: 'myUser' }
+        ])
+
+
+  //- TODO(btford): expand on this.
+  .l-sub-section
+    h3#dynamic-configuration Dynamic Configuration
+
+    p.
+      You can configure dynamic routing by asking the DI system for a <code>Router</code>.
