@@ -58,6 +58,18 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
   $scope.language = 'es5';
   var $codeBoxes = $('.code-box');
 
+  var getTabName = function(name) {
+    var prettyName = name;
+
+    switch(name) {
+      case 'es5':         prettyName = 'ES5';         break;
+      case 'typescript':  prettyName = 'TypeScript';  break;
+      default:            prettyName = name;
+    }
+
+    return prettyName;
+  };
+
   if($codeBoxes.length) {
     //UPDATE ALL CODE BOXES
     $codeBoxes.each(function(index, codeBox) {
@@ -77,8 +89,9 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
       $examples.each(function(index, example) {
         var $example = $(example);
         var name = $example.data('name');
+        var tabName = getTabName(name);
         var selected = (index === 0) ? 'is-selected' : '';
-        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + name+ "</button>");
+        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + tabName + "</button>");
 
         // ADD EVENTS FOR CODE SNIPPETS
         $button.on('click', function(e) {
