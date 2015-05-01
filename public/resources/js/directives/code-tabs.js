@@ -3,6 +3,18 @@
 *
 */
 
+var getTabName = function(name) {
+  var prettyName = name;
+
+  switch(name) {
+    case 'es5':         prettyName = 'ES5';         break;
+    case 'typescript':  prettyName = 'TypeScript';  break;
+    default:            prettyName = name;
+  }
+
+  return prettyName;
+};
+
 angularIO.directive('code-tabs', function() {
   return {
     template: 'Name: {{customer.name}} Address: {{customer.address}}'
@@ -31,8 +43,9 @@ angularIO.directive('code-tabs', function() {
       $examples.each(function(index, example) {
         var $example = $(example);
         var name = $example.data('name');
+        var tabName = getTabName(name);
         var selected = (index === 0) ? 'is-selected' : '';
-        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + name+ "</button>");
+        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + tabName + "</button>");
 
         // ADD EVENTS FOR CODE SNIPPETS
         $button.on('click', function(e) {
