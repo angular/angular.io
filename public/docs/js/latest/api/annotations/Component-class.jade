@@ -1,7 +1,7 @@
 
 p.location-badge.
   exported from <a href="/angular2/annotations.html">angular2/annotations</a>
-  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations/annotations.js#L547">angular2/src/core/annotations/annotations.js (line 547)</a>
+  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations_impl/annotations.js#L732">angular2/src/core/annotations_impl/annotations.js (line 732)</a>
 
 :markdown
   Declare reusable UI building blocks for an application.
@@ -36,6 +36,51 @@ p.location-badge.
   }
   ```
   
+  
+  Dynamically loading a component at runtime:
+  
+  Regular Angular components are statically resolved. Dynamic components allows to resolve a component at runtime
+  instead by providing a placeholder into which a regular Angular component can be dynamically loaded. Once loaded,
+  the dynamically-loaded component becomes permanent and cannot be changed.
+  Dynamic components are declared just like components, but without a `@View` annotation.
+  
+  
+  ## Example
+  
+  Here we have `DynamicComp` which acts as the placeholder for `HelloCmp`. At runtime, the dynamic component
+  `DynamicComp` requests loading of the `HelloCmp` component.
+  
+  There is nothing special about `HelloCmp`, which is a regular Angular component. It can also be used in other static
+  locations.
+  
+  ```
+  @Component({
+    selector: 'dynamic-comp'
+  })
+  class DynamicComp {
+    helloCmp:HelloCmp;
+    constructor(loader:DynamicComponentLoader, location:ElementRef) {
+      loader.load(HelloCmp, location).then((helloCmp) => {
+        this.helloCmp = helloCmp;
+      });
+    }
+  }
+  
+  @Component({
+    selector: 'hello-cmp'
+  })
+  @View({
+    template: "{{greeting}}"
+  })
+  class HelloCmp {
+    greeting:string;
+    constructor() {
+      this.greeting = "hello";
+    }
+  }
+  ```
+  
+  
 .l-main-section
   h2 Members
   .l-sub-section
@@ -52,7 +97,8 @@ p.location-badge.
           hostProperties,
           injectables,
           lifecycle,
-          changeDetection = DEFAULT
+          changeDetection = DEFAULT,
+          compileChildren = true,
         }:{
           selector:string,
           properties:Object,
@@ -61,7 +107,8 @@ p.location-badge.
           hostProperties:any,
           injectables:List,
           lifecycle:List,
-          changeDetection:string
+          changeDetection:string,
+          compileChildren:boolean
         }={})
     
     :markdown
@@ -75,6 +122,7 @@ p.location-badge.
 
     
     :markdown
+
       Defines the used change detection strategy.
       
       When a component is instantiated, Angular creates a change detector, which is responsible for propagating
@@ -92,6 +140,7 @@ p.location-badge.
 
     
     :markdown
+
       Defines the set of injectable objects that are visible to a Component and its children.
       
       The `injectables` defined in the Component annotation allow you to configure a set of bindings for the component's

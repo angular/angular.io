@@ -1,13 +1,12 @@
 
 p.location-badge.
   exported from <a href="/angular2/annotations.html">angular2/annotations</a>
-  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations/annotations.js#L240">angular2/src/core/annotations/annotations.js (line 240)</a>
+  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations_impl/annotations.js#L371">angular2/src/core/annotations_impl/annotations.js (line 371)</a>
 
 :markdown
   Directives allow you to attach behavior to elements in the DOM.
   
-  Directive is an abstract concept, instead use concrete directives: <a href='Component-class.html'><code>Component</code></a>, <a href='DynamicComponent-class.html'><code>DynamicComponent</code></a>, <a href='Decorator-class.html'><code>Decorator</code></a>
-  or <a href='Viewport-class.html'><code>Viewport</code></a>.
+  <a href='Directive-class.html'><code>Directive</code></a>s with an embedded view are called <a href='Component-class.html'><code>Component</code></a>s.
   
   A directive consists of a single directive annotation and a controller class. When the directive's `selector` matches
   elements in the DOM, the following steps occur:
@@ -52,8 +51,8 @@ p.location-badge.
   - `@Descendants query:Query<DirectiveType>`: A live collection of any child directives (will be implemented in later relaese).
   
   To inject element-specific special objects, declare the constructor parameter as:
-  - `element: NgElement` to obtain a DOM element (DEPRECATED: replacement coming)
-  - `viewContainer: ViewContainerRef` to control child template instantiation, for <a href='Viewport-class.html'><code>Viewport</code></a> directives only
+  - `element: ElementRef` to obtain a reference to logical element in the view.
+  - `viewContainer: ViewContainerRef` to control child template instantiation, for <a href='Directive-class.html'><code>Directive</code></a> directives only
   - `bindingPropagation: BindingPropagation` to control change detection in a more granular way.
   
   ## Example
@@ -83,7 +82,7 @@ p.location-badge.
   class SomeService {
   }
   
-  @Decorator({
+  @Directive({
     selector: '[dependency]',
     properties: {
       'id':'dependency'
@@ -102,7 +101,7 @@ p.location-badge.
   Here the constructor is declared with no arguments, therefore nothing is injected into `MyDirective`.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor() {
     }
@@ -119,7 +118,7 @@ p.location-badge.
   Here, the constructor declares a parameter, `someService`, and injects the `SomeService` type from the parent
   component's injector.
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(someService: SomeService) {
     }
@@ -134,7 +133,7 @@ p.location-badge.
   Directives can inject other directives declared on the current element.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(dependency: Dependency) {
       expect(dependency.id).toEqual(3);
@@ -151,7 +150,7 @@ p.location-badge.
   the dependency.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(@Parent() dependency: Dependency) {
       expect(dependency.id).toEqual(2);
@@ -168,7 +167,7 @@ p.location-badge.
   resolve dependencies for the current element, even if this would satisfy the dependency.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(@Ancestor() dependency: Dependency) {
       expect(dependency.id).toEqual(2);
@@ -186,11 +185,11 @@ p.location-badge.
   
   A directive can also query for other child directives. Since parent directives are instantiated before child
   directives, a directive can't simply inject the list of child directives. Instead, the directive
-  injects a <a href='../view/QueryList-class.html'><code>QueryList</code></a>, which updates its contents as children are added, removed, or moved by any
-  <a href='Viewport-class.html'><code>Viewport</code></a> directive such as a `for`, an `if`, or a `switch`.
+  injects a <a href='../view/QueryList-class.html'><code>QueryList</code></a>, which updates its contents as children are added, removed, or moved by a directive
+  that uses a <a href='../core/ViewContainerRef-class.html'><code>ViewContainerRef</code></a> such as a `for`, an `if`, or a `switch`.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(@Query(Marker) dependencies:QueryList<Maker>) {
     }
@@ -207,7 +206,7 @@ p.location-badge.
   Similar to `@Children` above, but also includes the children of the child elements.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(@QueryDescendents(Marker) dependencies:QueryList<Maker>) {
     }
@@ -223,7 +222,7 @@ p.location-badge.
   This explicitly permits the author of a template to treat some of the surrounding directives as optional.
   
   ```
-  @Decorator({ selector: '[my-directive]' })
+  @Directive({ selector: '[my-directive]' })
   class MyDirective {
     constructor(@Optional() dependency:Dependency) {
     }
@@ -232,6 +231,139 @@ p.location-badge.
   
   This directive would be instantiated with a `Dependency` directive found on the current element. If none can be
   found, the injector supplies `null` instead of throwing an error.
+  
+  ## Example
+  
+  Here we use a decorator directive to simply define basic tool-tip behavior.
+  
+  ```
+  @Directive({
+    selector: '[tooltip]',
+    properties: {
+      'text': 'tooltip'
+    },
+    hostListeners: {
+      'onmouseenter': 'onMouseEnter()',
+      'onmouseleave': 'onMouseLeave()'
+    }
+  })
+  class Tooltip{
+    text:string;
+    overlay:Overlay; // NOT YET IMPLEMENTED
+    overlayManager:OverlayManager; // NOT YET IMPLEMENTED
+  
+    constructor(overlayManager:OverlayManager) {
+      this.overlay = overlay;
+    }
+  
+    onMouseEnter() {
+      // exact signature to be determined
+      this.overlay = this.overlayManager.open(text, ...);
+    }
+  
+    onMouseLeave() {
+      this.overlay.close();
+      this.overlay = null;
+    }
+  }
+  ```
+  In our HTML template, we can then add this behavior to a `<div>` or any other element with the `tooltip` selector,
+  like so:
+  
+  ```
+  <div tooltip="some text here"></div>
+  ```
+  
+  Directives can also control the instantiation, destruction, and positioning of inline template elements:
+  
+  A directive uses a <a href='../core/ViewContainerRef-class.html'><code>ViewContainerRef</code></a> to instantiate, insert, move, and destroy views at runtime.
+  The <a href='../core/ViewContainerRef-class.html'><code>ViewContainerRef</code></a> is created as a result of `<template>` element, and represents a location in the current view
+  where these actions are performed.
+  
+  Views are always created as children of the current <a href='View-class.html'><code>View</code></a>, and as siblings of the `<template>` element. Thus a
+  directive in a child view cannot inject the directive that created it.
+  
+  Since directives that create views via ViewContainers are common in Angular, and using the full `<template>` element syntax is wordy, Angular
+  also supports a shorthand notation: `<li *foo="bar">` and `<li template="foo: bar">` are equivalent.
+  
+  Thus,
+  
+  ```
+  <ul>
+    <li *foo="bar" title="text"></li>
+  </ul>
+  ```
+  
+  Expands in use to:
+  
+  ```
+  <ul>
+    <template [foo]="bar">
+      <li title="text"></li>
+    </template>
+  </ul>
+  ```
+  
+  Notice that although the shorthand places `*foo="bar"` within the `<li>` element, the binding for the directive
+  controller is correctly instantiated on the `<template>` element rather than the `<li>` element.
+  
+  
+  ## Example
+  
+  Let's suppose we want to implement the `unless` behavior, to conditionally include a template.
+  
+  Here is a simple directive that triggers on an `unless` selector:
+  
+  ```
+  @Directive({
+    selector: '[unless]',
+    properties: {
+      'unless': 'unless'
+    }
+  })
+  export class Unless {
+    viewContainer: ViewContainerRef;
+    protoViewRef: ProtoViewRef;
+    prevCondition: boolean;
+  
+    constructor(viewContainer: ViewContainerRef, protoViewRef: ProtoViewRef) {
+      this.viewContainer = viewContainer;
+      this.protoViewRef = protoViewRef;
+      this.prevCondition = null;
+    }
+  
+    set unless(newCondition) {
+      if (newCondition && (isBlank(this.prevCondition) || !this.prevCondition)) {
+        this.prevCondition = true;
+        this.viewContainer.clear();
+      } else if (!newCondition && (isBlank(this.prevCondition) || this.prevCondition)) {
+        this.prevCondition = false;
+        this.viewContainer.create(this.protoViewRef);
+      }
+    }
+  }
+  ```
+  
+  We can then use this `unless` selector in a template:
+  ```
+  <ul>
+    <li *unless="expr"></li>
+  </ul>
+  ```
+  
+  Once the directive instantiates the child view, the shorthand notation for the template expands and the result is:
+  
+  ```
+  <ul>
+    <template [unless]="exp">
+      <li></li>
+    </template>
+    <li></li>
+  </ul>
+  ```
+  
+  Note also that although the `<li></li>` template still exists inside the `<template></template>`, the instantiated
+  view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
   
 .l-main-section
   h2 Members
@@ -247,14 +379,16 @@ p.location-badge.
           events,
           hostListeners,
           hostProperties,
-          lifecycle
+          lifecycle,
+          compileChildren = true,
         }:{
           selector:string,
           properties:any,
           events:List,
           hostListeners: any,
           hostProperties: any,
-          lifecycle:List
+          lifecycle:List,
+          compileChildren:boolean
         }={})
     
     :markdown
@@ -264,10 +398,23 @@ p.location-badge.
 
 
   .l-sub-section
+    h3 compileChildren
+
+    
+    :markdown
+
+      If set to true the compiler does not compile the children of this directive.
+
+
+
+
+
+  .l-sub-section
     h3 events
 
     
     :markdown
+
       Enumerates the set of emitted events.
       
       ## Syntax
@@ -302,6 +449,7 @@ p.location-badge.
         hasLifecycleHook(hook:string)
     
     :markdown
+
       Returns true if a directive participates in a given `LifecycleEvent`.
       
       See <a href='onChange-var.html'><code>onChange</code></a>, <a href='onDestroy-var.html'><code>onDestroy</code></a>, <a href='onAllChangesDone-var.html'><code>onAllChangesDone</code></a> for details.
@@ -315,6 +463,7 @@ p.location-badge.
 
     
     :markdown
+
       Specifies which DOM hostListeners a directive listens to.
       
       The `hostListeners` property defines a set of `event` to `method` key-value pairs:
@@ -350,14 +499,14 @@ p.location-badge.
       You would define the event binding as follows:
       
       ```
-      @Decorator({
+      @Directive({
         selector: 'input',
         hostListeners: {
           'change': 'onChange($event)',
           'window:resize': 'onResize($event)'
         }
       })
-      class InputDecorator {
+      class InputDirective {
         onChange(event:Event) {
         }
         onResize(event:Event) {
@@ -365,7 +514,7 @@ p.location-badge.
       }
       ```
       
-      Here the `onChange` method of `InputDecorator` is invoked whenever the DOM element fires the 'change' event.
+      Here the `onChange` method of `InputDirective` is invoked whenever the DOM element fires the 'change' event.
 
 
 
@@ -376,18 +525,19 @@ p.location-badge.
 
     
     :markdown
+
       Specifies which DOM properties a directives updates.
       
       ## Syntax
       
       ```
-      @Decorator({
+      @Directive({
         selector: 'input',
         hostProperties: {
           'value': 'value'
         }
       })
-      class InputDecorator {
+      class InputDirective {
         value:string;
       }
       
@@ -404,6 +554,7 @@ p.location-badge.
 
     
     :markdown
+
       Specifies a set of lifecycle hostListeners in which the directive participates.
       
       See <a href='onChange-var.html'><code>onChange</code></a>, <a href='onDestroy-var.html'><code>onDestroy</code></a>, <a href='onAllChangesDone-var.html'><code>onAllChangesDone</code></a> for details.
@@ -417,6 +568,7 @@ p.location-badge.
 
     
     :markdown
+
       Enumerates the set of properties that accept data binding for a directive.
       
       The `properties` property defines a set of `directiveProperty` to `bindingProperty`
@@ -448,7 +600,7 @@ p.location-badge.
       with standard Angular syntax. For example:
       
       ```
-      @Decorator({
+      @Directive({
         selector: '[tooltip]',
         properties: {
           'text': 'tooltip'
@@ -484,7 +636,7 @@ p.location-badge.
       See <a href='../pipes/Pipe-class.html'><code>Pipe</code></a> and <a href='../pipes/keyValDiff-var.html'><code>keyValDiff</code></a> documentation for more details.
       
       ```
-      @Decorator({
+      @Directive({
         selector: '[class-set]',
         properties: {
           'classChanges': 'classSet | keyValDiff'
@@ -514,6 +666,7 @@ p.location-badge.
 
     
     :markdown
+
       The CSS selector that triggers the instantiation of a directive.
       
       Angular only allows directives to trigger on CSS selectors that do not cross element boundaries.
