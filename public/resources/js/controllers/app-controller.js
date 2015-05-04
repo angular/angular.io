@@ -4,7 +4,6 @@
 */
 
 angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($scope, $mdDialog, $timeout) {
-
   $scope.showDocsNav = false;
   $scope.showMainNav = false;
   $scope.showMenu = false;
@@ -26,6 +25,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($sc
     event.preventDefault();
     $scope.showMenu = !$scope.showMenu;
   };
+
 
   /*
   * Prettify Code
