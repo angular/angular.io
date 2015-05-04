@@ -33,5 +33,19 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($sc
   * Finish Rendereding code directives then prettify code
   */
 
+  // GRAB ALL TAGS NOT USING DIRECTIVES
+  var preTags = angular.element(document.body).find('pre');
+
+  // LOOP THROUGH AND ADD PRETTIFY CLASS
+  _.each(preTags, function(element) {
+    var preTag = angular.element(element);
+
+    // IF NOT FORMATTED, ADD PRETTY PRINT
+    if(!preTag.hasClass('prettyprint')) {
+      preTag.addClass('prettyprint linums');
+    }
+  });
+
+  // TRIGGER PRETTYPRINT AFTER DIGEST LOOP COMPLETE
   $timeout(prettyPrint, 1);
 }]);
