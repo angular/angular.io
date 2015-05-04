@@ -42,7 +42,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($sc
 
     // IF NOT FORMATTED, ADD PRETTY PRINT
     if(!preTag.hasClass('prettyprint')) {
-      preTag.addClass('prettyprint linums');
+      preTag.addClass('prettyprint linenums');
     }
   });
 
