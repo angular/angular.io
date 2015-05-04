@@ -44,16 +44,6 @@ angularIO.directive('codeTabs', function($timeout) {
         // SELECT CURRENT EXAMPLE
         pane.selected = true;
       };
-
-
-      /*
-      * Finish Rendereding then prettify code
-      *
-      */
-
-      $scope.$watch($scope.panes.$last,function(){
-        $timeout(prettyPrint, 1);
-      });
     },
 
     template:

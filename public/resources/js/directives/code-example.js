@@ -8,21 +8,22 @@
 angularIO.directive('codeExample', function() {
   return {
     restrict: 'E',
-    transclude: true,
-    replace: true,
-    scope: {
-      name: '@',
-      language: '@',
-      format: '@'
-    },
 
-    link: function(scope, element, attrs, codeSwitchController, transcludeFunc) {
-      transcludeFunc( scope, function( content ) {
-        var code = '<code ng-non-bindable>' + content[0].innerHTML + '</code>';
-        element.append(code);
-      });
-    },
+    compile: function(tElement, tAttrs) {
+      var html = (tAttrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
+      var template =  '<pre class="prettyprint {{format}} lang-{{language}}">' +
+                      '<code ng-non-bindable>' + html + '</code>' +
+                      '</pre>';
 
-    template:'<pre class="prettyprint {{format}} lang-{{language}}"></pre>'
+      // UPDATE ELEMENT WITH NEW TEMPLATE
+      tElement.html(template);
+
+      // RETURN ELEMENT
+      return function(scope, element, attrs) {
+        // SET SCOPE MANUALLY
+        scope.language = attrs.language;
+        scope.format = attrs.format;
+      };
+    }
   };
 });

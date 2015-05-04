@@ -3,7 +3,7 @@
 *
 */
 
-var angularIO = angular.module('angularIOApp', ['ngMaterial', 'ngTouch'])
+var angularIO = angular.module('angularIOApp', ['ngMaterial'])
 .config(function($mdThemingProvider) {
 
   // THEMEING FOR ANGULAR MATERIAL

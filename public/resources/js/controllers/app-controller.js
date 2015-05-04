@@ -3,7 +3,7 @@
 *
 */
 
-angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDialog){
+angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($scope, $mdDialog, $timeout) {
 
   $scope.showDocsNav = false;
   $scope.showMainNav = false;
@@ -27,6 +27,11 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
     $scope.showMenu = !$scope.showMenu;
   };
 
-  // INITIALIZE PRETTY PRINT
-  prettyPrint();
+  /*
+  * Prettify Code
+  *
+  * Finish Rendereding code directives then prettify code
+  */
+
+  $timeout(prettyPrint, 1);
 }]);
