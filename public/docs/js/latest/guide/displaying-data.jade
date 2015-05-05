@@ -1,8 +1,3 @@
-.statement
-  h4 Live Examples
-  p.
-    If you want to skip to the working examples you can check out these links on Plunker. <a href='http://plnkr.co/edit/pQojSb3CTfTEejX0wGjO?p=preview')> TypeScript Example</a> or <a href='http://plnkr.co/edit/GOJiWOEem9jrOyEeY3uW?p=preview'> ES5 Example</a>.
-
 .l-main-section
 
   h2#section-displaying-controller-properties Displaying controller properties
@@ -33,26 +28,9 @@
      | The simple method for binding text into templates is through interpolation where you put the name of a property
      | inside <strong>{{ }}</strong>.
 
-    p To see this working, create another file, <code>show-properties.js</code>, and add the following:
+    p To see this working, create another file, <code>show-properties.ts</code>, and add the following:
 
     .code-box
-      pre.prettyprint.linenums.lang-javascript(data-name="es5")
-          code.
-            // ES5
-            function DisplayComponent() {
-              this.myName = "Alice";
-            }
-            DisplayComponent.annotations = [
-              new angular.Component({
-                selector: "display"
-              }),
-              new angular.View({
-                template:
-                   '&lt;p&gt;My name: {{ myName }}&lt;/p&gt;',
-                directives: [angular.For, angular.If]
-              })
-            ];
-
       pre.prettyprint.linenums.lang-typescript(data-name="typescript")
           code.
               // TypeScript
@@ -75,6 +53,22 @@
                  this.myName = "Alice";
                }
               }
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+          code.
+            // ES5
+            function DisplayComponent() {
+              this.myName = "Alice";
+            }
+            DisplayComponent.annotations = [
+              new angular.ComponentAnnotation({
+                selector: "display"
+              }),
+              new angular.ViewAnnotation({
+                template:
+                   '&lt;p&gt;My name: {{ myName }}&lt;/p&gt;',
+                directives: [angular.For, angular.If]
+              })
+            ];
     p.
      You've just defined a component that encompasses a view and controller for the app. The view
      defines a template:
@@ -124,17 +118,17 @@
     h2#Create-an-array Create an array property and use For on the view
     p Moving up from a single property, create an array to display as a list.
     .code-box
-      pre.prettyprint.lang-javascript(data-name="es5")
-          code.
-              //ES5
-              function DisplayComponent() {
-                this.myName = "Alice";
-                this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
-              }
       pre.prettyprint.lang-typescript(data-name="typescript")
           code.
               //Typescript
               constructor() {
+                this.myName = "Alice";
+                this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+              }
+      pre.prettyprint.lang-javascript(data-name="es5")
+          code.
+              //ES5
+              function DisplayComponent() {
                 this.myName = "Alice";
                 this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
               }
@@ -171,16 +165,16 @@
         that Angular knows to include it:
 
     .code-box
-      pre.prettyprint.lang-javascript(data-name="es5")
-          code.
-              //ES5
-              directives: [angular.For]
       pre.prettyprint.lang-typescript(data-name="typescript")
           code.
               //Typescript
               import {Component, View, bootstrap, For} from
               ...
                 directives: [For]
+      pre.prettyprint.lang-javascript(data-name="es5")
+          code.
+              //ES5
+              directives: [angular.For]
     p Reload and you've got your list of friends!
     p.
         Again, Angular will mirror changes you make to this list over in the DOM. Add a new item and it appears in your
@@ -211,28 +205,32 @@
     p Make a <code>FriendsService</code> class to provide the model with the list of friends.
     pre.prettyprint.lang-javascript
         code.
-            function FriendsService() {
-              this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+            class FriendsService {
+              names: Array&lt;string&gt;;
+              constructor() {
+                this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+              }
             }
     p.
         Replace the current list of friends in DisplayComponent by passing in the FriendsService and setting the list of
         names in DisplayComponent to the names provided by the service you passed in.
     pre.prettyprint.lang-javascript
         code.
-            function DisplayComponent(friends) {
-              this.myName = "Alice";
-              this.names = friends.names;
+            class DisplayComponent {
+              names: Array&lt;string&gt;;
+              constructor(friendsService: FriendsService) {
+                this.names = friendsService.names;
+              }
             }
     p And then make FriendsService available to dependency injection
     pre.prettyprint.lang-javascript
         code.
-            DisplayComponent.annotations = [
-              new angular.Component({
-                selector: "display",
-                injectables: [FriendsService]
-              }),
+            @Component({
+              ...
+              injectables: [DisplayComponent]
+            })
             ...
-            DisplayComponent.parameters = [[FriendsService]];
+            class DisplayComponent {...
     .callout.is-helpful
         header ES5 Note
         p.
@@ -240,6 +238,24 @@
             working on sugaring the syntax to match the way it works in Angular 1.  Expect this to change soon.
 
     .code-box
+      pre.prettyprint.lang-typescript(data-name="typescript")
+          code.
+              //TypeScript
+              class FriendsService {
+                names: Array&lt;string&gt;;
+                constructor() {
+                  this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+                }
+              }
+              ...
+              class DisplayComponent {
+                 names: Array&lt;string&gt;;
+
+                 constructor(friendsService: FriendsService) {
+                   this.names = friendsService.names;
+                 }
+              }
+
       pre.prettyprint.lang-javascript(data-name="es5")
           code.
               //ES5
@@ -251,11 +267,11 @@
                 this.names = friends.names;
               }
               DisplayComponent.annotations = [
-                new angular.Component({
+                new angular.ComponentAnnotation({
                   selector: "display",
                   injectables: [FriendsService]
                 }),
-                new angular.View({
+                new angular.ViewAnnotation({
                   template: '{{ myName }} &lt;ul&gt; &lt;li *for="#name of names"&gt;{{ name }}&lt;/li&gt; &lt;/ul&gt;',
                   directives: [angular.For, angular.If]
                 })
@@ -264,12 +280,6 @@
               document.addEventListener("DOMContentLoaded", function() {
                 angular.bootstrap(DisplayComponent);
               });
-      pre.prettyprint.lang-typescript(data-name="typescript")
-          code.
-              //TypeScript
-              import {Component, View, bootstrap, For} from
-              ...
-                directives: [For]
 .l-main-section
     h2#Conditionally-displaying-data-with-If Conditionally displaying data with If
     p.
@@ -282,44 +292,20 @@
     p You'll also need to add the If directive so Angular knows to include it.
 
     .code-box
-      pre.prettyprint.lang-javascript(data-name="es5")
-          code.
-              //ES5
-              directives: [angular.For, angular.If]
       pre.prettyprint.lang-typescript(data-name="typescript")
           code.
               //Typescript
               import {Component, View, bootstrap, For, If} from
               ...
                 directives: [For, If]
+      pre.prettyprint.lang-javascript(data-name="es5")
+          code.
+              //ES5
+              directives: [angular.For, angular.If]
     p.
         As there are currently 5 items it the list, you'll see the message congratulating you on your many friends.
         Remove two items from the list, reload your browser, and see that the message no longer displays.
     .code-box
-      pre.prettyprint.lang-javascript(data-name="es5")
-          code.
-              //ES5
-              function DisplayComponent() {
-                this.myName = "Alice";
-                this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
-              }
-              DisplayComponent.annotations = [
-                new angular.Component({
-                  selector: "display"
-                }),
-                new angular.View({
-                  template:
-                    &#39;&lt;p&gt;My name: {{ myName }}&lt;/p&gt;&#39; +
-                    &#39;&lt;p&gt;Friends:&lt;/p&gt;&#39; +
-                    &#39;&lt;ul&gt;&#39; +
-                    &#39;&lt;li *for=&quot;#name of names&quot;&gt;&#39; +
-                    &#39;{{ name }}&#39; +
-                    &#39;&lt;/li&gt;&#39; +
-                    &#39;&lt;/ul&gt;&#39; +
-                    &#39;&lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;&#39;,
-                  directives: [angular.For, angular.If]
-                })
-              ];
       pre.prettyprint.lang-typescript(data-name="typescript")
           code.
               //TypeScript
@@ -342,9 +328,33 @@
               })
               class DisplayComponent {
                 myName: string;
-                todos: Array<string>;
+                todos: Array&lt;string&gt;
                 constructor() {
                   this.myName = "Alice";
                   this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
                 }
               }
+      pre.prettyprint.lang-javascript(data-name="es5")
+          code.
+              //ES5
+              function DisplayComponent() {
+                this.myName = "Alice";
+                this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+              }
+              DisplayComponent.annotations = [
+                new angular.ComponentAnnotation({
+                  selector: "display"
+                }),
+                new angular.ViewAnnotation({
+                  template:
+                    &#39;&lt;p&gt;My name: {{ myName }}&lt;/p&gt;&#39; +
+                    &#39;&lt;p&gt;Friends:&lt;/p&gt;&#39; +
+                    &#39;&lt;ul&gt;&#39; +
+                    &#39;&lt;li *for=&quot;#name of names&quot;&gt;&#39; +
+                    &#39;{{ name }}&#39; +
+                    &#39;&lt;/li&gt;&#39; +
+                    &#39;&lt;/ul&gt;&#39; +
+                    &#39;&lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;&#39;,
+                  directives: [angular.For, angular.If]
+                })
+              ];
