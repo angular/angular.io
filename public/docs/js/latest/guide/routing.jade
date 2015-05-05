@@ -13,31 +13,24 @@
   h2#section-install-router Import the Component Router
 
   p.
-    Create two files, <code>index.html</code> and <code>app.js</code>, both at the root of the project:
+    Create two files, <code>index.html</code> and <code>app.ts</code>, both at the root of the project:
 
   pre.prettyprint.lang-bash
     code.
-      touch index.html
-      touch app.js
-
-  p.
-    Because the component is an addition to the core, you must install Angular's Component Router into your app.
-    For example, using <code>npm</code> to install both <code>angular</code> and <code>angular-new-router</code>, like
-    this:
-
-  //- TODO: angular 2 router bits are not published yet
-  pre.prettyprint.lang-bash
-    code.
-      npm install angular angular-new-router
+      touch index.html app.ts
 
   p Your app directory should look something like:
   pre.prettyprint.lang-bash
     code.
-      app.js
+      app.ts
       index.html
       package.json
       node_modules/
       └── ...
+
+  p.
+    Because the component is an addition to the core, you must install Angular's Component Router into your app.
+    When using the angular2.dev.js bundle you have include the additional router.dev.js bundle.
 
   p.
     Add Angular and Component Router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
@@ -61,8 +54,6 @@
       &lt;/body&gt;
       &lt;/html&gt;
 
-  //ANGULAR 2
-  //- TODO: component router is not yet published for Angular 2, so it's not obvious how this should work
   pre.prettyprint.lang-html.is-angular2
     code.
       &lt;!doctype html&gt;
@@ -72,27 +63,31 @@
         &lt;base href=&quot;/&quot;&gt;
         &lt;title&gt;My app&lt;/title&gt;
       &lt;/head&gt;
-      &lt;body&gt;
-        &lt;my-app&gt;&lt;/my-app&gt;
-        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.19/angular2.sfx.dev.js&quot;&gt;&lt;/script&gt;
-        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.19/router.sfx.dev.js&quot;&gt;&lt;/script&gt;
-        &lt;script src=&quot;/app.js&quot;&gt;&lt;/script&gt;
+      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
+        &lt;script src=&quot;https://jspm.io/system@0.16.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.21/angular2.dev.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.21/router.dev.js&quot;&gt;&lt;/script&gt;
+        &lt;script&gt;
+          System.import(&#39;main&#39;);
+        &lt;/script&gt;
       &lt;/body&gt;
       &lt;/html&gt;
 
 
   p.is-angular2.
-    Then you can add the router into your app by importing the Router module in your <code>app.js</code> file:
+    Then you can add the router into your app by importing the Router module in your <code>app.ts</code> file:
 
-  // ANGULAR 2
   .code-box.is-angular2
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
         import {Component, View, bootstrap} from 'angular2/angular2';
         import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        // self-executing bundle deploys angular APIs on the window object.
+        window.angular;
+        // the router APIs are part of the router sub-object.
+        window.angular.router;
 
   p.is-angular1.is-hidden.
     This is a pretty typical angular app, except the <code>ng-outlet</code> directive. <code>ng-outlet</code> is like
@@ -102,7 +97,7 @@
     This is the same as you've seen in the rest of Angular 2, except the <code>router-outlet</code> directive.
     <code>router-outlet</code> is a placeholder for part of your app loaded dynamically based on the route configuration.
 
-  p So how do we configure the app? Let's open <code>app.js</code> and find out. Add this to the file:
+  p So how do we configure the app? Let's open <code>app.ts</code> and find out. Add this to the file:
 
   //ANGULAR 1
   pre.prettyprint.lang-javascript.is-angular1.is-hidden
@@ -117,10 +112,6 @@
 
   // ANGULAR 2
   .code-box
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
-    //- TODO: inlined HTML is broken; see: https://github.com/angular/angular.io/issues/64
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
         import {Component, View, bootstrap} from 'angular2/angular2';
@@ -132,15 +123,35 @@
           selector: 'my-app'
         })
         @View({
-          template: '<router-outlet></router-outlet>',
+          template: '&lt;router-outlet&gt;&lt;/router-outlet&gt;',
           directives: [RouterOutlet]
         })
         @RouteConfig([
           {path: '/', component: HomeComp }
         ])
-        class AppComp () {}
+        class AppComp {}
 
         bootstrap(AppComp, routerInjectables);
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        var HomeComp = function() {};
+        ...
+
+        var AppComp = function() {};
+        AppComp.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'my-app'
+          }),
+          new angular.ViewAnnotation({
+            template: '&lt;router-outlet&gt;&lt;/router-outlet&gt;',
+            directives: [angular.router.RouterOutlet]
+          }),
+          new angular.router.RouteConfigAnnotation([
+            {path: '/', component: HomeComp}
+          ])
+        ];
+
+        angular.bootstrap(AppComp, routerInjectables);
 
 
   p.is-angular1.is-hidden.
@@ -194,9 +205,6 @@
 
   // ANGULAR 2
   .code-box
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
         @Component({
@@ -205,16 +213,30 @@
         @View({
           template: 'Hello {{name}}'
         })
-        class HomeHomponent {
+        export class HomeComponent {
           name:string;
           constructor() {
             this.name = 'Friend';
           }
         }
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        function HomeComponent() {
+          this.name = 'Friend';
+        }
+
+        AppComponent.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'home-cmp'
+          }),
+          new angular.ViewAnnotation({
+            template: 'Hello {{name}}'
+          })
+        ];
 
 
   p.is-angular1.is-hidden.
-    To wire this up, We need to add a <code>&lt;script&gt;</code> tag to our <code>index.html</code>:
+    To wire this up, we need to add a <code>&lt;script&gt;</code> tag to our <code>index.html</code>:
     pre.prettyprint.lang-html
       code.
         ...
@@ -229,14 +251,16 @@
         .controller('AppController', ['$router', AppController]);
       // ...
 
+  p.
+    To wire this up, we need to import the component into the rest of our app.
   // ANGULAR 2
   .code-box.is-angular2
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TODO Need Angular2 Example here for TypeScript
+        import {HomeComp} from './components/home';
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        // Use your favorite module system / bundler for ES5.
 
 
   p If you load up the app, you should see <code>Hello Friend!</code>
@@ -260,31 +284,42 @@
 
   // ANGULAR 2
   .code-box
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        @Component({
-          selector: 'app-cmp'
-        })
+        ...
         @RouteConfig([
           { path: '/',           component: HomeComp },
           { path: '/detail/:id', component: DetailComp }
         ])
         class AppComp {}
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        var AppComp = function() {};
+        AppComp.annotations = [
+          ...
+          new angular.router.RouteConfigAnnotation([
+            { path: '/', component: HomeComp}
+            { path: '/detail/:id', component: DetailComp }
+          ])
+        ];
+
+        angular.bootstrap(AppComp, routerInjectables);
 
 
   p.
     We can link to our detail component using the
     <code class="is-angular2">router-link</code><code class="is-angular1 is-hidden">ng-link</code> directive.
-    Add this to <code>index.html</code>:
+    Add this to <code class="is-angular2">template</code><code class="is-angular1 is-hidden">index.html</code>:
 
-  pre.prettyprint.lang-html
+  pre.prettyprint.lang-html.is-angular1.is-hidden.
     code.
       &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
         &lt;a ng-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
         ...
+
+  pre.prettyprint.lang-html.is-angular2
+    code.
+        &lt;a ng-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
 
   p This directive will generate an <code>href</code> and update the browser URL.
 
@@ -293,9 +328,9 @@
   pre.prettyprint.lang-bash
     code.
       mkdir components/detail
-      touch components/detail/detail.html components/detail/detail.js
+      touch components/detail/detail.html components/detail/detail.ts
 
-  p In <code>detail.js</code>, we implement a controller that uses the <code>id</code> route parameter:
+  p In <code>detail.ts</code>, we implement a controller that uses the <code>id</code> route parameter:
 
   //ANGULAR 1
   pre.prettyprint.lang-javascript.is-hidden
@@ -309,13 +344,8 @@
 
   // ANGULAR 2
   .code-box
-    pre.prettyprint.linenums.lang-javascript(data-name="es5")
-      code.
-        //TODO Need Angular2 Example here for ES5
     pre.prettyprint.linenums.lang-typescript(data-name="typescript")
       code.
-        //TypeScript
-        //TODO: imports
         @Component({
           selector: 'detail-cmp'
         })
@@ -323,11 +353,27 @@
           template: 'User ID: {{id}}'
         })
         export class DetailComp {
-          id;
+          id: string;
           constructor(routeParams:RouteParams) {
             this.id = routeParams.get('id');
           }
         }
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        function DetailComp(routeParams) {
+          this.id = routeParams.get('id');
+        }
+
+        DetailComp.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'detail-cmp'
+          }),
+          new angular.ViewAnnotation({
+            template: 'User ID: {{id}}'
+          })
+        ];
+
+        DetailComp.parameters = [[RouteParams]];
 
 
   p.is-angular1.is-hidden.
