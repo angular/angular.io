@@ -3,45 +3,44 @@ angularIO.directive('biocard', function($rootScope, $timeout, $mdDialog) {
     restrict: 'A',
     scope: {},
     link: function (scope, element, attrs) {
-      scope.name = element.attr('data-name');
-      scope.bio = element.attr('data-bio');
-      scope.pic = element.attr('data-pic');
-      scope.twitter = element.attr('data-twitter');
-      scope.website =  element.attr('data-website');
-      scope.$twitter = scope.twitter !== 'undefined' ? '<a class="button button-subtle button-small" href="https://twitter.com/' +  element.attr('data-twitter') + '" md-button>Twitter</a>' : '';
-      scope.$website = scope.website !== 'undefined' ? '<a class="button button-subtle button-small" href="' + element.attr('data-website') + '" md-button>Website</a>' : '';
+      // SET SCOPE VALUES
+      scope.name = attrs.name;
+      scope.pic = attrs.pic;
+      scope.bio = attrs.bio;
+      scope.twitter = attrs.twitter;
+      scope.website = attrs.website;
 
+      // CLOSE MODAL METHOD
+      scope.closeDialog = function() {
+        $mdDialog.hide();
+      };
+
+      // OPEN BIO WHEN CLICKING ON CARD
       element.on('click', function($event) {
         $mdDialog.show({
           parent: angular.element(document.body),
           targetEvent: $event,
+          scope: scope,        // use parent scope in template
+          preserveScope: true,
           template:
             '<md-dialog class="modal" aria-label="List dialog">' +
             '  <md-content>' +
-            '     <img class="left" src="' + scope.pic + '" />' +
-            '     <h3 class="text-headline">' + scope.name + '</h3>' +
-            '     <div class="modal-social">' + scope.$twitter + scope.$website + '</div>' +
-            '     <p class="text-body">' + scope.bio + '</p>' +
+            '     <img class="left" src="{{pic}}" />' +
+            '     <h3 class="text-headline">{{name}}</h3>' +
+            '     <div class="modal-social">' +
+            '       <a ng-show="twitter" class="button button-subtle button-small" href="https://twitter.com/{{twitter}}" md-button>Twitter</a>' +
+            '       <a ng-show="website" class="button button-subtle button-small" href="{{website}}" md-button>Website</a>' +
+            '     </div>' +
+            '     <p class="text-body">{{bio}}</p>' +
             '  </md-content>' +
             '  <div class="md-actions">' +
             '    <md-button ng-click="closeDialog()">' +
             '      Close Bio' +
             '    </md-button>' +
             '  </div>' +
-            '</md-dialog>',
-          locals: {
-            items: scope.items
-          },
-        controller: DialogController
+            '</md-dialog>'
         });
       });
-
-      function DialogController(scope, $mdDialog, items) {
-        scope.items = items;
-        scope.closeDialog = function() {
-          $mdDialog.hide();
-        };
-      }
     }
   };
 });

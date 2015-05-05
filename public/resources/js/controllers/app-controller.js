@@ -9,20 +9,17 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($sc
   $scope.showMenu = false;
 
   // TOGGLE MAIN NAV (TOP) ON MOBILE
-  $scope.toggleDocsMenu = function(event) {
-    event.preventDefault();
+  $scope.toggleDocsMenu = function() {
     $scope.showDocsNav = !$scope.showDocsNav;
   };
 
   // TOGGLE DOCS NAV
-  $scope.toggleMainMenu = function(event) {
-    event.preventDefault();
+  $scope.toggleMainMenu = function() {
     $scope.showMainNav = !$scope.showMainNav;
   };
 
   // TOGGLE DOCS VERSION & LANGUAGE
-  $scope.toggleVersionMenu = function(event) {
-    event.preventDefault();
+  $scope.toggleVersionMenu = function() {
     $scope.showMenu = !$scope.showMenu;
   };
 
