@@ -1,6 +1,9 @@
 .l-main-section
 
   h2#section-route-use Using the Component Router
+  p.
+    [PENDING: explain what a router is.]
+
   p There are three steps to setting up routing with Angular's Component Router:
   ol
     li Install the Component Router
@@ -17,10 +20,10 @@
       code.
         # pubspec.yaml
         name: router_demo
-        description: Dart version of Angular 2 example, Install the Component Router
+        description: Dart version of Angular 2 example, Using the Component Router
         version: 0.0.1
         dependencies:
-          angular2: 2.0.0-alpha.21
+          angular2: 2.0.0-alpha.22
           browser: any
     pre.prettyprint.lang-html(data-name="html")
       code.
@@ -47,9 +50,6 @@
     code.
       import 'package:angular2/angular2.dart';
       <span class="pnk">import 'package:angular2/router.dart';</span>
-      import 'package:angular2/di.dart';
-
-      import 'package:router_demo/components/home/home.dart';
 
       import 'package:angular2/src/reflection/reflection.dart' show reflector;
       import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
@@ -61,15 +61,12 @@
         template: 'Router outlet goes here: <span class="pnk">&lt;router-outlet>&lt;/router-outlet></span>',
         directives: const [<span class="pnk">RouterOutlet</span>]
       )
-      @RouteConfig(const [ const {
-        'path': '/',
-        'component': HomeComp
-      }])
+      <span class="pnk">@RouteConfig(const [])</span>
       class AppComp {}
 
       main() {
         reflector.reflectionCapabilities = new ReflectionCapabilities();
-        bootstrap(AppComp, routeInjectables);
+        bootstrap(AppComp, <span class="pnk">routeInjectables</span>);
       }
 
   p.
@@ -78,14 +75,10 @@
     <code>&lt;router-outlet></code> tag,
     which is a placeholder for the part of your app
     that's loaded dynamically, based on the route configuration.
-    The call to <code>bind()</code> ties the router
-    into your app.
-    [PENDING: um... how? be more specific.].
-
-  p.
-    Although you've tied in the router,
-    you haven't associated any paths with components.
-    To do that, you use a <code>@RouteConfig()</code> annotation.
+    The <code>routeInjectables</code> argument to <code>bootstrap()</code>
+    ties the router into your app.
+    The <code>@RouteConfig()</code> annotation associates paths with components.
+    More about that in the next section.
 
 
 .l-main-section
@@ -100,35 +93,31 @@
     The configuration maps routes to components for each outlet.
 
   p.
-    Let's make a <code>&lt;home></code> component that our app can route to.
+    Let's make a <code>&lt;home-cmp></code> component that our app can route to.
     We'll implement it under the <code>lib</code> directory, which by
     <a href="https://www.dartlang.org/tools/pub/package-layout.html">pub
-    package layout conventions</a>,
+    package layout conventions</a>
     lives next to <code>pubspec.yaml</code> and <code>web</code>.
 
   pre.prettyprint.lang-bash
     code.
       mkdir -p lib/components/home
-      touch lib/components/home/home.html lib/components/home/home.dart
+      touch lib/components/home/home.dart
 
-  p This creates our component directory and its corresponding files:
-    a template and a Dart component.
+  p.
+    Put the following content into <code>home.dart</code>:
 
-  p Open <code>home.html</code> and add some content:
-
-  pre.prettyprint.lang-html
+  //- This should probably be in 2 files, with a templateUrl.
+  pre.prettyprint.lang-dart
     code.
-      &lt;h1&gt;Hello {{home.name}}!&lt;/h1&gt;
+      // home.dart
+      import 'package:angular2/angular2.dart';
 
-  p Now edit <code>home.dart</code> to add a component controller class:
-
-  pre.prettyprint.linenums.lang-dart
-    code.
       @Component(
-        selector: 'home'
+          selector: 'home-cmp'
       )
       @View(
-        template: 'Hello {{name}}'
+          template: 'Hello {{name}}'
       )
       class HomeComp {
         String name;
@@ -136,23 +125,55 @@
       }
 
   p.
-    Next, create a component to display when the path is '/'.
-    Create a <code>lib</code> directory
-    (next to <code>web</code> and <code>pubspec.yaml</code>).
-    Under it, create a <code>components</code> subdirectory
-    and, under that, a <code>home</code> subdirectory.
+    Modify <code>web/main.dart</code>,
+    importing <code>home.dart</code>
+    and associating HomeComp with the root path:
+
+  pre.prettyprint.linenums.lang-dart
+    code.
+      import 'package:angular2/angular2.dart';
+      import 'package:angular2/router.dart';
+
+      import 'package:angular2/src/reflection/reflection.dart' show reflector;
+      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
+
+      <span class="pnk">import 'package:router_demo/components/home/home.dart';</span>
+
+      @Component(
+        selector: 'my-app'
+      )
+      @View(
+        template: 'Router outlet goes here: &lt;router-outlet>&lt;/router-outlet>',
+        directives: const [RouterOutlet]
+      )
+      <span class="pnk">@RouteConfig(const [ const {
+        'path': '/',
+        'component': HomeComp
+      }])</span>
+      class AppComp {}
+
+      main() {
+        reflector.reflectionCapabilities = new ReflectionCapabilities();
+        bootstrap(AppComp, routeInjectables);
+      }
+  p If you run the app, you should see <b>Hello Friend</b>.
 
   .callout.is-helpful
-    header Note
+    header Troubleshooting
     p.
-      The <code>lib</code> directory is, by
-      <a href="https://www.dartlang.org/tools/pub/package-layout.html">pub
-      package layout conventions</a>,
-      where reusable code goes.
-      The <code>components</code> subdirectory is an Angular convention.
-      [PENDING: check!]
+      If you don't see "Hello Friend" in your app
+      and you see no error messages in the console,
+      then the router probably didn't recognize the path.
+      If you're using WebStorm, try going directly to the pub server's port.
+      You can get it from pub server's output
+      (<b>View > Tool Windows > Pub Serve</b>).
+      Scroll up until you see the message
+      "Serving router_demo web on http://localhost:XXXXX",
+      and copy that URL into a Dartium window.
+      Otherwise, try using Dartium and a simple HTTP server started from
+      the <code>web</code> directory.
+      [PENDING: check; update if/when we add basePath]
 
-  p If you load up the app, you should see <code>Hello Friend!</code>
 
 .l-main-section
   h2#section-link-to-routes Link to routes
@@ -172,41 +193,59 @@
       ])
       class AppComp {}
 
-
-  p.
-    We can link to our detail component using the <code>router-link</code> directive.
-    Add this to <code>index.html</code>:
-
-  pre.prettyprint.lang-html
-    code.
-      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
-        &lt;a router-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
-        ...
-
-  p This directive will generate an <code>href</code> and update the browser URL.
-
-  p We should also implement our detail component. Let's make these new files:
+  p We should also implement our detail component.
 
   pre.prettyprint.lang-bash
     code.
-      mkdir components/detail
-      touch components/detail/detail.html components/detail/detail.dart
+      mkdir lib/components/detail
+      touch lib/components/detail/detail.dart
 
-  p In <code>detail.dart</code>, we implement a controller that uses the <code>id</code> route parameter:
+  p.
+    In <code>detail.dart</code>,
+    implement a controller that uses the <code>id</code> route parameter:
 
   pre.prettyprint.linenums.lang-dart
     code.
-      //TODO: imports
+      // detail.dart
+      library routing_demo.components.detail.dart;
+
+      import 'package:angular2/angular2.dart';
+      import 'package:angular2/router.dart';
+
       @Component(
-        selector: 'detail'
+          selector: 'detail'
       )
       @View(
-        template: 'User ID: {{id}}'
+          template: 'User ID: {{id}}'
       )
       class DetailComp {
-        number id;
+        num id;
         DetailComp(RouteParams routeParams) : id = routeParams.get('id') {}
       }
+
+  p.
+    Now import <code>detail.dart</code> into <code>main.dart</code>,
+    and add a link to the main component's template
+    that uses the <code>router-link</code> directive
+    to let you navigate to the new path:
+
+  pre.prettyprint.lang-dart
+    code.
+      ...
+      import 'package:router_demo/components/home/home.dart';
+      <span class="pnk">import 'package:router_demo/components/detail/detail.dart';</span>
+      ...
+      @View(
+          template: <span class="pnk">'''</span>
+      Router outlet goes here: &lt;router-outlet>&lt;/router-outlet>
+      <span class="pnk">&lt;br>
+      &lt;a router-link="detail({id: 5})">link to detail&lt;/a>
+      '''</span>,
+          directives: const [RouterOutlet, RouterLink]
+      )
+
+  p.
+    [PENDING: This doesn't work yet, due to a bug in router-link]
 
 .l-main-section
 
