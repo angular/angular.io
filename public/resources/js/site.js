@@ -91,7 +91,9 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
         var name = $example.data('name');
         var tabName = getTabName(name);
         var selected = (index === 0) ? 'is-selected' : '';
-        var $button = $("<button class='button " + selected + "' data-name='" + name + "'>" + tabName + "</button>");
+        var file = $example.data('file');
+        var $button = $("<button class='button " + selected + "' data-name='" + name + ( file ? "' data-file='" + file : '' ) + "'>" + tabName + "</button>");
+        var $file = file ? $("<span class='button file-name' data-file='" + file + "'><i class='icon icon-content-copy'></i> " + file + "</span>") : null;
 
         // ADD EVENTS FOR CODE SNIPPETS
         $button.on('click', function(e) {
@@ -102,13 +104,21 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
           $buttons.removeClass('is-selected');
           $currentButton.addClass('is-selected');
 
-          //UPDAT VIEW ON SELECTTION
+          //UPDATE VIEW ON SELECTION
           $examples.addClass('is-hidden');
           var $currentExample = $codeBox.find(".prettyprint[data-name='" + selectedName + "']");
           $currentExample.removeClass('is-hidden').addClass('animated fadeIn');
+
+          //UPDATE FILE ON SELECTION
+          var $files = $nav.find('.file-name');
+          var selectedFile = $currentButton.data('file');
+          $files.addClass('is-hidden');
+          var $currentFile = $nav.find(".file-name[data-file='" + selectedFile + "']");
+          $currentFile.removeClass('is-hidden').addClass('animated fadeIn');
         });
 
-        $nav.append($button);
+        $nav.append($button, $file);
+        $nav.find('.file-name').addClass('is-hidden').first().removeClass('is-hidden');
       });
 
       //ADD HEADER TO DOM
