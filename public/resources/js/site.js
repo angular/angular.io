@@ -118,6 +118,7 @@ angularIO.controller('AppCtrl', ['$scope', '$mdDialog', function($scope, $mdDial
         });
 
         $nav.append($button, $file);
+        $examples.length < 2 ? $button.css('visibility', 'hidden') : '';
         $nav.find('.file-name').addClass('is-hidden').first().removeClass('is-hidden');
       });
 
