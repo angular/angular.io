@@ -9,9 +9,9 @@ angularIO.directive('codeExample', function() {
   return {
     restrict: 'E',
 
-    compile: function(tElement, tAttrs) {
-      var html = (tAttrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
-      var template =  '<pre class="prettyprint {{format}} lang-{{language}}">' +
+    compile: function(tElement, attrs) {
+      var html = (attrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
+      var template =  '<pre class="prettyprint ' + attrs.format + ' lang-' + attrs.language + '">' +
                       '<code ng-non-bindable>' + html + '</code>' +
                       '</pre>';
 
@@ -19,11 +19,7 @@ angularIO.directive('codeExample', function() {
       tElement.html(template);
 
       // RETURN ELEMENT
-      return function(scope, element, attrs) {
-        // SET SCOPE MANUALLY
-        scope.language = attrs.language;
-        scope.format = attrs.format;
-      };
+      return function(scope, element, attrs) {};
     }
   };
 });
