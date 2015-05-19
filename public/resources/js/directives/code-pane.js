@@ -15,8 +15,8 @@ angularIO.directive('codePane', function() {
 
     compile: function(tElement, tAttrs) {
       var html = (tAttrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
-      var template =  '<pre class="prettyprint ' + tAttrs.format + ' lang-' + tAttrs.language + '" ng-show="selected">' +
-                      '<code ng-non-bindable>' + html + '</code>' +
+      var template =  '<pre class="prettyprint ' + tAttrs.format + ' lang-' + tAttrs.language + '" ng-show="selected" >' +
+                      '<code class="animated fadeIn" ng-non-bindable>' + html + '</code>' +
                       '</pre>';
 
 
