@@ -1,5 +1,5 @@
 # Angular.io
-Angular.io is currently the preview site for Angular 2. This site also includes links to other helpful angular resources including Angular 1.X, Angular Material, and AngularFire.
+Angular.io is currently the preview site for Angular 2. This site also includes links to other helpful angular resources including Angular 1, Angular Material, and AngularFire.
 
 ## How you can help
 - [File an issue on github](https://github.com/angular/angular.io/issues)
@@ -7,7 +7,7 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 
 ## Development Setup
-1. Install Harp `sudo npm install -g harp@v0.15.2`
+1. Install version 0.15.2 of [Harp](http://harpjs.com/) (The latest version, 0.17, does not work with the site.)
 2. cd into root directory `angular.io/`
 3. run `harp server`
 4. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)

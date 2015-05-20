@@ -5,9 +5,8 @@
   p.
     You can specify the event handler—a method in the component controller—like this:
 
-  pre.prettyprint.lang-html
-    code.
-      &lt;input (keyup)="myControllerMethod()"&gt;
+  code-example(language="html").
+    &lt;input (keyup)="myControllerMethod()"&gt;
   p.
     As in previous examples, you can make element references available to
     other parts of the template as a local
@@ -17,10 +16,9 @@
     <!-- PENDING: make sure we use recommended word separation scheme.
     my-name doesn't work, but my_name does. Would myName work? -->
 
-  pre.prettyprint.lang-html
-    code.
-      &lt;input #myname (keyup)&gt;
-      &lt;p&gt;{{myname.value}}&lt;/p&gt;
+  code-example(language="html").
+    &lt;input #myname (keyup)&gt;
+    &lt;p&gt;{{myname.value}}&lt;/p&gt;
 
   p.text-body(ng-non-bindable).
     In that example, <code>#myname</code> creates a local variable in the template that
@@ -46,16 +44,15 @@
     Then add a method that adds new items
     to the list.
 
-  pre.prettyprint.lang-dart
-    code.
-      class TodoList {
-        List&lt;String&gt; todos =
-          ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
+  code-example(language="dart" format="linenums").
+    class TodoList {
+      List&lt;String&gt; todos =
+        ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
 
-        addTodo(String todo) {
-          todos.add(todo);
-        }
+      addTodo(String todo) {
+        todos.add(todo);
       }
+    }
 
 .callout.is-helpful
   header Production Best Practice
@@ -73,13 +70,12 @@
     Using the <code>*for</code> iterator, create an <code>&lt;li&gt;</code> for each item in the todos list and set
     its text to the value.
 
-  pre.prettyprint.lang-html
-    code.
-      &lt;ul&gt;
-         &lt;li *for=&quot;#todo of todos&quot;&gt;
-           {{ todo }}
-         &lt;/li&gt;
-      &lt;/ul&gt;
+  code-example(language="html" format="linenums").
+    &lt;ul&gt;
+       &lt;li *for=&quot;#todo of todos&quot;&gt;
+         {{ todo }}
+       &lt;/li&gt;
+    &lt;/ul&gt;
 
 .l-main-section
   h2#section-add-todos-to-the-list Add todos to the list via button click
@@ -87,18 +83,16 @@
     Now, add a text input and a button for users to add items to the list.  As you saw above, you can create a local
     variable reference in your template with <code>#varname</code>.  Call it <code>#todotext</code> here.
 
-  pre.prettyprint.lang-html
-    code.
-      &lt;input #todotext&gt;
+  code-example(language="html").
+    &lt;input #todotext&gt;
   p.
     Specify the target of the click event binding as your controller's
     <code>addTodo()</code> method and pass
     it the value. Since you created a reference called <code>todotext</code>,
     you can get the value with <code>todotext.value.</code>
 
-  pre.prettyprint.lang-html
-    code.
-        &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
+  code-example(language="html").
+    &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
 
   p.
     To make pressing Enter do something useful,
@@ -107,13 +101,59 @@
     <a href="https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:html">dart:html</a>,
     so be sure to import that library.
 
-  .code-box
-    pre.prettyprint.lang-dart(data-name="todo_list.dart")
-      code.
-        // In the template:
-        &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
+  code-tabs
+    code-pane(language="dart" name="todo_list.dart" format="linenums").
+      // In the template:
+      &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
 
-        // In the component controller class:
+      // In the component controller class:
+      doneTyping(KeyboardEvent event) {
+        if (event.keyCode == KeyCode.ENTER) {
+          InputElement e = event.target;
+          addTodo(e.value);
+          e.value = null;
+        }
+      }
+    code-pane(language="dart" name="main.dart" format="linenums").
+      library user_input;
+
+      import 'dart:html';
+      ...
+
+.l-main-section
+  h2#section-final-code Final code
+
+  code-tabs
+    code-pane(language="dart" name="todo_list.dart" format="linenums").
+      // web/todo_list.dart
+      part of user_input;
+
+      @Component(
+        selector: 'todo-list'
+      )
+      @View(
+        // Without r before ''' (a raw string), $event breaks Angular.
+        // An alternative to a raw string is to use \$event instead.
+        template: r'''
+          &lt;ul&gt;
+            &lt;li *for=&quot;#todo of todos&quot;&gt;
+              {{ todo }}
+            &lt;/li&gt;
+          &lt;/ul&gt;
+
+          &lt;input #todotext (keyup)="doneTyping($event)"&gt;
+          &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
+         ''',
+           directives: const[For]
+      )
+      class TodoList {
+        List&lt;String&gt; todos =
+          ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
+
+        addTodo(String todo) {
+          todos.add(todo);
+        }
+
         doneTyping(KeyboardEvent event) {
           if (event.keyCode == KeyCode.ENTER) {
             InputElement e = event.target;
@@ -121,96 +161,43 @@
             e.value = null;
           }
         }
-    pre.prettyprint.lang-dart(data-name="main.dart")
-      code.
-        library user_input;
+      }
+    code-pane(language="dart" name="main.dart" format="linenums").
+      // web/main.dart
+      library user_input;
 
-        import 'dart:html';
-        ...
+      import 'dart:html';
 
+      import 'package:angular2/angular2.dart';
+      import 'package:angular2/src/reflection/reflection.dart' show reflector;
+      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
 
-.l-main-section
-  h2#section-final-code Final code
+      part 'todo_list.dart';
 
-  .code-box
-    pre.prettyprint.lang-dart(data-name="todo_list.dart")
-      code.
-        // web/todo_list.dart
-        part of user_input;
+      main() {
+        reflector.reflectionCapabilities = new ReflectionCapabilities();
+        bootstrap(TodoList);
+      }
+    code-pane(language="html" name="index.html" format="linenums").
+      &lt;!-- web/index.html --&gt;
+      &lt;!DOCTYPE html&gt;
+      &lt;html&gt;
+        &lt;head&gt;
+          &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
 
-        @Component(
-          selector: 'todo-list'
-        )
-        @View(
-          // Without r before ''' (a raw string), $event breaks Angular.
-          // An alternative to a raw string is to use \$event instead.
-          template: r'''
-            &lt;ul&gt;
-              &lt;li *for=&quot;#todo of todos&quot;&gt;
-                {{ todo }}
-              &lt;/li&gt;
-            &lt;/ul&gt;
+          &lt;todo-list&gt;&lt;/todo-list&gt;
 
-            &lt;input #todotext (keyup)="doneTyping($event)"&gt;
-            &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
-           ''',
-             directives: const[For]
-        )
-        class TodoList {
-          List&lt;String&gt; todos =
-            ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
-
-          addTodo(String todo) {
-            todos.add(todo);
-          }
-
-          doneTyping(KeyboardEvent event) {
-            if (event.keyCode == KeyCode.ENTER) {
-              InputElement e = event.target;
-              addTodo(e.value);
-              e.value = null;
-            }
-          }
-        }
-    pre.prettyprint.lang-dart(data-name="main.dart")
-      code.
-        // web/main.dart
-        library user_input;
-
-        import 'dart:html';
-
-        import 'package:angular2/angular2.dart';
-        import 'package:angular2/src/reflection/reflection.dart' show reflector;
-        import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
-
-        part 'todo_list.dart';
-
-        main() {
-          reflector.reflectionCapabilities = new ReflectionCapabilities();
-          bootstrap(TodoList);
-        }
-    pre.prettyprint.lang-html(data-name="html")
-      code.
-        &lt;!-- web/index.html --&gt;
-        &lt;!DOCTYPE html&gt;
-        &lt;html&gt;
-          &lt;head&gt;
-            &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
-          &lt;/head&gt;
-          &lt;body&gt;
-
-            &lt;todo-list&gt;&lt;/todo-list&gt;
-
-            &lt;script type=&quot;application/dart&quot; src=&quot;main.dart&quot;&gt;&lt;/script&gt;
-            &lt;script src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
-          &lt;/body&gt;
-        &lt;/html&gt;
-    pre.prettyprint.lang-yaml(data-name="yaml")
-      code.
-        # pubspec.yaml
-        name: user_input
-        description: Dart version of Angular 2 example, Responding to User Input
-        version: 0.0.1
-        dependencies:
-          angular2: 2.0.0-alpha.20
-          browser: any
+          &lt;script type=&quot;application/dart&quot; src=&quot;main.dart&quot;&gt;&lt;/script&gt;
+          &lt;script src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
+        &lt;/body&gt;
+      &lt;/html&gt;
+    code-pane(language="yaml" name="pubspec.yaml" format="linenums").
+      # pubspec.yaml
+      name: user_input
+      description: Dart version of Angular 2 example, Responding to User Input
+      version: 0.0.1
+      dependencies:
+        angular2: 2.0.0-alpha.23
+        browser: any
