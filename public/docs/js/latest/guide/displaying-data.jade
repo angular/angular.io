@@ -103,43 +103,31 @@
         While you've used <code>template:</code> to specify an inline view, for larger templates you'd
         want to move them to a separate file and load them with <code>templateUrl:</code> instead.
 
-    p To see Angular dynamically update content, add a line after
-
-    code-example(language="html" escape="html").
-      <p>My name: {{ myName }}</p>
-
-    p add this:
-        pre.prettyprint.lang-html
-            code.
-                &lt;p&gt;Current time: {{ time }}&lt;/p&gt;
-    p.
-        Then give the <code>DisplayComponent</code> a starting value for time and a call to update time
-        via <code>setInterval</code>.
-
-    pre.prettyprint.lang-javascript
-        code.
-            setInterval(function () { this.time = (new Date()).toString(); }.bind(this), 1000);
-    p Reload the page in your browser and you'll now see the seconds updating automatically.
-
 .l-main-section
     h2#Create-an-array Create an array property and use For on the view
     p Moving up from a single property, create an array to display as a list.
 
     code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums" escape="html").
+      code-pane(language="javascript" name="TypeScript" format="linenums").
         //Typescript
-        constructor() {
-          this.myName = "Alice";
-          this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+        class DisplayComponent {
+          myName: string;
+          <span class='otl'>names: Array<string>;</span>
+
+          constructor() {
+            this.myName = "Alice";
+            <span class='otl'>this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];</span>
+          }
         }
-      code-pane(language="javascript" name="Javascript (ES5)" format="linenums" escape="html").
+
+      code-pane(language="javascript" name="Javascript (ES5)" format="linenums").
         //ES5
         function DisplayComponent() {
           this.myName = "Alice";
-          this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+          <span class='otl'>this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];</span>
         }
     p.
-        You can then use this array in your template with the <code>for</code> directive to create copies of DOM elements
+        You can then use this array in your template with the <code>For</code> directive to create copies of DOM elements
         with one for each item in the array.
 
     code-tabs
@@ -172,17 +160,26 @@
     code-tabs
       code-pane(language="javascript" name="TypeScript" format="linenums").
         //Typescript
-        import {Component, View, bootstrap, For} from
-        ...
+        import {Component, View, bootstrap, For} from 'angular2/angular2';
+        @View({
+          ...
           directives: [For]
+        })
+
 
       code-pane(language="javascript" name="ES5" format="linenums").
         //ES5
-        directives: [angular.For]
+        DisplayComponent.annotations = [
+          ...
+          new angular.ViewAnnotation({
+            ...
+            directives: [angular.For]
+          })
+        ];
 
     p Reload and you've got your list of friends!
     p.
-        Again, Angular will mirror changes you make to this list over in the DOM. Add a new item and it appears in your
+        Angular will mirror changes you make to this list over in the DOM. Add a new item and it appears in your
         list. Delete one and Angular deletes the &lt;li&gt;. Reorder items and Angular makes the corresponding reorder of
         the DOM list.
     p Let's look at the few lines that do the work again:
@@ -202,39 +199,33 @@
     p Using this syntax, you can build UI lists from any iterable object.
 .l-main-section
     h2#Create-a-class Create a class for the array property and inject into component
+
     p.
         Before we get too much further, we should mention that putting our model (array) directly in our controller isn't
         proper form.  We should separate the concerns by having another class serve the role of model and inject it into
         the controller.
+
     p Make a <code>FriendsService</code> class to provide the model with the list of friends.
 
-    code-example(language="javascript" format="linenums").
-      class FriendsService {
-        names: Array&lt;string&gt;;
-        constructor() {
-          this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+    code-tabs
+      code-pane(language="javascript" name="TypeScript" format="linenums").
+        class FriendsService {
+          names: Array&lt;string&gt;;
+          constructor() {
+            this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+          }
         }
-      }
+
+      code-pane(language="javascript" name="ES5" format="linenums").
+        function FriendsService() {
+          this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+        }
+
     p.
-        Replace the current list of friends in DisplayComponent by passing in the FriendsService and setting the list of
+        Now replace the current list of friends in DisplayComponent by including the FriendsService in the injectables list,
+        then including the service in the constructor, and finally setting the list of
         names in DisplayComponent to the names provided by the service you passed in.
 
-    code-example(language="javascript" format="linenums").
-      class DisplayComponent {
-        names: Array&lt;string&gt;;
-        constructor(friendsService: FriendsService) {
-          this.names = friendsService.names;
-        }
-      }
-
-    p And then make FriendsService available to dependency injection
-    code-example(language="javascript" format="linenums").
-      @Component({
-        ...
-        injectables: [FriendsService]
-      })
-      ...
-      class DisplayComponent {...
     .callout.is-helpful
         header ES5 Note
         p.
@@ -243,41 +234,36 @@
 
     code-tabs
       code-pane(language="javascript" name="TypeScript" format="linenums").
-        //TypeScript
-        class FriendsService {
+        @Component({
+          ...
+          <span class='otl'>injectables: [FriendsService]</span>
+        })
+        class DisplayComponent {
+          myName: string;
           names: Array&lt;string&gt;;
-          constructor() {
-            this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+          constructor(<span class='otl'>friendsService: FriendsService</span>) {
+            this.myName = 'Alice';
+            <span class='otl'>this.names = friendsService.names;</span>
           }
         }
-        ...
-        class DisplayComponent {
-           names: Array&lt;string&gt;;
 
-           constructor(friendsService: FriendsService) {
-             this.names = friendsService.names;
-           }
-              }
       code-pane(language="javascript" name="ES5" format="linenums").
         //ES5
-        function FriendsService() {
-          this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
-        }
-        function DisplayComponent(friends) {
+        function DisplayComponent(<span class='otl'>friends</span>) {
           this.myName = "Alice";
-          this.names = friends.names;
+          this.names = <span class='otl'>friends.names</span>;
         }
         DisplayComponent.annotations = [
           new angular.ComponentAnnotation({
             selector: "display",
-            injectables: [FriendsService]
+            <span class='otl'>injectables: [FriendsService]</span>
           }),
           new angular.ViewAnnotation({
             template: '{{ myName }} &lt;ul&gt; &lt;li *for="#name of names"&gt;{{ name }}&lt;/li&gt; &lt;/ul&gt;',
-            directives: [angular.For, angular.If]
+            directives: [angular.For]
           })
         ];
-        DisplayComponent.parameters = [[FriendsService]];
+        <span class='otl'>DisplayComponent.parameters = [[FriendsService]];</span>
         document.addEventListener("DOMContentLoaded", function() {
           angular.bootstrap(DisplayComponent);
         });
@@ -295,25 +281,23 @@
     code-tabs
       code-pane(language="javascript" name="TypeScript" format="linenums").
         //Typescript
-        import {Component, View, bootstrap, For, If} from
+        import {Component, View, bootstrap, For, If} from 'angular2/angular2';
         ...
           directives: [For, If]
       code-pane(language="javascript" name="ES5" format="linenums").
         //ES5
         directives: [angular.For, angular.If]
     p.
-        As there are currently 5 items it the list, you'll see the message congratulating you on your many friends.
-        Remove two items from the list, reload your browser, and see that the message no longer displays.
+        As there are currently 6 items it the list, you'll see the message congratulating you on your many friends.
+        Remove three items from the list, reload your browser, and see that the message no longer displays.
 
     code-tabs
       code-pane(language="javascript" name="TypeScript" format="linenums").
         //TypeScript
         import {Component, View, bootstrap, For, If} from 'angular2/angular2';
-        @Component({
-          selector: 'display'
-        })
+        ...
         @View({
-          template: `
+          <span class='otl'>template</span>: `
             &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
             &lt;p&gt;Friends:&lt;/p&gt;
             &lt;ul&gt;
@@ -326,25 +310,25 @@
           directives: [For, If]
         })
         class DisplayComponent {
-          myName: string;
-          todos: Array&lt;string&gt;
+          ...
+        }
+
+        class FriendsService {
+          names: Array<string>;
           constructor() {
-            this.myName = "Alice";
-            this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+            <span class='otl'>this.names = ["Aarav", "Martín", "Shannon"];</span>
           }
         }
       code-pane(language="javascript" name="ES5" format="linenums").
         //ES5
-        function DisplayComponent() {
+        function DisplayComponent(friends) {
           this.myName = "Alice";
-          this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
+          this.names = friends.names;
         }
         DisplayComponent.annotations = [
-          new angular.ComponentAnnotation({
-            selector: "display"
-          }),
+          ...
           new angular.ViewAnnotation({
-            template:
+            <span class='otl'>template</span>: '
               &#39;&lt;p&gt;My name: {{ myName }}&lt;/p&gt;&#39; +
               &#39;&lt;p&gt;Friends:&lt;/p&gt;&#39; +
               &#39;&lt;ul&gt;&#39; +
@@ -352,7 +336,11 @@
               &#39;{{ name }}&#39; +
               &#39;&lt;/li&gt;&#39; +
               &#39;&lt;/ul&gt;&#39; +
-              &#39;&lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;&#39;,
+              &#39;&lt;p *if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;&#39;',
             directives: [angular.For, angular.If]
           })
         ];
+
+        function FriendsService () {
+          <span class='otl'>this.names = ["Aarav", "Martín", "Shannon"];</span>
+        }
