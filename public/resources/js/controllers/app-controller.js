@@ -24,51 +24,52 @@ angularIO.directive('bold', function ($timeout) {
   }
 });
 
-angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', '$http', '$sce', function ($scope, $mdDialog, $timeout, $http, $sce) {
+angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', function ($mdDialog, $timeout, $http, $sce) {
+  var vm = this;
 
   $http.get('/resources/js/app-data.json').then(function(response) {
-    $scope.apiList = response.data;
+    vm.apiList = response.data;
   });
 
   $http.get('/resources/js/cheatsheet.json').then(function(response) {
-    $scope.cheatsheet = response.data;
+    vm.cheatsheet = response.data;
   });
 
-  $scope.showDocsNav = false;
-  $scope.showMainNav = false;
-  $scope.showMenu    = false;
+  vm.showDocsNav = false;
+  vm.showMainNav = false;
+  vm.showMenu    = false;
 
   // TOGGLE MAIN NAV (TOP) ON MOBILE
-  $scope.toggleDocsMenu = function () {
-    $scope.showDocsNav = !$scope.showDocsNav;
+  vm.toggleDocsMenu = function () {
+    vm.showDocsNav = !vm.showDocsNav;
   };
 
   // TOGGLE DOCS NAV
-  $scope.toggleMainMenu = function () {
-    $scope.showMainNav = !$scope.showMainNav;
+  vm.toggleMainMenu = function () {
+    vm.showMainNav = !vm.showMainNav;
   };
 
   // TOGGLE DOCS VERSION & LANGUAGE
-  $scope.toggleVersionMenu = function () {
-    $scope.showMenu = !$scope.showMenu;
+  vm.toggleVersionMenu = function () {
+    vm.showMenu = !vm.showMenu;
   };
 
-  $scope.setType = function (type) {
-    if (type === $scope.apiType) $scope.apiType = '';
-    else $scope.apiType = type;
+  vm.setType = function (type) {
+    if (type === vm.apiType) vm.apiType = '';
+    else vm.apiType = type;
   };
 
-  $scope.apiSections = [
+  vm.apiSections = [
     { name: 'angular2/core', title: 'Core' },
     { name: 'angular2/http', title: 'HTTP' },
     { name: 'angular2/lifecycle_hooks', title: 'Lifecycle Hooks' },
     { name: 'angular2/router', title: 'Router' },
     { name: 'angular2/test', title: 'Test' }
   ];
-  $scope.apiType     = '';
-  $scope.apiFilter   = '';
+  vm.apiType     = '';
+  vm.apiFilter   = '';
 
-  $scope.getSafeHtml = function(html) {
+  vm.getSafeHtml = function(html) {
     return $sce.trustAsHtml(html);
   };
 
