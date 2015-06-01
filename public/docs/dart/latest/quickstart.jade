@@ -13,7 +13,7 @@ p.
   <a href="https://www.dartlang.org/downloads/">download Dart</a>.
   Then return here.
 
-// STEP 1 - Create a project ##########################
+//- STEP 1 - Create a project ##########################
 .l-main-section
   h2#section-install-angular 1. Create a project
 
@@ -27,16 +27,21 @@ p.
     &gt; <span class="blk">vim pubspec.yaml</span>  # Use your favorite editor!
 
   p.
-    In <code>pubspec.yaml</code>, add the angular2 and browser packages as dependencies.
-    Angular 2 is changing rapidly, so specify an exact version:
+    In <code>pubspec.yaml</code>,
+    specify the angular2 and browser packages as dependencies,
+    as well as the angular2 transformer.
+    Angular 2 is changing rapidly, so provide an exact version:
     <b>2.0.0-alpha.25</b>.
 
-  code-example(language="yaml").
+  code-example(language="yaml" format="linenums").
     name: hello_world
     version: 0.0.1
     dependencies:
       angular2: 2.0.0-alpha.25
       browser: any
+    transformers:
+    - angular2:
+        entry_points: web/main.dart
   p.
     In the same directory, run <code>pub get</code>
     to install the angular2 and browser packages
@@ -45,11 +50,11 @@ p.
   code-example(language="sh").
     &gt; <span class="blk">pub get</span>
 
-  // PENDING: Create template? Link to pub/pubspec docs?
-  // Is browser really needed?
+  //- PENDING: browser: any -> ???
+  //- PENDING: Create template? Link to pub/pubspec docs?
 
 
-// STEP 2 - Import Angular ##########################
+//- STEP 2 - Import Angular ##########################
 .l-main-section
   h2#section-transpile 2. Import Angular
 
@@ -70,7 +75,7 @@ p.
     import 'package:angular2/src/reflection/reflection.dart' show reflector;
     import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
 
-// STEP 3 - Define a component ##########################
+//- STEP 3 - Define a component ##########################
 .l-main-section
 
   h2#section-angular-create-account 3. Define a component
@@ -143,7 +148,7 @@ p.
         String name = 'Alice';
       }
 
-// STEP 4 - Bootstrap ##########################
+//- STEP 4 - Bootstrap ##########################
 .l-main-section
   h2#section-transpile 4. Bootstrap
 
@@ -162,10 +167,19 @@ p.
     The argument to <code>bootstrap()</code> is the name of the component class
     you defined above.
 
-  //- Explain why setting reflector.reflectionCapabilities is necessary.
+  p.
+    Setting the value of <code>reflector.reflectionCapabilities</code>
+    lets your app use the Dart VM's reflection (dart:mirrors)
+    when running in Dartium.
+    Reflection is fast in native Dart,
+    so using it makes sense during development.
+    Later, when you build a JavaScript version of your app,
+    the Angular transformer will
+    convert the reflection-using code to static code,
+    so your generated JavaScript can be smaller and faster.
 
 
-// STEP 5 - Declare the HTML ##########################
+//- STEP 5 - Declare the HTML ##########################
 .l-main-section
 
   h2#section-angular-create-account 5. Declare the HTML
@@ -175,7 +189,7 @@ p.
     the following code,
     which loads <code>main.dart</code> and instantiates the my-app component:
 
-  code-example(language="html").
+  code-example(language="html" format="linenums").
     &lt;!doctype html>
     &lt;html>
       &lt;head&gt;
@@ -189,10 +203,10 @@ p.
       &lt;/body>
     &lt;/html>
 
-// STEP 6 - Build and run ##########################
+//- STEP 6 - Run ##########################
 .l-main-section
 
-  h2#section-angular-run-app 6. Build and run your app
+  h2#section-angular-run-app 6. Run your app
 
   p.
     You have a few options for running your app.
@@ -212,36 +226,15 @@ p.
     you should see <b>Hello Alice</b> in your browser window.
 
 
-// STEP 7 - Use the Angular transformer ##########################
+//- STEP 7 - Generate JavaScript ##########################
 .l-main-section
 
-  h2#section-angular-run-app 7. Use the Angular transformer
+  h2#section-angular-run-app 7. Generate JavaScript
 
   p.
-    To enable quick turnaround while you're developing an Angular app,
-    the framework uses reflection via dart:mirrors.
-    Unfortunately, mirror-using Dart code compiles to
-    JavaScript code that's large and slow.
-    To create more deployable JavaScript, use the Angular transformer.
-    The transformer analyzes your code,
-    converting reflection to static code
-    that Dart's build tools can compile to faster, smaller JavaScript.
-
-  p.
-    To use the Angular transformer,
-    first add the highlighted lines to your <code>pubspec.yaml</code>:
-
-  code-example(language="yaml").
-    name: hello_world
-    version: 0.0.1
-    dependencies:
-      angular2: 2.0.0-alpha.25
-      browser: any
-    <span class="pnk">transformers:
-    - angular2:
-        entry_points: web/main.dart</span>
-  p.
-    Then build the JavaScript version using <code>pub build</code>:
+    Before you can deploy your app, you need to generate JavaScript files.
+    Compiling your Dart code to JavaScript is easy:
+    just run <code>pub build</code>.
 
   code-example(language="basic").
     &gt; <span class="blk">pub build</span>
@@ -254,17 +247,39 @@ p.
     [Info from Dart2JS]:
     Took 0:00:16.123086 to compile hello_world|web/main.dart.
     Built 41 files to "build".
+  //- REGENERATE THIS OUTPUT - or delete it? - when updating from 2.0.0-alpha.25
 
   p.
-    The compiled JavaScript appears, along with supporting files,
+    The generated JavaScript appears, along with supporting files,
     under the <code>build</code> directory.
 
   p.
+    When you generate JavaScript for an Angular app,
+    be sure you use the Angular transformer.
+    It analyzes your code,
+    converting reflection-using code to static code
+    that Dart's build tools can compile to faster, smaller JavaScript.
+    The highlighted lines in <code>pubspec.yaml</code>
+    configure the Angular transformer:
+
+  code-example(language="yaml" format="linenums").
+    name: hello_world
+    version: 0.0.1
+    dependencies:
+      angular2: 2.0.0-alpha.25
+      browser: any
+    <span class="pnk">transformers:
+    - angular2:
+        entry_points: web/main.dart</span>
+  p.
+    The <code>entry_points</code> entry
+    identifies the Dart file in your app
+    that has a <code>main()</code> function.
     For more information, see the
     <a href="https://github.com/angular/angular/wiki/Angular-2-Dart-Transformer">Angular
     transformer wiki page</a>.
 
-// WHAT'S NEXT... ##########################
+//- WHAT'S NEXT... ##########################
 .l-main-section
   h2#section-transpile Great job! Next step...
 
