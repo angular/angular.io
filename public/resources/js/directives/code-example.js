@@ -11,7 +11,9 @@ angularIO.directive('codeExample', function() {
 
     compile: function(tElement, attrs) {
       var html = (attrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
-      var template =  '<pre class="prettyprint ' + attrs.format + ' lang-' + attrs.language + '">' +
+      var classes = 'prettyprint ' + attrs.format + ' lang-' + attrs.language +
+          (attrs.showcase === 'true' ? ' is-showcase' : '');
+      var template =  '<pre class="' + classes + '">' +
                       '<code ng-non-bindable>' + html + '</code>' +
                       '</pre>';
 
