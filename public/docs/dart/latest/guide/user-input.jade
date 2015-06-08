@@ -44,11 +44,14 @@
     Then add a method that adds new items
     to the list.
 
-  code-example(language="dart" format="linenums").
+  code-example(language="dart").
     class TodoList {
-      List&lt;String&gt; todos =
-        ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
-
+      List&lt;String&gt; todos =[
+        'Eat breakfast',
+        'Walk dog',
+        'Breathe',
+        'Learn Angular'
+      ];
       addTodo(String todo) {
         todos.add(todo);
       }
@@ -67,12 +70,12 @@
 .l-main-section
   h2#section-display-the-list-of-todos Display the list of todos
   p.
-    Using the <code>*for</code> iterator, create an <code>&lt;li&gt;</code> for each item in the todos list and set
+    Using the <code>*ng-for</code> iterator, create an <code>&lt;li&gt;</code> for each item in the todos list and set
     its text to the value.
 
-  code-example(language="html" format="linenums").
+  code-example(language="html").
     &lt;ul&gt;
-       &lt;li *for=&quot;#todo of todos&quot;&gt;
+       &lt;li *ng-for=&quot;#todo of todos&quot;&gt;
          {{ todo }}
        &lt;/li&gt;
     &lt;/ul&gt;
@@ -101,54 +104,54 @@
     <a href="https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:html">dart:html</a>,
     so be sure to import that library.
 
-  code-tabs
-    code-pane(language="dart" name="todo_list.dart" format="linenums").
-      // In the template:
-      &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
+  code-example(language="dart").
+    import 'dart:html';
+    ...
 
-      // In the component controller class:
-      doneTyping(KeyboardEvent event) {
-        if (event.keyCode == KeyCode.ENTER) {
-          InputElement e = event.target;
-          addTodo(e.value);
-          e.value = null;
-        }
+    // In the template:
+    &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
+    ...
+
+    // In the component controller class:
+    doneTyping(KeyboardEvent event) {
+      if (event.keyCode == KeyCode.ENTER) {
+        InputElement e = event.target;
+        addTodo(e.value);
+        e.value = null;
       }
-    code-pane(language="dart" name="main.dart" format="linenums").
-      library user_input;
-
-      import 'dart:html';
-      ...
+    }
 
 .l-main-section
   h2#section-final-code Final code
 
   code-tabs
-    code-pane(language="dart" name="todo_list.dart" format="linenums").
-      // web/todo_list.dart
-      part of user_input;
+    code-pane(language="dart" name="lib/todo_list.dart" format="linenums").
+      library user_input.todo_list;
 
-      @Component(
-        selector: 'todo-list'
-      )
+      import 'dart:html';
+      import 'package:angular2/angular2.dart';
+
+      @Component(selector: 'todo-list')
       @View(
-        // Without r before ''' (a raw string), $event breaks Angular.
-        // An alternative to a raw string is to use \$event instead.
-        template: r'''
+          // An alternative to using \$event is to use a raw string instead.
+          // For example, change "template: '''" to "template: r'''".
+          template: '''
           &lt;ul&gt;
-            &lt;li *for=&quot;#todo of todos&quot;&gt;
+            &lt;li *ng-for="#todo of todos"&gt;
               {{ todo }}
             &lt;/li&gt;
           &lt;/ul&gt;
 
-          &lt;input #todotext (keyup)="doneTyping($event)"&gt;
+          &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
           &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
-         ''',
-           directives: const[For]
-      )
+      ''', directives: const [NgFor])
       class TodoList {
-        List&lt;String&gt; todos =
-          ['Eat breakfast', 'Walk dog', 'Breathe', 'Learn Angular'];
+        List&lt;String&gt; todos = [
+          'Eat breakfast',
+          'Walk dog',
+          'Breathe',
+          'Learn Angular'
+        ];
 
         addTodo(String todo) {
           todos.add(todo);
@@ -162,24 +165,19 @@
           }
         }
       }
-    code-pane(language="dart" name="main.dart" format="linenums").
-      // web/main.dart
-      library user_input;
-
-      import 'dart:html';
-
+    code-pane(language="dart" name="web/main.dart" format="linenums").
       import 'package:angular2/angular2.dart';
       import 'package:angular2/src/reflection/reflection.dart' show reflector;
-      import 'package:angular2/src/reflection/reflection_capabilities.dart' show ReflectionCapabilities;
+      import 'package:angular2/src/reflection/reflection_capabilities.dart'
+          show ReflectionCapabilities;
 
-      part 'todo_list.dart';
+      import 'package:user_input/todo_list.dart';
 
       main() {
         reflector.reflectionCapabilities = new ReflectionCapabilities();
         bootstrap(TodoList);
       }
-    code-pane(language="html" name="index.html" format="linenums").
-      &lt;!-- web/index.html --&gt;
+    code-pane(language="html" name="web/index.html" format="linenums").
       &lt;!DOCTYPE html&gt;
       &lt;html&gt;
         &lt;head&gt;
@@ -194,10 +192,12 @@
         &lt;/body&gt;
       &lt;/html&gt;
     code-pane(language="yaml" name="pubspec.yaml" format="linenums").
-      # pubspec.yaml
       name: user_input
-      description: Dart version of Angular 2 example, Responding to User Input
+      description: User Input example
       version: 0.0.1
       dependencies:
-        angular2: 2.0.0-alpha.23
-        browser: any
+        angular2: 2.0.0-alpha.26
+        browser: ^0.10.0
+      transformers:
+      - angular2:
+          entry_points: web/main.dart
