@@ -1,7 +1,7 @@
 
 p.location-badge.
   exported from <a href='../annotations'>angular2/annotations</a>
-  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/core/annotations_impl/annotations.ts#L4-L776">angular2/src/core/annotations_impl/annotations.ts (line 4)</a>
+  defined in <a href="https://github.com/angular/angular/tree/3a0410a/modules/angular2/src/core/annotations_impl/annotations.ts#L4-L801">angular2/src/core/annotations_impl/annotations.ts (line 4)</a>
 
 :markdown
   Directives allow you to attach behavior to elements in the DOM.
@@ -229,14 +229,13 @@ p.location-badge.
   
   ### Injecting a live collection of descendant directives
   
-  Note: This is will be implemented in later release. ()
-  
-  Similar to `@Query` above, but also includes the children of the child elements.
+  By passing the descendant flag to `@Query` above, we can include the children of the child
+  elements.
   
   ```
   @Directive({ selector: '[my-directive]' })
   class MyDirective {
-    constructor(@QueryDescendents(Dependency) dependencies:QueryList<Dependency>) {
+    constructor(@Query(Dependency, {descendants: true}) dependencies:QueryList<Dependency>) {
     }
   }
   ```
@@ -414,20 +413,9 @@ p.location-badge.
     pre.prettyprint
       code.
         constructor({
-                      selector, properties, events, hostListeners, hostProperties, hostAttributes,
-                      hostActions, lifecycle, hostInjector, compileChildren = true,
-                  }: {
-        selector?: string,
-        properties?: List&lt;string&gt;,
-        events?: List&lt;string&gt;,
-        hostListeners?: StringMap&lt;string, string&gt;,
-        hostProperties?: StringMap&lt;string, string&gt;,
-        hostAttributes?: StringMap&lt;string, string&gt;,
-        hostActions?: StringMap&lt;string, string&gt;,
-        lifecycle?: List&lt;LifecycleEvent&gt;,
-        hostInjector?: List&lt;any&gt;,
-        compileChildren?: boolean
-      } = {})
+                      selector, properties, events, host, lifecycle, hostInjector, exportAs,
+                      compileChildren = true,
+                  }?: DirectiveArgs)
     
     :markdown
       
@@ -437,273 +425,40 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 compileChildren
+    h3 selector
 
     
     :markdown
 
-      If set to true the compiler does not compile the children of this directive.
+      The CSS selector that triggers the instantiation of a directive.
+      
+      Angular only allows directives to trigger on CSS selectors that do not cross element
+      boundaries.
+      
+      `selector` may be declared as one of the following:
+      
+      - `element-name`: select by element name.
+      - `.class`: select by class name.
+      - `[attribute]`: select by attribute name.
+      - `[attribute=value]`: select by attribute name and value.
+      - `:not(sub_selector)`: select only if the element does not match the `sub_selector`.
+      - `selector1, selector2`: select if either `selector1` or `selector2` matches.
       
       
-
-
-
-
-
-  .l-sub-section
-    h3 events
-
-    
-    :markdown
-
-      Enumerates the set of emitted events.
       
-      ## Syntax
       
-      ```
-      @Component({
-        events: ['statusChange']
-      })
-      class TaskComponent {
-        statusChange:EventEmitter;
+      Suppose we have a directive with an `input[type=text]` selector.
       
-        constructor() {
-          this.statusChange = new EventEmitter();
-        }
+      And the following HTML:
       
-        onComplete() {
-          this.statusChange.next('completed');
-        }
-      }
+      ```html
+      <form>
+        <input type="text">
+        <input type="radio">
+      <form>
       ```
       
-      
-
-
-
-
-
-  .l-sub-section
-    h3 hostActions
-
-    
-    :markdown
-
-      Specifies which DOM methods a directive can invoke.
-      
-      ## Syntax
-      
-      ```
-      @Directive({
-        selector: 'input',
-        hostActions: {
-          'emitFocus': 'focus()'
-        }
-      })
-      class InputDirective {
-        constructor() {
-          this.emitFocus = new EventEmitter();
-        }
-      
-        focus() {
-          this.emitFocus.next();
-        }
-      }
-      
-      In this example calling focus on InputDirective will result in calling focus on the DOM
-      element.
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 hostAttributes
-
-    
-    :markdown
-
-      Specifies static attributes that should be propagated to a host element. Attributes specified
-      in `hostAttributes`
-      are propagated only if a given attribute is not present on a host element.
-      
-      ## Syntax
-      
-      ```
-      @Directive({
-        selector: '[my-button]',
-        hostAttributes: {
-          'role': 'button'
-        }
-      })
-      class MyButton {
-      }
-      
-      In this example using `my-button` directive (ex.: `<div my-button></div>`) on a host element
-      (here: `<div>` )
-      will ensure that this element will get the "button" role.
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 hostInjector
-
-    
-    :markdown
-
-      Defines the set of injectable objects that are visible to a Directive and its light dom
-      children.
-      
-      ## Simple Example
-      
-      Here is an example of a class that can be injected:
-      
-      ```
-      class Greeter {
-         greet(name:string) {
-           return 'Hello ' + name + '!';
-         }
-      }
-      
-      @Directive({
-        selector: 'greet',
-        hostInjector: [
-          Greeter
-        ]
-      })
-      class HelloWorld {
-        greeter:Greeter;
-      
-        constructor(greeter:Greeter) {
-          this.greeter = greeter;
-        }
-      }
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 hostListeners
-
-    
-    :markdown
-
-      Specifies which DOM hostListeners a directive listens to.
-      
-      The `hostListeners` property defines a set of `event` to `method` key-value pairs:
-      
-      - `event1`: the DOM event that the directive listens to.
-      - `statement`: the statement to execute when the event occurs.
-      If the evalutation of the statement returns `false`, then `preventDefault`is applied on the DOM
-      event.
-      
-      To listen to global events, a target must be added to the event name.
-      The target can be `window`, `document` or `body`.
-      
-      When writing a directive event binding, you can also refer to the following local variables:
-      - `$event`: Current event object which triggered the event.
-      - `$target`: The source of the event. This will be either a DOM element or an Angular
-      directive.
-        (will be implemented in later release)
-      
-      
-      ## Syntax
-      
-      ```
-      @Directive({
-        hostListeners: {
-          'event1': 'onMethod1(arguments)',
-          'target:event2': 'onMethod2(arguments)',
-          ...
-        }
-      }
-      ```
-      
-      ## Basic Event Binding:
-      
-      Suppose you want to write a directive that triggers on `change` events in the DOM and on
-      `resize` events in window.
-      You would define the event binding as follows:
-      
-      ```
-      @Directive({
-        selector: 'input',
-        hostListeners: {
-          'change': 'onChange($event)',
-          'window:resize': 'onResize($event)'
-        }
-      })
-      class InputDirective {
-        onChange(event:Event) {
-        }
-        onResize(event:Event) {
-        }
-      }
-      ```
-      
-      Here the `onChange` method of `InputDirective` is invoked whenever the DOM element fires the
-      'change' event.
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 hostProperties
-
-    
-    :markdown
-
-      Specifies which DOM properties a directives updates.
-      
-      ## Syntax
-      
-      ```
-      @Directive({
-        selector: 'input',
-        hostProperties: {
-          'value': 'value'
-        }
-      })
-      class InputDirective {
-        value:string;
-      }
-      
-      In this example every time the value property of the decorator changes, Angular will update the
-      value property of
-      the host element.
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 lifecycle
-
-    
-    :markdown
-
-      Specifies a set of lifecycle hostListeners in which the directive participates.
-      
-      See <a href='annotations/onChange'>onChange</a>, <a href='annotations/onDestroy'>onDestroy</a>,
-      <a href='annotations/onAllChangesDone'>onAllChangesDone</a> for details.
+      The directive would only be instantiated on the `<input type="text">` element.
       
       
 
@@ -783,7 +538,7 @@ p.location-badge.
       For example, we could write a binding that updates the directive on structural changes, rather
       than on reference changes, as normally occurs in change detection.
       
-      See <a href='../change_detection/Pipe-class.html'><code>Pipe</code></a> and <a href='pipes/keyValDiff'>keyValDiff</a> documentation for more details.
+      See <a href='../change_detection/Pipe-class.html'><code>Pipe</code></a> and <a href='../pipes/KeyValueChanges-class.html'><code>KeyValueChanges</code></a> documentation for more details.
       
       ```
       @Directive({
@@ -815,40 +570,295 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 selector
+    h3 events
 
     
     :markdown
 
-      The CSS selector that triggers the instantiation of a directive.
+      Enumerates the set of emitted events.
       
-      Angular only allows directives to trigger on CSS selectors that do not cross element
-      boundaries.
+      ## Syntax
       
-      `selector` may be declared as one of the following:
+      ```
+      @Component({
+        events: ['statusChange']
+      })
+      class TaskComponent {
+        statusChange: EventEmitter;
       
-      - `element-name`: select by element name.
-      - `.class`: select by class name.
-      - `[attribute]`: select by attribute name.
-      - `[attribute=value]`: select by attribute name and value.
-      - `:not(sub_selector)`: select only if the element does not match the `sub_selector`.
-      - `selector1, selector2`: select if either `selector1` or `selector2` matches.
+        constructor() {
+          this.statusChange = new EventEmitter();
+        }
       
-      
-      
-      
-      Suppose we have a directive with an `input[type=text]` selector.
-      
-      And the following HTML:
-      
-      ```html
-      <form>
-        <input type="text">
-        <input type="radio">
-      <form>
+        onComplete() {
+          this.statusChange.next('completed');
+        }
+      }
       ```
       
-      The directive would only be instantiated on the `<input type="text">` element.
+      Use `propertyName: eventName` when the event emitter property name is different from the name
+      of the emitted event:
+      
+      ```
+      @Component({
+        events: ['status: statusChange']
+      })
+      class TaskComponent {
+        status: EventEmitter;
+      
+        constructor() {
+          this.status = new EventEmitter();
+        }
+      
+        onComplete() {
+          this.status.next('completed');
+        }
+      }
+      ```
+      
+      
+
+
+
+
+
+  .l-sub-section
+    h3 host
+
+    
+    :markdown
+
+      Specifiy the events, actions, properties and attributes related to the host element.
+      
+      ## Events
+      
+      Specifies which DOM hostListeners a directive listens to via a set of `(event)` to `method`
+      key-value pairs:
+      
+      - `event1`: the DOM event that the directive listens to.
+      - `statement`: the statement to execute when the event occurs.
+      If the evalutation of the statement returns `false`, then `preventDefault`is applied on the DOM
+      event.
+      
+      To listen to global events, a target must be added to the event name.
+      The target can be `window`, `document` or `body`.
+      
+      When writing a directive event binding, you can also refer to the following local variables:
+      - `$event`: Current event object which triggered the event.
+      - `$target`: The source of the event. This will be either a DOM element or an Angular
+      directive. (will be implemented in later release)
+      
+      ## Syntax
+      
+      ```
+      @Directive({
+        host: {
+          '(event1)': 'onMethod1(arguments)',
+          '(target:event2)': 'onMethod2(arguments)',
+          ...
+        }
+      }
+      ```
+      
+      ## Basic Event Binding:
+      
+      Suppose you want to write a directive that reacts to `change` events in the DOM and on
+      `resize` events in window.
+      You would define the event binding as follows:
+      
+      ```
+      @Directive({
+        selector: 'input',
+        host: {
+          '(change)': 'onChange($event)',
+          '(window:resize)': 'onResize($event)'
+        }
+      })
+      class InputDirective {
+        onChange(event:Event) {
+          // invoked when the input element fires the 'change' event
+        }
+        onResize(event:Event) {
+          // invoked when the window fires the 'resize' event
+        }
+      }
+      ```
+      
+      ## Properties
+      
+      Specifies which DOM properties a directives updates.
+      
+      ## Syntax
+      
+      ```
+      @Directive({
+        selector: 'input',
+        host: {
+          '[prop]': 'expression'
+        }
+      })
+      class InputDirective {
+        value:string;
+      }
+      ```
+      
+      In this example the prop property of the host element is updated with the expression value
+      every time it changes.
+      
+      ## Attributes
+      
+      Specifies static attributes that should be propagated to a host element. Attributes specified
+      in `hostAttributes` are propagated only if a given attribute is not present on a host element.
+      
+      ## Syntax
+      
+      ```
+      @Directive({
+        selector: '[my-button]',
+        host: {
+          'role': 'button'
+        }
+      })
+      class MyButton {
+      }
+      ```
+      
+      In this example using `my-button` directive (ex.: `<div my-button></div>`) on a host element
+      (here: `<div>` ) will ensure that this element will get the "button" role.
+      
+      ## Actions
+      
+      Specifies which DOM methods a directive can invoke.
+      
+      ## Syntax
+      
+      ```
+      @Directive({
+        selector: 'input',
+        host: {
+          '@emitFocus': 'focus()'
+        }
+      })
+      class InputDirective {
+        constructor() {
+          this.emitFocus = new EventEmitter();
+        }
+      
+        focus() {
+          this.emitFocus.next();
+        }
+      }
+      ```
+      
+      In this example calling focus on InputDirective will result in calling focus on the input.
+      
+      
+
+
+
+
+
+  .l-sub-section
+    h3 lifecycle
+
+    
+    :markdown
+
+      Specifies which lifecycle should be notified to the directive.
+      
+      See <a href='onChange-const.html'><code>onChange</code></a>, <a href='onDestroy-const.html'><code>onDestroy</code></a>, <a href='onCheck-const.html'><code>onCheck</code></a>,
+      <a href='onInit-const.html'><code>onInit</code></a>, <a href='onAllChangesDone-const.html'><code>onAllChangesDone</code></a> for details.
+      
+      
+
+
+
+
+
+  .l-sub-section
+    h3 compileChildren
+
+    
+    :markdown
+
+      If set to false the compiler does not compile the children of this directive.
+      
+      
+
+
+
+
+
+  .l-sub-section
+    h3 hostInjector
+
+    
+    :markdown
+
+      Defines the set of injectable objects that are visible to a Directive and its light dom
+      children.
+      
+      ## Simple Example
+      
+      Here is an example of a class that can be injected:
+      
+      ```
+      class Greeter {
+         greet(name:string) {
+           return 'Hello ' + name + '!';
+         }
+      }
+      
+      @Directive({
+        selector: 'greet',
+        hostInjector: [
+          Greeter
+        ]
+      })
+      class HelloWorld {
+        greeter:Greeter;
+      
+        constructor(greeter:Greeter) {
+          this.greeter = greeter;
+        }
+      }
+      ```
+      
+      
+
+
+
+
+
+  .l-sub-section
+    h3 exportAs
+
+    
+    :markdown
+
+      Defines the name that can be used in the template to assign this directive to a variable.
+      
+      ## Simple Example
+      
+      ```
+      @Directive({
+        selector: 'child-dir',
+        exportAs: 'child'
+      })
+      class ChildDir {
+      }
+      
+      @Component({
+        selector: 'main',
+      })
+      @View({
+        template: `<child-dir #c="child"></child-dir>`,
+        directives: [ChildDir]
+      })
+      class MainComponent {
+      }
+      
+      ```
       
       
 
