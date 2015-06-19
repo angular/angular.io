@@ -2,7 +2,7 @@ angularIO.directive('biocard', function($rootScope, $timeout, $mdDialog) {
   return {
     restrict: 'A',
     scope: {},
-    link: function (scope, element, attrs) {
+    link: function(scope, element, attrs) {
       // SET SCOPE VALUES
       scope.name = attrs.name;
       scope.pic = attrs.pic;
@@ -20,7 +20,7 @@ angularIO.directive('biocard', function($rootScope, $timeout, $mdDialog) {
         $mdDialog.show({
           parent: angular.element(document.body),
           targetEvent: $event,
-          scope: scope,        // use parent scope in template
+          scope: scope.$new(),   // Uses prototypal inheritance to gain access to parent scope
           preserveScope: true,
           template:
             '<md-dialog class="modal" aria-label="List dialog">' +
