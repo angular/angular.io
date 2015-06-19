@@ -1,7 +1,7 @@
 
 p.location-badge.
   exported from <a href='../di'>angular2/di</a>
-  defined in <a href="https://github.com/angular/angular/tree/master/modules/angular2/src/di/binding.ts#L25-L246">angular2/src/di/binding.ts (line 25)</a>
+  defined in <a href="https://github.com/angular/angular/tree/f2ef90b/modules/angular2/src/di/binding.ts#L34-L255">angular2/src/di/binding.ts (line 34)</a>
 
 :markdown
   Describes how the <a href='Injector-class.html'><code>Injector</code></a> should instantiate a given token.
@@ -43,25 +43,52 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 dependencies
+    h3 token
 
     
     :markdown
 
-      Used in conjunction with `toFactory` or `toAsyncFactory` and specifies a set of dependencies
-      (as `token`s) which should be injected into the factory function.
+      Token used when retrieving this binding. Usually the `Type`.
       
       
+
+
+
+
+
+  .l-sub-section
+    h3 toClass
+
+    
+    :markdown
+
+      Binds an interface to an implementation / subclass.
+      
+      
+      
+      Becuse `toAlias` and `toClass` are often confused, the example contains both use cases for easy
+      comparison.
       
       ```javascript
-      var injector = Injector.resolveAndCreate([
-        new Binding(Number, { toFactory: () => { return 1+2; }}),
-        new Binding(String, { toFactory: (value) => { return "Value: " + value; },
-                              dependencies: [Number] })
+      
+      class Vehicle {}
+      
+      class Car extends Vehicle {}
+      
+      var injectorClass = Injector.resolveAndCreate([
+        Car,
+        new Binding(Vehicle, { toClass: Car })
+      ]);
+      var injectorAlias = Injector.resolveAndCreate([
+        Car,
+        new Binding(Vehicle, { toAlias: Car })
       ]);
       
-      expect(injector.get(Number)).toEqual(3);
-      expect(injector.get(String)).toEqual('Value: 3');
+      expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
+      expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
+      
+      expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
+      expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
       ```
       
       
@@ -71,19 +98,22 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 resolve
+    h3 toValue
 
-    
-    pre.prettyprint
-      code.
-        resolve()
     
     :markdown
 
-      Converts the <a href='Binding-class.html'><code>Binding</code></a> into <a href='ResolvedBinding-class.html'><code>ResolvedBinding</code></a>.
+      Binds a key to a value.
       
-      <a href='Injector-class.html'><code>Injector</code></a> internally only uses <a href='ResolvedBinding-class.html'><code>ResolvedBinding</code></a>, <a href='Binding-class.html'><code>Binding</code></a> contains
-      convenience binding syntax.
+      
+      
+      ```javascript
+      var injector = Injector.resolveAndCreate([
+        new Binding(String, { toValue: 'Hello' })
+      ]);
+      
+      expect(injector.get(String)).toEqual('Hello');
+      ```
       
       
 
@@ -136,6 +166,33 @@ p.location-badge.
 
 
   .l-sub-section
+    h3 toFactory
+
+    
+    :markdown
+
+      Binds a key to a function which computes the value.
+      
+      
+      
+      ```javascript
+      var injector = Injector.resolveAndCreate([
+        new Binding(Number, { toFactory: () => { return 1+2; }}),
+        new Binding(String, { toFactory: (value) => { return "Value: " + value; },
+                              dependencies: [Number] })
+      ]);
+      
+      expect(injector.get(Number)).toEqual(3);
+      expect(injector.get(String)).toEqual('Value: 3');
+      ```
+      
+      
+
+
+
+
+
+  .l-sub-section
     h3 toAsyncFactory
 
     
@@ -172,53 +229,13 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 toClass
+    h3 dependencies
 
     
     :markdown
 
-      Binds an interface to an implementation / subclass.
-      
-      
-      
-      Becuse `toAlias` and `toClass` are often confused, the example contains both use cases for easy
-      comparison.
-      
-      ```javascript
-      
-      class Vehicle {}
-      
-      class Car extends Vehicle {}
-      
-      var injectorClass = Injector.resolveAndCreate([
-        Car,
-        new Binding(Vehicle, { toClass: Car })
-      ]);
-      var injectorAlias = Injector.resolveAndCreate([
-        Car,
-        new Binding(Vehicle, { toAlias: Car })
-      ]);
-      
-      expect(injectorClass.get(Vehicle)).not.toBe(injectorClass.get(Car));
-      expect(injectorClass.get(Vehicle) instanceof Car).toBe(true);
-      
-      expect(injectorAlias.get(Vehicle)).toBe(injectorAlias.get(Car));
-      expect(injectorAlias.get(Vehicle) instanceof Car).toBe(true);
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 toFactory
-
-    
-    :markdown
-
-      Binds a key to a function which computes the value.
+      Used in conjunction with `toFactory` or `toAsyncFactory` and specifies a set of dependencies
+      (as `token`s) which should be injected into the factory function.
       
       
       
@@ -240,36 +257,19 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 toValue
+    h3 resolve
 
+    
+    pre.prettyprint
+      code.
+        resolve()
     
     :markdown
 
-      Binds a key to a value.
+      Converts the <a href='Binding-class.html'><code>Binding</code></a> into <a href='ResolvedBinding-class.html'><code>ResolvedBinding</code></a>.
       
-      
-      
-      ```javascript
-      var injector = Injector.resolveAndCreate([
-        new Binding(String, { toValue: 'Hello' })
-      ]);
-      
-      expect(injector.get(String)).toEqual('Hello');
-      ```
-      
-      
-
-
-
-
-
-  .l-sub-section
-    h3 token
-
-    
-    :markdown
-
-      Token used when retrieving this binding. Usually the `Type`.
+      <a href='Injector-class.html'><code>Injector</code></a> internally only uses <a href='ResolvedBinding-class.html'><code>ResolvedBinding</code></a>, <a href='Binding-class.html'><code>Binding</code></a> contains
+      convenience binding syntax.
       
       
 
