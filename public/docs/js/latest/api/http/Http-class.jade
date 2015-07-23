@@ -1,26 +1,36 @@
 
 p.location-badge.
   exported from <a href='../http'>angular2/http</a>
-  defined in <a href="https://github.com/angular/angular/tree/3a0410a/modules/angular2/src/http/http.ts#L22-L142">angular2/src/http/http.ts (line 22)</a>
+  defined in <a href="https://github.com/angular/angular/tree/2.0.0-alpha.32/modules/angular2/src/http/http.ts#L32-L178">angular2/src/http/http.ts (line 32)</a>
 
 :markdown
   Performs http requests using `XMLHttpRequest` as the default backend.
   
   `Http` is available as an injectable class, with methods to perform http requests. Calling
-  `request` returns an
-  [Observable](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/observable.md),
-  which will emit a single <a href='Response-class.html'><code>Response</code></a> when a response is
-  received.
+  `request` returns an <a href='../core/EventEmitter-class.html'><code>EventEmitter</code></a> which will emit a single <a href='Response-class.html'><code>Response</code></a> when a
+  response is received.
+  
+  
+  ## Breaking Change
+  
+  Previously, methods of `Http` would return an RxJS Observable directly. For now,
+  the `toRx()` method of <a href='../core/EventEmitter-class.html'><code>EventEmitter</code></a> needs to be called in order to get the RxJS
+  Subject. `EventEmitter` does not provide combinators like `map`, and has different semantics for
+  subscribing/observing. This is temporary; the result of all `Http` method calls will be either an
+  Observable
+  or Dart Stream when [issue #2794](https://github.com/angular/angular/issues/2794) is resolved.
   
   #Example
   
   ```
   import {Http, httpInjectables} from 'angular2/http';
-  @Component({selector: 'http-app', appInjector: [httpInjectables]})
+  @Component({selector: 'http-app', viewInjector: [httpInjectables]})
   @View({templateUrl: 'people.html'})
   class PeopleComponent {
     constructor(http: Http) {
-      http('people.json')
+      http.get('people.json')
+        //Get the RxJS Subject
+        .toRx()
         // Call map on the response observable to get the parsed people object
         .map(res => res.json())
         // Subscribe to the observable to get the parsed people object and attach it to the
@@ -28,6 +38,16 @@ p.location-badge.
         .subscribe(people => this.people = people);
     }
   }
+  ```
+  
+  To use the <a href='../core/EventEmitter-class.html'><code>EventEmitter</code></a> returned by `Http`, simply pass a generator (See "interface
+  Generator" in the Async Generator spec: https://github.com/jhusain/asyncgenerator) to the
+  `observer` method of the returned emitter, with optional methods of `next`, `throw`, and `return`.
+  
+  #Example
+  
+  ```
+  http.get('people.json').observer({next: (value) => this.people = people});
   ```
   
   The default construct used to perform requests, `XMLHttpRequest`, is abstracted as a "Backend" (
@@ -48,7 +68,7 @@ p.location-badge.
         [MockBackend, BaseRequestOptions])
   ]);
   var http = injector.get(Http);
-  http.get('request-from-mock-backend.json').subscribe((res:Response) => doSomething(res));
+  http.get('request-from-mock-backend.json').toRx().subscribe((res:Response) => doSomething(res));
   ```
   
   
@@ -60,7 +80,7 @@ p.location-badge.
     
     pre.prettyprint
       code.
-        constructor(_backend: XHRBackend, _defaultOptions: BaseRequestOptions)
+        constructor(_backend: ConnectionBackend, _defaultOptions: RequestOptions)
     
     :markdown
       
@@ -114,7 +134,7 @@ p.location-badge.
     
     pre.prettyprint
       code.
-        post(url: string, body: URLSearchParams | FormData | Blob | string, options?: IRequestOptions)
+        post(url: string, body: string, options?: IRequestOptions)
     
     :markdown
 
@@ -132,7 +152,7 @@ p.location-badge.
     
     pre.prettyprint
       code.
-        put(url: string, body: URLSearchParams | FormData | Blob | string, options?: IRequestOptions)
+        put(url: string, body: string, options?: IRequestOptions)
     
     :markdown
 
@@ -168,7 +188,7 @@ p.location-badge.
     
     pre.prettyprint
       code.
-        patch(url: string, body: URLSearchParams | FormData | Blob | string, options?: IRequestOptions)
+        patch(url: string, body: string, options?: IRequestOptions)
     
     :markdown
 
