@@ -1,7 +1,7 @@
 
 p.location-badge.
   exported from <a href='../annotations'>angular2/annotations</a>
-  defined in <a href="https://github.com/angular/angular/tree/3a0410a/modules/angular2/src/core/annotations_impl/annotations.ts#L4-L801">angular2/src/core/annotations_impl/annotations.ts (line 4)</a>
+  defined in <a href="https://github.com/angular/angular/tree/2.0.0-alpha.32/modules/angular2/src/core/annotations_impl/annotations.ts#L4-L782">angular2/src/core/annotations_impl/annotations.ts (line 4)</a>
 
 :markdown
   Directives allow you to attach behavior to elements in the DOM.
@@ -58,8 +58,6 @@ p.location-badge.
      Shadow DOM root. Current element is not included in the resolution, therefore even if it could
   resolve it, it will
      be ignored.
-  - `@Parent() directive:DirectiveType`: any directive that matches the type on a direct parent
-  element only.
   - `@Query(DirectiveType) query:QueryList<DirectiveType>`: A live collection of direct child
   directives.
   - `@QueryDescendants(DirectiveType) query:QueryList<DirectiveType>`: A live collection of any
@@ -163,27 +161,6 @@ p.location-badge.
   This directive would be instantiated with `Dependency` declared at the same element, in this case
   `dependency="3"`.
   
-  
-  ### Injecting a directive from a direct parent element
-  
-  Directives can inject other directives declared on a direct parent element. By definition, a
-  directive with a
-  `@Parent` annotation does not attempt to resolve dependencies for the current element, even if
-  this would satisfy
-  the dependency.
-  
-  ```
-  @Directive({ selector: '[my-directive]' })
-  class MyDirective {
-    constructor(@Parent() dependency: Dependency) {
-      expect(dependency.id).toEqual(2);
-    }
-  }
-  ```
-  This directive would be instantiated with `Dependency` declared at the parent element, in this
-  case `dependency="2"`.
-  
-  
   ### Injecting a directive from any ancestor elements
   
   Directives can inject other directives declared on any ancestor element (in the current Shadow
@@ -201,8 +178,8 @@ p.location-badge.
   }
   ```
   
-  Unlike the `@Parent` which only checks the parent, `@Ancestor` checks the parent, as well as its
-  parents recursively. If `dependency="2"` didn't exist on the direct parent, this injection would
+  `@Ancestor` checks the parent, as well as its parents recursively. If `dependency="2"` didn't
+  exist on the direct parent, this injection would
   have returned
   `dependency="1"`.
   
@@ -360,12 +337,12 @@ p.location-badge.
   })
   export class Unless {
     viewContainer: ViewContainerRef;
-    protoViewRef: ProtoViewRef;
+    templateRef: TemplateRef;
     prevCondition: boolean;
   
-    constructor(viewContainer: ViewContainerRef, protoViewRef: ProtoViewRef) {
+    constructor(viewContainer: ViewContainerRef, templateRef: TemplateRef) {
       this.viewContainer = viewContainer;
-      this.protoViewRef = protoViewRef;
+      this.templateRef = templateRef;
       this.prevCondition = null;
     }
   
@@ -375,7 +352,7 @@ p.location-badge.
         this.viewContainer.clear();
       } else if (!newCondition && (isBlank(this.prevCondition) || this.prevCondition)) {
         this.prevCondition = false;
-        this.viewContainer.create(this.protoViewRef);
+        this.viewContainer.create(this.templateRef);
       }
     }
   }
@@ -404,6 +381,7 @@ p.location-badge.
   the instantiated
   view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
   
+  
 .l-main-section
   h2 Members
   .l-sub-section
@@ -415,7 +393,16 @@ p.location-badge.
         constructor({
                       selector, properties, events, host, lifecycle, hostInjector, exportAs,
                       compileChildren = true,
-                  }?: DirectiveArgs)
+                  }?: {
+        selector?: string,
+        properties?: List&lt;string&gt;,
+        events?: List&lt;string&gt;,
+        host?: StringMap&lt;string, string&gt;,
+        lifecycle?: List&lt;LifecycleEvent&gt;,
+        hostInjector?: List&lt;any&gt;,
+        exportAs?: string,
+        compileChildren?: boolean,
+      })
     
     :markdown
       
@@ -480,7 +467,7 @@ p.location-badge.
       - `directiveProperty` specifies the component property where the value is written.
       - `bindingProperty` specifies the DOM property where the value is read from.
       
-      You can include a <a href='../change_detection/Pipe-class.html'><code>Pipe</code></a> when specifying a `bindingProperty` to allow for data
+      You can include a <a href='../change_detection/Pipe-interface.html'><code>Pipe</code></a> when specifying a `bindingProperty` to allow for data
       transformation and structural change detection of the value. These pipes will be evaluated in
       the context of this component.
       
@@ -538,7 +525,7 @@ p.location-badge.
       For example, we could write a binding that updates the directive on structural changes, rather
       than on reference changes, as normally occurs in change detection.
       
-      See <a href='../change_detection/Pipe-class.html'><code>Pipe</code></a> and <a href='../pipes/KeyValueChanges-class.html'><code>KeyValueChanges</code></a> documentation for more details.
+      See <a href='../change_detection/Pipe-interface.html'><code>Pipe</code></a> and <a href='../pipes/KeyValueChanges-class.html'><code>KeyValueChanges</code></a> documentation for more details.
       
       ```
       @Directive({
@@ -766,8 +753,7 @@ p.location-badge.
 
       Specifies which lifecycle should be notified to the directive.
       
-      See <a href='onChange-const.html'><code>onChange</code></a>, <a href='onDestroy-const.html'><code>onDestroy</code></a>, <a href='onCheck-const.html'><code>onCheck</code></a>,
-      <a href='onInit-const.html'><code>onInit</code></a>, <a href='onAllChangesDone-const.html'><code>onAllChangesDone</code></a> for details.
+      See <a href='LifecycleEvent-enum.html'><code>LifecycleEvent</code></a> for details.
       
       
 
