@@ -38,13 +38,13 @@ p.
     specify the angular2 and browser packages as dependencies,
     as well as the angular2 transformer.
     Angular 2 is changing rapidly, so provide an exact version:
-    <b>2.0.0-alpha.29</b>.
+    <b>2.0.0-alpha.33</b>.
 
   code-example(language="yaml" format="linenums").
     name: hello_world
     version: 0.0.1
     dependencies:
-      angular2: 2.0.0-alpha.29
+      angular2: 2.0.0-alpha.33
       browser: ^0.10.0
     transformers:
     - angular2:
@@ -73,16 +73,30 @@ p.
     &gt; <span class="blk">vim web/main.dart</span>  # Use your favorite editor!
 
   p.
-    Edit <code>web/main.dart</code> to import the angular2 library
-    and two reflection libraries:
+    Edit <code>web/main.dart</code> to import the Angular bootstrap library:
 
   code-example(language="dart" format="linenums").
-    import 'package:angular2/angular2.dart';
-    import 'package:angular2/src/reflection/reflection.dart' show reflector;
-    import 'package:angular2/src/reflection/reflection_capabilities.dart'
-        show ReflectionCapabilities;
+    import 'package:angular2/bootstrap.dart';
 //- STEP 3 - Define a component ##########################
 .l-main-section
+
+  .l-sub-section
+    h3 Top-level Angular 2 libraries
+
+    p.
+      The main Dart file for any Angular 2 app must import
+      <code>'package:angular2/bootstrap.dart'</code>.
+      If you put part of your app into one or more additional libraries,
+      those additional libraries must import <code>angular2.dart</code>
+      instead of <code>bootstrap.dart</code>,
+
+    p.
+      The <code>bootstrap.dart</code> and <code>angular2.dart</code> files
+      provide the same API,
+      except that <code>bootstrap.dart</code> also provides a
+      <code>bootstrap()</code> function, which you'll see a little later.
+      For <a href="#performance">performance reasons</a>,
+      use <code>angular2.dart</code> whenever possible.
 
   h2#section-angular-create-account 3. Define a component
 
@@ -163,7 +177,6 @@ p.
 
   code-example(language="dart" format="linenums:16").
     main() {
-      reflector.reflectionCapabilities = new ReflectionCapabilities();
       bootstrap(AppComponent);
     }
 
@@ -172,17 +185,6 @@ p.
     that calls Angular's <code>bootstrap()</code> function.
     The argument to <code>bootstrap()</code> is the name of the component class
     you defined above.
-
-  p.
-    Setting the value of <code>reflector.reflectionCapabilities</code>
-    lets your app use the Dart VM's reflection (dart:mirrors)
-    when running in Dartium.
-    Reflection is fast in native Dart,
-    so using it makes sense during development.
-    Later, when you build a JavaScript version of your app,
-    the Angular transformer will
-    convert the reflection-using code to static code,
-    so your generated JavaScript can be smaller and faster.
 
 
 //- STEP 5 - Declare the HTML ##########################
@@ -245,16 +247,15 @@ p.
 
   code-example(language="basic").
     &gt; <span class="blk">pub build</span>
-    Loading source assets... 
-    Loading angular2 transformers... 
-    INFO: Formatter is being overwritten.
-    Building hello_world... (4.2s) 
+    Loading source assets...
+    ...
+    Building hello_world... (5.7s)
     [Info from Dart2JS]:
     Compiling hello_world|web/main.dart...
     [Info from Dart2JS]:
-    Took 0:00:16.908569 to compile hello_world|web/main.dart.
-    Built 75 files to "build".
-  //- REGENERATE THIS OUTPUT - or delete it? - when updating from 2.0.0-alpha.29
+    Took 0:00:19.177402 to compile hello_world|web/main.dart.
+    Built 303 files to "build".
+  //- REGENERATE THIS OUTPUT - or delete it? - when updating from 2.0.0-alpha.33
 
   p.
     The generated JavaScript appears, along with supporting files,
@@ -273,7 +274,7 @@ p.
     name: hello_world
     version: 0.0.1
     dependencies:
-      angular2: 2.0.0-alpha.29
+      angular2: 2.0.0-alpha.33
       browser: ^0.10.0
     <span class="pnk">transformers:
     - angular2:
@@ -285,6 +286,25 @@ p.
     For more information, see the
     <a href="https://github.com/angular/angular/wiki/Angular-2-Dart-Transformer">Angular
     transformer wiki page</a>.
+
+
+  #performance.l-sub-section
+    h3 Performance, the transformer, and Angular 2 libraries
+
+    p.
+      When you import <code>bootstrap.dart</code>,
+      you also get <code>dart:mirrors</code>,
+      a reflection library that
+      causes performance problems when compiled to JavaScript.
+      Don't worry,
+      the Angular transformer converts your entry points
+      so that they don't use mirrors.
+      The transformer doesn't convert other libraries in your app,
+      so be sure to
+      import <code>angular2.dart</code> instead of <code>bootstrap.dart</code>
+      in any libraries you create that use Angular 2
+      but don't call <code>bootstrap()</code>.
+
 
 //- WHAT'S NEXT... ##########################
 .l-main-section
