@@ -12,6 +12,25 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 3. run `harp server`
 4. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
 
+## Development setup with watches
+ 1. cd into root directory `angular.io/`
+ 2. run `gulp serve-and-watch`
+ 3. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
+ 4. Refresh your browser to see any changes.
+
+## Development setup with watches and browser reload
+ 1. cd into root directory `angular.io/`
+ 2. install `browser-sync`
+
+    `npm install -g browser-sync`<br/>
+
+       *or on Windows*<br/>
+
+    `npm install -g browser-sync --msvs_version=2013`
+
+ 3. run `gulp serve-and-watch`
+ 4. run `browser-sync start --proxy localhost:9000 --files "public/docs/**/*/**/*" --reloadDelay 500`
+ 5. browser will launch and stay refreshed automatically.
 
 ## Technology Used
 - Angular 1.x: The production ready version of Angular
