@@ -13,6 +13,15 @@ var shredOptions =  {
   destDir:  "_fragments"
 };
 
+/*
+Within this repo generated files are checked in so that we can avoid running the
+shredder over the entire _examples dir each time someone refreshes the repo
+( the ‘shred-full’ gulp task). The gulp ‘serve-and-watch’ shredder is only
+a ‘partial’ shredder. It only shred’s files in directories changed during
+the current session.
+*/
+
+
 gulp.task('shred-full', ['shred-clean'], function() {
   docShredder.shred( shredOptions);
 });
@@ -73,4 +82,4 @@ function execCommands(cmds, options, cb) {
 
 
 
-gulp.task('default', ['shred']);
+gulp.task('default', ['shred-full']);
