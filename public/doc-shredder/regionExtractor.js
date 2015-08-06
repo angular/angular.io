@@ -13,7 +13,7 @@ module.exports = function regionExtractor() {
     var docStack = [];
     var doc = null;
     var nullLine = '###';
-    var rx = new RegExp(nullLine + '\n', 'g');
+
     lines.forEach(function(line, ix) {
       if (isCommentLine(line, commentPrefixes)) {
         if (hasRegionTag(line)) {
@@ -37,6 +37,7 @@ module.exports = function regionExtractor() {
         content = lines.slice(doc.startIx + 1).join('\n');
       }
       // eliminate all #docregion lines
+      var rx = new RegExp(nullLine + '\n', 'g');
       doc.content = content.replace(rx, '');
 
     });
