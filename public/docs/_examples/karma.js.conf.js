@@ -15,15 +15,15 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'https://code.angularjs.org/2.0.0-alpha.26/angular2.sfx.dev.js', watched: false },
-      
+      { pattern: 'https://code.angularjs.org/2.0.0-alpha.34/angular2.sfx.dev.js', watched: false },
+
       '**/js/*.js',
     ],
 
 
     // list of files to exclude
     exclude: [
-      '**/protractor-spec.js'
+      '**/*.e2e-spec.js'
     ],
 
 

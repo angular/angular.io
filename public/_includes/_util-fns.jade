@@ -1,13 +1,46 @@
-- var getFrag = function(fileName) {
+
+
+
+
+- var getFrag = function(fileName, stylePatterns) {
 -   var frag = partial(fileName);
 -   if (frag == null) {
--     return "BAD FILENAME: " + fileName + "   Current path: " + current.path;
+-     return "BAD FILENAME: " + fileName + "   Current path: " + current.path +  " Fragment path: " + current.pathToFrags;
 -   } else {
 -     // ``` gets translated to <pre><code>.....</code></pre> and we need
 -     // to remove this from the fragment prefix is 11 long and suffix is 13 long
 -     var r = frag.substring(11, frag.length-13);
+-     if (stylePatterns) {
+-        for (var styleName in stylePatterns) {
+-          var rxs = stylePatterns[styleName];
+-          rxs = Array.isArray(rxs) ? rxs : [rxs];
+-          rxs.forEach(function(rx) {
+-            r = annotate(r, styleName, rx );
+-          });
+-        }
+-     }
 -     return r;
 -   }
+- }
+
+- var annotate = function(str, styleName, rx) {
+-   var repls = {};
+-   var matches;
+-   do {
+-     matches = rx.exec(str);
+-     if (matches) {
+-       matches.slice(1).forEach(function(match) {
+-         var repl = '<span class="' + styleName + '">' + match + '</span>';
+-         repls[match] = { repl: repl, isGlobal: rx.global };
+-       });
+-     }
+-   } while (matches != null && rx.global );
+-   for (var match in repls) {
+-     var repl = repls[match];
+-     var rx2 = new RegExp(match, repl.isGlobal ? "g" : "");
+-     str = str.replace(rx2, repl.repl);
+-   };
+-   return str;
 - }
 
 - var getExtn = function(fileName) {
@@ -15,31 +48,37 @@
 -   return ix > 0 ? fileName.substr(ix+1) : "";
 - }
 
-// HACK: to avoid having to include a path in makeTabs calls
-- var currentPath = current.path;
+- var getPathToFrags = function() {
+-   var currentPath = current.path;
+-   // simple way to only take as many '../' sections as we need to back up to the 'docs' dir
+-   // from the current document
+-   // we will almost certainly never go 10 or 11 deep but ...
+-   return current.pathToFrags || "../../../../../../../../../../../".substr(0, (currentPath.length-2)*3) + "_fragments/";
+- }
 
-// simple way to only take as many '../' sections as we need to back up to the 'docs' dir
-// from the current document
-// we will almost certainly never go 10 or 11 deep but ...
-- var pathToFrags = "../../../../../../../../../../../".substr(0, (currentPath.length-2)*3) + "_fragments/";
+mixin makeExample(path, fileName, title, stylePatterns)
 
-mixin makeExample(path, fileName, title)
-  - var extn = getExtn(fileName);
-  - var extPath = pathToFrags + path + "/";
+  - var language = attributes.language || getExtn(fileName);
+  - var format = attributes.format || "linenums";
+  - var extPath = getPathToFrags() + path + "/";
+
   if (title)
     .example-title #{title}
-  code-example(language="#{extn}" format="linenums")
-    != getFrag(extPath + fileName + ".md")
+  code-example(language="#{language}" format="#{format}")
+    != getFrag(extPath + fileName + ".md", stylePatterns)
 
-mixin makeTabs(path, fileNames, tabNames)
+mixin makeTabs(path, fileNames, tabNames, stylePatterns)
   - fileNames = fileNames.split(",");
   - tabNames = tabNames.split(",")
   // .p Length #{currentPath.length}
+
   code-tabs
       each fileName,index in fileNames
         - var tabName = tabNames[index].trim();
         - var fileName = fileNames[index].trim();
-        - var extn = getExtn(fileName);
-        - var extPath = pathToFrags + path + "/";
-        code-pane(language="#{extn}" name="#{tabName}" format="linenums")
-            != getFrag(extPath + fileName + ".md")
+        - var language = attributes.language || getExtn(fileName);
+        - var format = attributes.format || "linenums";
+        - var extPath = getPathToFrags() + path + "/";
+        - var sps = Array.isArray(stylePatterns) ? stylePatterns[index] : stylePatterns;
+        code-pane(language="#{language}" name="#{tabName}" format="#{format}")
+            != getFrag(extPath + fileName + ".md", sps)
