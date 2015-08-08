@@ -28,9 +28,8 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
     `npm install -g browser-sync --msvs_version=2013`
 
- 3. run `gulp serve-and-watch`
- 4. run `browser-sync start --proxy localhost:9000 --files "public/docs/**/*/**/*" --reloadDelay 500`
- 5. browser will launch and stay refreshed automatically.
+ 3. run `gulp serve-and-sync`
+ 4. browser will launch ( on localhost:3000 instead of localhost:9000) and stay refreshed automatically.
 
 ## Technology Used
 - Angular 1.x: The production ready version of Angular

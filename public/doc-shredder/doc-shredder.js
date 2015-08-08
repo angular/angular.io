@@ -1,8 +1,9 @@
-
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
 var path = require('canonical-path');
-// var path = require('path');
+var Q = require('q');
 var del = require('del');
+// delPromise is a 'promise' version of del
+var delPromise =  Q.denodeify(del);
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 
@@ -51,11 +52,10 @@ var shredSingleDir = function(shredOptions, filePath) {
     destDir:  destDir
   }
   var cleanPath = path.join(shredOptions.basePath, destDir, '*.*')
-  del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
+  return delPromise([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     return shred(options);
   });
-
 }
 
 module.exports = {
