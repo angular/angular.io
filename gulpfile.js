@@ -1,13 +1,12 @@
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var gutil = require('gulp-util');
-var Dgeni = require('dgeni');
 var path = require('path');
 var del = require('del');
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
-var shredOptions =  {
+var _shredOptions =  {
   basePath: path.resolve('./public/docs'),
   sourceDir: "_examples",
   destDir:  "_fragments"
@@ -21,32 +20,49 @@ a ‘partial’ shredder. It only shred’s files in directories changed during
 the current session.
 */
 
+gulp.task('serve-and-sync', function (cb) {
+  execCommands(['harp server'], {}, cb);
 
-gulp.task('shred-full', ['shred-clean'], function() {
-  docShredder.shred( shredOptions);
+  var browserSync = require('browser-sync').create();
+  browserSync.init({
+    proxy: 'localhost:9000',
+    files: "public/docs/**/*/**/*",
+    logFileChanges: true,
+    reloadDelay: 500
+  });
+
+  shredWatch(_shredOptions, function() {
+    browserSync.reload();
+  });
 });
 
 gulp.task('serve-and-watch', function (cb) {
-  var pattern = path.join(shredOptions.basePath, shredOptions.sourceDir, "**/*.*");
+  execCommands(['harp server'], {}, cb);
+  shredWatch(_shredOptions);
+});
 
-  execCommands(['harp server'])
-
-  watch([ pattern], function(event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
-    docShredder.shredSingleDir(shredOptions, event.path);
-  });
-
+gulp.task('shred-full', ['shred-clean'], function() {
+  docShredder.shred( _shredOptions);
 });
 
 gulp.task('shred-clean', function(cb) {
-  var cleanPath = path.join(shredOptions.basePath, shredOptions.destDir, '**/*.*')
+  var cleanPath = path.join(_shredOptions.basePath, _shredOptions.destDir, '**/*.*')
   del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     cb();
   });
 });
 
+function shredWatch(shredOptions, postShredAction) {
+  var pattern = path.join(shredOptions.basePath, shredOptions.sourceDir, "**/*.*");
+  watch([pattern], function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
+      postShredAction && postShredAction();
+    });
+  });
+}
 
 // added options are: shouldLog
 // cb is function(err, stdout, stderr);
