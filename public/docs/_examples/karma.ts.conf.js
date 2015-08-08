@@ -17,15 +17,15 @@ module.exports = function(config) {
     files: [
       { pattern: 'https://github.jspm.io/jmcriffey/bower-traceur-runtime@0.0.87/traceur-runtime.js', watched: false },
       { pattern: 'https://jspm.io/system@0.16.js', watched: false },
-      { pattern: 'https://code.angularjs.org/2.0.0-alpha.26/angular2.dev.js', watched: false },
-      
-      '**/ts/*.js',
+      { pattern: 'https://code.angularjs.org/2.0.0-alpha.34/angular2.dev.js', watched: false },
+
+      '**/ts/**/*.spec.js'
     ],
 
 
     // list of files to exclude
     exclude: [
-      '**/protractor-spec.js'
+      '**/*.e2e-spec.js'
     ],
 
 

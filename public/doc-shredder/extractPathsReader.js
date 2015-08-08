@@ -7,7 +7,7 @@ var path = require('canonical-path');
 
 module.exports = function extractPathsReader(log) {
   // regex for makeTabs line
-  var rx = /\s*\+makeTabs\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
+  var rx = /\s*\+make(?:=Tabs|Example)\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
   return {
     name: 'extractPathsReader',
 

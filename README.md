@@ -7,16 +7,17 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 
 ## Development Setup
-1. Install version 0.17 of [Harp](http://harpjs.com/) (This is the current harp version.)
+1. install version 0.17 of [Harp](http://harpjs.com/) (This is the current harp version.)
 2. cd into root directory `angular.io/`
+3. install local packages by running `npm install`
 3. run `harp server`
 4. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
 
 ## Development setup with watches
  1. cd into root directory `angular.io/`
  2. run `gulp serve-and-watch`
- 3. Open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
- 4. Refresh your browser to see any changes.
+ 3. open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
+ 4. refresh your browser to see any changes.
 
 ## Development setup with watches and browser reload
  1. cd into root directory `angular.io/`
