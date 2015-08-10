@@ -6,7 +6,7 @@ var watch = require('gulp-watch');
 
 var docShredder = require('../doc-shredder');
 
-var shredOptions =  docShredder.resolveOptions({
+var shredOptions =  docShredder.resolveShredOptions({
   sourceDir: "test_source",
   destDir:  "test_fragments"
 });
@@ -32,6 +32,16 @@ gulp.task('watch', function (cb) {
   });
 });
 
+gulp.task('map', function() {
+  var options = {
+    sourceDir: 'test_jade',
+    destDir: 'test_jade'
+  }
+  return docShredder.getShredMap(options).then(function(x) {
+    var docMaps = x.docMaps;
+  })
+
+});
 
 gulp.task('default', ['shred']);
 
