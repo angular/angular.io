@@ -13,6 +13,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 // #docregion import
 var angular2_1 = require('angular2/angular2');
 // #enddocregion
+// #docregion class-w-annotations
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -22,12 +23,15 @@ var AppComponent = (function () {
         }),
         angular2_1.View({
             template: '<h1 id="output">My first Angular 2 App</h1>'
-        }), 
+        }),
         __metadata('design:paramtypes', [])
     ], AppComponent);
     return AppComponent;
 })();
+// #enddocregion
+// #enddocregion
 // #docregion bootstrap
 angular2_1.bootstrap(AppComponent);
 // #enddocregion
-//# sourceMappingURL=main.js.map
+// #enddocregion
+//# sourceMappingURL=app.js.map

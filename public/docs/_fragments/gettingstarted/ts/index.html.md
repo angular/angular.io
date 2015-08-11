@@ -9,7 +9,7 @@
   <body>
     <my-app></my-app>
     <script>
-      System.import('main');
+      System.import('app');
     </script>
   </body>
 </html>

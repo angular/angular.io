@@ -6,15 +6,15 @@ describe('Protractor quick start test', function() {
  		browser.get('gettingstarted/js/index.html');
 	});
 	// #enddocregion
-	
+
 	// #docregion typescript
 	it('should display Alice with TypeScrip', function() {
  		browser.get('gettingstarted/ts/index.html');
 	});
 	// #enddocregion
-	
+
 	afterEach(function() {
-		expect(element(by.id('output')).getText()).toEqual('My first Angular 2 App');
+		expect(element(by.id('output')).getText()).toEqual('My First Angular 2 App');
 	});
 });
 
