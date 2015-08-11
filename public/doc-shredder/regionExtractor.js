@@ -17,10 +17,10 @@ module.exports = function regionExtractor() {
     lines.forEach(function(line, ix) {
       if (isCommentLine(line, commentPrefixes)) {
         if (hasRegionTag(line)) {
+          if (doc) docStack.push(doc);
           doc = {startIx: ix, regionName: getRegionName(line)};
           lines[ix] = nullLine;
           docs.push(doc);
-          docStack.push(doc);
         } else if (hasEndRegionTag(line)) {
           lines[ix] = nullLine;
           doc.endIx = ix;
@@ -38,8 +38,11 @@ module.exports = function regionExtractor() {
       }
       // eliminate all #docregion lines
       var rx = new RegExp(nullLine + '\n', 'g');
-      doc.content = content.replace(rx, '');
-
+      var content = content.replace(rx, '');
+      if (content.substr(-3) === nullLine) {
+        content = content.substr(0, content.length-3);
+      }
+      doc.content = content;
     });
     return docs;
   }
