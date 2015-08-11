@@ -15,12 +15,15 @@ module.exports = function shredMapProcessor(log) {
       var options = this.options;
       var jadeToFragMap = {};
       var fragToJadeMap = {};
+
       docs.forEach(function(doc) {
         var jadePath = path.join(options.jadeDir, doc.fileInfo.relativePath);
         var fragInfos = doc.fragPaths.map(function(fragPath) {
-          fragPath =  path.join(options.fragmentsDir, fragPath) + '.md';
-          var fullPath = path.join(options.basePath, fragPath);
-          var fragInfo = { fragPath: fragPath, exists: fs.existsSync(fullPath) };
+          var relativeFragPath =  path.join(options.fragmentsDir, fragPath) + '.md';
+          var fullPath = path.join(options.basePath, relativeFragPath);
+          var examplePath = getExampleName(fragPath);
+          var relativeExamplePath = path.join(options.examplesDir, examplePath);
+          var fragInfo = { fragPath: relativeFragPath, examplePath: relativeExamplePath, exists: fs.existsSync(fullPath) };
           if (fragInfo.exists) {
             var jadePaths = fragToJadeMap[fragInfo];
             if (!jadePaths) {
@@ -55,3 +58,14 @@ module.exports = function shredMapProcessor(log) {
     }
   };
 };
+
+function getExampleName(fragPath) {
+  // pattern to isolate base fileName and extension from fragment name
+  var rx = /(.*)\-(.*)\.(.s)/;
+  var r = rx.exec(fragPath);
+  if (r) {
+    return r[1] + '.' + r[3];
+  } else {
+    return fragPath;
+  }
+}

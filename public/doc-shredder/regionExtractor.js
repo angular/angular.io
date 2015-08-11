@@ -1,4 +1,8 @@
 module.exports = function regionExtractor() {
+
+  var nullLine = '###';
+  var nullLinePattern = new RegExp(nullLine + '\n', 'g');
+
   // split out each fragment in {content} into a separate doc
   // a fragment is a section of text surrounded by
   //   1) In front: a comment marker followed by '#docregion' followed by an optional region name. For example:
@@ -12,7 +16,6 @@ module.exports = function regionExtractor() {
     var docs = [];
     var docStack = [];
     var doc = null;
-    var nullLine = '###';
 
     lines.forEach(function(line, ix) {
       if (isCommentLine(line, commentPrefixes)) {
@@ -29,7 +32,7 @@ module.exports = function regionExtractor() {
       }
     });
 
-    var rx = new RegExp(nullLine + '\n', 'g');
+
     docs.forEach(function(doc) {
       var content;
       if (doc.endIx) {
@@ -38,7 +41,7 @@ module.exports = function regionExtractor() {
         content = lines.slice(doc.startIx + 1).join('\n');
       }
       // eliminate all #docregion lines
-      content = content.replace(rx, '');
+      content = content.replace(nullLinePattern, '');
       if (content.substr(-3) === nullLine) {
         content = content.substr(0, content.length-3);
       }
