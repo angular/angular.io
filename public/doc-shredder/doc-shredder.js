@@ -7,28 +7,7 @@ var delPromise =  Q.denodeify(del);
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 
-var resolveShredOptions = function(shredOptions) {
-  return _.defaults({}, shredOptions, {
-    basePath: path.resolve('.'),
-    // read files from any subdir under here
-    sourceDir: "docs/_examples",
-    // shredded files get copied here with same subdir structure.
-    destDir: "docs/_fragments",
-    // whether to include subdirectories when shredding.
-    includeSubdirs: true
-  });
-}
 
-var resolveMapOptions = function(mapOptions) {
-  return _.defaults({}, mapOptions, {
-    basePath: path.resolve('.'),
-    // read files from any subdir under here
-    sourceDir: "docs",
-    destDir: "docs",
-    // whether to include subdirectories when shredding.
-    includeSubdirs: true
-  });
-}
 
 var shred = function(shredOptions) {
   try {
@@ -42,26 +21,26 @@ var shred = function(shredOptions) {
 }
 
 var shredSingleDir = function(shredOptions, filePath) {
-  shredOptions = resolveOptions(shredOptions);
-  var root = path.resolve(shredOptions.basePath, shredOptions.sourceDir);
+  shredOptions = resolveShredOptions(shredOptions);
+  var root = path.resolve(shredOptions.basePath, shredOptions.examplesDir);
   var fileDir = path.dirname(filePath);
   var relativePath = path.relative(root, fileDir);
-  var sourceDir = path.join(shredOptions.sourceDir, relativePath);
-  var destDir = path.join(shredOptions.destDir, relativePath);
+  var examplesDir = path.join(shredOptions.examplesDir, relativePath);
+  var fragmentsDir = path.join(shredOptions.fragmentsDir, relativePath);
   var options = {
     basePath: shredOptions.basePath,
     includeSubdirs: false,
-    sourceDir: sourceDir,
-    destDir:  destDir
+    examplesDir: examplesDir,
+    fragmentsDir: fragmentsDir
   }
-  var cleanPath = path.join(shredOptions.basePath, destDir, '*.*')
+  var cleanPath = path.join(shredOptions.basePath, fragmentsDir, '*.*')
   return delPromise([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     return shred(options);
   });
 }
 
-var getShredMap = function(shredMapOptions) {
+var buildShredMap = function(shredMapOptions) {
   try {
     var pkg = createShredMapPackage(shredMapOptions);
     var dgeni = new Dgeni([ pkg]);
@@ -73,11 +52,11 @@ var getShredMap = function(shredMapOptions) {
 }
 
 
+
 module.exports = {
   shred: shred,
   shredSingleDir: shredSingleDir,
-  resolveShredOptions: resolveShredOptions,
-  getShredMap: getShredMap
+  buildShredMap: buildShredMap
 };
 
 function createShredPackage(shredOptions) {
@@ -103,9 +82,9 @@ function createShredPackage(shredOptions) {
       var extns = ['*.js', '*.html', '*.ts', '*.css' ];
       var includeFiles = extns.map(function(extn) {
         if (options.includeSubdirs) {
-          return path.join(options.sourceDir, '**', extn);
+          return path.join(options.examplesDir, '**', extn);
         } else {
-          return path.join(options.sourceDir, extn);
+          return path.join(options.examplesDir, extn);
         }
       });
       readFilesProcessor.sourceFiles = [ {
@@ -113,18 +92,18 @@ function createShredPackage(shredOptions) {
         include: includeFiles,
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
-        basePath: options.sourceDir
+        basePath: options.examplesDir
       } ];
     })
     .config(function(writeFilesProcessor) {
       // Specify where the writeFilesProcessor will write our generated doc files
-      writeFilesProcessor.outputFolder  = options.destDir;
+      writeFilesProcessor.outputFolder  = options.fragmentsDir;
     });
   return pkg;
 }
 
 var createShredMapPackage = function(mapOptions) {
-  var pkg = new Dgeni.Package('docshred-mapper', [
+  var pkg = new Dgeni.Package('doc-shred-mapper', [
     require('dgeni-packages/base'),
     require('dgeni-packages/nunjucks')
   ]);
@@ -133,7 +112,9 @@ var createShredMapPackage = function(mapOptions) {
   initializePackage(pkg)
     .factory(require('./extractPathsReader'))
     .processor(require('./shredMapProcessor'))
-
+    .config(function(shredMapProcessor) {
+      shredMapProcessor.options = options;
+    })
     .config(function(readFilesProcessor, extractPathsReader ) {
       readFilesProcessor.fileReaders = [ extractPathsReader];
     })
@@ -146,9 +127,9 @@ var createShredMapPackage = function(mapOptions) {
       var extns = ['*.jade' ];
       var includeFiles = extns.map(function(extn) {
         if (options.includeSubdirs) {
-          return path.join(options.sourceDir, '**', extn);
+          return path.join(options.jadeDir, '**', extn);
         } else {
-          return path.join(options.sourceDir, extn);
+          return path.join(options.jadeDir, extn);
         }
       });
       readFilesProcessor.sourceFiles = [ {
@@ -156,15 +137,15 @@ var createShredMapPackage = function(mapOptions) {
         include: includeFiles,
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
-        basePath: options.sourceDir
+        basePath: options.jadeDir
       } ];
     })
     .config(function(writeFilesProcessor) {
       // Specify where the writeFilesProcessor will write our generated doc files
-      writeFilesProcessor.outputFolder  = options.destDir;
+      writeFilesProcessor.outputFolder  = options.outputDir;
     })
     .config(function(templateFinder) {
-      // Add a folder to search for our own templates to use when rendering docs
+      // look for templates in this folder
       templateFinder.templateFolders = [ path.resolve(__dirname) ];
 
       // Specify how to match docs to templates.
@@ -174,6 +155,7 @@ var createShredMapPackage = function(mapOptions) {
     .config(function(computePathsProcessor, computeIdsProcessor)  {
       computePathsProcessor.$enabled = false;
       computeIdsProcessor.$enabled = false;
+      // Unused for now.
       //computePathsProcessor.pathTemplates.push({
       //  docTypes: ['foo'],
       //  pathTemplate: '',
@@ -190,6 +172,30 @@ var createShredMapPackage = function(mapOptions) {
     });
 
   return pkg;
+}
+
+function resolveShredOptions(shredOptions) {
+  return _.defaults({}, shredOptions, {
+    basePath: path.resolve('.'),
+    // read files from any subdir under here
+    examplesDir: "docs/_examples",
+    // shredded files get copied here with same subdir structure.
+    fragmentsDir: "docs/_fragments",
+    // whether to include subdirectories when shredding.
+    includeSubdirs: true
+  });
+}
+
+function resolveMapOptions(mapOptions) {
+  return _.defaults({}, mapOptions, {
+    basePath: path.resolve('.'),
+    // read files from any subdir under here
+    jadeDir: "docs",
+    fragmentsDir: "docs/_fragments",
+    examplesDir: "docs/_examples",
+    // whether to include subdirectories when shredding.
+    includeSubdirs: true
+  });
 }
 
 function initializePackage(pkg) {

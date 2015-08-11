@@ -29,6 +29,7 @@ module.exports = function regionExtractor() {
       }
     });
 
+    var rx = new RegExp(nullLine + '\n', 'g');
     docs.forEach(function(doc) {
       var content;
       if (doc.endIx) {
@@ -37,8 +38,7 @@ module.exports = function regionExtractor() {
         content = lines.slice(doc.startIx + 1).join('\n');
       }
       // eliminate all #docregion lines
-      var rx = new RegExp(nullLine + '\n', 'g');
-      var content = content.replace(rx, '');
+      content = content.replace(rx, '');
       if (content.substr(-3) === nullLine) {
         content = content.substr(0, content.length-3);
       }
