@@ -6,17 +6,17 @@ var watch = require('gulp-watch');
 
 var docShredder = require('../doc-shredder');
 
-var shredOptions =  docShredder.resolveShredOptions({
-  sourceDir: "test_source",
-  destDir:  "test_fragments"
-});
+var shredOptions =  {
+  examplesDir: "test_source",
+  fragmentsDir:  "test_fragments"
+};
 
 gulp.task('shred', function() {
   return docShredder.shred(shredOptions);
 });
 
 gulp.task('clean', function (cb) {
-  var cleanPath = path.join(shredOptions.destDir, '**/*.*')
+  var cleanPath = path.join(shredOptions.fragmentsDir, '**/*.*')
   del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     cb();
@@ -24,7 +24,7 @@ gulp.task('clean', function (cb) {
 });
 
 gulp.task('watch', function (cb) {
-  var pattern = path.join(shredOptions.sourceDir, "**/*.*");
+  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
   watch([ pattern], function(event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
@@ -34,10 +34,12 @@ gulp.task('watch', function (cb) {
 
 gulp.task('map', function() {
   var options = {
-    sourceDir: 'test_jade',
-    destDir: 'test_jade'
+    jadeDir: 'test_jade',
+    examplesDir: 'test_source',
+    fragmentsDir: 'test_fragments',
+    outputDir: '.'
   }
-  return docShredder.getShredMap(options).then(function(x) {
+  return docShredder.buildShredMap(options).then(function(x) {
     var docMaps = x.docMaps;
   })
 

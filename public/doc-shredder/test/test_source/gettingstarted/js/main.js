@@ -1,4 +1,4 @@
-```
+// #docregion
 function AppComponent() {}
 
 AppComponent.annotations = [
@@ -10,8 +10,8 @@ AppComponent.annotations = [
   })
 ];
 
+// #docregion bootstrap
 document.addEventListener('DOMContentLoaded', function() {
   angular.bootstrap(AppComponent);
 });
-
-```
+// #enddocregion
