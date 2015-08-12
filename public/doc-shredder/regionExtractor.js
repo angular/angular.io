@@ -25,9 +25,11 @@ module.exports = function regionExtractor() {
           lines[ix] = nullLine;
           docs.push(doc);
         } else if (hasEndRegionTag(line)) {
-          lines[ix] = nullLine;
-          doc.endIx = ix;
-          doc = docStack.pop();
+          if (doc) {
+            lines[ix] = nullLine;
+            doc.endIx = ix;
+            doc = docStack.pop();
+          }
         }
       }
     });
