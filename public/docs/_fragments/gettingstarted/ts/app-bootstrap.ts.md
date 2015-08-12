@@ -1,4 +1,3 @@
 ```
 bootstrap(AppComponent);
-###
 ```

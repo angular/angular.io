@@ -8,12 +8,11 @@ var AppComponent = (function () {
             selector: 'my-app'
         }),
         angular2_1.View({
-            template: '<h1 id="output">My first Angular 2 App</h1>'
-        }),
+            template: '<h1 id="output">My First Angular 2 App</h1>'
+        }), 
         __metadata('design:paramtypes', [])
     ], AppComponent);
     return AppComponent;
 })();
-angular2_1.bootstrap(AppComponent);
-//# sourceMappingURL=app.js.map
+
 ```

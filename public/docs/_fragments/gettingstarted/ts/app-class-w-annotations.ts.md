@@ -8,6 +8,4 @@
 class AppComponent {
 }
 
-bootstrap(AppComponent);
-###
 ```

@@ -11,5 +11,5 @@ class AppComponent {
 }
 
 bootstrap(AppComponent);
-###
+
 ```
