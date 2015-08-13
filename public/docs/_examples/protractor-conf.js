@@ -1,12 +1,11 @@
 exports.config = {
 	onPrepare: function() {
-		patchProtractorWait(browser);	
+		patchProtractorWait(browser);
 	},
 	seleniumAddress: 'http://localhost:4444/wd/hub',
   baseUrl: 'http://localhost:8080/',
 	specs: [
-    'quickstart/protractor-spec.js',
-    'gettingstarted/protractor-spec.js'
+    '**/*e2e-spec.js'
   ]
 };
 
