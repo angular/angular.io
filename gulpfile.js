@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var watch = require('gulp-watch');
 var gutil = require('gulp-util');
+var taskListing = require('gulp-task-listing');
 var path = require('path');
 var del = require('del');
 var _ = require('lodash');
@@ -20,6 +21,8 @@ shredder over the entire _examples dir each time someone refreshes the repo
 a ‘partial’ shredder. It only shred’s files in directories changed during
 the current session.
 */
+
+gulp.task('help', taskListing);
 
 gulp.task('serve-and-sync', function (cb) {
   execCommands(['harp server'], {}, cb);
@@ -109,4 +112,4 @@ function execCommands(cmds, options, cb) {
 
 
 
-gulp.task('default', ['shred-full']);
+gulp.task('default', taskListing);
