@@ -1,8 +1,8 @@
 var gulp = require('gulp');
 var path = require('canonical-path');
-var Dgeni = require('dgeni');
 var del = require('del');
 var watch = require('gulp-watch');
+var taskListing = require('gulp-task-listing');
 
 var docShredder = require('../doc-shredder');
 
@@ -10,6 +10,8 @@ var shredOptions =  {
   examplesDir: "test_source",
   fragmentsDir:  "test_fragments"
 };
+
+gulp.task('help', taskListing);
 
 gulp.task('shred', function() {
   return docShredder.shred(shredOptions);
@@ -45,5 +47,5 @@ gulp.task('map', function() {
 
 });
 
-gulp.task('default', ['shred']);
+gulp.task('default', taskListing);
 
