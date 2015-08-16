@@ -20,8 +20,9 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 ## Development setup with watches and browser reload
  1. cd into root directory `angular.io/`
- 2. run `gulp serve-and-sync`
- 3. browser will launch ( on localhost:3000 instead of localhost:9000) and stay refreshed automatically.
+ 2. npm install
+ 3. run `gulp serve-and-sync`
+ 4. browser will launch ( on localhost:3000 instead of localhost:9000) and stay refreshed automatically.
 
 ## Technology Used
 - Angular 1.x: The production ready version of Angular
