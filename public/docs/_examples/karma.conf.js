@@ -15,16 +15,19 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      { pattern: 'https://code.angularjs.org/2.0.0-alpha.34/angular2.sfx.dev.js', watched: false },
       { pattern: 'https://github.jspm.io/jmcriffey/bower-traceur-runtime@0.0.87/traceur-runtime.js', watched: false },
       { pattern: 'https://jspm.io/system@0.16.js', watched: false },
-      { pattern: 'https://code.angularjs.org/2.0.0-alpha.34/angular2.dev.js', watched: false },
-
-      '**/ts/**/*.spec.js'
+       '**/spec.js',
+       '**/*.spec.js',
+       '**/js/*.js',
+      { pattern: '**/ts/*.js', included: false },
     ],
 
 
     // list of files to exclude
     exclude: [
+      '**/e2e-spec.js',
       '**/*.e2e-spec.js'
     ],
 

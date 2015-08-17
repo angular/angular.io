@@ -11,8 +11,7 @@ import {Component, View, bootstrap} from 'angular2/angular2';
   template: '<h1 id="output">My First Angular 2 App</h1>'
 })
 // #docregion class
-class AppComponent {
-}
+class AppComponent { }
 // #enddocregion
 // #enddocregion
 

@@ -10,8 +10,4 @@ var AppComponent = ng
       constructor: function () { }
     });
 
-document.addEventListener('DOMContentLoaded', function() {
-  ng.bootstrap(AppComponent);
-});
-
 ```
