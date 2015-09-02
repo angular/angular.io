@@ -3,24 +3,26 @@
 *
 */
 
-angularIO.controller('AppCtrl', ['$scope', '$mdDialog', '$timeout', function($scope, $mdDialog, $timeout) {
-  $scope.showDocsNav = false;
-  $scope.showMainNav = false;
-  $scope.showMenu = false;
+angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', function($mdDialog, $timeout) {
+  var vm = this;
+
+  vm.showDocsNav = false;
+  vm.showMainNav = false;
+  vm.showMenu = false;
 
   // TOGGLE MAIN NAV (TOP) ON MOBILE
-  $scope.toggleDocsMenu = function() {
-    $scope.showDocsNav = !$scope.showDocsNav;
+  vm.toggleDocsMenu = function() {
+    vm.showDocsNav = !vm.showDocsNav;
   };
 
   // TOGGLE DOCS NAV
-  $scope.toggleMainMenu = function() {
-    $scope.showMainNav = !$scope.showMainNav;
+  vm.toggleMainMenu = function() {
+    vm.showMainNav = !vm.showMainNav;
   };
 
   // TOGGLE DOCS VERSION & LANGUAGE
-  $scope.toggleVersionMenu = function() {
-    $scope.showMenu = !$scope.showMenu;
+  vm.toggleVersionMenu = function() {
+    vm.showMenu = !vm.showMenu;
   };
 
 
