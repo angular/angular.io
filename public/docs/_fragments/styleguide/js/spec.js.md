@@ -1,4 +1,4 @@
-// #docregion
+```
 describe("Jasmine sample test", function() {
 	
 	it("1+1 should be 2", function() {
@@ -6,3 +6,4 @@ describe("Jasmine sample test", function() {
 		expect(result).toBe(2);
 	});
 });
+```
