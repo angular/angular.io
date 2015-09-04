@@ -16,6 +16,78 @@ var _shredOptions =  {
   fragmentsDir:  "_fragments"
 };
 
+// Extract a subset of a json file in a specified order defined
+// by extractPaths while retaining original order for any
+// unspecified subobjects.
+//
+// based on the principle that JSON.parse(source) constructs objects
+// in order from the top down in 'source' and JSON.stringify(source) iterates 'source'
+// properties according to the order in which they were inserted.  ( the spec actually
+// discourages this assumption but this method will only
+// run on node (v8) and the assumption seems safe there. )
+function extractFragment(source, rootPath, extractPaths, space) {
+
+  var objSource = JSON.parse(source);
+  if (rootPath && rootPath.length > 0) {
+    objSource = getSubObject(objSource, rootPath);
+  }
+  var objDest = {};
+  extractPaths.trim().split(",").forEach(function(dotPath) {
+    processPath(objSource, objDest, dotPath );
+  });
+  var result = JSON.stringify(objDest, null, space);
+  return result;
+
+  function getSubObject(source, path) {
+    var nextSource = source;
+    var pathParts = path.trim().split(".");
+    while (pathParts.length > 0) {
+      var nextProp = pathParts.shift();
+      nextSource = nextSource[nextProp];
+    }
+    return nextSource;
+  }
+
+  function processPath(source, dest, dotPath) {
+    var nextSource = source;
+    var nextDest = dest;
+    var pathParts = dotPath.trim().split(".");
+    while (pathParts.length > 0) {
+      var nextProp = pathParts.shift();
+      nextSource = nextSource[nextProp];
+      if (pathParts.length > 0) {
+        var val = nextDest[nextProp] || {};
+        nextDest[nextProp] = val;
+        nextDest = val;
+      } else {
+        nextDest[nextProp] = nextSource;
+      }
+    }
+  }
+}
+
+
+
+
+gulp.task('test-extract-fragments', function() {
+  var json = '{ ' +
+    '"foo": "foo value", ' +
+    '"bar": 3, ' +
+    '"x": {' +
+    '  "y": {' +
+    '    "y3": "zzz", ' +
+    '    "y1": true, ' +
+    '    "y2": 7 ' +
+    '  }, ' +
+    '  "cat": "z value", ' +
+    '  "dog": "exclude" ' +
+    '} ' +
+  "}";
+
+  var f1 = extractFragment( json, null, "x.y, x.cat, foo", 2);
+  var f2 = extractFragment( json, "x" , "y.y2, y.y1", 2);
+});
+
 /*
 Within this repo generated files are checked in so that we can avoid running the
 shredder over the entire _examples dir each time someone refreshes the repo
