@@ -16,6 +16,8 @@ var _shredOptions =  {
   fragmentsDir:  "_fragments"
 };
 
+// TODO: 'extractFragment' will be moved into _utilFns in the next release.
+
 // Extract a subset of a json file in a specified order defined
 // by extractPaths while retaining original order for any
 // unspecified subobjects.
@@ -66,9 +68,7 @@ function extractFragment(source, rootPath, extractPaths, space) {
   }
 }
 
-
-
-
+// TODO: will be moved into _utilFns in the next release.
 gulp.task('test-extract-fragments', function() {
   var json = '{ ' +
     '"foo": "foo value", ' +
