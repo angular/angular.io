@@ -1,0 +1,55 @@
+<!-- #docregion -->
+<!DOCTYPE html>
+<html>
+<meta http-equiv="content-type" content="text/html;charset=utf-8">
+<title>QuickStart Tests</title>
+<link rel="stylesheet" href="node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+
+<script src="node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+<script src="node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+<script src="node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+
+<script src="node_modules/traceur/bin/traceur-runtime.js"></script>
+<script src="node_modules/es6-module-loader/dist/es6-module-loader.src.js"></script>
+<script src="node_modules/systemjs/dist/system.src.js"></script>
+<script src="node_modules/angular2/bundles/angular2.dev.js"></script>
+<script src="node_modules/angular2/bundles/http.dev.js"></script>
+<script src="node_modules/angular2/bundles/test_lib.dev.js"></script>
+<script src="node_modules/zone.js/dist/long-stack-trace-zone.js"></script>
+<script src="node_modules/zone.js/dist/jasmine-patch.js"></script>
+
+</head>
+
+<body>
+  <app><!--placeholder--></app>
+  <script>
+    (function() {
+        Error.stackTraceLimit=Infinity;
+        jasmine.DEFAULT_TIMEOUT_INTERVAL = 100;
+
+        var imports = [
+          'src/dummy.spec',
+          'src/app.spec',
+          '@empty' // placeholder makes it easier to comment-out specs above
+        ].map(System.import.bind(System));
+
+        Promise.all(imports)
+          .then( function() {
+            // Must designate a BrowserDomAdapter or else DOM testing bombs
+            // (e.g. when testing component and call `tcb.createAsync`) for lack of `DOM` object
+            // Igor's recommended approach based on
+            // https://github.com/angular/angular/blob/master/test-main.js
+            //
+            // TODO: BrowserDomAdapter should be exposed through 'angular2/test' instead
+            var DomAdapterModule = System.get('angular2/src/dom/browser_adapter');
+            if (DomAdapterModule) {
+              DomAdapterModule.BrowserDomAdapter.makeCurrent();
+            }
+          })
+          .then(  function()    { window.onload();} ) // re-execute Jasmine's buildup
+          .catch( function(err) { console.log(err);} );
+      })();
+  </script>
+</body>
+
+</html>
