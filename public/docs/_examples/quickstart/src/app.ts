@@ -4,12 +4,12 @@ import {Component, View, bootstrap} from 'angular2/angular2';
 // #enddocregion
 
 @Component({
-	selector: 'my-app'
+	selector: 'app'
 })
 @View({
 	template: '<h1 id="output">Hello {{ name }}</h1>'
 })
-class MyAppComponent {
+export class AppComponent {
 	name : string;
 
 	constructor() {
@@ -18,5 +18,5 @@ class MyAppComponent {
 }
 
 // #docregion bootstrap
-bootstrap(MyAppComponent);
+bootstrap(AppComponent);
 // #enddocregion
