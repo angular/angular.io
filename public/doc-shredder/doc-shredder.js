@@ -51,8 +51,6 @@ var buildShredMap = function(shredMapOptions) {
   }
 }
 
-
-
 module.exports = {
   shred: shred,
   shredSingleDir: shredSingleDir,
@@ -140,9 +138,16 @@ var createShredMapPackage = function(mapOptions) {
         basePath: options.jadeDir
       } ];
     })
-    .config(function(writeFilesProcessor) {
-      // Specify where the writeFilesProcessor will write our generated doc files
-      writeFilesProcessor.outputFolder  = options.outputDir;
+    .config(function(writeFilesProcessor, renderDocsProcessor, unescapeCommentsProcessor) {
+      if (!mapOptions.writeFilesEnabled) {
+        // dgeni hack to allow a geni task to simply return the results of the shredMapProcessor directly
+        renderDocsProcessor.$enabled = false;
+        writeFilesProcessor.$enabled = false;
+        unescapeCommentsProcessor.$enabled = false;
+      } else {
+        // Specify where the writeFilesProcessor will write our generated doc files
+        writeFilesProcessor.outputFolder = options.outputDir;
+      }
     })
     .config(function(templateFinder) {
       // look for templates in this folder
@@ -170,6 +175,8 @@ var createShredMapPackage = function(mapOptions) {
       //  }
       //});
     });
+
+
 
   return pkg;
 }
