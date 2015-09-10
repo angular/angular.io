@@ -7,7 +7,7 @@
 			browser.get(basePath + 'index.html');
 		});
 
-		it('should display: '+ expectedMsg, function() {
+		it('should display: ' + expectedMsg, function () {
 			expect(element(by.id('output')).getText()).toEqual(expectedMsg);
 		});
 	}
