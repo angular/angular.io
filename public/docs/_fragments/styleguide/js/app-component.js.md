@@ -1,5 +1,5 @@
 ```
-    .Component({
-      selector: 'my-app'
-    })
+.Component({
+  selector: 'my-app'
+})
 ```

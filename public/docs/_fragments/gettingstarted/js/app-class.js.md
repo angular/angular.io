@@ -1,5 +1,5 @@
 ```
-    .Class({
-      constructor: function () { }
-    });
+.Class({
+  constructor: function () { }
+});
 ```
