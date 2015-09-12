@@ -77,7 +77,7 @@ function createShredPackage(shredOptions) {
       readFilesProcessor.basePath = options.basePath;
 
       // Specify collections of source files that should contain the documentation to extract
-      var extns = ['*.js', '*.html', '*.ts', '*.css' ];
+      var extns = ['*.js', '*.html', '*.ts', '*.css', '*.json' ];
       var includeFiles = extns.map(function(extn) {
         if (options.includeSubdirs) {
           return path.join(options.examplesDir, '**', extn);
@@ -88,7 +88,7 @@ function createShredPackage(shredOptions) {
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles,
-        exclude: ['**/node_modules/**'],
+        exclude: ['**/node_modules/**', '**/typings/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.examplesDir
