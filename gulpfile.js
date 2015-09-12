@@ -7,6 +7,8 @@ var del = require('del');
 var _ = require('lodash');
 var Git = require("nodegit");
 var argv = require('yargs').argv;
+var Q = require("q");
+var Minimatch = require("minimatch").Minimatch;
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
@@ -16,76 +18,10 @@ var _shredOptions =  {
   fragmentsDir:  "_fragments"
 };
 
-// TODO: 'extractFragment' will be moved into _utilFns in the next release.
+var _excludePatterns = ["**/node_modules/**", "**/typings/**"];
 
-// Extract a subset of a json file in a specified order defined
-// by extractPaths while retaining original order for any
-// unspecified subobjects.
-//
-// based on the principle that JSON.parse(source) constructs objects
-// in order from the top down in 'source' and JSON.stringify(source) iterates 'source'
-// properties according to the order in which they were inserted.  ( the spec actually
-// discourages this assumption but this method will only
-// run on node (v8) and the assumption seems safe there. )
-function extractFragment(source, rootPath, extractPaths, space) {
-
-  var objSource = JSON.parse(source);
-  if (rootPath && rootPath.length > 0) {
-    objSource = getSubObject(objSource, rootPath);
-  }
-  var objDest = {};
-  extractPaths.trim().split(",").forEach(function(dotPath) {
-    processPath(objSource, objDest, dotPath );
-  });
-  var result = JSON.stringify(objDest, null, space);
-  return result;
-
-  function getSubObject(source, path) {
-    var nextSource = source;
-    var pathParts = path.trim().split(".");
-    while (pathParts.length > 0) {
-      var nextProp = pathParts.shift();
-      nextSource = nextSource[nextProp];
-    }
-    return nextSource;
-  }
-
-  function processPath(source, dest, dotPath) {
-    var nextSource = source;
-    var nextDest = dest;
-    var pathParts = dotPath.trim().split(".");
-    while (pathParts.length > 0) {
-      var nextProp = pathParts.shift();
-      nextSource = nextSource[nextProp];
-      if (pathParts.length > 0) {
-        var val = nextDest[nextProp] || {};
-        nextDest[nextProp] = val;
-        nextDest = val;
-      } else {
-        nextDest[nextProp] = nextSource;
-      }
-    }
-  }
-}
-
-// TODO: will be moved into _utilFns in the next release.
-gulp.task('test-extract-fragments', function() {
-  var json = '{ ' +
-    '"foo": "foo value", ' +
-    '"bar": 3, ' +
-    '"x": {' +
-    '  "y": {' +
-    '    "y3": "zzz", ' +
-    '    "y1": true, ' +
-    '    "y2": 7 ' +
-    '  }, ' +
-    '  "cat": "z value", ' +
-    '  "dog": "exclude" ' +
-    '} ' +
-  "}";
-
-  var f1 = extractFragment( json, null, "x.y, x.cat, foo", 2);
-  var f2 = extractFragment( json, "x" , "y.y2, y.y1", 2);
+var _excludeMatchers = _excludePatterns.map(function(excludePattern){
+  return new Minimatch(excludePattern)
 });
 
 /*
@@ -135,30 +71,148 @@ gulp.task('build-shred-maps', ['shred-full'], function() {
   return buildShredMaps(true);
 });
 
-// Called with an sha parameter - like this
-//    gulp git-changed-examples --sha 4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2
-gulp.task('git-changed-examples', function(){
-
-
+gulp.task('git-changed-examples', ['shred-full'], function(){
+  var after, sha, messageSuffix;
+  if (argv.after) {
+    try {
+      after = new Date(argv.after);
+      messageSuffix = ' after: ' + argv.after;
+    } catch (e) {
+      throw argv.after + " is not a valid date.";
+    }
+  } else if (argv.sha) {
+    sha = argv.sha;
+    messageSuffix = ' on commit: ' + (argv.sha.length ? argv.sha : '[last commit]');
+  } else {
+    console.log('git-changed-examples may be called with either an "--sha" argument like this:');
+    console.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
+    console.log('or with an "--after" argument like this')
+    console.log('   gulp git-changed-examples --after="August 1, 2015"');
+    return;
+  }
   var jadeShredMap;
   return buildShredMaps(false).then(function(docs) {
     jadeShredMap = docs[0];
-    // return getChangedExamples('7e6ff558e35fce3b6df45c66c43514c72fbf69e0 ').then(function(filePaths) {
-    return getChangedExamples(argv.sha);
+    if (after) {
+      return getChangedExamplesAfter(after);
+    } else if (sha) {
+      return getChangedExamples(sha);
+    } else {
+      console.log('git-changed-examples may be called with either an "--sha" argument like this:');
+      console.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
+      console.log('or with an "--after" argument like this')
+      console.log('   gulp git-changed-examples --after="August 1, 2015"');
+    }
   }).then(function(examplePaths) {
-    console.log('Examples changed on commit: ' + (argv.sha ? argv.sha : '[last commit]'));
+    examplePaths = filterOutExcludedPatterns(examplePaths, _excludeMatchers);
+    console.log('\nExamples changed ' + messageSuffix);
     console.log(examplePaths)
-    console.log("Jade files and associated changed example files")
+    console.log("\nJade files and associated changed example files " + messageSuffix);
     var jadeExampleMap = jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths);
     console.log(JSON.stringify(jadeExampleMap, null, "  "));
+    console.log("-----");
   }).catch(function(err) {
     throw err;
   });
 });
 
-//gulp.task('git-review-jade', function() {
-//
-//});
+function filterOutExcludedPatterns(fileNames, excludeMatchers) {
+  return fileNames.filter(function(fileName) {
+    return !excludeMatchers.some(function(excludeMatcher) {
+      return excludeMatcher.match(fileName);
+    });
+  });
+}
+
+function buildShredMaps(shouldWrite) {
+  var options = _.extend(_shredOptions, {
+    jadeDir: '.',
+    outputDir: '.',
+    writeFilesEnabled: shouldWrite
+  });
+  return docShredder.buildShredMap(options).then(function(docs) {
+    return docs;
+  });
+}
+
+// returns a promise containing filePaths with any changed or added examples;
+function getChangedExamples(sha) {
+  var examplesPath = path.join(_shredOptions.basePath, _shredOptions.examplesDir);
+  var relativePath = path.relative(process.cwd(), examplesPath);
+  return Git.Repository.open(".").then(function(repo) {
+    if (sha.length) {
+      return repo.getCommit(sha);
+    } else {
+      return repo.getHeadCommit();
+    }
+  }).then(function(commit) {
+    return getChangedExamplesForCommit(commit, relativePath);
+  }).catch(function(err) {
+
+  });
+}
+
+function getChangedExamplesAfter(date, relativePath) {
+  var examplesPath = path.join(_shredOptions.basePath, _shredOptions.examplesDir);
+  var relativePath = path.relative(process.cwd(), examplesPath);
+  return Git.Repository.open(".").then(function(repo) {
+    return repo.getHeadCommit();
+  }).then(function(commit) {
+    var repo = commit.owner();
+    var revWalker = repo.createRevWalk();
+    revWalker.sorting(Git.Revwalk.SORT.TIME);
+    revWalker.push(commit.id());
+    return revWalker.getCommitsUntil(function (commit) {
+      return commit.date().getTime() > date.getTime();
+    });
+  }).then(function(commits) {
+    return Q.all(commits.map(function(commit) {
+      return getChangedExamplesForCommit(commit, relativePath);
+    }));
+  }).then(function(arrayOfPaths) {
+    var pathMap = {};
+    arrayOfPaths.forEach(function(paths) {
+      paths.forEach(function(path) {
+        pathMap[path] = true;
+      });
+    });
+    var uniqPaths = _.keys(pathMap);
+    return uniqPaths;
+  }).catch(function(err) {
+    var x = err;
+  });
+
+}
+
+function getChangedExamplesForCommit(commit, relativePath) {
+  return commit.getDiff().then(function(diffList) {
+    var filePaths = [];
+    diffList.forEach(function (diff) {
+      diff.patches().forEach(function (patch) {
+        if (patch.isAdded() || patch.isModified) {
+          var filePath = path.normalize(patch.newFile().path());
+          var isExample = filePath.indexOf(relativePath) >= 0;
+          // console.log(filePath + " isExample: " + isExample);
+          if (isExample) {
+            filePaths.push(filePath);
+          }
+        }
+      });
+    });
+    return filePaths;
+  });
+}
+
+function shredWatch(shredOptions, postShredAction) {
+  var pattern = path.join(shredOptions.basePath, shredOptions.examplesDir, "**/*.*");
+  watch([pattern], function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
+      postShredAction && postShredAction();
+    });
+  });
+}
 
 function jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths) {
   var exampleSet = {};
@@ -199,67 +253,14 @@ function jadeShredMapToExampleJadeMap(jadeShredMap) {
 function addKeyValue(map, key, value) {
   var vals = map[key];
   if (vals) {
-    vals.push(value);
+    if (vals.indexOf(value) == -1) {
+      vals.push(value);
+    }
   } else {
     map[key] = [value];
   }
 }
 
-function buildShredMaps(shouldWrite) {
-  var options = _.extend(_shredOptions, {
-    jadeDir: '.',
-    outputDir: '.',
-    writeFilesEnabled: shouldWrite
-  });
-  return docShredder.buildShredMap(options).then(function(docs) {
-    return docs;
-  });
-}
-
-
-
-// returns a promise containing filePaths with any changed or added examples;
-function getChangedExamples(sha) {
-  var examplesPath = path.join(_shredOptions.basePath, _shredOptions.examplesDir);
-  var relativePath = path.relative(process.cwd(), examplesPath);
-  return Git.Repository.open(".").then(function(repo) {
-    if (sha) {
-      return repo.getCommit(sha);
-    } else {
-      return repo.getHeadCommit();
-    }
-  }).then(function(commit) {
-    return commit.getDiff();
-  }).then(function(diffList) {
-    var filePaths = [];
-    diffList.forEach(function(diff) {
-      diff.patches().forEach(function(patch) {
-        if (patch.isAdded() || patch.isModified) {
-          var filePath = path.normalize(patch.newFile().path());
-          var isExample = filePath.indexOf(relativePath) >= 0;
-          // console.log(filePath + " isExample: " + isExample);
-          if (isExample) {
-            filePaths.push(filePath);
-          }
-        }
-      });
-    });
-    return filePaths;
-  }).catch(function(err) {
-
-  });
-}
-
-function shredWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.basePath, shredOptions.examplesDir, "**/*.*");
-  watch([pattern], function (event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
-    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
-      postShredAction && postShredAction();
-    });
-  });
-}
 
 // added options are: shouldLog
 // cb is function(err, stdout, stderr);

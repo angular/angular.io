@@ -19,11 +19,17 @@ module.exports = function fileShredder(log, regionExtractor) {
         case 'css':
           commentMarkers = ['/*'];
           break;
+        case 'json':
+          break;
         default:
           return [];
       }
       log.info("fileShredder processing: " + fileInfo.projectRelativePath);
-      return regionExtractor(fileInfo.content, commentMarkers);
+      if (commentMarkers) {
+        return regionExtractor(fileInfo.content, commentMarkers);
+      } else {
+        return [ { content: fileInfo.content } ];
+      }
     }
   }
 }
