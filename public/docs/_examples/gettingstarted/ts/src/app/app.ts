@@ -1,21 +1,19 @@
 // #docregion
 // #docregion import
 import {Component, View, bootstrap} from 'angular2/angular2';
-// #enddocregion
-
+// #enddocregion import
 // #docregion class-w-annotations
 @Component({
   selector: 'my-app'
 })
 @View({
-  template: '<h1 id="output">My First Angular 2 App</h1>'
+  template: '<h1>My First Angular 2 App</h1>'
 })
 // #docregion class
 class AppComponent { }
-// #enddocregion
-// #enddocregion
+// #enddocregion class
+// #enddocregion class-w-annotations
 
 // #docregion bootstrap
 bootstrap(AppComponent);
-// #enddocregion
-// #enddocregion
+// #enddocregion bootstrap

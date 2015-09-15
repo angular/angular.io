@@ -1,5 +1,0 @@
-```
-.Component({
-  selector: 'my-app'
-})
-```
