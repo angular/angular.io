@@ -11,7 +11,7 @@ describe('Getting Started E2E Tests', function () {
 		});
 
 		it('should display: ' + expectedMsg, function () {
-			expect(element(by.id('output')).getText()).toEqual(expectedMsg);
+			expect(element(by.css('h1')).getText()).toEqual(expectedMsg);
 		});
 	}
 	// #enddocregion
