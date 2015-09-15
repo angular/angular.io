@@ -1,11 +1,10 @@
 ```
 {
-  "name": "ng2-getting-started",
+  "name": "getting-started",
   "version": "0.0.1",
   "dependencies": {
-    "angular2": "2.0.0-alpha.35",
-    "es6-module-loader": "^0.16",
-    "systemjs": "^0.16",
+    "angular2": "2.0.0-alpha.37",
+    "systemjs": "^0.18.17",
     "traceur": "0.0.91"
   },
   "scripts": {
