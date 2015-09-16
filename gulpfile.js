@@ -9,6 +9,10 @@ var Git = require("nodegit");
 var argv = require('yargs').argv;
 var Q = require("q");
 var Minimatch = require("minimatch").Minimatch;
+var Dgeni = require('dgeni');
+var fsExtra = require('fs-extra');
+var fs = fsExtra;
+
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
@@ -115,6 +119,24 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
     throw err;
   });
 });
+
+
+gulp.task('build-api-docs',  function() {
+  var fs = require('fs-extra');
+  if (!fs.existsSync('../angular')) {
+    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
+  }
+  try {
+    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
+    return dgeni.generate();
+  } catch(x) {
+    console.log(x);
+    console.log(x.stack);
+    throw x;
+  }
+});
+
+
 
 function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   return fileNames.filter(function(fileName) {
