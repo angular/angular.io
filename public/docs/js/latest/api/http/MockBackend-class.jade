@@ -4,8 +4,37 @@ p.location-badge.
   defined in <a href="https://github.com/angular/angular/tree/2.0.0-alpha.37/modules/angular2/src/http/backends/mock_backend.ts#L98-L226">angular2/src/http/backends/mock_backend.ts (line 98)</a>
 
 :markdown
-  The http module provides services to perform http requests. To get started, see the <a href='Http-class.html'><code>Http</code></a>
-  class.
+  A mock backend for testing the <a href='Http-class.html'><code>Http</code></a> service.
+  
+  This class can be injected in tests, and should be used to override bindings
+  to other backends, such as <a href='XHRBackend-class.html'><code>XHRBackend</code></a>.
+  
+  #Example
+  
+  ```
+  import {MockBackend, DefaultOptions, Http} from 'angular2/http';
+  it('should get some data', inject([AsyncTestCompleter], (async) => {
+    var connection;
+    var injector = Injector.resolveAndCreate([
+      MockBackend,
+      bind(Http).toFactory((backend, defaultOptions) => {
+        return new Http(backend, defaultOptions)
+      }, [MockBackend, DefaultOptions])]);
+    var http = injector.get(Http);
+    var backend = injector.get(MockBackend);
+    //Assign any newly-created connection to local variable
+    backend.connections.toRx().subscribe(c => connection = c);
+    http.request('data.json').toRx().subscribe((res) => {
+      expect(res.text()).toBe('awesome');
+      async.done();
+    });
+    connection.mockRespond(new Response('awesome'));
+  }));
+  ```
+  
+  This method only exists in the mock implementation, not in real Backends.
+  
+  
 
 .l-main-section
   h2 Annotations
@@ -19,7 +48,7 @@ p.location-badge.
 .l-main-section
   h2 Members
   .l-sub-section
-    h3 constructor
+    h3#constructor constructor
 
     
     pre.prettyprint
@@ -27,14 +56,12 @@ p.location-badge.
         constructor()
     
     :markdown
-      
-      
 
 
 
 
   .l-sub-section
-    h3 connections
+    h3#connections connections
 
     
     :markdown
@@ -76,7 +103,7 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 connectionsArray
+    h3#connectionsArray connectionsArray
 
     
     :markdown
@@ -92,7 +119,7 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 pendingConnections
+    h3#pendingConnections pendingConnections
 
     
     :markdown
@@ -110,7 +137,7 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 verifyNoPendingRequests
+    h3#verifyNoPendingRequests verifyNoPendingRequests
 
     
     pre.prettyprint
@@ -129,7 +156,7 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 resolveAllConnections
+    h3#resolveAllConnections resolveAllConnections
 
     
     pre.prettyprint
@@ -149,7 +176,7 @@ p.location-badge.
 
 
   .l-sub-section
-    h3 createConnection
+    h3#createConnection createConnection
 
     
     pre.prettyprint
