@@ -9,6 +9,6 @@ var path = require('canonical-path');
  */
 module.exports = function packageInfo() {
 
-  var topLevelPackageJson= path.join('../angular','package.json');
-  return JSON.parse(fs.readFileSync(topLevelPackageJson), 'UTF-8');
+  var angularPackageJson= path.join('../angular','package.json');
+  return JSON.parse(fs.readFileSync(angularPackageJson), 'UTF-8');
 }

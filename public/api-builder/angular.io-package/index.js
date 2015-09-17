@@ -12,7 +12,8 @@ module.exports = new Package('angular.io', [basePackage])
 .processor(require('./processors/addJadeDataDocsProcessor'))
 // MIGRATION: added this processor
 .processor(require('./processors/fixOutputPathProcessor'))
-  // overrides base packageInfo and returns the one for the 'angular/angular' repo.
+// MIGRATION: added packageInfo to point to angular/angular repo
+// overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
 
 // Configure rendering
@@ -22,15 +23,17 @@ module.exports = new Package('angular.io', [basePackage])
       .unshift(path.resolve(__dirname, 'templates'));
 })
 
-.config(function(writeFilesProcessor) {
+.config(function(writeFilesProcessor, readFilesProcessor) {
+  // MIGRATION: HACK - readFileProcessor.basePath set to point to a local repo location
+  // because the docs-package-processor will
+  // have previously set it to point to angular/angular repo.
+  // needed because the writeFilesProcessor uses the readFilesProcessor's basePath.
+  readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
   writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
 
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
-  // MIGRATION: HACK - added basePath to point to a local repo location because the docs-package-processor will
-  // have previously set it to point to angular/angular repo.
-  readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
   readFilesProcessor.$enabled = false;
   generateNavigationDoc.$enabled = false;
   createOverviewDump.$enabled = false;

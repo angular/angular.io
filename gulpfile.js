@@ -123,7 +123,6 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
 
 
 gulp.task('build-api-docs',  function() {
-  var fs = require('fs-extra');
   if (!fs.existsSync('../angular')) {
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
   }
