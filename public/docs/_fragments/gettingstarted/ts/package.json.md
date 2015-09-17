@@ -1,3 +1,4 @@
+```
 {
   "name": "getting-started",
   "version": "0.0.1",
@@ -12,3 +13,5 @@
     "start": "live-server --open=src"
   }
 }
+
+```

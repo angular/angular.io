@@ -1,29 +1,90 @@
+//- Mixins and associated functions
+
+mixin makeExample(path, fileName, title, stylePatterns)
+  - var language = attributes.language || getExtn(fileName);
+  - var format = attributes.format || "linenums";
+  - var frag = getFrag(path, fileName);
+  if (title)
+    .example-title #{title}
+  code-example(language="#{language}" format="#{format}")
+    != styleString(frag, stylePatterns)
+
+mixin makeTabs(path, fileNames, tabNames, stylePatterns)
+  - fileNames = fileNames.split(",");
+  - tabNames = tabNames.split(",")
+
+  code-tabs
+      each fileName,index in fileNames
+        - var tabName = tabNames[index].trim();
+        - var fileName = fileNames[index].trim();
+        - var language = attributes.language || getExtn(fileName);
+        - var format = attributes.format || "linenums";
+
+        - var frag = getFrag(path, fileName);
+        - var sps = Array.isArray(stylePatterns) ? stylePatterns[index] : stylePatterns;
+        code-pane(language="#{language}" name="#{tabName}" format="#{format}")
+            != styleString(frag, sps)
+
+mixin makeJson(path, fileName, title, jsonConfig, stylePatterns)
+  - var language = attributes.language || getExtn(fileName);
+  - var format = attributes.format || "linenums";
+  - var frag = getFrag(path, fileName);
+  - var json = unescapeHtml(frag);
+  - var jsonExtract = extractJson(json, jsonConfig);
+
+  if (title)
+    .example-title #{title}
+  code-example(language="#{language}" format="#{format}")
+    != styleString(jsonExtract, stylePatterns)
 
 
+//---------------------------------------------------------------------------------------------------------
 
-
-- var getFrag = function(fileName, stylePatterns) {
--   var frag = partial(fileName);
+- var getFrag = function(path, fileName) {
+-   var fullFileName = getPathToFrags() + path + "/" + fileName + '.md';
+-   var frag = partial(fullFileName);
 -   if (frag == null) {
--     return "BAD FILENAME: " + fileName + "   Current path: " + current.path +  " Fragment path: " + current.pathToFrags;
+-     return "BAD FILENAME: " + fullFileName + "   Current path: " + current.path +  " PathToDocs: " + getPathToDocs();
 -   } else {
 -     // ``` gets translated to <pre><code>.....</code></pre> and we need
 -     // to remove this from the fragment prefix is 11 long and suffix is 13 long
--     var r = frag.substring(11, frag.length-13);
--     if (stylePatterns) {
--        for (var styleName in stylePatterns) {
--          var rxs = stylePatterns[styleName];
--          rxs = Array.isArray(rxs) ? rxs : [rxs];
--          rxs.forEach(function(rx) {
--            r = annotate(r, styleName, rx );
--          });
--        }
--     }
--     return r;
+-     frag = frag.substring(11, frag.length-13);
+-     // Uncomment next line for debugging.
+-     // frag = "FileName: " + fullFileName + "   Current path: " + current.path +  " PathToDocs: " + getPathToDocs() + "\n" + frag;
+-     return frag;
 -   }
 - }
 
-- var annotate = function(str, styleName, rx) {
+- var extractJson = function(json, jsonConfig ) {
+-   if (jsonConfig) {
+-     return extractJsonFragment(json, jsonConfig.rootPath || null, jsonConfig.paths || [], jsonConfig.space || "  ");
+-   } else {
+-     return json;
+-   }
+- }
+
+- var unescapeHtml = function(s) {
+-   // can't break across multiple lines because of jade limitations.
+-   return s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039/g, "'");
+- }
+
+- var styleString = function(source, stylePatterns) {
+-   if (stylePatterns) {
+-      for (var styleName in stylePatterns) {
+-        var rxs = stylePatterns[styleName];
+-        rxs = Array.isArray(rxs) ? rxs : [rxs];
+-        rxs.forEach(function(rx) {
+-          source = applyStyle(source, styleName, rx );
+-        });
+-      }
+-   }
+-  return source;
+- }
+
+//- styles a string according to a regular expression.
+//- The match groups resulting from the regexp application are what is styled
+//- (not the whole regexp).
+- var applyStyle = function(str, styleName, rx) {
 -   var repls = {};
 -   var matches;
 -   do {
@@ -48,37 +109,66 @@
 -   return ix > 0 ? fileName.substr(ix+1) : "";
 - }
 
-- var getPathToFrags = function() {
--   var currentPath = current.path;
+- var getPathToDocs = function() {
 -   // simple way to only take as many '../' sections as we need to back up to the 'docs' dir
 -   // from the current document
 -   // we will almost certainly never go 10 or 11 deep but ...
--   return current.pathToFrags || "../../../../../../../../../../../".substr(0, (currentPath.length-2)*3) + "_fragments/";
+-   return current.pathToDocs || "../../../../../../../../../../../".substr(0, (current.path.length-2)*3);
 - }
 
-mixin makeExample(path, fileName, title, stylePatterns)
+- var getPathToFrags = function() {
+-   return getPathToDocs() + "_fragments/";
+- }
 
-  - var language = attributes.language || getExtn(fileName);
-  - var format = attributes.format || "linenums";
-  - var extPath = getPathToFrags() + path + "/";
+- var getPathToExamples = function() {
+-   return getPathToDocs() + "_examples/";
+- }
 
-  if (title)
-    .example-title #{title}
-  code-example(language="#{language}" format="#{format}")
-    != getFrag(extPath + fileName + ".md", stylePatterns)
+//- Extract a subset of a json file in a specified order defined
+//- by extractPaths while retaining original order for any
+//- unspecified subobjects.
+//-
+//- based on the principle that JSON.parse(source) constructs objects
+//- in order from the top down in 'source' and JSON.stringify(source) iterates 'source'
+//- properties according to the order in which they were inserted.  ( the spec actually
+//- discourages this assumption but this method will only
+//- run on node (v8) and the assumption seems safe there. )
+- function extractJsonFragment(source, rootPath, extractPaths, space) {
+-   var objSource = JSON.parse(source);
+-   if (rootPath && rootPath.length > 0) {
+-     objSource = getSubObject(objSource, rootPath);
+-   }
+-   var objDest = {};
+-   extractPaths.trim().split(",").forEach(function(dotPath) {
+-     processPath(objSource, objDest, dotPath );
+-   });
+-   var result = JSON.stringify(objDest, null, space || "  ");
+-   return result;
 
-mixin makeTabs(path, fileNames, tabNames, stylePatterns)
-  - fileNames = fileNames.split(",");
-  - tabNames = tabNames.split(",")
-  // .p Length #{currentPath.length}
+-   function getSubObject(source, path) {
+-     var nextSource = source;
+-     var pathParts = path.trim().split(".");
+-     while (pathParts.length > 0) {
+-       var nextProp = pathParts.shift();
+-       nextSource = nextSource[nextProp];
+-     }
+-     return nextSource;
+-   }
 
-  code-tabs
-      each fileName,index in fileNames
-        - var tabName = tabNames[index].trim();
-        - var fileName = fileNames[index].trim();
-        - var language = attributes.language || getExtn(fileName);
-        - var format = attributes.format || "linenums";
-        - var extPath = getPathToFrags() + path + "/";
-        - var sps = Array.isArray(stylePatterns) ? stylePatterns[index] : stylePatterns;
-        code-pane(language="#{language}" name="#{tabName}" format="#{format}")
-            != getFrag(extPath + fileName + ".md", sps)
+-   function processPath(source, dest, dotPath) {
+-     var nextSource = source;
+-     var nextDest = dest;
+-     var pathParts = dotPath.trim().split(".");
+-     while (pathParts.length > 0) {
+-       var nextProp = pathParts.shift();
+-       nextSource = nextSource[nextProp];
+-       if (pathParts.length > 0) {
+-         var val = nextDest[nextProp] || {};
+-         nextDest[nextProp] = val;
+-         nextDest = val;
+-       } else {
+-         nextDest[nextProp] = nextSource;
+-       }
+-     }
+-   }
+- }

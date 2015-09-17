@@ -34,14 +34,15 @@ module.exports = function regionExtractor() {
       }
     });
 
-
     docs.forEach(function(doc) {
-      var content;
+      var fragLines, content;
       if (doc.endIx) {
-        content = lines.slice(doc.startIx + 1, doc.endIx).join('\n');
+        fragLines = lines.slice(doc.startIx + 1, doc.endIx);
       } else {
-        content = lines.slice(doc.startIx + 1).join('\n');
+        fragLines = lines.slice(doc.startIx + 1);
       }
+      fragLines = trimLeftIndent(fragLines);
+      content = fragLines.join('\n');
       // eliminate all #docregion lines
       content = content.replace(nullLinePattern, '');
       if (content.substr(-3) === nullLine) {
@@ -53,6 +54,31 @@ module.exports = function regionExtractor() {
   }
 
 };
+
+function trimLeftIndent(lines) {
+  var minIx  = 100;
+  var ok = lines.every(function(line) {
+    // var ix = line.search(/\S/);
+    var ix = line.search(/[^ ]/);
+    if (ix === 0) return false;
+    if (ix === -1) return true;
+    if (ix > 0) {
+      minIx = Math.min(minIx, ix);
+    }
+    return true;
+  });
+  if ( (!ok) || minIx === 100) return lines;
+
+  var result = lines.map(function(line) {
+    if (line.length > minIx) {
+      return line.substr(minIx);
+    } else {
+      // this can happen if line is all blanks and shorter than mixIx
+      return line;
+    }
+  });
+  return result;
+}
 
 function isCommentLine(line, commentPrefixes) {
   return commentPrefixes.some(function(prefix) {
