@@ -2,17 +2,16 @@ var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../public-docs-package');
 
-var PARTIAL_PATH = 'partials';
-var MODULES_DOCS_PATH = PARTIAL_PATH + '/api';
-
-// OLD paths
-// var DOCS_DIST = 'dist/angular.io/partials/api/angular2/';
-// var DOCS_IO_DIST = '../angular.io/public/docs/js/latest/api/';
+// MIGRATION: removed these vars
+// var PARTIAL_PATH = 'partials';
+// var MODULES_DOCS_PATH = PARTIAL_PATH + '/api';
 
 module.exports = new Package('angular.io', [basePackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
+// MIGRATION: added this processor
+.processor(require('./processors/fixOutputPathProcessor'))
   // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
 
@@ -24,17 +23,18 @@ module.exports = new Package('angular.io', [basePackage])
 })
 
 .config(function(writeFilesProcessor) {
-  writeFilesProcessor.outputFolder  = 'dist/angular.io';
+  writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
 
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
+  // MIGRATION: HACK - added basePath to point to a local repo location because the docs-package-processor will
+  // have previously set it to point to angular/angular repo.
+  readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
   readFilesProcessor.$enabled = false;
   generateNavigationDoc.$enabled = false;
   createOverviewDump.$enabled = false;
 })
-
-
 
 
 .config(function(computeIdsProcessor, computePathsProcessor, EXPORT_DOC_TYPES) {
@@ -42,19 +42,25 @@ module.exports = new Package('angular.io', [basePackage])
   computePathsProcessor.pathTemplates.push({
     docTypes: ['module'],
     pathTemplate: '${id}/',
-    outputPathTemplate: MODULES_DOCS_PATH + '/${id}/index.jade'
+    // MIGRATION:
+    // outputPathTemplate: MODULES_DOCS_PATH + '/${id}/index.jade'
+    outputPathTemplate: '/${id}/index.jade'
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
     pathTemplate: '${moduleDoc.id}/${name}-${docType}.html',
-    outputPathTemplate: MODULES_DOCS_PATH + '/${moduleDoc.id}/${name}-${docType}.jade',
+    // MIGRATION:
+    // outputPathTemplate: MODULES_DOCS_PATH + '/${moduleDoc.id}/${name}-${docType}.jade',
+    outputPathTemplate:'/${moduleDoc.id}/${name}-${docType}.jade',
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['jade-data'],
     pathTemplate: '${originalDoc.id}/_data',
-    outputPathTemplate: MODULES_DOCS_PATH + '/${path}.json'
+    // MIGRATION:
+    // outputPathTemplate: MODULES_DOCS_PATH + '/${path}.json'
+    outputPathTemplate: '/${path}.json'
   });
 })
 
