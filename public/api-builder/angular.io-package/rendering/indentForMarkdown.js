@@ -44,9 +44,9 @@ module.exports = function(encodeCodeBlock) {
           newLines.pop();
         }
       }
-
+      // force character to be a newLine.
+      if (newLines.length > 0) newLines.push('');
       var res = newLines.join('\n');
-
       return res;
     }
   };
