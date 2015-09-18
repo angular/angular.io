@@ -22,18 +22,16 @@ var shred = function(shredOptions) {
 
 var shredSingleDir = function(shredOptions, filePath) {
   shredOptions = resolveShredOptions(shredOptions);
-  var root = path.resolve(shredOptions.basePath, shredOptions.examplesDir);
   var fileDir = path.dirname(filePath);
-  var relativePath = path.relative(root, fileDir);
+  var relativePath = path.relative(shredOptions.examplesDir, fileDir);
   var examplesDir = path.join(shredOptions.examplesDir, relativePath);
   var fragmentsDir = path.join(shredOptions.fragmentsDir, relativePath);
   var options = {
-    basePath: shredOptions.basePath,
     includeSubdirs: false,
     examplesDir: examplesDir,
     fragmentsDir: fragmentsDir
   }
-  var cleanPath = path.join(shredOptions.basePath, fragmentsDir, '*.*')
+  var cleanPath = path.join(fragmentsDir, '*.*')
   return delPromise([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     return shred(options);
@@ -74,7 +72,7 @@ function createShredPackage(shredOptions) {
     // default configs - may be overriden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
-      readFilesProcessor.basePath = options.basePath;
+      readFilesProcessor.basePath = "/";
 
       // Specify collections of source files that should contain the documentation to extract
       var extns = ['*.js', '*.html', '*.ts', '*.css', '*.json' ];
@@ -120,7 +118,7 @@ var createShredMapPackage = function(mapOptions) {
     // default configs - may be overriden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
-      readFilesProcessor.basePath = options.basePath;
+      readFilesProcessor.basePath = '/'; // options.basePath;
 
       // Specify collections of source files that should contain the documentation to extract
       var extns = ['*.jade' ];
@@ -184,11 +182,10 @@ var createShredMapPackage = function(mapOptions) {
 
 function resolveShredOptions(shredOptions) {
   return _.defaults({}, shredOptions, {
-    basePath: path.resolve('.'),
     // read files from any subdir under here
-    examplesDir: "docs/_examples",
+    examplesDir: path.resolve("./docs/_examples"),
     // shredded files get copied here with same subdir structure.
-    fragmentsDir: "docs/_fragments",
+    fragmentsDir: path.resolve("./docs/_fragments"),
     // whether to include subdirectories when shredding.
     includeSubdirs: true
   });
@@ -196,11 +193,10 @@ function resolveShredOptions(shredOptions) {
 
 function resolveMapOptions(mapOptions) {
   return _.defaults({}, mapOptions, {
-    basePath: path.resolve('.'),
     // read files from any subdir under here
-    jadeDir: "docs",
-    fragmentsDir: "docs/_fragments",
-    examplesDir: "docs/_examples",
+    jadeDir: path.resolve("./docs"),
+    fragmentsDir: path.resolve("./docs/_fragments"),
+    examplesDir: path.resolve("./docs/_examples"),
     // whether to include subdirectories when shredding.
     includeSubdirs: true
   });

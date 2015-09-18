@@ -17,10 +17,14 @@ var fs = fsExtra;
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
 var _shredOptions =  {
-  basePath: path.resolve('./public/docs'),
-  examplesDir: "_examples",
-  fragmentsDir:  "_fragments"
+  examplesDir: path.resolve('./public/docs/_examples'),
+  fragmentsDir: path.resolve('./public/docs/_fragments')
 };
+
+//var _apiShredOptions = {
+//  basePath: path.resolve('../angular/modules/angular2'),
+//  examplesDir: "test"
+//}
 
 var _excludePatterns = ["**/node_modules/**", "**/typings/**"];
 
@@ -226,7 +230,7 @@ function getChangedExamplesForCommit(commit, relativePath) {
 }
 
 function shredWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.basePath, shredOptions.examplesDir, "**/*.*");
+  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
   watch([pattern], function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
