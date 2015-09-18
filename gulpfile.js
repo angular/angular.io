@@ -39,7 +39,8 @@ the current session.
 gulp.task('help', taskListing);
 
 gulp.task('serve-and-sync', function (cb) {
-  execCommands(['harp server'], {}, cb);
+  // execCommands(['harp server'], {}, cb);
+  execCommands(['npm run harp'], {}, cb);
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
