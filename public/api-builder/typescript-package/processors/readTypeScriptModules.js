@@ -63,6 +63,10 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
           var exportDoc = createExportDoc(exportSymbol.name, resolvedExport, moduleDoc, basePath, parseInfo.typeChecker);
           log.debug('>>>> EXPORT: ' + exportDoc.name + ' (' + exportDoc.docType + ') from ' + moduleDoc.id);
 
+          // Add this export doc to its module doc
+          moduleDoc.exports.push(exportDoc);
+          docs.push(exportDoc);
+
           exportDoc.members = [];
           exportDoc.statics = [];
 
@@ -123,9 +127,6 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
             });
           }
 
-          // Add this export doc to its module doc
-          moduleDoc.exports.push(exportDoc);
-          docs.push(exportDoc);
         });
       });
     }

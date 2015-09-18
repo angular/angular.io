@@ -10,8 +10,7 @@ module.exports = new Package('angular.io', [basePackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
-// MIGRATION: added this processor
-.processor(require('./processors/fixOutputPathProcessor'))
+
 // MIGRATION: added packageInfo to point to angular/angular repo
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
@@ -59,26 +58,28 @@ module.exports = new Package('angular.io', [basePackage])
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['module'],
-    pathTemplate: '${id}/',
+    getPath: function computeModulePath(doc) {
+      return doc.id.replace(/^angular2\//, '');
+    },
     // MIGRATION:
     // outputPathTemplate: MODULES_DOCS_PATH + '/${id}/index.jade'
-    outputPathTemplate: '/${id}/index.jade'
+    outputPathTemplate: '${path}/index.jade'
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
-    pathTemplate: '${moduleDoc.id}/${name}-${docType}.html',
+    pathTemplate: '${moduleDoc.path}/${name}-${docType}.html',
     // MIGRATION:
     // outputPathTemplate: MODULES_DOCS_PATH + '/${moduleDoc.id}/${name}-${docType}.jade',
-    outputPathTemplate:'/${moduleDoc.id}/${name}-${docType}.jade',
+    outputPathTemplate:'${moduleDoc.path}/${name}-${docType}.jade',
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['jade-data'],
-    pathTemplate: '${originalDoc.id}/_data',
+    pathTemplate: '${originalDoc.path}/_data',
     // MIGRATION:
     // outputPathTemplate: MODULES_DOCS_PATH + '/${path}.json'
-    outputPathTemplate: '/${path}.json'
+    outputPathTemplate: '${path}.json'
   });
 })
 
