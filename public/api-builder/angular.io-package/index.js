@@ -1,6 +1,6 @@
 var path = require('canonical-path');
 var Package = require('dgeni').Package;
-var basePackage = require('../public-docs-package');
+var basePackage = require('../docs-package');
 
 // MIGRATION: removed these vars
 // var PARTIAL_PATH = 'partials';
@@ -23,7 +23,17 @@ module.exports = new Package('angular.io', [basePackage])
       .unshift(path.resolve(__dirname, 'templates'));
 })
 
-.config(function(writeFilesProcessor, readFilesProcessor) {
+.config(function(readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
+
+  readTypeScriptModules.sourceFiles = [
+    'angular2/lifecycle_hooks.ts',
+    'angular2/core.ts',
+    'angular2/http.ts',
+    'angular2/router.ts',
+    'angular2/test.ts'
+  ];
+  readTypeScriptModules.hidePrivateMembers = true;
+
   // MIGRATION: HACK - readFileProcessor.basePath set to point to a local repo location
   // because the docs-package-processor will
   // have previously set it to point to angular/angular repo.
@@ -31,6 +41,11 @@ module.exports = new Package('angular.io', [basePackage])
   readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
   writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
+
+.config(function(getLinkInfo) {
+  getLinkInfo.useFirstAmbiguousLink = false;
+})
+
 
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
