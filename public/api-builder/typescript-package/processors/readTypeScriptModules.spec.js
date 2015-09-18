@@ -13,6 +13,17 @@ describe('readTypeScriptModules', function() {
     processor.basePath = path.resolve(__dirname, '../mocks/readTypeScriptModules');
   });
 
+  describe('exportDocs', function() {
+    it('should provide the original module if the export is re-exported', function() {
+      processor.sourceFiles = [ 'publicModule.ts' ];
+      var docs = [];
+      processor.$process(docs);
+
+      var exportedDoc = docs[1];
+      expect(exportedDoc.originalModule).toEqual('privateModule');
+    });
+  });
+
 
   describe('ignoreExportsMatching', function() {
     it('should ignore exports that match items in the `ignoreExportsMatching` property', function() {
