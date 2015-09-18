@@ -19,28 +19,29 @@ module.exports = function shredMapProcessor(log) {
 
       docs.forEach(function(doc) {
         var jadePath = path.join(options.jadeDir, doc.fileInfo.relativePath);
-        var fragInfos = doc.fragPaths.map(function(fragPath) {
-          var relativeFragPath =  path.join(options.fragmentsDir, fragPath) + '.md';
-          var fullPath = path.join(options.basePath, relativeFragPath);
-
+        var fragInfoSet = {};
+        doc.fragPaths.forEach(function(fragPath) {
+          var fullFragPath =  path.join(options.fragmentsDir, fragPath) + '.md';
           var examplePath = getExampleName(fragPath);
-          var relativeExamplePath = path.join(options.examplesDir, examplePath);
-          var fragInfo = { fragPath: relativeFragPath, examplePath: relativeExamplePath, exists: fs.existsSync(fullPath) };
+          var fullExamplePath = path.join(options.examplesDir, examplePath);
+          var fragInfo = { fragPath: fullFragPath, examplePath: fullExamplePath, exists: fs.existsSync(fullFragPath) };
+          fragInfoSet[fragPath] = fragInfo;
           if (fragInfo.exists) {
-            var jadePaths = fragToJadeMap[fragInfo];
-            if (!jadePaths) {
-              jadePaths = [];
-              fragToJadeMap[fragPath] = jadePaths;
+            var jadePathsSet = fragToJadeMap[fragPath];
+            if (!jadePathsSet) {
+              jadePathsSet = {};
+              fragToJadeMap[fragPath] = jadePathsSet;
             }
-            jadePaths.push(jadePath);
+            jadePathsSet[jadePath] = jadePath;
           }
-          return fragInfo;
         });
-        jadeToFragMap[jadePath] = fragInfos;
+        jadeToFragMap[jadePath] = _.values(fragInfoSet);
       });
-      var basePath = path.relative(process.cwd(), this.options.basePath);
+      for (var key in fragToJadeMap) {
+        fragToJadeMap[key] = _.keys(fragToJadeMap[key]);
+      }
+
       var shredMap = {
-        basePath: basePath,
         jadeToFragMap: jadeToFragMap
       };
 
@@ -53,12 +54,10 @@ module.exports = function shredMapProcessor(log) {
           outputPath: 'xref-jade.json'
         }, {
           docType: 'xref-jade.html',
-          basePath: basePath,
           jadeToFragMap: jadeToFragMap,
           outputPath: 'xref-jade-to-frag.html'
         }, {
           docType: 'xref-frag.html',
-          basePath: basePath,
           fragToJadeMap: fragToJadeMap,
           outputPath: 'xref-frag-to-jade.html'
         }];

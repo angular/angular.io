@@ -7,16 +7,15 @@ var delPromise =  Q.denodeify(del);
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 
-
-
 var shred = function(shredOptions) {
   try {
     var pkg = createShredPackage(shredOptions);
     var dgeni = new Dgeni([ pkg]);
     return dgeni.generate();
-  } catch(x) {
-    console.log(x.stack);
-    throw x;
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
   }
 }
 
@@ -43,9 +42,10 @@ var buildShredMap = function(shredMapOptions) {
     var pkg = createShredMapPackage(shredMapOptions);
     var dgeni = new Dgeni([ pkg]);
     return dgeni.generate();
-  } catch(x) {
-    console.log(x.stack);
-    throw x;
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
   }
 }
 
@@ -94,7 +94,7 @@ function createShredPackage(shredOptions) {
     })
     .config(function(writeFilesProcessor) {
       // Specify where the writeFilesProcessor will write our generated doc files
-      writeFilesProcessor.outputFolder  = options.fragmentsDir;
+      writeFilesProcessor.outputFolder  = path.resolve(options.fragmentsDir);
     });
   return pkg;
 }
@@ -118,7 +118,7 @@ var createShredMapPackage = function(mapOptions) {
     // default configs - may be overriden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
-      readFilesProcessor.basePath = '/'; // options.basePath;
+      readFilesProcessor.basePath = '/';
 
       // Specify collections of source files that should contain the documentation to extract
       var extns = ['*.jade' ];
@@ -145,7 +145,7 @@ var createShredMapPackage = function(mapOptions) {
         unescapeCommentsProcessor.$enabled = false;
       } else {
         // Specify where the writeFilesProcessor will write our generated doc files
-        writeFilesProcessor.outputFolder = options.outputDir;
+        writeFilesProcessor.outputFolder = path.resolve(options.outputDir);
       }
     })
     .config(function(templateFinder) {
@@ -181,25 +181,33 @@ var createShredMapPackage = function(mapOptions) {
 }
 
 function resolveShredOptions(shredOptions) {
-  return _.defaults({}, shredOptions, {
+  var so =  _.defaults({}, shredOptions, {
     // read files from any subdir under here
-    examplesDir: path.resolve("./docs/_examples"),
+    examplesDir: "./docs/_examples",
     // shredded files get copied here with same subdir structure.
-    fragmentsDir: path.resolve("./docs/_fragments"),
+    fragmentsDir: "./docs/_fragments",
     // whether to include subdirectories when shredding.
     includeSubdirs: true
   });
+
+  so.examplesDir = path.resolve(so.examplesDir);
+  so.fragmentsDir = path.resolve(so.fragmentsDir);
+  return so;
 }
 
 function resolveMapOptions(mapOptions) {
-  return _.defaults({}, mapOptions, {
+  var so =  _.defaults({}, mapOptions, {
     // read files from any subdir under here
-    jadeDir: path.resolve("./docs"),
-    fragmentsDir: path.resolve("./docs/_fragments"),
-    examplesDir: path.resolve("./docs/_examples"),
+    jadeDir: "./docs",
+    fragmentsDir: "./docs/_fragments",
+    examplesDir: "./docs/_examples",
     // whether to include subdirectories when shredding.
     includeSubdirs: true
   });
+  so.jadeDir = path.resolve(so.jadeDir);
+  so.examplesDir = path.resolve(so.examplesDir);
+  so.fragmentsDir = path.resolve(so.fragmentsDir);
+  return so;
 }
 
 function initializePackage(pkg) {

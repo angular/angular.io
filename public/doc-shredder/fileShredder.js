@@ -24,7 +24,7 @@ module.exports = function fileShredder(log, regionExtractor) {
         default:
           return [];
       }
-      log.info("fileShredder processing: " + fileInfo.projectRelativePath);
+      log.info("fileShredder processing: " + fileInfo.relativePath);
       if (commentMarkers) {
         return regionExtractor(fileInfo.content, commentMarkers);
       } else {

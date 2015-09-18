@@ -17,8 +17,8 @@ var fs = fsExtra;
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
 var _shredOptions =  {
-  examplesDir: path.resolve('./public/docs/_examples'),
-  fragmentsDir: path.resolve('./public/docs/_fragments')
+  examplesDir: './public/docs/_examples',
+  fragmentsDir: './public/docs/_fragments'
 };
 
 //var _apiShredOptions = {
@@ -69,7 +69,7 @@ gulp.task('shred-full', ['shred-clean'], function() {
 });
 
 gulp.task('shred-clean', function(cb) {
-  var cleanPath = path.join(_shredOptions.basePath, _shredOptions.fragmentsDir, '**/*.*')
+  var cleanPath = path.join(_shredOptions.fragmentsDir, '**/*.*')
   del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     cb();
@@ -121,10 +121,10 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
     console.log(JSON.stringify(jadeExampleMap, null, "  "));
     console.log("-----");
   }).catch(function(err) {
+    console.log(err);
     throw err;
   });
 });
-
 
 gulp.task('build-api-docs',  function() {
   if (!fs.existsSync('../angular')) {
@@ -133,14 +133,12 @@ gulp.task('build-api-docs',  function() {
   try {
     var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
     return dgeni.generate();
-  } catch(x) {
-    console.log(x);
-    console.log(x.stack);
-    throw x;
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
   }
 });
-
-
 
 function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   return fileNames.filter(function(fileName) {
@@ -152,8 +150,8 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 
 function buildShredMaps(shouldWrite) {
   var options = _.extend(_shredOptions, {
-    jadeDir: '.',
-    outputDir: '.',
+    jadeDir: './public/docs',
+    outputDir: './public/docs',
     writeFilesEnabled: shouldWrite
   });
   return docShredder.buildShredMap(options).then(function(docs) {
@@ -163,7 +161,7 @@ function buildShredMaps(shouldWrite) {
 
 // returns a promise containing filePaths with any changed or added examples;
 function getChangedExamples(sha) {
-  var examplesPath = path.join(_shredOptions.basePath, _shredOptions.examplesDir);
+  var examplesPath = _shredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     if (sha.length) {
@@ -179,7 +177,7 @@ function getChangedExamples(sha) {
 }
 
 function getChangedExamplesAfter(date, relativePath) {
-  var examplesPath = path.join(_shredOptions.basePath, _shredOptions.examplesDir);
+  var examplesPath = _shredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     return repo.getHeadCommit();
@@ -241,20 +239,21 @@ function shredWatch(shredOptions, postShredAction) {
 }
 
 function jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths) {
+  // remove dups in examplePaths
   var exampleSet = {};
   examplePaths.forEach(function(examplePath) {
     exampleSet[examplePath] = examplePath;
   });
-  var basePath = jadeShredMap.basePath;
+  var basePath = path.resolve(".");
   var jadeToFragMap = jadeShredMap.jadeToFragMap;
   var jadeExampleMap = {};
   for (var jadePath in jadeToFragMap) {
-    var fullJadePath = path.join(basePath, jadePath);
+    var relativeJadePath = path.relative(basePath, jadePath);
     var vals = jadeToFragMap[jadePath];
     vals.forEach(function(val) {
-      var examplePath = path.join(basePath, val.examplePath);
-      if (exampleSet[examplePath] != null) {
-        addKeyValue(jadeExampleMap, fullJadePath, examplePath);
+      var relativeExamplePath = path.relative(basePath, val.examplePath);
+      if (exampleSet[relativeExamplePath] != null) {
+        addKeyValue(jadeExampleMap, relativeJadePath, relativeExamplePath);
       }
     });
   }
@@ -262,15 +261,14 @@ function jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths) {
 }
 
 function jadeShredMapToExampleJadeMap(jadeShredMap) {
-  var basePath = jadeShredMap.basePath;
+
   var jadeToFragMap = jadeShredMap.jadeToFragMap;
   var exampleJadeMap = {};
   for (var jadePath in jadeToFragMap) {
-    var fullJadePath = path.join(basePath, jadePath);
     var vals = jadeToFragMap[jadePath];
     vals.forEach(function(val) {
-      var examplePath = path.join(basePath, val.examplePath);
-      addKeyValue(exampleJadeMap, examplePath, fullJadePath);
+      var examplePath = val.examplePath;
+      addKeyValue(exampleJadeMap, examplePath, jadePath);
     });
   }
   return exampleJadeMap;
@@ -287,9 +285,10 @@ function addKeyValue(map, key, value) {
   }
 }
 
-
-// added options are: shouldLog
-// cb is function(err, stdout, stderr);
+// Synchronously execute a chain of commands.
+// cmds: an array of commands
+// options: { shouldLog: true,  shouldThrow: true }
+// cb: function(err, stdout, stderr)
 function execCommands(cmds, options, cb) {
   options = options || {};
   options.shouldThrow = options.shouldThrow == null ? true : options.shouldThrow;

@@ -6,7 +6,7 @@
     <script src="app.js"></script>
   </head>
   <body>
-    <my-app></my-app>
+    <my-app>foo2</my-app>
   </body>
 </html>
 
