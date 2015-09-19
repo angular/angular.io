@@ -8,6 +8,8 @@ var _ = require('lodash');
 var Git = require("nodegit");
 var argv = require('yargs').argv;
 var Q = require("q");
+// delPromise is a 'promise' version of del
+var delPromise =  Q.denodeify(del);
 var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
 var fsExtra = require('fs-extra');
@@ -16,15 +18,16 @@ var fs = fsExtra;
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
-var _shredOptions =  {
+var _devguideShredOptions =  {
   examplesDir: './public/docs/_examples',
   fragmentsDir: './public/docs/_fragments'
 };
 
-//var _apiShredOptions = {
-//  basePath: path.resolve('../angular/modules/angular2'),
-//  examplesDir: "test"
-//}
+var _apiShredOptions =  {
+  examplesDir: '../angular/modules/angular2/examples',
+  fragmentsDir: './public/docs/_fragments/_api'
+};
+
 
 var _excludePatterns = ["**/node_modules/**", "**/typings/**"];
 
@@ -35,52 +38,87 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 /*
 Within this repo generated files are checked in so that we can avoid running the
 shredder over the entire _examples dir each time someone refreshes the repo
-( the ‘shred-full’ gulp task). The gulp ‘serve-and-watch’ shredder is only
+( the ‘shred-devguide-examples’ gulp task). The gulp ‘serve-and-watch’ shredder is only
 a ‘partial’ shredder. It only shred’s files in directories changed during
 the current session.
 */
 
-gulp.task('help', taskListing);
+gulp.task('help', taskListing.withFilters(function(taskName) {
+  var isSubTask = taskName.substr(0,1) == "_";
+  return isSubTask;
+}, function(taskName) {
+  var shouldRemove = taskName === 'default';
+  return shouldRemove;
+}));
 
-gulp.task('serve-and-sync', function (cb) {
+gulp.task('serve-and-sync', ['build-docs'], function (cb) {
+
   // execCommands(['harp server'], {}, cb);
   execCommands(['npm run harp'], {}, cb);
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: "public/docs/**/*/**/*",
+    files: ["public/docs/**/*/**/*" ],
     logFileChanges: true,
     reloadDelay: 500
   });
 
-  shredWatch(_shredOptions, function() {
+  devGuideExamplesWatch(_devguideShredOptions, function() {
     browserSync.reload();
   });
+
+  apiSourceWatch(function() {
+    browserSync.reload();
+  });
+
 });
 
 gulp.task('serve-and-watch', function (cb) {
   execCommands(['harp server'], {}, cb);
-  shredWatch(_shredOptions);
+  devGuideExamplesWatch(_devguideShredOptions);
 });
 
-gulp.task('shred-full', ['shred-clean'], function() {
-  return docShredder.shred( _shredOptions);
-});
-
-gulp.task('shred-clean', function(cb) {
-  var cleanPath = path.join(_shredOptions.fragmentsDir, '**/*.*')
-  del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
-    // console.log('Deleted files/folders:\n', paths.join('\n'));
-    cb();
-  });
-});
-
-gulp.task('build-shred-maps', ['shred-full'], function() {
+gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs'], function() {
   return buildShredMaps(true);
 });
 
-gulp.task('git-changed-examples', ['shred-full'], function(){
+gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
+  return buildShredMaps(true);
+});
+
+gulp.task('build-api-docs', ['_shred-api-examples'], function() {
+  if (!fs.existsSync('../angular')) {
+    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
+  }
+  return buildApiDocs();
+});
+
+
+gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
+  return docShredder.shred( _devguideShredOptions);
+});
+
+gulp.task('_shred-clean-devguide', function(cb) {
+  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
+  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
+});
+
+gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
+  return docShredder.shred( _apiShredOptions);
+});
+
+gulp.task('_shred-clean-api', function(cb) {
+  var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
+  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
+});
+
+gulp.task('_build-shred-maps', function() {
+  return build-shred-maps(true);
+});
+
+
+gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
   if (argv.after) {
     try {
@@ -116,7 +154,7 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
     examplePaths = filterOutExcludedPatterns(examplePaths, _excludeMatchers);
     console.log('\nExamples changed ' + messageSuffix);
     console.log(examplePaths)
-    console.log("\nJade files and associated changed example files " + messageSuffix);
+    console.log("\nJade files affected by changed example files " + messageSuffix);
     var jadeExampleMap = jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths);
     console.log(JSON.stringify(jadeExampleMap, null, "  "));
     console.log("-----");
@@ -126,18 +164,10 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
   });
 });
 
-gulp.task('build-api-docs',  function() {
-  if (!fs.existsSync('../angular')) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
-  }
-  try {
-    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
-    return dgeni.generate();
-  } catch(err) {
-    console.log(err);
-    console.log(err.stack);
-    throw err;
-  }
+
+
+gulp.task('test-api-builder', function (cb) {
+  execCommands(['npm run test-api-builder'], {}, cb);
 });
 
 function filterOutExcludedPatterns(fileNames, excludeMatchers) {
@@ -148,12 +178,61 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   });
 }
 
+function apiSourceWatch(postShredAction) {
+  var srcPattern = ['../angular/modules/angular2/src/**/*.*'];
+  watch(srcPattern, function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    // need to run just build
+    buildApiDocs().then(done);
+  });
+  var examplesPattern = ['../angular/modules/angular2/examples/**/*.*'];
+  watch(examplesPattern, function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    // need to run shredder
+    var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*');
+    return delPromise([ cleanPath, '!**/*.ovr.*' ]).then(function() {
+      return docShredder.shred(_apiShredOptions);
+    }).then(function() {
+      postShredAction && postShredAction();
+    });
+  });
+
+}
+
+function buildApiDocs() {
+  try {
+    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
+    return dgeni.generate();
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
+  }
+}
+
+function devGuideExamplesWatch(shredOptions, postShredAction) {
+  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
+  watch([pattern], function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
+      postShredAction && postShredAction();
+    });
+  });
+}
+
+
 function buildShredMaps(shouldWrite) {
-  var options = _.extend(_shredOptions, {
+  var options = {
+    devguideExamplesDir: _devguideShredOptions.examplesDir,
+    apiExamplesDir: _apiShredOptions.examplesDir,
+    fragmentsDir: _devguideShredOptions.fragmentsDir,
     jadeDir: './public/docs',
     outputDir: './public/docs',
     writeFilesEnabled: shouldWrite
-  });
+  };
   return docShredder.buildShredMap(options).then(function(docs) {
     return docs;
   });
@@ -161,7 +240,7 @@ function buildShredMaps(shouldWrite) {
 
 // returns a promise containing filePaths with any changed or added examples;
 function getChangedExamples(sha) {
-  var examplesPath = _shredOptions.examplesDir;
+  var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     if (sha.length) {
@@ -177,7 +256,7 @@ function getChangedExamples(sha) {
 }
 
 function getChangedExamplesAfter(date, relativePath) {
-  var examplesPath = _shredOptions.examplesDir;
+  var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     return repo.getHeadCommit();
@@ -227,16 +306,7 @@ function getChangedExamplesForCommit(commit, relativePath) {
   });
 }
 
-function shredWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
-  watch([pattern], function (event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
-    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
-      postShredAction && postShredAction();
-    });
-  });
-}
+
 
 function jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths) {
   // remove dups in examplePaths
@@ -321,4 +391,4 @@ function execCommands(cmds, options, cb) {
 
 
 
-gulp.task('default', taskListing);
+gulp.task('default', ['help']);

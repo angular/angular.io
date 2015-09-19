@@ -2,16 +2,10 @@ var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../docs-package');
 
-// MIGRATION: removed these vars
-// var PARTIAL_PATH = 'partials';
-// var MODULES_DOCS_PATH = PARTIAL_PATH + '/api';
-
 module.exports = new Package('angular.io', [basePackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
-
-// MIGRATION: added packageInfo to point to angular/angular repo
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
 
@@ -33,7 +27,7 @@ module.exports = new Package('angular.io', [basePackage])
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
-  // MIGRATION: HACK - readFileProcessor.basePath set to point to a local repo location
+  // HACK - readFileProcessor.basePath set to point to a local repo location
   // because the docs-package-processor will
   // have previously set it to point to angular/angular repo.
   // needed because the writeFilesProcessor uses the readFilesProcessor's basePath.
@@ -61,24 +55,18 @@ module.exports = new Package('angular.io', [basePackage])
     getPath: function computeModulePath(doc) {
       return doc.id.replace(/^angular2\//, '');
     },
-    // MIGRATION:
-    // outputPathTemplate: MODULES_DOCS_PATH + '/${id}/index.jade'
     outputPathTemplate: '${path}/index.jade'
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
     pathTemplate: '${moduleDoc.path}/${name}-${docType}.html',
-    // MIGRATION:
-    // outputPathTemplate: MODULES_DOCS_PATH + '/${moduleDoc.id}/${name}-${docType}.jade',
     outputPathTemplate:'${moduleDoc.path}/${name}-${docType}.jade',
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['jade-data'],
     pathTemplate: '${originalDoc.path}/_data',
-    // MIGRATION:
-    // outputPathTemplate: MODULES_DOCS_PATH + '/${path}.json'
     outputPathTemplate: '${path}.json'
   });
 })

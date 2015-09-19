@@ -7,24 +7,26 @@ var path = require('canonical-path');
 
 module.exports = function extractPathsReader(log) {
   // regex for makeTabs line
-  var rx = /\s*\+make(?:=Tabs|Example)\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
+  var rx = /\s*\+make(?:=Tabs|Example|Json)\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
   return {
     name: 'extractPathsReader',
 
+    // returns the fragment filePath without the _fragments dir on the front or the '.md'
     getDocs: function (fileInfo) {
       var content = fileInfo.content;
-      var fragPaths = [];
+      var fragItems = [];
       var r;
       while ((r = rx.exec(content)) !== null) {
-        var basePath = r[1];
-        var fileNames = r[2].split(',');
-        fileNames.forEach(function(fn) {
-          fragPaths.push(path.join(basePath, fn.trim()));
-        })
+        var filePaths = r[1].split(',');
+        var regions = (r.length > 2) ? r[2].split(",") : null;
+        filePaths.forEach(function(filePath, ix) {
+          var region = regions && regions[ix];
+          fragItems.push( { mixinPath: filePath, region: region } );
+        });
       }
-      if (fragPaths.length) {
+      if (fragItems.length) {
         return [{
-          fragPaths: fragPaths
+          fragItems: fragItems
         }];
       } else {
         return [];

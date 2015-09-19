@@ -24,12 +24,17 @@ module.exports = function fileShredder(log, regionExtractor) {
         default:
           return [];
       }
-      log.info("fileShredder processing: " + fileInfo.relativePath);
+      var docs;
+      // log.info("fileShredder processing: " + fileInfo.relativePath);
       if (commentMarkers) {
-        return regionExtractor(fileInfo.content, commentMarkers);
+        docs = regionExtractor(fileInfo.content, commentMarkers);
       } else {
-        return [ { content: fileInfo.content } ];
+        docs = [ { content: fileInfo.content } ];
       }
+      if (docs.length) {
+        log.info("shredded file: " + fileInfo.relativePath);
+      }
+      return docs;
     }
   }
 }
