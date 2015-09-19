@@ -65,6 +65,14 @@ gulp.task('serve-and-watch', function (cb) {
   shredWatch(_devguideShredOptions);
 });
 
+gulp.task('build-docs', ['build-shred-maps', 'build-api-docs'], function() {
+  // noop;
+});
+
+gulp.task('shred-all-examples', ['shred-devguide-examples', 'shred-api-examples'], function() {
+  // noop;
+});
+
 gulp.task('shred-devguide-examples', ['shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
 });

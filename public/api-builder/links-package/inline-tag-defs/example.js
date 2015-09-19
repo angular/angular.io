@@ -32,9 +32,9 @@ module.exports = function exampleInlineTagDef(getLinkInfo, createDocMessage, log
       var extn = path.extname(relativePath);
       var baseNameNoExtn = path.basename(relativePath, extn);
       var fileName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
-      var fullFileName = path.join(FRAGMENT_DIR, dir, fileName);
-      if ( !fs.existsSync(fileName)) {
-        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fullFileName), doc));
+      var fullFileName = path.join(FRAGMENT_DIR, dir, fileName + '.md');
+      if ( !fs.existsSync(fullFileName)) {
+        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fullFileName) + ")", doc));
       }
 
       var comma = ', '
