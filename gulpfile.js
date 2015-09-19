@@ -16,15 +16,16 @@ var fs = fsExtra;
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
-var _shredOptions =  {
+var _devguideShredOptions =  {
   examplesDir: './public/docs/_examples',
   fragmentsDir: './public/docs/_fragments'
 };
 
-//var _apiShredOptions = {
-//  basePath: path.resolve('../angular/modules/angular2'),
-//  examplesDir: "test"
-//}
+var _apiShredOptions =  {
+  examplesDir: '../angular/modules/angular2/test',
+  fragmentsDir: './public/docs/_fragments/_api'
+};
+
 
 var _excludePatterns = ["**/node_modules/**", "**/typings/**"];
 
@@ -35,7 +36,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 /*
 Within this repo generated files are checked in so that we can avoid running the
 shredder over the entire _examples dir each time someone refreshes the repo
-( the ‘shred-full’ gulp task). The gulp ‘serve-and-watch’ shredder is only
+( the ‘shred-devguide-examples’ gulp task). The gulp ‘serve-and-watch’ shredder is only
 a ‘partial’ shredder. It only shred’s files in directories changed during
 the current session.
 */
@@ -54,33 +55,45 @@ gulp.task('serve-and-sync', function (cb) {
     reloadDelay: 500
   });
 
-  shredWatch(_shredOptions, function() {
+  shredWatch(_devguideShredOptions, function() {
     browserSync.reload();
   });
 });
 
 gulp.task('serve-and-watch', function (cb) {
   execCommands(['harp server'], {}, cb);
-  shredWatch(_shredOptions);
+  shredWatch(_devguideShredOptions);
 });
 
-gulp.task('shred-full', ['shred-clean'], function() {
-  return docShredder.shred( _shredOptions);
+gulp.task('shred-devguide-examples', ['shred-clean-devguide'], function() {
+  return docShredder.shred( _devguideShredOptions);
 });
 
-gulp.task('shred-clean', function(cb) {
-  var cleanPath = path.join(_shredOptions.fragmentsDir, '**/*.*')
-  del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
+gulp.task('shred-api-examples', ['shred-clean-api'], function() {
+  return docShredder.shred( _apiShredOptions);
+});
+
+gulp.task('shred-clean-devguide', function(cb) {
+  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
+  del([ cleanPath, '!**/*.ovr.*', '!**/_api/**'], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     cb();
   });
 });
 
-gulp.task('build-shred-maps', ['shred-full'], function() {
+gulp.task('shred-clean-api', function(cb) {
+  var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
+  del([ cleanPath, '!**/*.ovr.*' ], function (err, paths) {
+    // console.log('Deleted files/folders:\n', paths.join('\n'));
+    cb();
+  });
+});
+
+gulp.task('build-shred-maps', ['shred-devguide-examples'], function() {
   return buildShredMaps(true);
 });
 
-gulp.task('git-changed-examples', ['shred-full'], function(){
+gulp.task('git-changed-examples', ['shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
   if (argv.after) {
     try {
@@ -126,7 +139,7 @@ gulp.task('git-changed-examples', ['shred-full'], function(){
   });
 });
 
-gulp.task('build-api-docs',  function() {
+gulp.task('build-api-docs', ['shred-api-examples'], function() {
   if (!fs.existsSync('../angular')) {
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
   }
@@ -149,7 +162,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function buildShredMaps(shouldWrite) {
-  var options = _.extend(_shredOptions, {
+  var options = _.extend(_devguideShredOptions, {
     jadeDir: './public/docs',
     outputDir: './public/docs',
     writeFilesEnabled: shouldWrite
@@ -161,7 +174,7 @@ function buildShredMaps(shouldWrite) {
 
 // returns a promise containing filePaths with any changed or added examples;
 function getChangedExamples(sha) {
-  var examplesPath = _shredOptions.examplesDir;
+  var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     if (sha.length) {
@@ -177,7 +190,7 @@ function getChangedExamples(sha) {
 }
 
 function getChangedExamplesAfter(date, relativePath) {
-  var examplesPath = _shredOptions.examplesDir;
+  var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
     return repo.getHeadCommit();
