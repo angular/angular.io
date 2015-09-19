@@ -197,15 +197,11 @@ function resolveShredOptions(shredOptions) {
 
 function resolveMapOptions(mapOptions) {
   var so =  _.defaults({}, mapOptions, {
-    // read files from any subdir under here
-    jadeDir: "./docs",
-    fragmentsDir: "./docs/_fragments",
-    examplesDir: "./docs/_examples",
-    // whether to include subdirectories when shredding.
     includeSubdirs: true
   });
   so.jadeDir = path.resolve(so.jadeDir);
-  so.examplesDir = path.resolve(so.examplesDir);
+  so.devguideExamplesDir = path.resolve(so.devguideExamplesDir);
+  so.apiExamplesDir = path.resolve(so.apiExamplesDir);
   so.fragmentsDir = path.resolve(so.fragmentsDir);
   return so;
 }

@@ -1,47 +1,67 @@
 //- Mixins and associated functions
 
-mixin makeExample(path, fileName, title, stylePatterns)
-  - var language = attributes.language || getExtn(fileName);
+mixin makeExample(filePath, region, title, stylePatterns)
+  - var language = attributes.language || getExtn(filePath);
   - var format = attributes.format || "linenums";
-  - var frag = getFrag(path, fileName);
+  - var frag = getFrag(filePath, region);
   if (title)
     .example-title #{title}
   code-example(language="#{language}" format="#{format}")
     != styleString(frag, stylePatterns)
 
-mixin makeTabs(path, fileNames, tabNames, stylePatterns)
-  - fileNames = fileNames.split(",");
-  - tabNames = tabNames.split(",")
+mixin makeTabs(filePaths, regions, tabNames, stylePatterns)
+  - filePaths = strSplit(filePaths);
+  - regions = strSplit(regions, filePaths.length);
+  - tabNames = strSplit(tabNames, filePaths.length);
 
   code-tabs
-      each fileName,index in fileNames
+      each filePath,index in filePaths
+        - var region = regions[index].trim();
         - var tabName = tabNames[index].trim();
-        - var fileName = fileNames[index].trim();
-        - var language = attributes.language || getExtn(fileName);
+        - var language = attributes.language || getExtn(filePath);
         - var format = attributes.format || "linenums";
 
-        - var frag = getFrag(path, fileName);
+        - var frag = getFrag(filePath, region);
         - var sps = Array.isArray(stylePatterns) ? stylePatterns[index] : stylePatterns;
         code-pane(language="#{language}" name="#{tabName}" format="#{format}")
             != styleString(frag, sps)
 
-mixin makeJson(path, fileName, title, jsonConfig, stylePatterns)
-  - var language = attributes.language || getExtn(fileName);
+mixin makeJson( filePath, jsonConfig, title, stylePatterns)
+  - var language = attributes.language || getExtn(filePath);
   - var format = attributes.format || "linenums";
-  - var frag = getFrag(path, fileName);
+  - var frag = getFrag(filePath, '');
   - var json = unescapeHtml(frag);
   - var jsonExtract = extractJson(json, jsonConfig);
 
   if (title)
     .example-title #{title}
   code-example(language="#{language}" format="#{format}")
-    != styleString(jsonExtract, stylePatterns)
+    if (jsonExtract == 'ERROR')
+      err ERROR: Unable to extract json using config: "#{jsonConfig.toString()}"
+    else
+      != styleString(jsonExtract, stylePatterns)
 
 
 //---------------------------------------------------------------------------------------------------------
 
-- var getFrag = function(path, fileName) {
--   var fullFileName = getPathToFrags() + path + "/" + fileName + '.md';
+- var EMPTY_STRINGS = [ '','','','','','',''];
+
+- var strSplit = function(str, length) {
+-   var res;
+-   str = str || '';
+-   if (!length) {
+-     res = str.split(",");
+-   } else {
+-     res = str.split(",");
+-     if (res.length < length) {
+-       res = res.concat(EMPTY_STRINGS.slice(0, length - res.length));
+-     }
+-   }
+-   return res;
+- }
+
+- var getFrag = function(filePath, region) {
+-   var fullFileName = getFragFilePath(filePath, region);
 -   var frag = partial(fullFileName);
 -   if (frag == null) {
 -     return "BAD FILENAME: " + fullFileName + "   Current path: " + current.path +  " PathToDocs: " + getPathToDocs();
@@ -56,10 +76,15 @@ mixin makeJson(path, fileName, title, jsonConfig, stylePatterns)
 - }
 
 - var extractJson = function(json, jsonConfig ) {
--   if (jsonConfig) {
--     return extractJsonFragment(json, jsonConfig.rootPath || null, jsonConfig.paths || [], jsonConfig.space || "  ");
--   } else {
--     return json;
+-   try {
+-     if (jsonConfig) {
+-       return extractJsonFragment(json, jsonConfig.rootPath || null, jsonConfig.paths || [], jsonConfig.space || "  ");
+-     } else {
+-       return json;
+-     }
+-   } catch (e) {
+-     return "ERROR";
+-     // return json;
 -   }
 - }
 
@@ -79,6 +104,15 @@ mixin makeJson(path, fileName, title, jsonConfig, stylePatterns)
 -      }
 -   }
 -  return source;
+- }
+
+- var getFragFilePath = function (filePath, region) {
+-   filePath = filePath.trim();
+-   var extn = getExtn(filePath);
+-   var fileBase = filePath.substr(0,filePath.length - (extn.length + 1));
+-   var regionPad = (region && region.length) ? '-' + region.toString() : '';
+-   var fullFileName = getPathToFrags() + fileBase + regionPad + "." + extn + '.md';
+-   return fullFileName;
 - }
 
 //- styles a string according to a regular expression.

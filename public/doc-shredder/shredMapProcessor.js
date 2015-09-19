@@ -20,10 +20,22 @@ module.exports = function shredMapProcessor(log, createDocMessage) {
       docs.forEach(function(doc) {
         var jadePath = path.join(options.jadeDir, doc.fileInfo.relativePath);
         var fragInfoSet = {};
-        doc.fragPaths.forEach(function(fragPath) {
-          var fullFragPath =  path.join(options.fragmentsDir, fragPath) + '.md';
-          var examplePath = getExampleName(fragPath);
-          var fullExamplePath = path.join(options.examplesDir, examplePath);
+        doc.fragItems.forEach(function(fragItem) {
+          var mixinPath = fragItem.mixinPath;
+          var fullExamplePath;
+          if ( mixinPath.indexOf('_api') >= 0) {
+            var sourcePath = mixinPath.replace('_api/','');
+            fullExamplePath = path.join(options.apiExamplesDir, sourcePath);
+          } else {
+            fullExamplePath = path.join(options.devguideExamplesDir, mixinPath);
+          }
+          var region = fragItem.region ? "-" + fragItem.region : '';
+          var extn = path.extname(mixinPath);
+          var basename = path.basename(mixinPath, extn);
+          var fragDir = path.dirname(mixinPath);
+          var fragPath = path.join(fragDir, basename + region + extn) + '.md';
+          var fullFragPath =  path.join(options.fragmentsDir, fragPath);
+
           var fragInfo = { fragPath: fullFragPath, examplePath: fullExamplePath, exists: fs.existsSync(fullFragPath) };
           fragInfoSet[fragPath] = fragInfo;
           if (fragInfo.exists) {

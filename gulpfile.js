@@ -41,7 +41,13 @@ a ‘partial’ shredder. It only shred’s files in directories changed during
 the current session.
 */
 
-gulp.task('help', taskListing);
+gulp.task('help', taskListing.withFilters(function(taskName) {
+  var isSubTask = taskName.substr(0,1) == "_";
+  return isSubTask;
+}, function(taskName) {
+  var shouldRemove = taskName === 'default';
+  return shouldRemove;
+}));
 
 gulp.task('serve-and-sync', function (cb) {
   // execCommands(['harp server'], {}, cb);
@@ -65,23 +71,34 @@ gulp.task('serve-and-watch', function (cb) {
   shredWatch(_devguideShredOptions);
 });
 
-gulp.task('build-docs', ['build-shred-maps', 'build-api-docs'], function() {
-  // noop;
+gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs'], function() {
+  buildShredMaps(true);
 });
 
-gulp.task('shred-all-examples', ['shred-devguide-examples', 'shred-api-examples'], function() {
-  // noop;
+gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
+  buildShredMaps(true);
 });
 
-gulp.task('shred-devguide-examples', ['shred-clean-devguide'], function() {
+gulp.task('build-api-docs', ['_shred-api-examples'], function() {
+  if (!fs.existsSync('../angular')) {
+    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
+  }
+  try {
+    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
+    return dgeni.generate();
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
+  }
+});
+
+
+gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
 });
 
-gulp.task('shred-api-examples', ['shred-clean-api'], function() {
-  return docShredder.shred( _apiShredOptions);
-});
-
-gulp.task('shred-clean-devguide', function(cb) {
+gulp.task('_shred-clean-devguide', function(cb) {
   var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
   del([ cleanPath, '!**/*.ovr.*', '!**/_api/**'], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
@@ -89,7 +106,11 @@ gulp.task('shred-clean-devguide', function(cb) {
   });
 });
 
-gulp.task('shred-clean-api', function(cb) {
+gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
+  return docShredder.shred( _apiShredOptions);
+});
+
+gulp.task('_shred-clean-api', function(cb) {
   var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
   del([ cleanPath, '!**/*.ovr.*' ], function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
@@ -97,11 +118,12 @@ gulp.task('shred-clean-api', function(cb) {
   });
 });
 
-gulp.task('build-shred-maps', ['shred-devguide-examples'], function() {
-  return buildShredMaps(true);
+gulp.task('_build-shred-maps', function() {
+  build-shred-maps(true);
 });
 
-gulp.task('git-changed-examples', ['shred-devguide-examples'], function(){
+
+gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
   if (argv.after) {
     try {
@@ -137,7 +159,7 @@ gulp.task('git-changed-examples', ['shred-devguide-examples'], function(){
     examplePaths = filterOutExcludedPatterns(examplePaths, _excludeMatchers);
     console.log('\nExamples changed ' + messageSuffix);
     console.log(examplePaths)
-    console.log("\nJade files and associated changed example files " + messageSuffix);
+    console.log("\nJade files affected by changed example files " + messageSuffix);
     var jadeExampleMap = jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths);
     console.log(JSON.stringify(jadeExampleMap, null, "  "));
     console.log("-----");
@@ -147,19 +169,7 @@ gulp.task('git-changed-examples', ['shred-devguide-examples'], function(){
   });
 });
 
-gulp.task('build-api-docs', ['shred-api-examples'], function() {
-  if (!fs.existsSync('../angular')) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
-  }
-  try {
-    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
-    return dgeni.generate();
-  } catch(err) {
-    console.log(err);
-    console.log(err.stack);
-    throw err;
-  }
-});
+
 
 gulp.task('test-api-builder', function (cb) {
   execCommands(['npm run test-api-builder'], {}, cb);
@@ -174,11 +184,14 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function buildShredMaps(shouldWrite) {
-  var options = _.extend(_devguideShredOptions, {
+  var options = {
+    devguideExamplesDir: _devguideShredOptions.examplesDir,
+    apiExamplesDir: _apiShredOptions.examplesDir,
+    fragmentsDir: _devguideShredOptions.fragmentsDir,
     jadeDir: './public/docs',
     outputDir: './public/docs',
     writeFilesEnabled: shouldWrite
-  });
+  };
   return docShredder.buildShredMap(options).then(function(docs) {
     return docs;
   });
@@ -346,4 +359,4 @@ function execCommands(cmds, options, cb) {
 
 
 
-gulp.task('default', taskListing);
+gulp.task('default', ['help']);

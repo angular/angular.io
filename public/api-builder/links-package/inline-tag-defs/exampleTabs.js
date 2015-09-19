@@ -2,6 +2,8 @@ var path = require('canonical-path');
 var fs = require("fs");
 var FRAGMENT_DIR = "./public/docs/_fragments";
 
+// NOT YET COMPLETE.
+
 /**
  * @dgService exampleInlineTagDef
  * @description
@@ -14,7 +16,7 @@ var FRAGMENT_DIR = "./public/docs/_fragments";
  *
  * @property {boolean} relativeLinks Whether we expect the links to be relative to the originating doc
  */
-module.exports = function exampleInlineTagDef(getLinkInfo, createDocMessage, log) {
+module.exports = function exampleTabsInlineTagDef(getLinkInfo, createDocMessage, log) {
   return {
     name: 'example',
     description: 'Process inline example tags (of the form {@example some/uri Some Title}), replacing them with HTML anchors',
@@ -23,25 +25,28 @@ module.exports = function exampleInlineTagDef(getLinkInfo, createDocMessage, log
       var tagArgs = parseArgs(tagDescription);
       var unnamedArgs = tagArgs._;
       var relativePath = unnamedArgs[0];
-      var region = tagArgs.region || (unnamedArgs.length > 1 && unnamedArgs[1]);
-      var title = tagArgs.title || (unnamedArgs.length > 2 && unnamedArgs[2]);
+      var regions = tagArgs.regions || unnamedArgs.length > 1 && unnamedArgs[1];
+      var titles = tagArgs.titles || unnamedArgs.length > 2 && unnamedArgs[2];
+      if (regions) {
+        regions = regions.split(',');
+      }
+      if (titles) {
+        titles = titles.split(',');
+      }
       // TODO: not yet implemented here
-      var stylePattern = tagArgs.stylePattern;
+      var stylePatterns = tagArgs.stylePattern;
 
       var dir = path.join("_api", path.dirname(relativePath));
       var extn = path.extname(relativePath);
       var baseNameNoExtn = path.basename(relativePath, extn);
       var fileName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
-
-      var fragFileName = path.join(FRAGMENT_DIR, dir, fileName + '.md');
-
-      if ( !fs.existsSync(fragFileName)) {
-        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fragFileName) + ")", doc));
+      var fullFileName = path.join(FRAGMENT_DIR, dir, fileName + '.md');
+      if ( !fs.existsSync(fullFileName)) {
+        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fullFileName) + ")", doc));
       }
 
       var comma = ', '
-      var mixinFilePath = path.join('_api', relativePath);
-      var res = [ "+makeExample(", quote(mixinFilePath), comma, quote(region), comma, title ? quote(title) : 'null', ")" ].join('');
+      var res = [ "+makeExample(", quote(dir), comma, quote(fileName), comma, title ? quote(title) : 'null', ")" ].join('');
       return res;
     }
 
