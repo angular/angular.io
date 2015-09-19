@@ -1,4 +1,6 @@
 var path = require('canonical-path');
+var fs = require("fs");
+var FRAGMENT_DIR = "./public/docs/_fragments";
 
 /**
  * @dgService exampleInlineTagDef
@@ -29,10 +31,14 @@ module.exports = function exampleInlineTagDef(getLinkInfo, createDocMessage, log
       var dir = path.join("_api", path.dirname(relativePath));
       var extn = path.extname(relativePath);
       var baseNameNoExtn = path.basename(relativePath, extn);
-      var baseName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
+      var fileName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
+      var fullFileName = path.join(FRAGMENT_DIR, dir, fileName);
+      if ( !fs.existsSync(fileName)) {
+        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fullFileName), doc));
+      }
 
       var comma = ', '
-      var res = [ "+makeExample(", quote(dir), comma, quote(baseName), comma, title ? quote(title) : 'null', ")" ].join('');
+      var res = [ "+makeExample(", quote(dir), comma, quote(fileName), comma, title ? quote(title) : 'null', ")" ].join('');
       return res;
     }
 
