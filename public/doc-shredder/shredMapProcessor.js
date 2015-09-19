@@ -7,7 +7,7 @@ var path = require('canonical-path');
 var fs = require('fs');
 var _ = require('lodash');
 
-module.exports = function shredMapProcessor(log) {
+module.exports = function shredMapProcessor(log, createDocMessage) {
   return {
     $runAfter: ['readFilesProcessor'],
     $runBefore: ['rendering-docs'],
@@ -33,6 +33,9 @@ module.exports = function shredMapProcessor(log) {
               fragToJadeMap[fragPath] = jadePathsSet;
             }
             jadePathsSet[jadePath] = jadePath;
+          } else {
+            var relativePath = path.relative(".", fullFragPath);
+            log.warn(createDocMessage('Invalid example (unable to locate fragment file: "' + relativePath + '")', doc));
           }
         });
         jadeToFragMap[jadePath] = _.values(fragInfoSet);
