@@ -161,6 +161,10 @@ gulp.task('build-api-docs', ['shred-api-examples'], function() {
   }
 });
 
+gulp.task('test-api-builder', function (cb) {
+  execCommands(['npm run test-api-builder'], {}, cb);
+});
+
 function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   return fileNames.filter(function(fileName) {
     return !excludeMatchers.some(function(excludeMatcher) {
