@@ -1,8 +1,5 @@
 var path = require('canonical-path');
 var fs = require("fs");
-var FRAGMENT_DIR = "./public/docs/_fragments";
-
-// NOT YET COMPLETE.
 
 /**
  * @dgService exampleInlineTagDef
@@ -16,37 +13,37 @@ var FRAGMENT_DIR = "./public/docs/_fragments";
  *
  * @property {boolean} relativeLinks Whether we expect the links to be relative to the originating doc
  */
-module.exports = function exampleTabsInlineTagDef(getLinkInfo, createDocMessage, log) {
+module.exports = function exampleTabsInlineTagDef(getLinkInfo, parseArgString, getApiFragmentFileName, createDocMessage, log) {
   return {
-    name: 'example',
+    name: 'exampleTabs',
     description: 'Process inline example tags (of the form {@example some/uri Some Title}), replacing them with HTML anchors',
     handler: function(doc, tagName, tagDescription) {
 
-      var tagArgs = parseArgs(tagDescription);
+      var tagArgs = parseArgString(tagDescription);
       var unnamedArgs = tagArgs._;
-      var relativePath = unnamedArgs[0];
+      var relativePaths = unnamedArgs[0].split(',');
       var regions = tagArgs.regions || unnamedArgs.length > 1 && unnamedArgs[1];
       var titles = tagArgs.titles || unnamedArgs.length > 2 && unnamedArgs[2];
       if (regions) {
         regions = regions.split(',');
       }
-      if (titles) {
-        titles = titles.split(',');
-      }
+
       // TODO: not yet implemented here
       var stylePatterns = tagArgs.stylePattern;
 
-      var dir = path.join("_api", path.dirname(relativePath));
-      var extn = path.extname(relativePath);
-      var baseNameNoExtn = path.basename(relativePath, extn);
-      var fileName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
-      var fullFileName = path.join(FRAGMENT_DIR, dir, fileName + '.md');
-      if ( !fs.existsSync(fullFileName)) {
-        log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fullFileName) + ")", doc));
-      }
+      var mixinPaths = relativePaths.map(function(relativePath, ix) {
+        var fragFileName = getApiFragmentFileName(relativePath, regions && regions[ix]);
+        if ( !fs.existsSync(fragFileName)) {
+          log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fragFileName) + ")", doc));
+        }
+        return path.join('_api', relativePath);
+      });
 
       var comma = ', '
-      var res = [ "+makeExample(", quote(dir), comma, quote(fileName), comma, title ? quote(title) : 'null', ")" ].join('');
+      var pathsArg = quote(mixinPaths.join(','));
+      var regionsArg = regions ? quote(regions.join(',')) : 'null';
+      var titlesArg = titles ? quote(titles) : 'null';
+      var res = [ "+makeTabs(", pathsArg, comma, regionsArg, comma, titlesArg, ")" ].join('');
       return res;
     }
 

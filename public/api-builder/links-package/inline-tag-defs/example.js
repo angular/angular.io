@@ -1,6 +1,5 @@
 var path = require('canonical-path');
 var fs = require("fs");
-var FRAGMENT_DIR = "./public/docs/_fragments";
 
 /**
  * @dgService exampleInlineTagDef
@@ -14,39 +13,35 @@ var FRAGMENT_DIR = "./public/docs/_fragments";
  *
  * @property {boolean} relativeLinks Whether we expect the links to be relative to the originating doc
  */
-module.exports = function exampleInlineTagDef(getLinkInfo, createDocMessage, log) {
+module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getApiFragmentFileName, createDocMessage, log) {
   return {
     name: 'example',
     description: 'Process inline example tags (of the form {@example some/uri Some Title}), replacing them with HTML anchors',
     handler: function(doc, tagName, tagDescription) {
 
-      var tagArgs = parseArgs(tagDescription);
+      var tagArgs = parseArgString(tagDescription);
       var unnamedArgs = tagArgs._;
       var relativePath = unnamedArgs[0];
+      var mixinFilePath = path.join('_api', relativePath);
       var region = tagArgs.region || (unnamedArgs.length > 1 && unnamedArgs[1]);
       var title = tagArgs.title || (unnamedArgs.length > 2 && unnamedArgs[2]);
       // TODO: not yet implemented here
       var stylePattern = tagArgs.stylePattern;
 
-      var dir = path.join("_api", path.dirname(relativePath));
-      var extn = path.extname(relativePath);
-      var baseNameNoExtn = path.basename(relativePath, extn);
-      var fileName = region ? baseNameNoExtn + "-" + region + extn : baseNameNoExtn + extn;
-
-      var fragFileName = path.join(FRAGMENT_DIR, dir, fileName + '.md');
-
+      // check if fragment file actually exists.
+      var fragFileName = getApiFragmentFileName(relativePath, region);
       if ( !fs.existsSync(fragFileName)) {
         log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fragFileName) + ")", doc));
       }
 
       var comma = ', '
-      var mixinFilePath = path.join('_api', relativePath);
       var res = [ "+makeExample(", quote(mixinFilePath), comma, quote(region), comma, title ? quote(title) : 'null', ")" ].join('');
       return res;
     }
-
   };
 };
+
+
 
 function quote(str) {
   if (str == null || str.length === 0) return str;
@@ -55,47 +50,3 @@ function quote(str) {
 }
 
 
-// processes an arg string in 'almost' the same fashion that the command processor does
-// and returns an args object in yargs format.
-function parseArgs(str) {
-  // regex from npm string-argv
-  //[^\s'"] Match if not a space ' or "
-
-  //+|['] or Match '
-  //([^']*) Match anything that is not '
-  //['] Close match if '
-
-  //+|["] or Match "
-  //([^"]*) Match anything that is not "
-  //["] Close match if "
-  var rx = /[^\s'"]+|[']([^']*?)[']|["]([^"]*?)["]/gi;
-  var value = str;
-  var unnammedArgs = [];
-  var args = { _: unnammedArgs };
-  var match, key;
-  do {
-    //Each call to exec returns the next regex match as an array
-    match = rx.exec(value);
-    if (match !== null) {
-      //Index 1 in the array is the captured group if it exists
-      //Index 0 is the matched text, which we use if no captured group exists
-      var arg = match[2] ? match[2] : (match[1]?match[1]:match[0]);
-      if (key) {
-        args[key] = arg;
-        key = null;
-      } else {
-        if (arg.substr(arg.length-1) === '=') {
-          key = arg.substr(0, arg.length-1);
-          // remove leading '-' if it exists.
-          if (key.substr(0,1)=='-') {
-            key = key.substr(1);
-          }
-        } else {
-          unnammedArgs.push(arg)
-          key = null;
-        }
-      }
-    }
-  } while (match !== null);
-  return args;
-}

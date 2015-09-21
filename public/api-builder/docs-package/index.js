@@ -33,9 +33,9 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 // Configure file reading
 .config(function(readFilesProcessor, ngdocFileReader, readTypeScriptModules) {
   readFilesProcessor.fileReaders = [ngdocFileReader];
-  // MIGRATION: set the readFilesProcessor base path to point to angular repo.
+  // set the readFilesProcessor base path to point to angular repo.
   var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
-  // TODO: confirm that the angular repo is actually there.
+  // confirm that the angular repo is actually there.
   if (!fs.existsSync(angular_repo_path)) {
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
   }
