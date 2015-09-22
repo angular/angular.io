@@ -6,12 +6,10 @@ var fs = require("fs");
  * @description
  * Process inline example tags (of the form {@example relativePath region -title='some title' -stylePattern='{some style pattern}' }),
  * replacing them with a jade makeExample mixin call.
+ * Examples:
+ * {@example core/application_spec.ts hello-app -title='Sample component' }
+ * {@example core/application_spec.ts -region=hello-app -title='Sample component' }
  * @kind function
- * @param  {Object} path   The relative path to example
- * @param  {Function} docs error message
- * @return {String}  The jade makeExample mixin call
- *
- * @property {boolean} relativeLinks Whether we expect the links to be relative to the originating doc
  */
 module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getApiFragmentFileName, createDocMessage, log) {
   return {
@@ -41,6 +39,12 @@ module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getAp
   };
 };
 
+//  Examples of what @example and @exampleTabs markup looks like in the angular/angular source.
+//*
+//* {@example core/application_spec.ts hello-app -title='Sample component' }
+//*
+//* {@exampleTabs core/application_spec.ts,core/application_spec.ts "hello-app,hello-app2" -titles="Hello app1, Hello app2" }
+//*
 
 
 function quote(str) {
