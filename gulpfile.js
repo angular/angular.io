@@ -8,6 +8,8 @@ var _ = require('lodash');
 var Git = require("nodegit");
 var argv = require('yargs').argv;
 var Q = require("q");
+// delPromise is a 'promise' version of del
+var delPromise =  Q.denodeify(del);
 var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
 var fsExtra = require('fs-extra');
@@ -66,7 +68,9 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
     browserSync.reload();
   });
 
-  apiSourceWatch();
+  apiSourceWatch(function() {
+    browserSync.reload();
+  });
 
 });
 
@@ -97,10 +101,7 @@ gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
 
 gulp.task('_shred-clean-devguide', function(cb) {
   var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
-  del([ cleanPath, '!**/*.ovr.*', '!**/_api/**'], function (err, paths) {
-    // console.log('Deleted files/folders:\n', paths.join('\n'));
-    cb();
-  });
+  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
 });
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
@@ -109,10 +110,7 @@ gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
 
 gulp.task('_shred-clean-api', function(cb) {
   var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
-  del([ cleanPath, '!**/*.ovr.*' ], function (err, paths) {
-    // console.log('Deleted files/folders:\n', paths.join('\n'));
-    cb();
-  });
+  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
 });
 
 gulp.task('_build-shred-maps', function() {
@@ -180,7 +178,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   });
 }
 
-function apiSourceWatch() {
+function apiSourceWatch(postShredAction) {
   var srcPattern = ['../angular/modules/angular2/src/**/*.*'];
   watch(srcPattern, function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
@@ -192,9 +190,12 @@ function apiSourceWatch() {
   watch(examplesPattern, function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
-    // need to run shredder then build
-    return docShredder.shred( _apiShredOptions).then(function() {
-      return buildApiDocs().then(done);
+    // need to run shredder
+    var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*');
+    return delPromise([ cleanPath, '!**/*.ovr.*' ]).then(function() {
+      return docShredder.shred(_apiShredOptions);
+    }).then(function() {
+      postShredAction && postShredAction();
     });
   });
 
