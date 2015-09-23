@@ -27,7 +27,7 @@ module.exports = function linkDevGuideInlineTagDef(parseArgString, createDocMess
       var tagArgs = parseArgString(tagDescription);
       var unnamedArgs = tagArgs._;
       var uri = unnamedArgs[0];
-      var title = tagArgs.title || (unnamedArgs.length > 1 && unnamedArgs[1]);
+      var title = tagArgs.title || (unnamedArgs.length > 1 ? unnamedArgs[1] : null);
 
       var jadePath = path.join('./public/docs', uri + '.jade');
       var key = path.basename(jadePath, '.jade');
@@ -43,7 +43,7 @@ module.exports = function linkDevGuideInlineTagDef(parseArgString, createDocMess
         }
       }
       var url = path.join('/docs', uri + '.html');
-      title = title || key;
+      title = title || key || url;
 
       return "<a href='" + url + "'>" + title + "</a>";
 

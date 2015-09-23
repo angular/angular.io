@@ -21,8 +21,8 @@ module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getAp
       var unnamedArgs = tagArgs._;
       var relativePath = unnamedArgs[0];
       var mixinFilePath = path.join('_api', relativePath);
-      var region = tagArgs.region || (unnamedArgs.length > 1 && unnamedArgs[1]);
-      var title = tagArgs.title || (unnamedArgs.length > 2 && unnamedArgs[2]);
+      var region = tagArgs.region || (unnamedArgs.length > 1 ?  unnamedArgs[1] : null);
+      var title = tagArgs.title || (unnamedArgs.length > 2 ? unnamedArgs[2] : null );
       // TODO: not yet implemented here
       var stylePattern = tagArgs.stylePattern;
 
@@ -33,7 +33,7 @@ module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getAp
       }
 
       var comma = ', '
-      var res = [ "+makeExample(", quote(mixinFilePath), comma, quote(region), comma, title ? quote(title) : 'null', ")" ].join('');
+      var res = [ "+makeExample(", quote(mixinFilePath), comma, region ? quote(region) : 'null', comma, title ? quote(title) : 'null', ")" ].join('');
       return res;
     }
   };

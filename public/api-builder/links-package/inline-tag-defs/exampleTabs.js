@@ -20,8 +20,8 @@ module.exports = function exampleTabsInlineTagDef(getLinkInfo, parseArgString, g
       var tagArgs = parseArgString(tagDescription);
       var unnamedArgs = tagArgs._;
       var relativePaths = unnamedArgs[0].split(',');
-      var regions = tagArgs.regions || unnamedArgs.length > 1 && unnamedArgs[1];
-      var titles = tagArgs.titles || unnamedArgs.length > 2 && unnamedArgs[2];
+      var regions = tagArgs.regions || (unnamedArgs.length > 1 ? unnamedArgs[1] : null);
+      var titles = tagArgs.titles || (unnamedArgs.length > 2 ? unnamedArgs[2] : null);
       if (regions) {
         regions = regions.split(',');
       }

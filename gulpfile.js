@@ -22,7 +22,7 @@ var _devguideShredOptions =  {
 };
 
 var _apiShredOptions =  {
-  examplesDir: '../angular/modules/angular2/test',
+  examplesDir: '../angular/modules/angular2/examples',
   fragmentsDir: './public/docs/_fragments/_api'
 };
 
@@ -49,48 +49,45 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-gulp.task('serve-and-sync', function (cb) {
+gulp.task('serve-and-sync', ['build-docs'], function (cb) {
+
   // execCommands(['harp server'], {}, cb);
   execCommands(['npm run harp'], {}, cb);
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: "public/docs/**/*/**/*",
+    files: ["public/docs/**/*/**/*" ],
     logFileChanges: true,
     reloadDelay: 500
   });
 
-  shredWatch(_devguideShredOptions, function() {
+  devGuideExamplesWatch(_devguideShredOptions, function() {
     browserSync.reload();
   });
+
+  apiSourceWatch();
+
 });
 
 gulp.task('serve-and-watch', function (cb) {
   execCommands(['harp server'], {}, cb);
-  shredWatch(_devguideShredOptions);
+  devGuideExamplesWatch(_devguideShredOptions);
 });
 
 gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs'], function() {
-  buildShredMaps(true);
+  return buildShredMaps(true);
 });
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
-  buildShredMaps(true);
+  return buildShredMaps(true);
 });
 
 gulp.task('build-api-docs', ['_shred-api-examples'], function() {
   if (!fs.existsSync('../angular')) {
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
   }
-  try {
-    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
-    return dgeni.generate();
-  } catch(err) {
-    console.log(err);
-    console.log(err.stack);
-    throw err;
-  }
+  return buildApiDocs();
 });
 
 
@@ -119,7 +116,7 @@ gulp.task('_shred-clean-api', function(cb) {
 });
 
 gulp.task('_build-shred-maps', function() {
-  build-shred-maps(true);
+  return build-shred-maps(true);
 });
 
 
@@ -182,6 +179,49 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
     });
   });
 }
+
+function apiSourceWatch() {
+  var srcPattern = ['../angular/modules/angular2/src/**/*.*'];
+  watch(srcPattern, function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    // need to run just build
+    buildApiDocs().then(done);
+  });
+  var examplesPattern = ['../angular/modules/angular2/examples/**/*.*'];
+  watch(examplesPattern, function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    // need to run shredder then build
+    return docShredder.shred( _apiShredOptions).then(function() {
+      return buildApiDocs().then(done);
+    });
+  });
+
+}
+
+function buildApiDocs() {
+  try {
+    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
+    return dgeni.generate();
+  } catch(err) {
+    console.log(err);
+    console.log(err.stack);
+    throw err;
+  }
+}
+
+function devGuideExamplesWatch(shredOptions, postShredAction) {
+  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
+  watch([pattern], function (event, done) {
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
+      postShredAction && postShredAction();
+    });
+  });
+}
+
 
 function buildShredMaps(shouldWrite) {
   var options = {
@@ -265,16 +305,7 @@ function getChangedExamplesForCommit(commit, relativePath) {
   });
 }
 
-function shredWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
-  watch([pattern], function (event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
-    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
-      postShredAction && postShredAction();
-    });
-  });
-}
+
 
 function jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths) {
   // remove dups in examplePaths
