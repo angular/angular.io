@@ -57,7 +57,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
 
   // execCommands(['harp server'], {}, cb);
-  execCommands(['npm run harp'], {}, cb);
+  execCommands(['npm run harp -- server .'], {}, cb);
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
@@ -78,7 +78,7 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
 });
 
 gulp.task('serve-and-watch', function (cb) {
-  execCommands(['harp server'], {}, cb);
+  execCommands(['npm run harp -- server .'], {}, cb);
   devGuideExamplesWatch(_devguideShredOptions);
 });
 
@@ -168,8 +168,8 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
 });
 
 gulp.task('check-deploy', function() {
-  return execPromise(['harp compile . ./deploy'], {}).then(function() {
-    execPromise('live-server', {cwd: './deploy'});
+  return execPromise(['npm run harp -- compile . ./deploy'], {}).then(function() {
+    execPromise('npm run live-server ./deploy');
     return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
