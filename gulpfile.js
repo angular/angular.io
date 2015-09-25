@@ -14,6 +14,9 @@ var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
 var fsExtra = require('fs-extra');
 var fs = fsExtra;
+var exec = require('child_process').exec;
+var execPromise = Q.denodeify(exec);
+var prompt = require('prompt');
 
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
@@ -164,6 +167,35 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
+gulp.task('check-deploy', function() {
+  return execPromise(['harp compile . ./deploy'], {}).then(function() {
+    execPromise('live-server', {cwd: './deploy'});
+    return askDeploy();
+  }).then(function(shouldDeploy) {
+    if (shouldDeploy) {
+      console.log("Sorry! Deploy to Firebase has not yet been implemented.")
+    }
+    return;
+  });
+});
+
+// returns a promise;
+function askDeploy() {
+
+  prompt.start();
+  var schema = {
+    name: 'shouldDeploy',
+    description: 'Deploy to Firebase? (y/n): ',
+    type: 'string',
+    pattern: /Y|N|y|n/,
+    message: "Respond with either a 'y' or 'n'",
+    required: true
+  }
+  var getPromise = Q.denodeify(prompt.get);
+  return getPromise([schema]).then(function(result) {
+    return result.shouldDeploy.toLowerCase() === 'y';
+  });
+}
 
 
 gulp.task('test-api-builder', function (cb) {
