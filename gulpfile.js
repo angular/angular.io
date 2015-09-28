@@ -18,6 +18,10 @@ var exec = require('child_process').exec;
 var execPromise = Q.denodeify(exec);
 var prompt = require('prompt');
 
+// TODO:
+//  1. Think about using runSequence
+//  2. Think about using spawn instead of exec in case of long error messages.
+
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
 
@@ -38,13 +42,6 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-/*
-Within this repo generated files are checked in so that we can avoid running the
-shredder over the entire _examples dir each time someone refreshes the repo
-( the ‘shred-devguide-examples’ gulp task). The gulp ‘serve-and-watch’ shredder is only
-a ‘partial’ shredder. It only shred’s files in directories changed during
-the current session.
-*/
 
 gulp.task('help', taskListing.withFilters(function(taskName) {
   var isSubTask = taskName.substr(0,1) == "_";
@@ -97,7 +94,6 @@ gulp.task('build-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs();
 });
 
-
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
 });
@@ -119,7 +115,6 @@ gulp.task('_shred-clean-api', function(cb) {
 gulp.task('_build-shred-maps', function() {
   return build-shred-maps(true);
 });
-
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
@@ -168,14 +163,19 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
 });
 
 gulp.task('check-deploy', function() {
-  return execPromise(['npm run harp -- compile . ./deploy'], {}).then(function() {
-    execPromise('npm run live-server ./deploy');
+  console.log('running harp compile...');
+  return execPromise('npm run harp -- compile . ./www', {}).then(function() {
+    execPromise('npm run live-server ./www');
     return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
-      console.log("Sorry! Deploy to Firebase has not yet been implemented.")
+      console.log('deploying...');
+      return execPromise('firebase deploy');
+    } else {
+      return ['Not deploying'];
     }
-    return;
+  }).then(function(s) {
+    console.log(s.join(''));
   });
 });
 
