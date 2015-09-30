@@ -7,6 +7,9 @@ module.exports = new Package('angular.io', [basePackage])
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
 .processor(require('./processors/filterUnwantedDecorators'))
+.processor(require('./processors/extractDirectiveClasses'))
+.processor(require('./processors/matchUpDirectiveDecorators'))
+
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
 

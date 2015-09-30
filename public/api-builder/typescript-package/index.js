@@ -44,12 +44,14 @@ module.exports = new Package('typescript-parsing', [basePackage])
   computeIdsProcessor.idTemplates.push({
     docTypes: ['member'],
     idTemplate: '${classDoc.id}.${name}',
-    getAliases: function(doc) { return [doc.id]; }
+    getAliases: function(doc) {
+      return doc.classDoc.aliases.map(function(alias) { return alias + '.' + doc.name; });
+    }
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['member'],
-    pathTemplate: '${classDoc.path}/${name}',
+    pathTemplate: '${classDoc.path}#${name}',
     getOutputPath: function() {} // These docs are not written to their own file, instead they are part of their class doc
   });
 

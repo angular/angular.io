@@ -301,6 +301,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
 
 
   function getDecorators(symbol) {
+
     var declaration = symbol.valueDeclaration || symbol.declarations[0];
     var sourceFile = ts.getSourceFileOfNode(declaration);
 
@@ -310,10 +311,31 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
         name: decorator.expression ? decorator.expression.text : decorator.text,
         arguments: decorator.arguments && decorator.arguments.map(function(argument) {
           return getText(sourceFile, argument).trim();
-        })
+        }),
+        argumentInfo: decorator.arguments && decorator.arguments.map(function(argument) {
+          return parseArgument(argument);
+        }),
+        expression: decorator
       };
     });
     return decorators;
+  }
+
+  function parseProperties(properties) {
+    var result = {};
+    _.forEach(properties, function(property) {
+      result[property.name.text] = parseArgument(property.initializer);
+    });
+    return result;
+  }
+
+  function parseArgument(argument) {
+    if (argument.text) return argument.text;
+    if (argument.properties) return parseProperties(argument.properties);
+    if (argument.elements) return argument.elements.map(function(element) { return element.text; });
+    var sourceFile = ts.getSourceFileOfNode(argument);
+    var text = getText(sourceFile, argument).trim();
+    return text;
   }
 
   function getParameters(typeChecker, symbol) {
