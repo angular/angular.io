@@ -60,6 +60,13 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
 
           // If the symbol is an Alias then for most things we want the original resolved symbol
           var resolvedExport = exportSymbol.resolvedSymbol || exportSymbol;
+
+          // If the resolved symbol contains no declarations then it is invalid
+          // (probably an abstract class)
+          // For the moment we are just going to ignore such exports
+          // TODO: find a way of generating docs for them
+          if (!resolvedExport.declarations) return;
+
           var exportDoc = createExportDoc(exportSymbol.name, resolvedExport, moduleDoc, basePath, parseInfo.typeChecker);
           log.debug('>>>> EXPORT: ' + exportDoc.name + ' (' + exportDoc.docType + ') from ' + moduleDoc.id);
 
