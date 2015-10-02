@@ -17,7 +17,7 @@ describe('readTypeScriptModules', function() {
         docType: 'class',
         name: 'privateClass',
         id: 'privateClass',
-        constructorDoc: { private: true }
+        constructorDoc: { internal: true }
       }
     ];
     convertPrivateClassesToInterfaces(docs, false);
@@ -45,7 +45,7 @@ describe('readTypeScriptModules', function() {
         docType: 'class',
         name: 'privateClass',
         id: 'privateClass',
-        constructorDoc: { private: true },
+        constructorDoc: { internal: true },
         heritage: 'implements parentInterface'
       }
     ];
@@ -60,7 +60,7 @@ describe('readTypeScriptModules', function() {
         docType: 'class',
         name: 'privateClass',
         id: 'privateClass',
-        constructorDoc: { private: true },
+        constructorDoc: { internal: true },
         heritage: 'implements parentInterface'
       }
     ];

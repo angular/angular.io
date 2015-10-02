@@ -16,6 +16,10 @@ module.exports = new Package('angular.io', [basePackage])
       .unshift(path.resolve(__dirname, 'templates'));
 })
 
+.config(function(parseTagsProcessor) {
+  parseTagsProcessor.tagDefinitions.push({ name: 'internal', transforms: function() { return true; } });
+})
+
 .config(function(readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
 
   readTypeScriptModules.sourceFiles = [
