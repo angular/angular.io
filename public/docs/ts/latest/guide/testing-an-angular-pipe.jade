@@ -1,0 +1,147 @@
+include ../../../../_includes/_util-fns
+
+:markdown
+	We’ll test an Angular pipe in this chapter
+
+	An Angular pipe is a declarative way in HTML to transform some input into some displayable output.
+
+	We’ll look at our app’s custom `InitCapsPipe` that converts a string of words into a string of capitalized words.
+
+	We use it our `hero-detail.component.html` template to turn a hero name like “eeny weenie” into “Eeny Weenie”
+
+code-example(format="linenums").
+	&lt;h2&gt;{{hero.name  | initCaps}} is {{userName}}'s current super hero!&lt;/h2&gt;
+
+:markdown
+	The code for `InitCapsPipe` in `init-caps-pipe.ts` is quite brief:
+
+	```
+	import {Pipe} from 'angular2/angular2';
+
+	@Pipe({ name: 'initCaps' })
+	export class InitCapsPipe {
+		transform(value: string) {
+			return value.toLowerCase().replace(/(?:^|\s)[a-z]/g, function(m) {
+				return m.toUpperCase();
+			});
+		}
+	}
+	```
+
+	In this chapter we will:
+	- add the Angular 2 library to our test harness
+	- test this custom Angular pipe class
+	- load multiple test files in our test harness, using system.js
+
+.alert.is-critical
+	:markdown
+		This chapter assumes familiarity with basic Angular 2 concepts, the tools we introduced in [Getting Started](./gettingStarted.html) and [Tour of Heroes](./#), and earlier chapters of this Unit Testing series.
+
+:markdown
+	## Add the Angular library
+	Looking back at `unit-tests.html` we realize that we have not loaded the Angular library. Yet we were able to load and test the application’s `Hero` class.
+
+	**We were lucky!**  The `Hero` class has no dependence on Angular. If it had depended on Angular, we’d still be staring at the Jasmine “big-time fail” screen:
+
+figure.image-display
+	img(src='/resources/images/devguide/testing-an-angular-pipe/big-time-fail-screen.png' style="width:400px;" alt="Jasmine's' big time fail screen")
+
+:markdown
+	If we then opened the browser’s Developer Tools (F12, Ctrl-Shift-I) and looked in the console window, we would see.
+
+	`GET http://127.0.0.1:8080/src/angular2/angular2 404 (Not Found)`
+
+	It is missing indeed!
+
+	We are going to need Angular sooner or later.  We are writing an Angular application and we expect to use it at some point.
+
+	That moment has arrived!  The `InitCapsPiep` clearly depends on Angular. That much is clear in the first few lines:
+
+		import {Pipe} from 'angular2/angular2';
+
+		@Pipe({ name: 'initCaps' })
+		export class InitCapsPipe {
+
+	Let’s not wait for trouble.  Load the Angular library now… along with its essential companion, the `traceur-runtime`.
+
+	**Open** `unit-tests.html`
+
+	**Find** the `src="../node_modules/systemjs/dist/system.src.js"></script>`
+
+	**Replace** Step #1  with these two scripts:
+
+		<!-- #1. add the system.js and angular libraries -->
+		<script src="../node_modules/systemjs/dist/system.src.js"></script>
+		<script src="../node_modules/angular2/bundles/angular2.dev.js"></script>
+
+	## Add another spec file
+
+	**Create** an ** `init-caps-pipe.spec.ts` ** next to `init-caps-pipes.ts` in `src/app`
+
+	**Stop and restart the TypeScript compiler** to ensure we compile the new file.
+
+	**Add** the following lines of unremarkable Jasmine test code
+
+		import {InitCapsPipe} from './init-caps-pipe';
+
+		describe('InitCapsPipe', () => {
+			let pipe:InitCapsPipe;
+
+			beforeEach(() => {
+				pipe = new InitCapsPipe();
+			});
+
+			it('transforms "abc" to "Abc"', () => {
+				expect(pipe.transform('abc')).toEqual('Abc');
+			});
+
+			it('transforms "abc def" to "Abc Def"', () => {
+				expect(pipe.transform('abc def')).toEqual('Abc Def');
+			});
+
+			it('leaves "Abc Def" unchanged', () => {
+				expect(pipe.transform('Abc Def')).toEqual('Abc Def');
+			});
+		});
+
+	Note that each test is short (one line in our case). It has a clear label that accurately describes the test. And it makes exactly one expectation.
+
+	Anyone can read these tests and understand quickly what the test does and what the pipe does. If one of the tests fails, we know which expected behavior is no longer true. We’ll have little trouble maintaining these tests and adding more like them as we encounter new conditions to explore.
+
+	That’s the way we like our tests!
+
+	## Add this spec to `unit-tests.html`
+
+	Now let’s wire our new spec file into the HTML test harness.
+
+	Open `unit-tests.html`. Find `System.import('app/hero.spec')`.
+
+	Hmm. We can’t just add `System.import('app/init-caps-pipe.spec')`.
+
+	The first `System.import` returns a promise as does this second import. We can’t run any of the Jasmine tests until **both imports are finished**.
+
+	Fortunately, we can create a new `Promise` that wraps both import promises and waits for both to finish loading.
+
+			// #3. Import the spec files explicitly
+			Promise.all([
+				System.import('app/hero.spec'),
+				System.import('app/init-caps-pipe.spec')
+			])
+
+	Try it. The browser should refresh and show
+
+figure.image-display
+	img(src='/resources/images/devguide/testing-an-angular-pipe/5-specs-0-failures.png' style="width:400px;" alt="import promises 5 specs, 0 failures")
+
+:markdown
+	We have a pattern for adding new tests.
+
+	In future, when we add a new spec, we add another `System.import('app/some.spec')` to the array argument passed to `Promise.all`.
+
+	## What’s Next?
+
+	Now we can test parts of our application that we *load* asynchronously with system.js.
+
+	What about testing parts that *are themselves asynchronous*?
+
+	In the next chapter we’ll test a service with a public asynchronous method that fetches heroes from a remote server.
