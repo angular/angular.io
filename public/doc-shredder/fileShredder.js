@@ -11,6 +11,7 @@ module.exports = function fileShredder(log, regionExtractor) {
       switch (fileInfo.extension) {
         case 'ts':
         case 'js':
+        case 'dart':
           commentMarkers = ['//'];
           break;
         case 'html':
@@ -20,6 +21,9 @@ module.exports = function fileShredder(log, regionExtractor) {
           commentMarkers = ['/*'];
           break;
         case 'json':
+          break;
+        case 'yaml':
+          commentMarkers = ['#'];
           break;
         default:
           return [];

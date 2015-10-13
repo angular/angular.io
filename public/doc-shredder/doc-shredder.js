@@ -75,7 +75,7 @@ function createShredPackage(shredOptions) {
       readFilesProcessor.basePath = "/";
 
       // Specify collections of source files that should contain the documentation to extract
-      var extns = ['*.js', '*.html', '*.ts', '*.css', '*.json' ];
+      var extns = ['*.js', '*.html', '*.ts', '*.css', '*.json', '*.dart', '*.yaml' ];
       var includeFiles = extns.map(function(extn) {
         if (options.includeSubdirs) {
           return path.join(options.examplesDir, '**', extn);
