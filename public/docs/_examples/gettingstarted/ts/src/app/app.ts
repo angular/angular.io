@@ -1,5 +1,5 @@
 // #docregion
-import {Component, View, bootstrap} from 'angular2/core';
+import {Component, bootstrap} from 'angular2/angular2';
 
 @Component({
 	selector: 'my-app',

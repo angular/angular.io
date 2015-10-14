@@ -155,13 +155,6 @@ include ../../../../_includes/_util-fns
     compile locally and push the generated JavaScript to the server. We'll need some tools for that.
 
 
-    * We are writing TypeScript because we want strong-typing and some information
-    about the APIs we're using. If we wrote `AppComponent` in a TypeScript-aware editor,
-    we saw lots of red squiggly lines complaining about our code and
-    we received no guidance about what `Component`, `View`, and `bootstrap` can do.
-    We'll want to load TypeScript definition files to improve our coding experience.
-
-
     * Downloading JavaScript libraries from the web is OK for demos but
     it slows our development. Every time our app reloads, it must refetch these libraries.
     Don't count on browser caching.
@@ -182,7 +175,6 @@ include ../../../../_includes/_util-fns
 
       1. Revise the application project structure for future growth
       1. Install a few tools and packages
-      1. Prepare for local TypeScript compilation
       1. Revise the **`index.html`** to use local library resources
       1. Compile the TypeScript locally and watch for changes
 
@@ -238,12 +230,9 @@ include ../../../../_includes/_util-fns
 
     >**system.js** - an open-source library that provides module loading.
 
-    We'll also install three development tools:
+    We'll also install two development tools:
 
     >**typescript** - the TypeScript compiler
-
-    >**tsd** - the [tsd package manager](https://www.npmjs.com/package/tsd "TSD Package Manager") so we can access
-    [TypeScript type definition files](http://definitelytyped.org/ "Definitely Typed")
 
     >**[live-server](https://www.npmjs.com/package/live-server "Live-server")** - the static file server that reloads the browser when files change.
     We may have loaded it earlier. We're doing it again
@@ -255,8 +244,8 @@ include ../../../../_includes/_util-fns
     Enter these commands:
     ```
     npm init -y
-    npm i angular2@2.0.0-alpha.39 systemjs@0.19.2 --save --save-exact
-    npm i typescript tsd live-server --save-dev
+    npm i angular2@2.0.0-alpha.42 systemjs@0.19.2 --save --save-exact
+    npm i typescript live-server --save-dev
     ```
 
     These commands both *install* the packages and *create* an npm `package.json` that will
@@ -316,33 +305,6 @@ include ../../../../_includes/_util-fns
   :markdown
     ## Prepare for TypeScript Compilation
 
-    ### Add links to TypeScript definition files
-
-    We prefer writing TypeScript apps in editors that understand TypeScript,
-    such as [Visual Studio Code](https://code.visualstudio.com/) and
-    [Web Storm](https://www.jetbrains.com/webstorm/features/).
-    Such editors improve the development experience by checking type information and
-    displaying API documentation ("intellisense") based on TypeScript definition files (`.d.ts`).
-
-    The definition files we need are included in the npm packages we just installed.
-    We'll use the
-    [**tsd package manager**](https://www.npmjs.com/package/tsd "TSD Package Manager")
-    to generate an *aggregate TypeScript definition file*, **`tsd.d.ts`**,
-    that holds links to the type definition files in those packages.
-
-    In the ***root* folder** enter the following command
-    (one of the `npm` scripts we added a short while ago)
-
-  pre.prettyprint.lang-bash
-    code npm run tsd
-
-  :markdown
-    That produces a new **`src/typings`** folder with the **`tsd.d.ts`** file.
-
-    Now type-checking and intellisense light up automatically as we write our app
-    in the Visual Studio Code and Web Storm editors. Check your editor's documentation for
-    instructions on using the `tsd.d.ts` file.
-
     ### Add the TypeScript configuration file
 
     We'll add a configuration file named **`tsconfig.json`**
@@ -354,15 +316,8 @@ include ../../../../_includes/_util-fns
 
   .alert.is-helpful
     :markdown
-      When the `noImplicitAny` flag is `true`, the compiler demands that we supply type information
-      unless the compiler can infer the type. It won't allow an identifier to default to the `any` type.
-      This setting is a preference, not a mandate.
-
-      Many of us prefer `noImplicitAny` because we want the TypeScript compiler to enforce type-safety vigorously.
-      That's one of the reasons we are writing our app in TypeScript.
-      Other people set this flag to `false` because they prefer more relaxed type checking.
-      Folks new to TypeScript are sometimes overwhelmed by the rigor;
-      they too may set the flag to `false` .. while they learn.
+      See the [TypeScript configuration appendix](#tsconfig) to learn more about
+      this file and these settings.
 
 .l-main-section
   :markdown
@@ -374,8 +329,6 @@ include ../../../../_includes/_util-fns
     ├── src
     │    ├── app
     |    │    └── app.ts
-    │    ├── typings
-    │    │    └──tsd.d.ts
     │    ├── index.html
     │    └── tsconfig.json
     └── package.json
@@ -455,9 +408,6 @@ include ../../../../_includes/_util-fns
     * our application loads faster with libraries installed locally and
     we can develop offline if we wish.
 
-    * we added TypeScript definition files to enhance team
-    productivity and code maintainability.
-
     * we're pre-compiling our TypeScript.
 
     * we're running the compiler and live-server with commands that give us immediate feedback as we make changes.
@@ -466,4 +416,43 @@ include ../../../../_includes/_util-fns
     We're about to build a small application that demonstrates the great things
     we can build with Angular 2.
 
-    <!--TODO  Join us next on the [Tour of Heroes]. -->
+    <!--TODO: Join us on the [Tour of Heroes](./toh-pt1) -->
+
+
+<!-- Move this to the Style Guide when we have one -->
+.l-main-section
+  :markdown
+    <a id="tsconfig"></a>
+    ### Appendix: TypeScript configuration
+    We added a TypeScript configuration file (`tsconfig.js`) to our project to
+    guide the compiler as it generates JavaScript files.
+    Get details about `tsconfig.js` from the official
+    [TypeScript wiki](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
+
+    We'd like a moment to discuss the `noImplicitAny` flag.
+    TypeScript developers disagree about whether it should be `true` or `false`.
+    There is no correct answer and we can change the flag later.
+    But our choice now can make a difference in larger projects so it merits
+    discussion.
+
+    When the `noImplicitAny` flag is `false`,
+    the compiler silently defaults the type of a variable to `any` if it cannot infer
+    the type based on how the variable is used. That's what we mean by "implicitly `any`".
+
+    When the `noImplicitAny` flag is `true` and the TypeScript compiler cannot infer
+    the type, it still generates the JavaScript files but
+    it also reports an error.
+
+    For this project and the other examples in this Developer Guide
+    we set the `noImplicitAny` flag to `false`.
+    Developers who prefer stricter type checking should set the `noImplicitAny` flag to `true`.
+    We can still set a variable's type to `any` if
+    that seems like the best choice. We'd be doing so explicitly after
+    giving the matter some thought.
+
+    If we set the `noImplicitAny` flag to `true`, we may get implicit index errors as well.
+    If we feel these are more annoying than helpful,
+    we can suppress them with the following additional flag.
+    ```
+    "suppressImplicitAnyIndexErrors":true
+    ```
