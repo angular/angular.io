@@ -16,19 +16,19 @@ module.exports = function regionExtractor() {
   // empty enddocregion always closes last region started.
   // enddocregions with names that do no match start region tags get ignored.
 
-  return function(content, commentPrefixes) {
+  return function(content, commentInfo) {
 
     var lines = result = content.split(/\r?\n/);
 
-    var docStack = [];
+    var docStack = []; // items will be both popped and removed from the middle
     var docMap = {};
     var doc;
     var regionNames;
+    var docPlaster = '. . .';
     lines.forEach(function(line, ix) {
-      if (isCommentLine(line, commentPrefixes)) {
+      if (isCommentLine(line, commentInfo.prefix)) {
         if (hasRegionTag(line)) {
           lines[ix] = nullLine;
-
           regionNames = getRegionNames(line);
           regionNames.forEach(function(rn) {
             doc = docMap[rn];
@@ -69,13 +69,16 @@ module.exports = function regionExtractor() {
                 });
               }
             }
-
-          })
+          });
+        } else if (hasDocPlasterTag(line)) {
+          line[ix] = nullLine;
+          docPlaster =  getDocPlaster(line);
         }
       }
     });
 
     var docs = _.values(docMap);
+    var plasterComment = docPlaster && commentInfo.blockPattern.replace('{tag}', docPlaster);
     docs.forEach(function(doc) {
       var content;
       var fragLines = [];
@@ -85,6 +88,11 @@ module.exports = function regionExtractor() {
           subLines = lines.slice(range.startIx + 1, range.endIx);
         } else {
           subLines = lines.slice(range.startIx + 1);
+        }
+        if (plasterComment && fragLines.length) {
+          // pad is the padding on the previous line
+          var pad = fragLines[fragLines.length - 1].match(/(\s*)/)[0];
+          fragLines.push(pad + plasterComment);
         }
         fragLines = fragLines.concat(subLines);
       });
@@ -127,10 +135,8 @@ function trimLeftIndent(lines) {
   return result;
 }
 
-function isCommentLine(line, commentPrefixes) {
-  return commentPrefixes.some(function(prefix) {
-    return line.trim().indexOf(prefix) == 0;
-  });
+function isCommentLine(line, commentPrefix) {
+  return line.trim().indexOf(commentPrefix) == 0;
 }
 
 function hasRegionTag(line) {
@@ -141,12 +147,26 @@ function hasEndRegionTag(line) {
   return line.indexOf("#enddocregion") >= 0;
 }
 
+function hasDocPlasterTag(line) {
+  return line.indexOf("#docplaster") >= 0;
+}
+
 function getRegionNames(line) {
   return extractRegionNames(line, /#docregion\s*(\S.*)/);
 }
 
 function getEndRegionNames(line) {
   return extractRegionNames(line, /#enddocregion\s*(\S.*)/);
+}
+
+function getDocPlaster(line) {
+  var rx =  /#docplaster\s*(\S.*)/;
+  try {
+    var plaster = line.match(rx)[1];
+    return plaster.trim();
+  } catch (e) {
+    return null;
+  }
 }
 
 function extractRegionNames(line, rx) {

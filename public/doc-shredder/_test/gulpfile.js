@@ -7,7 +7,7 @@ var taskListing = require('gulp-task-listing');
 var docShredder = require('../doc-shredder');
 
 var shredOptions =  {
-  examplesDir: "test_source/foo",
+  examplesDir: "test_source",
   fragmentsDir:  "test_fragments"
 };
 
