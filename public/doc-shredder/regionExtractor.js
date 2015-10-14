@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 module.exports = function regionExtractor() {
 
   var nullLine = '###';
@@ -10,37 +12,82 @@ module.exports = function regionExtractor() {
   //     or // #docregion foo      for js/ts
   //   2) In back: a comment marker followed by '#enddocregion'
   // Regions can be nested and any regions not 'closed' are automatically closed at the end of the doc.
+
+  // empty enddocregion always closes last region started.
+  // enddocregions with names that do no match start region tags get ignored.
+
   return function(content, commentPrefixes) {
 
     var lines = result = content.split(/\r?\n/);
-    var docs = [];
-    var docStack = [];
-    var doc = null;
 
+    var docStack = [];
+    var docMap = {};
+    var doc;
+    var regionNames;
     lines.forEach(function(line, ix) {
       if (isCommentLine(line, commentPrefixes)) {
         if (hasRegionTag(line)) {
-          if (doc) docStack.push(doc);
-          doc = {startIx: ix, regionName: getRegionName(line)};
           lines[ix] = nullLine;
-          docs.push(doc);
+
+          regionNames = getRegionNames(line);
+          regionNames.forEach(function(rn) {
+            doc = docMap[rn];
+            if (!doc) {
+              // regionName may be ''
+              doc = {regionName: rn, ranges: [ { startIx: ix} ] };
+              docMap[rn] = doc;
+            } else {
+              // only add a new range if prev range is closed
+              var lastRange = doc.ranges[doc.ranges.length-1];
+              if (lastRange.endIx) {
+                doc.ranges.push({startIx: ix});
+              }
+            }
+            docStack.push(doc);
+          });
+
         } else if (hasEndRegionTag(line)) {
-          if (doc) {
-            lines[ix] = nullLine;
-            doc.endIx = ix;
-            doc = docStack.pop();
-          }
+          lines[ix] = nullLine;
+          regionNames = getEndRegionNames(line);
+          regionNames.forEach(function(rn) {
+            // handle endregions with no name specially.
+            // They operate on the last region created.
+            if (rn.length == 0) {
+              if (docStack.length) {
+                // update last item on the stack
+                doc = docStack.pop();
+                doc.ranges[doc.ranges.length - 1].endIx = ix;
+              }
+            } else {
+              doc = docMap[rn];
+              // ignore endregion if name is specified but not found.
+              if (doc) {
+                doc.ranges[doc.ranges.length - 1].endIx = ix;
+                // remove doc from stack
+                _.remove(docStack, function (item) {
+                  return item.regionName === rn;
+                });
+              }
+            }
+
+          })
         }
       }
     });
 
+    var docs = _.values(docMap);
     docs.forEach(function(doc) {
-      var fragLines, content;
-      if (doc.endIx) {
-        fragLines = lines.slice(doc.startIx + 1, doc.endIx);
-      } else {
-        fragLines = lines.slice(doc.startIx + 1);
-      }
+      var content;
+      var fragLines = [];
+      doc.ranges.forEach(function (range) {
+        var subLines;
+        if (range.endIx) {
+          subLines = lines.slice(range.startIx + 1, range.endIx);
+        } else {
+          subLines = lines.slice(range.startIx + 1);
+        }
+        fragLines = fragLines.concat(subLines);
+      });
       fragLines = trimLeftIndent(fragLines);
       content = fragLines.join('\n');
       // eliminate all #docregion lines
@@ -94,13 +141,23 @@ function hasEndRegionTag(line) {
   return line.indexOf("#enddocregion") >= 0;
 }
 
-function getRegionName(line) {
+function getRegionNames(line) {
+  return extractRegionNames(line, /#docregion\s*(\S.*)/);
+}
+
+function getEndRegionNames(line) {
+  return extractRegionNames(line, /#enddocregion\s*(\S.*)/);
+}
+
+function extractRegionNames(line, rx) {
   try {
-    var name = line.match(/#docregion\s*(\S*).*/)[1];
+    var names = line.match(rx)[1];
+    names = names.replace(/\s*/g,'');
     // Hack for html regions that look like <!-- #docregion --> or */
-    name = name.replace("-->","").replace('\*\/',"");
-    return name;
+    names = names.replace("-->","").replace('\*\/',"");
+    names = names.split(',');
+    return names;
   } catch (e) {
-    return '';
+    return [''];
   }
 }
