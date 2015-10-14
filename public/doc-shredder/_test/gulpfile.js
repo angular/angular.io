@@ -7,13 +7,13 @@ var taskListing = require('gulp-task-listing');
 var docShredder = require('../doc-shredder');
 
 var shredOptions =  {
-  examplesDir: "test_source",
+  examplesDir: "test_source/foo",
   fragmentsDir:  "test_fragments"
 };
 
 gulp.task('help', taskListing);
 
-gulp.task('shred', function() {
+gulp.task('shred', ['clean'], function() {
   return docShredder.shred(shredOptions);
 });
 
