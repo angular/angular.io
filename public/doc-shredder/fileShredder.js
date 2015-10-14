@@ -7,31 +7,47 @@ module.exports = function fileShredder(log, regionExtractor) {
     name: 'fileShredder',
 
     getDocs: function (fileInfo) {
-      var commentMarkers;
+      var commentInfo;
       switch (fileInfo.extension) {
         case 'ts':
         case 'js':
         case 'dart':
-          commentMarkers = ['//'];
+          commentInfo = {
+            prefix: '//',
+            blockPattern: '/* {tag} */'
+          };
+          //commentMarkers = ['//'];
           break;
         case 'html':
-          commentMarkers = ['<!--'];
+          commentInfo = {
+            prefix: '<!--',
+            blockPattern: '<!-- {tag} -->'
+          };
+          // commentMarkers = ['<!--'];
           break;
         case 'css':
-          commentMarkers = ['/*'];
+          commentInfo = {
+            prefix: '/*',
+            blockPattern: '/* {tag} */'
+          };
+          // commentMarkers = ['/*'];
           break;
         case 'json':
           break;
         case 'yaml':
-          commentMarkers = ['#'];
+          commentInfo = {
+            prefix: '#',
+            blockPattern: '# {tag} '
+          };
+          // commentMarkers = ['#'];
           break;
         default:
-          return [];
+          return {};
       }
       var docs;
       // log.info("fileShredder processing: " + fileInfo.relativePath);
-      if (commentMarkers) {
-        docs = regionExtractor(fileInfo.content, commentMarkers);
+      if (commentInfo) {
+        docs = regionExtractor(fileInfo.content, commentInfo);
       } else {
         docs = [ { content: fileInfo.content } ];
       }

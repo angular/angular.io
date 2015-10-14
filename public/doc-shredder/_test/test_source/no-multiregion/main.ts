@@ -1,6 +1,7 @@
-// #docregion import,twoparts
+// #docregion
+// #docregion import
 import {Component, View, bootstrap} from 'angular2/angular2';
-// #enddocregion twoparts,  import
+// #enddocregion
 
 @Component({
   selector: 'my-app'
@@ -10,9 +11,6 @@ import {Component, View, bootstrap} from 'angular2/angular2';
 })
 class AppComponent {
 }
-
-// #docregion bootstrap, twoparts
+// #docregion bootstrap
 bootstrap(AppComponent);
-// #enddocregion twoparts
-// to be included in bootstrap...
 // #enddocregion

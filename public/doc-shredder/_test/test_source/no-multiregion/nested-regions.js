@@ -1,5 +1,5 @@
 // #docregion all
-// #docregion log ... everything else ignored.
+// #docregion log
 /**
  * @description This function logs a string.
  */
