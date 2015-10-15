@@ -36,7 +36,7 @@ var _apiShredOptions =  {
 };
 
 
-var _excludePatterns = ["**/node_modules/**", "**/typings/**"];
+var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
 
 var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
