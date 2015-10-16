@@ -19,6 +19,7 @@ function escapeHtml(unsafe) {
 module.exports = function checkUnbalancedBackTicks(log, createDocMessage) {
 
   var BACKTICK_REGEX = /^ *```/gm;
+  
   //  captures below
   //   1st is entire ``` with leading 2 blanks
   //   2nd is the name of the language (if any) specified after the ```
@@ -26,7 +27,6 @@ module.exports = function checkUnbalancedBackTicks(log, createDocMessage) {
   //   4th is the padding of the first nonblank line following the backtick block
   //   5th is the first char on the next line.
   var BACKTICK_CAPTURE = /(  ```(.*$)([^]*?)```\s*)^(\s*)(\S)/m;
-
 
   var CODE_EXAMPLE = 'code-example(format="linenums" language="js").';
   return {
@@ -41,25 +41,27 @@ module.exports = function checkUnbalancedBackTicks(log, createDocMessage) {
             log.warn(createDocMessage('checkUnbalancedBackTicks processor: unbalanced backticks found in rendered content', doc));
             console.log(doc.renderedContent);
           } else if (matches) {
+            // Idea here is to translate backtic ``` regions into code-example blocks.
             var captures = BACKTICK_CAPTURE.exec(doc.renderedContent);
             while (captures) {
               var entireBlock = captures[1];
               var language = captures[2];
               var blockContents = captures[3];
               var pad = captures[4];
-              if (pad.length >= 2) {
-                pad = pad.substr(2);
-              }
               var nextBlockStartChar = captures[5];
               var codeExamplePrefix = language.length ? CODE_EXAMPLE.replace('js', language) : CODE_EXAMPLE;
               var replaceVal = codeExamplePrefix + escapeHtml(blockContents) + '\n';
+              // if nextBlock does NOT start with a '.' then we want to restart a markdown block.
+              // and that block needs to be exdented from the preceding code-example content.
               if (nextBlockStartChar != '.') {
+                if (pad.length >= 2) {
+                  pad = pad.substr(2); // exdent
+                }
                 replaceVal = replaceVal + pad + ':markdown\n';
               }
               doc.renderedContent = doc.renderedContent.replace(entireBlock, replaceVal);
               captures = BACKTICK_CAPTURE.exec(doc.renderedContent);
             }
-            var x = 3;
           }
         }
       });
