@@ -21,12 +21,13 @@ module.exports = function checkUnbalancedBackTicks(log, createDocMessage) {
   var BACKTICK_REGEX = /^ *```/gm;
   
   //  captures below
-  //   1st is entire ``` with leading 2 blanks
-  //   2nd is the name of the language (if any) specified after the ```
-  //   3nd is the contents of the ``` block up until but not including the first non whitespace char after the end ```
-  //   4th is the padding of the first nonblank line following the backtick block
-  //   5th is the first char on the next line.
-  var BACKTICK_CAPTURE = /(  ```(.*$)([^]*?)```\s*)^(\s*)(\S)/m;
+  //   1st is entire ``` including leading whitespace
+  //   2nd is the leading whitespace on the line before the ``` fence
+  //   3rd is the name of the language (if any) specified after the ```
+  //   4th is the contents of the ``` block up until but not including the first non whitespace char after the end ```
+  //   5th is the padding of the first nonblank line following the backtick block
+  //   6th is the first char on the next line.
+  var BACKTICK_CAPTURE = /(( *)```(.*$)([^]*?)```\s*)^(\s*)(\S)/m;
 
   var CODE_EXAMPLE = 'code-example(format="linenums" language="js").';
   return {
@@ -45,19 +46,23 @@ module.exports = function checkUnbalancedBackTicks(log, createDocMessage) {
             var captures = BACKTICK_CAPTURE.exec(doc.renderedContent);
             while (captures) {
               var entireBlock = captures[1];
-              var language = captures[2];
-              var blockContents = captures[3];
-              var pad = captures[4];
-              var nextBlockStartChar = captures[5];
+              var prePad = captures[2];
+              var language = captures[3];
+              var blockContents = captures[4];
+              var postPad = captures[5];
+              var nextBlockStartChar = captures[6];
               var codeExamplePrefix = language.length ? CODE_EXAMPLE.replace('js', language) : CODE_EXAMPLE;
-              var replaceVal = codeExamplePrefix + escapeHtml(blockContents) + '\n';
+              // modulo op in next line insures that pad is always a multiple of 2 ( jade whitespace).
+              var newPrePad = prePad.substr(2 + (prePad.length % 2)); // exdent
+              var replaceVal = '\n' + newPrePad + codeExamplePrefix + escapeHtml(blockContents) + '\n';
               // if nextBlock does NOT start with a '.' then we want to restart a markdown block.
               // and that block needs to be exdented from the preceding code-example content.
               if (nextBlockStartChar != '.') {
-                if (pad.length >= 2) {
-                  pad = pad.substr(2); // exdent
+                if (postPad.length >= 2) {
+                  // modulo op in next line insures that pad is always a multiple of 2 ( jade whitespace).
+                  postPad = postPad.substr(2 + (postPad.length % 2)); // exdent
                 }
-                replaceVal = replaceVal + pad + ':markdown\n';
+                replaceVal = replaceVal + postPad + ':markdown\n';
               }
               doc.renderedContent = doc.renderedContent.replace(entireBlock, replaceVal);
               captures = BACKTICK_CAPTURE.exec(doc.renderedContent);
