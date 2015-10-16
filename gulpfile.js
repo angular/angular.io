@@ -5,7 +5,6 @@ var taskListing = require('gulp-task-listing');
 var path = require('canonical-path');
 var del = require('del');
 var _ = require('lodash');
-var Git = require("nodegit");
 var argv = require('yargs').argv;
 var Q = require("q");
 // delPromise is a 'promise' version of del
@@ -282,6 +281,7 @@ function buildShredMaps(shouldWrite) {
 
 // returns a promise containing filePaths with any changed or added examples;
 function getChangedExamples(sha) {
+  var Git = require("nodegit");
   var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
@@ -298,6 +298,7 @@ function getChangedExamples(sha) {
 }
 
 function getChangedExamplesAfter(date, relativePath) {
+  var Git = require("nodegit");
   var examplesPath = _devguideShredOptions.examplesDir;
   var relativePath = path.relative(process.cwd(), examplesPath);
   return Git.Repository.open(".").then(function(repo) {
