@@ -74,9 +74,16 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
 
 });
 
-gulp.task('serve-and-watch', function (cb) {
+gulp.task('build-and-serve', ['build-docs'], function (cb) {
   execCommands(['npm run harp -- server .'], {}, cb);
-  devGuideExamplesWatch(_devguideShredOptions);
+
+  var browserSync = require('browser-sync').create();
+  browserSync.init({
+    proxy: 'localhost:9000',
+    files: ["public/docs/**/*/**/*" ],
+    logFileChanges: true,
+    reloadDelay: 500
+  });
 });
 
 gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs'], function() {
