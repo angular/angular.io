@@ -75,22 +75,22 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "AfterContentChecked",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "AfterContentInit",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "AfterViewChecked",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "AfterViewInit",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "AppRootUrl",
