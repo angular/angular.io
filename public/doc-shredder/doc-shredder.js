@@ -86,7 +86,7 @@ function createShredPackage(shredOptions) {
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles,
-        exclude: ['**/node_modules/**', '**/typings/**'],
+        exclude: ['**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.examplesDir
