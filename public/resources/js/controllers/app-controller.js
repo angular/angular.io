@@ -68,6 +68,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "AbstractProviderError",
+      "originalModule": "angular2/src/core/di/exceptions",
+      "docType":        "class"
+    },
+    {
       "title":          "AfterContentChecked",
       "originalModule": "angular2/src/core/compiler/interfaces",
       "docType":        "class"
@@ -134,11 +139,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "BindingWithVisibility",
-      "originalModule": "angular2/src/core/di/injector",
-      "docType":        "class"
-    },
-    {
       "title":          "By",
       "originalModule": "angular2/src/core/debug/debug_element",
       "docType":        "class"
@@ -157,11 +157,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "title":          "ChangeDetectionStrategy",
       "originalModule": "angular2/src/core/change_detection/constants",
       "docType":        "enum"
-    },
-    {
-      "title":          "ChangeDetector",
-      "originalModule": "angular2/src/core/change_detection/interfaces",
-      "docType":        "interface"
     },
     {
       "title":          "ChangeDetectorRef",
@@ -215,8 +210,33 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "interface"
     },
     {
-      "title":          "ComponentUrlMapper",
-      "originalModule": "angular2/src/core/compiler/component_url_mapper",
+      "title":          "ContentChild",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "ContentChildFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "ContentChildMetadata",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "class"
+    },
+    {
+      "title":          "ContentChildren",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "ContentChildrenFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "ContentChildrenMetadata",
+      "originalModule": "angular2/src/core/metadata",
       "docType":        "class"
     },
     {
@@ -308,11 +328,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "DependencyProvider",
-      "originalModule": "angular2/src/core/di/injector",
-      "docType":        "interface"
-    },
-    {
       "title":          "Directive",
       "varType":        "DirectiveFactory",
       "originalModule": "angular2/src/core/metadata",
@@ -341,11 +356,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "DoCheck",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
-    },
-    {
-      "title":          "DomRenderer",
-      "originalModule": "angular2/src/core/render/dom/dom_renderer",
       "docType":        "interface"
     },
     {
@@ -359,29 +369,18 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "const"
     },
     {
+      "title":          "ELEMENT_PROBE_PROVIDERS",
+      "originalModule": "angular2/src/core/debug/debug_element_view_listener",
+      "docType":        "const"
+    },
+    {
       "title":          "ElementRef",
       "originalModule": "angular2/src/core/compiler/element_ref",
       "docType":        "class"
     },
     {
-      "title":          "Event",
-      "varType":        "EventFactory",
-      "originalModule": "angular2/src/core/metadata",
-      "docType":        "var"
-    },
-    {
       "title":          "EventEmitter",
       "originalModule": "angular2/src/core/facade/async",
-      "docType":        "class"
-    },
-    {
-      "title":          "EventFactory",
-      "originalModule": "angular2/src/core/metadata",
-      "docType":        "interface"
-    },
-    {
-      "title":          "EventMetadata",
-      "originalModule": "angular2/src/core/metadata/directives",
       "docType":        "class"
     },
     {
@@ -397,6 +396,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "FORM_DIRECTIVES",
       "originalModule": "angular2/src/core/forms/directives",
+      "docType":        "const"
+    },
+    {
+      "title":          "FORM_PROVIDERS",
+      "originalModule": "angular2/src/core/forms",
       "docType":        "const"
     },
     {
@@ -505,12 +509,33 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "Input",
+      "varType":        "InputFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "InputFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "InputMetadata",
+      "originalModule": "angular2/src/core/metadata/directives",
+      "docType":        "class"
+    },
+    {
       "title":          "InstantiationError",
       "originalModule": "angular2/src/core/di/exceptions",
       "docType":        "class"
     },
     {
       "title":          "InvalidBindingError",
+      "originalModule": "angular2/src/core/di/exceptions",
+      "docType":        "class"
+    },
+    {
+      "title":          "InvalidProviderError",
       "originalModule": "angular2/src/core/di/exceptions",
       "docType":        "class"
     },
@@ -540,11 +565,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "KeyRegistry",
-      "originalModule": "angular2/src/core/di/key",
-      "docType":        "class"
-    },
-    {
       "title":          "KeyValueDiffer",
       "originalModule": "angular2/src/core/change_detection/differs/keyvalue_differs",
       "docType":        "interface"
@@ -565,25 +585,19 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "LimitToPipe",
-      "originalModule": "angular2/src/core/pipes/limit_to_pipe",
-      "docType":        "class"
-    },
-    {
-      "title":          "Locals",
-      "originalModule": "angular2/src/core/change_detection/parser/locals",
-      "docType":        "class"
-    },
-    {
       "title":          "LowerCasePipe",
       "originalModule": "angular2/src/core/pipes/lowercase_pipe",
       "docType":        "class"
     },
     {
-      "title":          "MAX_IN_MEMORY_ELEMENTS_PER_TEMPLATE",
-      "varType":        "OpaqueToken",
-      "originalModule": "angular2/src/core/render/dom/dom_tokens",
-      "docType":        "const"
+      "title":          "MaxLengthValidator",
+      "originalModule": "angular2/src/core/forms/directives/validators",
+      "docType":        "class"
+    },
+    {
+      "title":          "MinLengthValidator",
+      "originalModule": "angular2/src/core/forms/directives/validators",
+      "docType":        "class"
     },
     {
       "title":          "NG_VALIDATORS",
@@ -642,11 +656,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "directive"
     },
     {
-      "title":          "NgNonBindable",
-      "originalModule": "angular2/src/core/directives/ng_non_bindable",
-      "docType":        "class"
-    },
-    {
       "title":          "NgSelectOption",
       "originalModule": "angular2/src/core/forms/directives/select_control_value_accessor",
       "docType":        "directive"
@@ -687,6 +696,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "NoProviderError",
+      "originalModule": "angular2/src/core/di/exceptions",
+      "docType":        "class"
+    },
+    {
       "title":          "NumberPipe",
       "originalModule": "angular2/src/core/pipes/number_pipe",
       "docType":        "class"
@@ -699,17 +713,17 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "OnChanges",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "OnDestroy",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "OnInit",
       "originalModule": "angular2/src/core/compiler/interfaces",
-      "docType":        "class"
+      "docType":        "interface"
     },
     {
       "title":          "OpaqueToken",
@@ -735,6 +749,22 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "OutOfBoundsError",
       "originalModule": "angular2/src/core/di/exceptions",
+      "docType":        "class"
+    },
+    {
+      "title":          "Output",
+      "varType":        "OutputFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "OutputFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "OutputMetadata",
+      "originalModule": "angular2/src/core/metadata/directives",
       "docType":        "class"
     },
     {
@@ -769,35 +799,29 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "interface"
     },
     {
+      "title":          "PlatformRef",
+      "originalModule": "angular2/src/core/application_ref",
+      "docType":        "interface"
+    },
+    {
       "title":          "Predicate",
       "originalModule": "angular2/src/core/facade/collection",
       "docType":        "interface"
     },
     {
-      "title":          "Property",
-      "varType":        "PropertyFactory",
-      "originalModule": "angular2/src/core/metadata",
-      "docType":        "var"
-    },
-    {
-      "title":          "PropertyFactory",
-      "originalModule": "angular2/src/core/metadata",
-      "docType":        "interface"
-    },
-    {
-      "title":          "PropertyMetadata",
-      "originalModule": "angular2/src/core/metadata/directives",
-      "docType":        "class"
-    },
-    {
-      "title":          "ProtoInjector",
-      "originalModule": "angular2/src/core/di/injector",
-      "docType":        "class"
-    },
-    {
       "title":          "ProtoViewRef",
       "originalModule": "angular2/src/core/compiler/view_ref",
       "docType":        "interface"
+    },
+    {
+      "title":          "Provider",
+      "originalModule": "angular2/src/core/di/provider",
+      "docType":        "class"
+    },
+    {
+      "title":          "ProviderBuilder",
+      "originalModule": "angular2/src/core/di/provider",
+      "docType":        "class"
     },
     {
       "title":          "Query",
@@ -821,17 +845,32 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "RecordViewTuple",
-      "originalModule": "angular2/src/core/directives/ng_for",
-      "docType":        "class"
+      "title":          "RenderBeginCmd",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
     },
     {
-      "title":          "RenderDirectiveMetadata",
+      "title":          "RenderBeginComponentCmd",
       "originalModule": "angular2/src/core/render/api",
-      "docType":        "class"
+      "docType":        "interface"
+    },
+    {
+      "title":          "RenderBeginElementCmd",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
+    },
+    {
+      "title":          "RenderCommandVisitor",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
     },
     {
       "title":          "RenderElementRef",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
+    },
+    {
+      "title":          "RenderEmbeddedTemplateCmd",
       "originalModule": "angular2/src/core/render/api",
       "docType":        "interface"
     },
@@ -846,9 +885,24 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "RenderNgContentCmd",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
+    },
+    {
       "title":          "RenderProtoViewRef",
       "originalModule": "angular2/src/core/render/api",
       "docType":        "class"
+    },
+    {
+      "title":          "RenderTemplateCmd",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
+    },
+    {
+      "title":          "RenderTextCmd",
+      "originalModule": "angular2/src/core/render/api",
+      "docType":        "interface"
     },
     {
       "title":          "RenderViewRef",
@@ -866,6 +920,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "RequiredValidator",
+      "originalModule": "angular2/src/core/forms/directives/validators",
+      "docType":        "class"
+    },
+    {
       "title":          "ResolvedBinding",
       "originalModule": "angular2/src/core/di/binding",
       "docType":        "class"
@@ -874,6 +933,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "title":          "ResolvedFactory",
       "originalModule": "angular2/src/core/di/binding",
       "docType":        "class"
+    },
+    {
+      "title":          "ResolvedProvider",
+      "originalModule": "angular2/src/core/di/provider",
+      "docType":        "interface"
     },
     {
       "title":          "Scope",
@@ -902,6 +966,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
+      "title":          "SimpleChange",
+      "originalModule": "angular2/src/core/change_detection/change_detection_util",
+      "docType":        "class"
+    },
+    {
       "title":          "SkipSelf",
       "varType":        "SkipSelfFactory",
       "originalModule": "angular2/src/core/di/decorators",
@@ -918,13 +987,18 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "SwitchView",
-      "originalModule": "angular2/src/core/directives/ng_switch",
+      "title":          "SlicePipe",
+      "originalModule": "angular2/src/core/pipes/slice_pipe",
       "docType":        "class"
     },
     {
       "title":          "TemplateRef",
       "originalModule": "angular2/src/core/compiler/template_ref",
+      "docType":        "class"
+    },
+    {
+      "title":          "Title",
+      "originalModule": "angular2/src/core/services/title",
       "docType":        "class"
     },
     {
@@ -941,12 +1015,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "title":          "TypeLiteral",
       "originalModule": "angular2/src/core/di/type_literal",
       "docType":        "class"
-    },
-    {
-      "title":          "UNDEFINED",
-      "varType":        "Object",
-      "originalModule": "angular2/src/core/di/injector",
-      "docType":        "const"
     },
     {
       "title":          "UpperCasePipe",
@@ -970,19 +1038,44 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "var"
     },
     {
+      "title":          "ViewChild",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "ViewChildFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "ViewChildMetadata",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "class"
+    },
+    {
+      "title":          "ViewChildren",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "var"
+    },
+    {
+      "title":          "ViewChildrenFactory",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "interface"
+    },
+    {
+      "title":          "ViewChildrenMetadata",
+      "originalModule": "angular2/src/core/metadata",
+      "docType":        "class"
+    },
+    {
       "title":          "ViewContainerRef",
       "originalModule": "angular2/src/core/compiler/view_container_ref",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "ViewDecorator",
       "originalModule": "angular2/src/core/metadata",
       "docType":        "interface"
-    },
-    {
-      "title":          "ViewDefinition",
-      "originalModule": "angular2/src/core/render/api",
-      "docType":        "class"
     },
     {
       "title":          "ViewEncapsulation",
@@ -1013,12 +1106,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "ViewRef",
       "originalModule": "angular2/src/core/compiler/view_ref",
-      "docType":        "interface"
-    },
-    {
-      "title":          "Visibility",
-      "originalModule": "angular2/src/core/di/injector",
-      "docType":        "enum"
+      "docType":        "class"
     },
     {
       "title":          "WrappedException",
@@ -1029,6 +1117,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "title":          "WrappedValue",
       "originalModule": "angular2/src/core/change_detection/change_detection_util",
       "docType":        "class"
+    },
+    {
+      "title":          "applicationCommonBindings",
+      "originalModule": "angular2/src/core/application_ref",
+      "docType":        "function"
     },
     {
       "title":          "asNativeElements",
@@ -1043,6 +1136,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "bootstrap",
       "originalModule": "angular2/src/core/application_common",
+      "docType":        "function"
+    },
+    {
+      "title":          "createNgZone",
+      "originalModule": "angular2/src/core/application_ref",
       "docType":        "function"
     },
     {
@@ -1061,9 +1159,34 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "function"
     },
     {
+      "title":          "platform",
+      "originalModule": "angular2/src/core/application_common",
+      "docType":        "function"
+    },
+    {
+      "title":          "platformBindings",
+      "originalModule": "angular2/src/core/application_ref",
+      "docType":        "function"
+    },
+    {
+      "title":          "platformCommon",
+      "originalModule": "angular2/src/core/application_ref",
+      "docType":        "function"
+    },
+    {
+      "title":          "provide",
+      "originalModule": "angular2/src/core/application_common",
+      "docType":        "function"
+    },
+    {
       "title":          "resolveForwardRef",
       "originalModule": "angular2/src/core/di/forward_ref",
       "docType":        "function"
+    },
+    {
+      "title":          "workaround_empty_observable_list_diff",
+      "originalModule": "angular2/src/core/directives/observable_list_diff",
+      "docType":        "var"
     }
   ];
   $scope.apiList.http            = [
@@ -1083,17 +1206,12 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "Connection",
-      "originalModule": "angular2/src/http/interfaces",
-      "docType":        "class"
-    },
-    {
-      "title":          "ConnectionBackend",
-      "originalModule": "angular2/src/http/interfaces",
-      "docType":        "class"
-    },
-    {
       "title":          "HTTP_BINDINGS",
+      "originalModule": "angular2/http",
+      "docType":        "const"
+    },
+    {
+      "title":          "HTTP_PROVIDERS",
       "originalModule": "angular2/http",
       "docType":        "const"
     },
@@ -1123,6 +1241,16 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "const"
     },
     {
+      "title":          "JSONP_PROVIDERS",
+      "originalModule": "angular2/http",
+      "docType":        "const"
+    },
+    {
+      "title":          "JSON_BINDINGS",
+      "originalModule": "angular2/http",
+      "docType":        "const"
+    },
+    {
       "title":          "Jsonp",
       "originalModule": "angular2/src/http/http",
       "docType":        "class"
@@ -1148,22 +1276,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "RequestCacheOpts",
-      "originalModule": "angular2/src/http/enums",
-      "docType":        "enum"
-    },
-    {
-      "title":          "RequestCredentialsOpts",
-      "originalModule": "angular2/src/http/enums",
-      "docType":        "enum"
-    },
-    {
       "title":          "RequestMethods",
-      "originalModule": "angular2/src/http/enums",
-      "docType":        "enum"
-    },
-    {
-      "title":          "RequestModesOpts",
       "originalModule": "angular2/src/http/enums",
       "docType":        "enum"
     },
@@ -1313,11 +1426,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "LocationStrategy",
-      "originalModule": "angular2/src/router/location_strategy",
-      "docType":        "class"
-    },
-    {
       "title":          "OnActivate",
       "originalModule": "angular2/src/router/interfaces",
       "docType":        "interface"
@@ -1343,17 +1451,21 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "class"
     },
     {
-      "title":          "Pipeline",
-      "originalModule": "angular2/src/router/pipeline",
-      "docType":        "class"
-    },
-    {
       "title":          "ROUTER_BINDINGS",
       "originalModule": "angular2/router",
       "docType":        "const"
     },
     {
       "title":          "ROUTER_DIRECTIVES",
+      "originalModule": "angular2/router",
+      "docType":        "const"
+    },{
+      "title":          "ROUTER_PRIMARY_COMPONENT",
+      "originalModule": "angular2/router",
+      "docType":        "const"
+    },
+    {
+      "title":          "ROUTER_PROVIDERS",
       "originalModule": "angular2/router",
       "docType":        "const"
     },
@@ -1366,11 +1478,6 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "Redirect",
       "originalModule": "angular2/src/router/route_config_impl",
-      "docType":        "class"
-    },
-    {
-      "title":          "RootRouter",
-      "originalModule": "angular2/src/router/router",
       "docType":        "class"
     },
     {
@@ -1414,16 +1521,26 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "interface"
     },
     {
-      "title":          "Url",
-      "originalModule": "angular2/src/router/url_parser",
-      "docType":        "class"
+      "title":          "routerBindings",
+      "originalModule": "angular2/router",
+      "docType":        "function"
     }
   ];
   $scope.apiList.test            = [
     {
+      "title":          "AnyTestFn",
+      "originalModule": "angular2/src/testing/testing",
+      "docType":        "type-alias"
+    },
+    {
       "title":          "AsyncTestCompleter",
       "originalModule": "angular2/src/test_lib/test_lib",
       "docType":        "class"
+    },
+    {
+      "title":          "AsyncTestFn",
+      "originalModule": "angular2/src/testing/testing",
+      "docType":        "type-alias"
     },
     {
       "title":          "FunctionWithParamTokens",
@@ -1443,7 +1560,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "RootTestComponent",
       "originalModule": "angular2/src/test_lib/test_component_builder",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "SpyObject",
@@ -1507,6 +1624,16 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
       "docType":        "function"
     },
     {
+      "title":          "fdescribe",
+      "originalModule": "angular2/src/test_lib/test_lib",
+      "docType":        "function"
+    },
+    {
+      "title":          "fit",
+      "originalModule": "angular2/src/test_lib/test_lib",
+      "docType":        "function"
+    },
+    {
       "title":          "flushMicrotasks",
       "originalModule": "angular2/src/test_lib/fake_async",
       "docType":        "function"
@@ -1519,6 +1646,11 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "inject",
       "originalModule": "angular2/src/test_lib/test_injector",
+      "docType":        "function"
+    },
+    {
+      "title":          "injectAsync",
+      "originalModule": "angular2/src/test_lib/inject_async",
       "docType":        "function"
     },
     {
