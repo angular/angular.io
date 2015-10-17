@@ -6,6 +6,7 @@ module.exports = new Package('angular.io', [basePackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
+.processor(require('./processors/filterUnwantedDecorators'))
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
 
@@ -88,4 +89,12 @@ module.exports = new Package('angular.io', [basePackage])
   ]));
 })
 
+.config(function(filterUnwantedDecorators, log) {
+  log.level = 'info';
+  filterUnwantedDecorators.decoratorsToIgnore = [
+    'CONST',
+    'IMPLEMENTS',
+    'ABSTRACT'
+  ];
+})
 
