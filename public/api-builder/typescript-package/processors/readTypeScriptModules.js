@@ -4,7 +4,7 @@ var _ = require('lodash');
 var ts = require('typescript');
 
 module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
-                                                getExportDocType, getContent, log) {
+                                                getExportDocType, getContent, createDocMessage, log) {
 
   return {
     $runAfter: ['files-read'],
@@ -124,6 +124,17 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
               docs.push(memberDoc);
               exportDoc.statics.push(memberDoc);
             }
+          }
+
+          // NotYetDocumented means that no top level comments and no member level comments
+          var notYetDocumented = exportDoc.content.trim().length == 0;
+          exportDoc.notYetDocumented = notYetDocumented && exportDoc.members.every(function(member) {
+            var content = member.content.trim();
+            return content.length == 0;
+          });
+
+          if (exportDoc.notYetDocumented) {
+            log.warn(createDocMessage("Not yet documented", exportDoc));
           }
 
           if (sortClassMembers) {
