@@ -1647,7 +1647,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "fdescribe",
       "originalModule": "angular2/src/test_lib/test_lib",
-      "docType":        "function"
+      "docType":        "var"
     },
     {
       "title":          "fit",
