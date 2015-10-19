@@ -1,9 +1,464 @@
 include ../../../../_includes/_util-fns
 
-:markdown
-  # Forms
-  It's coming soon!
-  
 .l-main-section
-:markdown
-  ## What's not to love?
+  :markdown
+    Forms play an important role in Web applications whether it’s collecting data or allowing data to be modified or deleted. We’ve all used a form to login to an application, submit a help request to a website, manipulate business data and more. While creating custom forms in HTML is a relatively straightforward process, the complexity increases when a form requires data binding, event handling, validation rules and error messages.
+    
+    Angular 2 provides several key features that can be used to build any type of form your application may need whether it’s a large enterprise line of business form or a small form used to log a user into an application. Throughout this chapter we’ll learn about the different approaches we can take when building forms and see examples of them in action.
+    
+    The overall learning goals of this chapter include:
+    
+    - Learn how to build an Angular 2 form component and template.
+    - Learn data binding syntax that can be used to minimize the amount of code you write when building forms.
+    - Learn about key Angular 2 directives that can be used in forms.
+    - Learn how to display errors to users and enable/disable form controls.
+    - Learn what template local variables are and how they can be used.
+    - Learn about CSS classes that Angular 2 adds to form controls and understand how they can be used to provide visual feedback to users.
+    
+    Let’s get started by taking a look at the process we can follow to create template-driven forms in Angular 2.
+    
+    ## Introduction to Template-Driven Forms
+    
+    We can use template-driven forms to create login forms, contact forms and custom line of business forms in our Angular 2 applications. We can create any type of form layout, bind data to form controls, display validation errors, disable specific form controls when a form is invalid, provide visual feedback to users, plus more. In scenarios where we need to capture data from end users or allow them to modify existing data, template-driven forms provide a robust option that can be created quickly and easily using Angular 2 features.
+    
+    Here’s an example of a simple template-driven form in action. We’ll discuss the form throughout this chapter and learn how to build it.
+    
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-1.png" alt="Clean Form")
+    
+  :markdown
+    Here’s the same form displaying a validation error and providing additional visual feedback to the end user:
+
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-2.png" alt="Invalid, Name Required")
+    
+  :markdown
+    If the user doesn’t satisfy all of the validation requirements for the form, the submit button will automatically be disabled and the left portion of the input control that has an error will change from green to red. The colors used, location of the colors and more can be customized using standard CSS. Required controls have a red left-border to make them easy to visually identify for end users:
+
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-3.png" alt="Invalid Form")
+    
+  :markdown
+    What features does Angular 2 provide that we can use to create this type of template-driven form? We’ll answer this question and others by walking through the following steps:
+
+    1. Create an HTML form template
+    1. Create a model class
+    1. Create a form component
+    1. Add the **ng-submit** directive to the form
+    1. Add the **ng-control** directive to each form input control
+    1. Add the **ng-model** directive to each form input control
+    1. Disable the form’s submit button until the form is valid
+    1. Add custom CSS to provide visual feedback
+    1. Show and hide validation error messages
+    
+    The following sections provide a more detailed look at these steps and the code that we’ll need to write to make it all happen. Let’s start by looking at the initial form template.
+    
+    ### Create an HTML Form Template
+    
+    We can use a standard HTML form with the Angular template-driven approach. An example of a form template named **template-form.component.html** is shown next. The HTML content includes the form element and associated inputs as well as a section after the form that’s used to display data submitted by the end user.
+
+  code-example(format="linenums" language="html").
+    &lt;div class="container">
+      &lt;div [hidden]="submitted">
+        &lt;h1>Template Driven Form&lt;/h1>
+        &lt;form>
+          &lt;div class="form-group">
+            &lt;label for="name">Name&lt;/label>
+            &lt;input type="text" class="form-control" required>
+          &lt;/div>
+          &lt;div class="form-group">
+            &lt;label for="alterEgo">Alter Ego&lt;/label>
+            &lt;input type="text" class="form-control" required>
+          &lt;/div>
+          &lt;div class="form-group">
+            &lt;label for="power">Hero Power&lt;/label>
+            &lt;select class="form-control" required>
+              &lt;option *ng-for="#p of powers" [value]="p">{{p}}&lt;/option>
+            &lt;/select>
+          &lt;/div>
+          &lt;button type="submit" class="btn btn-default">Submit&lt;/button>
+        &lt;/form>
+      &lt;/div>
+      &lt;div [hidden]="!submitted">
+        &lt;h2>You submitted the following:&lt;/h2>
+        &lt;div class="row">
+          &lt;div class="col-md-2">Name&lt;/div>
+          &lt;div class="col-md-10 pull-left">{{ model.name }}&lt;/div>
+        &lt;/div>
+        &lt;div class="row">
+          &lt;div class="col-md-2">Alter Ego&lt;/div>
+          &lt;div class="col-md-10 pull-left">
+          {{ model.alterEgo }}
+          &lt;/div>
+        &lt;/div>
+        &lt;div class="row">
+          &lt;div class="col-md-2">Power&lt;/div>
+          &lt;div class="col-md-10 pull-left">
+            {{ model.power }}
+          &lt;/div>
+        &lt;/div>
+        &lt;br />
+        &lt;button class="btn btn-default" (click)="submitted=false">Edit&lt;/button>
+      &lt;/div>
+    &lt;/div>
+    
+  :markdown
+    The form captures Name, Alter Ego and Power values and makes all three of the inputs required by using the **required** attribute. The select control in the form iterates through an array of powers and displays them as select options using the Angular 2 **ng-for** directive.
+    
+    The application switches between the form view and the data display view by toggling a **submitted** property that we’ll discuss later in this chapter. The **submitted** property is bound to the **hidden** property of the div containers that wrap the form section and data display section.
+
+    Now that the template for the form is in place, we can move on to discussing the model object that is bound to the form.
+    
+    ## Create a Model Class 
+    
+    As users interacts with the form we’ll capture the data they enter or modify in instances of a “model” class. A model class is simply a class that holds application data. In this example **Hero** is the model class and it has **id**, **name**, **power**, and **alterEgo** properties. 
+    
+    Here’s the complete code for the Hero model (hero.ts):
+    
+    ```
+    export class Hero {
+
+      constructor(
+        public id?: number,
+        public name?: string,
+        public power?: string,
+        public alterEgo?: string
+      ) {  }
+     
+    }
+    ```
+    The TypeScript compiler generates a public field for each **public** constructor parameter and assigns the parameter’s value to that field automatically. For example, TypeScript generates an **alterEgo** field to match the **public alterEgo** constructor parameter and sets the alterEgo field to the optional value of the fourth argument. This is a convenient way to initialize an object through the constructor with minimal code.
+    
+    Let’s create a form component that uses this **Hero** model class.
+    
+    ## Create a Form component
+
+    The HTML form template shown earlier is placed directly in an Angular component using the **View** annotation’s **template** property. Alternatively, we can create a separate file and link it to the component using the **View** annotation’s **templateUrl** property. Which approach is better? There’s no “right” answer since it’s very subjective, but in cases where a template contains a lot of HTML content, having a separate template file can be helpful and minimize the overall size of the component. 
+    
+    In this example we’ll link the template to a component named **TemplateFormComponent (template-form.component.ts)** using the **templateUrl** property of **View** annotation. The complete code for **TemplateFormComponent** is shown next:
+    ```
+    import {Component, View, NgFor, FORM_DIRECTIVES} from 'angular2/angular2';
+    
+    import { Hero } from './hero';
+    
+    @Component({
+      selector: 'template-driven-form',
+      templateUrl: 'app/template-form.component.html',
+      directives: [FORM_DIRECTIVES, NgFor]
+    })
+    export class TemplateFormComponent {
+    
+    
+      model: Hero;  
+      powers: string[];
+      submitted: boolean = false;
+      
+      constructor() {
+          this.model = new Hero(18,'Dr IQ', 'Really Smart', 'Chuck Overstreet');
+    
+          this.powers = ['Really Smart', 'Super Flexible', 
+                        'Super Hot', 'Weather Changer'];                     
+      }
+      
+      onSubmit() {
+        this.submitted = true;
+      }
+    
+    }
+    ```
+    We can see that there’s nothing unique about this component even though we’re using it to create a form. Many of the Angular 2 concepts we’ve already learned apply. Here are few of the key features shown in the component:
+    
+    1. We import **NgFor, Component, View** and **FORM_DIRECTIVES** as well as the the **Hero** model class. Ng
+    1. We add the **Component** selector value of “template-driven-form”. We also define the form template **(template-form.component.html)** using the **templateUrl** property and all of the directives we’ll use in the form template using the **directives** property.
+    1. The **TemplateFormComponent** class **model, powers** and **submitted** properties <span style="background-color:pink" >defined</span>.
+    1. The constructor initializes the model and powers properties with values.
+    
+    We’ve now linked the form template to the form component and integrated the **Hero** model class into the component. The next step is to integrate Angular 2 directives into the form.
+    
+    ## Add the ng-submit Directive to the Form
+    
+    We’ll now shift our attention back to the form template **(template-form.component.html)** created earlier. Although the form is linked to the component, it won’t do much at this point aside from showing the different form controls. Angular 2 directives have to be added into the form so that we can bind the Hero model and perform other tasks such as validation.
+    
+    To start, we can add the **ng-submit** event to the **form** element and hook it to the **onSubmit()** function shown earlier in the **TemplateFormComponent class**:
+    ```
+    <form (ng-submit)="onSubmit()" #f="form">
+    ```
+    it’s important to note that **form** is a directive in this case that exposes an **ng-submit** event. We’re using the event binding syntax in this example to wire **ng-submit** to **onSubmit()**. The **#f** attribute (which is referred to as a “template local variable”) makes the form object available as a local variable named “f” within the template. We’ll be using the local variable later to handle disabling the submit button when the form isn’t valid.
+    
+    Now that we’ve added the ability to submit the form, let’s discuss different form directives that can be added to the form’s input controls. 
+    
+    
+    ## Add the ng-control Directive
+    
+    Angular 2 provides several key directives named **ng-model** and **ng-control** that can be used in forms to handle data binding and validation/change tracking tasks respectively. Both directives can be used together to simplify the overall process of creating custom forms and capturing and storing input from end users.
+    
+    The **ng-control** directive provides support for tracking the state of controls (**dirty, errors, pristine, touched** and **untouched**) and determining if they’re valid or not.
+    
+    is modified by an end user, **ng-control** updates its state properties as the user enters data a control so that we can know when a control is dirty, pristine, touched or has errors.
+    
+    The **ng-control** directive also provides support for checking the validity of a form control through its **valid** property. For example, the **valid** property of a form input control that has with an HTML5 **required** attribute added to it will have its is false until the user doesn’t supplies a value. This can be useful when checking the validity of an individual form control or the form as a whole.
+    
+    Here’s an example of the **ng-control** directive applied to a textbox:
+    ```
+    <input type="text" 
+          ng-control="alterEgo" 
+          required>
+    ```
+    In this example we’re assigning the **ng-control** directive to a string value of “alterEgo”. By adding the directive to a form input control we automatically get access to the properties discussed earlier (dirty, pristine, etc.)  and also get programmatic access to the form control which can be useful for custom validation scenarios. Later in this chapter we’ll see how the value assigned to **ng-control** can be used to show users error messages when they don’t satisfy the requirements of a given form control.
+    
+    ## Add the ng-model Directive
+    
+    The **ng-control** directive can be combined with another directive called **ng-model** on form controls. The **ng-model** directive can be used to bind data to form controls and also listen for changes to the data through an **ng-model** event. This is useful anytime we need to bind a model object property to textbox, select, radio button or other form input control. 
+    
+    Here’s an example of using the **ng-control** and **ng-model** directives as well as handling the **ng-model** event on a textbox:
+    ```
+    <input type="text" 
+          ng-control="alterEgo" 
+          [ng-model]="model.alterEgo" 
+          (ng-model)="model.alterEgo=$event" 
+          required>
+    ```
+    In this example we’re using the standard Angular 2 [property-name] binding syntax to bind the **ng-model** directive to the model object’s **alterEgo** property. We’re also listening for an event named **ng-model** using the standard (event-name) event binding syntax.  When the **ng-model** event fires, the value of the input control is passed using the **$event** object and assigned to the **model.alterEgo** property. This pattern of listening for property changes through an event provides an efficient way to *emulate* the two-way data binding mechanism that Angular 1.x provided while allowing Angular 2 to provide several performance benefits.
+    
+    In scenarios where the **ng-model** event handler must perform additional work aside from simply updating the property, we can define it separately using the standard (event-name) syntax and then bind it to a component event handler function:
+    ```
+    <input type="text" 
+          ng-control="alterEgo" 
+          [ng-model]="model.alterEgo" 
+          (ng-model)="myEventHandler($event)" 
+          required>
+    ```
+    When we use **[ng-model]** and **(ng-model)** it may seem strange that the directive and event are named the same. Why wouldn’t they have different names to make it easier to distinguish them from one another in the HTML template? 
+    
+    The answer is that Angular 2 provides an alternative syntax that merges the **ng-model** directive and event concepts together into one attribute on the input element which reduces the amount of code that has to be written. This merging of the property binding and event binding syntax can be accomplished using the **[(ng-model)]** short-cut syntax. 
+    
+    The [property-name] portion of the syntax handles the property binding while the (event-name) portion handles the event binding. The directive automatically updates the target property as the **ng-model** event fires allowing us to eliminate the **(ng-model)=”model.alterEgo=$event”** syntax shown earlier.
+    
+    Here’s an example of using the more concise **[(ng-model)]** syntax to simplify the **ng-model** code shown earlier:
+    ```
+    <input type="text" 
+          ng-control="alterEgo" 
+          [(ng-model)]="model.alterEgo" 
+          required>
+    ```
+    The **[(ng-model)]** code accomplishes the same task as the previous code that defined the directive and event separately. By using the shortcut binding syntax we’re able to handle property and event bindings in a single step. 
+    
+    It’s important to note that this shortcut syntax is optional and not something that we’re required to use. Just as the **[property-name]** shortcut syntax can be replaced with **bind-property-name** and **(event-name)** can be replaced with **on-event**-name (referred to as the “canonical syntax”) in Angular 2 templates, we can also use a canonical syntax in place of the **[(ng-model)]** syntax if desired. The canonical style uses the **bindon-property-name** syntax in place of the **[(ng-model)]** shortcut syntax:
+    ```
+    <input type="text" 
+          ng-control="alterEgo" 
+          bindon-ng-model="model.alterEgo" 
+          required>
+    ```
+    Angular 2 allows us to choose the syntax that we prefer (shortcut or canonical) with all template bindings which makes it flexible to work with and also allows teams to decide on their own unique coding style.
+    
+    ## Disabling the Submit Button
+    
+    The final step in the template-driven form that we’ve been building throughout this chapter involves disabling the submit button when the form is invalid. After all, why would we want the user to be able to click the button when we know the form isn’t ready to process yet?
+    
+    Earlier we defined the form using the following syntax:
+    ```
+    <form (ng-submit)="onSubmit()" #f="form">
+    ```
+    The **#f** attribute creates a template local variable that can be used to access the form object elsewhere in the template. By checking the form’s **valid** property we can easily determine if the form is valid or not. By using **f.form.valid** we can disable the submit button by binding to the **disabled** property:
+    ```
+    <button type="submit" 
+            class="btn btn-default" 
+            [disabled]="!f.form.valid">
+      Submit
+    </button>
+    ```
+    ## Add Custom CSS to Provide Visual Feedback
+    
+    Earlier in the chapter we saw that form controls can be modified to show the user when a given control is valid or invalid as they interact with the form. For example, when a form first loads we can mark required controls with a red border if no data is present to provide the user with a visual indicator:
+    
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-3.png" alt="Invalid Form")
+      
+  :markdown
+    As the user interacts with the form and satisfies a control’s requirements we can change from a red border to a green border to let them “visually” know how they’re doing:
+
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-4.png" alt="Complete Valid Form")
+    
+  :markdown
+    Before discussing how to accomplish this task, let’s discuss features that form controls expose when they have **ng-control** or **ng-model** directives applied to them. When a control has either of these directives the control provides access to properties such as **pristine, dirty, touched, untouched** and **valid**. As these properties change, CSS classes are added to the control automatically by the aforementioned directives. We can use the CSS classes that are added to dynamically show visual feedback to the end user.
+    
+    Let’s walk through the CSS classes that change as the user interacts with the **name** control in the form. When the form first loads the **Hero** model data is bound into the control. The following CSS classes appear on the input control due to the control having an initial value:
+    
+    <img src="/resources/images/devguide/forms/name-control-1.png"  alt="CSS class initial value">
+    
+  :markdown
+    The key CSS classes added to the control in this example include **ng-pristine, ng-valid** and **ng-untouched**. The presence of the **ng-pristine** class let’s us know that the user hasn’t interacted with the control yet, the **ng-valid** class appears because the control is valid and **ng-untouched** appears because the user hasn’t interacted with the control yet.
+    
+    If the user clear’s out the value of the **name** control the CSS classes change to the following:
+    
+    <img src="/resources/images/devguide/forms/name-control-2.png"  alt="CSS class initial value">
+    
+    In this case the **ng-touched, ng-dirty** and **ng-invalid** classes have been added. The presence of the **ng-touched** class let’s us know that the user has interacted with the control, **ng-dirty** let’s us know that the control’s value has changed and **ng-invalid** let’s us know that the control isn’t currently valid.
+    
+    Now that we know the classes that are added to the control we can modify our site’s CSS stylesheet and handle valid and invalid control states to provide visual feedback in the form for the end user. For example, when the control is valid we can add the following CSS class to change the control’s left-border to green:
+    ```
+    .ng-valid {
+      border-left: 5px solid #42A948;
+    }
+    ```
+    When the control is invalid we can add the following CSS class to change the left-border to red:
+    ```
+    .ng-invalid {
+      border-left: 5px solid #a94442;
+    }
+    ```
+    By using the CSS classes automatically added by **ng-control** and **ng-model** we can easily customize a form and display different visual feedback as input controls are modified by the end user.
+    
+    ## Show and Hide Validation Error Messages
+    
+    All of the controls in the form have the HTML5 **required** attribute applied to them. While we’ve taken care of disabling the submit button when the form isn’t valid, we need a way to display an error message to the end user for each invalid control.
+    
+    To do this we first need to create a local variable on the control and assign it to a value of form. Here’s an example of creating two local variables that are named **#name** and **#alterego**:
+    ```
+    <input type="text" class="form-control" ng-control="name" #name="form" 
+          [(ng-model)]="model.name" required>
+    
+    <input type="text" class="form-control" ng-control="alterEgo" #alterego="form"    
+          [(ng-model)]="model.alterEgo" required>
+    ```
+    Once each input has a local variable assigned we can access the variable elsewhere in the template to determine if the control is valid or not. If a control is invalid an error message can be shown to the end user. How does this work exactly? 
+    
+    Since each input has a local variable defined we can use it to access a **control** property. This property allows us to get to information about the control including whether or not it’s valid. Here’s an example of using the **#name** local variable to access the **valid** property:
+    
+  code-example(language="html").
+    Valid: {{ name.valid }}
+    
+  :markdown
+    In this example we’re accessing the desired form control through the **#name** local variable. It exposes properties such as **valid, pristine, dirty** and **touched**.  Here’s an example of binding the **hidden** property of multiple div elements that contain an error message to the **valid** property of a form control:
+    
+    ```
+    <label for="name">Name</label>
+    <input type="text" class="form-control" ng-control="name" #name="form" 
+          [(ng-model)]="model.name" required>
+    <div class="alert alert-danger" [hidden]="name.valid">
+      Name is required
+    </div>
+    
+    <label for="alterEgo">Alter Ego</label>
+    <input type="text" class="form-control" ng-control="alterEgo" #alterego="form" 
+          [(ng-model)]="model.alterEgo" required>
+    <div class="alert alert-danger" [hidden]="alterego.valid">
+      Alter Ego is required
+    </div>
+    ```
+
+    If an end user clears out the **name** and **alterego** control values the appropriate error messages will be shown:
+    
+  figure.image-display
+    img(src="/resources/images/devguide/forms/tdf-5.png" alt="Invalid Data Form")
+    
+  :markdown
+    As values are supplied and the controls are valid again, the error messages will automatically be hidden. 
+    
+    ## Conclusion
+    
+    The Angular 2 form discussed in this chapter takes advantage of the following framework features to provide support for data modification, validation and more:
+    
+    - An HTML form template.
+    - A form component class with **Component** and **View** annotations.
+    - The **ng-submit** event for handling the form submission.
+    - Template local variables such as **#f, #name, #alterego** and **#power**.
+    - The **ng-control** and **ng-model** directives.
+    - The **[(ng-model)]** shortcut syntax to bind the directive to a model object property and handle property updates as data changes in the form.
+    - HTML5 validation attributes such as **required**.
+    - The local variable’s **control** property on input controls to check if a control is valid and show/hide error messages.
+    - Angular 2 property binding shortcut syntax to disable the submit button when the form is invalid.
+    - Custom CSS classes that provide visual feedback to end users about valid and invalid controls.
+    
+    Here’s the final version of the form template that includes all of these framework features:
+    
+    ```
+    <div class="container">
+      <div [hidden]="submitted">
+        <h1>Template Driven Form</h1>
+        <form (ng-submit)="onSubmit()" #f="form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" ng-control="name" #name="form" 
+                  [(ng-model)]="model.name" required>
+            <div class="alert alert-danger" [hidden]="name.valid">
+              Name is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="alterEgo">Alter Ego</label>
+            <input type="text" class="form-control" ng-control="alterEgo" 
+                  #alterego="form" [(ng-model)]="model.alterEgo" required>
+            <div class="alert alert-danger" [hidden]="alterego.valid">
+              Alter Ego is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="power">Hero Power</label>
+            <select class="form-control" ng-control="power" #power="form" 
+                    [(ng-model)]="model.power" required>
+              <option *ng-for="#p of powers" [value]="p">{{p}}</option>
+            </select>
+            <div class="alert alert-danger" [hidden]="power.valid">
+              Power is required 
+            </div>
+          </div>
+          <button type="submit" class="btn btn-default" 
+                  [disabled]="!f.form.valid">Submit</button>
+        </form>
+      </div>
+      <div [hidden]="!submitted">
+        <h2>You submitted the following:</h2>
+        <div class="row">
+          <div class="col-md-2">Name</div>
+          <div class="col-md-10 pull-left">{{ model.name }}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-2">Alter Ego</div>
+          <div class="col-md-10 pull-left">{{ model.alterEgo }}</div>
+        </div>
+        <div class="row">
+          <div class="col-md-2">Power</div>
+          <div class="col-md-10 pull-left">{{ model.power }}</div>
+        </div>
+        <br />
+        <button class="btn btn-default" (click)="submitted=false">Edit</button>
+      </div>
+    </div>
+    ```
+    
+    Here’s our final template-driven form component code:
+    
+  code-example(format="linenums").
+    import {
+      NgFor,
+      Component,
+      View,
+      FORM_DIRECTIVES,
+    } from 'angular2/angular2';
+    
+    import { Hero } from './hero';
+    
+    @Component({
+      selector: 'template-driven-form',
+      templateUrl: 'app/template-form.component.html',
+      directives: [FORM_DIRECTIVES, NgFor]
+    })
+    export class TemplateFormComponent {
+      model: Hero;  
+      powers: string[];
+      submitted: boolean = false;
+      
+      constructor() {
+          this.model = new Hero(18, 'Dr IQ', 'Really Smart', 'Chuck Overstreet');
+    
+          this.powers = ['Really Smart', 'Super Flexible', 
+                        'Super Hot', 'Weather Changer'];
+      }
+    
+      onSubmit() {
+        this.submitted = true;
+      }
+    }
