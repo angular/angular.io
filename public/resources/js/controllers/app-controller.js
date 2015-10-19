@@ -121,7 +121,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "AppViewManager",
       "originalModule": "angular2/src/core/compiler/view_manager",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "ApplicationRef",
