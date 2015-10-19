@@ -126,7 +126,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "ApplicationRef",
       "originalModule": "angular2/src/core/application_ref",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "AsyncPipe",
