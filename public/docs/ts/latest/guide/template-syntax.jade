@@ -215,7 +215,7 @@ table
   That’s “HTML Plus”.
   
   Now we are learning about data binding. At first glance it appears that we are setting attributes, 
-  as when we bind button `disabled` to the component’s `isUnchanged` data property:
+  as when we bind button `disabled` to the component’s `isUnchanged` property:
   ```
   <button [disabled]="isUnchanged">Save</button>
   ```
@@ -225,27 +225,52 @@ table
   
   Our intuition is wrong! Our everyday HTML mental model is misleading us. 
   In fact, once we start data binding, we are no longer working with HTML *attributes*. We aren't setting attributes. 
-  We are setting the *properties* of elements, components, and directives. 
+  We are setting the *properties* of DOM elements, Components, and Directives. 
   
-  The disabled button example may help make this distinction clear.
-  If we were trying to disable a button in static HTML, we would add the `disabled` attribute to it.
-  To enable the button, we'd omit or remove the `disabled` attribtue.
-  ```
-  <button>Enabled</button>
-  <button disabled>Disabled</button>
-  ```
-  We'd get a pretty surprising result if we tried to set the `disabled` attribute.
-  ```
-  <button disabled=false>Still disabled<button>
-  ```
-  Say what!?!? Setting the `disabled` attribute to false does not enable the button.
-  In fact, any mention of the `disabled` attribute disables the button, regardless of the value.
+.l-sub-section
+  :markdown
+    ### HTML Attribute vs. DOM Property
+    
+    The distinction between an HTML attribute and a DOM property is crucial to understanding how Angular binding works.
+    
+    **Attributes are defined by HTML. Properties are defined by DOM (the Document Object Model).**
   
-  On the other hand, setting the button's `disabled` *property* via a data binding does exactly what we expect.
-  ```
-  <button [disabled]="true">Disabled</button>
-  <button [disabled]="false">Enabled</button>
-  ```
+    * A few HTML attributes have 1:1 mapping to properties. `id` is one example.
+    
+    * Some HTML attributes don't have corresponding properties. `colspan` is one example.
+    
+    * Some DOM properties don't have corresponding attributes. `textContent` is one example.
+    
+    * Many HTML attributes appear to map to properties ... but not the way we think!
+    
+    That last category can be especially confusing ... until we understand this general rule:
+    
+    **Attributes *initialize* DOM properties and then they are done. 
+    Property values may change; attribute values don't.**
+
+    For example, when the browser renders `<input type="text" value="Bob">`, it creates a 
+    corresponding DOM node with a `value` property *initialized* to "Bob". 
+    
+    When the user enters "Sally" into the input box, the DOM element `value` *property* becomes "Sally".
+    But the HTML `value` *attribute* remains unchanged as we discover if we ask the input element
+    about that attribute: `input.getAttribute('value') // returns "Bob"`
+    
+    The HTML attribute `value` specifies the *initial* value; the DOM `value` property is the *current* value.
+    
+    The `disabled` attribute is another peculiar example. A button's `disabled` *property* is
+    `false` by default so the button is enabled. 
+    When we add the `disabled` *attribute*, it's presence alone initializes the  button's `disabled` *property* to `true`
+    so the button is disabled.
+    
+    Adding and removing the `disabled` *attribute* disables and enables the button. The value of the *attribute* is irrelevant
+    which is why we cannot enable a button by writing `<button disabled="false">Still Disabled</button>`.
+    
+    Setting the button's `disabled` *property*  (e.g. with an Angular binding) disables or enables the button.
+    The value of the *property* matters. 
+    
+    **The HTML attribute and the DOM property are not the same thing even when they have the same name.**
+  
+:markdown
   This is so important, we’ll say it again.
   
   **Template binding works with *properties* and *events*, not *attributes*.**
