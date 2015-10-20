@@ -218,6 +218,7 @@ function getDocPlaster(line) {
   var rx =  /#docplaster\s*(\S.*)/;
   try {
     var plaster = line.match(rx)[1];
+    plaster = plaster.replace("-->","").replace('\*\/',"");
     return plaster.trim();
   } catch (e) {
     return null;

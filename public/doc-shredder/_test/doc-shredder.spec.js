@@ -30,8 +30,8 @@ describe('doc-shredder', function() {
       fileNames.forEach(function(fileName) {
         console.log('comparing: ' + fileName);
         var origFileName = fileName.replace('.ovr.', '.');
-        var origSource = fs.readFileSync(origFileName, 'utf8');
-        var expectedSource = fs.readFileSync(fileName, 'utf8');
+        var origSource = fs.readFileSync(origFileName, 'utf8').replace(/\r\n/g, '\n');
+        var expectedSource = fs.readFileSync(fileName, 'utf8').replace(/\r\n/g, '\n');
         var diffs = JsDiff.diffLines(expectedSource, origSource);
         errs = [];
         diffs.forEach(function(diff) {
