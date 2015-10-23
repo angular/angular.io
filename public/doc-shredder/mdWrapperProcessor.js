@@ -1,6 +1,3 @@
-// Not currently used - but wanted to leave it as an example
-// var _ = require('lodash');
-
 /**
  * dgProcessor shredderProcessor
  * @description
