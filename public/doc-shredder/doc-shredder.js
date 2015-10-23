@@ -63,7 +63,6 @@ function createShredPackage(shredOptions) {
 
   initializePackage(pkg)
     .factory(require('./fileShredder'))
-    .factory(require('./regionExtractor'))
     .processor(require('./mdWrapperProcessor'))
 
     .config(function(readFilesProcessor, fileShredder ) {
