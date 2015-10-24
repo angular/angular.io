@@ -1,274 +1,297 @@
 include ../../../../_includes/_util-fns
 
+<!-- http://plnkr.co/edit/x9JYbC -->
+
+:markdown
+  ## Displaying Component Properties
+
+  We typically display data in Angular by binding controls in an HTML template
+  to properties of an Angular Component.
+
+  In this chapter, we'll create a component with a list of heroes. Each hero has a name.
+  We'll display the list of hero names and
+  conditionally show a selected hero in a detail area below the list.
+  Our UI looks like this:
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/final.png" alt="Final UI")
+
 .l-main-section
-  :markdown
-    ## Displaying component properties
-    
-    Angular components use properties to identify the data associated with the component. For example, a hero component may have properties such as a hero name. Let's walk through how we'd display a property, a list of properties, and then conditionally show content based on state. We'll end up with a UI that looks like this:
-    
-  figure.image-display
-    img(src="/resources/images/devguide/displaying-data/final.png" alt="Final UI")
-    
-  :markdown
-    Showing properties with interpolation
-    The simple technique for displaying the data from a component property is to bind the property name through interpolation. With interpolation, you put the property name in the view template enclosed in double curly braces: &#123; &#123; myHero &#125; &#125; .
-    
-    To see this working, follow the steps in the Getting Started section. Then modify the app.ts file as follows:
+:markdown
+  ## Showing component properties with interpolation
+  The easiest way to display a component property
+  is to bind the property name through interpolation.
+  With interpolation, we put the property name in the view template enclosed in double curly braces: &#123; &#123; myHero &#125; &#125; .
 
-  code-example(format="linenums" language="html" escape="html").
-    import {Component, View, bootstrap} from 'angular2/angular2';
+  Let's build a small illustrative example together.
 
-    @Compo
-    nent({
-      selector: 'my-app'
-    })
-    @View({
-      template: '<h1>{{title}}</h1><h2>My favorite hero is: {{myHero}}</h2>'
-    })
-    class AppComponent {
-      title: string = 'Tour of Heroes';
-      myHero: string = 'Windstorm';
-    }
-    bootstrap(AppComponent);
+  Create a new project folder (`displaying-data`) and follow the steps in the [QuickStart](../quickstart.html).
 
-  :markdown
-    This code defines a component and associated view for the app. The component now has two properties: title and myHero. The view defines a template that displays those two properties using interpolation:
-    
-  code-example(format="linenums" language="html" escape="html").
-    <h1>{{title}}</h1><h2>My favorite hero is: {{myHero}}</h2>
-    
-  :markdown
-    Angular automatically pulls the value of the title and myHero properties from the component and inserts those values into the browser. Angular automatically updates the display whenever the property value changes.
-    
-    One thing to notice here is that we haven't called **new** to create an instance of the AppComponent class. When defining the component in app.ts, we identified a selector named ‘my-app’. As shown in the Getting Started section, we used an HTML element named 'my-app' in the index.html file. By associating the AppComponent with the element named 'my-app' in the DOM, Angular knows to automatically call new on AppComponent and bind its properties to that part of the template.
-    
-    There are two techniques for defining a template for the view associated with a component. The template can be defined inline using the template property, as shown in the example above. Or the template can be defined in a separate HTML file and referenced using the templateUrl property.
-    
-    In either case, when building templates the data bindings have access to the same scope of properties as the component class. Here, the class AppComponent and has two properties: title and myHero. The template can bind to either or both of those properties.
-    
-    ## Showing an array property with NgFor
-    
-    Moving up from a single property, let’s create an array to display as a list. And let’s move the initialization of the properties to the class constructor.
-    
-  code-example(format="linenums").
-    class AppComponent {
-      title: string;
-      myHero: string;
-      heroes: Array<string>;
-      
-      constructor() {
-        this.title = 'Tour of Heroes';
-        this.myHero = 'Windstorm';
-        this.heroes = ['Magenta', 'Tornado', 'Windstorm'];
-      }
-    }
-    
-  :markdown
-    We can use the NgFor directive in the template to display each item in this array as shown below. Add the NgFor directive to one of the DOM elements. Angular then creates a copy of that DOM element for each item in the array.
-  
-  code-example(format="linenums" language="html").
-    template: `
-      &lt;h1>{{title}}&lt;/h1>
-      &lt;h2>My favorite hero is: {{myHero}}&lt;/h2>
-      &lt;p>Heroes:&lt;/p>
-      &lt;ul>
-        &lt;li *ng-for="#hero of heroes">
-          {{ hero }}
-          &lt;/li>
-      &lt;/ul>
-      `
+  Then modify the `app.ts` file by changing the template and the body of the component.
+  When we're done, it should look like this:
 
-  :markdown
-    Notice that we are now using the backtick instead of the single quote to enclose the template. This allows us to define multiple lines of HTML for the template.
-    
-    We added the NgFor to the li element, so Angular will define an li element for each item in the list. However, by default Angular does not automatically include the NgFor directive. We have to do that manually by making two changes to the app.ts file.
-    
-    First, we need to add NgFor to the import statement as follows:
-    ```
-    import {Component, View, bootstrap, NgFor} from 'angular2/angular2';
-    ```
-    Second, we need to define NgFor as a directive accessible to the view as follows:
++makeExample('displaying-data/ts/src/app/app.1.ts', 'start')
 
-  code-example(format="linenums" language="html").
-    @View({
-      template: `
-        &lt;h1>{{title}}&lt;/h1>
-        &lt;h2>My favorite hero is: {{myHero}}&lt;/h2>
-        &lt;p>Heroes:&lt;/p>
-        &lt;ul>
-          &lt;li *ng-for="#hero of heroes">
-            {{ hero }}
-            &lt;/li>
-        &lt;/ul>
-      `,
-        directives: [NgFor]
-      })
-    
-  :markdown
-    The heroes then appear in the view as an unordered list. Angular will automatically update the display any time that the list changes. Add a new item and it appears in the list. Delete an item and Angular deletes the item from the list. Reorder items and Angular makes the corresponding reorder of the DOM list.
-    
-    Let's look again at the few lines of HTML that perform this operation:
-  
-  code-example(format="linenums" language="html").  
-     &lt;li *ng-for="#hero of heroes">
-       {{ hero }}
-     &lt;/li>
+:markdown
+  We added two properties to the formerly empty component: `title` and `myHero`.
 
-  :markdown
-    Breaking this down:
-    - *ng-for : creates a DOM element for each item in an [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols) like an array
-    - #hero : defines a local variable that refers to individual values of the iterable as 'hero'
-    - of heros : the iterable to use is called 'heroes' in the current component
-    
-    Using this NgFor syntax, we can display data from any iterable object.
-    
-    ## Creating a class for the data
-    
-    Before we get too much further, note that putting our data model directly in our component doesn’t follow best practices. We should separate the concerns by having another class serve the role of model and use it in the component.
-    
-    We’ll add this class to the app.ts file to minimize the number of files required for this demo. But you would want to define a separate hero.ts file for this.
-    ```
-    class Hero {
-      id: number;
-      name: string;
-    }
-    ```
-    Here we define a Hero class with two properties: id and name.
-    
-    We can then change the AppComponent to use this new class as a data type:
-    ```
-    class AppComponent {
-      title: string;
-      myHero: Hero;
-      heroes: Hero[];
-    
-      constructor() {
-        this.title = 'Tour of Heroes';
-        this.myHero = {
-          id: 1,
-          name: 'Windstorm'
-        };
-        this.heroes = [
-          { "id": 1, "name": "Windstorm" },
-          { "id": 15, "name": "Magneta" },
-          { "id": 20, "name": "Tornado" }
-        ];
-      }
-    }
-    ```
-    We also need to change the template to access the appropriate class property:
-  
-  code-example(format="linenums" language="html").
-    @View({
-      template: `
-        &lt;h1>{{title}}&lt;/h1>
-        &lt;h2>My favorite hero is: {{myHero.name}}&lt;/h2>
-        &lt;p>Heroes:&lt;/p>
-        &lt;ul>
-          &lt;li *ng-for="#hero of heroes">
-            {{ hero.name }}
-            &lt;/li>
-        &lt;/ul>
-      `,
-        directives: [NgFor]
-      })
- 
-  :markdown
-    The application should work as before, but it now uses the Hero class to define the hero properties.
-    
-    ## Conditionally displaying data with NgIf
-    
-    There may be times that the app needs to conditionally display data. For example, only display a message if a specific condition is true. We can conditionally display data using NgIf. The NgIf directive adds or removes elements from the DOM based on an expression.
-    
-    See it in action by adding a paragraph at the end of the template as shown below:
-    ```
-    <p *ng-if="heroes.length > 3">There are many heroes!</p>
-    ```
-    If the list of heroes has more than 3 items, the paragraph is added to the DOM and the message appears. If there are 3 or fewer items, the paragraph won’t be added to the DOM and no message appears.
+  Our revised template displays the two component properties using the double curly brace
+  interpolation:
 
-    As with the NgFor, we’ll need to add the NgIf directive so Angular knows to include it. Add it to the import:
-    ```
-    import {Component, View, bootstrap, NgFor, NgIf} from 'angular2/angular2';
-    ```
-    And add it to the directives array:
-    ```
-    directives: [NgFor, NgIf]
-    ```
-    Since there are four items in the array, the message should appear. Delete one of the elements from the array, refresh the browser and the message should no longer appear.
-    
-    ## Using the CORE_DIRECTIVES Constant
-    
-    In addition to NgFor and NgIf, there are other core Angular directives that are often used in Angular apps such as NgClass and NgSwitch. Instead of importing each Angular core directive separately as we did with NgFor and NgIf, Angular provides a constant called CORE_DIRECTIVES. This constant defines a collection of the Angular core directives. We can then use this constant instead of enumerating each built-in directive as part of the import statement and @View annotation.
-    
-    Using the CORE_DIRECTIVES constant we can change our import statement to:
-    ```
-    import {Component, View, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
-    ```
-    And we can change our @View annotation to:
-    ```
-    directives: [CORE_DIRECTIVES]
-    ```
-    Use this constant instead of enumerating each Angular core directive any time you plan to use the built-in directives in your view.
-    
-    ## Summary
-    
-    - You now know how to:
-    - Use interpolation with the double curly braces to display a single component property, 
-    - Use NgFor to display a list of items from an array,
-    - Use a TypeScript class to define the data for your component and display properties of that class,
-    - Use NgIf to conditionally display data based on an expression.
-    - And use the CORE_DIRECTIVES constant to simplify specification of the core Angular directives.
-    
-    Use these techniques any time you need to display data in the view.
-    
-    The resulting app.ts file is as follows:
-    
-  code-example(format="linenums" language="html").
-    import {Component, View, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
-    
-    @Component({
-      selector: 'my-app'
-    })
-    @View({
-      template: `
-      &lt;h1>{{title}}&lt;/h1>
-      &lt;h2>My favorite hero is: {{myHero.name}}&lt;/h2>
-      &lt;p>Heroes:&lt;/p>
-      &lt;ul>
-        &lt;li *ng-for="#hero of heroes">
-          {{ hero.name }}
-          &lt;/li>
-      &lt;/ul>
-      &lt;p *ng-if="heroes.length > 3">There are many heroes!&lt;/p>
-    `,
-      directives: [CORE_DIRECTIVES]
-    })
-    
-    class AppComponent {
-      title: string;
-      myHero: Hero;
-      heroes: Hero[];
-    
-      constructor() {
-        this.title = 'Tour of Heroes';
-        this.myHero = {
-          id: 1,
-          name: 'Windstorm'
-        };
-        this.heroes = [
-          { "id": 1, "name": "Windstorm" },
-          { "id": 13, "name": "Bombasto" },
-          { "id": 15, "name": "Magneta" },
-          { "id": 20, "name": "Tornado" }
-        ];
-      }
-    }
-    bootstrap(AppComponent);
-    
-    class Hero {
-      id: number;
-      name: string;
-    }
-    
++makeExample('displaying-data/ts/src/app/app.1.ts', 'template')
+.l-sub-section
   :markdown
-    In addition to displaying data, most applications also need to obtain data from the user. Next up, check out how to respond to user input.
+    The template is a multi-line string within ECMAScript 2015 back-tics (\`).
+    The back-tick (\`) is not the same character as a single quote (').
+    It has many nice features. The feature we're exploiting is
+    the ability to compose the string over several lines which
+    makes for much more readable HTML.
+
+:markdown
+  Angular automatically pulls the value of the `title` and `myHero` properties from the component and
+  inserts those values into the browser. Angular will update the display
+  when these properties change.
+.l-sub-section
+  :markdown
+    More precisely, the re-display occurs after some kind of asynchronous event related to
+    the view such as a keystroke, a timer completion, or an asynch `XHR` response.
+    We don't have those in this sample.
+    But then the properties aren't changing on their own either. For the moment we must operate on faith.
+:markdown
+  Notice that we haven't called **new** to create an instance of the `AppComponent` class.
+  Angular is creating an instance for us. How?
+
+  Notice the CSS `selector` in the `@Component` decorator that specifies an element named "my-app".
+  Remember back in QuickStart that we added the `<my-app>` element to the body of our `index.html`
++makeExample('displaying-data/ts/src/index.html', 'my-app')
+
+:markdown
+  When we bootstrap with the `AppComponent` class (see the bottom of `app.ts`), Angular looks for a `<my-app>`
+  in the `index.html`, finds it, instantiates an instance of `AppComponent`, and renders it
+  inside the `<my-app>` tag.
+
+  ## Template inline or template file?
+
+  We can store our component's template in one of two places.
+  We can define it "inline" using the template property as we do here.
+  Or we can define the template in a separate HTML file and link to it in
+  the component metadata using the `@Component` decorator's `templateUrl` property.
+
+  We're using the *inline* style because the template is small and it makes for clearer demonstration.
+  The choice between them is a matter of taste, circumstances, and organization policy.
+
+  In either style, The template data bindings have the same access to the component's properties.
+
+  ## Constructor or variable initialization?
+
+  We initialized our component properties using variable assignment.
+  This is a wonderfully concise and compact technique.
+
+  Some folks prefer to declare the properties and initialize them within a constructor like this:
++makeExample('displaying-data/ts/src/app/app-ctor.ts', 'app-ctor')
+
+:markdown
+  That's fine too. The choice between them is a matter of taste and organization policy.
+  We'll adopt the more terse "variable assignment" style in this chapter simply because
+  there will be less code to read.
+
+.l-main-section
+:markdown
+  ## Showing an array property with NgFor
+
+  We want to display a list of heroes. We begin by adding a mock heroes name array to the component,
+  just above `myHero` and redefine `myHero` to be the first name in the array.
++makeExample('displaying-data/ts/src/app/app.2.ts', 'mock-heroes')
+
+:markdown
+  Now we use the Angular `NgFor` "repeater" Directive in the template to display
+  each item in the `heroes` list.
+
++makeExample('displaying-data/ts/src/app/app.2.ts', 'template')
+
+:markdown
+  Our presentation is the familiar HTML unordered list with `<ul>` and `<li>` tags. Let's focus on the `<li>` tag.
++makeExample('displaying-data/ts/src/app/app.2.ts', 'li-repeater')
+
+:markdown
+  We added a somewhat mysterious `*ng-for` to the `<li>` element.
+  That's the Angular "repeater" directive.
+  It's presence on the `<li>` tag marks that `<li>` element (and its children) as the "repeater template".
+
+.alert.is-important
+  :markdown
+    Don't forget the leading asterisk (\*) in front of `*ng-for`. It is an essential part of the syntax.
+    Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ng-for) chapter.
+
+:markdown
+  Notice the `#hero` in the `NgFor` double-quoted instruction.
+  The `#hero` is a "[template local variable](./template-syntax.html#local-vars")"  *declaration*.
+  The (#) prefix declares a local variable name named `hero`.
+
+  Angular will duplicate the `<li>` for each item in the list, setting the `hero` variable
+  to the item (the hero) in the current iteration. Angular uses that variable as the
+  context for the interpolation in the double curly braces.
+
+.l-sub-section
+  :markdown
+    We happened to give `NgFor` an array to display.
+    In fact, `NgFor` can repeat items for any [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)
+    object.
+:markdown
+  ## Register the NgFor Directive
+
+  Angular doesn't know that this template uses the `NgFor` directive.
+  Our application will not run right now. Angular will complain that it doesn't know what `NgFor` is.
+
+  We have to register the `NgFor` directive with the component metadata by making two changes to the app.ts file.
+
+  First, we import the `NgFor` symbol from the Angular library by extending the existing `import` statement.
+  Look for it in the following:
++makeExample('displaying-data/ts/src/app/app.2.ts', 'imports')
+
+:markdown
+  Second, we register `NgFor` as a directive accessible to the template by updating the
+  `@Component` decorator with a `directives` array property whose only item is `NgFor`:
+
++makeExample('displaying-data/ts/src/app/app.2.ts', 'directives')
+
+:markdown
+  Now the heroes will appear in the view as an unordered list.
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/hero-names-list.png" alt="After ngfor")
+
+.l-main-section
+:markdown
+  ## Creating a class for the data
+
+  We are defining our data directly inside our component.
+  That's fine for a demo but certainly isn't a best practice. It's not even a good practice.
+  We won't do anything about that in this chapter.
+
+  At the moment, we're binding to an array of strings. We do that occasionally in real applications but
+  most of the time we're displaying objects, potentially instances of classes.
+
+  Let's turn our array of hero names into an array of `Hero` objects. For that we'll need a `Hero' class.
+
+  Create a new file called `hero.ts` and add the following short snippet to it.
++makeExample('displaying-data/ts/src/app/hero.ts')
+
+:markdown
+  We've defined a class with a constructor and two properties: `id` and `name`.
+
+  If we are new to TypeScript, it may not look like we have properties. But we do. We're taking
+  advantage of a TypeScript short-cut in our declaration of the constructor parameters.
+
+  Consider the first parameter:
++makeExample('displaying-data/ts/src/app/hero.ts', 'id-parameter')
+
+:markdown
+  That brief syntax simultaneously
+  * declares a constructor parameter and its type
+  * declare a public property of the same name
+  * initializes that property with the corresponding argument when we "new" an instance of the class.
+
+.l-main-section
+:markdown
+  ## Use the Hero class
+  Let's redefine the heroes property in our component to return an array of these Heroes
+  and also set the `myHero` property with the first of these mock heroes.
++makeExample('displaying-data/ts/src/app/app.3.ts', 'heroes')
+
+:markdown
+  We'll have to update the template.
+  At the moment it displays the entire hero object which used to be a string value.
+  Let's fix that so we interpolate the `hero.name` property
++makeExample('displaying-data/ts/src/app/app.3.ts', 'template')
+
+:markdown
+  Our display looks the same but we know how much better it is under the hood.
+
+.l-main-section
+:markdown
+  ## Conditional display with NgIf
+
+  Sometimes the app should display a view or a portion of a view only under prescribed circumstances.
+
+  In our example, we'd like to display a message if we have a large number of heroes ... say more than 3.
+
+  The Angular `NgIf` directive will insert or remove an element based on a truthy/falsey condition.
+  We can see it in action by adding the following paragraph at the bottom of the template:
++makeExample('displaying-data/ts/src/app/app.final.ts', 'message')
+.alert.is-important
+  :markdown
+    Don't forget the leading asterisk (\*) in front of `*ng-if`. It is an essential part of the syntax.
+    Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ng-if) chapter.
+
+:markdown
+  The [template expression](./template-syntax.html#template-expressions) inside the double quotes
+  looks much like JavaScript and it is much like JavaScript.
+  When the component's list of heroes has more than 3 items, Angular adds the paragraph to the DOM and the message appears.
+  If there were 3 or fewer items, Angular omits the the paragraph and there is no message.
+
+.alert.is-helpful
+  :markdown
+    Angular isn't showing and hiding the message. It is adding and removing the paragraph element from the DOM.
+    That hardly matters here. It would matter a great deal from a performance perspective if
+    we were conditionally including or excluding a big chunk of HTML with many data bindings.
+
+:markdown
+  As with the `NgFor`, we must add the `NgIf` directive to the component's metadata.
+
+  We should extend our `import` statement as before ...
++makeExample('displaying-data/ts/src/app/app.3.ts', 'import-ng-if')
+
+:markdown
+  ... and add it to the directives array:
++makeExample('displaying-data/ts/src/app/app.3.ts', 'directives')
+
+:markdown
+  Try it out. We have four items in the array so the message should appear.
+  Delete one of the elements from the array, refresh the browser, and the message should no longer appear.
+
+.l-main-section
+:markdown
+  ## Use the CORE_DIRECTIVES Constant
+
+  There are other core Angular directives, such as `NgClass` and `NgSwitch`,
+  that we often use in our apps.
+  Extending the `import` statement and adding to the `directives` array for each one gets old.
+
+  Fortunately, Angular provides a constant array called `CORE_DIRECTIVES`
+  that includes many of the directives that we use all the time.
+
+  Let's simplify our lives, discard the `NgFor` and `NgIf`, use the constant for all of them.
+
+  We'll revise our `import` statement one last time.
++makeExample('displaying-data/ts/src/app/app.final.ts', 'imports')
+
+:markdown
+  and update the `directives` metadata
++makeExample('displaying-data/ts/src/app/app.final.ts', 'directives')
+
+:markdown
+  Pro tip: we register this constant in almost every template we write.
+
+.l-main-section
+:markdown
+  ## Summary
+  Now we know how to
+  - use **interpolation** with the double curly braces to display a component property,
+  - use **`NgFor`** to display a list of items,
+  - use a TypeScript class to shape the model data for our component and display properties of that model,
+  - use **`NgIf`** to conditionally display a chunk of HTML based on a boolean expression.
+  - register common component directives with **`CORE_DIRECTIVES` constant**
+
+  Our final code:
+
++makeTabs('displaying-data/ts/src/app/app.final.ts, '+
+           'displaying-data/ts/src/app/hero.ts',
+           'final,',
+           'app.ts, hero.ts')
+
+.l-main-section
+:markdown
+  ## Next Steps
+  In addition to displaying data, most applications need to respond to user input.
+  Learn about that in the [User Input](./user-input.html) chapter.
