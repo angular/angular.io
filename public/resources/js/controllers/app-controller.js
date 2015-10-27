@@ -1859,7 +1859,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
           bold:          [ 'template:', 'templateUrl:' ]
         },
         {
-          "syntax":      "styles: '.primary {color: red}'\nstyleUrls: ['my-component.css']",
+          "syntax":      "styles: ['.primary {color: red}']\nstyleUrls: ['my-component.css']",
           "description": "List of inline css styles / external stylesheet urls for styling component’s view.",
           bold:          [ 'styles:', 'styleUrls:' ]
         },
