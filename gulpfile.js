@@ -252,7 +252,7 @@ function buildApiDocs() {
   try {
     var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
     return dgeni.generate().then(function() {
-      return gulp.src('./public/docs/js/latest/api/**/*.*')
+      return gulp.src(['./public/docs/js/latest/api/**/*.*', '!./public/docs/js/latest/api/index.jade'])
         .pipe(gulp.dest('./public/docs/ts/latest/api'));
     })
   } catch(err) {
