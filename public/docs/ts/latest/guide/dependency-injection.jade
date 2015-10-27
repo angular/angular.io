@@ -375,27 +375,31 @@ include ../../../../_includes/_util-fns
   
   What matters is that the injector knows what to do when something asks for a `HeroService`.
 
-  ### Provider mappings
-  When we registered the `HeroService` with the injector, we were actually registering
-  a mapping between the `HeroService` *token* and a provider that can create a `HeroService`.
+  ### The Provider Class
   
   When we wrote ...
   ```
-  import {bootstrap} from 'angular2/angular2';
-  
-  bootstrap(AppComponent, [HeroService]);
+  [HeroService];
   ```
-  ... Angular translated that statement into a mapping instruction involving the Angular `provide` method
+  we used a short-hand expression for provider registration. 
+  Angular expanded that short-hand into a call to the Angular `provide` method
   ```
-  import {bootstrap, provide} from 'angular2/angular2';
-  
-  bootstrap(AppComponent, [
-    provide(HeroService, {useClass:HeroService})
-  ]); 
+  [provide(HeroService, {useClass:HeroService})]; 
   ```
-  Of course we prefer the shorthand syntax - `[HeroService]` - when the provider and the token are the same class.
+  and the `provide` method in turn creates a new instance of the Angular 
+  [Provider class](http://localhost:3000/docs/ts/latest/api/core/Provider-class.html):
+  ```
+  [new Provider(HeroService, {useClass:HeroService})]
+  ```
+  This provider instance associates a `HeroService` *token* 
+  with code that can create an *instance* of a `HeroService`.
+
+  The first parameter is the [token](#token) that serves as the key for both locating a dependency value
+  and registering the provider. 
   
-  Isn't that always the case? Not always. 
+  The second parameter is a provider definition object
+  which we think of as a "recipe" for creating the dependency value. 
+  There are many ways to create dependency values ... and many ways to write a recipe.
   
   ### Alternative Class Providers
 
@@ -424,7 +428,7 @@ include ../../../../_includes/_util-fns
     return [ provide(HeroService, {useValue: emptyHeroService}) ];
   });
   ```
-  Notice that we mapped with `useValue` instead of `useClass`.
+  Notice we defined the recipe with `useValue` instead of `useClass`.
  
   ### Factory Providers
   
@@ -472,7 +476,7 @@ include ../../../../_includes/_util-fns
     a fact we can't know until runtime.
 :markdown
   We use dependency injection everywhere so of course the factory function depends on 
-  two injected services: `Logger` and `UserService`.  
+  two injected services: `Logger` and `UserService`. 
   We declare those requirements in our provider definition object:
   ```
   let heroServiceDefinition = {
@@ -484,15 +488,17 @@ include ../../../../_includes/_util-fns
   :markdown
     The `useFactory` field tells Angular that the provider is a factory function and that its implementation is the `heroServiceFactory`.
     
-    The `deps` property is an array of provider mapping tokens. 
-    The `Logger` and `UserService` classes serve as tokens for their own class provider mappings.
+    The `deps` property is an array of [provider tokens](#token). 
+    The `Logger` and `UserService` classes serve as tokens for their own class providers.
 :markdown
-  Finally, we create the mapping and adjust the bootstrapping to include that mapping in its provider configuration.
+  Finally, we create the provider and adjust the bootstrapping to include that provider 
+  among its provider registrations.
   ```
-  let heroServiceMapping = provide(HeroService, heroServiceDefinition);
+  let heroServiceProvider = provide(HeroService, heroServiceDefinition);
   
-  bootstrap(AppComponent, [heroServiceMapping, Logger, UserService]);
+  bootstrap(AppComponent, [heroServiceProvider, Logger, UserService]);
   ```
+ 
   ### String tokens
   
   Sometimes we have an object dependency rather than a class dependency.
@@ -507,25 +513,31 @@ include ../../../../_includes/_util-fns
   ```
   We'd like to make this `config` object available for injection. 
   We know we can register an object with a "Value Provider". But what do we use for the token?
+
+  <a id="token"></a>
+  Until now, we've always asked the class to play the token role 
+  whether we wrote a provider with a class, value, or factory recipe.
+  This time we don't have a class to serve as a token. There is no `Config` class.
   
-  Until now, we've always had a class to use as the token for mapping. 
-  The `HeroService` class was our token, whether we mapped it to another class, a value, or a factory provider.
-  This time we don't have a class. There is no `Config` class.
-  
-  Fortunately, a token can be either a JavaScript type (e.g. the class function) **or a string**. We'll map our configuration object
-  to a string!
+  Fortunately, the token can be a string, a class type, or an 
+  [OpaqueToken](http://localhost:3000/docs/ts/latest/api/core/OpaqueToken-class.html). 
+  Internally, the `Provider` turns the string and class parameter into an `OpaqueToken`;
+  the injector locates dependency values and providers by this token.
+
+  We'll register our configuration object with a string-based token!
   ```
   bootstrap(AppComponent, [
-    // other mappings //
+    // other providers //
     provide('App.config', {useValue:config})
   ]);
   ```
-  Now let's update the `HeroesComponent` constructor so it can display the configured title.  
+
+  Let's apply what we've learned and update the `HeroesComponent` constructor so it can display the configured title.  
   Right now the constructor signature is
   ```
   constructor(heroService: HeroService)
   ```
-  We might think we can write:
+  We might think we can add the `config` dependency by writing:
   ```
   // FAIL!
   constructor(heroService: HeroService, config: config)

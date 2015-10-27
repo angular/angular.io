@@ -143,35 +143,49 @@
     Angular developers prefer to build applications by defining many simple parts 
     that each do one thing well and then wire them together at runtime. 
     
-    These parts often rely on one another. An Angular [Component](#component)
+    These parts often rely on other parts. An Angular [Component](#component)
     part might rely on a service part to get data or perform a calculation. When a
     part "A" relies on another part "B", we say that "A" depends on "B" and
     that "B" is a dependency of "A".
     
-    We developers have a choice. We can teach "A" to find or create "B" all by itself.  
-    Or we can ask a "Dependency Injection System"" to find or create "B" and deliver
-    it to part "A" when "A" needs it. 
+    We can ask a "Dependency Injection System" to create "A" 
+    for us and handle all the dependencies. 
+    If "A" needs "B" and "B" needs "C", the system resolves that chain of dependencies
+    and returns a fully prepared instance of "A".
     
-    These choices and their relative merits are the subject of 
-    much discussion under the rubric. "Dependency Injection".
-    We can read about that in many places including 
-    [on the web here](https://en.wikipedia.org/wiki/Dependency_injection)
-    
-    Angular strongly favors the Dependency Injection approach
-    and relies on its own sophisticated 
-    [Dependency Injection System](./dependency-injection.html) system 
+    Angular provides and relies upon its own sophisticated 
+    [Dependency Injection](./dependency-injection.html) system 
     to assemble and run applications by "injecting" application parts
-    where and when needed.
+    into other application parts where and when needed.
     
-    These parts (often called "dependencies") are created by [providers](#provider)
-    that we register with an [injector](#injector) at the appropriate time.
+    At the core is an [`Injector`](#injector) that returns dependency values on request. 
+    The expression `injector.get(token)` returns the value associated with the given token.
     
-    Quite often the best time to register a provider is when 
-    we [bootstrap](#bootstrap) the application
-    but there are other opportunities to register as well.
+    A token is an Angular type (`OpaqueToken`). We rarely deal with tokens directly; most
+    methods accept a class name (`Foo`) or a string ("foo") and Angular converts it
+    to a token. When we write `injector.get(Foo)`, the injector returns
+    the value associated with the token for the `Foo` class, typically an instance of `Foo` itself.
     
-    Learn more by reading the [Dependency Injection System](./dependency-injection.html) chapter.
-
+    Angular makes similar requests internally during many of its operations
+    as when it creates a [`Component`](#AppComponent) for display.
+    
+    The `Injector` maintains an internal map of tokens to dependency values.
+    If the `Injector` can't find a value for a given token, it creates
+    a new value using a `Provider` for that token. 
+    
+    A [Provider](#provider) is a recipe for
+    creating new instances of a dependency value associated with a particular token.
+    
+    An injector can only create a value for a given token if it has
+    a `Provider` for that token in its internal provider registry. 
+    Registering providers is a critical preparatory step.
+    
+    Angular registers some of its own providers with every injector.
+    We can register our own providers. Quite often the best time to register a `Provider` 
+    is when we [bootstrap](#bootstrap) the application.
+    There are other opportunities to register as well.
+    
+    Learn more in the [Dependency Injection](./dependency-injection.html) chapter.
  :markdown
   ## Directive
 .l-sub-section
@@ -318,18 +332,14 @@
   ## Provider
 .l-sub-section
   :markdown
-    Angular relies on [dependency injection](#dependency-injection) to create and deliver
-    pieces of functionality to the application parts that need them. Those pieces are
-    often called "dependencies". 
+    A Provider creates a new instance of a dependency for the Dependency Injection system.
+    It relates a lookup token to code - sometimes called a "recipe" - that can create a dependency value.
     
-    Angular can't find or create these dependencies by itself. Something has to "provide" them.
-    That something is called a "Provider". A provider can be almost anything that can produce
-    the dependency although it is most often a class that we register with the 
-    [dependency injector](injector). 
-    
-    We typically register our application providers when we [bootstrap](#bootstrap) the application
-    but there are other opportunities to do that as well. 
-    See the [Dependency Injection[(./dependency-injection.html)] chapter for details.
+    For example, `new Provider(Foo, {useClass: Foo})` creates a `Provider`
+    that relates the `Foo` token to a function that creates a new instance of the `Foo` class.
+   
+    There are other ways to create tokens and recipes. 
+    See [Dependency Injection](#dependency-injection) chapter to learn more.
  
 .l-main-section
 :markdown
