@@ -1,6 +1,6 @@
 var path = require('canonical-path');
 var fs = require("fs");
-var jsonFile = require('jsonFile');
+var jsonFile = require('jsonfile');
 
 var INLINE_LINK = /(\S+)(?:\s+([\s\S]+))?/;
 
