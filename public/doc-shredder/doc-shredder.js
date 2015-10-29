@@ -209,7 +209,7 @@ function initializePackage(pkg) {
   return pkg
     .processor(require('dgeni-packages/base/processors/read-files'))
     .processor(require('dgeni-packages/base/processors/write-files'))
-    .factory(require('dgeni-packages/base/services/writefile'))
+    .factory(require('dgeni-packages/base/services/writeFile'))
 
     // Ugh... Boilerplate that dgeni needs to sequence operations
     .processor({ name: 'reading-files' })
