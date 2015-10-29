@@ -121,12 +121,12 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "AppViewManager",
       "originalModule": "angular2/src/core/compiler/view_manager",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "ApplicationRef",
       "originalModule": "angular2/src/core/application_ref",
-      "docType":        "interface"
+      "docType":        "class"
     },
     {
       "title":          "AsyncPipe",
@@ -1647,7 +1647,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
     {
       "title":          "fdescribe",
       "originalModule": "angular2/src/test_lib/test_lib",
-      "docType":        "function"
+      "docType":        "var"
     },
     {
       "title":          "fit",
@@ -1859,7 +1859,7 @@ angularIO.controller('AppCtrl', [ '$scope', '$mdDialog', '$timeout', function ($
           bold:          [ 'template:', 'templateUrl:' ]
         },
         {
-          "syntax":      "styles: '.primary {color: red}'\nstyleUrls: ['my-component.css']",
+          "syntax":      "styles: ['.primary {color: red}']\nstyleUrls: ['my-component.css']",
           "description": "List of inline css styles / external stylesheet urls for styling component’s view.",
           bold:          [ 'styles:', 'styleUrls:' ]
         },

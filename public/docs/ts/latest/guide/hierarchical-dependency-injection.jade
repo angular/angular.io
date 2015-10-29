@@ -1,0 +1,307 @@
+include ../../../../_includes/_util-fns
+:markdown
+  We learned the basics of Angular Dependency injection in an 
+  [earlier chapter](./dependency-injection.html).
+    
+  In this chapter we learn that Angular has an
+  Hierarchical Dependency Injection system that supports trees of injectors.
+  
+  In practice, there is a tree of injectors that parallel an application's component tree.
+  We can re-configure the injectors at any level of that component tree with
+  interesting and useful results.
+
+.l-main-section  
+:markdown
+  ## The Injector Tree
+  
+  In an [earlier chapter](./dependency-injection.html)
+  we learned how to configure a dependency injector in different ways and how to retrieve dependencies where we need them. 
+  
+  What if we told you there is no such thing as ***the*** injector? 
+  In fact, each application has multiple injectors!
+  
+  We may have heard that an Angular application is a tree of components. 
+  It may surprise us to learn that there is a corresponding tree of injectors
+  and each component instance in that tree has its own injector!
+  
+.l-sub-section
+  :markdown
+    That isn't literally true. Angular is more efficient than that. What is true is that each component instance
+    has an injector and that components at different levels in the tree have different injectors.
+    
+    It is helpful for our purposes to pretend that every component has its own injector.
+:markdown
+  Consider a simple variation on the Tour of Heroes application consisting of three different components: 
+  `HeroesApp`, `HeroesListComponent` and `HeroesCardComponent`. 
+  The `HeroesApp` holds a single instance of `HeroesListComponent`. 
+  The new twist is that the `HeroesListComponent` may hold and manage multiple instances of the `HeroesCardComponent`.
+  
+  The following diagram represents the state of the component tree when there are three instances of `HeroesCardComponent`
+  open simultaneously.
+  
+figure.image-display
+  img(src="/resources/images/devguide/dependency-injection/component-hierarchy.png" alt="injector tree")
+  
+:markdown
+  Each component instance gets its own injector and an injector at one level is a child injector of the injector above it in the tree.
+  
+  When a component at the bottom requests a dependency, Angular tries to satisfy that dependency with a provider registered in that component's own injector. 
+  If the component's injector lacks the provider, it passes the request up to its parent component's injector. 
+  If that injector can't satisfy the request, it passes it along to *its* parent component's injector. 
+  The requests keep bubbling up until we find an injector that can handle the request or run out of component ancestors.
+  If we run out of ancestors, Angular throws an error.
+  
+.l-sub-section
+  :markdown
+    There's a third possibililty. An intermediate component can declare that it is the "host" component. 
+    The hunt for providers will climb no higher than the injector for this host component.
+     We'll reserve discussion of this option for another day.
+:markdown
+  Such a proliferation of injectors makes little sense until we consider the possiblity that injectors at different levels can be
+  configured with different providers. We don't *have* to re-configure providers at every level. But we *can*.
+  
+  If we don't re-configure, the tree of injectors appears to be flat. All requests bubble up to the root injector that we
+  configured with the `bootstrap` method.
+  
+  The ability to configure one or more providers at different levels opens up interesting and useful possibilities.
+  
+  Let’s return to our Car example. 
+  Suppose configured the root injector (marked as A) with providers for `Car`, `Engine` and `Tires`. 
+  We create a child component (B) that defines its own providers for `Car` and `Engine`
+  This child is the parent of another component (C) that defines its own provider for `Car`. 
+  
+  Behind the scenes each component sets up its own injector with one or more providers defined for that component itself.
+  
+  When we resolve an instance of `Car` at the deepest component (C),
+  it's injector produces an instance of `Car` resolved by injector (C) with an `Engine` resolved by injector (B) and 
+  `Tires` resolved by the root injector (A).
+  
+figure.image-display
+  img(src="/resources/images/devguide/dependency-injection/injector-tree.png" alt="injector tree")
+
+.l-main-section  
+:markdown
+  ## Component Injectors
+  
+  In the previous section, we talked about injectors and how they are organized like a tree. Lookups follow the injector tree upwards until they found the requested thing to inject. But when do we actually want to provide bindings on the root injector and when do we want to provide them on a child injector?
+  
+  Consider you are building a component to show a list of super heroes that displays each super hero in a card with it’s name and superpower. There should also be an edit button that opens up an editor to change the name and superpower of our hero. 
+  
+  One important aspect of the editing functionality is that we want to allow multiple heroes to be in edit mode at the same time and that one can always either commit or cancel the proposed changes. 
+  
+  Let’s take a look at the `HeroesListComponent` which is the root component for this example.  
+  
+  ```
+  import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
+  import {HeroService} from './hero.service';
+  import {HeroCardComponent} from './hero-card.component';
+  import {HeroEditorComponent} from './hero-editor.component';
+  import {Hero} from './hero';
+  
+  @Component({
+    selector: 'heroes-list-component',
+    template: `
+      <div>
+        <ul>
+          <li *ng-for="#editItem of heroes">
+            <hero-card-component 
+              [hidden]="editItem.editing"
+              [hero]="editItem.item">
+            </hero-card-component>
+            <button 
+              [hidden]="editItem.editing" 
+              (click)="editItem.editing = true">
+                edit
+            </button>
+            <hero-editor-component
+              (saved)="onSaved(editItem, $event)"
+              (canceled)="onCanceled(editItem)"
+              [hidden]="!editItem.editing"
+              [hero]="editItem.item">
+            </hero-editor-component>
+          </li>
+        </ul>
+      </div>`,
+    directives: [CORE_DIRECTIVES, HeroCardComponent, HeroEditorComponent]
+  })
+  export class HeroesListComponent {
+    heroes: Array<Hero>;
+    constructor(HeroService: HeroService) {
+      this.heroes = HeroService.getHeroes()
+                                .map(item => new EditItem(item));
+    }
+  
+    onSaved (editItem: EditItem<Hero>, updatedHero: Hero) {
+      editItem.item = updatedHero;
+      editItem.editing = false;
+    }
+  
+    onCanceled (editItem: EditItem<Hero>) {
+      editItem.editing = false;
+    }
+  }
+  
+  class EditItem<T> {
+    item: T;
+    editing: boolean
+    constructor (public item T) {}
+  }
+  
+  bootstrap(HeroesListComponent, [HeroService]);
+  ```
+  
+  Notice that it imports the `HeroService` that we’ve used before so we can skip its declaration. The only difference is that we’ve used a more formal approach for our `Hero`model and defined it upfront as such.
+  
+  ```
+  export class Hero {
+    name: string;
+    power: string;
+  }
+  ```
+  
+  Our `HeroesListComponent` defines a template that creates a list of `HeroCardComponents` and `HeroEditorComponents`, each bound to an instance of hero that is returned from the `HeroService`. Ok, that’s not entirely true. It actually binds to an `EditItem<Hero>` which is a simple generic datatype that can wrap any type and indicate if the item being wrapped is currently being edited or not.
+  
+  But how is `HeroCardComponent` implemented? Let’s take a look.
+  
+  ```
+  import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
+  import {Hero} from './hero';
+  
+  @Component({
+    selector: 'hero-card.component',
+    properties: ['hero'],
+    template: `
+      <div>
+        <span>Name:</span>
+        <span>{{hero.name}}</span>
+      </div>`,
+    directives: [CORE_DIRECTIVES]
+  })
+  export class HeroCardComponent {
+    hero: Hero;
+  }
+  ```
+  
+  The `HeroCardComponent` is basically a component that defines a template to render a hero. Nothing more. 
+  
+  Let’s get to the interesting part and take a look at the `HeroEditComponent` 
+  
+  ```
+  import {Component, FORM_DIRECTIVES, EventEmitter, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
+  import {RestoreService} from './restore.service';
+  import {Hero} from './hero';
+  
+  @Component({
+    selector: 'hero-editor-component',
+    events: ['canceled', 'saved'],
+    properties: ['hero'],
+    providers: [RestoreService],
+    template: `
+      <div>
+        <span>Name:</span>
+        <input [(ng-model)]="hero.name"/>
+        <div>
+          <button (click)="onSaved()">save</button>
+          <button (click)="onCanceled()">cancel</button>
+        </div>
+      </div>`,
+    directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
+  })
+  export class HeroEditorComponent {
+    canceled = new EventEmitter();
+    saved = new EventEmitter();
+  
+    constructor(private restoreService: RestoreService<Hero>) {}
+  
+    set hero (hero: Hero) {
+      this.restoreService.setItem(hero);
+    }
+  
+    get hero () {
+      return this.restoreService.getItem();
+    }
+  
+    onSaved () {
+      this.saved.next(this.restoreService.getItem());
+    }
+  
+    onCanceled () {
+      this.hero = this.restoreService.restoreItem();
+      this.canceled.next(this.hero);
+    }
+  }
+  ```
+  
+  Now here it’s getting interesting. The `HeroEditComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead this is a perfect use case to abstract it into it’s own generic service since we have probably more cases like this in our app.
+  
+  And this is where the `RestoreService` enters the stage.
+  
+  ```
+  export class RestoreService<T> {
+    originalItem: T;
+    currentItem: T;
+  
+    setItem (item: T) {
+      this.originalItem = item;
+      this.currentItem = this.clone(item);
+    }
+  
+    getItem () :T {
+      return this.currentItem;
+    }
+  
+    restoreItem () :T {
+      this.currentItem = this.originalItem;
+      return this.getItem();
+    }
+  
+    clone (item: T) :T {
+      // super poor clone implementation
+      return JSON.parse(JSON.stringify(item));
+    }
+  }
+  ```
+  
+  All this tiny service does is define an API to set a value of any type which can be altered, retrieved or set back to it’s initial value. That’s exactly what we need to implement the desired functionality.
+  
+  Our `HeroEditComponent` uses this services under the hood for it’s `hero` property. It intercepts the `get` and `set` method to delegate the actual work to our `RestoreService` which in turn makes sure that we won’t work on the original item but on a copy instead.
+  
+  At this point we may be scratching our heads asking what this has to do with component injectors? If we look closely at our `HeroEditComponent` we’ll notice this piece of code
+  
+  ```
+  …
+  providers: [RestoreService]
+  …
+  ```
+  
+  This creates a binding for the `RestoreService` in the injector of the `HeroEditComponent`. But couldn’t we simply alter our bootstrap call to this?
+  
+  ```
+  bootstrap(HeroesListComponent, [HeroService, RestoreService]);
+  ```
+  
+  Technically we could, but our component wouldn’t quite behave the way it is supposed to. Remember that each injector treats the services that it provides as singletons. However, in order to be able to have multiple instances of `HeroEditComponent` edit multiple heroes at the same time we need to have multiple instances of the `RestoreService`. More specifically each instance of `HeroEditComponent` needs to be bound to it’s own instance of the `RestoreService`.
+  
+  By configuring a binding for the `RestoreService` on the `HeroEditComponent`, we get exactly one instance of the `RestoreService`per `HeroEditComponent`. 
+  
+  Does that mean that services aren’t singletons anymore in Angular 2? Yes and no. 
+  While there’s only one instance per binding per injector there may be multiple instances of the same type across 
+  the entire application due to the fact that we can create multiple bindings for the same type on different components. 
+  
+  If we had only defined a binding for `RestoreService` on the root component, 
+  we would have exactly one instance of the across the entire applicatoin. That’s clearly not what we want in this scenario.
+  We don’t want to share an instance. We want each component to have its own instance of the `RestoreService`.
+  
+  <!-- 
+    ## Advanced Dependency Injection in Angular 2
+    
+    Restrict Dependency Lookups
+    [TODO] (@Host) This has been postponed for now until we come up with a decent use case
+    
+  
+    .l-main-section
+    :markdown
+      ## Dependency Visibility
+  
+    [TODO] (bindings vs viewBindings) This has been postponed for now until come up with a decent use case
+    -->

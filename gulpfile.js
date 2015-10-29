@@ -23,16 +23,20 @@ var prompt = require('prompt');
 
 
 var docShredder = require('./public/doc-shredder/doc-shredder');
+var exampleZipper = require('./public/_example-zipper/exampleZipper');
 
 var _devguideShredOptions =  {
   examplesDir: './public/docs/_examples',
-  fragmentsDir: './public/docs/_fragments'
+  fragmentsDir: './public/docs/_fragments',
+  zipDir: './public/resources/zips'
 };
 
 var _apiShredOptions =  {
   examplesDir: '../angular/modules/angular2/examples',
-  fragmentsDir: './public/docs/_fragments/_api'
+  fragmentsDir: './public/docs/_fragments/_api',
+  zipDir: './public/resources/zips/api'
 };
+
 
 
 var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
@@ -85,7 +89,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   });
 });
 
-gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs'], function() {
+gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs', '_zip-examples'], function() {
   return buildShredMaps(true);
 });
 
@@ -120,6 +124,11 @@ gulp.task('_shred-clean-api', function(cb) {
 
 gulp.task('_build-shred-maps', function() {
   return build-shred-maps(true);
+});
+
+gulp.task('_zip-examples', function() {
+  exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
+  exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
 });
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
@@ -243,7 +252,7 @@ function buildApiDocs() {
   try {
     var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
     return dgeni.generate().then(function() {
-      return gulp.src('./public/docs/js/latest/api/**/*.*')
+      return gulp.src(['./public/docs/js/latest/api/**/*.*', '!./public/docs/js/latest/api/index.jade'])
         .pipe(gulp.dest('./public/docs/ts/latest/api'));
     })
   } catch(err) {
