@@ -1,5 +1,4 @@
-// #docplaster
-// #docregion start
+// #docregion
 import {Component, bootstrap} from 'angular2/angular2';
 
 @Component({
@@ -16,9 +15,4 @@ export class AppComponent {
   myHero = 'Windstorm';
 }
 
-// #enddocregion start
-/*
-// #docregion start
 bootstrap(AppComponent);
-//#enddocregion start
-*/
