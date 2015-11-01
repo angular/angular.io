@@ -1,13 +1,14 @@
-//**** Referenced in template-syntax and user-input chapters
-// #docplaster
+// NOT EVERYTHING IS NEEDED BY TEMPLATE-SYNTAX CHAPTER
+// Much left-over from support for "User Input" chapter such as
+//   ClickMeComponent, 
+//   KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3, 
+//   LittleTour, LoopbackComponent,
+// TODO: purge extraneous material
 
-// imports formatted for dev guide only
-// #docregion little-tour-of-heroes-app
-import {bootstrap, Component, CORE_DIRECTIVES} from 'angular2/angular2';
- 
-// #enddocregion little-tour-of-heroes-app
 
-import { 
+/// #docplaster
+
+import {bootstrap, Component, CORE_DIRECTIVES,
   Input, Output,
   Directive, 
   ElementRef, EventEmitter,
@@ -93,7 +94,6 @@ class LittleHeroComponent {
   hero: Hero;
 }
 
-// #docregion click-me-component
 @Component({
   selector: 'click-me',
   template: '<button (click)="onClickMe()">Click me</button>'
@@ -103,18 +103,14 @@ class ClickMeComponent {
     alert('You are my hero!')    
   }
 }
-// #enddocregion click-me-component
 
-// #docregion loop-back-component
 @Component({
   selector: 'loop-back',
   template: '<input #box (keyup)="0"> <p>{{box.value}}</p>'
 })
 class LoopbackComponent {
 }
-// #enddocregion loop-back-component
 
-// #docregion key-up-component
 @Component({
   selector: 'key-up',
   template: `
@@ -129,9 +125,7 @@ class KeyUpComponent {
     this.values += event.target.value + ' | ';  
   }
 }
-// #enddocregion key-up-component
 
-// #docregion key-up2-component
 @Component({
   selector: 'key-up2',
   template: `
@@ -146,10 +140,7 @@ class KeyUpComponentV2 {
     this.values += value + ' | ';  
   }
 }
-// #enddocregion key-up2-component
 
-
-// #docregion key-up3-component
 @Component({
   selector: 'key-up3',
   template: `
@@ -161,10 +152,7 @@ class KeyUpComponentV2 {
 class KeyUpComponentV3 {
   values='';
 }
-// #enddocregion key-up3-component
 
-// #docregion little-tour-of-heroes-app
-// #docregion little-tour-of-heroes-component 
 @Component({
   selector: 'little-tour',
   template: `
@@ -185,10 +173,8 @@ class LittleTour {
     }
   }
 }
-// #enddocregion little-tour-of-heroes-component
 
 bootstrap(LittleTour);
-// #enddocregion little-tour-of-heroes-app
 
 @Component({
   selector: 'my-app',
