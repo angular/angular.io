@@ -26,7 +26,7 @@ import {Component, bootstrap, NgFor} from 'angular2/angular2';
 // #docregion mock-heroes
 export class AppComponent {
   title = 'Tour of Heroes';
-  heroes = ['Windstorm', 'Bombasto', 'Magneta, Tornado'];
+  heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
   myHero = this.heroes[0];
 }
 // #enddocregion mock-heroes
