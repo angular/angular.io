@@ -7,7 +7,7 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 
 ## Development Setup
-1. install [nvm](https://www.npmjs.com/package/nvm)
+1. install [nvm](https://github.com/creationix/nvm)
 2. cd into root directory `angular.io/`
 3. make sure you are using the latest node and npm by running `nvm use 4`.
 3. install local packages by running `npm install`
