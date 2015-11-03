@@ -61,5 +61,7 @@ function getDecoratorValues(classDecoratorValues, memberDecoratorName, members) 
     }
   });
 
-  return decoratorValues;
+  if (Object.keys(decoratorValues).length) {
+    return decoratorValues;
+  }
 }
