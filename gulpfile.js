@@ -62,7 +62,7 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: ["public/docs/**/*/**/*" ],
+    files: ["public/docs/**/*" ],
     logFileChanges: true,
     reloadDelay: 500
   });
@@ -83,7 +83,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: ["public/docs/**/*/**/*" ],
+    files: ["public/docs/**/*" ],
     logFileChanges: true,
     reloadDelay: 500
   });
