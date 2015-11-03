@@ -27,6 +27,12 @@ module.exports = function addJadeDataDocsProcessor() {
       var extraDocs = [];
       var modules = [];
 
+      var appDataDoc = {
+        id: 'app-data',
+        docType: 'app-data',
+        data: {}
+      };
+      extraDocs.push(appDataDoc);
 
       /*
       * Create Data for Modules
@@ -54,7 +60,8 @@ module.exports = function addJadeDataDocsProcessor() {
             var dataDoc = {
               name: exportDoc.name + '-' + exportDoc.docType,
               title: exportDoc.name,
-              docType: exportDoc.docType
+              docType: exportDoc.docType,
+              exportDoc: exportDoc
             };
             if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);
             if (exportDoc.originalModule) dataDoc.originalModule = exportDoc.originalModule;
@@ -63,13 +70,13 @@ module.exports = function addJadeDataDocsProcessor() {
           .sortBy('name')
           .value();
 
+          // ADD TO APP DATA DOC
+          appDataDoc.data[doc.id] = modulePageInfo;
 
-
-
-          //COMBINE PAGE DATA
+          // COMBINE WITH INDEX PAGE DATA
           var allPageData = indexPageInfo.concat(modulePageInfo);
 
-          // PUSH DATA TO EXTRA DOCS ARRAY
+          // PUSH JADE DATA DOC TO EXTRA DOCS ARRAY
           extraDocs.push({
             id: doc.id + "-data",
             aliases: [doc.id + "-data"],

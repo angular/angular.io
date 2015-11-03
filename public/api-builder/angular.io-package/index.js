@@ -73,6 +73,12 @@ module.exports = new Package('angular.io', [basePackage])
     pathTemplate: '${originalDoc.path}/_data',
     outputPathTemplate: '${path}.json'
   });
+
+  computePathsProcessor.pathTemplates.push({
+    docTypes: ['app-data'],
+    pathTemplate: '../../../../resources/js/app-data',
+    outputPathTemplate: '${path}.json'
+  });
 })
 
 .config(function(getLinkInfo) {
