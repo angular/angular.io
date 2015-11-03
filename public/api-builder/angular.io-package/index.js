@@ -32,10 +32,6 @@ module.exports = new Package('angular.io', [basePackage])
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
-  // HACK - readFileProcessor.basePath set to point to a local repo location
-  // because the docs-package-processor will
-  // have previously set it to point to angular/angular repo.
-  // needed because the writeFilesProcessor uses the readFilesProcessor's basePath.
   readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
   writeFilesProcessor.outputFolder  = 'js/latest/api';
 })

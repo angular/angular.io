@@ -43,17 +43,11 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
   if (!fs.existsSync(angular_repo_path)) {
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
   }
-  readFilesProcessor.basePath = angular_repo_path;
-  readFilesProcessor.sourceFiles = [
-    { include: 'modules/*/docs/**/*.md', basePath: 'modules' },
-    { include: 'docs/content/**/*.md', basePath: 'docs/content' }
-  ];
-
   readTypeScriptModules.sourceFiles = [
     '*/*.@(js|es6|ts)',
     '*/src/**/*.@(js|es6|ts)'
   ];
-  readTypeScriptModules.basePath = path.resolve(readFilesProcessor.basePath, 'modules');
+  readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
 })
 
 
