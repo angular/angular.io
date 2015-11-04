@@ -2,6 +2,10 @@ var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../docs-package');
 
+var PROJECT_PATH = path.resolve(__dirname, "../../..");
+var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
+var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
+
 module.exports = new Package('angular.io', [basePackage])
 
 .factory(require('./services/renderMarkdown'))
@@ -35,7 +39,7 @@ module.exports = new Package('angular.io', [basePackage])
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
-  readFilesProcessor.basePath = path.resolve(__dirname, "../../docs");
+  readFilesProcessor.basePath = DOCS_PATH;
   writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
 
@@ -76,7 +80,7 @@ module.exports = new Package('angular.io', [basePackage])
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['app-data'],
-    pathTemplate: '../../../../resources/js/app-data',
+    pathTemplate: path.resolve(PUBLIC_PATH, 'resources/js/app-data'),
     outputPathTemplate: '${path}.json'
   });
 })
