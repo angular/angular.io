@@ -21,20 +21,25 @@ var prompt = require('prompt');
 //  1. Think about using runSequence
 //  2. Think about using spawn instead of exec in case of long error messages.
 
+var TOOLS_PATH = './tools';
+var ANGULAR_PROJECT_PATH = '../angular';
+var PUBLIC_PATH = './public';
+var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
+var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 
-var docShredder = require('./public/doc-shredder/doc-shredder');
-var exampleZipper = require('./public/_example-zipper/exampleZipper');
+var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
+var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
 
 var _devguideShredOptions =  {
-  examplesDir: './public/docs/_examples',
-  fragmentsDir: './public/docs/_fragments',
-  zipDir: './public/resources/zips'
+  examplesDir: path.join(DOCS_PATH, '_examples'),
+  fragmentsDir: path.join(DOCS_PATH, '_fragments'),
+  zipDir: path.join(RESOURCES_PATH, 'zips')
 };
 
 var _apiShredOptions =  {
-  examplesDir: '../angular/modules/angular2/examples',
-  fragmentsDir: './public/docs/_fragments/_api',
-  zipDir: './public/resources/zips/api'
+  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples'),
+  fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
+  zipDir: path.join(RESOURCES_PATH, 'zips/api')
 };
 
 
@@ -62,7 +67,7 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: ["public/docs/**/*/**/*" ],
+    files: [path.join(DOCS_PATH, '**/*/**/*')],
     logFileChanges: true,
     reloadDelay: 500
   });
@@ -83,7 +88,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: ["public/docs/**/*/**/*" ],
+    files: [path.join(DOCS_PATH, '**/*/**/*')],
     logFileChanges: true,
     reloadDelay: 500
   });
@@ -98,8 +103,8 @@ gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
 });
 
 gulp.task('build-api-docs', ['_shred-api-examples'], function() {
-  if (!fs.existsSync('../angular')) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve('../angular'));
+  if (!fs.existsSync(ANGULAR_PROJECT_PATH)) {
+    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve(ANGULAR_PROJECT_PATH));
   }
   return buildApiDocs();
 });
@@ -226,14 +231,14 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function apiSourceWatch(postShredAction) {
-  var srcPattern = ['../angular/modules/angular2/src/**/*.*'];
+  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
   watch(srcPattern, function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
     // need to run just build
     buildApiDocs().then(done);
   });
-  var examplesPattern = ['../angular/modules/angular2/examples/**/*.*'];
+  var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
   watch(examplesPattern, function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
@@ -250,11 +255,12 @@ function apiSourceWatch(postShredAction) {
 
 function buildApiDocs() {
   try {
-    var dgeni = new Dgeni([require('./public/api-builder/angular.io-package')]);
+    var dgeni = new Dgeni([require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
     return dgeni.generate().then(function() {
-      return gulp.src(['./public/docs/js/latest/api/**/*.*', '!./public/docs/js/latest/api/index.jade'])
+      // Make a copy of the JS API docs to the TS folder
+      return gulp.src([path.join(DOCS_PATH, 'js/latest/api/**/*.*'), '!' + path.join(DOCS_PATH, 'js/latest/api/index.jade')])
         .pipe(gulp.dest('./public/docs/ts/latest/api'));
-    })
+    });
   } catch(err) {
     console.log(err);
     console.log(err.stack);
