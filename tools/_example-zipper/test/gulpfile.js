@@ -10,13 +10,13 @@ var _outputFolder = '_zip-output';
 gulp.task('help', taskListing);
 
 gulp.task('zipExamples', ['clean'], function() {
-  return exampleZipper.zipExamples("../../docs/_examples", _outputFolder);
+  return exampleZipper.zipExamples("../../../public/docs/_examples", _outputFolder);
 });
 
 gulp.task('clean', function (cb) {
   var cleanPath = path.join(_outputFolder, '**/*.*');
   del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
-    // console.log('Deleted files/folders:\n', paths.join('\n'));
+    console.log('Deleted files/folders:\n', paths.join('\n'));
     cb();
   });
 });
