@@ -62,11 +62,11 @@ function createShredPackage(shredOptions) {
   var options = resolveShredOptions(shredOptions);
 
   initializePackage(pkg)
-    .factory(require('./fileShredder'))
-    .processor(require('./mdWrapperProcessor'))
+    .factory(require('./fileReaders/regionFileReader'))
+    .processor(require('./processors/renderAsMarkdownProcessor'))
 
-    .config(function(readFilesProcessor, fileShredder ) {
-      readFilesProcessor.fileReaders = [ fileShredder];
+    .config(function(readFilesProcessor, regionFileReader) {
+      readFilesProcessor.fileReaders = [regionFileReader];
     })
     // default configs - may be overriden
     .config(function(readFilesProcessor) {
@@ -106,8 +106,8 @@ var createShredMapPackage = function(mapOptions) {
   var options = resolveMapOptions(mapOptions);
 
   initializePackage(pkg)
-    .factory(require('./extractPathsReader'))
-    .processor(require('./shredMapProcessor'))
+    .factory(require('./fileReaders/extractPathsReader'))
+    .processor(require('./processors/shredMapProcessor'))
     .config(function(shredMapProcessor) {
       shredMapProcessor.options = options;
     })
@@ -180,11 +180,12 @@ var createShredMapPackage = function(mapOptions) {
 }
 
 function resolveShredOptions(shredOptions) {
+  var DOCS_FOLDER = '../../public/docs';
   var so =  _.defaults({}, shredOptions, {
     // read files from any subdir under here
-    examplesDir: "./docs/_examples",
+    examplesDir: path.join(DOCS_FOLDER, "_examples"),
     // shredded files get copied here with same subdir structure.
-    fragmentsDir: "./docs/_fragments",
+    fragmentsDir: path.join(DOCS_FOLDER, "_fragments"),
     // whether to include subdirectories when shredding.
     includeSubdirs: true
   });

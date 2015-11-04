@@ -37,8 +37,9 @@ gulp.task('watch', function (cb) {
 gulp.task('map', function() {
   var options = {
     jadeDir: 'test_jade',
-    examplesDir: 'test_source',
+    apiExamplesDir: 'test_source',
     fragmentsDir: 'test_fragments',
+    devguideExamplesDir: 'test_source',
     outputDir: '.'
   }
   return docShredder.buildShredMap(options).then(function(x) {

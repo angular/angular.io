@@ -1,13 +1,13 @@
-var regionExtractor = require('./regionExtractor');
+var regionExtractor = require('../regionExtractor');
 var buildRegionDocs = regionExtractor.buildRegionDocs;
 
 /**
- * @dgService htmlFileShredder
+ * @dgService
  * @description
  */
-module.exports = function fileShredder(log ) {
+module.exports = function regionFileReader(log ) {
   return {
-    name: 'fileShredder',
+    name: 'regionFileReader',
 
     getDocs: function (fileInfo) {
       // log.info("fileShredder processing: " + fileInfo.relativePath);

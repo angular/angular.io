@@ -1,9 +1,9 @@
 /**
- * dgProcessor shredderProcessor
+ * dgProcessor
  * @description
  *
  */
-module.exports = function mdWrapperProcessor(log) {
+module.exports = function renderAsMarkdownProcessor() {
   return {
     $runAfter: ['readFilesProcessor'],
     $runBefore: ['writing-files'],
