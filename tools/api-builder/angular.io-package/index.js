@@ -79,8 +79,8 @@ module.exports = new Package('angular.io', [basePackage])
   });
 
   computePathsProcessor.pathTemplates.push({
-    docTypes: ['app-data'],
-    pathTemplate: path.resolve(PUBLIC_PATH, 'resources/js/app-data'),
+    docTypes: ['json-data'],
+    pathTemplate: path.resolve(PUBLIC_PATH, 'resources/js/${id}'),
     outputPathTemplate: '${path}.json'
   });
 })
