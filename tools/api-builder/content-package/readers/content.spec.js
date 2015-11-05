@@ -1,9 +1,16 @@
-var ngdocFileReaderFactory = require('./ngdoc');
+var mockPackage = require('../mocks/mockPackage');
+var Dgeni = require('dgeni');
 var path = require('canonical-path');
+var _ = require('lodash');
 
-describe('ngdocFileReader', function() {
+describe('contentFileReader', function() {
+  var dgeni, injector, fileReader;
 
-  var fileReader;
+  beforeEach(function() {
+    dgeni = new Dgeni([mockPackage()]);
+    injector = dgeni.configureInjector();
+    fileReader = injector.get('contentFileReader');
+  });
 
   var createFileInfo = function(file, content, basePath) {
     return {
@@ -16,12 +23,6 @@ describe('ngdocFileReader', function() {
       content: content
     };
   };
-
-
-  beforeEach(function() {
-    fileReader = ngdocFileReaderFactory();
-  });
-
 
   describe('defaultPattern', function() {
     it('should match .md files', function() {

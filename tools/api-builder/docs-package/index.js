@@ -10,9 +10,6 @@ var fs = require('fs');
 // Define the dgeni package for generating the docs
 module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, typescriptPackage, linksPackage, gitPackage])
 
-// Register the services and file readers
-.factory(require('./readers/ngdoc'))
-
 // Register the processors
 .processor(require('./processors/convertPrivateClassesToInterfaces'))
 .processor(require('./processors/extractDirectiveClasses'))
@@ -36,9 +33,8 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 })
 
 // Configure file reading
-.config(function(readFilesProcessor, ngdocFileReader, readTypeScriptModules) {
-  readFilesProcessor.fileReaders = [ngdocFileReader];
-  // set the readFilesProcessor base path to point to angular repo.
+.config(function(readTypeScriptModules) {
+
   var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
   // confirm that the angular repo is actually there.
   if (!fs.existsSync(angular_repo_path)) {
@@ -54,6 +50,7 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 
 .config(function(parseTagsProcessor, getInjectables) {
   // We actually don't want to parse param docs in this package as we are getting the data out using TS
+  // TODO: rewire the param docs to the params extracted from TS
   parseTagsProcessor.tagDefinitions.forEach(function(tagDef) {
     if (tagDef.name === 'param') {
       tagDef.docProperty = 'paramData';
@@ -95,29 +92,4 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
     '${ doc.docType }.template.html',
     'common.template.html'
   ];
-})
-
-
-// Configure ids and paths
-.config(function(computeIdsProcessor, computePathsProcessor) {
-
-  computeIdsProcessor.idTemplates.push({
-    docTypes: ['guide'],
-    getId: function(doc) {
-      return doc.fileInfo.relativePath
-                    // path should be relative to `modules` folder
-                    .replace(/.*\/?modules\//, '')
-                    // path should not include `/docs/`
-                    .replace(/\/docs\//, '/')
-                    // path should not have a suffix
-                    .replace(/\.\w*$/, '');
-    },
-    getAliases: function(doc) { return [doc.id]; }
-  });
-
-  computePathsProcessor.pathTemplates.push({
-    docTypes: ['guide'],
-    pathTemplate: '/${id}',
-    outputPathTemplate: 'partials/guides/${id}.html'
-  });
 });
