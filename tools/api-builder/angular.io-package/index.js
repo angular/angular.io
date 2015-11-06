@@ -2,12 +2,15 @@ var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../docs-package');
 var targetPackage = require('../target-package');
+var cheatsheetPackage = require('../cheatsheet-package');
 
 var PROJECT_PATH = path.resolve(__dirname, "../../..");
 var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
+var ANGULAR2_DOCS_PATH = path.resolve(__dirname, '../../../../angular/modules/angular2/docs');
 
-module.exports = new Package('angular.io', [basePackage, targetPackage])
+
+module.exports = new Package('angular.io', [basePackage, targetPackage, cheatsheetPackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
@@ -41,6 +44,11 @@ module.exports = new Package('angular.io', [basePackage, targetPackage])
   readTypeScriptModules.hidePrivateMembers = true;
 
   readFilesProcessor.basePath = DOCS_PATH;
+  readFilesProcessor.sourceFiles = [{
+    basePath: ANGULAR2_DOCS_PATH,
+    include: path.resolve(ANGULAR2_DOCS_PATH, 'cheatsheet/*.md')
+  }];
+
   writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
 
@@ -51,7 +59,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage])
 
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
-  readFilesProcessor.$enabled = false;
   generateNavigationDoc.$enabled = false;
   createOverviewDump.$enabled = false;
 })
