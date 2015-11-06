@@ -127,10 +127,6 @@ gulp.task('_shred-clean-api', function(cb) {
   return delPromise([ cleanPath, '!**/*.ovr.*' ]);
 });
 
-gulp.task('_build-shred-maps', function() {
-  return build-shred-maps(true);
-});
-
 gulp.task('_zip-examples', function() {
   exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
   exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
