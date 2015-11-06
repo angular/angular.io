@@ -1,12 +1,13 @@
 var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../docs-package');
+var targetPackage = require('../target-package');
 
 var PROJECT_PATH = path.resolve(__dirname, "../../..");
 var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
 
-module.exports = new Package('angular.io', [basePackage])
+module.exports = new Package('angular.io', [basePackage, targetPackage])
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))

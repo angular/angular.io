@@ -11,6 +11,7 @@ var Q = require("q");
 var delPromise =  Q.denodeify(del);
 var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
+var Package = require('dgeni').Package;
 var fsExtra = require('fs-extra');
 var fs = fsExtra;
 var exec = require('child_process').exec;
@@ -102,11 +103,14 @@ gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
   return buildShredMaps(true);
 });
 
-gulp.task('build-api-docs', ['_shred-api-examples'], function() {
-  if (!fs.existsSync(ANGULAR_PROJECT_PATH)) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + path.resolve(ANGULAR_PROJECT_PATH));
-  }
-  return buildApiDocs();
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
+
+gulp.task('build-ts-api-docs', ['_shred-api-examples'], function() {
+  return buildApiDocs('ts');
+});
+
+gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
+  return buildApiDocs('js');
 });
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
@@ -119,6 +123,7 @@ gulp.task('_shred-clean-devguide', function(cb) {
 });
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
+  checkAngularProjectPath();
   return docShredder.shred( _apiShredOptions);
 });
 
@@ -232,7 +237,7 @@ function apiSourceWatch(postShredAction) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
     // need to run just build
-    buildApiDocs().then(done);
+    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(done);
   });
   var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
   watch(examplesPattern, function (event, done) {
@@ -249,18 +254,33 @@ function apiSourceWatch(postShredAction) {
 
 }
 
-function buildApiDocs() {
+// Generate the API docs for the specified language, if not specified then it defaults to ts
+function buildApiDocs(targetLanguage) {
+  var ALLOWED_LANGUAGES = ['ts', 'js'];
+  checkAngularProjectPath();
   try {
-    var dgeni = new Dgeni([require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
-    return dgeni.generate().then(function() {
-      // Make a copy of the JS API docs to the TS folder
-      return gulp.src([path.join(DOCS_PATH, 'js/latest/api/**/*.*'), '!' + path.join(DOCS_PATH, 'js/latest/api/index.jade')])
-        .pipe(gulp.dest('./public/docs/ts/latest/api'));
+    // Build a specialized package to generate different versions of the API docs
+    var package = new Package('apiDocs', [require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
+    package.config(function(targetEnvironments, writeFilesProcessor) {
+      ALLOWED_LANGUAGES.forEach(function(target) { targetEnvironments.addAllowed(target); });
+      if (targetLanguage) {
+        targetEnvironments.activate(targetLanguage);
+        writeFilesProcessor.outputFolder  = targetLanguage + '/latest/api';
+      }
     });
+
+    var dgeni = new Dgeni([package]);
+    return dgeni.generate();
   } catch(err) {
     console.log(err);
     console.log(err.stack);
     throw err;
+  }
+
+  function copyApiDocsToJsFolder() {
+    // Make a copy of the JS API docs to the TS folder
+    return gulp.src([path.join(DOCS_PATH, 'ts/latest/api/**/*.*'), '!' + path.join(DOCS_PATH, 'ts/latest/api/index.jade')])
+      .pipe(gulp.dest('./public/docs/js/latest/api'));
   }
 }
 
@@ -443,6 +463,10 @@ function execCommands(cmds, options, cb) {
   });
 }
 
-
+function checkAngularProjectPath() {
+  if (!fs.existsSync(ANGULAR_PROJECT_PATH)) {
+    throw new Error('API related tasks require the angular2 repo to be at ' + path.resolve(ANGULAR_PROJECT_PATH));
+  }
+}
 
 gulp.task('default', ['help']);
