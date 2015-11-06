@@ -33,7 +33,7 @@ class LoopbackComponent {
   selector: 'key-up',
   template: `
     <h4>Give me some keys!</h4>
-    <div><input (keyup)="onKey($event)"><div>
+    <div><input (keyup)="onKey($event)"></div>
     <div>{{values}}</div>
   `
 })
@@ -50,7 +50,7 @@ class KeyUpComponent {
   selector: 'key-up2',
   template: `
     <h4>Give me some more keys!</h4>
-    <div><input #box (keyup)="onKey(box.value)"><div>
+    <div><input #box (keyup)="onKey(box.value)"></div>
     <div>{{values}}</div>
   `
 })
@@ -68,7 +68,7 @@ class KeyUpComponentV2 {
   selector: 'key-up3',
   template: `
     <h4>Type away! Press [enter] when done.</h4>
-    <div><input #box (keyup.enter)="values=box.value"><div>
+    <div><input #box (keyup.enter)="values=box.value"></div>
     <div>{{values}}</div>
   `
 })
