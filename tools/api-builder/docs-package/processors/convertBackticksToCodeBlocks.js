@@ -49,7 +49,7 @@ module.exports = function convertBackticksToCodeBlocks() {
                 // modulo op in next line insures that pad is always a multiple of 2 ( jade whitespace).
                 postPad = postPad.substr(2 + (postPad.length % 2)); // exdent
               }
-              replaceVal = replaceVal + postPad + ':markdown\n';
+              replaceVal = replaceVal + postPad + ':marked\n';
             }
             doc.renderedContent = doc.renderedContent.replace(entireBlock, replaceVal);
             captures = BACKTICK_CAPTURE.exec(doc.renderedContent);

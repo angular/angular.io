@@ -30,7 +30,7 @@ describe('convertBackticksToCodeBlocks', function() {
       'export class TypeScriptClass {\n' +
       '}\n' +
       '\n' +
-      ':markdown\n' +
+      ':marked\n' +
       'postamble\n'
     );
   });

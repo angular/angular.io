@@ -22,14 +22,14 @@ module.exports = function(encodeCodeBlock) {
               newLines.pop();
             } else {
               // wierd case - first expression in str is an @example
-              // in this case the :markdown appear above the str passed in,
+              // in this case the :marked appear above the str passed in,
               // so we need to put 'something' into the markdown tag.
               newLines.push(sp + "."); // '.' is a dummy char
             }
           }
           newLines.push(spMixin + line);
           // after a mixin line we need to reenter markdown.
-          newLines.push(spMixin + ':markdown');
+          newLines.push(spMixin + ':marked');
           isAfterMarkdownTag = true;
         } else {
           if ((!isAfterMarkdownTag) || (line.trim().length > 0)) {

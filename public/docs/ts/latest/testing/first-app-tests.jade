@@ -1,7 +1,7 @@
 include ../../../../_includes/_util-fns
 
-:markdown
-  In this chapter we’ll setup the environment for testing our sample application and write a few easy Jasmine tests of the app’s simplest parts. 
+:marked
+  In this chapter we’ll setup the environment for testing our sample application and write a few easy Jasmine tests of the app’s simplest parts.
   We'll learn:
   - to test one of our application classes
   - why we prefer our test files to be next to their corresponding source files
@@ -10,7 +10,7 @@ include ../../../../_includes/_util-fns
 
 .callout.is-helpful
   header Prior Knowledge
-  :markdown
+  :marked
     The Unit Testing chapters build upon each other. We recommend reading them in order.
     We're also assuming that you're already comfortable with basic Angular 2 concepts and the tools
     we introduced in the [QuickStart](../quickstart.html) and
@@ -18,7 +18,7 @@ include ../../../../_includes/_util-fns
     such as <code>npm</code>, <code>gulp</code>, and <code>live-server</code>.
 
 .l-main-section
-:markdown
+:marked
   ## Create the test-runner HTML
 
   Step away from the Jasmine 101 folder and turn to the root folder of the application that we downloaded in the previous chapter.
@@ -47,7 +47,7 @@ include ../../../../_includes/_util-fns
   We’re picking up right where we left off. All we’ve done is change the title.
 
 .l-main-section
-:markdown
+:marked
   ## Update `package.json` for testing
 
   We’ll assume that the application has `package.json` file that looks more or less like
@@ -61,7 +61,7 @@ pre.prettyprint.lang-bash
 
 .alert.is-important Be sure to install <code>jasmine-core</code> , not <code>jasmine</code>!
 
-:markdown
+:marked
   Let’s make one more change to the `package.json` script commands.
 
   **Open the `package.json` ** and scroll to the `scripts` node. Look for the command named `test`.  Change it to:
@@ -71,7 +71,7 @@ pre.prettyprint.lang-bash
   That command will launch `live-server` and open a browser to the `unit-tests.html` page we just wrote.
 
 .l-main-section
-:markdown
+:marked
   ## First app tests
 
   Believe it or not … we could start testing *some* of our app right away. For example, we can test the `Hero` class:
@@ -135,7 +135,7 @@ pre.prettyprint.lang-bash
   The description should be sufficient to identify the tested application part and its source file. Almost any convention will do as long as you and your team follow it consistently and are never confused.
 
 .l-main-section
-:markdown
+:marked
   ## Run the tests
 
   Open one terminal window and run the watching compiler command: `npm run tsc`
@@ -149,7 +149,7 @@ figure.image-display
 
 
 .l-main-section
-:markdown
+:marked
   ## Critique
 
   Is this `Hero` class even worth testing? It’s essentially a property bag with almost no logic.  Maybe we should have tested the cloning feature. Maybe we should have tested id generation. We didn’t bother because there wasn’t much to learn by doing that.
@@ -161,7 +161,7 @@ figure.image-display
   We need to relocate these tests to a separate file.  Let’s do that next.
 
 .l-main-section
-:markdown
+:marked
   ## Where do tests go?
 
   Some people like to keep their tests in a `tests` folder parallel to the application source folder.
@@ -178,7 +178,7 @@ figure.image-display
   You may put your tests elsewhere if you wish. We’re putting ours inside the app, next to the source files that they test.
 
 .l-main-section
-:markdown
+:marked
   ## First spec file
 
   **Create** a new file, ** `hero.spec.ts` ** in `src/app` next to `hero.ts`.
@@ -187,7 +187,7 @@ figure.image-display
 
 .alert.is-important  All of our unit test files follow this .spec naming pattern.
 
-:markdown
+:marked
   Move the tests we just wrote in`unit-tests.html` to `hero.spec.ts` and convert them from JavaScript into TypeScript:
 
   ```
@@ -230,26 +230,26 @@ figure.image-display
 figure.image-display
   img(src='/resources/images/devguide/first-app-tests/Jasmine-not-running-tests.png' style="width:400px;" alt="Jasmine not running any tests")
 
-:markdown
+:marked
   That’s Jasmine saying “**things are _so_ bad that _I’m not running any tests_.**”
 
   Open the browser’s Developer Tools (F12, Ctrl-Shift-i). There’s an error:
-  
+
 code-example(format="" language="html").
   Uncaught ReferenceError: exports is not defined
 
 .l-main-section
-:markdown
+:marked
   ## Load tests with systemjs
 
-  The immediate cause of the error is the `export` statement in `hero.ts`.  
-  That error was there all along. 
+  The immediate cause of the error is the `export` statement in `hero.ts`.
+  That error was there all along.
   It wasn’t a problem until we tried to `import` the `Hero` class in our tests.
 
-  Our test environment lacks support for module loading.  
+  Our test environment lacks support for module loading.
   Apparently we  can’t simply load our application and test scripts like we do with 3rd party JavaScript libraries.
 
-  We are committed to module loading in our application. 
+  We are committed to module loading in our application.
   Our app will call `import`.  Our tests must do so too.
 
   We add module loading support in four steps:
@@ -296,39 +296,39 @@ figure.image-display
 
 
 .l-main-section
-:markdown
+:marked
   ## Observations
 
   ### System.config
-  System.js demands that we specify a default extension for the filenames that correspond to whatever it is asked to import.  
+  System.js demands that we specify a default extension for the filenames that correspond to whatever it is asked to import.
   Without that default, it would translate an import statement such as `import {Hero} from ‘./here’` to a request for the file named `hero`.
   Not `hero.js`. Just plain `hero`.  Our server error with “404 - not found” because it doesn’t have a file of that name.
 
   Once configured with a default extension of ‘js’,&nbsp;  Systemjs requests `hero.js` which *does* exist and is promptly returned by our server.
 
   ### Asynchronous System.import
-  The call to `System.import` shouldn’t surprise us but it’s asynchronous nature might. 
-  If we ponder this for a moment, we realize that it must be asynchronous because 
+  The call to `System.import` shouldn’t surprise us but it’s asynchronous nature might.
+  If we ponder this for a moment, we realize that it must be asynchronous because
   System.js may have to fetch the corresponding JavaScript file from the server.
-  Accordingly, `System.import` returns a promise and we must wait for that promise to resolve. 
+  Accordingly, `System.import` returns a promise and we must wait for that promise to resolve.
   Only then can Jasmine start evaluating the imported tests.
 
   ### window.onload
-  Jasmine doesn’t have a `start` method.  It wires its own start to the browser window’s `load` event.  
-  That makes sense if we’re loading our tests with script tags. 
+  Jasmine doesn’t have a `start` method.  It wires its own start to the browser window’s `load` event.
+  That makes sense if we’re loading our tests with script tags.
   The browser raises the `load` event when it finishes loading all scripts.
 
-  But we’re not loading test scripts inline anymore. 
-  We’re using the systemjs module loader and it won’t be done until long after the browser raised the `load` event. 
+  But we’re not loading test scripts inline anymore.
+  We’re using the systemjs module loader and it won’t be done until long after the browser raised the `load` event.
   Meanwhile, Jasmine started and ran to completion … with no tests to evaluate … before the import completed.
 
-  So we must wait until the import completes and only then call the window `onLoad` handler. 
+  So we must wait until the import completes and only then call the window `onLoad` handler.
   Jasmine re-starts, this time with our imported test queued up.
 
 .l-main-section
-:markdown
+:marked
   ## What’s Next?
-  We are able to test a part of our application with simple Jasmine tests. 
+  We are able to test a part of our application with simple Jasmine tests.
   The part was a stand-alone class that made no mention or use of Angular.
 
   That’s not rare but it’s not typical either. Most of our application parts make some use of the Angular framework.
