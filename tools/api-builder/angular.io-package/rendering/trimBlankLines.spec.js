@@ -11,8 +11,8 @@ describe('trimBlankLines filter', function() {
     expect(filter.name).toEqual('trimBlankLines');
   });
 
-  it('should remove all empty lines from the start of the string', function() {
-    expect(filter.process('\n\n\nsome text\n\nmore text\n\n'))
-        .toEqual('some text\n\nmore text\n\n');
+  it('should remove empty lines from the start and end of the string', function() {
+    expect(filter.process('\n  \n\nsome text\n  \nmore text\n  \n'))
+        .toEqual('some text\n  \nmore text');
   });
 });
