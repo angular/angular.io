@@ -13,7 +13,7 @@ class FetchJsonPipe {
   transform(dynamic value, [List<dynamic> args]) {
     if (_fetchPromise == null) {
       _fetchPromise = HttpRequest.getString(value).then((String json) {
-        return _fetchedValue = JSON.decode(json);
+        _fetchedValue = JSON.decode(json);
       });
     }
     return _fetchedValue;
