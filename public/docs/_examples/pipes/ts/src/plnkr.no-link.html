@@ -1,0 +1,241 @@
+<html lang="en"><head></head><body><form id="mainForm" method="post" action="http://plnkr.co/edit/?p=preview" target="_self"><input type="hidden" name="files[app/app.ts]" value="import {HeroBirthday as HeroBirthday2} from './hero-birthday';
+import {PowerBooster} from './power-booster';
+import {PowerBoostCalculator} from './power-boost-calculator';
+import {HeroListComponent} from './hero-list-component';
+
+import {bootstrap, Component} from 'angular2/angular2'
+
+@Component({ 
+  selector: 'hero-birthday',
+  template: `<p>The hero's birthday is {{ birthday | date }}</p>`
+})
+export class HeroBirthday {
+  birthday = new Date(1988,3,15); // April 15, 1988
+}
+
+bootstrap(HeroBirthday);
+
+@Component({
+  selector: 'my-hero',
+  template: 'Message: {{delayedMessage | async}}',
+})
+class MyHeroAsyncMessageComponent {
+  delayedMessage:Promise<string> = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('You are my Hero!'), 500);
+  });
+}
+
+// Initial view: &quot;Message: &quot;
+// After 500ms: Message: You are my Hero!&quot;
+
+//// Drives the rest of the pipes chapter examples ///
+
+@Component({ 
+  selector: 'my-app',
+  templateUrl: 'app/app.html',
+  directives:[
+    HeroBirthday2, 
+    PowerBooster, PowerBoostCalculator,
+    MyHeroAsyncMessageComponent,
+    HeroListComponent]
+})
+class AppComponent {
+  birthday = new Date(1988,3,15); // April 15, 1988
+}
+bootstrap(AppComponent);
+  "><input type="hidden" name="files[app/exponential-strength-pipe.ts]" value="import {Pipe} from 'angular2/angular2';
+/* 
+ * Raise the value exponentially
+ * Takes an exponent argument that defaults to 1.
+ * Usage: 
+ *   value | exponentialStrength:exponent
+ * Example:
+ *   {{ 2 |  exponentialStrength:10}}
+ *   formats to: 1024
+*/ 
+@Pipe({
+  name: 'exponentialStrength'
+})
+export class ExponentialStrengthPipe {
+  
+  transform(value:number, args:string[]) : any {
+    return Math.pow(value, parseInt(args[0] || '1', 10));
+  }
+}
+"><input type="hidden" name="files[app/fetch-json-pipe.ts]" value="///<reference path=&quot;./window.extension.d.ts&quot;/>
+
+import {Pipe} from 'angular2/angular2';
+
+@Pipe({
+  name: 'fetch',
+  pure: false
+})
+export class FetchJsonPipe {
+  private fetchedValue:any;
+  private fetchPromise:Promise<any>;
+  transform(value:string, args:string[]):any {
+    if (!this.fetchPromise) {
+      this.fetchPromise = window.fetch(value)
+        .then(result => result.json())
+        .then(json => {
+          this.fetchedValue = json;
+        });
+    }
+
+    return this.fetchedValue;
+  }
+}"><input type="hidden" name="files[app/hero-birthday.ts]" value="import {bootstrap, Component} from 'angular2/angular2'
+@Component({ 
+  selector: 'hero-birthday',
+  template: `
+    <p>The hero's birthday is {{ birthday | date:format }}</p>
+    <button (click)=&quot;toggleFormat()&quot;>Toggle Format</button>
+  ` 
+})
+export class HeroBirthday {
+  birthday = new Date(1988,3,15); // April 15, 1988
+  get format() { return this.toggle ? 'shortDate' : 'fullDate'}
+  toggle = true;
+  toggleFormat() { this.toggle = !this.toggle; }  
+}
+"><input type="hidden" name="files[app/hero-list-component.ts]" value="import {bootstrap, Component, 
+        CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2'
+
+import {FetchJsonPipe} from './fetch-json-pipe'
+
+@Component({
+  selector: 'hero-list',
+  template: `
+    <h4>Heroes from JSON File</h4>
+    
+    <div *ng-for=&quot;#hero of ('heroes.json' | fetch) &quot;>
+      {{hero.name}}
+    </div>
+    
+    <p>Heroes as JSON: 
+    {{'heroes.json' | fetch | json}}
+    </p>
+  `,
+  directives:[CORE_DIRECTIVES],
+  pipes: [FetchJsonPipe]
+})
+export class HeroListComponent { 
+  /* I've got nothing to do ;-) */ 
+}
+"><input type="hidden" name="files[app/power-boost-calculator.ts]" value="import {Component, FORM_DIRECTIVES} from 'angular2/angular2'
+import {ExponentialStrengthPipe} from './exponential-strength-pipe'
+
+@Component({ 
+  selector: 'power-boost-calculator',
+  template: `
+    <h2>Power Boost Calculator</h2>
+    <div>Normal power: <input [(ng-model)]=&quot;power&quot;></div>
+    <div>Boost factor: <input [(ng-model)]=&quot;factor&quot;></div>
+    <p>
+      Super Hero Power: {{power | exponentialStrength: factor}}
+    </p>
+  `,
+  pipes: [ExponentialStrengthPipe],
+  directives: [FORM_DIRECTIVES]
+})
+export class PowerBoostCalculator { 
+  power = 5;
+  factor = 1;
+}
+"><input type="hidden" name="files[app/power-booster.ts]" value="import {Component} from 'angular2/angular2'
+import {ExponentialStrengthPipe} from './exponential-strength-pipe'
+
+@Component({ 
+  selector: 'power-booster',
+  template: `
+    <h2>Power Booster</h2>
+    <p>
+      Super power boost: {{2 | exponentialStrength: 10}}
+    </p>
+  `,
+  pipes: [ExponentialStrengthPipe]
+})
+export class PowerBooster { }
+"><input type="hidden" name="files[app/app.html]" value="<!-- async examples at the top so can see them in action -->
+<my-hero></my-hero>
+
+<hr>
+
+<hero-list></hero-list>
+
+<hr>
+
+<p>The hero's birthday is {{ birthday | date }}</p>
+
+<p>The hero's birthday is {{ birthday | date:&quot;MM/dd/yy&quot; }} </p>
+
+<hr>
+
+<h4>Hero Birthday 2</h4>
+<hero-birthday>loading...</hero-birthday>
+<hr>
+
+
+<p>
+  The chained hero's birthday is
+  {{ birthday | date | uppercase}}
+</p>
+
+<p>
+  The chained hero's birthday is
+  {{ ( birthday | date:'fullDate' ) | uppercase}}
+</p>
+
+<hr>
+
+<power-booster>loading...</power-booster>
+
+<hr>
+
+<power-boost-calculator>loading ..</power-boost-calculator>
+
+"><input type="hidden" name="files[index.html]" value="<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Pipes</title>
+    <script src=&quot;https://rawgithub.com/systemjs/systemjs/0.19.6/dist/system.js&quot;></script>
+    <script src=&quot;https://code.angularjs.org/tools/typescript.js&quot;></script>
+    <script src=&quot;https://code.angularjs.org/2.0.0-alpha.47/angular2.dev.js&quot;></script>
+    <script>
+      System.config({
+        transpiler: 'typescript', 
+        typescriptOptions: { emitDecoratorMetadata: true }, 
+        packages: {'app': {defaultExtension: 'ts'}} 
+      });
+      System.import('app/app');
+    </script>
+  </head>
+
+  <body>
+    <h4>Hero Birthday 1</h4>
+    <hero-birthday>loading...</hero-birthday>
+    <hr>
+    <my-app>loading ...</my-app>
+  </body>
+
+</html>
+"><input type="hidden" name="files[heroes.json]" value="[
+  {&quot;name&quot;: &quot;Windstorm&quot;},
+  {&quot;name&quot;: &quot;Bombasto&quot;},
+  {&quot;name&quot;: &quot;Magneto&quot;},
+  {&quot;name&quot;: &quot;Tornado&quot;}
+]
+"><input type="hidden" name="files[license.md]" value="Copyright 2010-2015 Google, Inc. http://angularjs.org
+
+Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License."><input type="hidden" name="tags[0]" value="angular2"><input type="hidden" name="tags[1]" value="example"><input type="hidden" name="private" value="true"><input type="hidden" name="description" value="Angular 2 Example - Pipes"></form><script>document.getElementById("mainForm").submit();</script></body></html>
