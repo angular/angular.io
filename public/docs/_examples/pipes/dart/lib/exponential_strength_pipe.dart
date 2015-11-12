@@ -1,7 +1,8 @@
 library pipes_examples.exponential_strength_pipe;
 
-import 'package:angular2/angular2.dart';
 import 'dart:math' as math;
+
+import 'package:angular2/angular2.dart';
 
 /*
 * Raise the value exponentially
@@ -21,7 +22,7 @@ class ExponentialStrengthPipe {
     var v = int.parse(value.toString(), onError: (source) => 0);
     var p = args.isEmpty
         ? 1
-        : int.parse(args[0].toString(), onError: (source) => 1);
+        : int.parse(args.first.toString(), onError: (source) => 1);
     return math.pow(v, p);
   }
 }

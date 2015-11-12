@@ -1,7 +1,8 @@
 library pipe_examples.my_hero;
 
-import 'package:angular2/angular2.dart';
 import 'dart:async';
+
+import 'package:angular2/angular2.dart';
 
 @Component(selector: 'my-hero')
 @View(
