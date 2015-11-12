@@ -26,6 +26,7 @@ var TOOLS_PATH = './tools';
 var ANGULAR_PROJECT_PATH = '../angular';
 var PUBLIC_PATH = './public';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
+var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
@@ -67,16 +68,13 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
-    proxy: 'localhost:9000'
+    proxy: 'localhost:9000',
+    reloadDelay: 500
   });
 
-  devGuideExamplesWatch(_devguideShredOptions, function() {
-    browserSync.reload();
-  });
-
-  apiSourceWatch(function() {
-    browserSync.reload();
-  });
+  devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
+  apiSourceWatch(browserSync.reload);
+  gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
 
 });
 
@@ -86,10 +84,10 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({
     proxy: 'localhost:9000',
-    files: [path.join(DOCS_PATH, '**/*/**/*')],
-    logFileChanges: true,
     reloadDelay: 500
   });
+
+  gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
 });
 
 gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs', '_zip-examples'], function() {
