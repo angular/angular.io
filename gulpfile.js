@@ -67,10 +67,7 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
 
   var browserSync = require('browser-sync').create();
   browserSync.init({
-    proxy: 'localhost:9000',
-    files: [path.join(DOCS_PATH, '**/*/**/*')],
-    logFileChanges: true,
-    reloadDelay: 500
+    proxy: 'localhost:9000'
   });
 
   devGuideExamplesWatch(_devguideShredOptions, function() {
@@ -237,7 +234,7 @@ function apiSourceWatch(postShredAction) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
     // need to run just build
-    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(done);
+    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postShredAction);
   });
   var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
   watch(examplesPattern, function (event, done) {
