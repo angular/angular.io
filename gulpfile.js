@@ -250,7 +250,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 
 function apiSourceWatch(postBuildAction) {
   var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
-  watch(srcPattern, function (event, done) {
+  watch(srcPattern, {readDelay: 500}, function (event, done) {
     console.log('API source changed');
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
@@ -263,7 +263,7 @@ function apiExampleWatch(postShredAction) {
   var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
 
-  watch(examplesPattern, function (event, done) {
+  watch(examplesPattern, {readDelay: 500}, function (event, done) {
     console.log('API example changed');
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
@@ -306,7 +306,7 @@ function buildApiDocs(targetLanguage) {
 
 function devGuideExamplesWatch(shredOptions, postShredAction) {
   var pattern = path.join(shredOptions.examplesDir, "**/*.*");
-  watch([pattern], function (event, done) {
+  watch([pattern], { readDelay: 500 }, function (event, done) {
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
     docShredder.shredSingleDir(shredOptions, event.path).then(function () {
