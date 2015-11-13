@@ -44,14 +44,17 @@ var _apiShredOptions =  {
   zipDir: path.join(RESOURCES_PATH, 'zips/api')
 };
 
-
-
 var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
 
 var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
+
+
+// Public tasks
+
+gulp.task('default', ['help']);
 
 gulp.task('help', taskListing.withFilters(function(taskName) {
   var isSubTask = taskName.substr(0,1) == "_";
@@ -62,43 +65,28 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
+  watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
+});
 
-  // execCommands(['harp server'], {}, cb);
-  execCommands(['npm run harp -- server .'], {}, cb);
+gulp.task('serve-and-sync-api-docs', ['build-docs'], function (cb) {
+  watchAndSync({apiDocs: true, apiExamples: true}, cb);
+});
 
-  var browserSync = require('browser-sync').create();
-  browserSync.init({
-    proxy: 'localhost:9000',
-    reloadDelay: 500
-  });
-
-  devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
-  apiSourceWatch(browserSync.reload);
-  gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
-
+gulp.task('serve-and-sync-devGuide', ['build-docs'], function (cb) {
+  watchAndSync({devGuide: true}, cb);
 });
 
 gulp.task('build-and-serve', ['build-docs'], function (cb) {
-  execCommands(['npm run harp -- server .'], {}, cb);
-
-  var browserSync = require('browser-sync').create();
-  browserSync.init({
-    proxy: 'localhost:9000',
-    reloadDelay: 500
-  });
-
-  gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
+  watchAndSync({localFiles: true}, cb);
 });
 
-gulp.task('build-docs', ['_shred-devguide-examples', 'build-api-docs', '_zip-examples'], function() {
-  return buildShredMaps(true);
-});
+gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', '_zip-examples']);
+
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
   return buildShredMaps(true);
 });
-
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
 
 gulp.task('build-ts-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('ts');
@@ -108,29 +96,9 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
-gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
-  return docShredder.shred( _devguideShredOptions);
-});
 
-gulp.task('_shred-clean-devguide', function(cb) {
-  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
-});
 
-gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
-  checkAngularProjectPath();
-  return docShredder.shred( _apiShredOptions);
-});
 
-gulp.task('_shred-clean-api', function(cb) {
-  var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
-});
-
-gulp.task('_zip-examples', function() {
-  exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
-  exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
-});
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
@@ -195,6 +163,64 @@ gulp.task('check-deploy', ['build-docs'], function() {
   });
 });
 
+
+gulp.task('test-api-builder', function (cb) {
+  execCommands(['npm run test-api-builder'], {}, cb);
+});
+
+
+
+
+// Internal tasks
+
+gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
+  return docShredder.shred( _devguideShredOptions);
+});
+
+gulp.task('_shred-clean-devguide', function(cb) {
+  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
+  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
+});
+
+gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
+  checkAngularProjectPath();
+  return docShredder.shred( _apiShredOptions);
+});
+
+gulp.task('_shred-clean-api', function(cb) {
+  var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
+  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
+});
+
+gulp.task('_zip-examples', function() {
+  exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
+  exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
+});
+
+
+// Helper functions
+
+function watchAndSync(options, cb) {
+
+  execCommands(['npm run harp -- server .'], {}, cb);
+
+  var browserSync = require('browser-sync').create();
+  browserSync.init({proxy: 'localhost:9000'});
+
+  if (options.devGuide) {
+    devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
+  }
+  if (options.apiDocs) {
+    apiSourceWatch(browserSync.reload);
+  }
+  if (options.apiExamples) {
+    apiExampleWatch(browserSync.reload);
+  }
+  if (options.localFiles) {
+    gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
+  }
+}
+
 // returns a promise;
 function askDeploy() {
 
@@ -214,10 +240,6 @@ function askDeploy() {
 }
 
 
-gulp.task('test-api-builder', function (cb) {
-  execCommands(['npm run test-api-builder'], {}, cb);
-});
-
 function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   return fileNames.filter(function(fileName) {
     return !excludeMatchers.some(function(excludeMatcher) {
@@ -226,27 +248,30 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
   });
 }
 
-function apiSourceWatch(postShredAction) {
+function apiSourceWatch(postBuildAction) {
   var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
   watch(srcPattern, function (event, done) {
+    console.log('API source changed');
     console.log('Event type: ' + event.event); // added, changed, or deleted
     console.log('Event path: ' + event.path); // The path of the modified file
-    // need to run just build
-    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postShredAction);
-  });
-  var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
-  watch(examplesPattern, function (event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
-    // need to run shredder
-    var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*');
-    return delPromise([ cleanPath, '!**/*.ovr.*' ]).then(function() {
-      return docShredder.shred(_apiShredOptions);
-    }).then(function() {
-      postShredAction && postShredAction();
-    });
-  });
 
+    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postBuildAction);
+  });
+}
+
+function apiExampleWatch(postShredAction) {
+  var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
+  var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
+
+  watch(examplesPattern, function (event, done) {
+    console.log('API example changed');
+    console.log('Event type: ' + event.event); // added, changed, or deleted
+    console.log('Event path: ' + event.path); // The path of the modified file
+
+    return delPromise(cleanPath).then(function() {
+      return docShredder.shred(_apiShredOptions);
+    }).then(postShredAction);
+  });
 }
 
 // Generate the API docs for the specified language, if not specified then it defaults to ts
@@ -464,4 +489,3 @@ function checkAngularProjectPath() {
   }
 }
 
-gulp.task('default', ['help']);
