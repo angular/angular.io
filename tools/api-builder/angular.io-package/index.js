@@ -17,6 +17,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .processor(require('./processors/filterUnwantedDecorators'))
 .processor(require('./processors/extractDirectiveClasses'))
 .processor(require('./processors/matchUpDirectiveDecorators'))
+.processor(require('./processors/filterMemberDocs'))
 
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
