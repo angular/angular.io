@@ -85,9 +85,6 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
     variableEnd: '$}'
   };
 
-  templateFinder.templateFolders
-      .unshift(path.resolve(__dirname, 'templates'));
-
   templateFinder.templatePatterns = [
     '${ doc.template }',
     '${ doc.id }.${ doc.docType }.template.html',
