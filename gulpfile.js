@@ -214,7 +214,7 @@ function watchAndSync(options, cb) {
     apiSourceWatch(browserSync.reload);
   }
   if (options.apiExamples) {
-    apiExampleWatch(browserSync.reload);
+    apiExamplesWatch(browserSync.reload);
   }
   if (options.localFiles) {
     gulp.watch(NOT_API_DOCS_GLOB, browserSync.reload);
@@ -255,12 +255,13 @@ function apiSourceWatch(postBuildAction) {
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
 
-    Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postBuildAction);
+    return Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postBuildAction);
   });
 }
 
-function apiExampleWatch(postShredAction) {
-  var examplesPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/*.*')];
+function apiExamplesWatch(postShredAction) {
+  var examplesPattern =
+    path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/!(node_modules)/*.*');
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
 
   watch(examplesPattern, {readDelay: 500}, function (event, done) {
@@ -273,6 +274,18 @@ function apiExampleWatch(postShredAction) {
     }).then(postShredAction);
   });
 }
+
+function devGuideExamplesWatch(shredOptions, postShredAction) {
+  var pattern = path.join(shredOptions.examplesDir, "**/!(node_modules)/**/*");
+  watch(pattern, { readDelay: 500 }, function (event, done) {
+    gutil.log('Dev Guide example changed')
+    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event path: ' + event.path); // The path of the modified file
+    return docShredder.shredSingleDir(shredOptions, event.path).then(postShredAction);
+  });
+}
+
+
 
 // Generate the API docs for the specified language, if not specified then it defaults to ts
 function buildApiDocs(targetLanguage) {
@@ -303,18 +316,6 @@ function buildApiDocs(targetLanguage) {
       .pipe(gulp.dest('./public/docs/js/latest/api'));
   }
 }
-
-function devGuideExamplesWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.examplesDir, "**/*.*");
-  watch([pattern], { readDelay: 500 }, function (event, done) {
-    gutil.log('Event type: ' + event.event); // added, changed, or deleted
-    gutil.log('Event path: ' + event.path); // The path of the modified file
-    docShredder.shredSingleDir(shredOptions, event.path).then(function () {
-      postShredAction && postShredAction();
-    });
-  });
-}
-
 
 function buildShredMaps(shouldWrite) {
   var options = {
