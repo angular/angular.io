@@ -58,7 +58,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
   generateNavigationDoc.$enabled = false;
-  //createOverviewDump.$enabled = false;
 })
 
 

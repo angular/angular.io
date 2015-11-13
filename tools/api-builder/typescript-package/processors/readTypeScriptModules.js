@@ -126,17 +126,6 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
             }
           }
 
-          // NotYetDocumented means that no top level comments and no member level comments
-          var notYetDocumented = exportDoc.content.trim().length == 0;
-          exportDoc.notYetDocumented = notYetDocumented && exportDoc.members.every(function(member) {
-            var content = member.content.trim();
-            return content.length == 0;
-          });
-
-          if (exportDoc.notYetDocumented) {
-            log.warn(createDocMessage("Not yet documented", exportDoc));
-          }
-
           if (sortClassMembers) {
             exportDoc.members.sort(function(a, b) {
               if (a.name > b.name) return 1;
