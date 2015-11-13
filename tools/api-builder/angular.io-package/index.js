@@ -48,8 +48,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     basePath: ANGULAR2_DOCS_PATH,
     include: path.resolve(ANGULAR2_DOCS_PATH, 'cheatsheet/*.md')
   }];
-
-  writeFilesProcessor.outputFolder  = 'js/latest/api';
 })
 
 .config(function(getLinkInfo) {
@@ -60,7 +58,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
   // Clear out unwanted processors
   generateNavigationDoc.$enabled = false;
-  createOverviewDump.$enabled = false;
+  //createOverviewDump.$enabled = false;
 })
 
 
