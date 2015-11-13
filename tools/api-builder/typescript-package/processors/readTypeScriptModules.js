@@ -142,10 +142,12 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
 
   function createModuleDoc(moduleSymbol, basePath) {
     var id = moduleSymbol.name.replace(/^"|"$/g, '');
+    var name = id.split('/').pop();
     var moduleDoc = {
       docType: 'module',
+      name: name,
       id: id,
-      aliases: [id],
+      aliases: [id, name],
       moduleTree: moduleSymbol,
       content: getContent(moduleSymbol),
       exports: [],
