@@ -113,10 +113,10 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
     sha = argv.sha;
     messageSuffix = ' on commit: ' + (argv.sha.length ? argv.sha : '[last commit]');
   } else {
-    console.log('git-changed-examples may be called with either an "--sha" argument like this:');
-    console.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
-    console.log('or with an "--after" argument like this')
-    console.log('   gulp git-changed-examples --after="August 1, 2015"');
+    gutil.log('git-changed-examples may be called with either an "--sha" argument like this:');
+    gutil.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
+    gutil.log('or with an "--after" argument like this')
+    gutil.log('   gulp git-changed-examples --after="August 1, 2015"');
     return;
   }
   var jadeShredMap;
@@ -127,39 +127,39 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
     } else if (sha) {
       return getChangedExamples(sha);
     } else {
-      console.log('git-changed-examples may be called with either an "--sha" argument like this:');
-      console.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
-      console.log('or with an "--after" argument like this')
-      console.log('   gulp git-changed-examples --after="August 1, 2015"');
+      gutil.log('git-changed-examples may be called with either an "--sha" argument like this:');
+      gutil.log('   gulp git-changed-examples --sha=4d2ac96fa247306ddd2d4c4e0c8dee2223502eb2');
+      gutil.log('or with an "--after" argument like this')
+      gutil.log('   gulp git-changed-examples --after="August 1, 2015"');
     }
   }).then(function(examplePaths) {
     examplePaths = filterOutExcludedPatterns(examplePaths, _excludeMatchers);
-    console.log('\nExamples changed ' + messageSuffix);
-    console.log(examplePaths)
-    console.log("\nJade files affected by changed example files " + messageSuffix);
+    gutil.log('\nExamples changed ' + messageSuffix);
+    gutil.log(examplePaths)
+    gutil.log("\nJade files affected by changed example files " + messageSuffix);
     var jadeExampleMap = jadeShredMapToJadeExampleMap(jadeShredMap, examplePaths);
-    console.log(JSON.stringify(jadeExampleMap, null, "  "));
-    console.log("-----");
+    gutil.log(JSON.stringify(jadeExampleMap, null, "  "));
+    gutil.log("-----");
   }).catch(function(err) {
-    console.log(err);
+    gutil.log(err);
     throw err;
   });
 });
 
 gulp.task('check-deploy', ['build-docs'], function() {
-  console.log('running harp compile...');
+  gutil.log('running harp compile...');
   return execPromise('npm run harp -- compile . ./www', {}).then(function() {
     execPromise('npm run live-server ./www');
     return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
-      console.log('deploying...');
+      gutil.log('deploying...');
       return execPromise('firebase deploy');
     } else {
       return ['Not deploying'];
     }
   }).then(function(s) {
-    console.log(s.join(''));
+    gutil.log(s.join(''));
   });
 });
 
@@ -251,9 +251,9 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 function apiSourceWatch(postBuildAction) {
   var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
   watch(srcPattern, {readDelay: 500}, function (event, done) {
-    console.log('API source changed');
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
+    gutil.log('API source changed');
+    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event path: ' + event.path); // The path of the modified file
 
     Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postBuildAction);
   });
@@ -264,9 +264,9 @@ function apiExampleWatch(postShredAction) {
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
 
   watch(examplesPattern, {readDelay: 500}, function (event, done) {
-    console.log('API example changed');
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
+    gutil.log('API example changed');
+    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event path: ' + event.path); // The path of the modified file
 
     return delPromise(cleanPath).then(function() {
       return docShredder.shred(_apiShredOptions);
@@ -292,8 +292,8 @@ function buildApiDocs(targetLanguage) {
     var dgeni = new Dgeni([package]);
     return dgeni.generate();
   } catch(err) {
-    console.log(err);
-    console.log(err.stack);
+    gutil.log(err);
+    gutil.log(err.stack);
     throw err;
   }
 
@@ -307,8 +307,8 @@ function buildApiDocs(targetLanguage) {
 function devGuideExamplesWatch(shredOptions, postShredAction) {
   var pattern = path.join(shredOptions.examplesDir, "**/*.*");
   watch([pattern], { readDelay: 500 }, function (event, done) {
-    console.log('Event type: ' + event.event); // added, changed, or deleted
-    console.log('Event path: ' + event.path); // The path of the modified file
+    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event path: ' + event.path); // The path of the modified file
     docShredder.shredSingleDir(shredOptions, event.path).then(function () {
       postShredAction && postShredAction();
     });
@@ -389,7 +389,7 @@ function getChangedExamplesForCommit(commit, relativePath) {
         if (patch.isAdded() || patch.isModified) {
           var filePath = path.normalize(patch.newFile().path());
           var isExample = filePath.indexOf(relativePath) >= 0;
-          // console.log(filePath + " isExample: " + isExample);
+          // gutil.log(filePath + " isExample: " + isExample);
           if (isExample) {
             filePaths.push(filePath);
           }
