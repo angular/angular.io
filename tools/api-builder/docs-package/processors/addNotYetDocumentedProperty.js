@@ -8,16 +8,16 @@ module.exports = function addNotYetDocumentedProperty(EXPORT_DOC_TYPES, log, cre
         if (EXPORT_DOC_TYPES.indexOf(doc.docType) === -1) return;
 
         // NotYetDocumented means that no top level comments and no member level comments
-        doc.notYetDocumented = doc.description.trim().length == 0;
+        doc.notYetDocumented = notYetDocumented(doc);
 
         if (doc.constructorDoc) {
-          doc.constructorDoc.notYetDocumented = doc.constructorDoc.description.trim().length == 0;
+          doc.constructorDoc.notYetDocumented = notYetDocumented(doc.constructorDoc);
           doc.notYetDocumented = doc.notYetDocumented && doc.constructorDoc.notYetDocumented;
         }
 
         if (doc.members) {
           doc.members.forEach(function(member) {
-            member.notYetDocumented = member.description.trim().length == 0;
+            member.notYetDocumented = notYetDocumented(member);
             doc.notYetDocumented = doc.notYetDocumented && member.notYetDocumented;
           });
         }
@@ -31,3 +31,7 @@ module.exports = function addNotYetDocumentedProperty(EXPORT_DOC_TYPES, log, cre
     }
   };
 };
+
+function notYetDocumented(doc) {
+  return !doc.noDescription && doc.description.trim().length == 0;
+}

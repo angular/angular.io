@@ -101,4 +101,45 @@ describe('addNotYetDocumentedProperty', function() {
     expect(a1.notYetDocumented).toBeFalsy();
     expect(b1.notYetDocumented).toBeTruthy();
   });
+
+
+  it('should not mark documents explicity tagged as `@noDescription`', function() {
+    var a, a1, a2, b, b1, b2, c, c1, c2;
+    var docs = [
+      a = {
+        id: 'a', docType: 'interface', description: 'some content',
+        members: [
+          a1 = { id: 'a1', description: 'some content' },
+          a2 = { id: 'a2', description: '', noDescription: true }
+        ]
+      },
+      b = {
+        id: 'b', docType: 'class', description: '',
+        members: [
+          b1 = { id: 'b1', description: 'some content' },
+          b2 = { id: 'b2', description: '', noDescription: true }
+        ]
+      },
+      c = {
+        id: 'c', docType: 'class', description: '', noDescription: true,
+        members: [
+          c1 = { id: 'c1', description: '' },
+          c2 = { id: 'c2', description: '' }
+        ]
+      },
+    ];
+
+    processor.$process(docs);
+
+    expect(a.notYetDocumented).toBeFalsy();
+    expect(b.notYetDocumented).toBeFalsy();
+    expect(c.notYetDocumented).toBeFalsy();
+
+    expect(a1.notYetDocumented).toBeFalsy();
+    expect(a2.notYetDocumented).toBeFalsy();
+    expect(b1.notYetDocumented).toBeFalsy();
+    expect(b2.notYetDocumented).toBeFalsy();
+    expect(c1.notYetDocumented).toBeTruthy();
+    expect(c2.notYetDocumented).toBeTruthy();
+  });
 });

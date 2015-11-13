@@ -28,6 +28,7 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 .config(function(parseTagsProcessor) {
   parseTagsProcessor.tagDefinitions.push({ name: 'internal', transforms: function() { return true; } });
   parseTagsProcessor.tagDefinitions.push({ name: 'syntax' });
+  parseTagsProcessor.tagDefinitions.push({ name: 'noDescription', transforms: function() { return true; } });
 })
 
 .config(function(renderDocsProcessor, versionInfo) {
