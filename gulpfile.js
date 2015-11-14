@@ -1,5 +1,4 @@
 var gulp = require('gulp');
-var watch = require('gulp-watch');
 var gutil = require('gulp-util');
 var taskListing = require('gulp-task-listing');
 var path = require('canonical-path');
@@ -250,7 +249,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 
 function apiSourceWatch(postBuildAction) {
   var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
-  watch(srcPattern, {readDelay: 500}, function (event, done) {
+  gulp.watch(srcPattern, {readDelay: 500}, function (event, done) {
     gutil.log('API source changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
@@ -260,12 +259,14 @@ function apiSourceWatch(postBuildAction) {
 }
 
 function apiExamplesWatch(postShredAction) {
-  var examplesPattern = path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**');
+  var examplesPath = path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**');
+  var includePattern = path.join(examplesPath, '**/*.*');
+  var excludePattern = '!' + path.join(examplesPath, '**/node_modules/**/*.*');
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
 
-  watch([examplesPattern, '!' + examplesPattern + '/node_modules/**'], {readDelay: 500}, function (event, done) {
+  gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
     gutil.log('API example changed');
-    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
 
     return delPromise(cleanPath).then(function() {
@@ -275,10 +276,11 @@ function apiExamplesWatch(postShredAction) {
 }
 
 function devGuideExamplesWatch(shredOptions, postShredAction) {
-  var examplesPattern = path.join(shredOptions.examplesDir);
-  watch([examplesPattern, '!' + examplesPattern + '/node_modules/**'], {readDelay: 500}, function (event, done) {
+  var includePattern = path.join(shredOptions.examplesDir, '**/*.*');
+  var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
+  gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
-    gutil.log('Event type: ' + event.event); // added, changed, or deleted
+    gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
     return docShredder.shredSingleDir(shredOptions, event.path).then(postShredAction);
   });
