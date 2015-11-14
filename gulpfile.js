@@ -260,11 +260,10 @@ function apiSourceWatch(postBuildAction) {
 }
 
 function apiExamplesWatch(postShredAction) {
-  var examplesPattern =
-    path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**/!(node_modules)/*.*');
+  var examplesPattern = path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**');
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
 
-  watch(examplesPattern, {readDelay: 500}, function (event, done) {
+  watch([examplesPattern, '!' + examplesPattern + '/node_modules/**'], {readDelay: 500}, function (event, done) {
     gutil.log('API example changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
@@ -276,8 +275,8 @@ function apiExamplesWatch(postShredAction) {
 }
 
 function devGuideExamplesWatch(shredOptions, postShredAction) {
-  var pattern = path.join(shredOptions.examplesDir, "**/!(node_modules)/**/*");
-  watch(pattern, { readDelay: 500 }, function (event, done) {
+  var examplesPattern = path.join(shredOptions.examplesDir);
+  watch([examplesPattern, '!' + examplesPattern + '/node_modules/**'], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
