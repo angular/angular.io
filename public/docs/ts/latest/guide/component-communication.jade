@@ -53,14 +53,196 @@ include ../../../../_includes/_util-fns
   
   ## #1: Building the prototype application
   
+  First, let's create a prototype application with the components that provide a starting point to discuss the inter-component communication scenarios. 
+  When the basic Hero Job Board application will be completed, it will display a simple UI:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/app-ui-snapshot.png" alt="UI in action")
+  
+:marked
+  There are several ways we can decompose the app according to the UI. Two components offer themselves instantly as you take a look at the UI: 
+  one for the heros' control panel, and antoher that represents the Hero Job Board. We'll uses these components, and separate a third component 
+  that represents the application itself:
+
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/component-hierarchy.png" alt="Component hierarchy")
+
+:marked
+  * `HeroJobApp` represents the main component of the application. We might have choosen `HeroJobBoard` as the main app component, 
+  but separating `HeroJobApp` provides a few benefits:
+    * We can use the same simple structure to define the HTML markup (`index.html`) and the main app component (`app.ts`), as we used in previous
+    exercises, and keep them intact while we carry on adding new functionality to the app.
+    * If we intend to add headers, footers, toolbars, or whatever other layout elements to the main app, we do not need to touch `HeroJobBoard`.
+    Instead, we can modify `HeroJobApp` accordingly.
+  * `HeroJobBoard` is the parent component that co-ordinates the workflow, and manages its children.
+  * `InvitedHero` represents the control panel of heroes, each hero has its own `InvitedHero` instance to be notified about the job, 
+  and be able to opt to take the job. Evidently, `HeroJobBoard` has zero, one, or more `InvitedHero` children.
+  
+  ### Folder structure
+  
+  We follow the same folder structure as we used in previous chapter. After building the Hero Job Board app, the folder structure will look like this:
+  
+  ```
+  component-hierarchy
+  ├── node_modules
+  ├── src
+  │    ├── app
+  │    |    ├── app.ts
+  │    |    └── (other .ts files)
+  │    ├── index.html
+  │    └── tsconfig.json
+  └── package.json
+  ```
+  
+  ### Creating and assembling the components
+  Let's create an `index.html` file within the `src` folder, which follows the pattern we already learned: 
+  
++makeExample('component-communication/ts/component-hierarchy/src/index.html', null, 'index.html', {blk: /(&lt;hero-job-app.*&gt;)/g})
+  
+:marked
+    As the markup indicates, the `<hero-job-app>` element represents the main application component. The `app.ts` file in the `app` 
+    folder specifies the `HeroJobApp` component, and bootstraps the application using it as the main component. To allow `HeroJobApp` 
+    to understand that `<hero-job-board>` is a component, we add `HeroJobBoard` to the `directives` annotation property.
+  
++makeExample('component-communication/ts/component-hierarchy/src/app/app.ts', null, 'app.ts', {pnk: /(&lt;hero-job-board&gt;)/g, blk: /(\[HeroJobBoard])/g})
+
+:marked
+  The lion's share of the work is carried out by the `HeroJobBoard` component (`hero-job-board.ts`), which utilizes the 
+  `InvitedHero` component, and the `Hero` data model class:
+  
++makeExample('component-communication/ts/component-hierarchy/src/app/hero-job-board.ts', "imports", 'hero-job-board.ts (imports)')
+
+:marked
+  The template specification in the component annotation includes the `<invited-hero>` elements that references to the corresponding child components:
+  
++makeExample('component-communication/ts/component-hierarchy/src/app/hero-job-board.ts', "annotations", 'hero-job-board.ts (component annotation)', {pnk: /(&lt;invited-hero.*&gt;)/g, blk: /(InvitedHero)/g})
+
+:marked
+  To let `HeroJobBoard` understand that the `<hero-job-board>` element is managed by the `InvitedHero` component, we add it to the `directives` 
+  collection of the `@Component` annotation.
+.callout.is-important
+  header Do not let you distract by CSS
+  :marked
+    To create a UI that allows to visualize the components of the app, a few CSS style rules are applied, but they do not play any role in 
+    implementing the application logic. Please, do not let them distract you from the gist.
+
+.l-main.section
+:marked
+  `HeroJobBoard` utilizes the `*ng-for` directive to set up the prototype UI with fake data defined in the component body.
+  This directive is used to bind the collection of responding and invited heroes to the UI.
+  
++makeExample('component-communication/ts/component-hierarchy/src/app/hero-job-board.ts', "component", 'hero-job-board.ts (component body)', {pnk: /(respondingHeroes|invitedHeroes)/g})
+
+:marked
+  As you already learned in the [displaying data](./displaying-data.html) chapter, one-way data binding is used display 
+  this information. Both `respondingHeroes` and `invitedHeros` use a collection of `Hero` instances:
+  
++makeExample('component-communication/ts/component-hierarchy/src/app/hero.ts', null, 'hero.ts')
+
+:marked
+  The person in need invites heroes to apply for the job. When a hero is in this list, he'll be notified about the job request.
+  To demonstrate component communication, we display the control panels of each hero. The component template is pretty simple, 
+  the `styles` applied add only cosmetics to the UI:
+   
++makeExample('component-communication/ts/component-hierarchy/src/app/invited-hero.ts', null, 'invited-hero.ts')
+
+:marked
+  At this point we have all the three components the build up our app. When the app is bootstrapped, Angular instantiates the `HeroJobApp` component. 
+  `HeroJobApp` nests a single instance of `HeroJobBoard`, and so the framework instantiates it, and marks it as a child of the `HeroJobApp`. 
+  The `HeroJobBoard` component nests as many `InvitedHero` instances, as are initiated in the `HeroJobBoard`'s `invitedHeros` propery. 
+  Each `InvitedHero` instances have the same parent, the single instance of `HeroJobBoard`, and implicitly these instances are the children of `HeroJobBoard`.
+  This figure indicates the relationship of component instances, arrows point toward the parent:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/parent-children.png" alt="Parent and its children")
+  
+:marked
+  When we run the app, the prototype UI displays all components, marking component boundaries with gray borders. Instead of data, only placeholders are shown.
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/prototype-ui.png" alt="Parent and its children")
+  
+:marked
+  ## #2: Inviting heroes &mdash; parent to child communication with data binding
+  
+  Let's start turning the prototype into a real application. In this scenario, we'll implement the functionality behind the **Invite heros** button.
+  As users, we want to see no Hero Job Board panels in the UI, unless we click **Invite heroes**. As a result of this click, we want each hero panel 
+  to be displayed with an indication that heroes are invited, but have not received any job request yet.
+  
+  We are going to use data binding from `HeroJobBoard` (parent) to each `InvitedHero` (child). The key of this method is that we define an input property
+  in the child component, which can be accessed outside from it &mdash; implicitly in its parent, too. In the template definition of the parent, we can bind 
+  an expression to the child component's property. As the binding expression changes, the child property does to, accordingly.
+  
+  In this very scenario, we create a `hero` input property for `InvitedHero` by decorating the property with the `@Input()` annotation:
+
++makeExample('component-communication/ts/invite-heroes/src/app/invited-hero.ts', 'input-binding', 'invited-hero.ts', {pnk: /(@Input\(\))/g})
+
+:marked
+  Within the template definition of `InvitedHero`, we can use the `hero` property to display data, ie. the name of the hero:
+  
++makeExample('component-communication/ts/invite-heroes/src/app/invited-hero.ts', 'invite-template', 'invited-hero.ts', {pnk: /({{hero.name}})/g})
+
+:marked
+  We bind the value of the `hero` local variable (as specified in `*ng-for='#hero of invitedHeroes'`) in `HeroJobBoard`'s template to the `hero` property 
+  of `InvitedHero` (with the `[hero]=hero` assignment). This template shows, too, that the `inviteAll()` method is invoked when the user clicks the 
+  **Invite heroes** button:
+   
++makeExample('component-communication/ts/invite-heroes/src/app/hero-job-board.ts', 'invite-template', 'hero-job-board.ts', {pnk: /(inviteAllHeroes\(\)|\[hero\])/g})
+
+:marked
+  `inviteAllHeroes` simply sets the content of `invitedHeroes` to the list of heroes, and clears the content of `respondingHeroes`:
+  
++makeExample('component-communication/ts/invite-heroes/src/app/hero-job-board.ts', 'invite-heroes', 'hero-job-board.ts', {blk: /(invitedHeroes|inviteAllHeroes\(\))/g})
+
+:marked
+  With these changes, we completed the goal of this scenario. When users start the app, only the Hero Job Board panel is visible, but after clicking the
+  invitation button, heroes are ready to listen to job requests &mdash; as their names in the panels indicate:
+
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/heroes-invited-ui.png" alt="Heroes are invited")
+  
+.alert.is-critical
+  :marked
+    **Always include the parenthesis!** Always use `@Input()`. It's easy to forget the parentheses. Our application will fail mysteriously if we do.
+:marked
+.l-main.section
+:marked
+  ## #3: Announcing a job &mdash; parent to child communication with multiple data binding
+  
   _Content_
   
-  ## #2: Inviting heroes: parent to child communication with data binding
+  ## #4: A hero takes the job &mdash; child holds a direct reference to parent &mdash; antipattern
   
   _Content_
   
-  ## #3: Announcing a job: parent to child communication with multiple data binding
+  ## #5: A hero takes the job &mdash; child to parent communication with events
+  
+  _Content _
+  
+  ## #6: Refactoring communication to an intermediary service
   
   _Content_
   
-  _To be continued..._
+  ## #7: Assigning the job to a hero &mdash; extending the intermediary service
+  
+  _Content_
+  
+  ## #8: A mailcious hero steals the job &mdash; issues with multiple facades
+  
+  _Content_
+  
+  ## #9: Preventing stealth &mdash; using multiple facades
+  
+  _Content_
+  
+  ## #10: Broadcasting messages &mdash; parent and child communicates with an unrelated component
+  
+  _Content_
+  
+  ## #11: Message Board &mdash; receiving messages from an unrelated component
+  
+  _Content_
+  
+  ## Summary
+  
+  _Content_
