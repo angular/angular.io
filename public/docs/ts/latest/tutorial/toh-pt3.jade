@@ -1,0 +1,369 @@
+include ../../../../_includes/_util-fns
+
+.l-main-section
+  :marked
+    # Shared Components and Services
+    Our app is growing. 
+    Use cases are flowing in for reusing components, passing data to components, sharing the hero data, and preparing to retrieve the data asynchronously via a promise.
+  
+.l-main-section
+  :marked
+    ## Reviewing Where We Left Off
+    Before we continue with our Tour of Heroes, let’s verify we have the following structure. If not, we’ll need to go back and follow the previous chapters.
+  
+  code-example.
+      angular2-tour-of-heroes
+        ├── node_modules
+        ├── src
+        |    ├── app
+        |    |    └── app.ts
+        |    ├── index.html
+        |    └── tsconfig.json
+        └── package.json 
+  :marked
+    ### Keep the app running
+    Start the TypeScript compiler and have it watch for changes in one terminal window by typing
+  
+  code-example(format="." language="bash").
+    npm run tsc
+  
+  :marked
+    Now open another terminal window and start the server by typing
+  
+  code-example(format="." language="bash").
+    npm start
+  
+  :marked
+    This will keep the application running while we continue to build the Tour of Heroes.
+
+    ## Making a Hero Detail Component
+    Our heroes list and our hero details are all in the same component. What if we want to reuse the hero details somewhere else in our app? This would be difficult since it is intermixed with the heroes list. Let’s make this easier and separate the hero details into its own component to make this more reusable.
+    
+    ### Separating the Hero Detail Component
+    We’ll need a new file and a new component to host our hero details. Let’s create a new file named `hero-detail.component.ts` with a component named `HeroDetailComponent`.
+    ```
+    @Component({
+      selector: 'my-hero-detail'
+    })
+    export class HeroDetailComponent { }
+    ```
+    We want to use `HeroDetailComponent` from our original `AppComponent`.  We’ll need the selector name when we refer to it in `AppComponent`’s template. We export the `HeroDetailComponent` here so we can later import it into our `AppComponent`, which we’ll do after we finish creating our `HeroDetailComponent`. 
+    
+    We anticipate our template will contain multiple lines. So let’s initialize the `template` property to an empty string between back-ticks.
+    ```
+    @Component({
+      selector: 'my-hero-detail',
+      template: ``
+    })
+    export class HeroDetailComponent { }
+    ```
+    Remember, we want to refer to our `HeroDetailComponent` in the `AppComponent`. This is why we export the `HeroDetailComponent` class.
+    
+    #### Hero Detail Template
+    Our heroes and hero details are combined in one template in `AppComponent` so we need to separate them. Let’s move the appropriate template content from `AppComponent` and paste it in the template property of  `HeroDetailComponent`. 
+    
+    Let’s also change the name of the property in the template from `selectedHero` to `hero`, as it is more appropriate for a reusable component.
+    
+  +makeExample('toh-3/ts/src/app/hero-detail.snippets.pt3.ts', 'template')
+  
+  :marked
+    Our `HeroDetailComponent` uses `ng-model` (which is in the `FORM_DIRECTIVES` array) and `ng-if` (which is in the `CORE_DIRECTIVES` array).  We have to tell our component about these directives, so we declare them in the `directives` property of the `@Component` decorator.
+  
+    Now our hero detail template exists only in our `HeroDetailComponent`.
+    
+    #### Importing
+    Now that we have the foundation for the component, we need to make sure that we import everything we are using in the component. Let’s add the following import statement to the top of our `hero-detail.component.ts` file to get the exports from Angular that we are using.
+    ```
+    import {Component, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
+    ```
+    #### Declaring our Hero  
+    Our `HeroDetailComponent`’s template refers to a hero, so let’s add a property on the component to hold the hero.
+    ```
+    export class HeroDetailComponent {
+      public hero: Hero;
+    }
+    ```
+    Uh oh. We declare the `hero` property as being of type `Hero` but our `Hero` class is over in the `app.ts` file. We now have two components, each in their own file, that need to reference the `Hero` class. Let’s solve this problem by removing the `Hero` class from `app.ts` and moving it to its own file named `hero.ts`.
+    ```
+    export class Hero {
+      id: number;
+      name: string;
+    }
+    ```
+    We export the `Hero` class from `hero.ts` because we will need to import it in both of our component files. Let’s add the following import statement to the top of both `app.ts` and `hero.-detail.component.ts`.
+    ```
+    import {Hero} from './hero';
+    ```
+    Now we can also use the `Hero` class from other files by importing it.
+    
+    #### Defining the Input for HeroDetailComponent
+    Our `HeroDetailComponent` needs to be told what hero to use. We have a `hero` property, but we need a way for the `AppComponent` to tell the `HeroDetailComponent`  the  hero it should use. 
+    
+    Let’s declare the inputs for our component in the `@Component` decorator’s `inputs` property. We will set the input to the `hero` property so it matches the `hero` property on the `HeroDetailComponent`.
+    
+  +makeExample('toh-3/ts/src/app/hero-detail.snippets.pt3.ts', 'inputs')
+  
+  :marked
+    Now our `AppComponent`, or any component that refers to `HeroDetailComponent`, can tell the `HeroDetailComponent` which hero to use.
+    
+    ### Making AppComponent Refer to the HeroDetailComponent
+    Our `HeroDetailComponent` is ready, but we need to go back to the `AppComponent` and clean up some loose ends.
+    
+    First we need to tell our `AppComponent` about our new component. Let’s add an import statement so we can refer to the `HeroDetailComponent`.
+    ```
+    import {HeroDetailComponent} from './hero-detail.component';
+    ```
+    Let’s find the location of the template content we removed from `AppComponent` and refer to our new component. 
+    ```
+    <my-hero-detail></my-hero-detail>
+    ```
+    This would be good enough if the component did not have any inputs. But we do, so we want to pass the selected hero to the `hero` input of the `HeroDetailComponent`, as shown below:
+    ```
+    <my-hero-detail [hero]="selectedHero"></my-hero-detail>
+    ```
+    Our `AppComponent`’s template should now look like this
+    
+  +makeExample('toh-3/ts/src/app/hero-detail.component.pt3.html')
+  
+  :marked
+    #### Naming Convention 
+    We want to identify which files are components. Our `AppComponent` is named `app.ts` while our `HeroDetailComponent` is `hero-detail.component.ts`. That’s not very consistent and we can make it easier to know what is in each file by following a naming convention where we identify which files contain a component. 
+    
+    Let’s rename `app.ts` to `app.component.ts`. 
+    
+    <!-- TODO
+    .l-sub-section
+      :marked
+        Learn more about naming conventions in the chapter [Naming Conventions]
+    :marked
+    -->
+    
+    Remember that our application kicks off by entering our starting point, which is `app.component.ts`. We just renamed this file, but we also have to change every place we import this module. Our entry point is in our `index.html` file. Let’s change the following statement to import `app.component`.
+    ```
+    System.import('app/app.component');
+    ```
+    
+    ### Checking Our Work
+    When we view our app in the browser we see the list of heroes. When we select a hero we can see the selected hero’s details. If we want to show hero details somewhere else in our app we can use the `HeroDetailComponent` and pass in a hero. 
+    
+    We’ve created our first reusable component!
+    
+    <!-- TODO
+    .l-sub-section
+      :marked
+        Learn more about reusable components in the chapter [Reusable Components] 
+    :marked -->
+    
+    ## Creating a Hero Service
+    Our stakeholders have shared their larger vision for our app. They tell us they want to show the heroes in various ways in different pages. We have a way to select a hero from a list, but we will also need a dashboard with the top heroes and a separate view for editing hero details. 
+    
+    All of these views need hero data. Our `AppComponent` defines and uses a list of heroes, but it is not ideal to create our AppComponent when just the heroes data elsewhere. Fortunately we can create a shared service that will provide the heroes. 
+    
+    ### Creating the HeroService
+    Were going to create a service that can be used by any component that wants hero data. Let’s start by creating a file and naming it `hero.service.ts`. We name the class `HeroService` and export it, so our components can import it.
+    ```
+    export class HeroService { }
+    ```
+    #### The getHeroes Method
+    We create a method named `getHeroes` in our `HeroService`. It will return an array of `Hero` objects, so let’s import the `Hero` class and define our method.
+    ```
+    import { Hero } from './hero';
+  
+    export class HeroService {
+      getHeroes() : Hero[] {
+      }
+    }
+    ```
+    #### Mocking the Heroes
+    Our `HeroService` shouldn’t be defining the hero data. Instead, the service should handle retrieving the data from another source. That source could be a mock data, a web service, or even local storage. We will design our `HeroService` to get the data from any of these sources and not affect the calling component. This will make it more reusable and more testable.
+    
+    Once.
+    
+    We have a list of heroes in `AppComponent`. We will move it to a new file named `mock-heroes.ts` and export the list.
+
+  +makeExample('toh-3/ts/src/app/mock-heroes.ts', 'mocking-heroes')
+  
+  :marked
+    ### Returning the Mocked Heroes
+    Our `HeroService` needs to get the list of heroes, so let’s import the mocked heroes module. Then we’ll return the HEROES array.
+    ```
+    import {Hero} from './hero';
+    import {HEROES} from './mock-heroes';
+  
+    export class HeroService {
+      getHeroes() {
+        return HEROES;
+      }
+    }
+    ```
+    TypeScript can implicitly determine that that return type is `Hero[]` since the return value is of that same type. This allows use to remove the explicit return type from the `getHeroes` method. 
+    
+    ### Injecting the Hero Service
+    We’ve set ourselves up so we can use the `HeroService` from other components. Let’s import the `HeroService` in our `AppComponent`.
+    ```
+    import {HeroService} from './hero.service';
+    ```
+    Importing the service allows us to reference it, but we need to make sure the `HeroService` dependency is instantiated when our component needs it. We inject the `HeroService` into our `AppComponent`’s constructor.
+    ```
+    constructor(private _heroService: HeroService) { }
+    ```
+    We just injected our dependency into the component, thus we performed Dependency Injection.
+    
+  .l-sub-section
+    :marked
+      Learn more about Dependency Injection in chapter [Dependency Injection](dependency-injection.html)
+
+  :marked
+    We made our instance of the injected `HeroService` be a private property on our `AppComponent` class. As a convention we prefixed the private property with an underscore. 
+    
+    Since we are not defining the heroes in the `AppComponent` any longer, let’s refactor the `hero` property declaration to be an uninitialized array of `Hero`.
+    ```
+    public heroes: Hero[];
+    ```
+    
+    ### The OnInit Lifecycle Hook
+    When our `AppComponent` is created we want it to get the list of heroes. We need to know when the component is initialized and activated, so we’ll use the `OnInit` lifecycle event to tell us this.
+    
+    Let’s import Angular’s `OnInit` interface, implement it on our `AppComponent` and define its required `onInit` method. First we add the `OnInit` interface to the import statement.
+    ```
+    import {bootstrap, Component, CORE_DIRECTIVES, FORM_DIRECTIVES, OnInit} from 'angular2/angular2';
+    ```
+    Now we implement the interface.
+    ```
+    class AppComponent implements OnInit {
+    ```
+    Then we define the `onInit` method and get our heroes from our `HeroService`.
+    ```
+    onInit() {
+      this.heroes = this._heroService.getHeroes();
+    }
+    ```
+    <!-- TODO 
+    .l-sub-section
+      :marked 
+        Learn more about lifecycle hooks in chapter [Lifecycle Hooks]
+    :marked
+    -->
+
+    Why not use the constructor to get the heroes? When we test our application we want an opportunity to create the class without any state being set. This will make it easier to test and reduce external factors, such as calling a service in the constructor.  Therefore the constructor is best suited to help us inject dependencies and initialize variables. We need a place to get our heroes right after our class is constructed but before the view is rendered. The OnInit lifecycle hook gives us this opportunity. 
+    <!-- TODO 
+    .l-sub-section
+      :marked
+        Learn more about testing components in chapter [Testing Components]
+    :marked
+    -->
+    ### Binding the Hero Service
+    When we view our app in the browser we see we have an error displayed in the developer console
+  
+  code-example(format="." language="html").
+     EXCEPTION: No provider for HeroService! (AppComponent -> HeroService)
+    
+  :marked
+    We used Dependency Injection to tell our `AppComponent` that it should inject the `HeroService`. However we need to tell our app about the `HeroService` so it can provide it when needed. The way we do this is by declaring the `HeroService` as a binding when we bootstrap our app. 
+    Let’s pass a second argument to the `bootstrap` method to declare the `HeroService` as an application binding.
+    ```
+    bootstrap(AppComponent, [HeroService]);
+    ```
+    We can add other bindings here, as needed.
+    
+    When we view our app in the browser the error is gone and our application runs as expected showing our list of heroes.
+    
+    ## Promises
+    Our `HeroService` synchronously returns a list of heroes. It operates synchronously because the list of heroes is mocked. What happens when we want to switch that to get the heroes from a web service? The web service call over http would happen  asynchronously. 
+    
+    We don’t yet call http, but we aspire to in later chapters.  So how do we write our `HeroService` so that it won’t require refactoring the consumers of `HeroService` later? We make our `HeroService`’s `getHeroes` method return a promise to provide the heroes.
+    
+    The key is that our components won’t know how the data is being retrieved. We can return mock heroes or heroes from http, and the component will call the service’s method the same way.
+    
+    ### Returning a Promise  
+    Let’s refactor the `getHeroes` method in `HeroService` to return the heroes in a promise. 
+    ```
+    import { Hero } from './hero';
+    import { HEROES } from './mock-heroes';
+  
+    export class HeroService {
+      getHeroes() {
+        return Promise.resolve(HEROES);
+      }
+    }
+    ```
+    The `Promise` is immediately resolving and passing the the hero data back in the promise.
+    
+    ### Acting on a Promise  
+    Let’s refactor the `getHeroes` method in `HeroService` to return the heroes in a promise. First, we create a new method in the `AppComponent` to get the heroes and named it `getHeroes`.
+    
+    When we call our heroes we start by resetting  the `selectedHero` and `heroes` properties.  
+    ```
+      getHeroes() {
+        this.selectedHero = undefined;
+        this.heroes = [];
+      }
+    ```
+    The `getHeroes` method in `HeroService` returns a promise. So we cannot simply set the return value to `this.heroes`. The method returns a promise and the `heroes` property expects an array of `Hero`. What do we do?
+    
+    We define a `then` to handle the response from the promise when it resolves. We will set the heroes inside of the `then`.
+    ```
+    this._heroService.getHeroes()
+      .then(heroes => this.heroes = heroes);
+    ```
+    The `then` accepts a function, in this case a lambda that passes in the heroes and sets them to the `heroes` property on `AppComponent`. 
+    
+    We need to return a value for the heroes from the method so a caller can get the heroes when they are ready. Let’s return our component’s `heroes` property, which we first reset to an empty array. 
+    ```
+    return this.heroes;
+    ```
+    When we put this all together we see we are setting our heroes to an empty array. Then we call the service and get a promise. Finally we return the reference to our `heroes` property, which has the empty array. 
+    ```
+    getHeroes() {
+      this.selectedHero = undefined;
+      this.heroes = [];
+  
+      this._heroService.getHeroes()
+        .then(heroes => this.heroes = heroes);
+  
+      return this.heroes;
+    }
+    ```
+    So how do the heroes get populated?  When the promise resolves, the `heroes` are updated to include the response from the promise.
+    
+    Finally we call the method we just created in our `onInit` method. 
+    ```
+    onInit() {
+      this.heroes = this.getHeroes();
+    }
+    ```
+    When we view our app in the browser we can see the heroes are displayed.
+    
+    We are using mock data right now, but we aspire to call a web service over http asynchronously in the future. When we do refactor to use http, the beauty of the promise we created here is that our component won’t have to change at all!
+    
+    ### Reviewing the App Structure
+    Let’s verify that we have the following structure after all of our good refactoring in this chapter:
+    
+  code-example.
+      angular2-tour-of-heroes
+        |---- node_modules
+        |---- src
+        |    |---- app
+        |    |    |---- app.component.ts
+        |    |    |---- hero.ts
+        |    |    |---- hero-detail.component.ts
+        |    |    |---- hero.service.ts
+        |    |    |---- mock-heroes.ts
+        |    |---- index.html
+        |    |---- tsconfig.json
+        |---- package.json
+  
+  :marked
+    ## Recap
+    ### The Road We’ve Travelled
+    Let’s take stock in what we’ve built.  
+    - We created a reusable component 
+    - We learned how to make a component accept input
+    - We created a service class that can be shared by many components
+    - We created mock hero data and imported them into our service 
+    - We designed our service to return a promise and our component to get our data from the promise
+    
+    ### The Road Ahead
+    . . . We’ll learn more about all of these in the next chapter.
+    
+    Our Tour of Heroes has become more reusable using shared components and services. We want to create a dashboard, add menu links that route between the views, and format data in a template. As our app evolves, we’ll learn how to design it to make it easier to grow and maintain. We’ll learn more about these tasks in the coming chapters.
