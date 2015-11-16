@@ -3,6 +3,7 @@ import {Hero} from './hero';
 
 @Component({
     selector: 'invited-hero',
+// #docregion template
     template: `
         <div class='invited-hero'>
             <h3 class='hero-name'>Job Request for {{hero.name}}</h4>
@@ -15,6 +16,8 @@ import {Hero} from './hero';
             </button>
         </div>
     `,
+// #enddocregion template
+// #docregion styles
     styles: [`
         .invited-hero {
           margin: 8px;
@@ -38,6 +41,8 @@ import {Hero} from './hero';
         }
     `]
 })
+// #enddocregion styles
+// #docregion component
 export class InvitedHero {
     @Input() hero : Hero;
     @Input() request: string;
@@ -47,3 +52,4 @@ export class InvitedHero {
           ? this.request : "No job announced";
     }
 }
+// #enddocregion

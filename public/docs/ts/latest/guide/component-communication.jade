@@ -195,7 +195,7 @@ figure.image-display
 +makeExample('component-communication/ts/invite-heroes/src/app/hero-job-board.ts', 'invite-heroes', 'hero-job-board.ts', {blk: /(invitedHeroes|inviteAllHeroes\(\))/g})
 
 :marked
-  With these changes, we completed the goal of this scenario. When users start the app, only the Hero Job Board panel is visible, but after clicking the
+  With these changes, we completed this scenario. When users start the app, only the Hero Job Board panel is visible, but after clicking the
   invitation button, heroes are ready to listen to job requests &mdash; as their names in the panels indicate:
 
 figure.image-display
@@ -207,14 +207,104 @@ figure.image-display
 :marked
 .l-main.section
 :marked
+  ### An alternative method of defining an input property
+
+  Instead of using the `@Input()` annotation, we can use the `inputs` annotation property of `@Component()` to specify input properties.
+  
+  Originally we defined `InvitedHero` this way:
+  
+code-example(format='linenums', language='typescript').
+  @Component({
+    ...
+  })
+  export class InvitedHero {
+      @Input() hero: Hero;
+  }
+
+:marked
+  Using the alternative method, we could have defined the `hero` input property this way:
+  
+code-example(format='linenums', language='typescript').
+  @Component({
+    inputs: ['hero']
+  })
+  export class InvitedHero {
+      hero: Hero;
+  }
+
+:marked
+.alert.is-helpful
+  :marked
+    In this chapter, we are age going to use the `@Input()` annotation.
+:marked
+.l-main.section
+:marked
   ## #3: Announcing a job &mdash; parent to child communication with multiple data binding
   
+  The aim of the Hero Job Board application is to use our heroes superpower. So, let's create job requests for them! In this scenario, we enable the person in need to 
+  create a job request and send them to heroes by clicking the **Ask** button.
+  
+  We are going to use data binding from `HeroJobBoard` (parent) to `InvitedHero` (child), similarly as we did in the previous scenario. However, this time we bind another
+  property, and demonstrate that in the child template we can use the input property indirectly, and Angular still detects the changes, and updates the UI accordingly.
+  
+  We add the `request` property to `InvitedHero` so that `HeroJobBoard` could pass it a new job request. The `getRequest()` method leverages this property to fall back
+  to a default lable when no job request is available:
+  
++makeExample('component-communication/ts/send-job-request/src/app/invited-hero.ts', 'component', 'invited-hero.ts (component)', {blk: /(request|getRequest\(\))/g})
+
+:marked
+  Beside the `request` property (that has two occurrences), the modified template of `InvitedHero` uses `getRequest()`, too:
+  
++makeExample('component-communication/ts/send-job-request/src/app/invited-hero.ts', 'template', 'invited-hero.ts (template)', {pnk: /(getRequest\(\))/g})
+
+:marked
+  `HeroJobBoard` defines an input box and and a button within its template to send the new job request to heroes. We modify this part of the template so that a job request
+  should contain at least one non-whitespace character to send:
+  
++makeExample('component-communication/ts/send-job-request/fragments/input.html', null, 'hero-job-board.ts (extract from template)')
+
+:marked
+  The value of the input control is refreshed when the `jobRequest` properties value is changed &mdash; it is done within the code of `HeroJobBoard` &mdash; or users type
+  into the text field. To store the value of the text field in the `box` local variable, we're using the technique demonstrated in the [User Input](./user-input.html) chapter.
+  The **Ask** button uses this `box` variable to define an expression that disables the button unless at least one non-whitespace charecter is typed in.
+   
+.alert.is-helpful
+  :marked
+    The expression uses the Angular "Elvis" operator (`?.`). This is a fluent and convenient way to guard against null and undefined values in property paths.
+    It protects against a view render failure if `box` is null.
+:marked
+  When users click the **Ask** button, the `announceJob()` method is invoked with the content of the input text field.
+ 
++makeExample('component-communication/ts/send-job-request/src/app/hero-job-board.ts', 'announce', 'hero-job-board.ts', {blk: /(inviteAllHeroes\(\)|announceJob\(request\))/g})
+
+:marked
+  When announcing a new job request, the `jobRequest` property is set. The value of this property is deleted (set to null) within `inviteAllHeroes()`, 
+  so users can click the **Invite heroes** to reset the application, as this action will delete the job request, too.
+  
+  To push the `jobRequest` value to all `InvitedHero` instances, we need to modify the `HeroJobBoard` template:
++makeExample('component-communication/ts/send-job-request/fragments/request.html', null, 'hero-job-board.ts (extract from template)', {blk: /(request)/g})
+
+:marked
+  We're almost done. Now, data binding works as expected, but to make the app reflect its current workflow state, we add a few cosmetics. In `HeroJobBoard` we define
+  the `getJobStatus()` function that retrieves an appropriate label to show instead of "Responding reroes":
+  
++makeExample('component-communication/ts/send-job-request/src/app/hero-job-board.ts', 'get-job-status', 'hero-job-board.ts')
+
+:marked
+  To visually mark that there's a new job request for a hero, we append a new style (to the `styles` annotation property) to `InviteHero`:
+
++makeExample('component-communication/ts/send-job-request/fragments/announced.css', null, 'hero-job-board.ts (extract from styles)')
+
+:marked
+  Running the application, the person in need can broadcast a job request to all invited heroes:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/send-job-request-ui.png" alt="Job request sent")
+  
+:marked
+  ## #4: A hero takes the job &mdash; child to parent communication &mdash; antipattern
   _Content_
-  
-  ## #4: A hero takes the job &mdash; child holds a direct reference to parent &mdash; antipattern
-  
-  _Content_
-  
+
   ## #5: A hero takes the job &mdash; child to parent communication with events
   
   _Content _

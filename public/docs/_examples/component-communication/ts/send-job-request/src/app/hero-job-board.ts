@@ -76,14 +76,8 @@ export class HeroJobBoard{
     ];
     respondingHeroes: Hero[] = [];
     invitedHeroes: Hero[] = [];
-    jobRequest: string = null;
     
-    inviteAllHeroes() {
-        this.invitedHeroes = this.heroes;
-        this.respondingHeroes = [];
-        this.jobRequest = null;
-    }
-    
+// #docregion get-job-status
     getJobStatus() {
         if (!this.jobRequest) {
             return "No job request announced"
@@ -94,8 +88,18 @@ export class HeroJobBoard{
                 : "No responding heroes";
         }
     }
+// #enddocregion get-job-status
+// #docregion announce 
+    jobRequest: string = null;
+
+    inviteAllHeroes() {
+        this.invitedHeroes = this.heroes;
+        this.respondingHeroes = [];
+        this.jobRequest = null;
+    }
     
     announceJob(request) {
         this.jobRequest = request.trim();
     }
+// #enddocregion announce
 }
