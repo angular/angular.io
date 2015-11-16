@@ -1,0 +1,623 @@
+include ../../../../_includes/_util-fns
+:markdown
+  Dependency Injection is an important application design pattern.
+  Angular has its own Dependency Injection framework and 
+  we really can't build an Angular application without it.
+
+  In this chapter we'll learn what Dependency Injection is, why we want it, and how to use it.
+  <a name="why-di"></a>
+.l-main-section
+:markdown
+  ## Why Dependency Injection?
+  
+  Let's start with the following code. 
+  
+  ```
+  class Engine {}
+  
+  class Tires {}
+  
+  class Car {
+    private engine: Engine;
+    private tires: Tires;
+  
+    constructor() {
+      this.engine = new Engine();
+      this.tires = new Tires();
+    }
+    // Method using the engine and tires
+    drive() {}
+  }
+  ```
+  
+  Our `Car` creates everything it needs inside its constructor. 
+  What's the problem? 
+  
+  The problem is that our `Car` class is brittle, inflexible, and hard to test.
+  
+  Our `Car` needs an engine and tires. Instead of asking for them,
+  the `Car` constructor creates its own copies by "new-ing" them from
+  the very specific classes, `Engine` and `Tires`.
+  
+  What if the `Engine` class evolves and its constructor requires a parameter?
+  Our `Car` is broken and stays broken until we rewrite it along the lines of 
+  `this.engine = new Engine(theNewParameter)`. 
+  We didn't care about `Engine` constructor parameters when we first wrote `Car`.
+  We don't really care about them now. 
+  But we'll *have* to start caring because 
+  when the definion of `Engine` changes, our `Car` class must change.
+  That makes `Car` brittle.
+  
+  What if we want to put a different brand of tires on our `Car`. Too bad. 
+  We're locked into whatever brand the `Tires` class creates. That makes our `Car` inflexible.
+  
+  Right now each new car gets its own engine. It can't share an engine with other cars. 
+  While that makes sense for an automobile engine, 
+  we can think of other dependencies that should be shared ... like the onboard
+  wireless connection to the manufacturer's service center. Our `Car` lacks the flexibility
+  to share services that have been created previously for other consumers.
+  
+  When we write tests for our `Car` we're at the mercy of its hidden dependencies.
+  Is it even possible to create a new `Engine` in a test environment? 
+  What does `Engine`itself depend upon? What does that dependency depend on?
+  Will a new instance of `Engine` make an asynchronous call to the server? 
+  We certainly don't want that going on during our tests.
+  
+  What if our `Car` should flash a warning signal when tire pressure is low.
+  How do we confirm that if actually does flash a warning
+  if we can't swap in low-pressure tires during the test?
+  
+  We have no control over the car's hidden dependencies. 
+  When we can't control the dependencies, a class become difficult to test.
+  
+  How can we make `Car` more robust, more flexible, and more testable? 
+  
+  That's super easy. We probably already know what to do. We change our `Car` constructor to this:
+  <a name="ctor-injection"></a>
+  ```
+  constructor(engine: Engine, tires: Tires) {
+    this.engine = engine;
+    this.tires = tires;
+  }
+  ```
+  See what happened? We moved the definition of the dependencies to the constructor. 
+  Our `Car` class no longer creates an engine or tires.
+  It just consumes them.
+  
+  Now we create a car by passing the engine and tires to the constructor. 
+  ```
+  var car = new Car(new Engine(), new Tires());
+  ```
+  How cool is that? 
+  The definition of the engine and tire dependencies are decoupled from the `Car` class itself.
+  We can pass in any kind of engine or tires we like, as long as they
+  conform to the general API requirements of an engine or tires.
+  
+  If someone extends the `Engine` class, that is not `Car`'s problem.
+.l-sub-section
+  :markdown
+    The consumer of `Car` has the problem. The consumer must update the car creation code to
+    something like:
+    ```
+    var car = new Car(new Engine(theNewParameter), new Tires());
+    ```
+    The critical point is this: `Car` itself did not have to change. 
+    We'll take care of the consumer's problem soon enough.
+  
+:markdown
+  The `Car` class is much easier to test because we are in complete control 
+  of its dependencies.
+  We can pass mocks to the constructor that do exactly what we want them to do
+  during each test:
+  ```
+  var car = new Car(new MockEngine(), new MockLowPressureTires());
+  ```
+  
+  **We just learned what Dependency Injection is**. 
+  
+  It's a coding pattern in which a class receives its dependencies from external
+  sources rather than creating them itself.
+  
+  Cool! But what about that poor consumer?
+  Anyone who wants a `Car` must now
+  create all three parts: the `Car`, `Engine`, and `Tires`.
+  The `Car` class shed its problems at the consumer's expense.
+  We need something that takes care of assembling these parts for us.
+  
+  We could write a giant class to do that:
+  ```
+  class SuperFactory {
+    createEngine = () => new Engine();
+    createTires =  () => new Tires();
+    createCar = () => new Car(this.createEngine(), this.createTires());
+  }
+  ```
+  It's not so bad now with only three creation methods.
+  But maintaining it will be hairy as the application grows.
+  This `SuperFactory` is going to become a huge spider web of
+  interdependent factory methods!
+  
+  Wouldn't it be nice if we could simply list the things we want to build without 
+  having to define which dependency gets injected into what?
+  
+  This is where the Dependency Injection Framework comes into play.
+  Imagine the framework had something called an `Injector`. 
+  We register some classes with this `Injector` and it figures out how to create them.
+  
+  When we need a `Car`, we simply ask the `Injector` to get it for us and we're good to go.
+  ```
+  function main() {
+    var injector = new Injector([Car, Engine, Tires, Logger]);
+    var car = injector.get(Car);
+    car.drive();
+  }
+  ```
+  Everyone wins. The `Car` knows nothing about creating an `Engine` or `Tires`.
+  The consumer knows nothing about creating a `Car`. 
+  We don't have a gigantic factory class to maintain.
+  Both `Car` and consumer simply ask for what they need and the `Injector` delivers.
+
+  This is what a **Dependency InjectionFramework** is all about. 
+
+  Now that we know what Dependency Injection is and appreciate its benefits, 
+  let's see how it is implemented in Angular.
+
+.l-main-section
+:markdown
+  ## Angular Dependency Injection
+  
+  Angular ships with its own Dependency Injection framework. This framework can also be used
+  as a standalone module by other applications and frameworks. 
+  
+  That sounds nice. What does it do for us when building components in Angular?
+  Let's see, one step at a time. 
+  
+  We'll begin with a simplified version of the `HeroesComponent` 
+  that we built in the [The Tour of Heroes](../tutorial/).
+  ```
+  import {Component} from 'angular2/angular2';
+  import {Hero} from './hero';
+  import {HEROES} from './mock-heroes';
+  
+  @Component({
+    selector: 'my-heroes'
+    templateUrl: 'app/heroes.component.html'
+  })
+  export class HeroesComponent {
+  
+    heroes: Hero[] = HEROES;
+  
+  }
+  ```
+  It assigns a list of mocked heroes to its `heroes` property for binding within the template.
+  Pretty straight forward. 
+  
+  Those heroes are currently a fixed, in-memory collection, defined in another file and imported by the component. 
+  That works in the early stages of development but it's far from ideal.
+  As soon as we try to test this component or want to get our heroes data from a remote server, 
+  we'll have to change this component's implementation of `heroes` and 
+  fix every other use of the `HEROES` mock data.
+   
+  Let's make a service that hides how we get Hero data.
+.l-sub-section
+  :markdown
+    Write this service in its own file. See [this note](#forward-ref) to understand why.
+:markdown
+  ```
+  import {Hero} from './hero';
+  import {HEROES} from './mock-heroes';
+  
+  class HeroService {
+  
+    heroes: Hero[];
+  
+    constructor() {
+      this.heroes = HEROES;
+    }
+  
+    getHeroes() {
+      return this.heroes;
+    }
+  }
+  ```
+  Our `HeroService` exposes a `getHeroes()` method that returns 
+  the same mock data as before but none of its consumers need to know that. 
+    
+  A service is nothing more than a class in Angular 2. 
+  It remains nothing more than a class until we register it with
+  the Angular injector.
+  
+  ### Configuring the Injector
+  
+  We don't have to create the injector.
+  <a name="bootstrap"></a>
+  Angular creates an application-wide injector for us during the bootstrap process.
+  ```
+  bootstrap(HeroesComponent);
+  ``` 
+  
+  Let’s configure the injector at the same time that we bootstrap by adding 
+  our `HeroService` to an array in the second argument. 
+  We'll explain that array when we talk about [providers](#providers) later in this chapter.
+  ```
+  bootstrap(AppComponent, [HeroService]);
+  ```  
+  That’s it! The injector now knows about the `HeroService` which is available for injection across our entire application.
+    
+  ### Preparing the `HeroesComponent` for injection
+    
+  The `HeroesComponent` should get its heroes from this service.
+  Per the dependency injection pattern, the component must "ask for" the service in its constructor [as we explained
+  earlier](#ctor-injection)".
+  
+  ```
+  constructor(heroService: HeroService) {
+    this.heroes = heroService.getHeroes();
+  }
+  ```
+  <a name="di-metadata"></a>
+.l-sub-section
+  :markdown
+    Adding a parameter to the constructor isn't all that's happening here.
+    
+    We are writing the app in TypeScript and have followed the parameter name with a type notation, `:HeroService`.
+    The class is also decorated with the `@Component` decorator (scroll up to confirm that fact).
+    
+    When the TypeScript compiler evaluates this class, it sees the decorator and adds class metadata
+    into the generated JavaScript code. Within that metadata lurks the information that
+    associates the `heroService` parameter with the `HeroService` class. 
+    
+    That's how the Angular injector will know to inject an instance of the `HeroService` when it
+    creates a new `HeroesComponent`.
+:markdown
+  ### Creating the `HeroesComponent` with the injector (implicitly)
+  When we introduced the idea of an injector above, we showed how to create
+  a new `Car` with that injector.
+  ```
+  var car = injector.get(Car);
+  ```
+  Search the entire Tour of Heroes source. We won't find a single line like
+  ```
+  var hc = injector.get(HeroesComponent);
+  ```
+  We *could* write code like that if we wanted to. We just don't have to.
+  Angular does that for us when it renders a `HeroesComponent` 
+  whether we ask for it in an HTML template ...
+  ```
+  <my-heroes></heroes>
+  ```
+  ... or navigate to a `HeroesComponent` view with the [router](./router.html).
+  
+  ### Singleton services  
+  We might wonder what happens when we inject the `HeroService` into other components. 
+  Do we get the same instance every time?
+   
+  Yes we do. Dependencies are singletons. 
+  We’ll discuss that later in our chapter about 
+  [Hierarchical Injectors](./hierarchical-dependency-injection.html).
+
+  ### Testing the component
+  We emphasized earlier that designing a class for dependency injection makes it easier to test.
+  
+  Mission accomplished!  We don't even need the Angular Dependency Injection system to test the `HeroesComponent`.
+  We simply create a bew `HeroesComponent` with a mock service and poke at it:
+  ```
+  it("should have heroes when created", () => {
+    let hc = new HeroesComponent(mockService);
+    expect(hc.heroes.length).toEqual(mockService.getHeroes().length);
+  })
+  ```
+  ### When the service needs a service 
+  Our `HeroService` is very simple. It doesn't have any dependencies of its own. 
+  
+  
+  What if it had a dependency? What if it reported its activities through a logging service?
+  We'd apply the same "constructor injection" pattern. 
+  
+  Here's a rewrite of `HeroService` with a new constructor that takes a `logger` parameter.
+  ```
+  import {Hero} from './hero';
+  import {HEROES} from './mock-heroes';
+  import {Logger} from './logger';
+  
+  @Injectable()
+  class HeroService {
+  
+    heroes: Hero[];
+  
+    constructor(private logger: Logger) {
+      this.heroes = HEROES;
+    }
+  
+    getHeroes() {
+      this.logger.log('Getting heroes ...')
+      return this.heroes;
+    }
+  }
+  ```
+  The constructor now asks for an injected instance of a `Logger` and stores it in a private property called `logger`.
+  We call that property within our `getHeroes()` method when anyone asks for heroes.
+  
+  **The `@Injectable()` decoration catches our eye!**
+  
+.alert.is-critical
+  :markdown
+    **Always include the parentheses!** Always call `@Injectable()`. It's easy to forget the parentheses. 
+    Our application will fail mysteriously if we do. It bears repeating: **always include the parentheses.**
+:markdown
+  We haven't seen `@Injectable()` before. 
+  As it happens, we could have added it to `HeroService`. We didn't bother because we didn't need it then.
+  
+  We need it now ... now that our service has an injected dependency. 
+  We need it because Angular requires constructor parameter metadata in order to inject a `Logger`. 
+  As [we mentioned earlier](#di-metadata), TypeScript *only generates metadata for classes that have a decorator*. .
+  
+  The `HeroesComponent` has an injected dependency too. Why don't we add `@Injectable()` to the `HeroesComponent`? 
+  We *can* add it if we really want to. It isn't necessary because the `HeroesComponent` is already decorated with `@Component`.
+  TypeScript generates metadata for *any* class with a decorator and *any* decorator will do.
+ 
+.l-main-section
+:markdown
+  <a name="providers"></a>
+  ## Injector Providers
+  
+  Remember when we added the `HeroService` to an array in the [bootstrap](#bootstrap) process? 
+  ```
+  bootstrap(AppComponent, [HeroService]);
+  ```
+  That list of classes is actually a list of **providers**.  
+  
+  "Providers" create the instances of the things that we ask the injector to inject.
+  There are many ways ways to "provide" a thing that has the necessary shape and behavior to serve as a `HeroService`.
+  A class is a natural provider - it's meant to be created. But it's not the only way
+  to produce something injectable. We could hand the injector an object to return. We could give it a factory function to call. 
+  Any of these approaches might be a good choice under the right circumstances. 
+  
+  What matters is that the injector knows what to do when something asks for a `HeroService`.
+
+  ### Provider mappings
+  When we registered the `HeroService` with the injector, we were actually registering
+  a mapping between the `HeroService` *token* and a provider that can create a `HeroService`.
+  
+  When we wrote ...
+  ```
+  import {bootstrap} from 'angular2/angular2';
+  
+  bootstrap(AppComponent, [HeroService]);
+  ```
+  ... Angular translated that statement into a mapping instruction involving the Angular `provide` method
+  ```
+  import {bootstrap, provide} from 'angular2/angular2';
+  
+  bootstrap(AppComponent, [
+    provide(HeroService, {useClass:HeroService})
+  ]); 
+  ```
+  Of course we prefer the shorthand syntax - `[HeroService]` - when the provider and the token are the same class.
+  
+  Isn't that always the case? Not always. 
+  
+  ### Alternative Class Providers
+
+  Occasionally we'll ask a different class to  provide the service.
+  
+  We do that regularly when testing a component that we're creating with dependency injection.
+  In this example, we tell the injector
+  to return a `MockHeroService` when something asks for the `HeroService`.
+  ```
+  beforeEachProviders(() => [
+    provide(HeroService, {useClass: MockHeroService});
+  ]);
+  ```
+  ### Value Providers
+  
+  Sometimes it's easier to provide a ready-made object rather than ask the injector to create it from a class.
+  
+  We do that a lot when we write tests. We might write the following test setup
+  for  tests that explore how the `HeroComponent` behaves when the `HeroService` 
+  returns an empty hero list.
+  ```
+  beforeEachProviders(() => {
+    
+    let emptyHeroService = { getHeroes: () => [] };
+    
+    return [ provide(HeroService, {useValue: emptyHeroService}) ];
+  });
+  ```
+  Notice that we mapped with `useValue` instead of `useClass`.
+ 
+  ### Factory Providers
+  
+  Sometimes the best choice for a provider is neither a class nor a value.
+  
+  Suppose our HeroService has some cool new feature that we're only offering to "special" users.
+  The HeroService shouldn't know about users and 
+  we won't know if the current user is special until runtime anyway.
+  We decide to extend our `HeroService` constructor to accept a `useCoolFeature` flag 
+  that toggles the feature on or off.
+  We rewrite the `HeroService` again as follows.
+  ```
+  @Injectable()
+  class HeroService {
+  
+    heroes: Hero[];
+  
+    constructor(private logger: Logger, private useCoolFeature: boolean) {
+      this.heroes = HEROES;
+    }
+  
+    getHeroes() {
+      let msg = this.useCoolFeature ? 'the cool new way' : 'the old way';
+      this.logger.log('Getting heroes ...' + msg)
+      return this.heroes;
+    }
+  }
+  ```
+  The feature flag is a simple boolean value. We'd like to inject the flag but it seems silly to write an entire class for a 
+  simple flag.
+  
+  We can replace the `HeroService` provider with a factory function that creates a properly configured `HeroService` for the current user.
+  We'll' build up to that result, beginning with our definition of the factory function:
+  ```
+  let heroServiceFactory = (logger: Logger, userService: UserService) => {
+    return new HeroService(logger, userService.user.isSpecial);
+  }
+  ```
+.l-sub-section
+  :markdown
+    The factory takes two parameters: the logger service and a user service. 
+    The logger we pass straight to the constructor as we did before.
+    
+    We'll know to use the cool new feature if the `userService.user.isSpecial` flag is true, 
+    a fact we can't know until runtime.
+:markdown
+  We use dependency injection everywhere so of course the factory function depends on 
+  two injected services: `Logger` and `UserService`.  
+  We declare those requirements in our provider definition object:
+  ```
+  let heroServiceDefinition = {
+     useFactory: heroServiceFactory, 
+     deps: [Logger, UserService]
+  };
+  ```
+.l-sub-section
+  :markdown
+    The `useFactory` field tells Angular that the provider is a factory function and that its implementation is the `heroServiceFactory`.
+    
+    The `deps` property is an array of provider mapping tokens. 
+    The `Logger` and `UserService` classes serve as tokens for their own class provider mappings.
+:markdown
+  Finally, we create the mapping and adjust the bootstrapping to include that mapping in its provider configuration.
+  ```
+  let heroServiceMapping = provide(HeroService, heroServiceDefinition);
+  
+  bootstrap(AppComponent, [heroServiceMapping, Logger, UserService]);
+  ```
+  ### String tokens
+  
+  Sometimes we have an object dependency rather than a class dependency.
+  
+  Applications often define configuration objects with lots of small facts like the title of the application or the address of a web api endpoint.
+  These configuration objects aren't always instances of a class. They're just objects ... like this one:
+  ```
+  let config = {
+    apiEndpoint: 'api.heroes.com',
+    title: 'The Hero Employment Agency'
+  }; 
+  ```
+  We'd like to make this `config` object available for injection. 
+  We know we can register an object with a "Value Provider". But what do we use for the token?
+  
+  Until now, we've always had a class to use as the token for mapping. 
+  The `HeroService` class was our token, whether we mapped it to another class, a value, or a factory provider.
+  This time we don't have a class. There is no `Config` class.
+  
+  Fortunately, a token can be either a JavaScript type (e.g. the class function) **or a string**. We'll map our configuration object
+  to a string!
+  ```
+  bootstrap(AppComponent, [
+    // other mappings //
+    provide('App.config', {useValue:config})
+  ]);
+  ```
+  Now let's update the `HeroesComponent` constructor so it can display the configured title.  
+  Right now the constructor signature is
+  ```
+  constructor(heroService: HeroService)
+  ```
+  We might think we can write:
+  ```
+  // FAIL!
+  constructor(heroService: HeroService, config: config)
+  ```
+  That's not going to work. There is no type called `config` and we didn't register the `config` object under that name anyway.
+  We'll need a little help from another Angular decorator called `@Inject`.
+  ```
+  import {Inject} from 'angular2/angulare2'
+  
+  constructor(heroService: HeroService, @Inject('app.config') config)
+  
+  ```
+
+.l-main-section
+:markdown
+  # Next Steps
+  We learned the basics of Angular Dependency Injection in this chapter.
+  
+  The Angular Dependency Injection is more capable than we've described. 
+  We can learn more about its advanced features, beginning with its support for
+  a hierarchy of nested injectors in the next 
+  [Dependency Injection chapter](./hierarchical-dependency-injection.html)
+  
+.l-main-section
+<a name="forward-ref"></a>
+:markdown
+  ### Appendix: Why we recommend one class per file
+  Developers expect one class per file. Multiple classes per file is confusing and is best avoided. 
+  If we define every class in its own file, there is nothing in this note to worry about.
+  Move along!
+  
+  If we scorn this advice
+  and we add our `HeroService` class to the `HeroesComponent` file anyway, 
+  **define the `HeroesComponent` last!** 
+  If we put it define component before the service,
+  we'll get a runtime null reference error.
+
+  To understand why, paste the following incorrect, ultra-simplified rendition of these two
+  classes into the [TypeScript playground](http://www.typescriptlang.org/Playground).
+ 
+  ```
+  class HeroesComponent {
+    static $providers=[HeroService]
+  }
+
+  class HeroService { }
+
+  alert(HeroesComponent.$providers)
+  ```
+.l-sub-section
+  :markdown
+    The `HeroService` is incorrectly defined below the `HeroComponent`.
+    
+    The `$providers` static property represents the metadata about the injected `HeroService`
+    that TypeScript compiler would add to the component class.
+    
+    The `alert` simulates the action of the Dependency Injector at runtime 
+    when it attempts to create a `HeroesComponent`.
+:markdown
+  Run it. The alert appears but displays nothing. 
+  This is the equivalent of the null reference error thrown at runtime.
+  
+  We understand why when we review the generated JavaScript which looks like this:
+  ```
+  var HeroesComponent = (function () {
+      function HeroesComponent() {
+      }
+      HeroesComponent.$providers = [HeroService];
+      return HeroesComponent;
+  })();
+  
+  var HeroService = (function () {
+      function HeroService() {
+      }
+      return HeroService;
+  })();
+  
+  alert(HeroesComponent.$providers);
+  ```
+
+  Notice that the TypeScript compiler turns classes into function expressions 
+  assigned to variables. The value of the captured `HeroService` variable is undefined
+  when the `$providers` array is assigned. The `HeroService` variable gets its value too late
+  to be captured.
+  
+  Reverse the order of class definition so that the  `HeroService`
+  appears before the `HeroesComponent` that requires it.
+  Run again. This time the alert displays the `HeroService` function definition.
+
+  If we insist on defining the `HeroService` in the same file and insist on
+  defining the component first, Angular offers a way to make that work.
+  The `forwardRef()` method let's us reference a class 
+  before it has been defined. 
+  Learn more about this problem and the `forwardRef()`
+  in this [blog post](http://blog.thoughtram.io/angular/2015/09/03/forward-references-in-angular-2.html).

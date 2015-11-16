@@ -39,7 +39,7 @@ code-example(format="").
   Let's follow a process that's closer to what we'd do in real life.
   
   1. Set up our development environment
-  1. Write the Angular root component for our main app
+  1. Write the Angular root component for our app
   1. Bootstrap it to take control of the main web page
   1. Write the main page (`index.html`)
   
@@ -127,48 +127,53 @@ code-example(format="").
   ### Add the component file
   Now add a file named **app.component.ts** and paste the following lines:
 +makeExample('quickstart/ts/app/app.component.ts', null, 'app/app.component.ts')(format=".")
-
 :marked
+  Let's review this file in detail, starting at the bottom where we define a class.
+
   ### The Component class
   At the bottom of the file is an empty, do-nothing class named `AppComponent`.
   When we're ready to build a substantive application, 
   we can expand this class with properties and application logic. 
   Our `AppComponent` class is empty because we don't need it to do anything in this QuickStart.
   
-  We do **export** the `AppComponent` class. Our component is a module. 
-  Another part of the application will import our module and put it to work.
-  
   ### Modules
   Angular apps are modular. They consist of many files each dedicated to a purpose.
-  Our `app.component` file is both the home and the name of the module that 
-  provides the application's root component &mdash; its top level component.
   
+  Most application files *export* one thing such as a component.
+  Our `app.component` file exports the `AppComponent`.
++makeExample('quickstart/ts/app/app.component.ts', 'export', 'app/component.ts (export)')(format=".")
+:marked
+  The act of exporting turns the file into a module.
+  The name of the file (without extension) is usually the name of the module. 
+  Accordingly, '*app.component*' is the name of our first module.
+
   A more sophisticated application would have child components that descended from
   `AppComponent` in a visual tree. 
+  A more sophisticated app would have more files and modules, at least as many as it had components.
+  
   Quickstart isn't sophisticated; one component is all we need.
   Yet modules play a fundamental organizational role in even this small app.
   
   Modules rely on other modules. In TypeScript Angular apps, when we need something
-  provided by another module, we import it.
-  
-  Angular is a collection of library modules. 
-  Each library is a module made up of several, related feature modules. 
-  
-  The `angular2/core` library is the primary module and we need something from it.
-  We need the `Component`function.
-  
-  When we want something from a module, we `import` it. 
-  We begin by importing the `Component` symbol from Angular.
-+makeExample('quickstart/ts/app/app.component.ts', 'import')(format=".")
+  provided by another module, we import it. 
+  When another module needs to refer to `AppComponent`, it imports the `AppComponent` *symbol* like this:
++makeExample('quickstart/ts/app/boot.ts', 'app-component','app/boot.ts (import)')(format=".")
 :marked
-  Then we use it to define metadata about the `AppComponent`
+  Angular is also modular. It is a collection of library modules. 
+  Each library is itself a module made up of several, related feature modules.
+  
+  When we need something from Angular, we import it from an Angular library module.
+  We need something from Angular right now to help us define metadata about our component.
   
   ### Component Metadata
   A class becomes an Angular component when we give it metadata.
   Angular needs the metadata to understand how to construct the view
   and how the component interacts with other parts of the application.
   
-  We define a component's metadata with the `Component` function.
+  We define a component's metadata with the Angular `Component` function.
+  We access that function by importing it from the primary Angular library,`angular2/core`.
++makeExample('quickstart/ts/app/app.component.ts', 'import', 'app/component.ts (import)')(format=".")
+:marked
   In TypeScript we apply that function to the class as a *decorator* 
   by prefixing it with the **@** symbol and invoking it
   just above the component class:
@@ -178,7 +183,7 @@ code-example(format="").
   The configuration object passed to the `@Component` method has two
   fields, a `selector` and a `template`.
 
-  The `selector` specifies a CSS selector for a host HTML element named `my-app`.
+  The `selector` specifies a simple CSS selector for a host HTML element named `my-app`.
   Angular creates and displays an instance of our `AppComponent`
   wherever it encounters a `my-app` element in the host HTML.
   
@@ -203,17 +208,11 @@ code-example(format="").
   
   We import both. Then we call `bootstrap`, passing in the **root component type**, 
   `AppComponent`.
-  
+ 
 .l-sub-section
   :marked
-    ### bootstrapping is platform-specific
-    Note that `bootstrap` function comes from a *different library*, `angular2/platform/browser`.
-    Most Angular applications run only in a browser and we'll call the bootstrap function from
-    this library most of the time. 
-    
-    It is possible to load a component in a different enviroment such as we might do
-    if we wished to render the first page of our application on the server.
-    That would require a different kind of bootstrap function. 
+    Learn why we import `bootstrap` from `angular2/platform/browser`
+    and why we create a separate *boot.ts* file in the [appendix below](#boot).
 :marked
   We've asked Angular to launch the app in a browser with our component at the root.
   Where will Angular put it? 
@@ -232,7 +231,7 @@ code-example(format="").
   cd ..
 :marked
   Now create the`index.html` file and paste the following lines:
-+makeExample('quickstart/ts/index.html', null, 'index.html')
++makeExample('quickstart/ts/index.html', null, 'index.html')(format=".")
 :marked
   There are three noteworthy sections of HTML:
 
@@ -259,7 +258,7 @@ code-example(format="").
   
   Open a terminal window and enter this command:
 code-example(format="").
-  npm run both
+  npm run go
 :marked
   That command runs two parallel node processes
   1. The TypeScript compiler in watch mode
@@ -311,7 +310,7 @@ code-example(format="").
     quickstart/ts/app/boot.ts,
     quickstart/ts/index.html,
     quickstart/ts/package.1.json,
-    quickstart/ts/tsconfig.json
+    quickstart/ts/tsconfig.1.json
   `,null,
   `app/app.component.ts, app/boot.ts, index.html,package.json, tsconfig.json`)
 :marked
@@ -347,6 +346,20 @@ code-example(format="").
   
 .l-main-section
 :marked
+  <a id="es6support"></a>
+  ### Appendix: Browser ES6 support
+  Angular 2 relies on some ES2015 features, most of them found in modern
+  browsers. Some browsers (including IE 11) require a shim to support the
+  the needed functionality.
+  Try loading the following shim *above* the other scripts in the `index.html`:
+
+code-example(language="html" format=".").
+  &lt;script src=&quot;node_modules/es6-shim/es6-shim.js&quot;&gt;&lt;/script&gt;
+:marked
+
+
+.l-main-section
+:marked
   <a id="package-json"></a>
   ### Appendix: package.json
 
@@ -374,7 +387,7 @@ code-example(format="").
 :marked
   We've seen how we can run the compiler and a server at the same time with this command:
 code-example(format="").
-  npm run both
+  npm run go
 :marked
   We execute npm scripts in that manner: `npm run` + *script-name*. Here's what these scripts do:
   
@@ -386,7 +399,8 @@ code-example(format="").
   * `npm run lite` - run the [lite-server](https://www.npmjs.com/package/lite-server), 
   a light-weight, static file server, written and maintained by [John Papa](http://johnpapa.net/) 
   with excellent support for Angular apps that use routing.
-  
+
+
 <!-- Move this to the Style Guide when we have one -->
 .l-main-section
 :marked
@@ -447,7 +461,7 @@ code-example(format="").
   :marked
     Learn more about SystemJS configuration [here](https://github.com/systemjs/systemjs/blob/master/docs/config-api.md).
 :marked
-  With those caustions in mind, what are we doing here?
+  With those cautions in mind, what are we doing here?
 +makeExample('quickstart/ts/index.html', 'systemjs', 'index.html (System configuration')(format=".")
 :marked
   The `packages:` line tells SystemJS what to do when it sees a request for a 
@@ -492,12 +506,75 @@ code-example(format="").
   
 .l-main-section
 :marked
-  <a id="es6support"></a>
-  ### Appendix: Browser ES6 support
-  Angular 2 relies on some ES2015 features, most of them found in modern
-  browsers. Some browsers (including IE 11) require a shim to support the
-  the needed functionality.
-  Try loading the following shim *above* the other scripts in the `index.html`:
+  <a id="boot"></a>
+  ### Appendix: ***boot.ts***
 
-code-example(language="html" format=".").
-  &lt;script src=&quot;node_modules/es6-shim/es6-shim.js&quot;&gt;&lt;/script&gt;
+  #### Bootstrapping is platform-specific
+    We import the `bootstrap` function from `angular2/platform/browser`,
+    not `angular2/core`. There's a good reason.
+    
+    We only call "core" those capabilities that are the same across all platform targets.
+    True, most Angular applications run only in a browser and we'll call the bootstrap function from
+    this library most of the time. It's pretty "core" if we're always writing for a browser.
+     
+    But it is possible to load a component in a different enviroment. 
+    We might load it on a mobile device with [Apache Cordova](https://cordova.apache.org/)
+    We might wish to render the first page of our application on the server 
+    to improve launch performance or facilitate 
+    [SEO](http://static.googleusercontent.com/media/www.google.com/en//webmasters/docs/search-engine-optimization-starter-guide.pdf).
+    
+    These targets require a different kind of bootstrap function that we'd import from a different library.
+
+    
+  #### Why do we create a separate ***boot.ts*** file?
+  
+  The *boot.ts* file is tiny. This is just a QuickStart.
+  We could have folded its few lines into the `app.component` file
+  and spared ourselves some complexity.
+  
+  We didn't for what we believe to be good reasons:
+  1. Doing it right is easy
+  1. Testability
+  1. Reusability
+  1. Separation of concerns
+  1. We learned about import and export
+  
+  #### It's easy
+  Sure it's an extra step and an extra file. How hard is that in the scheme of things?
+  
+  We'll see that a separate `boot.ts` is beneficial for *most* apps 
+  even if it isn't critical for the QuickStart.
+  Let's develop good habits now while the cost is low.
+  
+  #### Testability
+  We should be thinking about testability from the beginning
+  even if we know we'll never test the QuickStart. 
+  
+  It is difficult to unit test a component when there is a call to `bootstrap` in the same file.
+  As soon as we load the component file to test the component, 
+  the `bootstrap` function tries to load the application in the browser.
+  It throws an error because we're not expecting to run the entire application, 
+  just test the component. 
+  
+  Relocating the `bootstrap` function to `boot.ts` eliminates this spurious error
+  and leaves us with a clean component module file.
+  
+  #### Reusability
+  We refactor, rename, and relocate files as our application evolves.
+  We can't do any of those things while the file calls `bootstrap`.
+  we can't move it. 
+  We can't reuse the component in another application. 
+  We can't pre-render the component on the server for better performance.
+  
+  #### Separation of concerns
+  A component's responsibility is to present and manage a view.
+  
+  Launching the application has nothing to do with view management.
+  That's a separate concern. The friction we're encountering in testing and reuse
+  stems from this unnecessary mix of responsibilities.
+  
+  #### Import/Export
+  
+  While writing a separate `boot.ts` file we learned an essential Angular skill:
+  how to export from one module and import into another. 
+  We'll do a lot of that as we learn more Angular.
