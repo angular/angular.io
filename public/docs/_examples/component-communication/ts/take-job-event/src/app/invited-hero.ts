@@ -1,4 +1,6 @@
+// #docregion import
 import {Component, Input, Output, EventEmitter} from 'angular2/angular2';
+// #enddocregion import
 import {Hero} from './hero';
 import {HeroJobBoard} from './hero-job-board';
 
@@ -46,6 +48,7 @@ import {HeroJobBoard} from './hero-job-board';
         }
     `]
 })
+// #docregion component
 export class InvitedHero {
     @Input() hero: Hero;
     @Input() request: string;
@@ -63,3 +66,4 @@ export class InvitedHero {
         this.undertaken = true;
     }
 }
+// #enddocregion component

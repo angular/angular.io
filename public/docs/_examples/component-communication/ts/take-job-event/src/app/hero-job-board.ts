@@ -99,8 +99,9 @@ export class HeroJobBoard{
     announceJob(request) {
         this.jobRequest = request.trim();
     }
-    
+// #docregion hero-takes-job
     heroTakesJob(hero: Hero) {
         this.respondingHeroes.push(hero);
     }
+// #enddocregion hero-takes-job
 }

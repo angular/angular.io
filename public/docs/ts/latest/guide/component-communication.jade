@@ -178,6 +178,11 @@ figure.image-display
 +makeExample('component-communication/ts/invite-heroes/src/app/invited-hero.ts', 'input-binding', 'invited-hero.ts', {pnk: /(@Input\(\))/g})
 
 :marked
+  `Input` is defined in the core module of Angular, and we need to import it:
+  
++makeExample('component-communication/ts/invite-heroes/src/app/invited-hero.ts', 'import', null, {blk: /(Input)/g})
+
+:marked
   Within the template definition of `InvitedHero`, we can use the `hero` property to display data, ie. the name of the hero:
   
 +makeExample('component-communication/ts/invite-heroes/src/app/invited-hero.ts', 'invite-template', 'invited-hero.ts', {pnk: /({{hero.name}})/g})
@@ -303,15 +308,133 @@ figure.image-display
   
 :marked
   ## #4: A hero takes the job &mdash; child to parent communication &mdash; antipattern
-  _Content_
+  
+  Let's make a step further. In this scenario, we implement the functionality of the **I'll take it!** button &mdash show how a child can communicate
+  with its parent. What if the parent were expose a function &mdash; let's call it `heroTakesJob()` &mdash; and an `InvitedHero` instance called it? It sounds viable,
+  but the child component needs to have a reference to its parent. Well, with data binding, the parent can hand a reference on itself to its children, can't it? 
+  The temptation of doing child-to-parent communication this way is great. In this scenario, we demonstrate how easy it is.
+  
+.alert.is-critical
+  :marked
+    ** What we are going to do, is a bad practice to avioid &mdash; it is an antipattern.** We still demonstrate it, and then explain why it is bad.
+:marked
+  Let's append two methods to `HeroJobBoard`, `heroTakesJob` and `getJobBoard`, respectively. As the names suggest, the first carries out 
+  the administration of taking a heros response, the second retrieves the `HeroJobBoard` instance:
+  
++makeExample('component-communication/ts/take-job-antipattern/src/app/hero-job-board.ts', 'get-job-board', 'hero-job-board.ts')
 
+:marked
+  With a slight modification in the `HeroJobBoard` template, the parent can hand itself to its children, provided `InvitedHero` has an input property, 
+  `jobBoard`, which stores this reference:
+  
++makeExample('component-communication/ts/take-job-antipattern/fragments/invited-hero.html', null, 'hero-job-board.ts (extract from template)', {blk: /(job-board)/g})
+
+:marked
+  The `InvitedHero` component can obtain this reference as soon as we specify its `jobBoard` property. We add the `undertakeJob()` method, too, and implement 
+  it so that it invokes the parent's' `heroTakesJob()` method through `this.jobBoard`.
+  
++makeExample('component-communication/ts/take-job-antipattern/src/app/invited-hero.ts', 'component', 'invited-hero.ts', {blk: /(jobBoard|undertakeJob\(\)|this\.jobBoard)/g})
+
+:marked
+  To complete this scenario, we modify the `InvitedHero` template's **I'll take it!** to call `undertakeJob()`:
+  
++makeExample('component-communication/ts/take-job-antipattern/fragments/undertake-job.html', null, 'invited-hero.ts (extract from template)')
+
+:marked
+  When running the app, heroes can be invited, they listen to job requests, and are able to undertake a job, as this UI snapshot shows:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/take-job-ui.png" alt="Heroes undertake job")
+  
+:marked
+  ### Why this practice is bad
+  
+  Distributing the application's set of responsibilities among components that have clean boundaries is a great way to ensure that our app
+  is easier to implement, maintain, test, and fix. In this chapter, instead of having a monolithic application component, we created three components, `HeroJobApp`, `HeroJobBoard`,
+  and `InvitedHero`. Each component has well-defined responsibilities. `InvitedHero` does two things: first, it can receive and display job request notifications, 
+  second, it can notify int context &mdash; its parent &mdash; about the fact that a hero undertakes the job.
+  
+  In this scenario, we used tightly-coupled binding between an `InvitedHero` instance and its parent, `HeroJobBoard`. This design hurts the autonomy 
+  of both component types, and does not help a real separation of responsibilities. Instead of simply notifying `HeroJobBoard` and trust in that it can administer 
+  the list of responding heroes, `InvitedHero` takes over this task, and invokes the `heroTakesJob()` method directly.
+  
+  Eventually, this pattern makes our application fragile &mdash; so we take it into account as an _antipattern_.
+  
+  By passing a reference to itself, `HeroJobBoard` offers its entire functionality to an `InvitedHero` instance. This way nothing can prevent `InvitedHero` to use
+  other `HeroJobBoard` operations, for example, it could invoke even `announceJob()`, and that hurts our workflow design as badly as the autonomity of components. Giving up
+  the fundamental desing principles based on properly used and clean component decomposition prevents us from creating easily maintainable and testable software,
+  and creates technical debt.
+  
+.alert.is-important
+  :marked
+    The antipattern we used in this scenario couples only two component types. In real applications, there are often deeper component trees with longer chains of 
+    parents, children, grandchildren, and so on. This issues coming from this kind of tight coupling among components definitely worsen the situation, and causes more
+    maintainance and testing headaches &mdash; while increasing the technical debt, often exponentially.
+:marked
   ## #5: A hero takes the job &mdash; child to parent communication with events
   
-  _Content _
+  Knowing that the the tight coupling we used in the previous scenario is an antipattern, it's time to learn how we can avoid such a situation with Angular.
+  
+  The task we want to solve correctly is that `InvitedHero` needs to notify its parent `HeroJobBoard` that a hero undertaks the requested job so that the hero can be 
+  added to the list of responding ones. We will use _event binding_ to communicate from a children to its parent. We create an _output property_ on `InvitedHero`, 
+  and in the template of `HeroJobBoard` &mdash; where `InvitedHero` is specified with the `<invited-hero>` element &mdash; we bind the output property to a
+  `HeroJobBoard` event handler method.
+  
+  We can easily add an output property to `InvitedHero`. We name this new property `onHeroResponse`, and use it within the `undertakeJob()` method:
+  
++makeExample('component-communication/ts/take-job-event/src/app/invited-hero.ts', 'component', 'invited-hero.ts', {blk: /(onHeroResponse|undertakeJob\(\))/g})
+
+:marked
+  We annotated the output parameter with the `@Output()` decorator, and initialized it to a new `EventEmitter<Hero>` instance.
+  
+.alert.is-important
+  :marked
+    Again, do not forget to use the parentheses with `@Output()` so that our application would not fail mysteriously.
+:marked
+  In order to use these new types, we must import them from the core Angular module:
+  
++makeExample('component-communication/ts/take-job-event/src/app/invited-hero.ts', 'import', null, {blk: /(Output|EventEmitter)/g})
+
+:marked
+  Being an output parameter means that an external component can bind an event handler method in its template that responds the event raised with the object
+  behind the output parameter. As the body of `undertakJob()` shows, we can notify the event that a hero undertook the job through calling 
+  `this.onHeroResponse.next(this.hero)`. The `onHeroResponse` property's type is `EventEmitter<Hero>`. As its name suggest, an instance of this type can emit events 
+  that are represented with arguments of type `Hero`. In our very case, with the event we pass the `Hero` instance that undertook the job.
+  
+.alert.is-helpful
+  :marked
+    The `EventEmitter` generic type is built on the features of the `Observable` type of ECMAScript standard library. `Observable` is a type that
+    can be used to model push-based data sources such as DOM events, timer intervals, and sockets. Understanding this type requires a detailed discussion,
+    and in this chapter we are not going to leverage the features of observables.
+    
+    `EventEmitter` can be used not only for output parameters, but in other publish-subscribe scenarios, as we will learn it soon.
+:marked
+  `HeroJobBoard` can bind itself to the `onHeroResponse` event:
+  
++makeExample('component-communication/ts/take-job-event/fragments/invited-hero.html', null, 'hero-job-board.ts (extract from template)', {blk: /(\(on-hero-response\))/g})
+
+:marked
+  The event is bound to the `heroTakesJob()` method, and `$event` represents the `Hero` instance passed by `InvitedHero` as the event argument, which is the hero who
+  undertook the job. The `heroTakesJob()` method is exactly the same as we used in the previous scenario:
+  
++makeExample('component-communication/ts/take-job-event/src/app/hero-job-board.ts', 'hero-takes-job', 'hero-job-board.ts')
+
+:marked
+  Now, with these simple steps, our app works just like at the end of the previous scenario &mdash; but this time it uses a supported child-to-parent communication pattern.
+  
+  ### Why this practice is preferred
+  
+  In this scenario, out components kept their autonomy, in constrast to the antipattern treated in the previous scenario. `InvitedHero` gets the job request through an
+  input property, but actually does not know from which component the job request is bound to its `request` property. Similarly, when a hero undertakes the job, 
+  `InvitedHero` emits an event through its `onHeroResponde` output property without knowing which component (or components) listen to this event.
+  
+  This architecture allows easy maintenance and testing, as our components encapsulate everything they are responsible for. They do not have strong dependencies on 
+  other components. When we face with child-to-parent communication, using events as we did in this scenario is a _viable way to avoid the traps and fragility_ of the
+  antipattern demonstrated in the previous section.
   
   ## #6: Refactoring communication to an intermediary service
   
-  _Content_
+  There is still a tiny flaw in our inter-component communication design. The `HeroJobBoard` and `InvitedHero` components >>> _to be continued_
   
   ## #7: Assigning the job to a hero &mdash; extending the intermediary service
   

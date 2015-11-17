@@ -100,11 +100,13 @@ export class HeroJobBoard{
         this.jobRequest = request.trim();
     }
     
-    getJobBoard() {
-        return this;
-    }
-    
+// #docregion get-job-board
     heroTakesJob(hero: Hero) {
         this.respondingHeroes.push(hero);
     }
+
+    getJobBoard() {
+        return this;
+    }
+// #enddocregion get-job-board
 }
