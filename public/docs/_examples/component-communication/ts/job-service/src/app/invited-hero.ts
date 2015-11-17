@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from 'angular2/angular2';
+import {Component, Input} from 'angular2/angular2';
 import {Hero} from './hero';
 import {HeroJobBoard} from './hero-job-board';
 import {JobService} from './job-service';
@@ -47,6 +47,7 @@ import {JobService} from './job-service';
         }
     `]
 })
+// #docregion component
 export class InvitedHero {
     @Input() hero: Hero;
     request: string;
@@ -70,3 +71,4 @@ export class InvitedHero {
         this.undertaken = true;
     }
 }
+// #enddocregion component
