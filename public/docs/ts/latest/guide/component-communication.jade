@@ -161,7 +161,13 @@ figure.image-display
   
 figure.image-display
   img(src="/resources/images/devguide/component-communication/prototype-ui.png" alt="Parent and its children")
-  
+
+.alert.is-helpful
+  :marked
+    In the subsequent sections of this chapter, we are going to extend and, sometimes, refactor this application. The app we create implements the basic
+    workflow, but does not add every nitty-gritty details that we would add to a real application, as those subtleties would distract the focus from the
+    most essential things. For example, we do not check inputs thoroughly, and do not spend too much time to create fancy UI.
+
 :marked
   ## #2: Inviting heroes &mdash; parent to child communication with data binding
   
@@ -489,7 +495,7 @@ figure.image-display
   Our application will work properly only if we use a singleton instance of `JobService`: the single `HeroJobBoard` instance and all `InvitedHero` instances 
   _must use_ the very same `JobService` instance. We'll ensure this behavior by configuring `HeroJobBoard`'s `providers` annotation property this way:
   
-+makeExample('component-communication/ts/job-service/fragments/provider-annotation.ts', null, 'hero-job-board.ts (component annotation)' ,{blk: /(providers)/g})
++makeExample('component-communication/ts/job-service/fragments/provider-annotation.ts', null, 'hero-job-board.ts (component annotation)', {blk: /(providers)/g})
 
 :marked
   Thanks to the great design of Angular's hierarchical dependency injection system &mdash;
@@ -501,10 +507,42 @@ figure.image-display
   
   ## #7: Assigning the job to a hero &mdash; extending the intermediary service
   
+  Now, we have the `JobService` component, which &mdash; according to our intention &mdash; encapsulates the business logic of the app. Naturally, we want this
+  very component to implement the method of assigning the job to a hero. We need to provide a method for `HeroJobBoard` to assign the job to one of the responding
+  heroes, and add an event `InviteddHero` instances listen to in order to get notified about job assignment.
   
-  _Content_
+  This extension is strightforward, as the new, highlighted members of `JobService` show:
   
-  ## #8: A mailcious hero steals the job &mdash; issues with multiple facades
++makeExample('component-communication/ts/assign-job/src/app/job-service.ts', null, 'job-service.ts', {blk: /(_assignedTo|assignedTo\(\)|jobAssignedEvent|assign\(hero: Hero\))/g})
+
+:marked
+  To integrate the new `assign()` method with `HeroJobBoard`, we need to change the component template and add a couple of methods to the class body, as shown in
+  this code extract:
+  
++makeExample('component-communication/ts/assign-job/fragments/hero-job-board.ts', null, 'job-service.ts', {blk: /(winner\(\)|assignJob\(hero: Hero\))/g})
+  
+:marked
+  Now, the component template removes the list of responding heroes as soon as the job as assigned to one of them, and the winner is displayed in the Hero Job Board.
+  We need to change `InvitedHero`, too, so that it could listen to assignment announcements, and change its UI accordingly:
+  
++makeExample('component-communication/ts/assign-job/fragments/invited-hero.ts', null, 'invited-hero.ts', {blk: /(subscribe|finalState\(\))/g})
+  
+:marked
+  Here, `InviteHero` subscribes to the `jobAssignedEvent`, and sets the winner hero according to the event parameter (`JobService` defines `jobAssigned` as a 
+  type of `EventEmitter<Hero>`). The `finalState()` helper method is used to set the right label in the UI of the component that displays 
+  whether the hero won or lost &mdash; provided it undertake the job at all.
+  
+  When the person in need assigns a job to a hero, the UI is immediately updated. This figure shows that Mr. Nice, Bombasto and RubberMan undertook the job,
+  and finally it was assigned to Bombasto:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/assign-job-ui.png" alt="Assign a job to a hero")
+  
+:marked
+  Now, we implemented the basic workflow. We could have been satisfied with the component communication scenarios we've implemented by now, but there's still a
+  few things that we should discuss.
+  
+  ## #8: A malicious hero steals the job &mdash; issues with multiple facades
   
   _Content_
   
