@@ -1,3 +1,4 @@
+// #docregion
 import {Injectable, EventEmitter} from 'angular2/angular2';
 import {Hero} from './hero';
 
@@ -25,3 +26,4 @@ export class JobService {
         this._respondingHeroes.push(hero);
     }
 }
+// #enddocregion

@@ -434,9 +434,73 @@ figure.image-display
   
   ## #6: Refactoring communication to an intermediary service
   
-  There is still a tiny flaw in our inter-component communication design. The `HeroJobBoard` and `InvitedHero` components >>> _to be continued_
+  There is still a tiny flaw in our inter-component communication design. The `HeroJobBoard` and `InvitedHero` components are autonomous but they need to communicate
+  directly with each other to implement the applications. In its current form, `InvitedHero` implements only UI logic, but `HeroJobBoard` mixes UI logic &mdash; 
+  logic that controls the appearance and state of the UI &mdash; with business logic &mdash; the logic that adminsters the state of the job board management workflow.
+  
+  In a real application the job requests, the heroes' applications for the job and assigments were persisted somewhere at the backend, and certain business rules
+  were enforced. To move toward a more flexible and more real architecture, the business logic that is encapsulated right now into `HeroJobBoard` should be moved 
+  into a separate entity &mdash; let's call it `JobService`. Instead of communicating directly with each other, `HeroJobBoard` and `InvitedHero` instances would trust
+  in `JobService` to manage the business logic, and our componenst would manage only the state of the UI they are responsible for.
+  
+  In this scenario, we will refactor our app by adding the new `JobService` component. Our design will use different communication, as indicated by the dashed arrows 
+  (solid arrows still indicate parent-child relationships):
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/jobservice-communication.png" alt="Adding JobService")
+  
+:marked
+  Let's implement the new intermediary service, `JobService`: 
+  
++makeExample('component-communication/ts/job-service/src/app/job-service.ts', null, 'job-service.ts')
+
+:marked
+  The structure of this component is pretty straightfoorward: internally it uses the `_jobRequest` and `_respondingHeroes` members to store the state of the 
+  Hero Job Board workflow. It exposes the state of the component through the `jobRequest` and `respondingHeroes` getters, and provides two operations, `post()` for
+  announcing new job requests, and `take` to let heroes undertake the job. Beside these methods, the `jobPostEvent` event emitter can be used to subscribe for new
+  job request events.
+  
+.alert.is-helpful
+  :marked
+    Observe, `JobService` has an annotation, `@Injectable()`, which is used to create metadata for `JobService` so that we can inject it into other components. 
+    We treated this mechanism in the [Dependency Injection](./dependency-injection.html#when-the-service-needs-a-service) chapter with more details.
+:marked
+  Now, let's alter `HeroJobBoard` to leverage `JobService`:
+  
++makeExample('component-communication/ts/job-service/src/app/hero-job-board.ts', 'component', 'hero-job-board.ts (component)')
+
+:marked
+  The structure of `HeroJobBoard` did not change much. Instead of its own data members, now it uses the properties and operations available through the `JobService`
+  instance that has been injected through the `HeroJobBoard` constructor. Soon, we will learn how dependency injection works in this scenario.
+  
+  We can easily utilize `JobService` in `InvitedHero`:
+  
++makeExample('component-communication/ts/job-service/src/app/invited-hero.ts', 'component', 'invited-hero.ts (component)')
+
+:marked
+  We still pass the `hero` property from `HeroJobBoard` via data binding, but not `request` anymore. Observe how we use the `subscribe` method of the injected 
+  `JobService` to define an event handler for the `jobPostEvent` event. `jobPostEvent` accepts a string (the event is defined as an `EventEmitter<string>`), 
+  which contains the job request. So, any time a new job request arrives, the `InvitedHero` instance updates its state (and the UI) accordingly.
+  
+.alert.is-helpful
+  :marked
+    Because both component utilize `JobService`, it needs to be imported in `hero-job-board.ts` and `invited-hero.ts`.
+:marked
+  Our application will work properly only if we use a singleton instance of `JobService`: the single `HeroJobBoard` instance and all `InvitedHero` instances 
+  _must use_ the very same `JobService` instance. We'll ensure this behavior by configuring `HeroJobBoard`'s `providers` annotation property this way:
+  
++makeExample('component-communication/ts/job-service/fragments/provider-annotation.ts', null, 'hero-job-board.ts (component annotation)' ,{blk: /(providers)/g})
+
+:marked
+  Thanks to the great design of Angular's hierarchical dependency injection system &mdash;
+  it supports nested injectors in parallel with the component tree &mdash; `InvitedHero` instances automatically obtain the same `JobService` instance injected
+  through their constructor as `HeroJobBoard` gets.
+  
+  When we run our app, it still works exactly as in the previous scenario. We can invite heroes, announce job requests, and heroes can undertake them. 
+  It's time to add the last step of the basic workflow so that the person in need can assing the job to the hero who deserves it the best.
   
   ## #7: Assigning the job to a hero &mdash; extending the intermediary service
+  
   
   _Content_
   

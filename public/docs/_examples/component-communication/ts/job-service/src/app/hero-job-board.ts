@@ -61,8 +61,11 @@ import {Hero} from './hero';
     directives: [
         InvitedHero,
         CORE_DIRECTIVES],
+// #docregion providers
     providers: [JobService]
+// #enddocregion providers
 })
+// #docregion component
 export class HeroJobBoard{
     constructor(private jobService: JobService) {
         jobService.post(null);
@@ -110,3 +113,4 @@ export class HeroJobBoard{
         this.jobService.post(request.trim());
     }
 }
+// #docregion component
