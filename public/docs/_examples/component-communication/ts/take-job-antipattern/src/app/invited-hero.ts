@@ -46,6 +46,7 @@ import {HeroJobBoard} from './hero-job-board';
         }
     `]
 })
+// #docregion component
 export class InvitedHero {
     @Input() hero: Hero;
     @Input() request: string;
@@ -62,3 +63,4 @@ export class InvitedHero {
         this.undertaken = true;
     }
 }
+// #enddocregion component
