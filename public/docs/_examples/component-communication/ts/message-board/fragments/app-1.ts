@@ -1,7 +1,7 @@
+// #docregion
 import {bootstrap, Component} from 'angular2/angular2';
 import {HeroJobBoard} from './hero-job-board';
 import {MessageBoard} from './message-board';
-import {MessageBus} from './message-bus'
 
 @Component({
   selector: 'hero-job-app',
@@ -16,9 +16,9 @@ import {MessageBus} from './message-bus'
           display: block;
       }
   `],
-  directives: [HeroJobBoard, MessageBoard],
-  providers: [MessageBus]
+  directives: [HeroJobBoard, MessageBoard]
 })
 class HeroJobApp { }
 
 bootstrap(HeroJobApp);
+// #enddocregion

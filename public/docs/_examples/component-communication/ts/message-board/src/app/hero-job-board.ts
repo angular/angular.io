@@ -2,7 +2,6 @@ import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
 import {InvitedHero} from './invited-hero';
 import {JobService} from './job-service';
 import {MessageBus} from './message-bus';
-import {MessageBoard} from './message-board';
 
 import {Hero} from './hero';
 
@@ -34,7 +33,6 @@ import {Hero} from './hero';
                 <span class='winner'>{{winner.name}}
             </div>
         </div>
-        <message-board></message-board>
         <div class='invited-hero-list'>
             <invited-hero *ng-for='#hero of invitedHeroes'
                 [hero]='hero'>
@@ -76,9 +74,8 @@ import {Hero} from './hero';
     `],
     directives: [
         InvitedHero,
-        MessageBoard,
         CORE_DIRECTIVES],
-    providers: [JobService]
+    providers: [JobService, MessageBus]
 })
 export class HeroJobBoard{
     constructor(private jobService: JobService,
