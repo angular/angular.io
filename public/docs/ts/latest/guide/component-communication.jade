@@ -589,9 +589,114 @@ figure.image-display
   img(src="/resources/images/devguide/component-communication/job-stolen-ui.png" alt="The job is stolen")
   
 :marked
+.alert.is-important
+  :marked
+    After a short by-pass (in the next scenario), we'll go on with the code we created in this scenario, so it is worth to make a backup 
+    so that we can return to it easily.
+    
+:marked
   ## #9: Preventing stealth &mdash; using multiple facades
   
-  _Content_
+  Let's fix the issue with `JobService`! If we'd have two separate facades, one for `HeroJobBoard` and another for `InvitedHero`, we would not have this issue.
+  There are several ways to create two facades that use the same service object in the background. One way is to create two objects &mdash; each with the appropriate
+  facade &mdash;, and aggregate the singleton `JobService` instance with them. Implictly, these objects would expose only these `JobService` operations that are 
+  required by their facade.
+  
+  We will apply this method &mdash; with a little twist. We are going to leverage on two great TypeScript features:
+  1. Abstract classes (more details [here](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#abstract-classes-and-methods))
+  1. TypeScript allows to use classes as if those were interfaces (more details [here](http://www.typescriptlang.org/Handbook#classes-advanced-techniques)) 
+  
+  Here is the revised map of object communication. It leverages the refactored version of `JobService`, which now provides two facades, 
+  `JobBoardFacade` and `InvitedHeroFacade`, respectively:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/job-service-facades.png" alt="Communication through new facades")
+  
+:marked
+  Now let's see how these changes are represented in the code of `JobService`:
+  
++makeExample('component-communication/ts/prevent-stealth/src/app/job-service.ts', null, 'job-service-ts', {blk: /(JobService|JobBoardFacade|InvitedHeroFacade)/g})
+  
+.alert.is-important
+  :marked
+    Although our suggested convention is to create one class per file &mdash; as treated in [Dependency Injection's Appendix](./dependency-injection.html#appendix-why-we-recommend-one-class-per-file)
+    &mdash; this code is an exception for the sake of easier discussion.
+    
+:marked
+  We declare `JobBoardFacade` and `InvitedHeroFacade` as abstract classes, and mark all of their operations as `abstract`. We altered the definitions of 
+  `jobPostEvent` and `jobAssignedEvent` from a property getter to a function, since property getters cannot be abstract.
+  
+  Just as many "curly brace" languages, TypeScript does not support multiple inheritance. Of course, it supports implementing multiple interfaces. We utilize the
+  TypeScript feature that it can handle classes as if those were interfaces: we declare `JobService` so that it _implements_ both `JobBoardFacade` and `InvitedHeroFacade`.
+  
+  To make `HeroJobBoard` use `JobBoardFacade` and `InvitedHero` to work with `InvitedHeroFacade`, we need to change the constructors of these classes:
+  
+code-example(format='linenums', language='typescript').
+  // hero-job-board.ts:
+  export class HeroJobBoard {
+      constructor(private jobBoardFacade: JobBoardFacade) {
+          // ...
+      }
+      // ...
+  }
+
+  // invited-hero.ts:
+  export class InvitedHero {
+      // ...
+      constructor(private heroJobFacade: InvitedHeroFacade) {
+          // ...
+      }
+  }
+
+.alert.is-important
+  :marked
+    Evidently, we need to rename the local `jobService` property names in `HeroJobBoard` to `jobBoardFacade`, and in `InvitedHero` to `heroJobFacade` to
+    make the code sample work. 
+    
+:marked
+  We have one more task to complete: we have to change dependency injection so that a _singleton_ `JobService` instance will be injected to the single 
+  instance of `HeroJobBoard` and the multiple instances of `InvitedHero`. We'll do this by changing the `directives` annotation property on `HeroJobBoard`:
+  
+code-example(format='linenums', language='typescript').
+  import {Component, provide, CORE_DIRECTIVES} from 'angular2/angular2';
+  import {InvitedHero} from './invited-hero';
+  import {JobService, JobBoardFacade, InvitedHeroFacade} from './job-service';
+  import {Hero} from './hero';
+  
+  let jobService = new JobService();
+
+  @Component({
+      /* ... */ 
+      providers: [
+          provide(JobBoardFacade, {useValue: jobService}),
+          provide(InvitedHeroFacade, {useValue: jobService})
+      ]
+  })
+  export class HeroJobBoard {
+      // ...
+  }
+
+:marked
+  Right at the very beginning of the module, we create the single `JobService` instance, `jobService`. Because `JobService` implements both 
+  `JobBoardFacade` and `InvitedHeroFacade`, we can configure the injector to use the single instance of `jobService` to represent both facades.
+  To achive this, we utilize the `provide()` function with the `useValue` configuration property.
+  
+  ### Why we cannot use `stealJob()` now
+  
+  Now, the `InvitedHeroFacade` does not offer the `assign()` method, so when you try to compile the `invited-hero.ts` file, the TypeScript compiler raises an error:
+  
+code-example(language='text').
+  src/app/invited-hero.ts(114,28): error TS2339: Property 'assign' does not exist on type 'InvitedHeroFacade'.
+
+:marked
+  When we work with an editor that has IntelliSense (Such as Sublime or Visual Studio Code), we cannot find `assign()` on the list of available members for
+  `heroJobFacade`:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/assign-is-not-offered.png" alt="heroJobFacade members")
+  
+:marked
+  So, using separate facades to expose the services of the singleton `JobService` objects helped us to prevent issues coming from a flaw in the component design.
   
   ## #10: Broadcasting messages &mdash; parent and child communicates with an unrelated component
   
