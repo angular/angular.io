@@ -1,24 +1,18 @@
+// #docregion
 import {Injectable, EventEmitter} from 'angular2/angular2';
 import {Hero} from './hero';
 
-export interface JobServiceEvents {
-    jobPostEvent(): EventEmitter<string>;
-    jobAssignedEvent(): EventEmitter<Hero>;
-}
-
 @Injectable()
-export abstract class JobBoardFacade implements JobServiceEvents {
+export abstract class JobBoardFacade {
     abstract post(jobRequest: string);
     abstract assign(hero: Hero);
     abstract jobRequest(); 
     abstract respondingHeroes (): Hero[];
     abstract assignedTo();
-    abstract jobPostEvent(): EventEmitter<string>;
-    abstract jobAssignedEvent(): EventEmitter<Hero>;
 }
 
 @Injectable()
-export abstract class InvitedHeroFacade implements JobServiceEvents {
+export abstract class InvitedHeroFacade {
     abstract take(hero: Hero);
     abstract jobPostEvent(): EventEmitter<string>;
     abstract jobAssignedEvent(): EventEmitter<Hero>;
@@ -54,3 +48,4 @@ export class JobService implements JobBoardFacade, InvitedHeroFacade {
         this._jobAssignedEvent.next(hero);
     }
 }
+// #enddocregion
