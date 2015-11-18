@@ -700,11 +700,105 @@ figure.image-display
   
   ## #10: Broadcasting messages &mdash; parent and child communicates with an unrelated component
   
-  _Content_
+  By now, we discussed different ways to communicate between components within the same tree of components, from parent to children, from a child to its parent.
+  We examined how intermediary components (services) can be used, and also analyzed potential desing flaws and trade-offs. In this scenario, we demonstrate how 
+  unrelated components can communicate with each other. 
   
+  Most of our heroes are extravert, and like to win &mdash; and definitely are hurt by losing in any plight. In this scenario, we let them brag or complain when they win
+  or lose a job, and steal jobs for the winners. We do this for the sake of introducing a new component, `MessageBus` that can be flooded with messages coming from 
+  heroes and the person in need. To check the messages poured on `MessageBus` &mdash; int this scenario &mdash; we will use the console log. 
+  
+.alert.is-important
+  :marked
+    In this scenario, we start from the application version completed and backed up at the end of [A malicious hero steals the job](#-8-a-malicious-hero-steals-the-job-mdash-issues-with-multiple-facades)
+    section.
+    
+:marked
+  The `MessageBus` component is very simple, it declares a single `broadcastMessage()` method:
+
++makeExample('component-communication/ts/message-bus/src/app/message-bus.ts', null, 'message-bus.ts')
+  
+:marked
+  To leverage `MessageBus` in `HeroJobBoard`, we pass a `MessageBus` instance in the constructor, and append the call of `broadcastMessage()` to `inviteAllHeroes()`,
+  `announceJob()` and `assignJob()`:
+
+code-example(format='linenums', language='typescript').
+  export class HeroJobBoard{
+      constructor(private jobService: JobService,
+          private messageBus: MessageBus) {
+          jobService.post(null);
+      }
+      // ...
+      
+      inviteAllHeroes() {
+          // ...
+          this.messageBus.broadcastMessage('Heroes invited.');
+      }
+      
+      // ...
+      announceJob(request) {
+          // ...
+          this.messageBus.broadcastMessage('Job announced: ' + request.trim());
+      }
+    
+      assignJob(hero: Hero) {
+          this.messageBus.broadcastMessage('Job "' + this.jobRequest 
+              + '" assigned to ' + hero.name);
+      }
+  }
+
+:marked
+  Similarly, we inject `MessageBus` into `InvitedHero`, and invoke `broadcastMessage()` in `undertakeJob()` and `stealJob()`:
+  
+code-example(format='linenums', language='typescript').
+  export class InvitedHero {
+      // ...
+      constructor(private jobService: JobService,
+          private messageBus: MessageBus) {
+          // ...
+      }
+      // ...
+      
+      undertakeJob() {
+          // ...
+          this.messageBus.broadcastMessage('*** I, ' + this.hero.name
+            + ', proudly undertake the job!')
+      }
+    
+      stealJob() {
+          this.messageBus.broadcastMessage('*** I, ' + this.hero.name
+              + ', stole the job... Hahaha...');
+      }
+  }
+
+:marked
+  In order `HeroJobBoard` and `InviteHero` instances can access the `MessageBus` instance, we need to add it to the `providers` annotation 
+  property of `HeroJobBoard`:
+  
++makeExample('component-communication/ts/message-bus/src/app/hero-job-board.ts', 'providers', 'her-job-board.ts', {blk: /(MessageBus)/g})
+  
+:marked
+  Just as `JobService`, the `MessageBus` instance is injected into the constructors of `InvitedHero` instances by Angular, as they are the 
+  children of the single `HeroJobBoard` instance.
+  When we run the app, `MessageBus` shows the activity in the console log:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/message-bus-ui.png" alt="Messages in the console")
+  
+:marked
   ## #11: Message Board &mdash; receiving messages from an unrelated component
   
-  _Content_
+  It's great that we can log messages, but it would be great to show them on UI of the Her Job Board application. Let's create a new component,
+  `MessageBoard`, which displays messages sent to `MessageBus`. Our `MessageBus` component is generic, although right now it accepts messages 
+  only from `HeroJobBoard` and `InvitedHero`, it can receive messages from any other app. When we create `MessageBoard`, we rather nest it into
+  `HeroJobApp` instead of `HeroJobBoard` so that later messges from application components outside of the `HeroJobBoard` subtree can be displayed, too.
+  The hierarchy and communication of the app components (excluding `JobService` for the sake of simplification) now looks like this:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/message-board-communication.png" alt="Message board")
+  
+:marked
+  components.
   
   ## Summary
   

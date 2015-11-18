@@ -75,7 +75,9 @@ import {Hero} from './hero';
     directives: [
         InvitedHero,
         CORE_DIRECTIVES],
-    providers: [JobService]
+// #docregion providers
+    providers: [JobService, MessageBus]
+// #enddocregion providers
 })
 export class HeroJobBoard{
     constructor(private jobService: JobService,
