@@ -113,9 +113,10 @@ export class InvitedHero {
             ? "I won the job !!!"
             : "I lost the job :-(";
     }
-    
+// #docregion steal
     stealJob() {
         this.undertaken = true;
         this.jobService.assign(this.hero);
     }
+// #enddocregion steal
 }

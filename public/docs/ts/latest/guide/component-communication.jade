@@ -544,8 +544,51 @@ figure.image-display
   
   ## #8: A malicious hero steals the job &mdash; issues with multiple facades
   
-  _Content_
+  With moving the business logic to `JobService`, we made a great design decision, as we can manage business and UI logic separately. However the _way we use_
+  `JobService` has a flaw. Right now both `HeroJobBoard` and `InvitedHero` use a single facade to access `JobService` functionality, and through this facade
+  these components can access all operations, and not only the ones intended for their use. The following blueprint shows how the members of `JobService` are used:
   
+code-example(format='linenums', language='typescript').
+  export class JobService {
+      get jobRequest();         // HeroJobBoard
+      get respondingHeroes();   // HeroJobBoard
+      get assignedTo();         // HeroJobBoard
+    
+      jobPostEvent;             // HeroJobBoard and InvitedHero
+      jobAssignedEvent;         // HeroJobBoard and InvitedHero
+    
+      post(jobRequest: string); // HeroJobBoard
+      take(hero: Hero);         // InvitedHero
+      assign(hero: Hero);       // HeroJobBoard
+  }
+
+:marked
+  This design allows that components can invoke operations that were not available for them with properly designed facades. We'll it by adding a new `stealJob()` method
+  to `InvitedHero` so that a hero can maliciously steal a job assigned to another hero:
+  
++makeExample('component-communication/ts/steal-job/src/app/invited-hero.ts', 'steal', 'invited-hero.ts')
+  
+:marked
+  Let's append this markup snippet to the template of `InvitedHero` so that we can invoke `stealJob()` from the UI:
+  
++makeExample('component-communication/ts/steal-job/fragments/steal.html', null, 'invited-hero.ts (template)')
+  
+:marked
+  Now, an `InvitedHero` instance can behave as if it were `HeroJobBoard` and invoke the `assign()` method of `JobService`, passing itself as the winner hero.
+  
+  When we run the application, after the job is assigned to a hero, all other heroes (even those who have not undertaken the job before) can click the **I steal the job!**
+  button and scrounge the job. This screenshot shows that Magneta has been assigned the job:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/winner-announced-ui.png" alt="The winner is announced")
+  
+:marked
+  Now, Bombasto can use the **I steal the job button!**, and the job goes to him. (It's not a great consolation for Magneta that she can steal the job back...)
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/job-stolen-ui.png" alt="The job is stolen")
+  
+:marked
   ## #9: Preventing stealth &mdash; using multiple facades
   
   _Content_
