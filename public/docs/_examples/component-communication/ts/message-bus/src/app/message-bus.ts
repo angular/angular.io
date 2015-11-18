@@ -1,3 +1,4 @@
+// #docregion
 import {Injectable, EventEmitter} from 'angular2/angular2';
 
 @Injectable()
@@ -6,3 +7,4 @@ export class MessageBus {
         console.log(message);
     }
 }
+// #enddocregion
