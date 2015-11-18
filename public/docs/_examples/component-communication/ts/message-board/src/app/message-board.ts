@@ -1,3 +1,4 @@
+// #docregion
 import {Component, CORE_DIRECTIVES} from 'angular2/angular2';
 import {MessageBus} from './message-bus';
 
@@ -34,3 +35,4 @@ export class MessageBoard {
             })
     }
 }
+// #enddocregion

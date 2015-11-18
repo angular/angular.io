@@ -775,7 +775,7 @@ code-example(format='linenums', language='typescript').
   In order `HeroJobBoard` and `InviteHero` instances can access the `MessageBus` instance, we need to add it to the `providers` annotation 
   property of `HeroJobBoard`:
   
-+makeExample('component-communication/ts/message-bus/src/app/hero-job-board.ts', 'providers', 'her-job-board.ts', {blk: /(MessageBus)/g})
++makeExample('component-communication/ts/message-bus/src/app/hero-job-board.ts', 'providers', 'hero-job-board.ts', {blk: /(MessageBus)/g})
   
 :marked
   Just as `JobService`, the `MessageBus` instance is injected into the constructors of `InvitedHero` instances by Angular, as they are the 
@@ -798,8 +798,78 @@ figure.image-display
   img(src="/resources/images/devguide/component-communication/message-board-communication.png" alt="Message board")
   
 :marked
-  components.
+  Let's change the `MessageBus` component so that it will raise an event any time a new message is received &mdash; while still writing the message
+  to the console log:
   
-  ## Summary
++makeExample('component-communication/ts/message-board/src/app/message-bus.ts', null, 'message-bus.ts', {blk: /(messageReceived)/g})
   
-  _Content_
+:marked
+  Now we can add create the `MessageBoard` component that listens to the `messageReceived` event of `MessageBus`, appends the new message to
+  its internal store, and displays it. Evidently, `MessageBoard` depends on `MessageBus`, and we resolve this dependency with constructor injection:
+  
++makeExample('component-communication/ts/message-board/src/app/message-board.ts', null, 'message-board.ts')
+  
+:marked
+  Now, let's modify `app.ts`, to add `MessageBoard` to the UI. We add this component deliberately to `HeroJobApp` and not to `HeroJobBoard`:
+  
++makeExample('component-communication/ts/message-board/fragments/app-1.ts', null, 'app.ts', {pnk: /(&lt;message-board&gt;)/g})
+  
+:marked
+  At this point, we have every component on its right place. However, when we run the app, we get an Angular error message in the console log of the browser:
+  
+code-example(language='text').
+  EXCEPTION: No provider for MessageBus! (MessageBoard -> MessageBus)
+
+:marked
+  This error points out to an important fact: Angular could not inject `MessageBus` into the `MessageBoard` constructor. Previously we were indulged,
+  because dependent object injected to `HeroJobBoard` were inherited by child components. But `MessageBoard` is not in the `HeroJobBoard` subtree, so
+  it cannot obtain the `MessageBus` instance we injected to `HeroJobBoard`.
+  
+  The solution is simple: we need to inject `MessageBus` into `HeroJobApp`:
+  
+code-example(format='linenums', language='typescript').
+  // ...
+  import {MessageBus} from './message-bus';
+
+  @Component({
+      // ...
+      providers: [MessageBus]
+  })
+  class HeroJobApp { }
+
+  bootstrap(HeroJobApp);
+
+:marked
+  When we run the app, messages are displayed in the console log, but they are not shown in `MessageBoard`. Did we still miss something? The console log
+  does not indicate any Angular or other issue.
+  
+  The cause of the phenomenon is that we forgot to remove `MessageBus` from `providers` in `hero-job-board.ts`.
+  
+code-example(format='linenums', language='typescript').
+  @Component({
+      // ...
+      providers: [JobService, MessageBus]
+  })
+  export class HeroJobBoard{
+      // ...
+  }
+  
+:marked
+  When we run the app, there are two `MessageBus` instances. One is used by `MessageBoard` &mdash; it listens to messages &mdash; and another 
+  in the `HeroJobBoard` subtree. Messages are sent to the second instance, but `MessageBoard` listens to the first.
+  
+  To resolve the issue, we simply remove `MessageBus` from the provider list in `HeroJobBoard`. Now, the message board works exactly as we expect:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/message-board-ui.png" alt="Message board")
+  
+:marked
+  ## Conclusion
+  
+  Angular provides great communication mechanisms among components within an application. If we have components within the same tree or subtree,
+  we have parent and child components, and can use these methods:
+  * **Parent to child**: data binding with using one or more `@Input()` propery in the child component, the values of which can be assigned in the parent's 
+  template.
+  * **Child to parent**: event binding with using one or more `@Output()` properties (`EventEmitter` instances) in the child component, the event handlers 
+  of which can be assigned in the parent's template.
+  * **Among unrelated components** (among components that are in different component tree branches, including siblings):
