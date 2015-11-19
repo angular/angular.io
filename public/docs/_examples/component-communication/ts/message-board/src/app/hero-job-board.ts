@@ -75,7 +75,7 @@ import {Hero} from './hero';
     directives: [
         InvitedHero,
         CORE_DIRECTIVES],
-    providers: [JobService, MessageBus]
+    providers: [JobService]
 })
 export class HeroJobBoard{
     constructor(private jobService: JobService,
