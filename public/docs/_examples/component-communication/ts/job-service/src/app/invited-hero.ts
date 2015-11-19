@@ -40,7 +40,7 @@ import {JobService} from './job-service';
             border: 2px solid red;
             background-color: #ffdddd;
         }
-        .taken {
+        .undertaken {
             color: blue;
             border: 2px solid blue;
             background-color: #ddddff;
