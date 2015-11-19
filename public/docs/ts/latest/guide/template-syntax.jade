@@ -1,152 +1,150 @@
 include ../../../../_includes/_util-fns
 
-:markdown
+:marked
   # Template Syntax
   Our Angular application manages what the user sees and does through the interaction of a Component class instance and its user-facing template.
-  
+
   Many of us are familiar with the Component/Template duality from our experience with Model-View-Controller or Model-View-ViewModel. In Angular,  the Component plays the part of the Controller/ViewModel and the Template represents the view.
-  
+
   Let’s find out what it takes to write a Template for our view.
-  
+
   We’ll cover these basic elements of Template Syntax
-  
+
   >[HTML](#html)
-  
+
   >[Interpolation](#interpolation)
-  
+
   >[Template expressions](#template-expressions)
-  
+
   >[Binding syntax](#binding-syntax)
-  
+
   >[Property Binding](#property-binding)
-  
+
   >[Attribute, Class and Style Bindings](#other-bindings)
-  
+
   >[Event Binding](#event-binding)
-  
+
   >[Two-way data binding with `NgModel`](#ng-model)
-  
+
   >[Built-in Directives](#directives)
-  
+
   >[* and &lt;template>](#star-template)
-  
+
   >[Local template variables](#local-vars)
-  
+
   >[Input and Output Properties](#inputs-outputs)
-  
+
   >[Template Expression Operators](#expression-ops)
 
 .l-main-section
-:markdown
+:marked
   ## HTML
   HTML is the language of the Angular template. Our “[QuickStart](./quickstart.html)” application had a template that was pure HTML
 
 code-example(format="" language="html" escape="html").
   <h3>My First Angular Application</h3>
-:markdown
+:marked
   Almost all HTML syntax is valid template syntax. The `<script>` element is a notable exception;  it is forbidden in order to eliminate any possibility of JavaScript injection attacks (in practice it is simply ignored).
-  
+
   Some legal HTML doesn’t make much sense in a template. The `<html>`, `<body>` and `<base>` elements have no useful role in our repertoire. Pretty much everything else is fair game.
- 
+
   We can extend the HTML vocabulary of our templates with Components and Directives that appear as new elements and attributes. And we are about to learn how to get and set DOM values dynamically through data binding.
- 
+
   Let’s turn to the first form of data binding - interpolation - to see how much richer Template HTML can be.
 
 .l-main-section
-:markdown
+:marked
   ## Interpolation
   We met the double-curly braces of interpolation, `{{` and `}}`, early in our Angular education.
-  
+
 code-example(format="" language="html" escape="html").
   <p>My current hero is {{currentHero.firstName}}</p>
-:markdown
+:marked
   We use interpolation to weave calculated strings into the text between HTML element tags and within attribute assignments.
 
 code-example(format="" language="html" escape="html").
   <h3>
-    {{title}} 
+    {{title}}
     <img src="{{heroImageUrl}}" height=30>
   </h3>
-:markdown
-  The material between the braces is often the name of a component property. Angular replaces that name with the 
+:marked
+  The material between the braces is often the name of a component property. Angular replaces that name with the
   string value of the corresponding component property. In this example, Angular evaluates the `title` and `heroImageUrl` properties
   and "fills in the blanks", displaying first a bold application title and then a heroic image.
- 
-  More generally, the material between the braces is a **template expression** that Angular first **evaluates** 
+
+  More generally, the material between the braces is a **template expression** that Angular first **evaluates**
   and then **converts to a string**. The following interpolation illustrates the point by adding the two numbers within braces:
 code-example(format="" language="html" escape="html").
   <!-- "The sum of 1 + 1 is 2" -->
   <h1>The sum of 1 + 1 is {{1 + 1}}</h1>
-:markdown
-  Angular evaluates all expressions in double curly braces, converts the expression results to strings, and concatenates them with neighboring literal strings. Finally, 
-  it assigns this composite interpolated result to an **element or directive property**. 
+:marked
+  Angular evaluates all expressions in double curly braces, converts the expression results to strings, and concatenates them with neighboring literal strings. Finally,
+  it assigns this composite interpolated result to an **element or directive property**.
 
-  We appear to be inserting the result between element tags and assigning to attributes. 
-  It's convenient to think so and we rarely suffer for this mistake. 
-  But it is not literally true. Interpolation is actually a special syntax that Angular converts into a 
+  We appear to be inserting the result between element tags and assigning to attributes.
+  It's convenient to think so and we rarely suffer for this mistake.
+  But it is not literally true. Interpolation is actually a special syntax that Angular converts into a
   [Property Binding](#property-binding) as we explain below. The implications and consequences can be profound.
 
   But before we explore that assertion, we’ll take a closer look at template expressions.
 
 .l-main-section
-:markdown
+:marked
   ## Template Expressions
-  We saw a template expression within the interpolation braces. 
-  We’ll see template expressions again in [Property Bindings](#property-binding) (`[property]="expression"`) and 
+  We saw a template expression within the interpolation braces.
+  We’ll see template expressions again in [Property Bindings](#property-binding) (`[property]="expression"`) and
   [Event Bindings](#event-binding) (`(event)="expression"`).
- 
+
   A template expression is a JavaScript-like expression. Many JavaScript expressions are legal template expressions but not all and there are a few language extensions. Notable differences include:
   * Assignment is prohibited except in [Event Bindings](#event-binding).
   * The `new` operator is prohibited.
   * The bit-wise operators, `|` and `&`, are not supported.
-  * The logical operators, `||` and `&&`,  and the ternary operator in `a?b:c` do not “short-circuit”. 
-  Angular evaluates both sides of `a && a.foo` and reports an error if `a` is null.
   * Increment and decrement operators, `++` and `--`, aren’t supported.
   * [Template expression operators](#expression-operators), such as `|` and `?.`, add new meaning.
-  
-  Perhaps more surprising, we cannot refer to anything in the global namespace. 
-  We can’t refer to `window` or `document`. We can’t call `console.log`. 
+
+  Perhaps more surprising, we cannot refer to anything in the global namespace.
+  We can’t refer to `window` or `document`. We can’t call `console.log`.
   We are restricted to referencing members of the expression context.
- 
+
   The **expression context** is typically the **component instance** supporting a particular template instance.
 .l-sub-section
-  :markdown
-    We speak of component and template ***instances***. Angular creates multiple concrete instances from a component class and its template. 
-    
+  :marked
+    We speak of component and template ***instances***. Angular creates multiple concrete instances from a component class and its template.
+
     For example, we may define a component and template to display a list item and tell Angular to create new instances of that component/template pair for each item in a list. There’s a separate, independent expression context for each item in that list as well.
 
-:markdown
-  When we see `title` wrapped in double-curly braces, 
+:marked
+  When we see `title` wrapped in double-curly braces,
   we know that it is a property of a parent component.
-  When we see `[disabled]="isUnchanged"` or `(click)="onCancel()”`, 
+  When we see `[disabled]="isUnchanged"` or `(click)="onCancel()”`,
   we know we are referring to that component's `isUnchanged` property and `onCancel` method respectively.
- 
-  The component itself is usually the expression *context* in which case 
-  the template expression usually references that component. 
-  The expression context may include an object other than the component. 
-  A [local template variable](#local-vars) is one such supplemental context object; 
-  we’ll discuss that option below. 
-  
-  Another is the **`$event`** variable that contains information about an event raised on an element; 
+
+  The component itself is usually the expression *context* in which case
+  the template expression usually references that component.
+  The expression context may include an object other than the component.
+  A [local template variable](#local-vars) is one such supplemental context object;
+  we’ll discuss that option below.
+
+  Another is the **`$event`** variable that contains information about an event raised on an element;
   we’ll talk about that when we consider [Event Bindings](#event-binding).
 .l-sub-section
-  :markdown
+  :marked
     Although we can write quite complex template expressions, we strongly discourage that practice. Most readers frown on JavaScript in the HTML. A property name or method call should be the norm. An occasional Boolean negation (`!`) is OK. Otherwise, confine application and business logic to the component itself where it will be easier to develop and test.
-:markdown
+:marked
   Now that we have a feel for template expressions, we’re ready to learn about the varieties of data binding syntax beyond Interpolation.
-  
+
 
 .l-main-section
-:markdown
+:marked
   <a id="binding-syntax"></a>
   ## Binding syntax overview
-  Data binding is a mechanism for coordinating what users see with application data values.  While we could push values to and pull values from HTML, 
-  the application is easier to write, read, and maintain if we turn these chores over to a binding framework. 
+  Data binding is a mechanism for coordinating what users see with application data values.  While we could push values to and pull values from HTML,
+  the application is easier to write, read, and maintain if we turn these chores over to a binding framework.
   We simply declare bindings between the HTML and the data properties and let the framework do the work.
- 
+
   Angular provides many kinds of data binding and we’ll discuss each of them in this chapter.
   First we'll take a high level view of Angular data binding and its syntax.
- 
+
   We can group all bindings into three categories by the direction in which data flows. Each category has its distinctive syntax:
 table
   tr
@@ -160,7 +158,7 @@ table
         {{expression}}
         [target] = "expression"
         bind-target = "expression"
-    td. 
+    td.
       Interpolation<br>
       Property<br>
       Attribute<br>
@@ -180,23 +178,23 @@ table
           [(target)] = "expression"
           bindon-target = "expression"
       td Two-way
-:markdown
+:marked
   **Template expressions must be surrounded in quotes**
   except for interpolation expressions which must not be quoted.
- 
+
   All binding types except interpolation have a **target name** to the left of the equal sign, either surrounded by punctuation (`[]`, `()`) or preceded by a prefix (`bind-`, `on-`, `bindon-`).
 
   What is that target? Before we can answer that question, we must challenge ourselves to look at Template HTML in a new way.
-  
+
   ### A New Mental Model
-   
+
   With all the power of data binding and our ability to extend the HTML vocabulary
-  with custom markup, it is tempting to think of Template HTML as “HTML Plus”. 
-  Well it is “HTML Plus”. 
-  
-  But it’s also significantly different than the HTML we’re used to. 
+  with custom markup, it is tempting to think of Template HTML as “HTML Plus”.
+  Well it is “HTML Plus”.
+
+  But it’s also significantly different than the HTML we’re used to.
   We really need a new mental model.
-  
+
   In the normal course of HTML development, we create a visual structure with HTML elements and we modify those elements by setting element attributes with string constants.
   ```
   <div class="special">
@@ -205,7 +203,7 @@ table
   </div>
   ```
   We still create a structure and initialize attribute values this way in Angular templates.
-  
+
   Then we learn to create new elements with Components and drop them into our HTML as if they were native HTML elements
   ```
   <div class="special">
@@ -213,82 +211,82 @@ table
   </div>
   ```
   That’s “HTML Plus”.
-  
-  Now we are learning about data binding. At first glance it appears that we are setting attributes, 
+
+  Now we are learning about data binding. At first glance it appears that we are setting attributes,
   as when we bind button `disabled` to the component’s `isUnchanged` property:
   ```
   <button [disabled]="isUnchanged">Save</button>
   ```
-  We’ll get to that peculiar bracket notation in a moment. Looking beyond it, 
+  We’ll get to that peculiar bracket notation in a moment. Looking beyond it,
   our intuition tells us that we’re binding to the button's `disabled` attribute and setting
   it to the current value of the component’s `isUnchanged` property.
-  
-  Our intuition is wrong! Our everyday HTML mental model is misleading us. 
-  In fact, once we start data binding, we are no longer working with HTML *attributes*. We aren't setting attributes. 
-  We are setting the *properties* of DOM elements, Components, and Directives. 
-  
+
+  Our intuition is wrong! Our everyday HTML mental model is misleading us.
+  In fact, once we start data binding, we are no longer working with HTML *attributes*. We aren't setting attributes.
+  We are setting the *properties* of DOM elements, Components, and Directives.
+
 .l-sub-section
-  :markdown
+  :marked
     ### HTML Attribute vs. DOM Property
-    
+
     The distinction between an HTML attribute and a DOM property is crucial to understanding how Angular binding works.
-    
+
     **Attributes are defined by HTML. Properties are defined by DOM (the Document Object Model).**
-  
+
     * A few HTML attributes have 1:1 mapping to properties. `id` is one example.
-    
+
     * Some HTML attributes don't have corresponding properties. `colspan` is one example.
-    
+
     * Some DOM properties don't have corresponding attributes. `textContent` is one example.
-    
+
     * Many HTML attributes appear to map to properties ... but not the way we think!
-    
+
     That last category can be especially confusing ... until we understand this general rule:
-    
-    **Attributes *initialize* DOM properties and then they are done. 
+
+    **Attributes *initialize* DOM properties and then they are done.
     Property values may change; attribute values don't.**
 
-    For example, when the browser renders `<input type="text" value="Bob">`, it creates a 
-    corresponding DOM node with a `value` property *initialized* to "Bob". 
-    
+    For example, when the browser renders `<input type="text" value="Bob">`, it creates a
+    corresponding DOM node with a `value` property *initialized* to "Bob".
+
     When the user enters "Sally" into the input box, the DOM element `value` *property* becomes "Sally".
     But the HTML `value` *attribute* remains unchanged as we discover if we ask the input element
     about that attribute: `input.getAttribute('value') // returns "Bob"`
-    
+
     The HTML attribute `value` specifies the *initial* value; the DOM `value` property is the *current* value.
-    
+
     The `disabled` attribute is another peculiar example. A button's `disabled` *property* is
-    `false` by default so the button is enabled. 
+    `false` by default so the button is enabled.
     When we add the `disabled` *attribute*, it's presence alone initializes the  button's `disabled` *property* to `true`
     so the button is disabled.
-    
+
     Adding and removing the `disabled` *attribute* disables and enables the button. The value of the *attribute* is irrelevant
     which is why we cannot enable a button by writing `<button disabled="false">Still Disabled</button>`.
-    
+
     Setting the button's `disabled` *property*  (e.g. with an Angular binding) disables or enables the button.
-    The value of the *property* matters. 
-    
+    The value of the *property* matters.
+
     **The HTML attribute and the DOM property are not the same thing even when they have the same name.**
-  
-:markdown
+
+:marked
   This is so important, we’ll say it again.
-  
+
   **Template binding works with *properties* and *events*, not *attributes*.**
-  
+
 .callout.is-helpful
   header A world without attributes
-  :markdown
-    In the world of Angular 2, the only role of attributes is to initialize element and directive state. 
-    When we data bind, we're dealing exclusively with element and directive properties and events. 
+  :marked
+    In the world of Angular 2, the only role of attributes is to initialize element and directive state.
+    When we data bind, we're dealing exclusively with element and directive properties and events.
     Attributes effectively disappear.
-:markdown
-  With this model firmly in mind, we are ready to discuss the variety of target properties to which we may bind.    
-  
+:marked
+  With this model firmly in mind, we are ready to discuss the variety of target properties to which we may bind.
+
   ### Binding Targets
   The **target of a data binding** is something in the DOM.
-  Depending on the binding type, the target can be an 
-  (element | component | directive) property, an 
-  (element | component | directive) event, or (rarely) an attribute name. 
+  Depending on the binding type, the target can be an
+  (element | component | directive) property, an
+  (element | component | directive) event, or (rarely) an attribute name.
   The following table summarizes:
 
 <div width="90%">
@@ -299,7 +297,7 @@ table
     th Examples
   tr
     td Property
-    td. 
+    td.
       Element&nbsp;Property<br>
       Component&nbsp;Property<br>
       Directive&nbsp;property
@@ -310,7 +308,7 @@ table
         &lt;div [ng-class] = "{selected: isSelected}"&gt;
   tr
     td Event
-    td. 
+    td.
       Element&nbsp;Event<br>
       Component&nbsp;Event<br>
       Directive&nbsp;Event
@@ -321,7 +319,7 @@ table
         &lt;input (ng-model-change) = "firstName = $event"&gt;
   tr
     td Two-way
-    td. 
+    td.
       Directive&nbsp;Event
       Property
     td
@@ -329,7 +327,7 @@ table
         &lt;input [(ng-model)] = "firstName"&gt;
   tr
     td Attribute
-    td. 
+    td.
       Attribute
       (the&nbsp;exception)
     td
@@ -337,30 +335,30 @@ table
         &lt;button [attr.aria-label] = "actionName"&gt;
   tr
     td Class
-    td. 
+    td.
       <code>class</code> Property
     td
       code-example(format="", language="html").
-        &lt;div [class.special] = "isSpecial"&gt; 
+        &lt;div [class.special] = "isSpecial"&gt;
   tr
     td Style
-    td. 
+    td.
       <code>style</code> Property
     td
       code-example(format="", language="html").
         &lt;button [style.color] = "isSpecial ?'red' : 'green'"&gt;
-</div>  
-:markdown
+</div>
+:marked
   ### Spelling target names
-  The target name – whether between punctuation or after a prefix - 
-  should be spelled with **lowercase**. Although we can spell it in mixed-case, 
+  The target name – whether between punctuation or after a prefix -
+  should be spelled with **lowercase**. Although we can spell it in mixed-case,
   Angular sees it only after it has been forced to lowercase.
- 
-  That’s a problem when we need to reference a property with a mixed-case name. 
-  HTML elements have many mixed-case properties: `innerHTML`, `textContent`, `className` to name a few. 
-  Our custom elements (e.g., `<hero-detail>`) may have mixed-case property names 
+
+  That’s a problem when we need to reference a property with a mixed-case name.
+  HTML elements have many mixed-case properties: `innerHTML`, `textContent`, `className` to name a few.
+  Our custom elements (e.g., `<hero-detail>`) may have mixed-case property names
   (`HeroDetailComponent.isActive`).
-  
+
   We’ll be tempted to write bindings that target such properties in mixed-case:
   ```
   <!-- BAD: No Mixed Case -->
@@ -371,10 +369,10 @@ table
 code-example(format="", language="html").
     Template parse errors:
     Can't bind to 'textcontent' since it isn't a known native property in ...
-:markdown
+:marked
   Notice that it forced mixed-case ""text**C**ontent" to lowercase "text**c**ontent".
-  
-  The solution is to write the target property name in “**lower snake case**”, 
+
+  The solution is to write the target property name in “**lower snake case**”,
   with a dash before each uppercase letter. We can correct the example as follows:
   ```
   <!-- Lower Snake Case -->
@@ -382,18 +380,18 @@ code-example(format="", language="html").
   <hero-detail [is-active] = "isActive">
   ```
 .l-sub-section
-  :markdown
-    According to this rule, we should write `[inner-h-t-m-l]` to access the element’s `innerHTML` property. 
+  :marked
+    According to this rule, we should write `[inner-h-t-m-l]` to access the element’s `innerHTML` property.
     Fortunately, the Angular template parser recognizes `inner-html` as an acceptable alias for `innerHTML`.
-:markdown
+:marked
   Let’s descend from the architectural clouds and look at each of these binding types in concrete detail.
-  
+
 .l-main-section
-:markdown
+:marked
   ## Property Binding
   We write a template **Property Binding** when we want to set a property of a view element to the value of a template expression.
-  
-  The most common Property Binding sets an element property to a component property value as when 
+
+  The most common Property Binding sets an element property to a component property value as when
   we bind the source property of an image element to the component’s `heroImageUrl` property.
   ```
   <img [src]="heroImageUrl"/>
@@ -423,115 +421,115 @@ code-example(format="", language="html").
   <img bind-src="heroImageUrl"/>
   ```
   The target name is always the name of a property, even when it appears to be the name of something else. We see `src` and may think it’s the name of an attribute. No. It’s the name of an image element property.
-  
-  Element properties may be the more common targets, 
-  but Angular looks first to see if the name is a property of a known directive 
+
+  Element properties may be the more common targets,
+  but Angular looks first to see if the name is a property of a known directive
   as it is in the following example:
   ```
   <div [ng-class]="special">NgClass is special</div>
   ```
 .l-sub-section
-  :markdown
-    Technically, Angular is matching the name to a directive [input](#inputs-outputs), 
-    one of the property names listed in the directive’s `inputs` array or a property decorated with `@Input()`. 
+  :marked
+    Technically, Angular is matching the name to a directive [input](#inputs-outputs),
+    one of the property names listed in the directive’s `inputs` array or a property decorated with `@Input()`.
     Such inputs map to the directive’s own properties.
-:markdown
+:marked
   If the name fails to match a property of a known directive or element, Angular reports an “unknown directive” error.
 
   ### Property Binding template expressions
   Evaluation of the expression should have no visible side-effects. The expression language itself does its part to keep us safe. We can’t assign a value to anything in a Property Binding expression nor use the increment and decorator operators.
-  
+
   Of course, our expression might invoke a property or method that has side-effects. Angular has no way of knowing that or stopping us.
-  
-  The expression could call something like `getFoo()`. Only we know what `getFoo()` does. 
+
+  The expression could call something like `getFoo()`. Only we know what `getFoo()` does.
   If `getFoo()`  changes something and we happen to be binding to that something, we risk an unpleasant experience. Angular may or may not display the changed value. Angular may detect the change and throw a warning error. Our general advice: stick to data properties and methods that return values and do no more.
-  
+
   The template expression should evaluate to a value of the type expected by the target property. Most native element properties do expect a string. The image `src` should be set to a string, an URL for the resource providing the image. On the other hand, the `disabled` property of a button expects a Boolean value so our expression should evaluate to `true` or `false`.
-  
+
   The `hero` property of the `HeroDetail` component expects a `Hero` object which is exactly what we’re sending in the Property Binding:
   ```
   <hero-detail [hero]="selectedHero"></hero-detail>
   ```
-  This is good news for the Angular developer. 
+  This is good news for the Angular developer.
   If `hero` were an attribute we could not set it to a `Hero` object.
   ```
   <hero-detail hero="…what do we do here??? …"></hero-detail>
   ```
-  We can't set an attribute to an object. We can only set it to a string. 
-  Internally, the attribute may be able to convert that string to an object before setting the like-named element property. 
+  We can't set an attribute to an object. We can only set it to a string.
+  Internally, the attribute may be able to convert that string to an object before setting the like-named element property.
   That’s good to know but not helpful to us when we're trying to pass a significant data object
-  from one component element to another. 
-  The power of Property Binding is its ability to bypass the attribute and 
+  from one component element to another.
+  The power of Property Binding is its ability to bypass the attribute and
   set the element property directly with a value of the appropriate type.
-  
+
   ### Property Binding or Interpolation?
   We often have a choice between Interpolation and Property Binding. The following binding pairs do the same thing
 code-example(language="html").
   &lt;img src="{{heroImageUrl}}"&lt/>
   &lt;img [src]="'' + heroImageUrl"&lt/>
-  
+
   &lt;h3>The title is {{title}}&lt/h3>
   &lt;h3>[text-content]="'The title is '+title">&lt/h3>
-:markdown
-  Interpolation is actually a convenient alternative for Property Binding in many cases. 
-  In fact, Angular  translates those Interpolations into the corresponding Property Bindings 
+:marked
+  Interpolation is actually a convenient alternative for Property Binding in many cases.
+  In fact, Angular  translates those Interpolations into the corresponding Property Bindings
   before rendering the view.
-  
-  There is no technical reason to prefer one form to the other. 
-  We lean toward readability which tends to favor interpolation. 
-  We suggest establishing coding style rules for the organization and choosing the form that 
+
+  There is no technical reason to prefer one form to the other.
+  We lean toward readability which tends to favor interpolation.
+  We suggest establishing coding style rules for the organization and choosing the form that
   both conforms to the rules and feels most natural for the task at hand.
 
 .l-main-section
-:markdown
+:marked
   <a id="other-bindings"></a>
   ## Attribute, Class, and Style Bindings
   The template syntax provides specialized one-way bindings for scenarios less well suited to Property Binding.
-  
+
   ### Attribute Binding
   We can set the value of an attribute directly with an **Attribute Binding**.
 .l-sub-section
-  :markdown
+  :marked
     This is the only exception to the rule that a binding sets a target property. This is the only binding that creates and sets an attribute.
 
-:markdown
+:marked
   We have stressed throughout this chapter that setting an element property with a Property Binding is always preferred to setting the attribute with a string. Why does Angular offer Attribute Binding?
-  
+
   **We must use Attribute Binding when there is no element property to bind.**
- 
+
   Consider the [aria](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA),
-  [svg](https://developer.mozilla.org/en-US/docs/Web/SVG), and 
-  table span attributes. They are pure attributes. 
-  They do not correspond to element properties and they do not set element properties. 
+  [svg](https://developer.mozilla.org/en-US/docs/Web/SVG), and
+  table span attributes. They are pure attributes.
+  They do not correspond to element properties and they do not set element properties.
   There are no property targets to bind to.
-  
+
   We become painfull aware of this fact when we try to write something like this:
 code-example(language="html").
   &lt;tr>&lt;td colspan="{{1+1}}">Three-Four&lt;/td>&lt;/tr>
-:markdown
+:marked
   … and get the error:
 code-example(format="", language="html").
-  Template parse errors: 
+  Template parse errors:
   Can't bind to 'colspan' since it isn't a known native property
-:markdown
-  As the message says, the `<td>` element does not have a `colspan` property. 
+:marked
+  As the message says, the `<td>` element does not have a `colspan` property.
   It has the `colspan` attribute but Interpolation and Property Binding set properties, not attributes.
-  
+
   We need an Attribute Binding to create and bind to such attributes.
-  
-  Attribute Binding syntax resembles Property Binding. 
-  Instead of an element property between brackets, we start with the keyword **`attr`** 
+
+  Attribute Binding syntax resembles Property Binding.
+  Instead of an element property between brackets, we start with the keyword **`attr`**
   followed by the name of the attribute, `[attr.attribute-name]`, and then set it with an expression that resolves to a string.
-  
+
   Here's how we could use it to set the `colspan` attribute for a row in a table.
   ```
   <table border=1>
     <tr><td>One</td><td>Two</td></tr>
-    
+
     <!-- ERROR: There is no `colspan` property we can bind to.
       <tr><td [colspan]="1 + 1">Three-Four</td></tr>
     -->
-    
+
     <!--  expression calculates colspan=2 -->
     <tr><td [attr.colspan]="1 + 1">Five-Six</td></tr>
   </table>
@@ -542,7 +540,7 @@ code-example(format="", language="html").
     <tr><td colspan="2">Five-Six</td></tr>
    </table>
 
-  One of the primary use cases for the Attribute Binding 
+  One of the primary use cases for the Attribute Binding
   is to set aria attributes as we see in this example
   ```
   <!-- create and set an aria attribute for assistive technology -->
@@ -551,30 +549,30 @@ code-example(format="", language="html").
 
   ### Class Binding
   We can add and remove CSS class names from an element’s `class` attribute with the **Class Binding**.
-  
+
   Class Binding syntax resembles Property Binding. Instead of an element property between brackets, we start with the keyword `class` followed by the name of a CSS class: `[class.class-name]`.
-  
+
   Angular adds the class name when the template expression evaluates to something truthy and removes the class name when the expression is falsey.
   ```
   <style>.special { font-weight:bold; }</style>
   <div class="special">The class is special</div>
-  
-  <!-- toggle the "special" class on and off --> 
-  <div [class.special]="isSpecial">The class binding is special</div> 
+
+  <!-- toggle the "special" class on and off -->
+  <div [class.special]="isSpecial">The class binding is special</div>
   <div class="special" [class.special]="!isSpecial">This one is not so special</div>
   ```
 .l-sub-section
-  :markdown
-    While this is a fine way to toggle a single class name, 
+  :marked
+    While this is a fine way to toggle a single class name,
     we generally prefer the [NgClass directive](#ng-class) for managing multiple class names at the same time.
 
-:markdown
+:marked
   ### Style Binding
-  
+
   We can set inline styles with a **Style Binding**.
-  
+
   Style Binding syntax resembles Property Binding. Instead of an element property between brackets, we start with the key word `style` followed by the name of a CSS style property: `[style.style-property]`.
-  
+
   ```
   <button [style.color]="isSpecial?'red':'green'">Red</button>
   <button [style.background-color]="canSave?'cyan':'grey'" >Save</button>
@@ -585,23 +583,23 @@ code-example(format="", language="html").
   <button [style.font-size.%]="!isSpecial ? 150 : 50" >Small</button>
   ```
 .l-sub-section
-  :markdown
-    While this is a fine way to set a single style, 
+  :marked
+    While this is a fine way to set a single style,
     we generally prefer the [NgStyle directive](#ng-style) for when setting several inline styles at the same time.
 
 .l-main-section
-:markdown
+:marked
   ## Event Binding
   The bindings we’ve met so far flow data in one direction *from the component to an element*.
-  
-  Users don’t just stare at the screen. They enter text into a textbox. They pick items from a list. 
-  They click buttons. Such user actions may result in a flow of data in the opposite direction, 
+
+  Users don’t just stare at the screen. They enter text into a textbox. They pick items from a list.
+  They click buttons. Such user actions may result in a flow of data in the opposite direction,
   ***from an element to the component***.
-  
-  The only way to know about a user action is to listen for certain events such as 
-  keystrokes, mouse movements, clicks and touches. 
+
+  The only way to know about a user action is to listen for certain events such as
+  keystrokes, mouse movements, clicks and touches.
   We declare our interest in user actions through Angular Event Binding.
-  
+
   The following Event Binding listens for the button’s click event and calls the component's `onSave()` method:
   ```
   <button (click)="onSave()">Save</button>
@@ -617,46 +615,46 @@ code-example(format="", language="html").
   ```
   <button on-click="onSave()">Save</button>
   ```
-  Element events may be the more common targets, but Angular looks first to see if the name matches an event property 
+  Element events may be the more common targets, but Angular looks first to see if the name matches an event property
   of a known directive as it does in the following example:
   ```
   <input (ng-model-change)="firstName = $event">
   ```
 .l-sub-section
-  :markdown
+  :marked
     `ng-model-change` translates to the `ngModelChange` property of the `NgModel` directive.
-    
-    Technically, Angular is matching the target binding name to a directive [output](#inputs-outputs) property, 
-    one of the property names listed in the directive’s `outputs` array  or a property decorated with `@Output`. 
+
+    Technically, Angular is matching the target binding name to a directive [output](#inputs-outputs) property,
+    one of the property names listed in the directive’s `outputs` array  or a property decorated with `@Output`.
     Such outputs map to the directive’s own internal properties as in this example where
-    `ngModelChange` maps to the directive's hidden `update` property.  
-    
+    `ngModelChange` maps to the directive's hidden `update` property.
+
     These details are not something we generally need or want to know.
-:markdown
+:marked
   If the name fails to match an element event or an output property of a known directive, Angular reports an “unknown directive” error.
 
   ### $event and event handling expressions
-  In an Event Binding, Angular sets up an event handler for the target event. 
-  
-  When the event is raised, the handler executes the template expression. 
+  In an Event Binding, Angular sets up an event handler for the target event.
+
+  When the event is raised, the handler executes the template expression.
   The template expression typically involves a receiver that wants to do something
   in response to the event such as take a value from the HTML control and store it
-  in a model. 
-  
+  in a model.
+
   The binding conveys information about the event including data values through
-  an **event object named `$event`**. 
-  
+  an **event object named `$event`**.
+
   The shape of the $event object is determined by the target event itself.
-  If the target event is a native DOM element event, the `$event` is a 
+  If the target event is a native DOM element event, the `$event` is a
   [DOM event object]( https://developer.mozilla.org/en-US/docs/Web/Events) with properties such as `target` and `target.value`.
-  
+
   Consider this example:
   ```
   <input [value]="currentHero?.firstName"
          (input)="currentHero.firstName=$event.target.value">
   ```
   We’re binding the textbox `value` to a `firstName` property and we’re listening for changes by binding to the textbox’s `input` event. When the user makes changes, the `input` event is raised, and the binding executes the expression within a context that includes the DOM event object, `$event`. We must follow the `$event.target.value` path to get the changed text so we can update the `firstName`
-  
+
   If the event belongs to a directive (remember: components are directives), `$event` has whatever shape the directive chose to produce. Consider a `HeroDetailComponent` that produces `deleted` events with an `onDeleted()` method that looks like this:
   ```
   deleted = new EventEmitter();
@@ -665,21 +663,21 @@ code-example(format="", language="html").
   }
   ```
   It sends a `Hero` object when it raises its `deleted` event. the `$event` will be that hero.
-  
-  Imagine a parent component that binds to the `HeroDetailComponent.deleted` event with its own `onDeleted` method 
+
+  Imagine a parent component that binds to the `HeroDetailComponent.deleted` event with its own `onDeleted` method
   ```
   <hero-detail [hero]="currentHero" (deleted)="onDeleted($event)"></hero-detail>
   ```
-  Our binding passes the *hero-to-delete* via the `$hero` variable 
+  Our binding passes the *hero-to-delete* via the `$hero` variable
   to the parent `onDeleted()` method
   which presumably knows what is necessary to delete that hero.
-  
+
   Evaluation of an Event Binding template expression may have side-effects.
   The expression could update the model, trigger other changes that percolate through the system, changes that
-  are ultimately displayed in this view and other views. 
+  are ultimately displayed in this view and other views.
   The event processing may result in queries and saves to a remote server. Unlike with Property Bindings,
   such side-effects are just fine.
-  
+
   ### Event bubbling and propagation
   Angular invokes the event-handling expression if the event is raised by the current element or one of its child elements.
   ```
@@ -687,17 +685,17 @@ code-example(format="", language="html").
     <div class="child-div">Click me too!</div>
   </div>
   ```
-  
+
   Many DOM events, both [native](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Overview_of_Events_and_Handlers ) and [custom](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events ),  “bubble” events up their ancestor tree of DOM elements until an event handler along the way prevents further propagation.
-  
+
 .l-sub-section
-  :markdown
+  :marked
     `EventEmitter` events don’t bubble.
 
-:markdown
-  The result of an Event Binding expression determines if 
-  [event propagation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation) 
-  continues or stops with the current element. 
+:marked
+  The result of an Event Binding expression determines if
+  [event propagation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation)
+  continues or stops with the current element.
 
   Propagation stops if the expression returns a falsey value (such as `void`):
   ```
@@ -707,13 +705,13 @@ code-example(format="", language="html").
   ```
   <button (click)="onSave() || true">On Save w/ propagation</button>
   ```
-  
+
 .l-main-section
-:markdown
+:marked
   <a name="ng-model"></a>
   ## Two-Way Binding with NgModel
   When developing data entry forms we often want to both display a data property and update that property when the user makes changes.
-  
+
   The `NgModel` directive serves that purpose as seen in this example:
   ```
   <input [(ng-model)] = "currentHero.firstName">
@@ -723,87 +721,87 @@ code-example(format="", language="html").
   <input bindon-ng-model= "currentHero.firstName">
   ```
   There’s a story behind this construction, a story that builds on the Property and Event Binding techniques we learned previously.
-  
+
   We could have achieved the same result as `NgModel` with the following, separate Property and Event Bindings:
   ```
   <input [value]="currentHero.firstName"
          (input)="currentHero.firstName=$event.target.value">
   ```
   That’s cumbersome to say the least. It requires that we remember what element property to set, what event tells us about user changes, and how to extract the currently displayed text from the textbox so we can update the data property.
-  
+
   A directive can hide these onerous details. Such a directive can wrap the element’s `value` property, listen to the `input` event, and raise its own event with the changed text ready to consume. We wouldn’t have to remember anything but the directive name.
-  
+
   That directive is `ng-model`. We can re-write the previous example like this:
   ```
-  <input 
+  <input
     [ng-model]="currentHero.firstName"
     (ng-model-change)="currentHero.firstName=$event">
-  ``` 
-  That’s an improvement but we can do better yet. We’re telling `NgModel` about the data property twice and if `NgModel` knows how to read the component’s data property it should know how to set it. 
-  
+  ```
+  That’s an improvement but we can do better yet. We’re telling `NgModel` about the data property twice and if `NgModel` knows how to read the component’s data property it should know how to set it.
+
   Angular offers a syntax - `[(…)]` - that combines the notation for Property Binding and Event Binding just as it combines their purpose in a single binding declaration:
   ```
   <input [(ng-model)] = "currentHero.firstName">
   ```
-  
+
 .l-sub-section
-  :markdown
-    Internally, Angular maps the term, `ng-model`, to an `ng-model` input property and an 
-    `ng-model-change` output property. 
-    That’s a specific example of a more general pattern in which it matches `[(x)]` to an `x` input property 
+  :marked
+    Internally, Angular maps the term, `ng-model`, to an `ng-model` input property and an
+    `ng-model-change` output property.
+    That’s a specific example of a more general pattern in which it matches `[(x)]` to an `x` input property
     for Property Binding and an `x-change` output property for Event Binding.
-    
+
     We can write our own two-way binding directive that follows this pattern if we're ever in the mood to do so.
-:markdown
+:marked
   *Before* we can use `NgModel`, we must import it via the `FORM_DIRECTIVES` directives array
   ```
-  import {FORM_DIRECTIVES} from ‘angular2/angular2` 
+  import {FORM_DIRECTIVES} from ‘angular2/angular2`
   ```
   and include that array among the list of directives used by the component’s template (`directives: [FORM_DIRECTIVES]`).
 
 .l-main-section
-:markdown
+:marked
   <a name="directives"></a>
   ## Built-in Directives
-  
+
   Earlier versions of Angular included over seventy built-in directives. The community contributed many more and individuals have created countless private directives for internal applications.
-  
-  We don’t need many of those directives in Angular 2. 
-  Quite often we can achieve the same results with the more capable and expressive Angular 2 binding system. 
+
+  We don’t need many of those directives in Angular 2.
+  Quite often we can achieve the same results with the more capable and expressive Angular 2 binding system.
   Why create a directive to handle a click when we can write a simple binding such as this?
   ```
   <button (click)="onSave()">Save</button>
-  ``` 
-  We still benefit from directives that simplify complex tasks. 
-  We will write our own directives; just not as many. 
+  ```
+  We still benefit from directives that simplify complex tasks.
+  We will write our own directives; just not as many.
   Angular still ships with built-in directives; just not as many.
-  
-  We’ll review some of the most frequently used built-in directives in this segment.  
+
+  We’ll review some of the most frequently used built-in directives in this segment.
   We can import them all at once with the  `CORE_DIRECTIVES` directive array
   ```
   import {CORE_DIRECTIVES} from ‘angular2/angular2’;
   ```
   Remember to add `CORE_DIRECTIVES` to the components `directives` metadata array as shown here:
-  
+
   ```
     directives:  [CORE_DIRECTIVES, FORM_DIRECTIVES, HeroDetailComponent]
   ```
-  <a id="ng-class"></a>  
+  <a id="ng-class"></a>
   ### NgClass
-  
-  We typically control how elements appear 
-  by adding and removing CSS classes dynamically. 
+
+  We typically control how elements appear
+  by adding and removing CSS classes dynamically.
   We bind to `NgClass` to add or remove several classes simultaneously.
-  
-  We can use a [Class Binding](#class-binding) to add or remove a *single* class. 
+
+  We can use a [Class Binding](#class-binding) to add or remove a *single* class.
   ```
   <div [ng-class]="special">NgClass is special</div>
   ```
-  The `NgClass` directive may be the better choice 
-  when we want to add or remove many classes at the same time. 
-  
-  Our favorite way to apply `NgClass` is by binding it to a key:value control object. Each key of the object is a class name and its value is `true` if the class should be added, `false` if it should be removed.  
-  
+  The `NgClass` directive may be the better choice
+  when we want to add or remove many classes at the same time.
+
+  Our favorite way to apply `NgClass` is by binding it to a key:value control object. Each key of the object is a class name and its value is `true` if the class should be added, `false` if it should be removed.
+
   Consider a component method such as this:
   ```
     setClasses() {
@@ -820,19 +818,19 @@ code-example(format="", language="html").
   ```
   <a id="ng-style"></a>
   ### NgStyle
-  We may set inline styles dynamically based on the state of the component. 
+  We may set inline styles dynamically based on the state of the component.
   We bind to `NgStyle` to set many inline styles simultaneously.
-  
-  We can use a [Style Binding](#style-binding) to set a *single* style value. 
+
+  We can use a [Style Binding](#style-binding) to set a *single* style value.
   ```
   <div [style.font-size]="isSpecial ? 'larger' : 'smaller'" >This div is larger</div>
   ```
-  
-  The `NgStyle` directive may be the better choice 
-  when we want to set many inline styles at the same time. 
-  
-  We apply `NgStyle` by binding it to a key:value control object. Each key of the object is a style name and its value is whatever is appropriate for that style.  
-  
+
+  The `NgStyle` directive may be the better choice
+  when we want to set many inline styles at the same time.
+
+  We apply `NgStyle` by binding it to a key:value control object. Each key of the object is a style name and its value is whatever is appropriate for that style.
+
   Consider a component method such as this:
   ```
     setStyles() {
@@ -853,15 +851,15 @@ code-example(format="", language="html").
   ```
   <div *ng-if="currentHero">Add {{currentHero.firstName}}</div>
   <div *ng-if="nullHero">Remove {{nullHero.firstName}}</div>
-  
+
   <div>Hero Detail removed from DOM because isActive is false</div>
   <hero-detail *ng-if="isActive" [hero]="currentHero"></hero-detail>
   ```
 .alert.is-critical
-  :markdown
-    The leading asterisk (`*`) in front of `ng-if` is a critical part of this syntax. 
+  :marked
+    The leading asterisk (`*`) in front of `ng-if` is a critical part of this syntax.
     See the section below on [* and &lt;template>](#star-template).
-:markdown
+:marked
   #### Visibility and NgIf are not the same
   We can show and hide an element sub-tree (the element and its children) with a  [Class](#class-binding) or a [Style](#style-binding) binding:
   ```
@@ -870,24 +868,24 @@ code-example(format="", language="html").
   <div [class.hidden]="!isSpecial">Show with class</div>
   <div [class.hidden]="isSpecial">Hide with class</div>
   <hero-detail [class.hidden]="isSpecial" [hero]="currentHero"></hero-detail>
-  
+
   <div [style.display]="isSpecial ? 'block' : 'none'">Show with style</div>
   <div [style.display]="isSpecial ? 'none'  : 'block'">Hide with style</div>
   ```
   Hiding a sub-tree is quite different from excluding a sub-tree with `NgIf`.
-  
-  When we hide the element sub-tree, it remains in the DOM. Components in the sub-tree are preserved along with their state. Angular may continue to check for changes even to invisible properties. The sub-tree may tie up substantial memory and computing resources.  
-  
+
+  When we hide the element sub-tree, it remains in the DOM. Components in the sub-tree are preserved along with their state. Angular may continue to check for changes even to invisible properties. The sub-tree may tie up substantial memory and computing resources.
+
   When `NgIf` is `false`, Angular physically removes the element sub-tree from the DOM. It destroys components in the sub-tree along with their state which may free up substantial resources resulting in better performance for the user.
-  
+
   The show/hide technique is probably fine for small element trees. We should be wary when hiding large trees; `NgIf` may be the safer choice. Always measure before leaping to conclusions.
   <a id="ng-switch"></a>
   NgSwitch
   We bind to `NgSwitch` when we want to insert one element sub-tree (an element and its children) into the DOM from a set of alternative sub-trees.
-  
+
   Here’s an example:
   ```
-  <div class="toe">You picked 
+  <div class="toe">You picked
     <span [ng-switch]="toeChoice(toePicker)">
       <template [ng-switch-when]="'Eenie'">Eenie</template>
       <template [ng-switch-when]="'Meanie'">Meanie</template>
@@ -898,13 +896,13 @@ code-example(format="", language="html").
   </div>
   ```
   We bind the parent `NgSwitch` element to an expression returning a “switch value”.  The value is a string in this example but it can be a value of any type.
-  
+
   The parent `NgSwitch` element controls a set of child`<template>` elements. Each `<template>` wraps a candidate subtree. A template is either pegged to a “match value” expression or marked as the default template.
-  
+
   **At any particular moment, only one of these templates will be rendered**
-    
+
   If the template’s “match value” equals the “switch value”, Angular adds the template’s sub-tree to the DOM. If no template is a match and there is a default template, Angular adds the default template’s sub-tree to the DOM. Angular removes and destroys the sub-tree’s of all other templates.
-  
+
   There are three related directives at work here.
   1. `ng-switch` - bound to an expression that returns the switch value.
   1. `ng-switch-when` - bound to an expression returning a match value.
@@ -913,77 +911,77 @@ code-example(format="", language="html").
   <a id="ng-for"></a>
   ### NgFor
   To display items of a list, we create new instances of a master element sub-tree (an element and its children) for each item.
-  
+
   `NgFor` is a “repeater” directive which may be familiar to us if we’ve written templates before for other view engines.
-  Here is an example of the most compact `NgFor` syntax, applied to a simple `<div>` template. 
+  Here is an example of the most compact `NgFor` syntax, applied to a simple `<div>` template.
   ```
   <div *ng-for="#hero of heroes">{{hero.fullName}}</div>
   ```
 .alert.is-critical
-  :markdown
+  :marked
     The leading asterisk (`*`) in front of `ng-for` is a critical part of this syntax. See the section below on [* and &lt;template>](#star-template).
-:markdown
+:marked
   The `ng-for` directive iterates over the `heroes` array returned by the parent component’s `heroes` property  and stamps out instances of  the `<div>` template.
-                    
+
   The quoted text assigned to `ng-for` means  “*take each hero in the `heroes` array, store it in the local `hero` variable, and make it available to the template instance*”. Angular creates one fresh instance of the `<div>` template for each hero in the array.
-    
+
   The `#` prefix before "hero" identifies the `hero` as a [local template variable](#local-vars).  We can reference this variable within the template to access a hero’s properties as we’re doing in the interpolation.
-  
+
   The `ng-for` directive also provides an optional index that increases from 0 to the length of the array for each iteration. We can capture that in another local template variable (`i`) and use it in our  template too.
-  
+
   This next example stamps out rows like "1 - Hercules Son of Zeus":
 
 code-example(format="" language="html").
   &lt;div *ng-for="#hero of heroes", #i=index">{{i+1}} - {{hero.fullName}}&lt;/div>
-:markdown
-  We can apply an `ng-for` repeater to Components as well, 
+:marked
+  We can apply an `ng-for` repeater to Components as well,
   as we do in this following example with the `LittleHeroComponent`:
 
 code-example(format="" language="html").
   &lt;little-hero *ng-for="#hero of heroes" [hero]="hero">&lt;/little-hero>
-:markdown
+:marked
   The template in this case is defined by `LittleHeroComponent` itself. Angular creates a new instance of this component for each hero in the array and assigns the `hero` local *variable*  to the `hero`* [input property](#inputs-outputs)* of each  instance.
-  
+
   #### Micro-syntax
   The string assigned to `*ng-for` is not a [template expression](#template-expressions). It’s a little language of its own called a “micro-syntax” that Angular interprets and transforms into a set of bindings, each of a kind we’ve seen before.
-  
+
   We’ll talk about this in the next section about templates.
 
 .l-main-section
-:markdown
+:marked
   <a name="star-template"></a>
   <a name="structural-directive"></a>
   ## * and &lt;template>
-  When we reviewed the `ng-for` and `ng-if` built-in directives we called out an oddity of the syntax, the asterisk (*)  that appears before the directive name.   
-  
+  When we reviewed the `ng-for` and `ng-if` built-in directives we called out an oddity of the syntax, the asterisk (*)  that appears before the directive name.
+
   This is a bit of “**syntactic sugar**” that makes it easier to read and write certain HTML layout patterns.
   implemented by **Structural Directives**.
-  
-  The `ng-for`,`ng-if`, and `ng-switch` directives are in this the relatively rare 
-  category of Structural Directive. 
-  
-  Instead of defining and controlling a view like 
-  a **Component Directive**, or modifying the appearance and behavior of an element 
-  like an **Attribute Directive**, 
+
+  The `ng-for`,`ng-if`, and `ng-switch` directives are in this the relatively rare
+  category of Structural Directive.
+
+  Instead of defining and controlling a view like
+  a **Component Directive**, or modifying the appearance and behavior of an element
+  like an **Attribute Directive**,
   the **Structural Directive** manipulates the layout by adding
   and removing entire element sub-trees.
-  
-  That’s what `ng-for`, `ng-if`, and `ng-switch` do. 
+
+  That’s what `ng-for`, `ng-if`, and `ng-switch` do.
   They add and remove element subtrees that are wrapped in `<template>` tags.
-  
-  The `ng-switch` directive always makes explicit use of the `<template>` tags as we saw [above](#ng-switch). 
+
+  The `ng-switch` directive always makes explicit use of the `<template>` tags as we saw [above](#ng-switch).
   There isn’t much choice; we define a different template for each switch choice
   and let the directive render the one template that matches the switch value.
-  
-  But `ng-for` and `ng-if` only care about a single template, 
-  the *template-to-repeat* and the *template-to-include* respectively. 
-  
-  The (*) prefix syntax is a convenient way for developers to skip the `<template>` wrapper tags and 
+
+  But `ng-for` and `ng-if` only care about a single template,
+  the *template-to-repeat* and the *template-to-include* respectively.
+
+  The (*) prefix syntax is a convenient way for developers to skip the `<template>` wrapper tags and
   focus directly on the HTML element that we want to repeat or include.
-  
+
   In reality, Angular sees the (*) and expands the HTML into the `<template>` form
   that we wrote for `ng-switch`. We can do this same thing ourselves with `ng-if`.
-   
+
   Instead of writing ...
   ```
   <hero-detail *ng-if="isActive" [hero]="currentHero"></hero-detail>
@@ -994,24 +992,24 @@ code-example(format="" language="html").
     <hero-detail [hero]="currentHero"></hero-detail>
   </template>
   ```
-  Notice the (*) is gone and we have a [Property Binding](#property-binding) to the `ng-if` 
-  directive, applied in this case to the `<template>` rather than 
+  Notice the (*) is gone and we have a [Property Binding](#property-binding) to the `ng-if`
+  directive, applied in this case to the `<template>` rather than
   the application’s `hero-detail` component.
 
-  We put the `[hero]=”currentHero”` binding on the child `<hero-detail>` 
+  We put the `[hero]=”currentHero”` binding on the child `<hero-detail>`
   element inside the template. Angular does that too.
-  
- 
+
+
 .callout.is-critical
   header Remember the brackets!
-  :markdown
-    Don’t make the mistake of writing `ng-if="isActive"`! 
-    That syntax assigns the "isActive" string to the `ng-if` directive. 
+  :marked
+    Don’t make the mistake of writing `ng-if="isActive"`!
+    That syntax assigns the "isActive" string to the `ng-if` directive.
     In JavaScript a non-empty string is a truthy value so `ng-if` is always
-    set `true` and always displays `hero-detail` 
+    set `true` and always displays `hero-detail`
     … even when the parent component’s `isActive` property returns `false`!
- 
-:markdown
+
+:marked
   #### Expanding `*ng-for`
   This same transformation applies to `*ng-for`. We can "de-sugar" the syntax ourselves and go from ...
   ```
@@ -1026,29 +1024,29 @@ code-example(format="" language="html").
   There is some additional complexity here. A repeater has more moving parts to configure
   than the conditional `ng-if`.
   And it's pretty clear why we prefer the `*ng-for` syntax to writing out this expanded HTML ourselves.
-  
-  But the strategy isn't new and need not be mysterious. 
-  We set up the `ng-for` directive (and its friends) on the `<template>`, 
-  move our `<little-hero>` component inside the `<template>` tags and 
-  use the `#hero` local template variable to convey data 
-  from the outer `<template>` to the 
+
+  But the strategy isn't new and need not be mysterious.
+  We set up the `ng-for` directive (and its friends) on the `<template>`,
+  move our `<little-hero>` component inside the `<template>` tags and
+  use the `#hero` local template variable to convey data
+  from the outer `<template>` to the
   inner `<little-hero>` component.
-  
+
   That nifty trick with  the `#hero` local template variable is our next topic.
-  
+
 
 .l-main-section
-:markdown
+:marked
   <a id="local-vars"></a>
   ## Local template variables
-  
+
   A **local template variable** is a vehicle for moving data across element lines.
-    
+
   In the “[* and &lt;templates>](#star-template)” segment we learned how Angular can expand
-  an `*ng-for` on a component tag into a `<template>` that wraps the component. 
-  
-  
-  In the resulting HTML, Angular passes the hero for the current iteration from the outer `<template>` 
+  an `*ng-for` on a component tag into a `<template>` that wraps the component.
+
+
+  In the resulting HTML, Angular passes the hero for the current iteration from the outer `<template>`
   to the inner `<little-hero>` component by means of a local template variable called `hero`.
   ```
   <!-- ng-for w/ little-hero Component inside a template element -->
@@ -1056,44 +1054,44 @@ code-example(format="" language="html").
     <little-hero [hero]="hero"></little-hero>
   </template>
   ```
-  
+
   We declare the variable by prefixing its identifier
   with the **“hash/pound” symbol (#)** as in `#hero`. Angular recognizes the '#' + identifier
   combination, creates the variable, and assigns its value.
-  
+
 .l-sub-section
-  :markdown
+  :marked
     `var-` is the  “cannonical” alternative to "#". We could have declared our variable as `var-hero`.
-:markdown
+:marked
   We can **reference a local template variable on the same element, on a sibling element, or on
   any of its children**.
-  
+
   Here are two other examples of creating and consuming a local template variable:
   ```
   <!-- phone refers to the input element; pass its `value` to an event handler -->
   <input #phone placeholder="phone number">
   <button (click)="callPhone(phone.value)">Call</button>
-  
+
   <!-- officFax refers to the input element; pass its `value` to an event handler -->
   <input var-office-fax placeholder="phone number">
   <button (click)="callFax(officeFax.value)">Fax</button>
   ```
 
   #### Observations
-  The value assigned to the variable depends upon the context. 
-   
+  The value assigned to the variable depends upon the context.
+
   When a directive is present on the element, as it is in the `<little-hero>` component example,
   the directive sets the value.
-  Accordingly, it is the `ng-for` directive 
+  Accordingly, it is the `ng-for` directive
   that sets the `hero` variable to the current iteration item from the `heroes` array.
-  
-  When there is no directive present, as in the button examples, 
-  Angular sets the variable to the element itself. 
+
+  When there is no directive present, as in the button examples,
+  Angular sets the variable to the element itself.
   We’re passing the `input` element objects across to the
   buttons where they become arguments to the `call()` methods.
-  
-  Remember that the HTML parser forces the identifier to lower-case. 
-  If we want to reference a camel-case name, 
+
+  Remember that the HTML parser forces the identifier to lower-case.
+  If we want to reference a camel-case name,
   we insert dashes (-) before each capital letter as we did for `officeFax`.
 
   Let's look at one final example, a Form, the poster child for local template variables:
@@ -1108,18 +1106,18 @@ code-example(format="" language="html").
     <button type="submit" [disabled]="!hf.form.valid">Submit</button>
   </form>
   ```
-  The `<form>` tag is *not the native HTML form element!* 
+  The `<form>` tag is *not the native HTML form element!*
   It's an Angular built-in directive that wraps the native `Form` element and
   endows it with additional form super powers.
-   
+
 .l-sub-section
-  :markdown
-    We know it's the Angular built-in `form` directive 
+  :marked
+    We know it's the Angular built-in `form` directive
     because we imported the `FORM_DIRECTIVES` collection
     and added it to the parent component's `directives` array.
-    
+
     Learn more about forms in the [Forms](./forms.html) chapter.
-:markdown
+:marked
   We assign the form object to the `hf` ("hero form") local template variable
   and use it twice.
   1. We pass it to the `onSubmit` method of the parent component process form values.
@@ -1127,64 +1125,64 @@ code-example(format="" language="html").
   detect by evaluating `hf.form.valid`.
 
 .l-main-section
-:markdown
+:marked
   <a id="inputs-outputs"></a>
   ## Input and Output Properties
   When Directives are the **targets of data binding**, they must expose **input** and **output** properties.
-  
+
   Let us confess that these “input” and “output” terms are generic, overloaded and somewhat confusing in the present context.
   Directives can have many bindable properties.
-  Why are only a few of them inputs or output? Or none at all? 
+  Why are only a few of them inputs or output? Or none at all?
   Who says a directive property has an in or out direction?
-  
+
   We may quarrel about the word choice but the distinction between regular properties
-  and input/out properties is important. 
-  
+  and input/out properties is important.
+
   **Input/output properties can be targets of a binding expression**.
-  
-  A directive property in binding target position on the left-hand side of a binding expression 
+
+  A directive property in binding target position on the left-hand side of a binding expression
   must be either an input or an output
-  
-  Keep in mind that a Component is also a Directive. We’ll say it another way: 
-  
+
+  Keep in mind that a Component is also a Directive. We’ll say it another way:
+
   **The target of a directive binding must be must be either an input or an output.**
-  
-  In this chapter we’ve focused on binding to Component members inside template expressions on the right-hand side of the binding declaration. 
+
+  In this chapter we’ve focused on binding to Component members inside template expressions on the right-hand side of the binding declaration.
   A member in that position may be thought of as a binding “data source”. It's not a target for binding.
-  
+
   In the following example, `iconUrl` and `onSave` are members of a Component. They are both referenced within template expressions on the right.
   ```
   <img [src]="iconUrl"/>
   <button (click)="onSave()">Save</button>
   ```
   They are *not inputs or outputs* of the component. They serve as data sources for their bindings.
-  
+
   Now look at the `HeroDetailComponent` when it is the **target of a binding**.
   ```
   <hero-detail [hero]="currentHero" (deleted)="onDeleted($event)"></hero-detail>
   ```
   Both `HeroDetail.hero` and `HeroDetail.deleted` are on the left-side of binding expressions.
-  
-  `HeroDetail.hero` is the target of a Property Binding.  `HeroDetail.deleted` is the target of an Event Binding. 
-  
-  
-  **Data flow  *into* the `HeroDetail.hero` target property** from the template expression.  
+
+  `HeroDetail.hero` is the target of a Property Binding.  `HeroDetail.deleted` is the target of an Event Binding.
+
+
+  **Data flow  *into* the `HeroDetail.hero` target property** from the template expression.
   Therefore `HeroDetail.hero` is an ***input*** property from the perspective of `HeroDetail`.
-  
-  **Events stream *out* of the `HeroDetail.deleted` target  property** (which is an `EventEmitter`) and toward the receiver within the template expression.  
-  Therefore `HeroDetail.hero` is an ***output*** property from the perspective of `HeroDetail`.
-  
-  When we peek inside `HeroDetailComponent` we see that these properties are marked 
+
+  **Events stream *out* of the `HeroDetail.deleted` target  property** (which is an `EventEmitter`) and toward the receiver within the template expression.
+  Therefore `HeroDetail.deleted` is an ***output*** property from the perspective of `HeroDetail`.
+
+  When we peek inside `HeroDetailComponent` we see that these properties are marked
   with decorators as input and output properties.
   ```
   class HeroDetailComponent {
-  
+
     @Input()
     hero: Hero;
-    
+
     @Output()
-    deleted = new EventEmitter();
-    
+    deleted = new EventEmitter<Hero>();
+
     onDelete() {
       this.deleted.next(this.hero);
     }
@@ -1192,85 +1190,85 @@ code-example(format="" language="html").
   ```
 
 .l-main-section
-:markdown
+:marked
   <a id="expression-ops"></a>
   ## Template Expression Operators
-  The template expression language employs a subset of JavaScript syntax supplemented with some special operators 
+  The template expression language employs a subset of JavaScript syntax supplemented with some special operators
   for specific scenarios. We'll cover two of them, "pipe" and "Elvis".
-  
+
   <a id="pipe"></a>
   ### The Pipe Operator ( | )
   The result of an expression may require some transformation before we’re ready to use it in a binding.  For example, we may wish to display a number as a currency, force text to uppercase, or filter a list and sort it.
-  
-  Angular [Pipes](./pipes.html) are a good choice for small transformations such as these. 
+
+  Angular [Pipes](./pipes.html) are a good choice for small transformations such as these.
   Pipes are simple functions that accept an input value and return a transformed value.
   They are easy to apply within template expressions using the **pipe operator ( | )**:
 code-example(format="" language="html").
   &lt;!-- Force title to uppercase -->
   &lt;div>{{ title | uppercase }}&lt;/div>
-:markdown
+:marked
   The pipe operator passes the result of an expression on the left to a pipe function on the right.
-  
-  We can also chain expressions through multiple pipes 
+
+  We can also chain expressions through multiple pipes
 code-example(format="" language="html").
   &lt;!-- Pipe chaining: force title to uppercase, then to lowercase -->
   &lt;div>{{ title | uppercase | lowercase }}</div>
-:markdown
+:marked
   <a id="elvis"></a>
   ### The Elvis Operator ( ?. ) and null property paths
-  
+
   The Angular **“Elvis” operator ( ?. )** is a fluent and convenient way to guard against null and undefined values in property paths as we see it here, protecting against a view render failure if the `currentHero` is null.
 code-example(format="" language="html").
   <div>The current hero’s name is {{currentHero?.firstName}}</div>
-:markdown
+:marked
   Let’s elaborate on the problem and this particular solution.
-  
+
   What happens when the following data bound `title` property is null?
 code-example(format="" language="html").
   <div>The title is {{ title }}</div>
-:markdown
+:marked
   The view still renders but the displayed value is blank; we see only "`The title is`" with nothing after it.
-  
+
   Suppose the template expression involves a property path as in this next example where we’re displaying the `firstName` of a null hero.
 code-example(format="" language="html").
   <div>The null hero's name is {{nullHero.firstName}}</div>
-:markdown
+:marked
   JavaScript throws a null reference error and so does Angular:
 code-example(format="" language="html").
   TypeError: Cannot read property 'firstName' of null in [null]
-:markdown
+:marked
   Surprisingly, the entire view just disappears.
 
-  We could claim that this is reasonable behavior if we believe that the `hero` property must never be null. 
+  We could claim that this is reasonable behavior if we believe that the `hero` property must never be null.
   If it must never be null and yet it is null,
   we've made a programming error that should be caught and fixed.
-  
-  On the other hand, null values in the property path may be OK from time to time, 
-  especially when we know the data will arrive eventually. 
-  While we wait for data, the view should render without complaint and 
+
+  On the other hand, null values in the property path may be OK from time to time,
+  especially when we know the data will arrive eventually.
+  While we wait for data, the view should render without complaint and
   the null property path should display as blank as the `title` property does.
-  
+
   Unfortunately, our app crashes when the `currentHero` is null.
-  
+
   We can code around that problem with [`ng-if`](#ng-if)
-code-example(format="" language="html").  
+code-example(format="" language="html").
     &lt;!-- No hero, div not displayed, no error -->
     &lt;div *ng-if="nullHero">The null hero's name is {{nullHero?.firstName}}</div>
-:markdown
-  This approach has merit but it’s cumbersome, especially if the property path is long. 
+:marked
+  This approach has merit but it’s cumbersome, especially if the property path is long.
   Imagine guarding against a null somewhere in a long property path such as `a.b.c.d`.
-  
+
   The Angular  **“Elvis” operator ( ?. )** is a more fluent and convenient way to guard against nulls in property paths.
 code-example(format="" language="html").
   &lt;!-- No hero, no problem! -->
   &lt;div>The null hero's name is {{nullHero?.firstName}}</div>
-:markdown
+:marked
   It’s great with long property paths too:
   ```
   a?.b?.c?.d
-  ``` 
+  ```
 
 .l-main-section
-:markdown
+:marked
   ## What Next?
-  We’ve completed our survey of Template Syntax. Time to put that knowledge to work as we write our own Components and Directives. 
+  We’ve completed our survey of Template Syntax. Time to put that knowledge to work as we write our own Components and Directives.

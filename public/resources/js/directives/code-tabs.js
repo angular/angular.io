@@ -11,9 +11,11 @@ angularIO.directive('codeTabs', function($timeout) {
     scope: {},
     transclude: true,
     replace: true,
+    controllerAs: 'vm',
+    controller: function () {
+      var vm = this;
 
-    controller: function ($scope) {
-      $scope.panes = [];
+      vm.panes = [];
 
 
       /*
@@ -22,11 +24,11 @@ angularIO.directive('codeTabs', function($timeout) {
       */
 
       this.addPane = function(pane) {
-        if ($scope.panes.length === 0) {
-          $scope.showPane(pane);
+        if (vm.panes.length === 0) {
+          vm.showPane(pane);
         }
 
-        $scope.panes.push(pane);
+        vm.panes.push(pane);
       };
 
 
@@ -35,9 +37,9 @@ angularIO.directive('codeTabs', function($timeout) {
       *
       */
 
-      $scope.showPane = function(pane) {
+      vm.showPane = function(pane) {
         // RESET ALL EXAMPLES
-        angular.forEach($scope.panes, function(pane) {
+        angular.forEach(vm.panes, function(pane) {
           pane.selected = false;
         });
 
@@ -50,7 +52,7 @@ angularIO.directive('codeTabs', function($timeout) {
       '<div class="code-box">' +
       ' <header class="code-box-header">' +
       '   <nav class="code-box-nav">' +
-      '    <button ng-repeat="pane in panes" ng-click="showPane(pane)" class="button" ng-class="{selected:pane.selected}">' +
+      '    <button ng-repeat="pane in vm.panes" ng-click="vm.showPane(pane)" class="button" ng-class="{selected:pane.selected}">' +
       '      {{pane.name}}' +
       '    </button>' +
       '   </nav>' +

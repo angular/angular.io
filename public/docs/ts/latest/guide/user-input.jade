@@ -1,27 +1,27 @@
 include ../../../../_includes/_util-fns
 
-:markdown
+:marked
   When the user clicks a link, pushes a button, or types on the keyboard
   we want to know about it. These user actions all raise DOM events.
   In this chapter we learn to bind to those events using the Angular Event Binding syntax.
 
-:markdown
+:marked
   ## Binding to User Input Events
 
-  We can listen to [any DOM event](https://developer.mozilla.org/en-US/docs/Web/Events) 
+  We can listen to [any DOM event](https://developer.mozilla.org/en-US/docs/Web/Events)
   with an [Angular Event Binding](./template-syntax.html#event-binding).
-  
-  The syntax is simple. We assign a template expression to the DOM event name, surrounded in parentheses. 
+
+  The syntax is simple. We assign a template expression to the DOM event name, surrounded in parentheses.
   A click Event Binding makes for a quick illustration.
 +makeExample('user-input/ts/src/app/app.html', 'click-me-button')(format=".")
 
-:markdown
+:marked
   The `(click)` to the left of the equal sign identifies the button's click event as the **target of the binding**.
   The text within quotes on the right is the "**template expression**" in which we
   respond to the click event by calling the component's `onClickMe` method. A [template expression](./template-syntax.html#template-expressions) is a subset
   of JavaScript with a few added tricks.
-  
-  When writing a binding we must be aware of a template expression's **execution context**. 
+
+  When writing a binding we must be aware of a template expression's **execution context**.
   The identifers appearing within an expression belong to a specific context object.
   That object is usually the Angular component that controls the template  ... which it definitely is
   in this case because that snippet of HTML belongs to the following component:
@@ -29,134 +29,137 @@ include ../../../../_includes/_util-fns
   These sample can be found in http://plnkr.co/edit/mr63T5
   -->
 +makeExample('user-input/ts/src/app/app.ts', 'click-me-component')
-:markdown
-  The `onClickMe` in the template refers to the `onClickMe` method of the component. 
+:marked
+  The `onClickMe` in the template refers to the `onClickMe` method of the component.
   When the user clicks the button, Angular calls the component's `onClickMe` method.
 
 .l-main-section
-:markdown
+:marked
   ## Get user input from the $event object
   We can bind to all kinds of events. Let's bind to the "keyup" event of an input box and replay
   what the user types back onto the screen.
-  
+
   This time we'll both listen to an event and grab the user's input.
 +makeExample('user-input/ts/src/app/app.ts', 'key-up-component')
-:markdown
+:marked
   Angular makes an event object available in the **`$event`** variable. The user data we want is in that variable somewhere.
-  
+
   The shape of the `$event` object is determined by whatever raises the event.
   The `keyup` event comes from the DOM so `$event` must be a [standard DOM event object](https://developer.mozilla.org/en-US/docs/Web/API/Event).
   The `$event.target` gives us the
   [`HTMLInputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement) which
   has a `value` property and that's where we find our user input data.
-  
+
   With had this in mind when we passed `$event` to our `onKey()` component method. That method extracts the user's input and
-  concatenates it to the previous user data that we're accumulating in the component's' `values` property. 
+  concatenates it to the previous user data that we're accumulating in the component's' `values` property.
   We then use [interpolation](./template-syntax.html#interpolation)
   to display the `values` property back on screen.
-  
-  Enter the letters "abcd", backspace to remove them, and we should see:
-code-example().
-  a | ab | abc | abcd | abc | ab | a | |
 
-:markdown
+  Enter the letters "abc", backspace to remove them, and we should see:
+code-example().
+  a | ab | abc | ab | a | |
+figure.image-display
+    img(src='/resources/images/devguide/user-input/keyup1-anim.gif' alt="key up 1")
+:marked
 
 .l-main-section
-:markdown
+:marked
   ## Get user input from a local template variable
   There's another way to get the user data without the `$event` variable.
-  
+
   Angular has syntax feature called [**local template variables**](./template-syntax.html#local-vars).
   These variables grant us direct access to an element.
   We declare a local template variable by preceding an identifier with a hash/pound character (#).
-  
-  Let's demonstrate with  a clever keystroke loopback in a single line of template HTML. 
+
+  Let's demonstrate with  a clever keystroke loopback in a single line of template HTML.
   We don't actually need a dedicated component to do this but we'll make one anyway.
 +makeExample('user-input/ts/src/app/app.ts', 'loop-back-component')
-:markdown
+:marked
   We've declared a template local variable named `box` on the `<input>` element.
-  The `box` variable is a reference to the `<input>` element itself which means we can 
-  grab the input element's `value` and display it 
+  The `box` variable is a reference to the `<input>` element itself which means we can
+  grab the input element's `value` and display it
   with interpolation between `<p>` tags. The display updates as we type. *Voila!*
-  
+
   **This won't work at all unless we bind to an event**. Angular only updates the bindings
   (and therefore the screen)
   if we do something in response to asynchronous events such as keystrokes.
-  
-  In this silly example we aren't really interested in the event at all. 
+
+  In this silly example we aren't really interested in the event at all.
   But an Event Binding requires a template expression to evaluate when the event fires.
   Many things qualify as expressions, none simpler than a one-character literal
   like the number zero. That's all it takes to keep Angular happy. We said it would be clever!
-  
+
   That local template variable is intriguing. It's clearly easer to get to the textbox with that
   variable than to go through the `$event` object. Maybe we can re-write our previous
   "key-up" example using the variable to acquire the user's' input. Let's give it a try.
 +makeExample('user-input/ts/src/app/app.ts', 'key-up2-component')
-:markdown
-  That sure seems easier. 
+:marked
+  That sure seems easier.
   An especially nice aspect of this approach is that our component code gets clean data values from the view.
   It no longer requires knowledge of the `$event` and its structure.
 
 <a id="key-event"></a>
 .l-main-section
-:markdown
+:marked
   ## Key event filtering (with `key.enter`)
-  Perhaps we don't care about every keystroke. 
+  Perhaps we don't care about every keystroke.
   We're only interested in the input box value when the user hits the "Enter" key. We'd like to ignore all other keys.
-  When we bind to the `(keyup)` event, our event handling expression hears *every key stroke*. 
+  When we bind to the `(keyup)` event, our event handling expression hears *every key stroke*.
   We could filter the keys first, examining every `$event.keyCode`, and update the `values` property only if the key is "Enter".
-  
-  Angular can filter the key events for us. Angular has a special syntax for keyboard events. 
-  We can listen for just the "Enter" key by binding to Angular's `keyup.enter` pseudo-event. 
-  
-  Only then do we update the component's `values` property ... 
-  inside the event expression rather than in the component ... 
+
+  Angular can filter the key events for us. Angular has a special syntax for keyboard events.
+  We can listen for just the "Enter" key by binding to Angular's `keyup.enter` pseudo-event.
+
+  Only then do we update the component's `values` property ...
+  inside the event expression rather than in the component ...
   because we can ... even if it is a dubious practice.
 +makeExample('user-input/ts/src/app/app.ts', 'key-up3-component')
+figure.image-display
+    img(src='/resources/images/devguide/user-input/keyup3-anim.gif' alt="key up 3")
 
 .l-main-section
-:markdown
+:marked
   ## On blur
-  
+
   Our previous example won't transfer the current state of the input box if the user mouses away and clicks
   elsewhere on the page. We only update the component's `values` property when the user presses "Enter"
   inside the input box.
-  
+
   Let's fix that by listening to the input box's blur event as well.
-  
+
 +makeExample('user-input/ts/src/app/app.ts', 'key-up4-component')
 
 .l-main-section
-:markdown
+:marked
   ## Put it all together
   We learned how to [display data](./displaying-data.html) in the previous chapter.
-  We've acquired a small arsenal of event binding techniques in this chapter. 
-  
+  We've acquired a small arsenal of event binding techniques in this chapter.
+
   Let's put it all together in a micro-app
   that can display a list of heroes and add new heroes to that list
   by typing in the input box and hitting "Enter", clicking "Add", or clicking
   elsewhere on the page.
 
 figure.image-display
-    img(src='/resources/images/devguide/user-input/little-tour.png' alt="Little Tour of Heroes")
-:markdown
-  Below is the entire "Little Tour of Heroes" micro-app in a single component. 
+    img(src='/resources/images/devguide/user-input/little-tour-anim.gif' alt="Little Tour of Heroes")
+:marked
+  Below is the entire "Little Tour of Heroes" micro-app in a single component.
   We'll call out the highlights after we bask briefly in its minimalist glory.
   <!--
   This example in http://plnkr.co/edit/JWeIqq
   -->
-+makeExample('user-input/ts/src/app/app.ts', 'little-tour-of-heroes-app')  
-:markdown
++makeExample('user-input/ts/src/app/app.ts', 'little-tour-of-heroes-app')
+:marked
   We've seen almost everything here before. A few things are new or bear repeating.
-  
+
   ### **Beware of camelCase variable names**
   We enter new hero names in the `<input>` element so we chose `newHero` to be the name of the local template variable.
-  
-  Unfortunately, we can't use that name when we declare the variable with (#). 
+
+  Unfortunately, we can't use that name when we declare the variable with (#).
   The browser forces all attribute and element names to lowercase, turning what would be `#newHero`
-  into `#newhero` (all lowercase). We don't want a `newhero` variable name in our template expressions. 
-  
-  The Angular workaround is to spell the declaration in "snake case". Angular translates "#new-hero" 
+  into `#newhero` (all lowercase). We don't want a `newhero` variable name in our template expressions.
+
+  The Angular workaround is to spell the declaration in "snake case". Angular translates "#new-hero"
   to `newHero` for template expressions ... which is exactly what we want.
 
   ### **newHero refers to the `<input>` element**
@@ -168,27 +171,26 @@ figure.image-display
 
   Ready access to the `<input>` element also makes it easy for the `addHero` method
   to clear the textbox after processing the new hero.
-  
+
   ### **The *ng-for repeater**
   The `ng-for` directive repeats the template as many times as there are heroes in the `heroes` list.
-  We must remember to list `NgFor` among the directives used by the component's template 
+  We must remember to list `NgFor` among the directives used by the component's template
   by importing the `CORE_DIRECTIVES` constant and adding it to the
   @Component decorator's `directives` array.
-  
-  We learned about `NgFor` in the "[Displaying Data](./displaying-data.html)" chapter. 
-    
-  
+
+  We learned about `NgFor` in the "[Displaying Data](./displaying-data.html)" chapter.
+
+
 .l-main-section
-:markdown
+:marked
   ## Next Steps
-  
+
   We've mastered the basic primitives for responding to user input and gestures.
   As powerful as these primitives are, they are a bit clumsy for handling
   large amounts of user input. We're operating down at the low level of events when
   we should be writing two-way bindings between data entry fields and model properties.
-  
+
   Angular has a two-way binding called `NgModel` and we learn about it
   in the `Forms` chapter.
-    
-    
- 
+
+

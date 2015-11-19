@@ -7,21 +7,23 @@ Angular.io is currently the preview site for Angular 2. This site also includes 
 
 
 ## Development Setup
-1. install [nvm](https://www.npmjs.com/package/nvm)
-2. cd into root directory `angular.io/`
-3. make sure you are using the latest node and npm by running `nvm use 4`.
-3. install local packages by running `npm install`
+1. install [nvm](https://github.com/creationix/nvm)
+2. clone this repo and [angular](https://github.com/angular/angular) on the same parent directory
+3. cd into root directory `angular.io/`
+4. make sure you are using the latest node and npm by running `nvm use 4`.
+5. install local packages by running `npm install`
 
-## Development setup with watches
- 1. cd into root directory `angular.io/`
- 2. run `gulp serve-and-watch`
- 3. open this url in the browser: [http://localhost:9000/](http://localhost:9000/)
- 4. refresh your browser to see any changes.
-
-## Development setup with watches and browser reload
+## Local server with watches and browser reload
  1. cd into root directory `angular.io/`
  2. run `gulp serve-and-sync`
- 3. browser will launch ( on localhost:3000 instead of localhost:9000) and stay refreshed automatically.
+ 3. browser will launch on localhost:3000 and stay refreshed automatically.
+
+If you are only going to work on a specific part of the docs, such as the API or dev guide, then you can use one of the more specific gulp tasks to only watch those parts of the file system:
+
+* `serve-and-sync` : watch all the local Jade/Sass files, the API source and examples, and the dev guide files
+* `serve-and-sync-api-docs` : watch only the API source and example files
+* `serve-and-sync-devGuide` : watch only the dev guide files
+* `build-and-serve` : watch only the local Jade/Sass files
 
 ## Technology Used
 - Angular 1.x: The production ready version of Angular
