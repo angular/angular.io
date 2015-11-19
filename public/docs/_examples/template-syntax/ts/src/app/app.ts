@@ -12,7 +12,7 @@ import {bootstrap, Component, CORE_DIRECTIVES,
   Input, Output,
   Directive, 
   ElementRef, EventEmitter,
-  FORM_DIRECTIVES
+  NgForm, FORM_DIRECTIVES
 } from 'angular2/angular2';
 
 class Hero {
@@ -78,7 +78,7 @@ class HeroDetailComponent {
   hero: Hero;
   
   @Output()
-  deleted = new EventEmitter();
+  deleted = new EventEmitter<Hero>();
   
   onDelete() {
     this.deleted.next(this.hero);
@@ -121,8 +121,8 @@ class LoopbackComponent {
 })
 class KeyUpComponent {
   values='';
-  onKey(event) {
-    this.values += event.target.value + ' | ';  
+  onKey(event:KeyboardEvent) {
+    this.values += (<HTMLInputElement>event.target).value + ' | ';  
   }
 }
 
@@ -136,7 +136,7 @@ class KeyUpComponent {
 })
 class KeyUpComponentV2 {
   values='';
-  onKey(value) {
+  onKey(value:string) {
     this.values += value + ' | ';  
   }
 }
@@ -157,8 +157,10 @@ class KeyUpComponentV3 {
   selector: 'little-tour',
   template: `
     <h4>Little Tour of Heroes</h4>
-    <input #new-hero (keyup.enter)="addHero(newHero)">
-    <button (click)=addHero(newHero)>Add</button>
+    <input #box 
+      (keyup.enter)="addHero(box.value)"
+      (blur)="addHero(box.value)">
+    <button (click)=addHero(box.value)>Add</button>
     <ul><li *ng-for="#hero of heroes">{{hero}}</li></ul>
   `,
   directives: [CORE_DIRECTIVES]
@@ -166,15 +168,17 @@ class KeyUpComponentV3 {
 class LittleTour {
   heroes=['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
   
-  addHero(newHero) {
-    if (newHero.value) { 
-      this.heroes.push(newHero.value); 
-      newHero.value = null; // clear the newHero textbox
+  addHero(newHero:string) {
+    if (newHero) { 
+      this.heroes.push(newHero); 
+      newHero = null; // clear the newHero textbox
     }
   }
 }
 
 bootstrap(LittleTour);
+
+enum Color {Red, Green, Blue};
 
 @Component({
   selector: 'my-app',
@@ -194,9 +198,13 @@ class AppComponent {
   callPhone(value:string) {alert(`Calling ${value} ...`)}
   canSave =  true;
   
+  Color = Color;
+  color = Color.Red;
+  colorToggle() {this.color = (this.color === Color.Red)? Color.Blue : Color.Red}
+    
   currentHero = Hero.MockHeroes[0];
   
-  getStyles(el){
+  getStyles(el:Element){
     let styles = window.getComputedStyle(el);
     let showStyles = {};
     for (var p in this.setStyles()){
@@ -220,26 +228,26 @@ class AppComponent {
     
   nullHero:Hero = null; // or undefined
   
-  onCancel(event){
-    let evtMsg = event ? ' Event target is '+ event.target.innerHTML : '';
+  onCancel(event:KeyboardEvent){
+    let evtMsg = event ? ' Event target is '+ (<HTMLElement>event.target).innerHTML : '';
     alert('Canceled.'+evtMsg)
   }
   
-  onClickMe(event){
-    let evtMsg = event ? ' Event target class is '+ event.target.className  : '';
+  onClickMe(event:KeyboardEvent){
+    let evtMsg = event ? ' Event target class is '+ (<HTMLElement>event.target).className  : '';
     alert('Click me.'+evtMsg)    
   }
   
-  onDeleted(hero){
+  onDeleted(hero:Hero){
     alert('Deleted hero: '+ (hero && hero.firstName))
   }
   
-  onSave(event){
-    let evtMsg = event ? ' Event target is '+ event.target.innerText : '';
+  onSave(event:KeyboardEvent){
+    let evtMsg = event ? ' Event target is '+ (<HTMLElement>event.target).innerText : '';
     alert('Saved.'+evtMsg)
   }
   
-  onSubmit(form){
+  onSubmit(form:NgForm){
     let evtMsg = form.valid ? 
       ' Form value is '+ JSON.stringify(form.value) : 
       ' Form is invalid';
@@ -251,9 +259,9 @@ class AppComponent {
     price: 42
   };
   
-  setLastName(event){
-    console.log(event);
-    this.currentHero.lastName = event;
+  setLastName(lastName:string){
+    console.log(lastName);
+    this.currentHero.lastName = lastName;
   }
   
   setClasses() {
@@ -272,10 +280,11 @@ class AppComponent {
     }
   }
     
-  toeChoice(picker){
+  toeChoice(picker:HTMLFieldSetElement){
     let choices = picker.children;
     for (let i=0; i<choices.length; i++){
-      if (choices[i].checked) {return choices[i].value}
+      var choice = <HTMLInputElement>choices[i];
+      if (choice.checked) {return choice.value}
     }
   }
   
