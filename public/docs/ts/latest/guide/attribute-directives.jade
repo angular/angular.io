@@ -1,0 +1,326 @@
+include ../../../../_includes/_util-fns
+
+<!-- http://plnkr.co/edit/x9JYbC -->
+
+:marked
+  ## Directives overview
+
+  There are three kinds of directives in Angular:
+  * Components
+  * Attribute directives
+  * Structural directives (such as `*ng-if` and `*ng-for`)
+
+  For most scenarios, building a component is all we need. After all, an Angular component
+  is just a directive with a template.
+  
+  But there may be times we want to attach behavior to an HTML element without defining a template.
+  That's the purpose of attribute directives.
+  
+  In this chapter, we'll build an attribute directive that changes the style of an element.
+  We'll start with the simpliest attribute directive possible, and then add features to demonstrate
+  the capabilities of attribute directives.
+
+.l-main-section
+:marked
+  ## Building a simple attribute directive
+  An attribute directive minimally requires a directive annotation that defines the
+  attribute and a controller class that implements the desired behavior.
+
+  Let's build a small illustrative example together.
+
+  Create a new project folder (`attribute-directives`) and follow the steps in the [QuickStart](../quickstart.html).
+  
+  To follow best practices, we'll create the attribute directive in a new file.
+  Add a new file to the project and call it `highlight.directive.ts`.
+  Add code to the file as shown:
+
++makeExample('attribute-directives/ts/src/app/highlight.directive.1.ts', 'attribute-directive')
+
+:marked
+  First we import `Directive` and `ElementRef` from the Angular library.
+  We'll use the `Directive` annotation to define this code as a directive.
+  The `ElementRef` represents a location in the View and is used to 
+  reference the element containing our attribute directive.
+  
+  Next, we define the `Directive` annotation. Minimally, the `Directive`
+  annotation requires a selector. This is a CSS selector that selects
+  elements from the DOM. In this example, it will locate all elements
+  that have an attribute named 'highlight'. 
+  Because we are building an attribute directive, the selector value is
+  always defined within square brackets.
+  
+  When the directive's selector matches an element in the DOM, Angular
+  creates an instance of the controller class and the constructor is executed.
+  
+  Notice that we use the export keyword to export the controller class.
+  This makes the class accessible to other components that want to use
+  the attribute directive.
+  
+  So far our class only defines a constructor. The constructor uses the injected 
+  element and changes the background color of that element to yellow.
+
+.l-main-section
+:marked
+  ## Using the attribute directive
+  To use our new attribute directive modify the `app.ts` file by changing the template and the body of the component.
+  When we're done, it should look like this:
+
++makeExample('attribute-directives/ts/src/app/app.1.ts')
+
+:marked
+  First, we add an import to import the 'Highlight' component from our new file.
+
+  Next we modify the template to use our new `highlight` attribute directive by
+  simply adding `highlight` as an attribute on a `span` element.
+  
+  Lastly, we add a directives property to the `Component` annotation to define
+  the directives that we plan to use. Currently, we only want to use our `Highlight`
+  directive.
+  
+  Running the application results in this:
+  
+  figure.image-display
+  img(src="/resources/images/devguide/attribute-directives/first-highlight.png" alt="First Highlight")
+
+  Angular finds the `span` element with the `highlight` attribute and creates
+  an instance of the `Highlight` class. The `span` element reference is injected into
+  the constructor and our constructor code changes that element's background style to yellow.
+
+.l-main-section
+:marked
+  ## Adding events
+
+  We may want our directive to respond to events.
+  For example, we may only want the text highlighted when the user
+  moves the mouse over the element.
+  
+  We need to add two features to our code to respond to events:
+  * We need to add the `host` property to the `Directive` annotation to
+  define the events we will host.
+  * We need to add methods in the controller class to response to the events.
+  
+  Here is the updated code:
+  
++makeExample('attribute-directives/ts/src/app/highlight.directive.2.ts')
+  
+  We can define it "inline" using the template property as we do here.
+  Or we can define the template in a separate HTML file and link to it in
+  the component metadata using the `@Component` decorator's `templateUrl` property.
+
+  We're using the *inline* style because the template is small and it makes for clearer demonstration.
+  The choice between them is a matter of taste, circumstances, and organization policy.
+
+  In either style, The template data bindings have the same access to the component's properties.
+
+  ## Constructor or variable initialization?
+
+  We initialized our component properties using variable assignment.
+  This is a wonderfully concise and compact technique.
+
+  Some folks prefer to declare the properties and initialize them within a constructor like this:
++makeExample('displaying-data/ts/src/app/app-ctor.ts', 'app-ctor')
+
+:marked
+  That's fine too. The choice between them is a matter of taste and organization policy.
+  We'll adopt the more terse "variable assignment" style in this chapter simply because
+  there will be less code to read.
+
+.l-main-section
+:marked
+  ## Showing an array property with NgFor
+
+  We want to display a list of heroes. We begin by adding a mock heroes name array to the component,
+  just above `myHero` and redefine `myHero` to be the first name in the array.
++makeExample('displaying-data/ts/src/app/app.2.ts', 'mock-heroes')
+
+:marked
+  Now we use the Angular `NgFor` "repeater" Directive in the template to display
+  each item in the `heroes` list.
+
++makeExample('displaying-data/ts/src/app/app.2.ts', 'template')
+
+:marked
+  Our presentation is the familiar HTML unordered list with `<ul>` and `<li>` tags. Let's focus on the `<li>` tag.
++makeExample('displaying-data/ts/src/app/app.2.ts', 'li-repeater')
+
+:marked
+  We added a somewhat mysterious `*ng-for` to the `<li>` element.
+  That's the Angular "repeater" directive.
+  It's presence on the `<li>` tag marks that `<li>` element (and its children) as the "repeater template".
+
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in front of `*ng-for`. It is an essential part of the syntax.
+    Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ng-for) chapter.
+
+:marked
+  Notice the `#hero` in the `NgFor` double-quoted instruction.
+  The `#hero` is a "[template local variable](./template-syntax.html#local-vars")"  *declaration*.
+  The (#) prefix declares a local variable name named `hero`.
+
+  Angular will duplicate the `<li>` for each item in the list, setting the `hero` variable
+  to the item (the hero) in the current iteration. Angular uses that variable as the
+  context for the interpolation in the double curly braces.
+
+.l-sub-section
+  :marked
+    We happened to give `NgFor` an array to display.
+    In fact, `NgFor` can repeat items for any [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)
+    object.
+:marked
+  ## Register the NgFor Directive
+
+  Angular doesn't know that this template uses the `NgFor` directive.
+  Our application will not run right now. Angular will complain that it doesn't know what `NgFor` is.
+
+  We have to register the `NgFor` directive with the component metadata by making two changes to the app.ts file.
+
+  First, we import the `NgFor` symbol from the Angular library by extending the existing `import` statement.
+  Look for it in the following:
++makeExample('displaying-data/ts/src/app/app.2.ts', 'imports')
+
+:marked
+  Second, we register `NgFor` as a directive accessible to the template by updating the
+  `@Component` decorator with a `directives` array property whose only item is `NgFor`:
+
++makeExample('displaying-data/ts/src/app/app.2.ts', 'directives')
+
+:marked
+  Now the heroes will appear in the view as an unordered list.
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/hero-names-list.png" alt="After ngfor")
+
+.l-main-section
+:marked
+  ## Creating a class for the data
+
+  We are defining our data directly inside our component.
+  That's fine for a demo but certainly isn't a best practice. It's not even a good practice.
+  We won't do anything about that in this chapter.
+
+  At the moment, we're binding to an array of strings. We do that occasionally in real applications but
+  most of the time we're displaying objects, potentially instances of classes.
+
+  Let's turn our array of hero names into an array of `Hero` objects. For that we'll need a `Hero' class.
+
+  Create a new file called `hero.ts` and add the following short snippet to it.
++makeExample('displaying-data/ts/src/app/hero.ts')
+
+:marked
+  We've defined a class with a constructor and two properties: `id` and `name`.
+
+  If we are new to TypeScript, it may not look like we have properties. But we do. We're taking
+  advantage of a TypeScript short-cut in our declaration of the constructor parameters.
+
+  Consider the first parameter:
++makeExample('displaying-data/ts/src/app/hero.ts', 'id-parameter')(format=".")
+
+:marked
+  That brief syntax simultaneously
+  * declares a constructor parameter and its type
+  * declare a public property of the same name
+  * initializes that property with the corresponding argument when we "new" an instance of the class.
+
+.l-main-section
+:marked
+  ## Use the Hero class
+  Let's redefine the heroes property in our component to return an array of these Heroes
+  and also set the `myHero` property with the first of these mock heroes.
++makeExample('displaying-data/ts/src/app/app.3.ts', 'heroes')
+
+:marked
+  We'll have to update the template.
+  At the moment it displays the entire hero object which used to be a string value.
+  Let's fix that so we interpolate the `hero.name` property
++makeExample('displaying-data/ts/src/app/app.3.ts', 'template')
+
+:marked
+  Our display looks the same but we know how much better it is under the hood.
+
+.l-main-section
+:marked
+  ## Conditional display with NgIf
+
+  Sometimes the app should display a view or a portion of a view only under prescribed circumstances.
+
+  In our example, we'd like to display a message if we have a large number of heroes ... say more than 3.
+
+  The Angular `NgIf` directive will insert or remove an element based on a truthy/falsey condition.
+  We can see it in action by adding the following paragraph at the bottom of the template:
++makeExample('displaying-data/ts/src/app/app.final.ts', 'message')(format=".")
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in front of `*ng-if`. It is an essential part of the syntax.
+    Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ng-if) chapter.
+
+:marked
+  The [template expression](./template-syntax.html#template-expressions) inside the double quotes
+  looks much like JavaScript and it is much like JavaScript.
+  When the component's list of heroes has more than 3 items, Angular adds the paragraph to the DOM and the message appears.
+  If there were 3 or fewer items, Angular omits the paragraph and there is no message.
+
+.alert.is-helpful
+  :marked
+    Angular isn't showing and hiding the message. It is adding and removing the paragraph element from the DOM.
+    That hardly matters here. It would matter a great deal from a performance perspective if
+    we were conditionally including or excluding a big chunk of HTML with many data bindings.
+
+:marked
+  As with the `NgFor`, we must add the `NgIf` directive to the component's metadata.
+
+  We should extend our `import` statement as before ...
++makeExample('displaying-data/ts/src/app/app.3.ts', 'import-ng-if')(format=".")
+
+:marked
+  ... and add it to the directives array:
++makeExample('displaying-data/ts/src/app/app.3.ts', 'directives')(format=".")
+
+:marked
+  Try it out. We have four items in the array so the message should appear.
+  Delete one of the elements from the array, refresh the browser, and the message should no longer appear.
+
+.l-main-section
+:marked
+  ## Use the CORE_DIRECTIVES Constant
+
+  There are other core Angular directives, such as `NgClass` and `NgSwitch`,
+  that we often use in our apps.
+  Extending the `import` statement and adding to the `directives` array for each one gets old.
+
+  Fortunately, Angular provides a constant array called `CORE_DIRECTIVES`
+  that includes many of the directives that we use all the time.
+
+  Let's simplify our lives, discard the `NgFor` and `NgIf`, use the constant for all of them.
+
+  We'll revise our `import` statement one last time.
++makeExample('displaying-data/ts/src/app/app.final.ts', 'imports')(format=".")
+
+:marked
+  and update the `directives` metadata
++makeExample('displaying-data/ts/src/app/app.final.ts', 'directives')(format=".")
+
+:marked
+  Pro tip: we register this constant in almost every template we write.
+
+.l-main-section
+:marked
+  ## Summary
+  Now we know how to
+  - use **interpolation** with the double curly braces to display a component property,
+  - use **`NgFor`** to display a list of items,
+  - use a TypeScript class to shape the model data for our component and display properties of that model,
+  - use **`NgIf`** to conditionally display a chunk of HTML based on a boolean expression.
+  - register common component directives with **`CORE_DIRECTIVES` constant**
+
+  Our final code:
+
++makeTabs('displaying-data/ts/src/app/app.final.ts, '+
+           'displaying-data/ts/src/app/hero.ts',
+           'final,',
+           'app.ts, hero.ts')
+
+.l-main-section
+:marked
+  ## Next Steps
+  @@@ Anything here?
