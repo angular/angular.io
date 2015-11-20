@@ -1,3 +1,4 @@
+// #docregion
 import {Directive, ElementRef} from 'angular2/angular2';
 
 @Directive({
@@ -19,3 +20,4 @@ export class Highlight {
         this.el.nativeElement.style.backgroundColor= null;
     }
 }
+// #enddocregion

@@ -4,11 +4,13 @@ import {Highlight} from './highlight.directive'
 
 @Component({
     selector: 'my-app',
-    template: '<h1>My First Angular 2 App</h1><span highlight>Highlight me!</span>',
+    template: '<h1>My First Angular 2 App</h1><span highlight="{{color}}">Highlight me!</span>',
     directives: [Highlight]
 })
 
-class AppComponent { }
+class AppComponent { 
+	color = "cornsilk"
+}
 
 bootstrap(AppComponent);
 // #enddocregion
