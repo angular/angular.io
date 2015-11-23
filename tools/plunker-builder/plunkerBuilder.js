@@ -27,17 +27,20 @@ function buildPlunkers(basePath, errFn) {
 }
 
 // config has
-//   include: []
-//   exclude: []
-//   name:
-//   main:
+//   include: [] - optional array of globs - defaults to all js, ts, html, json, css and md files
+//   exclude: [] - optional array of globs
+//   name: string - description of this plunker - defaults to the title in the index.html page.
+//   main: string - filename of what will become index.html in the plunker - defaults to index.html
 function buildPlunkerFrom(configFileName ) {
   var basePath = path.dirname(configFileName);
-  var postData = createPostData(configFileName);
-  createPlunkerHtml(basePath, postData);
+  var config = initConfigAndCollectFileNames(configFileName);
+  var postData = createPostData(config);
+  var html = createPlunkerHtml(postData);
+  var outputFileName = path.join(basePath, "plnkr.html");
+  fs.writeFileSync(outputFileName, html, 'utf-8' );
 }
 
-function createPostData(configFileName) {
+function initConfigAndCollectFileNames(configFileName) {
   var basePath = path.dirname(configFileName);
   var configSrc = fs.readFileSync(configFileName, 'utf-8');
   try {
@@ -59,15 +62,19 @@ function createPostData(configFileName) {
   }
   gpaths.push('!**/typings/**');
   gpaths.push('!**/plnkr.html');
-  var fileNames = globule.find(gpaths);
+  config.fileNames = globule.find(gpaths);
+  config.basePath = basePath;
+  return config;
+}
 
+function createPostData(config) {
   var postData = {};
-  fileNames.forEach(function(fileName) {
+  config.fileNames.forEach(function(fileName) {
 
     var content = fs.readFileSync(fileName, 'utf-8');
     // var escapedValue = escapeHtml(content);
 
-    var relativeFileName = path.relative(basePath, fileName);
+    var relativeFileName = path.relative(config.basePath, fileName);
     if (relativeFileName == config.main) {
       relativeFileName = 'index.html';
     }
@@ -89,25 +96,18 @@ function createPostData(configFileName) {
   return postData;
 }
 
-function createPlunkerHtml(basePath, postData) {
-
+function createPlunkerHtml(postData) {
   useNewWindow = false;
-  jsdom.env({
-    html: createBasePlunkerHtml(useNewWindow),
-    done: function (err, window) {
-      var doc = window.document;
-      var form = doc.querySelector('form');
-
-      _.forEach(postData, function(value, key) {
-        var ele = htmlToElement(doc, '<input type="hidden" name="' + key + '">');
-        ele.setAttribute('value', value);
-        form.appendChild(ele)
-      });
-      var html = doc.documentElement.outerHTML;
-      var outputFn = path.join(basePath, "plnkr.html");
-      fs.writeFileSync(outputFn, html, 'utf-8' );
-    }
+  var baseHtml = createBasePlunkerHtml(useNewWindow);
+  var doc = jsdom.jsdom(baseHtml);
+  var form = doc.querySelector('form');
+  _.forEach(postData, function(value, key) {
+    var ele = htmlToElement(doc, '<input type="hidden" name="' + key + '">');
+    ele.setAttribute('value', value);
+    form.appendChild(ele)
   });
+  var html = doc.documentElement.outerHTML;
+  return html;
 }
 
 function createBasePlunkerHtml(useNewWindow) {
@@ -144,3 +144,24 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+//// Old version - no longer used
+//function createPlunkerHtmlAsync(basePath, postData) {
+//
+//  useNewWindow = false;
+//  jsdom.env({
+//    html: createBasePlunkerHtml(useNewWindow),
+//    done: function (err, window) {
+//      var doc = window.document;
+//      var form = doc.querySelector('form');
+//
+//      _.forEach(postData, function(value, key) {
+//        var ele = htmlToElement(doc, '<input type="hidden" name="' + key + '">');
+//        ele.setAttribute('value', value);
+//        form.appendChild(ele)
+//      });
+//      var html = doc.documentElement.outerHTML;
+//      var outputFn = path.join(basePath, "plnkr.html");
+//      fs.writeFileSync(outputFn, html, 'utf-8' );
+//    }
+//  });
+//}
