@@ -1,21 +1,116 @@
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
 var path = require('canonical-path');
 var Q = require('q');
-var del = require('del');
-// delPromise is a 'promise' version of del
-var delPromise =  Q.denodeify(del);
 var _ = require('lodash');
-
 var jsdom = require("jsdom");
 var fs = require("fs");
 var globule = require('globule');
 
-
 module.exports = {
-  buildPlunkerFrom: buildPlunkerFrom
+  buildPlunkers: buildPlunkers
 };
 
-function createPlunkerHtml(useNewWindow) {
+function buildPlunkers(basePath, errFn) {
+  errFn = errFn || function(e) { console.log(e); };
+  var configExtns = ['plnkr.config', '*.plnkr.config'];
+  var gpaths = configExtns.map(function(extn) {
+    return path.join(basePath, '**/' + extn);
+  });
+  var fileNames = globule.find(gpaths);
+  fileNames.forEach(function(configFileName) {
+    try {
+      buildPlunkerFrom(configFileName);
+    } catch (e) {
+      errFn(e);
+    }
+  });
+}
+
+// config has
+//   include: []
+//   exclude: []
+//   name:
+//   main:
+function buildPlunkerFrom(configFileName ) {
+  var basePath = path.dirname(configFileName);
+  var postData = createPostData(configFileName);
+  createPlunkerHtml(basePath, postData);
+}
+
+function createPostData(configFileName) {
+  var basePath = path.dirname(configFileName);
+  var configSrc = fs.readFileSync(configFileName, 'utf-8');
+  try {
+    var config = (configSrc && configSrc.trim().length) ? JSON.parse(configSrc) : {};
+  } catch (e) {
+    throw new Error("Plunker config - unable to parse: " + configFileName + '\n  ' + e);
+  }
+
+  if (!config.include) {
+    config.include = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json'];
+  }
+  var gpaths = config.include.map(function(fileName) {
+    return path.join(basePath, fileName);
+  });
+  if (config.exclude) {
+    config.exclude.forEach(function(fileName) {
+      gpaths.push("!" + path.join(basePath, fileName));
+    });
+  }
+  gpaths.push('!**/typings/**');
+  gpaths.push('!**/plnkr.html');
+  var fileNames = globule.find(gpaths);
+
+  var postData = {};
+  fileNames.forEach(function(fileName) {
+
+    var content = fs.readFileSync(fileName, 'utf-8');
+    // var escapedValue = escapeHtml(content);
+
+    var relativeFileName = path.relative(basePath, fileName);
+    if (relativeFileName == config.main) {
+      relativeFileName = 'index.html';
+    }
+    if (config.name == null && relativeFileName == 'index.html') {
+      // set config.name to title from index.html
+      var matches = /<title>(.*)<\/title>/.exec(content);
+      if (matches) {
+        config.name = matches[1];
+      }
+    }
+    postData['files[' + relativeFileName + ']'] = content;
+  });
+  postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
+  postData['tags[0]'] = "angular2";
+  postData['tags[1]'] = "example";
+  postData.private = true;
+
+  postData.description = "Angular 2 Example - " + config.name;
+  return postData;
+}
+
+function createPlunkerHtml(basePath, postData) {
+
+  useNewWindow = false;
+  jsdom.env({
+    html: createBasePlunkerHtml(useNewWindow),
+    done: function (err, window) {
+      var doc = window.document;
+      var form = doc.querySelector('form');
+
+      _.forEach(postData, function(value, key) {
+        var ele = htmlToElement(doc, '<input type="hidden" name="' + key + '">');
+        ele.setAttribute('value', value);
+        form.appendChild(ele)
+      });
+      var html = doc.documentElement.outerHTML;
+      var outputFn = path.join(basePath, "plnkr.html");
+      fs.writeFileSync(outputFn, html, 'utf-8' );
+    }
+  });
+}
+
+function createBasePlunkerHtml(useNewWindow) {
   var url = 'http://plnkr.co/edit/?p=preview';
   // If the form posts to target="_blank", pop-up blockers can cause it not to work.
   // If a user choses to bypass pop-up blocker one time and click the link, they will arrive at
@@ -31,50 +126,6 @@ function createPlunkerHtml(useNewWindow) {
   html +=  '</form><script>document.getElementById("mainForm").submit();</script>'
   html += '</body></html>';
   return html;
-}
-
-
-function buildPlunkerFrom(basePath, examplesPath, useNewWindow) {
-  useNewWindow = false;
-  var filePath = path.join(basePath, examplesPath);
-  var fileTypes = ['*.ts', '*.js', '*.css', '*.html', '*.md', '*.json'];
-  var gpaths = fileTypes.map(function(ft) {
-    return path.join(filePath, '**/' + ft);
-  });
-  gpaths.push('!**/typings/**');
-  gpaths.push('!**/plunkr.html');
-  var fileNames = globule.find(gpaths);
-
-  var postData = {};
-  fileNames.forEach(function(fileName) {
-    var content = fs.readFileSync(fileName, 'utf-8');
-    // var escapedValue = escapeHtml(content);
-    var relativeFileName = path.relative(filePath, fileName);
-    postData['files[' + relativeFileName + ']'] = content;
-  });
-  postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
-  postData['tags[0]'] = "angular2";
-  postData['tags[1]'] = "example";
-  postData.private = true;
-
-  postData.description = "Angular 2 Example - " + examplesPath;
-
-  jsdom.env({
-    html: createPlunkerHtml(useNewWindow),
-    done: function (err, window) {
-      var doc = window.document;
-      var form = doc.querySelector('form');
-
-      _.forEach(postData, function(value, key) {
-        var ele = htmlToElement(doc, '<input type="hidden" name="' + key + '">');
-        ele.setAttribute('value', value);
-        form.appendChild(ele)
-      });
-      var html = doc.documentElement.outerHTML;
-      var outputFn = path.join(filePath, "plunkr.html");
-      fs.writeFileSync(outputFn, html, 'utf-8' );
-    }
-  });
 }
 
 function htmlToElement(document, html) {

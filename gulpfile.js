@@ -51,9 +51,8 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-gulp.task('build-plunker', function(cb) {
-  // plunkerBuilder.buildPlunkerFrom(EXAMPLES_PATH, "quickstart/ts/src", true);
-  plunkerBuilder.buildPlunkerFrom(EXAMPLES_PATH, "template-syntax/ts/src", true);
+gulp.task('build-plunker', function() {
+  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, gutil.log);
 });
 
 // Public tasks
@@ -99,10 +98,6 @@ gulp.task('build-ts-api-docs', ['_shred-api-examples'], function() {
 gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
-
-
-
-
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
