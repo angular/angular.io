@@ -32,11 +32,11 @@ function buildPlunkers(basePath, errFn) {
 //   name: string - description of this plunker - defaults to the title in the index.html page.
 //   main: string - filename of what will become index.html in the plunker - defaults to index.html
 function buildPlunkerFrom(configFileName ) {
-  var basePath = path.dirname(configFileName);
   var config = initConfigAndCollectFileNames(configFileName);
   var postData = createPostData(config);
   var html = createPlunkerHtml(postData);
-  var outputFileName = path.join(basePath, "plnkr.html");
+  // replace ending 'plnkr.config' with 'plnkr.html' to create output file name;
+  var outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.config'.length) + 'plnkr.html';
   fs.writeFileSync(outputFileName, html, 'utf-8' );
 }
 
