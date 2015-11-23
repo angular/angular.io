@@ -7,7 +7,7 @@ import {Directive, ElementRef} from 'angular2/angular2';
 
 export class Highlight {
     constructor(el: ElementRef) {
-        el.nativeElement.style.backgroundColor="yellow";
+        el.nativeElement.style.backgroundColor='yellow';
     }
 }
 // #enddocregion
