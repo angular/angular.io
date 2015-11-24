@@ -6,6 +6,9 @@ var jsdom = require("jsdom");
 var fs = require("fs");
 var globule = require('globule');
 
+var indexHtmlTranslator = require('./indexHtmlTranslator');
+var regionExtractor = require('../doc-shredder/regionExtractor');
+
 module.exports = {
   buildPlunkers: buildPlunkers
 };
@@ -32,12 +35,20 @@ function buildPlunkers(basePath, errFn) {
 //   name: string - description of this plunker - defaults to the title in the index.html page.
 //   main: string - filename of what will become index.html in the plunker - defaults to index.html
 function buildPlunkerFrom(configFileName ) {
-  var config = initConfigAndCollectFileNames(configFileName);
-  var postData = createPostData(config);
-  var html = createPlunkerHtml(postData);
   // replace ending 'plnkr.config' with 'plnkr.html' to create output file name;
   var outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.config'.length) + 'plnkr.html';
-  fs.writeFileSync(outputFileName, html, 'utf-8' );
+  try {
+    var config = initConfigAndCollectFileNames(configFileName);
+    var postData = createPostData(config);
+    var html = createPlunkerHtml(postData);
+    fs.writeFileSync(outputFileName, html, 'utf-8');
+  } catch (e) {
+    // if we fail delete the outputFile if it exists because it is an old one.
+    if (existsSync(outputFileName)) {
+      fs.unlinkSync(outputFileName);
+    }
+    throw e;
+  }
 }
 
 function initConfigAndCollectFileNames(configFileName) {
@@ -50,7 +61,7 @@ function initConfigAndCollectFileNames(configFileName) {
   }
 
   if (!config.include) {
-    config.include = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json'];
+    config.include = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
   }
   var gpaths = config.include.map(function(fileName) {
     return path.join(basePath, fileName);
@@ -62,6 +73,7 @@ function initConfigAndCollectFileNames(configFileName) {
   }
   gpaths.push('!**/typings/**');
   gpaths.push('!**/plnkr.html');
+  gpaths.push('!**/*.plnkr.html');
   config.fileNames = globule.find(gpaths);
   config.basePath = basePath;
   return config;
@@ -70,21 +82,34 @@ function initConfigAndCollectFileNames(configFileName) {
 function createPostData(config) {
   var postData = {};
   config.fileNames.forEach(function(fileName) {
-
-    var content = fs.readFileSync(fileName, 'utf-8');
+    var content;
+    var extn = path.extname(fileName);
+    if (extn == '.png') {
+      content = encodeBase64(fileName);
+      fileName = fileName.substr(0, fileName.length - 4) + '.base64.png'
+    } else {
+      content = fs.readFileSync(fileName, 'utf-8');
+    }
     // var escapedValue = escapeHtml(content);
 
     var relativeFileName = path.relative(config.basePath, fileName);
+
     if (relativeFileName == config.main) {
       relativeFileName = 'index.html';
     }
-    if (config.name == null && relativeFileName == 'index.html') {
-      // set config.name to title from index.html
-      var matches = /<title>(.*)<\/title>/.exec(content);
-      if (matches) {
-        config.name = matches[1];
+
+    if (relativeFileName == 'index.html') {
+      content = indexHtmlTranslator.translate(content);
+      if (config.name == null) {
+        // set config.name to title from index.html
+        var matches = /<title>(.*)<\/title>/.exec(content);
+        if (matches) {
+          config.name = matches[1];
+        }
       }
     }
+    content = regionExtractor.removeDocTags(content, extn.substr(1));
+
     postData['files[' + relativeFileName + ']'] = content;
   });
   postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
@@ -95,6 +120,23 @@ function createPostData(config) {
   postData.description = "Angular 2 Example - " + config.name;
   return postData;
 }
+
+function existsSync(filename) {
+  try {
+    fs.accessSync(filename);
+    return true;
+  } catch(ex) {
+    return false;
+  }
+}
+
+function encodeBase64(file) {
+  // read binary data
+  var bitmap = fs.readFileSync(file);
+  // convert binary data to base64 encoded string
+  return new Buffer(bitmap).toString('base64');
+}
+
 
 function createPlunkerHtml(postData) {
   useNewWindow = false;
