@@ -12,7 +12,8 @@ var _rxRules = {
     to: "\n" +
         "      System.config({\n" +
         "        transpiler: 'typescript', \n" +
-        "        typescriptOptions: { emitDecoratorMetadata: true } \n" +
+        "        typescriptOptions: { emitDecoratorMetadata: true }, \n" +
+        "        packages: {'app': {defaultExtension: 'ts'}} \n" +
         "      });"
   },
   //docregion: {
