@@ -3,9 +3,13 @@ module.exports = {
 };
 
 var _rxRules = {
-  nodeModule: {
+  script: {
     from: /<script.*".*%tag%".*>.*<\/script>/,
     to: '<script src="%tag%"></script>'
+  },
+  link: {
+    from: '/<link rel="stylesheet" href="*.%tag%".*>/',
+    to: '<link rel="stylesheet" href="%tag%">'
   },
   config: {
     from: /\s*System.config\(\{\s*packages:[\s\S]*\}\}\s*\}\);/m,
@@ -16,22 +20,26 @@ var _rxRules = {
         "        packages: {'app': {defaultExtension: 'ts'}} \n" +
         "      });"
   },
-  //docregion: {
-  //  from: /^.*<\!--.*docregion.*$\n?/mg,
-  //  to: ''
-  //}
+
 };
 
 var _rxData = [
   {
-    pattern: 'nodeModule',
+    pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to: ['https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.18.4/system.js', 'https://code.angularjs.org/tools/typescript.js' ]
+    to:   ['https://rawgithub.com/systemjs/systemjs/0.19.6/dist/system.js', 'https://code.angularjs.org/tools/typescript.js']
+    // to: ['https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.18.4/system.js', 'https://code.angularjs.org/tools/typescript.js' ]
   },
   {
-    pattern: 'nodeModule',
+    pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
     to: 'https://code.angularjs.org/2.0.0-alpha.44/angular2.dev.js'
+  },
+  {
+    pattern: 'link',
+    from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
+    to: 'https://cdnjs.com/libraries/twitter-bootstrap/3.3.5'
+    // to: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css'
   },
   {
     pattern: 'config',

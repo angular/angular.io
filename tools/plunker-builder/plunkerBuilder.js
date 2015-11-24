@@ -72,6 +72,7 @@ function initConfigAndCollectFileNames(configFileName) {
     });
   }
   gpaths.push('!**/typings/**');
+  gpaths.push('!**/tsconfig.json');
   gpaths.push('!**/plnkr.html');
   gpaths.push('!**/*.plnkr.html');
   config.fileNames = globule.find(gpaths);
