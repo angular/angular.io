@@ -3,8 +3,15 @@ include ../../../../_includes/_util-fns
 <!-- http://plnkr.co/edit/x9JYbC -->
 
 :marked
-  ## Directives overview
+  This chapter covers the following:
+  * Building a simple attribute directive
+  * Using an attribue directive in a template
+  * Responding to events
+  * Using binding to pass a parameter to the directive
 
+:marked
+  ## Directives overview
+  
   There are three kinds of directives in Angular:
   * Components
   * Attribute directives
@@ -23,8 +30,8 @@ include ../../../../_includes/_util-fns
 .l-main-section
 :marked
   ## Building a simple attribute directive
-  An attribute directive minimally requires a directive annotation that defines the
-  attribute, and a controller class that implements the desired behavior.
+  An attribute directive minimally requires a directive annotation that specifies a selector,
+  and a controller class that implements the desired behavior.
 
   Let's build a small illustrative example together.
 
@@ -37,29 +44,41 @@ include ../../../../_includes/_util-fns
 +makeExample('attribute-directives/ts/src/app/highlight.directive.1.ts')
 
 :marked
-  First we import `Directive` and `ElementRef` from the Angular library.
+  First we import `Directive`, `ElementRef`, and `Renderer` from the Angular library.
   We'll use the `Directive` annotation to define this code as a directive.
   The `ElementRef` represents a location in the View and is used to 
-  reference the element containing our attribute directive.
+  reference the element containing our attribute directive. 
+  And `Renderer` provides features for modifying the user interface.
   
   Next, we define the `Directive` annotation. Minimally, the `Directive`
   annotation requires a selector. This is a CSS selector that selects
-  elements from the DOM. In this example, it will locate all elements
+  elements from the DOM. 
+  When building an attribute directive, the selector value is
+  always defined within square brackets. This indicates that Angular should
+  look for any elements containing an attribute with a name matching the selector.
+  In this example, it will locate all elements
   that have an attribute named 'highlight'. 
-  Because we are building an attribute directive, the selector value is
-  always defined within square brackets.
   
   When the directive's selector matches an element in the DOM, Angular
-  creates an instance of the directive's controller class, injects the element,
+  creates an instance of the directive's controller class, 
+  injects the element reference and renderer,
   and executes the constructor.
   
-  Lastly, we define the directive's controller class.
-  So far our class only includes the constructor. The constructor uses the injected 
-  element and changes the background color of that element to yellow.
-    
+  The directive's controller class contains the logic for our directive.
   Notice that we use the export keyword to export the controller class.
   This makes the class accessible to other components that want to use
   the attribute directive.
+  
+  So far our class only includes the constructor. The constructor uses the injected 
+  element and changes the background color of that element to yellow. 
+    
+  There are several ways to modify the DOM properties from the controller class.
+  * We can use the `nativeElement` property of the element reference that is injected into the controller.
+  From this `nativeElement`, we can modify the DOM properties. Using this technique, we don't need
+  to inject in the `Renderer`. However, we are then directly manipulating the DOM, which is not a
+  recommended practice.
+  * Alternatively, we can use the `Renderer` to set element properties. We are not then directly manipulating the
+  DOM. This has the added advantage of working in multiple environments, such as within a Web Worker.
 
 .l-main-section
 :marked
@@ -73,7 +92,8 @@ include ../../../../_includes/_util-fns
   First, we add an import to import the 'Highlight' component from our new file.
 
   Next we modify the template to use our new `highlight` attribute directive by
-  simply adding `highlight` as an attribute on a `span` element.
+  simply adding `highlight` as an attribute on an element. In this example,
+  we added it to a `span` element.
   
   Lastly, we add a `directives` field to the `Component` annotation to define
   the directives that we plan to use. Currently, we only want to use our `Highlight`
@@ -114,8 +134,12 @@ figure.image-display
   and the `(mouseleave)` event calls the `onMouseLeave()` method.
 
   Notice that we have changed the constructor parameter to include the `private` keyword.
-  This defines `el` as a local field in the class. We can then use this field
-  anywhere within the class. We also removed the code within the constructor.
+  This defines `el` and `renderer` as local fields in the class. We can then use these fields
+  anywhere within the class. 
+  
+  We also moved the code within the constructor to a separate private function called
+  `_highlight`. This function takes in the color and sets the background color element style
+  using that color.
   
   The `onMouseEnter()` method sets the background color of the element to yellow.
   The `onMouseLeave()` method clears the background color of the element.
@@ -165,8 +189,9 @@ figure.image-display
   ## Summary
   Now we know how to
   - build a simple **attribute directive** to attach behavior to an HTML element,
-  - use **events** to change behavior based on an event,
-  - and use **binding** to pass parameters to the attribute directive.
+  - use that directive in a template,
+  - respond to **events** to change behavior based on an event,
+  - and use **binding** to pass a parameter to the attribute directive.
 
   Our final code:
 
