@@ -7,7 +7,7 @@ include ../../../../_includes/_util-fns
   * Building a simple attribute directive
   * Using an attribue directive in a template
   * Responding to events
-  * Using binding to pass a parameter to the directive
+  * Using binding to pass data to the directive
 
 :marked
   ## Directives overview
@@ -30,8 +30,10 @@ include ../../../../_includes/_util-fns
 .l-main-section
 :marked
   ## Building a simple attribute directive
-  An attribute directive minimally requires a directive annotation that specifies a selector,
-  and a controller class that implements the desired behavior.
+  An attribute directive minimally requires building a controller class annotated with a 
+  `Directive` decorator. The `Directive` decorator specifies the selector identifying
+  the attribute associated with the directive. 
+  The controller class implements the desired directive behavior.
 
   Let's build a small illustrative example together.
 
@@ -45,16 +47,17 @@ include ../../../../_includes/_util-fns
 
 :marked
   First we import `Directive`, `ElementRef`, and `Renderer` from the Angular library.
-  We'll use the `Directive` annotation to define this code as a directive.
+  The `Directive` is needed to define this controller class as a directive.
   The `ElementRef` represents a location in the View and is used to 
   reference the element containing our attribute directive. 
   And `Renderer` provides features for modifying the user interface.
   
-  Next, we define the `Directive` annotation. Minimally, the `Directive`
-  annotation requires a selector. This is a CSS selector that selects
+  Next, we define the metadata for the `Directive` decorator. 
+  For an attribute directive, the `Directive`
+  decorator minimally requires a selector. This is a CSS selector that selects
   elements from the DOM. 
   When building an attribute directive, the selector value is
-  always defined within square brackets. This indicates that Angular should
+  always defined within square brackets. This tells Angular to
   look for any elements containing an attribute with a name matching the selector.
   In this example, it will locate all elements
   that have an attribute named 'highlight'. 
@@ -84,7 +87,7 @@ include ../../../../_includes/_util-fns
 :marked
   ## Using the attribute directive
   To use our new attribute directive, we modify the `app.ts` file by changing the template of the component.
-  When we're done, it should look like this:
+  When we're done, it looks like this:
 
 +makeExample('attribute-directives/ts/src/app/app.1.ts')
 
@@ -95,7 +98,7 @@ include ../../../../_includes/_util-fns
   simply adding `highlight` as an attribute on an element. In this example,
   we added it to a `span` element.
   
-  Lastly, we add a `directives` field to the `Component` annotation to define
+  Lastly, we add a `directives` field to the `Component` decorator to define
   the directives that we plan to use. Currently, we only want to use our `Highlight`
   directive.
   
@@ -113,12 +116,12 @@ figure.image-display
 :marked
   ## Adding events
 
-  We may want our directive to respond to events.
+  We may want our attribute directive to respond to events.
   For example, we may only want the text highlighted when the user
   moves the mouse over the element.
   
   We add two features to our code to respond to events:
-  * We add the `host` field to the `Directive` annotation to
+  * We add the `host` field to the `Directive` decorator to
   define the events we will host.
   * We add methods in the controller class to response to the events.
   
@@ -133,11 +136,11 @@ figure.image-display
   In our example, the `(mouseEnter)` event calls the `onMouseEnter()` method 
   and the `(mouseleave)` event calls the `onMouseLeave()` method.
 
-  Notice that we have changed the constructor parameter to include the `private` keyword.
+  Notice that we have changed the constructor parameters to include the `private` keyword.
   This defines `el` and `renderer` as local fields in the class. We can then use these fields
   anywhere within the class. 
   
-  We also moved the code within the constructor to a separate private function called
+  We also moved the code from the constructor to a separate private function called
   `_highlight`. This function takes in the color and sets the background color element style
   using that color.
   
@@ -160,16 +163,26 @@ figure.image-display
 +makeExample('attribute-directives/ts/src/app/highlight.directive.ts')
 
 :marked
-  First, we update the class to include a property for the bound value.
-  In this case, we define a `colorName` property.
+  First, we modify our import statement to import `Input`. That allows us to
+  use the `Input` property decorator and declare a data-bound input property.
+  
+  Data flows into our directive via the property defined with this `Input` decorator.
+  In our example, we specify `highlight` as the property to receive the value of
+  the `highlight` attribute.
+  
+  If we want to give this controller class property a name different from the attribute name, 
+  such as `colorName`, we can
+  associate the controller class property with the attribute by specifying the attribute as a parameter
+  to the `Input` property decorator:
+  
+  `@Input('highlight') colorName: string`
+  
+  In our example, we also specify a default color that is used if the user of our
+  directive does not specify a color.
   
   Then we modify the `onMouseEnter()` method to use
-  this color name property instead of the hard-coded color name.
-  
-  Lastly, we update the `Directive` annotation to include `inputs`.
-  The `inputs` value is an array of key value pairs. The key is the
-  name of the class property assigned by the binding. The value
-  is the name of the attribute.
+  the `highlight` property instead of the hard-coded color name. Extra logic
+  here uses the default color if no highlight color is specified.
   
   Now we can use binding in the template to specify the color.
   Here is the updated `app.ts` file:
@@ -177,10 +190,12 @@ figure.image-display
 +makeExample('attribute-directives/ts/src/app/app.ts')
 
 :marked
-  We modify the template to add a binding. We bind the value of the highlight
-  attribute to a variable that is defined in our `AppComponent`.
+  We modify the template to add a binding. We use property binding to bind the value of the `highlight`
+  property. In our example, we define radio buttons for the application user
+  to select the desired highlight color. The `click` event of each radio button sets the bound
+  `color` variable.
   
-  Angular assigns the value from the binding to the `colorName` property of
+  Angular assigns the value from the binding to the `highlight` property of
   the directive's controller class. The `onMouseOver()` event handler uses this property
   to change the background color of the element.
 
@@ -191,7 +206,7 @@ figure.image-display
   - build a simple **attribute directive** to attach behavior to an HTML element,
   - use that directive in a template,
   - respond to **events** to change behavior based on an event,
-  - and use **binding** to pass a parameter to the attribute directive.
+  - and use **binding** to pass a value to the attribute directive.
 
   Our final code:
 
