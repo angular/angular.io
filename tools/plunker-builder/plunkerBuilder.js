@@ -60,17 +60,25 @@ function initConfigAndCollectFileNames(configFileName) {
     throw new Error("Plunker config - unable to parse: " + configFileName + '\n  ' + e);
   }
 
-  if (!config.include) {
-    config.include = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
+  var defaultFiles = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
+  if (config.files) {
+    if (config.files.length > 0) {
+      if (config.files[0].substr(0, 1) == '!') {
+        config.files = defaultFiles.concat(config.files);
+      }
+    }
+  } else {
+    config.files = defaultFiles;
   }
-  var gpaths = config.include.map(function(fileName) {
-    return path.join(basePath, fileName);
+  var gpaths = config.files.map(function(fileName) {
+    fileName = fileName.trim();
+    if (fileName.substr(0,1) == '!') {
+      return "!" + path.join(basePath, fileName.substr(1));
+    } else {
+      return path.join(basePath, fileName);
+    }
   });
-  if (config.exclude) {
-    config.exclude.forEach(function(fileName) {
-      gpaths.push("!" + path.join(basePath, fileName));
-    });
-  }
+
   gpaths.push('!**/typings/**');
   gpaths.push('!**/tsconfig.json');
   gpaths.push('!**/plnkr.html');
