@@ -51,7 +51,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-gulp.task('build-plunker', function() {
+gulp.task('build-plunkers', function() {
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, gutil.log);
 });
 

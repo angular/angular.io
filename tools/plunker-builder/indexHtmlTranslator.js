@@ -8,7 +8,7 @@ var _rxRules = {
     to: '<script src="%tag%"></script>'
   },
   link: {
-    from: '/<link rel="stylesheet" href="*.%tag%".*>/',
+    from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to: '<link rel="stylesheet" href="%tag%">'
   },
   config: {
@@ -33,7 +33,22 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.44/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.46/angular2.dev.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/angular2/bundles/router.dev.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.46/router.dev.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/angular2/bundles/http.dev.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.46/http.dev.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/angular2/bundles/testing.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.46/testing.js'
   },
   {
     pattern: 'link',
