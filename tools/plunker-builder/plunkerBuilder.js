@@ -30,9 +30,9 @@ function buildPlunkers(basePath, errFn) {
 }
 
 // config has
-//   include: [] - optional array of globs - defaults to all js, ts, html, json, css and md files
-//   exclude: [] - optional array of globs
-//   name: string - description of this plunker - defaults to the title in the index.html page.
+//   files: [] - optional array of globs - defaults to all js, ts, html, json, css and md files (with certain files removed)
+//   description: optional string - description of this plunker - defaults to the title in the index.html page.
+//   tags: [] - optional array of strings
 //   main: string - filename of what will become index.html in the plunker - defaults to index.html
 function buildPlunkerFrom(configFileName ) {
   // replace ending 'plnkr.config' with 'plnkr.html' to create output file name;
@@ -57,18 +57,18 @@ function initConfigAndCollectFileNames(configFileName) {
   try {
     var config = (configSrc && configSrc.trim().length) ? JSON.parse(configSrc) : {};
   } catch (e) {
-    throw new Error("Plunker config - unable to parse: " + configFileName + '\n  ' + e);
+    throw new Error("Plunker config - unable to parse json file: " + configFileName + '\n  ' + e);
   }
 
-  var defaultFiles = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
+  var defaultIncludes = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
   if (config.files) {
     if (config.files.length > 0) {
       if (config.files[0].substr(0, 1) == '!') {
-        config.files = defaultFiles.concat(config.files);
+        config.files = defaultIncludes.concat(config.files);
       }
     }
   } else {
-    config.files = defaultFiles;
+    config.files = defaultIncludes;
   }
   var gpaths = config.files.map(function(fileName) {
     fileName = fileName.trim();
@@ -78,11 +78,9 @@ function initConfigAndCollectFileNames(configFileName) {
       return path.join(basePath, fileName);
     }
   });
+  var defaultExcludes = [ '!**/typings/**','!**/tsconfig.json', '!**/plnkr.html', '!**/*.plnkr.html' ];
+  Array.prototype.push.apply(gpaths, defaultExcludes);
 
-  gpaths.push('!**/typings/**');
-  gpaths.push('!**/tsconfig.json');
-  gpaths.push('!**/plnkr.html');
-  gpaths.push('!**/*.plnkr.html');
   config.fileNames = globule.find(gpaths);
   config.basePath = basePath;
   return config;
@@ -109,11 +107,11 @@ function createPostData(config) {
 
     if (relativeFileName == 'index.html') {
       content = indexHtmlTranslator.translate(content);
-      if (config.name == null) {
-        // set config.name to title from index.html
+      if (config.description == null) {
+        // set config.description to title from index.html
         var matches = /<title>(.*)<\/title>/.exec(content);
         if (matches) {
-          config.name = matches[1];
+          config.description = matches[1];
         }
       }
     }
@@ -122,11 +120,16 @@ function createPostData(config) {
     postData['files[' + relativeFileName + ']'] = content;
   });
   postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
-  postData['tags[0]'] = "angular2";
-  postData['tags[1]'] = "example";
+
+  var tags = ['angular2', 'example'].concat(config.tags || []);
+  tags.forEach(function(tag,ix) {
+    postData['tags[' + ix + ']'] = tag;
+  });
+  // postData['tags[0]'] = "angular2";
+  // postData['tags[1]'] = "example";
   postData.private = true;
 
-  postData.description = "Angular 2 Example - " + config.name;
+  postData.description = "Angular 2 Example - " + config.description;
   return postData;
 }
 
