@@ -1,7 +1,7 @@
 // NOT EVERYTHING IS NEEDED BY TEMPLATE-SYNTAX CHAPTER
 // Much left-over from support for "User Input" chapter such as
-//   ClickMeComponent, 
-//   KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3, 
+//   ClickMeComponent,
+//   KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3,
 //   LittleTour, LoopbackComponent,
 // TODO: purge extraneous material
 
@@ -10,17 +10,17 @@
 
 import {bootstrap, Component, CORE_DIRECTIVES,
   Input, Output,
-  Directive, 
+  Directive,
   ElementRef, EventEmitter,
   NgForm, FORM_DIRECTIVES
 } from 'angular2/angular2';
 
 class Hero {
   public id:number
-  
+
   constructor(
-    public firstName:string, 
-    public lastName?:string, 
+    public firstName:string,
+    public lastName?:string,
     public birthdate?:Date,
     public url?:string,
     public rate:number = 100) {
@@ -28,17 +28,17 @@ class Hero {
     }
 
   get fullName() {return `${this.firstName} ${this.lastName}`;}
-  
+
   static nextId = 1;
-  
+
   static MockHeroes = [
     new Hero(
-      'Hercules', 
-      'Son of Zeus', 
+      'Hercules',
+      'Son of Zeus',
       new Date(1970, 1, 25),
       'http://www.imdb.com/title/tt0065832/',
       325),
-    
+
     new Hero('eenie', 'toe'),
     new Hero('Meanie', 'Toe'),
     new Hero('Miny', 'Toe'),
@@ -67,7 +67,7 @@ class DecoratorDirective {
     <div>Last: {{hero?.lastName}}</div>
     <div>Birthdate: {{hero?.birthdate | date:'longDate'}}</div>
     <div>Web: <a href="{{hero?.url}}" target="_blank">{{hero?.url}}</a></div>
-    <div>Rate/hr: {{hero?.rate | currency:'EUR'}}</div>    
+    <div>Rate/hr: {{hero?.rate | currency:'EUR'}}</div>
     <button (click)="onDelete()">Delete</button>
   </div>
   `
@@ -76,10 +76,10 @@ class HeroDetailComponent {
 
   @Input()
   hero: Hero;
-  
+
   @Output()
   deleted = new EventEmitter<Hero>();
-  
+
   onDelete() {
     this.deleted.next(this.hero);
   }
@@ -100,7 +100,7 @@ class LittleHeroComponent {
 })
 class ClickMeComponent {
   onClickMe(){
-    alert('You are my hero!')    
+    alert('You are my hero!')
   }
 }
 
@@ -122,7 +122,7 @@ class LoopbackComponent {
 class KeyUpComponent {
   values='';
   onKey(event:KeyboardEvent) {
-    this.values += (<HTMLInputElement>event.target).value + ' | ';  
+    this.values += (<HTMLInputElement>event.target).value + ' | ';
   }
 }
 
@@ -137,7 +137,7 @@ class KeyUpComponent {
 class KeyUpComponentV2 {
   values='';
   onKey(value:string) {
-    this.values += value + ' | ';  
+    this.values += value + ' | ';
   }
 }
 
@@ -157,7 +157,7 @@ class KeyUpComponentV3 {
   selector: 'little-tour',
   template: `
     <h4>Little Tour of Heroes</h4>
-    <input #box 
+    <input #box
       (keyup.enter)="addHero(box.value)"
       (blur)="addHero(box.value)">
     <button (click)=addHero(box.value)>Add</button>
@@ -167,10 +167,10 @@ class KeyUpComponentV3 {
 })
 class LittleTour {
   heroes=['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
-  
+
   addHero(newHero:string) {
-    if (newHero) { 
-      this.heroes.push(newHero); 
+    if (newHero) {
+      this.heroes.push(newHero);
       newHero = null; // clear the newHero textbox
     }
   }
@@ -185,25 +185,25 @@ enum Color {Red, Green, Blue};
   templateUrl: 'app/app.html',
   directives: [
     CORE_DIRECTIVES, FORM_DIRECTIVES,
-    ClickMeComponent, 
-    KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3, 
+    ClickMeComponent,
+    KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3,
     LittleTour, LoopbackComponent,
     HeroDetailComponent, LittleHeroComponent
   ]
 })
-class AppComponent { 
+class AppComponent {
 
   actionName = 'Go for it';
   callFax(value:string) {alert(`Faxing ${value} ...`)}
   callPhone(value:string) {alert(`Calling ${value} ...`)}
   canSave =  true;
-  
+
   Color = Color;
   color = Color.Red;
   colorToggle() {this.color = (this.color === Color.Red)? Color.Blue : Color.Red}
-    
+
   currentHero = Hero.MockHeroes[0];
-  
+
   getStyles(el:Element){
     let styles = window.getComputedStyle(el);
     let showStyles = {};
@@ -212,58 +212,58 @@ class AppComponent {
     }
     return JSON.stringify(showStyles);
   }
-  
+
   getVal() {return this.val};
-  
+
   heroes = Hero.MockHeroes;
-  
+
   //heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
-  heroImageUrl = '../../images/hero.png';
-  
+  heroImageUrl = 'images/hero.png';
+
   //iconUrl = 'https://angular.io/resources/images/logos/standard/shield-large.png';
-  iconUrl = '../../images/ng-logo.png';
+  iconUrl = 'images/ng-logo.png';
   isActive = false;
   isSpecial = true;
   isUnchanged = true;
-    
+
   nullHero:Hero = null; // or undefined
-  
+
   onCancel(event:KeyboardEvent){
     let evtMsg = event ? ' Event target is '+ (<HTMLElement>event.target).innerHTML : '';
     alert('Canceled.'+evtMsg)
   }
-  
+
   onClickMe(event:KeyboardEvent){
     let evtMsg = event ? ' Event target class is '+ (<HTMLElement>event.target).className  : '';
-    alert('Click me.'+evtMsg)    
+    alert('Click me.'+evtMsg)
   }
-  
+
   onDeleted(hero:Hero){
     alert('Deleted hero: '+ (hero && hero.firstName))
   }
-  
+
   onSave(event:KeyboardEvent){
     let evtMsg = event ? ' Event target is '+ (<HTMLElement>event.target).innerText : '';
     alert('Saved.'+evtMsg)
   }
-  
+
   onSubmit(form:NgForm){
-    let evtMsg = form.valid ? 
-      ' Form value is '+ JSON.stringify(form.value) : 
+    let evtMsg = form.valid ?
+      ' Form value is '+ JSON.stringify(form.value) :
       ' Form is invalid';
     alert('Form submitted.'+evtMsg)
   }
-  
+
   product = {
     name: 'frimfram',
     price: 42
   };
-  
+
   setLastName(lastName:string){
     console.log(lastName);
     this.currentHero.lastName = lastName;
   }
-  
+
   setClasses() {
     return {
       saveable: this.canSave,      // true
@@ -271,7 +271,7 @@ class AppComponent {
       special: this.isSpecial,     // true
     }
   }
-  
+
   setStyles() {
     return {
       'font-style':  this.canSave      ? 'italic' : 'normal',  // italic
@@ -279,7 +279,7 @@ class AppComponent {
       'font-size':   this.isSpecial    ? 'larger' : 'smaller', // larger
     }
   }
-    
+
   toeChoice(picker:HTMLFieldSetElement){
     let choices = picker.children;
     for (let i=0; i<choices.length; i++){
@@ -287,12 +287,12 @@ class AppComponent {
       if (choice.checked) {return choice.value}
     }
   }
-  
+
   title = 'Template Syntax'
   val=2;
   //  villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
-  villainImageUrl = '../../images/villain.png'
-  
+  villainImageUrl = 'images/villain.png'
+
 
 }
 
