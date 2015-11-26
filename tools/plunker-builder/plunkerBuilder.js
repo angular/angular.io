@@ -78,7 +78,7 @@ function initConfigAndCollectFileNames(configFileName) {
       return path.join(basePath, fileName);
     }
   });
-  var defaultExcludes = [ '!**/typings/**','!**/tsconfig.json', '!**/plnkr.html', '!**/*.plnkr.html' ];
+  var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/plnkr.html', '!**/*.plnkr.html' ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globule.find(gpaths);

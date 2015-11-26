@@ -1,4 +1,4 @@
-import {HeroBirthday as HeroBirthday2} from './hero-birthday.2';
+import {HeroBirthday as HeroBirthday2} from './hero-birthday';
 import {PowerBooster} from './power-booster';
 import {PowerBoostCalculator} from './power-boost-calculator';
 import {HeroListComponent} from './hero-list-component';

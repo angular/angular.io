@@ -1,5 +1,5 @@
 import {bootstrap, Component} from 'angular2/angular2'
-// #docregion hero-birthday2
+// #docregion
 @Component({ 
   selector: 'hero-birthday',
   template: `
@@ -13,4 +13,4 @@ export class HeroBirthday {
   toggle = true;
   toggleFormat() { this.toggle = !this.toggle; }  
 }
-// #enddocregion hero-birthday2
+// #enddocregion
