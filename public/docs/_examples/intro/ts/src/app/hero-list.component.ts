@@ -29,6 +29,7 @@ export class HeroListComponent {
     this.heroes = service.getHeroes();
   }
 // #enddocregion ctor
+
   heroes:Hero[];
   selectedHero:Hero;
   selectHero(hero: Hero) { this.selectedHero = hero; }
