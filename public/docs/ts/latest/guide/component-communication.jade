@@ -8,48 +8,144 @@ include ../../../../_includes/_util-fns
   This way, we can create smaller building blocks with their own boundaries of responsibility, and compose the entire application
   from them.
   
-  Generally, an Angular app is a tree or forest of components, and so it has parent and child components. Evidently, these components have to communicate
-  with each other. As we already learned, _component_ is a pivotal concept of Angular, and it was designed with _inter-component 
-  communication_ in mind. Thinking about an app as a tree of components, we can envision the following information flows:
-  * Parent to child (and children)
-  * Child to parent
-  * Sibling to sibling
-  * Among unrelated, completely decoupled components 
+  Generally, an Angular app is a tree of components &mdash; with the bootstrapped component as the root. Thinking about an app 
+  structure as a tree, there are components that are in the same branch of the component tree &mdash; these form parent and child hierarchies
+  &mdash;, and components that are not directly related: they are in different branches. Evidently, these have to communicate with each other
+  to carry out the task the app is created for.
   
-  In this chapter, we will learn the most frequently used Angular mechanisms available for inter-component communication. We will also get acquainted with 
-  the tradeoffs of each mechanism, and understand the scenarios best suited for using a particular method of communication.
+  As we already learned, _component_ is a pivotal concept of Angular, and it was designed with _inter-component communication_ in mind.
+  We can imagine the following information flows:
+  * From a parent to its child and children
+  * From a child to its parent
+  * Among unrelated, completely decoupled components
   
+  In this chapter, we will learn 6 frequently used Angular mechanisms and techniques available for inter-component communication.
+  We will also get acquainted with the tradeoffs of each mechanism, and understand the scenarios best suited for using a particular method of communication.
+  Before diving deeply into the details, here is a short overview of these techniques:
+  
+  __#1: Parent to child communication with property binding__
+  
+  The `prop-value` expression of the parent is bound to the `child-prop` input property of the child. `child-prop` is updated every time when `prop-value` changes:
+  
++makeExample('component-communication/ts/fragments/property-binding-intro.html')
+  
+:marked
+  We can bind multiple properties of a single child component to the parent, and, implicitly, we can bind multiple children to the parent &mdash; 
+  ie. with `ng-for`:
+  
++makeExample('component-communication/ts/fragments/property-binding-intro-2.html')
+  
+
+:marked
+  [Jump to details](#parent-to-child-communication-with-property-binding)
+
+:marked
+  __#2: Child to parent communication with event emitting__
+  
+  _Exemplification_
+
+  [Jump to details](#child-to-parent-communication-with-event-emitting)
+
+  __#3: Child to parent communication with direct method calling__
+  
+  _Exemplification_
+
+  [Jump to details](#child-to-parent-communication-with-direct-method-calling)
+
+  __#4: Duplex parent/child communication through a service object__
+  
+  _Exemplification_
+
+  [Jump to details](#duplex-parent-child-communication-through-a-service-object)
+
+  __#5: Communication among unrelated components via a message bus__
+  
+  _Exemplification_
+
+  [Jump to details](#communication-among-unrelated-components-via-a-message-bus)
+
+  __#6: Parent to child communication where chidren are transposed in &mdash; using `@Query`__
+  
+  _Exemplification_
+
+  [Jump to details](#parent-to-child-communication-where-chidren-are-transposed-in-mdash-using-query-)
+
   ### The Hero Job Board sample
   
-  We will build a sample application that help us involve our heroes into actions when we really need their help. In this app,
-  users can act on behalf of the person in need, and also on behalf of each hero. The basic workflow is the following:
-  1. The person in need invites heroes to listen to job requests. As a simplification, we keep a list of all known heroes, and invite
-  each of them independently of the superpower they possess.
+  In this chapter, we will build a sample application that help us involve our heroes into actions when we really need their help.
+  In this app, users can act on behalf of the person in need, and also on behalf of each hero. The basic workflow is the following:
+  1. The person in need invites heroes to listen to job requests.
   1. When there's a decent job that requires superpower, the person in need announces a job request that is received by all heroes.
   1. Heroes can opt to undertake the job.
-  1. When having received applications for the job, the person in need assigns the job to one and only one hero among the responding ones.
+  1. When having received applications for the job, the person in need assigns the job the one of the responding heroes.
   1. The assigned hero is notified about winning the job, the others receive a message about losing the opportunity.
   
-  To learn the inter-component communication methods, we go through 11 scenarios &mdash; each of them is an individual sample &mdash;, 
-  and aughment the basic workflow:
+  Here is a screenshot of our complete application:
   
-  1. We create a prototype application that shows how the Hero Job Board application is decomposed into three components. _In this sample, we show how easy 
-  establishing a tree of components is._
-  1. The person in need invites heroes to listen job requests. _In this scenario, we demonstrate parent to child communication via data binding._
-  1. The person in need can send job request to invited heroes. _This scenario will use parent to child communication, just like the previous one, 
-  but additionally introduces a couple of new features, such as binding multiple properties and using binding expressions._
-  1. A hero undertakes the job &mdash; communicating in a bad way. _We demonstrate a way a child can communicate with its parent. In this scenario, 
-  we show an antipattern that should be avoided: the parent hands itself to the child through a binding._
-  1. A hero undertakes the job &mdash; using event binding. _In this scenario, we apply Angular event binding, which is a preferred pattern for child to parent
-  communication._
-  1. _We refactor sending and undertaking the job request by introducing an intermediary component for two-way communication between parent and its children._
-  1. The person in need assigns the job to one of the responding heroes. _We extend the intermediary component to handle this function._
-  1. We put a little twist into the basic workflow: a losing hero can steal the job from the winner. _In this scenario, we demonstrate a desing flaw
-  that should be handled when parent and child components access the same facade of an intermediary component._
-  1. We prevent losing heroes by stealing the job. _We'll fix the design flow of the intermediary service by providing separate facades for the parent and child components._
-  1. We add a new component, through which components can broadcast messages. Using this component, heros can brag or complain about winning or loosing, respectively. 
-  _In this scenario, we demonstrate how parent and child components can send messages to an unrelated component._
-  1. We add a message board that can display the broadcast messages. _We show how a component can receive messages from an unrelated component._
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/app-ui-snapshot.png" alt="UI in action")
+  
+:marked
+  Let's start, and dive into the details.
+  
+  ## #1: Parent to child communication with property binding
+  
+  Angular allows components to declare _data-bound input properties_. These are like regular component properties, but the value of an 
+  input property takes its value from the expression bound to the property. The framework automatically updates data-bound input properties
+  during change detection. An input binding is always a one-way binding. As the source value changes, the destination property of the 
+  component is changed, but it does not happen vice-versa: altering the value of the input property within the component does not 
+  affect the source.
+  
+  It's pretty easy to use input data binding. It can be used pass data from a parent component to a single child, to all or a set of its children.
+  As its name suggests, you can pass only data values with input property binding, and you cannot send messages that can be represented only
+  with method calls. This technique does not allow to pass data from a child component ot its parent directly.
+  
+  The Hero Job Board application uses input data binding to pass the information about an invited hero from `HeroJobBoard` (parent) to all
+  `HeroPanel` children. The `HeroJobBoard` component is the one that knows the circle of heroes to invite to listen to job requests, and it embeds 
+  `HeroPanel` component instances that represent the control panel of heroes.
+  
+  In this scenario, `HeroPanel` defines an input property with the `@Input` decorator attached to the `hero` property:
+  
++makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', null, 'invite-heroes/hero-panel.ts', {pnk: /(@Input)/g})
+
+:marked
+  _To be continued_
+
++makeExample('component-communication/ts/src/app/invite-heroes/hero-job-board.ts', null, 'invite-heroes/hero-job-board.ts', {pnk: /(\[hero\])/g})
+  
+:marked
+  _To be continued_
+  
+  ## Child to parent communication with event emitting
+  
+  _Content_
+
+  ## Child to parent communication with direct method calling
+  
+  _Content_
+
+  ## Child to parent communication with direct method calling
+  
+  _Content_
+
+  ## Duplex parent/child communication through a service object
+  
+  _Content_
+
+  ## Communication among unrelated components via a message bus
+  
+  _Content_
+
+  ## Parent to child communication where chidren are transposed in &mdash; using `@Query`
+  
+  _Content_
+  
+  ## Conclusion
+  
+  _Content_
+
+ 
+  ## __Do not review the subsequent sections!__ _Everything from here is old content to be removed_
   
   ## #1: Building the prototype application
   

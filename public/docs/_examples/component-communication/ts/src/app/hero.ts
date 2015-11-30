@@ -11,11 +11,13 @@ export class Hero {
         new Hero(13, "Bombasto"),
         new Hero(14, "Celeritas"),
         new Hero(15, "Magneta"),
-        new Hero(16, "RubberMan"),
-        new Hero(17, "Dynama"),
-        new Hero(18, "Dr IQ"),
-        new Hero(19, "Magma"),
-        new Hero(20, "Tornado")
+        new Hero(16, "RubberMan")
       ];
     }
 }
+
+// Other heroes:
+// {id: 17, name: "Dynama"}
+// {id: 18, name: "Dr IQ"}
+// {id: 19, name: "Magma"}
+// {id: 20, name: "Tornado"}
