@@ -10,5 +10,5 @@ import 'package:template_syntax/hero.dart';
 ''')
 class LittleHeroComponent {
   @Input()
-  var hero = Hero;
+  Type hero = Hero;
 }

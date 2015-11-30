@@ -1,6 +1,7 @@
 library template_syntax.hero;
 
 class Hero {
+  static int _nextId = 0;
   int id;
   String firstName;
   String lastName;
@@ -12,7 +13,5 @@ class Hero {
     this.id = _nextId++;
   }
 
-  get fullName => firstName + ' ' + lastName;
-
-  var _nextId = 0;
+  String get fullName => firstName + ' ' + lastName;
 }

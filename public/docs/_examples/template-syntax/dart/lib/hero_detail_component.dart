@@ -16,10 +16,10 @@ import 'package:template_syntax/hero.dart';
   </div>''')
 class HeroDetailComponent {
   @Input()
-  var hero = Hero;
+  Type hero = Hero;
 
   @Output()
-  EventEmitter deleted = new EventEmitter();
+  final EventEmitter deleted = new EventEmitter();
 
   onDelete() {
     deleted.add(hero);

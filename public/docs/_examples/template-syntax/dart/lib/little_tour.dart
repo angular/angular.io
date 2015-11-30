@@ -1,5 +1,7 @@
 library template_syntax.little_tour;
 
+import 'dart:html';
+
 import 'package:angular2/angular2.dart';
 
 @Component(selector: 'little-tour')
@@ -14,7 +16,8 @@ import 'package:angular2/angular2.dart';
 class LittleTourComponent {
   List<String> heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
 
-  addHero(newHero) {
+  addHero(InputElement newHero) {
+    print(newHero.runtimeType);
     if (newHero.value != null && newHero.value.length > 0) {
       heroes.add(newHero.value);
       newHero.value = null;
