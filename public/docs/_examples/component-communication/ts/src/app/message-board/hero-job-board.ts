@@ -2,6 +2,7 @@ import {Component} from 'angular2/angular2';
 import {HeroPanel} from './hero-panel';
 import {Hero} from '../hero';
 import {JobService} from './job-service';
+import {MessageBus} from './message-bus';
 
 @Component({
   selector: 'hero-job-board',
@@ -47,7 +48,9 @@ import {JobService} from './job-service';
 export class HeroJobBoard {
   newRequest: string = null;
   winner: Hero = null;
-  constructor(private jobService: JobService) {
+  constructor(
+    private jobService: JobService,
+    private messageBus: MessageBus) {
     
   }
 
@@ -63,10 +66,15 @@ export class HeroJobBoard {
     this.jobService.inviteHeroes();
     this.newRequest = null;
     this.winner = null;
+    this.messageBus.broadcastMessage('Heroes invited.');
   }
   
   announceJob() {
     this.jobService.announceJob(this.newRequest);
+    if (this.newRequest) {
+      this.messageBus.broadcastMessage(
+        'Job "' + this.newRequest + '" announced.');
+    }
   }
 
   get jobStatus() {
@@ -80,5 +88,7 @@ export class HeroJobBoard {
   assignJob(hero: Hero) {
     this.winner = hero;
     this.jobService.assignJob(hero);
+    this.messageBus.broadcastMessage(
+      'Job assigned to ' + hero.name + ".");
   }
 }

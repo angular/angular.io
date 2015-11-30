@@ -1,7 +1,8 @@
 import {Component} from 'angular2/angular2';
-import {HeroPanel} from './hero-panel';
 import {Hero} from '../hero';
 import {JobService} from './job-service';
+import {HeroCrm} from './hero-crm';
+import {HeroPanelManager} from './hero-panel-manager';
 
 @Component({
   selector: 'hero-job-board',
@@ -33,15 +34,17 @@ import {JobService} from './job-service';
       </div>
     </div>
 
-    <div class='hero-panel-list'>
-      <hero-panel 
-        *ng-for='#hero of invitedHeroes'
-        [hero]='hero'>
-      </hero-panel>
+    <hero-panel-manager>
+      <hero-crm *ng-for='#hero of invitedHeroes'
+        [id]='hero.id' 
+        [name]='hero.name'
+        [distinguished]='hero.id % 2 == 0'>
+      </hero-crm>
+    </hero-panel-manager>
     </div>
     `,
   styleUrls: ['app/hero-job-board.css'],
-  directives: [HeroPanel],
+  directives: [HeroPanelManager, HeroCrm],
   providers: [JobService]
 })
 export class HeroJobBoard {

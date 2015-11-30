@@ -28,7 +28,7 @@ import {Hero} from '../hero';
       <hero-panel *ng-for='#hero of invitedHeroes'
         [hero]='hero'
         [request]=request
-        (on-job-taken)='heroTakesJob($event)'>
+        [parent]='jobBoard'>
       </hero-panel>
     </div>
     `,
@@ -62,5 +62,9 @@ export class HeroJobBoard {
     return this.respondingHeroes.length > 0
       ? "Responding heroes"
       : "No responding heroes";
+  }
+  
+  get jobBoard() {
+    return this;
   }
 }
