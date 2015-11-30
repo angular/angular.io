@@ -10,9 +10,9 @@ export class BackendService {
     if (type === Hero) {
       // TODO get from the database and return as a promise
       return [
-        new Hero('Windstorm'), 
-        new Hero('Mr. Nice'), 
-        new Hero('Magneta')];
+        new Hero('Windstorm', 'Weather mastery'), 
+        new Hero('Mr. Nice', 'Killing them with kindness'), 
+        new Hero('Magneta', 'Manipulates metalic objects')];
     }
     let err = new Error('Cannot get object of this type');
     this._logger.error(err);
