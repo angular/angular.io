@@ -60,11 +60,14 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
   };
 
   vm.apiSections = [
-    { name: 'angular2/core', title: 'Core' },
-    { name: 'angular2/http', title: 'HTTP' },
-    { name: 'angular2/lifecycle_hooks', title: 'Lifecycle Hooks' },
-    { name: 'angular2/router', title: 'Router' },
-    { name: 'angular2/test', title: 'Test' }
+    { name: 'angular2/core', title: 'angular2/core' },
+    { name: 'angular2/common', title: 'angular2/common' },
+    { name: 'angular2/animate', title: 'angular2/animate' },
+    { name: 'angular2/http', title: 'angular2/http' },
+    { name: 'angular2/instrumentation', title: 'angular2/instrumentation' },
+    { name: 'angular2/platform/browser', title: 'angular2/platform/browser' },
+    { name: 'angular2/router', title: 'angular2/router' },
+    { name: 'angular2/testing', title: 'angular2/testing' }
   ];
   vm.apiType     = '';
   vm.apiFilter   = '';
