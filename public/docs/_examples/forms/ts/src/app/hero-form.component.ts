@@ -1,16 +1,13 @@
 // #docplaster
 // #docregion
 // #docregion first, final
-import {Component, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
+import {Component} from 'angular2/angular2';
 
 import { Hero } from './hero';
 
 @Component({
   selector: 'hero-form',
-  templateUrl: 'app/hero-form.component.html',
-  // #docregion directives
-  directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
-  // #enddocregion
+  templateUrl: 'app/hero-form.component.html'
 })
 export class HeroFormComponent {
 
