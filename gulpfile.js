@@ -69,12 +69,12 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
 });
 
-gulp.task('serve-and-sync-api-docs', ['build-docs'], function (cb) {
+gulp.task('serve-and-sync-api', ['build-docs'], function (cb) {
   watchAndSync({apiDocs: true, apiExamples: true}, cb);
 });
 
-gulp.task('serve-and-sync-devGuide', ['build-docs'], function (cb) {
-  watchAndSync({devGuide: true}, cb);
+gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers', '_zip-examples'], function (cb) {
+  watchAndSync({devGuide: true, localFiles: true}, cb);
 });
 
 gulp.task('build-and-serve', ['build-docs'], function (cb) {
@@ -168,8 +168,6 @@ gulp.task('check-deploy', ['build-docs'], function() {
 gulp.task('test-api-builder', function (cb) {
   execCommands(['npm run test-api-builder'], {}, cb);
 });
-
-
 
 
 // Internal tasks
