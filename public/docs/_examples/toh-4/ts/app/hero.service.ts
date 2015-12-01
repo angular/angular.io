@@ -1,5 +1,6 @@
 // #docplaster
 // #docregion
+// #docregion just-get-heroes
 import {Hero} from './hero';
 import {HEROES} from './mock-heroes';
 import {Injectable} from 'angular2/core';
@@ -11,7 +12,7 @@ export class HeroService {
     return Promise.resolve(HEROES);
   }
   //#enddocregion get-heroes
-
+  // #enddocregion just-get-heroes
   // See the "Take it slow" appendix
   //#docregion get-heroes-slowly
   getHeroesSlowly() {
@@ -20,5 +21,7 @@ export class HeroService {
     );
   }
   //#enddocregion get-heroes-slowly
+  // #docregion just-get-heroes
 }
+// #enddocregion just-get-heroes
 // #enddocregion

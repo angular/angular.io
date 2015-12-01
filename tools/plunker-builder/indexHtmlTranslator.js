@@ -89,6 +89,11 @@ var _rxData = [
     to: 'https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.16/system-polyfills.js'
   },
   {
+    pattern: 'script',
+    from: 'node_modules/a2-in-memory-web-api/web-api.js',
+    to: 'https://npmcdn.com/a2-in-memory-web-api/web-api.js'
+  },
+  {
     pattern: 'link',
     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
     to: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css'
