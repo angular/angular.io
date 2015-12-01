@@ -5,6 +5,7 @@ var _ = require('lodash');
 var jsdom = require("jsdom");
 var fs = require("fs");
 var globule = require('globule');
+var mkdirp = require('mkdirp');
 
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
@@ -13,16 +14,16 @@ module.exports = {
   buildPlunkers: buildPlunkers
 };
 
-function buildPlunkers(basePath, errFn) {
-  errFn = errFn || function(e) { console.log(e); };
-  var configExtns = ['plnkr.config', '*.plnkr.config'];
+function buildPlunkers(basePath, destPath, options) {
+  errFn = options.errFn || function(e) { console.log(e); };
+  var configExtns = ['plnkr.json', '*plnkr.json'];
   var gpaths = configExtns.map(function(extn) {
     return path.join(basePath, '**/' + extn);
   });
   var fileNames = globule.find(gpaths);
   fileNames.forEach(function(configFileName) {
     try {
-      buildPlunkerFrom(configFileName);
+      buildPlunkerFrom(configFileName, basePath, destPath);
     } catch (e) {
       errFn(e);
     }
@@ -34,18 +35,33 @@ function buildPlunkers(basePath, errFn) {
 //   description: optional string - description of this plunker - defaults to the title in the index.html page.
 //   tags: [] - optional array of strings
 //   main: string - filename of what will become index.html in the plunker - defaults to index.html
-function buildPlunkerFrom(configFileName ) {
-  // replace ending 'plnkr.config' with 'plnkr.html' to create output file name;
-  var outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.config'.length) + 'plnkr.html';
+function buildPlunkerFrom(configFileName, basePath, destPath ) {
+  // replace ending 'plnkr.json' with 'plnkr.no-link.html' to create output file name;
+  var outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.json'.length) + 'plnkr.no-link.html';
+  var altFileName;
+  if (destPath && destPath.length > 0) {
+    var partPath = path.dirname(path.relative(basePath, outputFileName));
+    var altFileName = path.join(destPath, partPath, path.basename(outputFileName)).replace('.no-link.', '.');
+  }
   try {
     var config = initConfigAndCollectFileNames(configFileName);
     var postData = createPostData(config);
     var html = createPlunkerHtml(postData);
     fs.writeFileSync(outputFileName, html, 'utf-8');
+    if (altFileName) {
+      var altDirName = path.dirname(altFileName);
+      if (!fs.existsSync(altDirName)) {
+        mkdirp.sync(altDirName);
+      }
+      fs.writeFileSync(altFileName, html, 'utf-8');
+    }
   } catch (e) {
     // if we fail delete the outputFile if it exists because it is an old one.
     if (existsSync(outputFileName)) {
       fs.unlinkSync(outputFileName);
+    }
+    if (altFileName && existsSync(altFileName)) {
+      fs.unlinkSync(altFileName);
     }
     throw e;
   }
@@ -78,7 +94,7 @@ function initConfigAndCollectFileNames(configFileName) {
       return path.join(basePath, fileName);
     }
   });
-  var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/plnkr.html', '!**/*.plnkr.html' ];
+  var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globule.find(gpaths);
