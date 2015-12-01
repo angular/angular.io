@@ -1,0 +1,443 @@
+
+include ../../../../_includes/_util-fns
+:marked
+  Whew! We already learned quite a lot about how Angular 2 works. One thing that we haven't looked into yet is how to
+  communicate with a backend. Most applications will come to a point where they either want to read from or write to
+  a remote location. Angular 2 has excellent support for such scenarios so let's dive right into it.
+  
+  Try the [live example](/resources/live-examples/server-communication/ts/plnkr.html).
+.l-main-section
+:marked
+  ## The Basics
+
+  When we look at the broad task of connecting multiple devices to talk to each other, there really are plenty of different options.
+  If we zoom in a little and restrict us to only look at the options that allow a web application that runs in a browser to communicate with
+  a backend we are basically left with communication via the [`HTTP`](https://tools.ietf.org/html/rfc2616) or [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol.
+  
+  For web apps to communicate via `HTTP` there are basically two different techniques which are `XMLHttpRequest (XHR)` and `JSONP`. 
+  They are quite different from each other both in purpose and implementation.
+  Angular comes with its own built-in abstractions that allow us to exploit both techniques in a nicely well integrated way.
+
+  ## Http Client
+  
+  We use the Angular `Http` client to communicate via `XMLHttpRequest (XHR)`.
+  
+  We'll illustrate with a component that displays heroes retrieved from a server.
+  We've seen this kind of component in many other documentation samples:
++makeExample('server-communication/ts/app/toh/toh.component.ts', null, 'app/toh.component.ts')
+:marked
+  Let's break it down.
+  
+  We import symbols we need, many of them familiar; those that aren't we'll discuss when we use them.
+  
+  The template displays a title, a list of heroes, an input box for a new hero name, and a button to add that hero.
+  It looks like this:
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/hero-list.png' alt="Hero List Component" width="250")
+:marked
+  The component specifies some `providers`: services that this component or one of its child components
+  will ask to perform some tasks. 
+.l-sub-section
+  :marked
+    Learn about providers in the [Dependency Injection](dependency-injection.html) chapter.
+:marked
+  Notable among the providers is `HTTP_PROVIDERS`, an array of service providers from the Angular HTTP library.
+  We'll be using that library to access the server.
+
+  We also specify a `HeroService` that we [inject](dependency-injection.html) into the component's constructor.
+  The component asks this service for heroes to display.
+  We've written such services before. We'll explore this one in detail in a moment.
+   
+  The component calls the `HeroService` inside the `ngOnInit` [lifecycle hook](lifecycle-hooks.html) 
+  rather than in the component's constructor. 
++makeExample('server-communication/ts/app/toh/toh.component.ts', 'ngOnInit', 'app/toh.component.ts (ngOnInit)')
+:marked
+  This is a "best practice". 
+  Components are easier to test and debug when their constructors are simple and all real work 
+  (especially calling a remote server) is handled in a separate method. 
+  We can count on Angular to call `ngOnInit` when it creates a new instance of the component.
+  
+  The eagle-eyed template reader will have noticed the use of the [async pipe](pipes.html#async-pipe) in the `ngFor`.
+  The author repeated that line in a comment in case we overlooked it.
+  
+  The async pipe is a simple and nifty way to pump async results from a data service directly into the template
+  without having to code callbacks to populate an array variable. 
+
+.l-sub-section
+  :marked
+    The async pipe works for both [promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+    and [observables](observables.html). 
+    In this case, the `HeroesService` returns an `Observable<Hero>`.
+    
+    Compare the async pipe approach to the callback alternative that sets an array:
+  code-example(format=".").
+    // &lt;li *ngFor="#hero of heroes">
+    heroes: Hero[];
+    
+    // promise
+    this._heroService.getHeroes().then(heroes => this.heroes);
+    
+    // observable
+    this._heroService.getHeroes().subcribe(heroes => this.heroes);
+  :marked
+    Neither approach is "right" or "wrong".
+:marked
+  The `addHero` method is a placeholder. Right now we're retrieving data from the server.
+  We'll re-implement this method when our `HeroService` is ready to save data to the server.
+  
+  Now that the component is square away, we can turn to development of the backend data source
+  and the client-side `HeroService` that talks to it.
+  
+  ### Fetching `JSON` data
+  The first thing we need is a remote source of heroes such as a JSON file like this one:
++makeJson('server-communication/ts/app/toh/heroes.json', null, 'app/toh/heroes.json')(format=".")
+.l-sub-section
+  :marked
+    We won't return the heroes array directly 
+    because of the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk) 
+    We embed the heroes array in an `items` property instead.
+:marked
+  It's a general best practice not to
+  make requests directly from within components but to delegate such tasks to dedicated services instead.
+  We've been doing that all along.
+  
+  A key benefit of that approach is that we can change our data access implementation over time
+  without affecting the application components that consume the data.
+  
+  In many of our previous samples we faked the interaction with the backend by
+  returning mock heroes in a service like this one:
++makeExample('toh-4/ts/app/hero.service.ts', null, 'hero.service.ts')(format=".")
+:marked
+  In this chapter, we get the heroes from the server using Angular's own HTTP Client service.
+  We revise the `HeroService` as follows: 
+
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'v1', 'app/toh/hero.service.ts')(format=".")
+:marked
+  Notice that we import Angular's `Http` client service and 
+  [inject it](dependency-injection.html) into the `HeroService` constructor.
+
+  `Http` is not part of the Angular core. It's an optional service in its own `angular2/http` library.
+  Moreover, this library isn't even part of the main Angular script file. 
+  It's in its own script file (included in the Angular npm bundle) which we must load in `index.html`.
++makeExample('server-communication/ts/index.html', 'http', 'index.html')(format=".")
+:marked
+  Look closely at how we call `http.get`
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get', 'app/toh/hero.service.ts (http.get)')(format=".")
+:marked
+  We pass the resource URL to `get` and it calls the server which returns
+  data from the `heroes.json` file.  
+  
+  The return value may surprise us. Many of us would expect a 
+  [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+  We'd expect to chain a call to `then()` and extract the heroes.
+  Instead we're calling a `map()` method. 
+  Clearly this is not a promise.
+  
+.alert.is-critical
+  :marked
+    Christoph: We have to talk about promises v. observables and link to something about RxJs.
+    Not sure how to do that yet.
+:marked
+  ### RxJS Observables
+  The `http.get` method returns an **Observable** from the [RxJS library](https://github.com/ReactiveX/RxJS).
+.l-sub-section
+  :marked
+    We cover the rudiments of RxJS in the [Observables](observables.html) chapter. 
+:marked
+  RxJS is a 3rd party library endorsed by Angular. 
+  All of our documenations samples have installed the RxJS npm package and loaded the script in `index.html`
+  because observables are used widely in Angular applications.
++makeExample('server-communication/ts/index.html', 'rxjs', 'index.html')(format=".")
+:marked
+  We certainly need it now when working with the HTTP client.
+  And we must take a critical extra step to make RxJS observables usable.
+  
+  ### Enable RxJS Operators
+  The RxJS library is quite large. 
+  Size matters when we build a production application and deploy it to mobile devices.
+  We should include only those features that we actually need.
+  
+  Accordingly, Angular exposes a stripped down version of `Observable` in the `rxjs/Observable` module, 
+  a version that lacks almost all operators including the ones we'd like to use here
+  such as the `map` method we called above in `getHeroes`.
+  
+  It's up to us to add the operators we need. 
+  We could add each operator, one-by-one, until we had a custom *Observable* implementation tuned
+  precisely to our requirements.
+  
+  That would be a distraction today. We're learning HTTP, not counting bytes.
+  So we'll make it easy on ourselves and enrich *Observable* with the full set of operators.
+  It only takes one `import` statement. 
+  It's best to add that statement early when we're bootstrapping the application. 
+  :
++makeExample('server-communication/ts/app/boot.ts', 'import-rxjs', 'app/boot.ts (import rxjs)')(format=".")
+:marked
+  ### Map the response object
+  Let's come back to the `HeroService` and look at the `http.get` call again to see why we needed `map()`
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get', 'app/toh/hero.service.ts (http.get)')(format=".")
+:marked
+  The `response` object does not hold our data in a form we can use directly. 
+  It takes an additional step &mdash; calling `response.json()` &mdash; to transform the bytes from the server into a JSON object.
+
+.l-sub-section
+  :marked
+    This is not Angular's own design. 
+    The Angular HTTP client follows the ES2015 specification for the
+    [response object](https://fetch.spec.whatwg.org/#response-class) returned by the `Fetch` function.
+    That spec defines a `json()` method that parses the response body into a JavaScript object.
+:marked
+  We call the `Observable.map` operator with the same kind of transform function that 
+  we'd pass to a `Promise.then`.
+  We remember also that `heroes.json` defined an object with an `items` property
+  that holds our heroes.
+  
+  ### Do not return the response object
+  Our `getHeroes()` could have returned returned the `Observable<Response>`.
+  
+  Bad idea! The point of a data service is to hide the server interaction details from consumers.
+  The component that calls the `HeroService` wants heroes. 
+  It has no interest in what we do to get them.
+  It doesn't care where they come from.
+  And it certainly doesn't want to deal with a response object.
+
+  ### Always handle errors
+.alert.is-critical
+  :marked
+    Christoph: Please add/discuss error handling!
+:marked
+  ### Sending data to the server
+  
+  So far we've seen how to retrieve data from a remote location using Angular's built-in `Http` service. 
+  Wouldn't it be cool if we tweaked our example just a little so that we can create new heroes and save them in the backend?
+  
+.alert.is-important
+  :marked
+    Christoph: I think we should get rid of this passage.
+    We don't need to tell that they could use a GET to update the server and then tell them it's bad.
+    No one does that anyway.
+    Let's stick to positive advice.
+:marked
+  The good news: sending data to a remote location isn't that much different from retrieving it. 
+  In fact, we could send data to the backend with the same `GET` request.
+  Technically there's nothing preventing us from doing that.
+   
+  However, the `HTTP` spec defines [`GET`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.3) request as requests that are 
+  meant only for **retrieval** of information.
+  It's very bad practice to use `GET` requests for any requests that cause action on the server
+  other than retrieving infomation and returning it to the caller.
+  
+  In order to create a new hero and store it in our backend we should use a 
+  [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request instead.
+  
+  Let's assume our backend accepts new heroes at the endpoint when we send them as `POST` request. 
+  The structure it expects is that of our `Hero` entity without the `id` property.
+  It's the backends responsability to generate the `id` for us and report it.
+  
+code-example(format="." language="javascript").
+  { "name": "Windstorm" }
+:marked
+  The changes that we have to do to our code are trivial. We first add an `addHero` method to the `HeroService`.
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
+:marked
+  Notice that the second parameter of the `post` method is for the request body and expects a string. In order to send our hero we have to pass it to `JSON.stringify` first to get an actual JSON string.
+.alert.is-important
+  :marked
+    Christoph: This isn't trivial at all. 
+    How do we get the new entity back? What's its `id`? How do we update the displayed list? What if something goes wrong?
+:marked
+.alert.is-important
+  :marked
+    Christoph: we need some kind of transition here.
+:marked
+  ## Communication with `JSONP`
+.alert.is-helpful
+  :marked
+    Christoph: It's late (early in the morning) so I'm only skimming this and making sure it still
+    displays properly after I delete the other sample folders.
+:marked
+  Before we dive right into the API that Angular 2 provides us for `JSONP` calls let's make sure we understood what `JSONP` actually is and why it exists.
+  As we just learned we can fetch data through `XHR` calls using the built-in `Http` service. `JSONP` is another technique to fetch data from a remote location.
+  But why does it actually exist and how is it different from `XHR` calls?
+  
+  For security reasons web browser do not permit to make `XHR` calls if the origin of the remote server is different from the one the web page runs in.
+  The origin is defined as the combination of URI scheme, hostname and port number. The policy that prevents such `XHR` requests is called [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy) accordingly.
+
+.l-sub-section
+  :marked
+    That's not entirely true. Modern browsers do allow `XHR` requests against foreign origins if the server sends the appropriate [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) headers.
+    In such cases there's nothing specific to do for the client unless we want our `XHR` request to include credentials (e.g Cookies) which we then have to explicitly enable for the request.
+
+:marked
+  Whereas `XHR` calls to remote locations with different origins are prohibited it's absolutely ok to include `<script>` tags that load resources from a server with a different origin though.
+  And that's exactly what the `JSONP` technique does. Let's imagine we programatically add the following `<script>` tag to the `<head>` of our DOM.
+.alert.is-important
+  :marked
+    Christoph: I don't think we need to give a lesson on how not to do JSON. I think we've also confused the case.
+    It's this simple: we need to use JSONP to access data from a foreign server that doesn't support CORS.
+    
+    Remember also that A2 only works with modern browsers. We don't have to worry about browsers that don't support CORS
+    (unless you really believe that A2 will be used with IE9.  I don't. And I don't want to cover that in these docs anyway)
+:marked
+code-example(format="." language="html").
+  &lt;script src="http://server-with-different-origin.com/heroes">&lt;/script>
+:marked
+  Let's imagine the content of that script would be the `JSON` structure we used before.
+
++makeJson('server-communication/ts/app/toh/heroes.json')(format=".")
+:marked
+  Ouch! That immediately blows up with a syntax error.
+  
+code-example(format="." language="bash").
+  Uncaught SyntaxError: Unexpected token :
+:marked
+  The reason for that to fail is that our script is immediately interpreted as JavaScript after the browser fetched it. But even though the content is valid `JSON`, it's not valid JavaScript.
+
+  But what if the server wrapped a function around the `JSON`? That would make it valid JavaScript.
+  
+code-example(format="." language="javascript").
+  angular.callback_some_id({
+    "items": [
+      { "id": "1", "name": "Windstorm" },
+      { "id": "2", "name": "Bombasto" },
+      { "id": "3", "name": "Magneta" },
+      { "id": "4", "name": "Tornado" }
+    ]
+  });
+:marked
+  Yes! That works. But the server can't just wrap a function around the `JSON` that doesn't exist on the client. It also can't just invoke any well known function such as `console.log`.
+  The function that is invoked by the script needs to be a function that the client created for the purpose of receiving that data. 
+  Obviously the server needs to know the name of the function to wrap around though. In order for that to happen we have to pass that information to the server when we create the script tag.
+  We do that by appending a parameter to the URL.
+  
+code-example(format="." language="html").
+  &lt;script src="http://server-with-different-origin.com/heroes?callback=angular.callback_some_id">&lt;/script>
+:marked
+  ### Let's fetch some data from wikipedia
+  
+  Now that we know why `JSONP` exists, let's build a simple search that shows up suggestions from wikipedia as you type in a text box. Wikipedia offers a `JSONP` api for exactly
+  that purpose.
+  
+  As we just learned the process to fetch data via `JSONP` is fundamentally different implementation wise. Angular 2 abstracts
+  most of this away from us and streamlines the API with the one that is used for `XHR` calls though. Nevertheless, we have to use a different service and provider, namely `Jsonp` and `JSONP_PROVIDERS`.
+
+.l-sub-section
+  :marked
+    In terms of DI it's a different service. Technically the `Jsonp` service inherits from the `Http` service but that's clearly an implementation detail that shouldn't bother us too much.
+  .alert.is-important
+    :marked
+      Christoph: This note confused me. What does DI have to do with it? `Jsonp` is a different service even if it does inherit from `Http`.
+      It's an interesting ... perhaps important ... detail although it certainly won't "bother" me.
+  :marked
+:marked
+  Again, we'll make sure to do the server communication in a dedicated service that we call `WikipediaService`.
+
++makeExample('server-communication/ts/app/wiki/wikipedia.service.ts',null,'app/wiki/wikipedia.service.ts')
+
+:marked
+.alert.is-important
+  :marked
+    Christoph: I changed the var `search` to `params` because the word "search" was begin used
+    multiple times in different ways.
+:marked
+  We use the `URLSearchParams` helper to define a `params` object with the key/value pairs that define the wikipedia query.
+  The keys are `search`, `action`, and `format`.
+  The value of the `search` key is the user-supplied search term that we'll lookup in wikipedia.
+  
+  We call `Jsonp` with two arguments: the `wikiUrl` and an options object with a `search` property whose value is the `params` object.
+  `Jsonp` flattens the `params` object into a query string such as
+code-example.
+  &search=foo&action=opensearch&format=json`
+:marked
+  and appends it to the `wikiUrl`.
+
+:marked
+  Looking at the rest of the code we notice it's not much different from the "Tour of Heroes" sample above.
+
++makeExample('server-communication/ts/app/wiki/wiki.component.ts', null, 'app/wiki/wiki.component.ts')
+:marked
+.alert.is-important
+  :marked
+    Christoph: it seems very different to me.
+    * different providers
+    * no add button
+    * the search stuff
+    * dynamically changing list (the heroes never changed)
+    * jsonp and its GET only nature
+    * wikipedia server instead of our json heroes.
+:marked
+  The only real difference is the naming of the service that is `Jsonp` instead of `Http` with the provider being named differently accordingly.
+.alert.is-important
+  :marked
+    Christoph: Note that the `JSON_PROVIDERS` are created here, not in the boot.
+:marked
+  Another thing to point out here is that `Jsonp` naturally only works for `GET` requests. Trying to perform other requests such as `POST` or `PATCH` will
+  throw an exception with the `JsonP` service as there is no way to perform such requests using the *script-injection* technique that is `JsonP`.
+  
+  API-wise `JsonP` and `Http` are pretty much identically beside it's limitations.
+.alert.is-important
+  :marked
+    Christoph: Not surprising that they are similar give thant `Jsonp` inherits from `Http`. 
+    Why is that sentence important?
+:marked
+  There are a bunch of things in our wikipedia demo that we could do better. 
+  We have a naive search implementation 
+.alert.is-important
+  :marked
+    Christoph- what's naive about it?  I think they're coming up. But it wasn't clear here.
+:marked
+  But this is a perfect opportunity to show off some nifty
+  `Observable` tricks that can make server communication much simpler and more fun.
+  
+  ## Taking advantage of Observables
+
+  If you ever wrote a search-as-you-type control yourself before, you are probably aware of some typical corner cases that arise with this task.
+  
+  ### 1. Don't hit the search endpoint on every key stroke
+  
+  Treat the search endpoint as if you pay for it on a per-request basis. No matter if it's your own hardware or not. We shouldn't be hammering
+  the search enpoint more often than needed. Basically what we want is to hit the search endpoint as soon as the user *stopped typing* instead of
+  with every keystroke.
+
+  ### 2. Don't hit the search endpoint for the same term again that's already in your result list
+  
+  Consider you type *foo*, stop, type another *o*, hit return and stop back at *foo*. That should be just one request with the term *foo*
+  and not two even if we technically stopped twice after we had *foo*  in the search box.
+  
+  ### 3. Deal with out-of-order responses
+
+  When we have multiple requests in-flight at the same time we must account for cases where they come back in unexpected order. Consider we first typed
+  *computer*, stop, a request goes out, we type *car*, stop, a request goes out but then the request that carries the results for *computer* comes back
+  after the request that carries the results for *car*. If we don't deal with such cases properly we can get a buggy application that shows
+  results for *computer* even if the search box reads *car*.
+
+  Now that we identified the problems that need to be solved, let's make a couple of trivial changes to our code to fix them in a *functional reactive* way. Here is the
+  entire example with all changes. 
+  
+  There are no changes for our `WikipediaService` so we can skip that one. We'll go over each change to briefly describe what 
+  it does.
+
++makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', null, 'app/wiki/wiki-form.component.ts')
+
+:marked
+  The first thing we need to do to unveil the full magic of a observable-based solution is to get an `Observable<string>` for our `<input>` control.
+  The best way to do that is to change `<input #term (keyup)="search(term.value)"/>` into `<input [ng-form-control]="inputs"/>` and to create an `inputs` `Control` accordingly.
+
++makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', 'control')
+
+:marked
+  We now have an `Observable<string>` at `this.inputs.valueChanges`. We can simply use the `debounceTime(ms)` and `distinctUntilChanged()` operators to fix the first two problems. We basically get a new `Observable<string>` that emits
+  new values exactly the way we want them to be emitted.
+
++makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', 'distinctdebounce')(format=".")
+
+:marked
+  With the previous change we tamed the input but we still need to deal with the out-of-order cases. At this point we have an `Observable<string>` and a
+  `search(term)` method on the `WikipediaService` that returns an `Observable<Array<string>>`. What we want is an `Observable<Array<string>>` that
+  carries the results of the *last* term that was emitted from the `Observable<string>`.
+  
+  If we would just map our current `Observable<string>` like `.map(term => wikipediaService.search(term))` we would transform it into an `Observable<Observable<Array<string>>`
+  which isn't quite what we want. Enter [`switchMap`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md) to the rescue. Basically `switchMap` flattens from an `Observable<Observable<T>` into an `Observable<T>` by
+  emitting values only from the most recent `Observable<T>` that was produced from the outer `Observable`.
+  
+  This may sound a lot like black magic for people unfamiliar with Observables but as soon as the coin sinks in it's starting to make a whole world of difficult programming tasks appear much simpler.
+  
