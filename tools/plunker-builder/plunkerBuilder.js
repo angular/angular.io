@@ -15,7 +15,7 @@ module.exports = {
 };
 
 function buildPlunkers(basePath, destPath, options) {
-  errFn = options.errFn || function(e) { console.log(e); };
+  var errFn = options.errFn || function(e) { console.log(e); };
   var configExtns = ['plnkr.json', '*plnkr.json'];
   var gpaths = configExtns.map(function(extn) {
     return path.join(basePath, '**/' + extn);
