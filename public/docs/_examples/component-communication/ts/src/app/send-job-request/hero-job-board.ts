@@ -3,7 +3,6 @@ import {HeroPanel} from './hero-panel';
 
 import {Hero} from '../hero';
 
-// #docregion component
 @Component({
   selector: 'hero-job-board',
   template: `
@@ -18,7 +17,7 @@ import {Hero} from '../hero';
         placeholder="Enter a job request">
       <button (click)="announceJob()">Ask</button>
       
-      <h3>{{jobStatus}}</h3>
+      <h3>Responding heroes</h3>
       <div *ng-for="#hero of respondingHeroes" class="responding-hero">
         <span class="hero-name">{{hero.name}}</span>
         <button>Assign</button>
@@ -28,8 +27,7 @@ import {Hero} from '../hero';
     <div class='hero-panel-list'>
       <hero-panel *ng-for='#hero of invitedHeroes'
         [hero]='hero'
-        [request]=request
-        (on-job-taken)='heroTakesJob($event)'>
+        [request]=request>
       </hero-panel>
     </div>
     `,
@@ -37,15 +35,12 @@ import {Hero} from '../hero';
   directives: [HeroPanel]
 })
 export class HeroJobBoard {
-  heroes = Hero.heroes;
   invitedHeroes: Hero[] = [];
   request: string = null;
   newRequest: string = null;
-  respondingHeroes: Hero[] = [];
 
   inviteHeroes() {
     this.invitedHeroes = Hero.heroes;
-    this.respondingHeroes = [];
     this.request = null;
     this.newRequest = null;
   }
@@ -53,16 +48,4 @@ export class HeroJobBoard {
   announceJob() {
     this.request = this.newRequest;
   }
-  
-  heroTakesJob(hero: Hero){
-    this.respondingHeroes.push(hero);
-  }
-  
-  get jobStatus() {
-    if (!this.request) { return "No job request announced" }
-    return this.respondingHeroes.length > 0
-      ? "Responding heroes"
-      : "No responding heroes";
-  }
 }
-// #enddocregion component
