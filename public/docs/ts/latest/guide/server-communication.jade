@@ -1,0 +1,320 @@
+
+include ../../../../_includes/_util-fns
+:marked
+  Whew! We already learned quite a lot about how Angular 2 works. One thing that we haven't looked into yet is how to
+  communicate with a backend. Most applications will come to a point where they either want to read from or write to
+  a remote location. Angular 2 has excellent support for such scenarios so let's dive right into it.
+.l-main-section
+:marked
+  ## The Basics
+
+  When we look at the broad task of connecting multiple devices to talk to each other, there really are plenty of different options.
+  If we zoom in a little and restrict us to only look at the options that allow a web application that runs in a browser to communicate with
+  a backend we are basically left with communication via the [`HTTP`](https://tools.ietf.org/html/rfc2616) or [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol.
+  
+  For web apps to communicate via `HTTP` there are basically two different techniques which are `XMLHttpRequest (XHR)` and `JSONP`. They are quite different from each other both in purpose and implementation.
+  Angular comes with its own built-in abstractions that allow us to exploit both techniques in a nicely well integrated way.
+
+  ## Communication with `XMLHttpRequest (XHR)`
+
+  ### Fetching `JSON` data
+
+  Let's come back to our little Tour of Heroes example again. In it's current version it just defines the
+  heroes in an array inside the component.
+
+  ```
+  import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
+  import {Hero} from './hero'
+
+  @Component({
+    selector: 'my-app',
+    template: `
+    <h1>{{title}}</h1>
+    <h2>My favorite hero is: {{myHero.name}}</h2>
+    <p>Heroes:</p>
+    <ul>
+      <li *ng-for="#hero of heroes">
+        {{ hero.name }}
+        </li>
+    </ul>
+    <p *ng-if="heroes.length > 3">There are many heroes!</p>
+  `
+  })
+  export class AppComponent {
+    title = 'Tour of Heroes';
+    heroes = [
+      new Hero(1, 'Windstorm'),
+      new Hero(13, 'Bombasto'),
+      new Hero(15, 'Magneta'),
+      new Hero(20, 'Tornado')
+    ];
+    myHero = this.heroes[0];
+  }
+
+  bootstrap(AppComponent);
+
+  ```
+  The first thing we need to do before we can get rid of our hardcoded array is to build some sort of remote location that we can fetch the data from.
+  For simplicity we'll just assume that we have such an endpoint at `/heroes` that serves us the following `JSON` for `GET` requests.
+ 
+  ```
+  {
+    "items": [
+      { "id": "1", "name": "Windstorm" },
+      { "id": "2", "name": "Bombasto" },
+      { "id": "3", "name": "Magneta" },
+      { "id": "4", "name": "Tornado" }
+    ]
+  }
+  ```
+.l-sub-section
+  :marked
+    You may be wondering why we don't return the array directly. It's a [general security best practice](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk) 
+    not to return top level Arrays in JSON.
+
+:marked
+  In order to fetch the data we are going to create a new Service `HeroesService`. It's a general best practice not to
+  make requests directly from within components but to delegate such tasks to dedicated services instead.
+
++makeExample('server-communication_toh/ts/src/app/heroes-service.ts')
+
+:marked
+  Notice that we import `Http` from `angular2/http` which is the framework's own service to provide an API for `XHR` calls.
+  In order to use the service we need to get it injected through Angular's Dependency Injection. 
+  
+  We also have to import `HTTP_PROVIDERS` from `angular2/http` and register it with our call to `bootstrap` to make the injection work.
+
++makeExample('server-communication_toh/ts/src/app/app.component.ts', 'bootstrap')
+
+:marked
+  If you aren't familar with the DI concept yet you may want to jump over to the [Dependency Injection](dependency-injection.html) chapter first.
+
+  We can now inject the `HeroesService` into our `AppComponent` and invoke the `getHeroes()` method to fetch the actual data.
+
++makeExample('server-communication_toh/ts/src/app/app.component.ts', 'component')
+
+:marked
+  Our `getHeroes()` API returns an `Observable<Array<Hero>>`. In order to get to the actual `Array<Hero>` we 
+  need to `subscribe` to the Observable and pass a function that takes the `Array<Hero>` and puts it on the 
+  `heroes` property of our component. Same goes for setting the `myHero` property as we can't set it up before 
+  the data arrives.
+  
+  Notice that we also have to change our template just a tiny bit because we have to account for the case
+  that `myHero` isn't initialized yet.
++makeExample('server-communication_toh/ts/src/app/app.component.ts', 'template')
+
+:marked
+  If you aren't familiar with the `?.` operator you can read up about it in the [Template Syntax](template-syntax.html) chapter.
+  
+  Ok, we ported our example to an approach that loads the data from a remote location. That didn't took us too long. Let's slow down a little and investigate where
+  this `Observable<Array<Hero>` actually came from.
+  
+  Let's examine how we used the `Http` service from within our `HeroesService`.
+
++makeExample('server-communication_toh/ts/src/app/heroes-service.ts', 'getheroes')
+
+:marked
+  By calling `http.get('app/heroes.json')` we make a `GET` request that fetches the `heroes.json` file and get an `Observable<Response>`
+  in return. Observables are discussed briefly in the [Observables](observables.html) chapter. For the sake of this example it's enough
+  to treat them as Promises on steroids.
+  
+  However, the `Response` class doesn't hold our precious items directly. It's design is greatly influenced by the [`Response`](https://fetch.spec.whatwg.org/#response-class) class from the fetch spec
+  which defines a `json()` method that can be called to parse the response body from a JSON string into a JavaScript object.
+  
+  Similar how a Promise can be projected into another Promise by calling `then` we can project our `Observable<Response>` into an `Observable<Array<Hero>` by calling
+  `map(res => res.json().items)`. Remember that our `heroes.json` returns an object with an `item` property, hence the `item` property accessor.
+  
+  We could have made `getHeroes()` just return the `Observable<Response>` instead but that would leak an implementation detail into our component.
+  Consumers of the `HeroesService` don't even need to know where the data is coming from therefore it's better to do the mapping from within the service 
+  and return an `Observable<Array<Hero>>` instead.
+
+  ### Sending data to the server
+  
+  So far we've seen how to retrieve data from a remote location using Angular's built-in `Http` service. Wouldn't it be cool if we tweaked our example just a little so that we can create new heroes and save them in the backend?
+  Here comes good news: Sending data to a remote location isn't that much different from retrieving it. In fact, we could have send data to the backend with the `GET` reuqest that we made.
+  Technically there's nothing preventing us from doing that. However, the `HTTP` spec defines [`GET`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.3) request as requests that are meant only for **retrieval** of information.
+  That's why it's considered **very**, **very** bad practice to use `GET` requests for any requests that cause action on the server other than retrieving infomation and returning it to the caller.
+  
+  In order to create a new hero and store it in our backend we should use a [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request instead.
+  
+  Let's assume our backend accepts new heroes at the `/heroes` endpoint when we send them as `POST` request. The structure it expects is that of our `Hero` entity just without the `id` property because it's the backends responsability to generate the `id` for us
+  and tell it to us in advance.
+  
+  ```
+  { "name": "Windstorm" }
+  ```
+  The changes that we have to do to our code are trivial. We first add an `addHero` method to the `HeroesService`.
+
++makeExample('server-communication_toh2/ts/src/app/heroes-service.ts', 'addhero')
+
+:marked
+  Notice that the second parameter of the `post` method is for the request body and expects a string. In order to send our hero we have to pass it to `JSON.stringify` first to get an actual JSON string.
+
+  ## Communication with `JSONP`
+  
+  Before we dive right into the API that Angular 2 provides us for `JSONP` calls let's make sure we understood what `JSONP` actually is and why it exists.
+  As we just learned we can fetch data through `XHR` calls using the built-in `Http` service. `JSONP` is another technique to fetch data from a remote location.
+  But why does it actually exist and how is it different from `XHR` calls?
+  
+  For security reasons web browser do not permit to make `XHR` calls if the origin of the remote server is different from the one the web page runs in.
+  The origin is defined as the combination of URI scheme, hostname and port number. The policy that prevents such `XHR` requests is called [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy) accordingly.
+
+.l-sub-section
+  :marked
+    That's not entirely true. Modern browsers do allow `XHR` requests against foreign origins if the server sends the appropriate [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) headers.
+    In such cases there's nothing specific to do for the client unless we want our `XHR` request to include credentials (e.g Cookies) which we then have to explicitly enable for the request.
+
+:marked
+  Whereas `XHR` calls to remote locations with different origins are prohibited it's absolutely ok to include `<script>` tags that load resources from a server with a different origin though.
+  And that's exactly what the `JSONP` technique does. Let's imagine we programatically add the following `<script>` tag to the `<head>` of our DOM.
+  
+  ```
+  <script src="http://server-with-different-origin.com/heroes"></script>
+  ```
+  Let's imagine the content of that script would be the `JSON` structure we used before.
+
+  ```
+  {
+    "items": [
+      { "id": "1", "name": "Windstorm" },
+      { "id": "2", "name": "Bombasto" },
+      { "id": "3", "name": "Magneta" },
+      { "id": "4", "name": "Tornado" }
+    ]
+  }
+  ```
+  
+  Ouch! That immediately blows up with a syntax error.
+  
+  ```
+  Uncaught SyntaxError: Unexpected token :
+  ```
+
+  The reason for that to fail is that our script is immediately interpreted as JavaScript after the browser fetched it. But even though the content is valid `JSON`, it's not valid JavaScript.
+
+  But what if the server wrapped a function around the `JSON`? That would make it valid JavaScript.
+  
+  ```
+  angular.callback_some_id({
+    "items": [
+      { "id": "1", "name": "Windstorm" },
+      { "id": "2", "name": "Bombasto" },
+      { "id": "3", "name": "Magneta" },
+      { "id": "4", "name": "Tornado" }
+    ]
+  });
+  ```
+
+  Yes! That works. But the server can't just wrap a function around the `JSON` that doesn't exist on the client. It also can't just invoke any well known function such as `console.log`.
+  The function that is invoked by the script needs to be a function that the client created for the purpose of receiving that data. 
+  Obviously the server needs to know the name of the function to wrap around though. In order for that to happen we have to pass that information to the server when we create the script tag.
+  We do that by appending a parameter to the URL.
+  
+  ```
+  <script src="http://server-with-different-origin.com/heroes?callback=angular.callback_some_id"></script>
+  ```
+  
+  ### Let's fetch some data from wikipedia
+  
+  Now that we know why `JSONP` exists, let's build a simple search that shows up suggestions from wikipedia as you type in a text box. Wikipedia offers a `JSONP` api for exactly
+  that purpose.
+  
+  As we just learned the process to fetch data via `JSONP` is fundamentally different implementation wise. Angular 2 abstracts
+  most of this away from us and streamlines the API with the one that is used for `XHR` calls though. Nevertheless, we have to use a different service and provider, namely `Jsonp` and `JSONP_PROVIDERS`.
+
+.l-sub-section
+  :marked
+    In terms of DI it's a different service. Technically the `Jsonp` service inherits from the `Http` service but that's clearly an implementation detail that shouldn't bother us too much.
+
+:marked
+  Again, we'll make sure to do the server communication in a dedicated service that we call `WikipediaService`.
+
++makeExample('server-communication_wikipedia/ts/src/app/wikipedia-service.ts')
+
+:marked
+  Looking at the code, the first thing that comes to our attention is the `URLSearchParams` class that we set up
+  before we make the call. The params for our example are `action`, `search` and `format`
+  whereas `search` is the actual search term that we want to lookup in wikipedia. Search parameter get appended to the URL
+  as key value pairs (e.g. `action=opensearch&search=foo&format=json`), delimited with an `&` and the initial one prefixed with an `?`.
+  
+  The second parameter of the `get` method takes `RequestOptions` with the `search` property being meant to get an instance of `URLSearchParams`.
+  If we name our variable holding the `URLSearchParams` `search` we can shorten `{ search: search }` to just `{ search }` - a feature of ES2015.
+  
+  Just as before we have to make sure to register the corresponding provider: `JSONP_PROVIDERS` in this case.
+  
++makeExample('server-communication_wikipedia/ts/src/app/app.1.component.ts', 'bootstrap')
+
+:marked
+  Looking at the rest of the code we notice it's not much different from our Tour of Heroes demo.
+
++makeExample('server-communication_wikipedia/ts/src/app/app.1.component.ts')
+
+:marked
+  The only real difference is the naming of the service that is `Jsonp` instead of `Http` with the provider beeing named differently accordingly.
+  Another thing to point out here is that `Jsonp` naturally only works for `GET` requests. Trying to perform other requests such as `POST` or `PATCH` will
+  throw an exception with the `JsonP` service as there is no way to perform such requests using the *script-injection* technique that is `JsonP`.
+  
+  API-wise `JsonP` and `Http` are pretty much identically beside it's limitations.
+  
+  There are a bunch of things in our wikipedia demo that we could have done better. We sticked to a very naive implementatin to keep the complexity
+  as low as possible so that we could focus on the most important bits. But this is a perfect opportunity to show off some nifty
+  `Observable` tricks that can make server communication much simpler and more fun.
+  
+  ## Taking advantage of Observables
+
+  If you ever wrote a search-as-you-type control yourself before, you are probably aware of some typical corner cases that arise with this task.
+  
+  ### 1. Don't hit the search endpoint on every key stroke
+  
+  Treat the search endpoint as if you pay for it on a per-request basis. No matter if it's your own hardware or not. We shouldn't be hammering
+  the search enpoint more often than needed. Basically what we want is to hit the search endpoint as soon as the user *stopped typing* instead of
+  with every keystroke.
+
+  ### 2. Don't hit the search endpoint for the same term again that's already in your result list
+  
+  Consider you type *foo*, stop, type another *o*, hit return and stop back at *foo*. That should be just one request with the term *foo*
+  and not two even if we technically stopped twice after we had *foo*  in the search box.
+  
+  ### 3. Deal with out-of-order responses
+
+  When we have multiple requests in-flight at the same time we must account for cases where they come back in unexpected order. Consider we first typed
+  *computer*, stop, a request goes out, we type *car*, stop, a request goes out but then the request that carries the results for *computer* comes back
+  after the request that carries the results for *car*. If we don't deal with such cases properly we can get a buggy application that shows
+  results for *computer* even if the search box reads *car*.
+
+  Now that we identified the problems that need to be solved, let's make a couple of trivial changes to our code to fix them in a *functional reactive* way. Here is the
+  entire example with all changes. There are no changes for our `WikipediaService` so we can skip that one. We'll go over each change to briefly describe what 
+  it does.
+
++makeExample('server-communication_wikipedia/ts/src/app/app.component.ts')
+
+:marked
+  The first thing we need to do to unveil the full magic of a observable-based solution is to get an `Observable<string>` for our `<input>` control.
+  The best way to do that is to change `<input #term (keyup)="search(term.value)"/>` into `<input [ng-form-control]="inputs"/>` and to create an `inputs` `Control` accordingly.
+
++makeExample('server-communication_wikipedia/ts/src/app/app.component.ts', 'control')
+
+:marked
+  We now have an `Observable<string>` at `this.inputs.valueChanges`. We can simply use the `debounceTime(ms)` and `distinctUntilChanged()` operators to fix the first two problems. We basically get a new `Observable<string>` that emits
+  new values exactly the way we want them to be emitted.
+
++makeExample('server-communication_wikipedia/ts/src/app/app.component.ts', 'distinctdebounce')
+
+:marked
+  With the previous change we tamed the input but we still need to deal with the out-of-order cases. At this point we have an `Observable<string>` and a
+  `search(term)` method on the `WikipediaService` that returns an `Observable<Array<string>>`. What we want is an `Observable<Array<string>>` that
+  carries the results of the *last* term that was emitted from the `Observable<string>`.
+  
+  If we would just map our current `Observable<string>` like `.map(term => wikipediaService.search(term))` we would transform it into an `Observable<Observable<Array<string>>`
+  which isn't quite what we want. Enter [`switchMap`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md) to the rescue. Basically `switchMap` flattens from an `Observable<Observable<T>` into an `Observable<T>` by
+  emitting values only from the most recent `Observable<T>` that was produced from the outer `Observable`.
+  
+  This may sound a lot like black magic for people unfamiliar with Observables but as soon as the coin sinks in it's starting to make a whole world of difficult programming tasks appear much simpler.
+  
+  There's one last thing worth pointing out. We changed the `items` property of our component from being an `Array<string>` to an `Observable<Array<string>>`. The `*ngFor` directive can't directly work with an `Observable<T>` though. We either have
+  to subscribe to the `Observable` from within our component and set `items` to the underlying `Array<string>` that is carried by the `Observable` or we use apply `async` pipe from within our template.
+  
+  ```
+  *ng-for="#item of items | async"
+  ```  
+  
