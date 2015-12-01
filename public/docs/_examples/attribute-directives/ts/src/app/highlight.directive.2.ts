@@ -1,23 +1,30 @@
 // #docregion
-import {Directive, ElementRef, Renderer} from 'angular2/angular2';
+import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
 
 @Directive({
-    selector: '[highlight]',
-    host: {
-        '(mouseenter)': 'onMouseEnter()',
-        '(mouseleave)': 'onMouseLeave()'
-    }
+  selector: '[my-highlight]',
+  // #docregion host
+  host: {
+    '(mouseenter)': 'onMouseEnter()',
+    '(mouseleave)': 'onMouseLeave()'
+  }
+  // #enddocregion host
 })
 
 export class Highlight {
-    constructor(private el: ElementRef, private renderer: Renderer) {
-    }
+  // #docregion ctor
+  constructor(private el: ElementRef, private renderer: Renderer) {
+  }
+  // #enddocregion ctor
 
-    onMouseEnter() { this._highlight("yellow"); }
-    onMouseLeave() { this._highlight(null); }
+  // #docregion mouse-methods
+  onMouseEnter() { this._highlight("yellow"); }
+  onMouseLeave() { this._highlight(null); }
 
-    private _highlight(color: string) {
-        this.renderer.setElementStyle(this.el, 'background-color', color);
-    }
+  private _highlight(color: string) {
+    this.renderer.setElementStyle(this.el, 'background-color', color);
+  }
+  // #enddocregion mouse-methods
+
 }
 // #enddocregion

@@ -1,20 +1,37 @@
-// #docregion
+// #docplaster
+// #docregion full
 import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
 
 @Directive({
-  selector: '[highlight]',
+  selector: '[my-highlight]',
   host: {
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()'
   }
 })
 
+// #docregion class
 export class Highlight {
-  @Input() highlight: string;
+// #enddocregion class
+// #enddocregion full
+  /*
+// #docregion highlight
+  @Input() myHighlight: string;
+// #enddocregion highlight
+  */
+// #docregion full
+// #docregion class
+// #docregion color
+  @Input('my-highlight') highlightColor: string;
+// #enddocregion color
+
   private _defaultColor = 'red';
+
   constructor(private el: ElementRef, private renderer: Renderer) { }
 
-  onMouseEnter() { this._highlight(this.highlight || this._defaultColor); }
+// #docregion mouse-enter
+  onMouseEnter() { this._highlight(this.highlightColor || this._defaultColor); }
+// #enddocregion mouse-enter
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color:string) {
@@ -22,4 +39,5 @@ export class Highlight {
   }
 
 }
-// #enddocregion
+// #enddocregion class
+// #enddocregion full

@@ -1,8 +1,8 @@
 // #docregion
-import {Directive, ElementRef, Renderer} from 'angular2/angular2';
+import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
 
 @Directive({
-    selector: '[highlight]'
+    selector: '[my-highlight]'
 })
 
 export class Highlight {
