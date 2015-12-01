@@ -15,6 +15,7 @@ const List<String> _powers = const [
 @Component(
     selector: 'hero-form',
     templateUrl: 'hero_form_component.html',
+    // Soon specifying directives here will be unnecessary.
     directives: const [CORE_DIRECTIVES, FORM_DIRECTIVES])
 class HeroFormComponent {
   List<String> get powers => _powers;
