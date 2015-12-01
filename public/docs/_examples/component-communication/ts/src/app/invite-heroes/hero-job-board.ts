@@ -24,7 +24,6 @@ import {Hero} from '../hero';
   directives: [HeroPanel]
 })
 export class HeroJobBoard {
-  heroes = Hero.heroes;
   invitedHeroes: Hero[] = [];
 
   inviteHeroes() {

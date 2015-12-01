@@ -1,21 +1,22 @@
-// #docregion
-// #docregion import
 import {Component, Input} from 'angular2/angular2';
-// #enddocregion import
 import {Hero} from '../hero';
 
+// #docregion component
 @Component({
   selector: 'hero-panel',
   template: `
     <div class='hero-panel'>
       <h3>{{hero.name}}</h3>
+      <h4 class=job-request
+        [class.announced]="request">
+        {{request || 'No job announced'}}
+      </h4>
     </div>
   `,
   styleUrls: ['app/hero-panel.css']
 })
-// #docregion input-def
 export class HeroPanel {
     @Input() hero: Hero;
+    @Input() request: string;
 }
-// #enddocregion input-def
-// #enddocregion
+// #enddocregion component

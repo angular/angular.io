@@ -1,4 +1,6 @@
+// #docregion import
 import {Component, Input, Output, EventEmitter} from 'angular2/angular2';
+// #enddocregion import
 import {Hero} from '../hero';
 
 @Component({
@@ -21,14 +23,16 @@ import {Hero} from '../hero';
   `,
   styleUrls: ['app/hero-panel.css']
 })
+// #docregion component
 export class HeroPanel {
-    @Input() hero: Hero;
-    @Input() request: string;
-    @Output() onJobTaken = new EventEmitter<Hero>();
-    undertaken: boolean;
-    
-    takeJob() {
-      this.onJobTaken.next(this.hero);
-      this.undertaken = true;
-    }
+  @Input() hero: Hero;
+  @Input() request: string;
+  @Output() onJobTaken = new EventEmitter<Hero>();
+  undertaken: boolean;
+
+  takeJob() {
+    this.onJobTaken.next(this.hero);
+    this.undertaken = true;
+  }
 }
+// #enddocregion component
