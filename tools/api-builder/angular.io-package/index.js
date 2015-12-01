@@ -23,10 +23,15 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .factory(require('./services/packageInfo'))
 
 // Configure rendering
-.config(function(templateFinder, templateEngine) {
+.config(function(templateFinder, templateEngine, renderDocsProcessor) {
 
   templateFinder.templateFolders
       .unshift(path.resolve(__dirname, 'templates'));
+
+  // helpers are made available to the nunjucks templates
+  renderDocsProcessor.helpers.relativePath = function(from, to) {
+    return path.relative(from, to);
+  };
 })
 
 .config(function(parseTagsProcessor) {
@@ -71,20 +76,23 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   computePathsProcessor.pathTemplates.push({
     docTypes: ['module'],
     getPath: function computeModulePath(doc) {
-      return doc.id.replace(/^angular2\//, '');
+      doc.moduleFolder = doc.id.replace(/^angular2\//, '');
+      return doc.moduleFolder + '/index.html';
     },
-    outputPathTemplate: '${path}/index.jade'
+    getOutputPath: function computeModulePath(doc) {
+      return doc.moduleFolder + '/index.jade';
+    }
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
-    pathTemplate: '${moduleDoc.path}/${name}-${docType}.html',
-    outputPathTemplate:'${moduleDoc.path}/${name}-${docType}.jade',
+    pathTemplate: '${moduleDoc.moduleFolder}/${name}-${docType}.html',
+    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
   });
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['jade-data'],
-    pathTemplate: '${originalDoc.path}/_data',
+    pathTemplate: '${originalDoc.moduleFolder}/_data',
     outputPathTemplate: '${path}.json'
   });
 
