@@ -1,5 +1,6 @@
 // #docplaster
 // #docregion
+// #docregion no-todo
 library hero_form.hero_form_component;
 
 import 'package:angular2/angular2.dart';
@@ -24,6 +25,10 @@ class HeroFormComponent {
 // #enddocregion submitted
   Hero model = new Hero(18, 'Dr IQ', _powers[0], 'Chuck Overstreet');
 // #docregion submitted
+// #enddocregion no-todo
+  // TODO: Remove this when we're done
+  String get diagnostic => 'DIAGNOSTIC: $model';
+// #docregion no-todo
 
   onSubmit() {
     submitted = true;
