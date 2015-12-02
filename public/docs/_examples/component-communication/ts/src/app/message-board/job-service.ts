@@ -9,7 +9,6 @@ export class JobService {
   private _respondingHeroes: Hero[] = [];
   private _winner: Hero;
   private _jobAnnounced = new EventEmitter<string>();
-  private _jobTaken = new EventEmitter<Hero>();
   private _jobAssigned = new EventEmitter<Hero>();
    
   // HeroJobBoard facade
@@ -32,17 +31,13 @@ export class JobService {
     this._jobAnnounced.next(request);
   }
   
-  get jobTaken() {
-    return this._jobTaken;
-  }
-  
   assignJob(hero: Hero) {
     this._winner = hero;
     this._jobAssigned.next(hero);
   }
   
   get winner(): Hero {
-    return this.winner;
+    return this._winner;
   }
   
   // HeroPanel facade
@@ -56,7 +51,6 @@ export class JobService {
   
   takeJob(hero: Hero) {
     this._respondingHeroes.push(hero);
-    this._jobTaken.next(hero);
   }
   
   get jobAssigned() {

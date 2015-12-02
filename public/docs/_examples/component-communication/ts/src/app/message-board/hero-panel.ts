@@ -33,7 +33,6 @@ export class HeroPanel {
     @Input() hero: Hero;
     request: string = null;
     undertaken: boolean;
-    winner: Hero = null;
     
     constructor(
       private jobService: JobService,
@@ -54,6 +53,10 @@ export class HeroPanel {
       )
     }
     
+    get winner() {
+      return this.jobService.winner;
+    }
+
     takeJob() {
       this.jobService.takeJob(this.hero);
       this.undertaken = true;

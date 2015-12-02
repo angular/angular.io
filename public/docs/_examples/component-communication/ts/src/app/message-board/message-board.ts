@@ -1,3 +1,4 @@
+// #docregion
 import {Component} from 'angular2/angular2';
 import {MessageBus} from './message-bus';
 
@@ -16,11 +17,12 @@ import {MessageBus} from './message-bus';
     styleUrls: ['app/message-board.css']
 })
 export class MessageBoard {
-    private messages: string[] = [];
-    constructor(private messageBus: MessageBus) {
-        messageBus.messageReceived.subscribe(
-            (msg:string) => {
-                this.messages.push(msg);
-            })
-    }
+  private messages: string[] = [];
+  constructor(private messageBus: MessageBus) {
+    messageBus.messageReceived.subscribe(
+      (msg:string) => {
+        this.messages.push(msg);
+      })
+  }
 }
+// #enddocregion

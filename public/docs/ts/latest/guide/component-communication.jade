@@ -71,15 +71,41 @@ include ../../../../_includes/_util-fns
 
   __#4: Duplex parent/child communication through a service object__
   
-  _Exemplification_
+  Parent and child components share their responsibilities. In this sharing both component types have their own responsibilities including UI logic
+  and others. The parent and its children both can manage state information about the UI logic. Often, the majority of communication is about
+  managing the overall state information of this component fabric.
+  
+  In many cases the logic can be outsourced to a separate service that is the single source of truth, stores the state, and provides operations to
+  this state. In such a scenario, parent and child components do not need to talk with each other directly, each of them communicates with the service:
+  
++makeExample('component-communication/ts/fragments/service-intro.ts', 'service')
 
-  [Jump to details](#duplex-parent-child-communication-through-a-service-object)
+:marked
+  This service is injected to the parent and child components via Angular dependency injection:
+
++makeExample('component-communication/ts/fragments/service-intro.ts', 'components')
+
+:marked
+  Both component types can access the service instance injected into the constructor. The dependency injection mechanism takes care &mdash; 
+  unless we do not configure it in another way &mdash; that the parent and its child components use the same service instance.
+  We can design and implement the approprate service methods and properties, and use them from within the components. 
+  
+  [Jump to details](#-4-duplex-parent-child-communication-through-a-service-object)
 
   __#5: Communication among unrelated components via a message bus__
   
-  _Exemplification_
+  In many inter-component communication scenario, the communicating parties are not in a perent-child relation with each other. They can
+  be siblings or located in separate branches of the component hierarchy, or even be totally unrelated to each other. 
+  In such scenarios, components can communicate with each others directly or through intermediary object.
+  
+  In this chapter, we will create a message bus that is used as a common communication channel for sending and listening to messages:
+  
++makeExample('component-communication/ts/fragments/message-bus-intro.ts')
 
-  [Jump to details](#communication-among-unrelated-components-via-a-message-bus)
+:marked
+  We rely on Angular's dependency injection to allow the components use the message bus.
+  
+  [Jump to details](#-5-communication-among-unrelated-components-via-a-message-bus)
 
   __#6: Parent to child communication where chidren are transposed in &mdash; using `@Query`__
   
@@ -253,7 +279,14 @@ figure.image-display
   The event argument is the `hero` property value of `HeroPanel` that is passed to the `next()` method of the `EventEmitter` instance beyond
   the `onJobTaken`. `HeroJobBoard` receives the `Hero` instance that undertakes the job, and adds it to its `respondingHeroes` collection.
   
-  Now, we can invite heroes, announce job requests, and our heroes can opt to undertake the job. The `HeroJobBoard` component list responding heroes in the UI:
+  With output event binding, we established this communication from `HeroPanel` children to `HeroJobBoard`:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/child-to-parent.png" alt="Output event binding")
+  
+:marked
+  Now, we can invite heroes, announce job requests, and our heroes can opt to undertake the job. The `HeroJobBoard` component lists responding
+  heroes in the UI:
   
 figure.image-display
   img(src="/resources/images/devguide/component-communication/take-job-ui.png" alt="Hero undertakes job")
@@ -293,8 +326,8 @@ figure.image-display
 .alert.is-important
   :marked
     Nothing prevents us to create event argument types that pass back a reference to the child component instance to its parent so that the 
-    parent component can use it directly. **It is a bad practice, and we can avoid it with careful design**. In the next section, 
-    we will learn an antipattern of child-to-parent communication that helps us understand what's behind this recommendation.
+    parent component can use it directly. **It is a bad practice, we should avoid it**. Angular provides mechanisms parent components can use
+    to access their children in order to invoke child component methods &mdash; as we will learn later in this chapter.
   
 :marked
   ## #3: Child to parent communication with direct method calling
@@ -347,12 +380,165 @@ figure.image-display
   
   ## #4: Duplex parent/child communication through a service object
   
-  _Content_
+  When we use a hierarchy of application components, we do it for sharing the responsibilities among them. Each component manages its own state and
+  represents it in the UI, and they communicate with each other to implement the functionality of the app. While it is a great thing that each 
+  component can manage the state of their own UI, managing the UI logic often flows through multiple component types including parent and child components,
+  often may include more than two levels of the component hierarchy.
+  
+  Due to its distributed nature, it may be difficult to follow and maintain the flow of UI logic. Outsourcing this logic into a separate service may help
+  the visibility and maintainability of this flow. Instead of parent and child components communicating with each other in both directions, each of 
+  them communicates only with the service.
+  
+  ### Creating `JobService`
+  
+  In this section, we will refactor our `HeroJobBoard` and `HeroPanel` components, and move the UI workflow logic into a new service, `JobService`.
+  Instead of communicating directly with each other, `HeroJobBoard` and `HeroPanel` will communicate with `JobService`:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/job-service-communication.png" alt="JobService communication")
+  
+:marked
+  `JobService` is composed from read-only properties, methods and events to protect the autonomy of the service. We move all state information that
+  supports the UI workflow from `HeroJobBoard` and `HeroPanel` into `JobService`:
+  
++makeExample('component-communication/ts/src/app/assign-job/job-service.ts', null, 'assign-job/job-service.ts')
 
+:marked
+  We add the `@Injectable()` annotation to the service, because TypeScript only generates metadata for classes that have a decorator.
+  We will use dependency injection to let `HeroJobBoard` and `HeroPanel` to access `JobService`, and dependency injection needs metadata.
+  
+  We use read-only properties (through getters accessing private members) so that we can avoid accidentally changing property values.
+  When a component needs to change the state of the workflow, it can do only through invoking `JobService` methods. Components need to be
+  notified when something changed so that they can update the state of the UI part they are responsible for. `JobService` emits events
+  for this purpose.
+  
+.alert.is-helpful
+  :marked
+    Using read-only properties is a question of architectural and programming style, we prefer using it, as it makes the service object
+    more robust. Whether this style is used or not, it does not change the way we can establish inter-component communication
+    through an intermediary service.
+  
+:marked
+  ### Using `JobService`
+  
+  To make `JobService` available for `HeroJobBoard` and `HeroPanel`, we inject it into those components through their constructors.
+  For a moment, let's forget about how this works, and let's focus about how the components use `JobService`. `HeroJobBoard` utilizes
+  `JobService` this way:
+
++makeExample('component-communication/ts/src/app/assign-job/hero-job-board.ts', 'component', 'assign-job/hero-job-board.ts (extract)', {blk: /(private jobService: JobService)/g})
+
+:marked
+  We can observe that now `HeroJobBoard` does not store any relevant information about the workflow state, it obtains this data from
+  `JobService` &mdash; through accessing its properties via `this.jobService`. The only state information it stores, `newRequest` contains
+  only the local state of `HeroJobBoard`.
+  
+  `HeroPanel` uses `JobService` similarly:
+  
++makeExample('component-communication/ts/src/app/assign-job/hero-panel.ts', 'component', 'assign-job/hero-panel.ts (extract)', {blk: /(private jobService: JobService)/g})
+
+:marked
+  Because we cannot establish output event binding between `HeroPanel` and `JobService`, as `JobService` is not a parent component
+  of `HeroPanel`, in the constructor we need to subscribe to the `jobAnnounced` and `jobAssigned` events through the `jobAnnounced.subscribe()`
+  and `jobAssigned.subscribe()` method invocations, respectively. The `subscribe()` method receives the event handler function as its argument.
+  
+  ### Injecting `JobService` into the components
+  
+  Now there is only one piece of information missing so that we can understand how this inter-component communication scenario works: we need to
+  know how `JobService` is injected into `HeroJobBoard` and its `HeroPanel` children. Evidently, all components must use the very same 
+  `JobService` instance; otherwise the UI workflow would not work.
+  
+  Angular dependency injection makes it very simple to deal with this scenario. We need to pass a single `JobService` instance to `HeroJobBoard`,
+  and let the the framework do its work. Because all `HeroPanel` instances are the children of the single `HeroJobBoard`, the framework will set up
+  injectors so that the very same `JobService` instance will be injected into the constructor of all `HeroPanel` instances. As a result, every
+  component will share the same `JobService` instance:
+  
++makeExample('component-communication/ts/fragments/job-service-injection.ts', null, 'assign-job/hero-job-board.ts (extract)', {blk: /(providers: \[JobService\])/g})
+
+:marked
+  Now, our app is fully functional, now we can not only invite heroes and let them take the job, but also assign it to a hero:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/app-ui-snapshot.png" alt="UI in action")
+  
+:marked
   ## #5: Communication among unrelated components via a message bus
   
-  _Content_
+  Not only parent and child components need to communicate, but often unrelated components &mdash; which are in different branches of the
+  component hierarchy &mdash;, too. Although in this situations components cannot use simple declarative techniques such as input data binding and
+  output event emitting; with Angular's dependency injection, the communicating parties can get together.
+  
+  ### Creating a message bus
+  
+  In this section, we are going to build a very simple message bus that allows `HeroJobBoard` and `HeroPanel` to send text messages that can be listened to.
+  We won't use this message but to let `HeroJobBoard` and `HeroPanel` talk to each other, but we create a `MessageBoard` component that can
+  display these messages independently from which component they arrive from. In this communication scenario, all communicating parties are unrelated
+  to each other:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/message-board-communication.png" alt="MessageBoard components")
+  
+:marked
+  The `MessageBus` component is very simple. It provides the `broadcastMessage` method that logs the text message and immediately emits a `messageReceived` event:
+  
++makeExample('component-communication/ts/src/app/message-board/message-bus.ts', null, 'message-board/message-bus.ts')
 
+:marked
+  ### Using `MessageBus`
+  
+  We have a new component in this scenario, it is `MessageBoard`. It listens to the messages emitted by `MessageBus` through its `messagesReceived` event. 
+  `MessageBoard` gets the `MessageBus` through constructor injection, and &mdash; as we already learned &mdash; it subscibes to the event so that it can handle it:
+  
++makeExample('component-communication/ts/src/app/message-board/message-board.ts', null, 'message-board/message-board.ts', {blk: /(private messageBus: MessageBus)/g})
+
+:marked
+  The `HeroJobBoard` and `HeroPanel` components send messages, thus they need get the `MessageBus` in their constructors so that they can utilize it:
+  
++makeExample('component-communication/ts/fragments/using-message-bus.ts')
+
+:marked
+  Evidently, we need to modify `HeroJobBoard` and `HeroPanel` so that they send messages when something interesting goes on &mdash; ie. heroes are invited, a new job
+  is announced, a hero takes a job, or the job is assigned to a hero. It's easy to add, for the sake of brevity, we do not list the modified code of these components.
+  
+  ### Making the components work together
+  
+  We can easily leverage the `MessageBus` functionality by injecting a single instance of `MessageBus` to `MessageBoard`, `HeroJobBoard` and `HeroPanel`. 
+  As we learned in the previous section, if we injected `MessageBus` into `HeroJobBoard`, the same `MessageBus` instance would be injected into each `HeroPanel`,
+  because `HeroPanel` is a child of `HeroJobBoard`. However, we need to find how to inject `MessageBus` into `MessageBoard` that is totally unrelated to
+  the other two components.
+  
+  We should make `HeroJobBoard` and `MessageBoard` to be two direct children of their hosting component. In the sample code of this chapter, we use routing that
+  allows us to host all chapter scenarios in a single application: each scenario is located in a different routing path, and they are rendered through the 
+  `router-outlet` directive.
+  
+  To demonstrate that `MessageBoard` is unrelated to `HeroJobBoard` &mdash; it is in a separate branch of the component hierarchy &mdash; we create the
+  `JobBoardWithMessages`, merely to embed these two components:
+  
++makeExample('component-communication/ts/src/app/message-board/job-board-with-messages.ts', null, 'message-board/message-board.ts', {blk: /(providers: \[MessageBus\])/g})
+
+:marked
+.alert.is-helpful
+  :marked
+    Of course, we set up the routing configuration for this scenario path so that the `JobBoardWithMessages` is used as the root component displayed by
+    `router-outlet`.
+  
+:marked
+  This code shows the simple solution to inject the same instance of `MessageBus` into all components: we use the `providers` annotation property of
+  `JobBoardWithMessages`. Because `MessageBoard` and `HeroJobBoard` are both the children of `JobBoardMessage`, they will be injected with the 
+  same `MessageBus` instance. When instantiating `HeroPanel`, the framework will use the `MessageBus` instance injected into `HeroJobBoard`, 
+  because of the parent-child relationship between `HeroJobBoard` and `HeroPanel`.
+  
+  We must not include `MessageBus` in the `providers` of `HeroJobBoard`, because it would break the logic. In that case `MessageBoard` would listen
+  to a separate `MessageBus` the other components are talking to. This is how the correct setup of `HeroJobBoard` is:
+  
++makeExample('component-communication/ts/fragments/no-message-bus-in-hero-job-board.ts', null, 'message-board/hero-job-board.ts (extract)', {blk: /(providers: \[JobService\])/g})
+
+:marked
+  Now, we put together all pieces to check how the message bus works:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/message-board-ui.png" alt="MessageBoard in action")
+  
+:marked
   ## #6: Parent to child communication where chidren are transposed in &mdash; using `@Query`
   
   _Content_
@@ -363,492 +549,6 @@ figure.image-display
 
  
   ## __Do not review the subsequent sections!__ _Everything from here is old content to be removed_
-  
-  ## #5: A hero takes the job &mdash; child to parent communication with events
-  
-  Knowing that the the tight coupling we used in the previous scenario is an antipattern, it's time to learn how we can avoid such a situation with Angular.
-  
-  The task we want to solve correctly is that `InvitedHero` needs to notify its parent `HeroJobBoard` that a hero undertaks the requested job so that the hero can be 
-  added to the list of responding ones. We will use _event binding_ to communicate from a children to its parent. We create an _output property_ on `InvitedHero`, 
-  and in the template of `HeroJobBoard` &mdash; where `InvitedHero` is specified with the `<invited-hero>` element &mdash; we bind the output property to a
-  `HeroJobBoard` event handler method.
-  
-  We can easily add an output property to `InvitedHero`. We name this new property `onHeroResponse`, and use it within the `undertakeJob()` method:
-  
-+makeExample('component-communication/ts/take-job-event/src/app/invited-hero.ts', 'component', 'invited-hero.ts', {blk: /(onHeroResponse|undertakeJob\(\))/g})
-
-:marked
-  We annotated the output parameter with the `@Output()` decorator, and initialized it to a new `EventEmitter<Hero>` instance.
-  
-.alert.is-important
-  :marked
-    Again, do not forget to use the parentheses with `@Output()` so that our application would not fail mysteriously.
-:marked
-  In order to use these new types, we must import them from the core Angular module:
-  
-+makeExample('component-communication/ts/take-job-event/src/app/invited-hero.ts', 'import', null, {blk: /(Output|EventEmitter)/g})
-
-:marked
-  Being an output parameter means that an external component can bind an event handler method in its template that responds the event raised with the object
-  behind the output parameter. As the body of `undertakJob()` shows, we can notify the event that a hero undertook the job through calling 
-  `this.onHeroResponse.next(this.hero)`. The `onHeroResponse` property's type is `EventEmitter<Hero>`. As its name suggest, an instance of this type can emit events 
-  that are represented with arguments of type `Hero`. In our very case, with the event we pass the `Hero` instance that undertook the job.
-  
-.alert.is-helpful
-  :marked
-    The `EventEmitter` generic type is built on the features of the `Observable` type of ECMAScript standard library. `Observable` is a type that
-    can be used to model push-based data sources such as DOM events, timer intervals, and sockets. Understanding this type requires a detailed discussion,
-    and in this chapter we are not going to leverage the features of observables.
-    
-    `EventEmitter` can be used not only for output parameters, but in other publish-subscribe scenarios, as we will learn it soon.
-:marked
-  `HeroJobBoard` can bind itself to the `onHeroResponse` event:
-  
-+makeExample('component-communication/ts/take-job-event/fragments/invited-hero.html', null, 'hero-job-board.ts (extract from template)', {blk: /(\(on-hero-response\))/g})
-
-:marked
-  The event is bound to the `heroTakesJob()` method, and `$event` represents the `Hero` instance passed by `InvitedHero` as the event argument, which is the hero who
-  undertook the job. The `heroTakesJob()` method is exactly the same as we used in the previous scenario:
-  
-+makeExample('component-communication/ts/take-job-event/src/app/hero-job-board.ts', 'hero-takes-job', 'hero-job-board.ts')
-
-:marked
-  Now, with these simple steps, our app works just like at the end of the previous scenario &mdash; but this time it uses a supported child-to-parent communication pattern.
-  
-  ### Why this practice is preferred
-  
-  In this scenario, out components kept their autonomy, in constrast to the antipattern treated in the previous scenario. `InvitedHero` gets the job request through an
-  input property, but actually does not know from which component the job request is bound to its `request` property. Similarly, when a hero undertakes the job, 
-  `InvitedHero` emits an event through its `onHeroResponde` output property without knowing which component (or components) listen to this event.
-  
-  This architecture allows easy maintenance and testing, as our components encapsulate everything they are responsible for. They do not have strong dependencies on 
-  other components. When we face with child-to-parent communication, using events as we did in this scenario is a _viable way to avoid the traps and fragility_ of the
-  antipattern demonstrated in the previous section.
-  
-  ## #6: Refactoring communication to an intermediary service
-  
-  There is still a tiny flaw in our inter-component communication design. The `HeroJobBoard` and `InvitedHero` components are autonomous but they need to communicate
-  directly with each other to implement the applications. In its current form, `InvitedHero` implements only UI logic, but `HeroJobBoard` mixes UI logic &mdash; 
-  logic that controls the appearance and state of the UI &mdash; with business logic &mdash; the logic that adminsters the state of the job board management workflow.
-  
-  In a real application the job requests, the heroes' applications for the job and assigments were persisted somewhere at the backend, and certain business rules
-  were enforced. To move toward a more flexible and more real architecture, the business logic that is encapsulated right now into `HeroJobBoard` should be moved 
-  into a separate entity &mdash; let's call it `JobService`. Instead of communicating directly with each other, `HeroJobBoard` and `InvitedHero` instances would trust
-  in `JobService` to manage the business logic, and our componenst would manage only the state of the UI they are responsible for.
-  
-  In this scenario, we will refactor our app by adding the new `JobService` component. Our design will use different communication, as indicated by the dashed arrows 
-  (solid arrows still indicate parent-child relationships):
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/jobservice-communication.png" alt="Adding JobService")
-  
-:marked
-  Let's implement the new intermediary service, `JobService`: 
-  
-+makeExample('component-communication/ts/job-service/src/app/job-service.ts', null, 'job-service.ts')
-
-:marked
-  The structure of this component is pretty straightfoorward: internally it uses the `_jobRequest` and `_respondingHeroes` members to store the state of the 
-  Hero Job Board workflow. It exposes the state of the component through the `jobRequest` and `respondingHeroes` getters, and provides two operations, `post()` for
-  announcing new job requests, and `take` to let heroes undertake the job. Beside these methods, the `jobPostEvent` event emitter can be used to subscribe for new
-  job request events.
-  
-.alert.is-helpful
-  :marked
-    Observe, `JobService` has an annotation, `@Injectable()`, which is used to create metadata for `JobService` so that we can inject it into other components. 
-    We treated this mechanism in the [Dependency Injection](./dependency-injection.html#when-the-service-needs-a-service) chapter with more details.
-:marked
-  Now, let's alter `HeroJobBoard` to leverage `JobService`:
-  
-+makeExample('component-communication/ts/job-service/src/app/hero-job-board.ts', 'component', 'hero-job-board.ts (component)')
-
-:marked
-  The structure of `HeroJobBoard` did not change much. Instead of its own data members, now it uses the properties and operations available through the `JobService`
-  instance that has been injected through the `HeroJobBoard` constructor. Soon, we will learn how dependency injection works in this scenario.
-  
-  We can easily utilize `JobService` in `InvitedHero`:
-  
-+makeExample('component-communication/ts/job-service/src/app/invited-hero.ts', 'component', 'invited-hero.ts (component)')
-
-:marked
-  We still pass the `hero` property from `HeroJobBoard` via data binding, but not `request` anymore. Observe how we use the `subscribe` method of the injected 
-  `JobService` to define an event handler for the `jobPostEvent` event. `jobPostEvent` accepts a string (the event is defined as an `EventEmitter<string>`), 
-  which contains the job request. So, any time a new job request arrives, the `InvitedHero` instance updates its state (and the UI) accordingly.
-  
-.alert.is-helpful
-  :marked
-    Because both component utilize `JobService`, it needs to be imported in `hero-job-board.ts` and `invited-hero.ts`.
-:marked
-  Our application will work properly only if we use a singleton instance of `JobService`: the single `HeroJobBoard` instance and all `InvitedHero` instances 
-  _must use_ the very same `JobService` instance. We'll ensure this behavior by configuring `HeroJobBoard`'s `providers` annotation property this way:
-  
-+makeExample('component-communication/ts/job-service/fragments/provider-annotation.ts', null, 'hero-job-board.ts (component annotation)', {blk: /(providers)/g})
-
-:marked
-  Thanks to the great design of Angular's hierarchical dependency injection system &mdash;
-  it supports nested injectors in parallel with the component tree &mdash; `InvitedHero` instances automatically obtain the same `JobService` instance injected
-  through their constructor as `HeroJobBoard` gets.
-  
-  When we run our app, it still works exactly as in the previous scenario. We can invite heroes, announce job requests, and heroes can undertake them. 
-  It's time to add the last step of the basic workflow so that the person in need can assing the job to the hero who deserves it the best.
-  
-  ## #7: Assigning the job to a hero &mdash; extending the intermediary service
-  
-  Now, we have the `JobService` component, which &mdash; according to our intention &mdash; encapsulates the business logic of the app. Naturally, we want this
-  very component to implement the method of assigning the job to a hero. We need to provide a method for `HeroJobBoard` to assign the job to one of the responding
-  heroes, and add an event `InviteddHero` instances listen to in order to get notified about job assignment.
-  
-  This extension is strightforward, as the new, highlighted members of `JobService` show:
-  
-+makeExample('component-communication/ts/assign-job/src/app/job-service.ts', null, 'job-service.ts', {blk: /(_assignedTo|assignedTo\(\)|jobAssignedEvent|assign\(hero: Hero\))/g})
-
-:marked
-  To integrate the new `assign()` method with `HeroJobBoard`, we need to change the component template and add a couple of methods to the class body, as shown in
-  this code extract:
-  
-+makeExample('component-communication/ts/assign-job/fragments/hero-job-board.ts', null, 'job-service.ts', {blk: /(winner\(\)|assignJob\(hero: Hero\))/g})
-  
-:marked
-  Now, the component template removes the list of responding heroes as soon as the job as assigned to one of them, and the winner is displayed in the Hero Job Board.
-  We need to change `InvitedHero`, too, so that it could listen to assignment announcements, and change its UI accordingly:
-  
-+makeExample('component-communication/ts/assign-job/fragments/invited-hero.ts', null, 'invited-hero.ts', {blk: /(subscribe|finalState\(\))/g})
-  
-:marked
-  Here, `InviteHero` subscribes to the `jobAssignedEvent`, and sets the winner hero according to the event parameter (`JobService` defines `jobAssigned` as a 
-  type of `EventEmitter<Hero>`). The `finalState()` helper method is used to set the right label in the UI of the component that displays 
-  whether the hero won or lost &mdash; provided it undertake the job at all.
-  
-  When the person in need assigns a job to a hero, the UI is immediately updated. This figure shows that Mr. Nice, Bombasto and RubberMan undertook the job,
-  and finally it was assigned to Bombasto:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/assign-job-ui.png" alt="Assign a job to a hero")
-  
-:marked
-  Now, we implemented the basic workflow. We could have been satisfied with the component communication scenarios we've implemented by now, but there's still a
-  few things that we should discuss.
-  
-  ## #8: A malicious hero steals the job &mdash; issues with multiple facades
-  
-  With moving the business logic to `JobService`, we made a great design decision, as we can manage business and UI logic separately. However the _way we use_
-  `JobService` has a flaw. Right now both `HeroJobBoard` and `InvitedHero` use a single facade to access `JobService` functionality, and through this facade
-  these components can access all operations, and not only the ones intended for their use. The following blueprint shows how the members of `JobService` are used:
-  
-code-example(format='linenums', language='typescript').
-  export class JobService {
-      get jobRequest();         // HeroJobBoard
-      get respondingHeroes();   // HeroJobBoard
-      get assignedTo();         // HeroJobBoard
-    
-      jobPostEvent;             // HeroJobBoard and InvitedHero
-      jobAssignedEvent;         // HeroJobBoard and InvitedHero
-    
-      post(jobRequest: string); // HeroJobBoard
-      take(hero: Hero);         // InvitedHero
-      assign(hero: Hero);       // HeroJobBoard
-  }
-
-:marked
-  This design allows that components can invoke operations that were not available for them with properly designed facades. We'll it by adding a new `stealJob()` method
-  to `InvitedHero` so that a hero can maliciously steal a job assigned to another hero:
-  
-+makeExample('component-communication/ts/steal-job/src/app/invited-hero.ts', 'steal', 'invited-hero.ts')
-  
-:marked
-  Let's append this markup snippet to the template of `InvitedHero` so that we can invoke `stealJob()` from the UI:
-  
-+makeExample('component-communication/ts/steal-job/fragments/steal.html', null, 'invited-hero.ts (template)')
-  
-:marked
-  Now, an `InvitedHero` instance can behave as if it were `HeroJobBoard` and invoke the `assign()` method of `JobService`, passing itself as the winner hero.
-  
-  When we run the application, after the job is assigned to a hero, all other heroes (even those who have not undertaken the job before) can click the **I steal the job!**
-  button and scrounge the job. This screenshot shows that Magneta has been assigned the job:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/winner-announced-ui.png" alt="The winner is announced")
-  
-:marked
-  Now, Bombasto can use the **I steal the job button!**, and the job goes to him. (It's not a great consolation for Magneta that she can steal the job back...)
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/job-stolen-ui.png" alt="The job is stolen")
-  
-:marked
-.alert.is-important
-  :marked
-    After a short by-pass (in the next scenario), we'll go on with the code we created in this scenario, so it is worth to make a backup 
-    so that we can return to it easily.
-    
-:marked
-  ## #9: Preventing stealth &mdash; using multiple facades
-  
-  Let's fix the issue with `JobService`! If we'd have two separate facades, one for `HeroJobBoard` and another for `InvitedHero`, we would not have this issue.
-  There are several ways to create two facades that use the same service object in the background. One way is to create two objects &mdash; each with the appropriate
-  facade &mdash;, and aggregate the singleton `JobService` instance with them. Implictly, these objects would expose only these `JobService` operations that are 
-  required by their facade.
-  
-  We will apply this method &mdash; with a little twist. We are going to leverage on two great TypeScript features:
-  1. Abstract classes (more details [here](https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#abstract-classes-and-methods))
-  1. TypeScript allows to use classes as if those were interfaces (more details [here](http://www.typescriptlang.org/Handbook#classes-advanced-techniques)) 
-  
-  Here is the revised map of object communication. It leverages the refactored version of `JobService`, which now provides two facades, 
-  `JobBoardFacade` and `InvitedHeroFacade`, respectively:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/job-service-facades.png" alt="Communication through new facades")
-  
-:marked
-  Now let's see how these changes are represented in the code of `JobService`:
-  
-+makeExample('component-communication/ts/prevent-stealth/src/app/job-service.ts', null, 'job-service-ts', {blk: /(JobService|JobBoardFacade|InvitedHeroFacade)/g})
-  
-.alert.is-important
-  :marked
-    Although our suggested convention is to create one class per file &mdash; as treated in [Dependency Injection's Appendix](./dependency-injection.html#appendix-why-we-recommend-one-class-per-file)
-    &mdash; this code is an exception for the sake of easier discussion.
-    
-:marked
-  We declare `JobBoardFacade` and `InvitedHeroFacade` as abstract classes, and mark all of their operations as `abstract`. We altered the definitions of 
-  `jobPostEvent` and `jobAssignedEvent` from a property getter to a function, since property getters cannot be abstract.
-  
-  Just as many "curly brace" languages, TypeScript does not support multiple inheritance. Of course, it supports implementing multiple interfaces. We utilize the
-  TypeScript feature that it can handle classes as if those were interfaces: we declare `JobService` so that it _implements_ both `JobBoardFacade` and `InvitedHeroFacade`.
-  
-  To make `HeroJobBoard` use `JobBoardFacade` and `InvitedHero` to work with `InvitedHeroFacade`, we need to change the constructors of these classes:
-  
-code-example(format='linenums', language='typescript').
-  // hero-job-board.ts:
-  export class HeroJobBoard {
-      constructor(private jobBoardFacade: JobBoardFacade) {
-          // ...
-      }
-      // ...
-  }
-
-  // invited-hero.ts:
-  export class InvitedHero {
-      // ...
-      constructor(private heroJobFacade: InvitedHeroFacade) {
-          // ...
-      }
-  }
-
-.alert.is-important
-  :marked
-    Evidently, we need to rename the local `jobService` property names in `HeroJobBoard` to `jobBoardFacade`, and in `InvitedHero` to `heroJobFacade` to
-    make the code sample work. 
-    
-:marked
-  We have one more task to complete: we have to change dependency injection so that a _singleton_ `JobService` instance will be injected to the single 
-  instance of `HeroJobBoard` and the multiple instances of `InvitedHero`. We'll do this by changing the `directives` annotation property on `HeroJobBoard`:
-  
-code-example(format='linenums', language='typescript').
-  import {Component, provide, CORE_DIRECTIVES} from 'angular2/angular2';
-  import {InvitedHero} from './invited-hero';
-  import {JobService, JobBoardFacade, InvitedHeroFacade} from './job-service';
-  import {Hero} from './hero';
-  
-  let jobService = new JobService();
-
-  @Component({
-      /* ... */ 
-      providers: [
-          provide(JobBoardFacade, {useValue: jobService}),
-          provide(InvitedHeroFacade, {useValue: jobService})
-      ]
-  })
-  export class HeroJobBoard {
-      // ...
-  }
-
-:marked
-  Right at the very beginning of the module, we create the single `JobService` instance, `jobService`. Because `JobService` implements both 
-  `JobBoardFacade` and `InvitedHeroFacade`, we can configure the injector to use the single instance of `jobService` to represent both facades.
-  To achive this, we utilize the `provide()` function with the `useValue` configuration property.
-  
-  ### Why we cannot use `stealJob()` now
-  
-  Now, the `InvitedHeroFacade` does not offer the `assign()` method, so when you try to compile the `invited-hero.ts` file, the TypeScript compiler raises an error:
-  
-code-example(language='text').
-  src/app/invited-hero.ts(114,28): error TS2339: Property 'assign' does not exist on type 'InvitedHeroFacade'.
-
-:marked
-  When we work with an editor that has IntelliSense (Such as Sublime or Visual Studio Code), we cannot find `assign()` on the list of available members for
-  `heroJobFacade`:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/assign-is-not-offered.png" alt="heroJobFacade members")
-  
-:marked
-  So, using separate facades to expose the services of the singleton `JobService` objects helped us to prevent issues coming from a flaw in the component design.
-  
-  ## #10: Broadcasting messages &mdash; parent and child communicates with an unrelated component
-  
-  By now, we discussed different ways to communicate between components within the same tree of components, from parent to children, from a child to its parent.
-  We examined how intermediary components (services) can be used, and also analyzed potential desing flaws and trade-offs. In this scenario, we demonstrate how 
-  unrelated components can communicate with each other. 
-  
-  Most of our heroes are extravert, and like to win &mdash; and definitely are hurt by losing in any plight. In this scenario, we let them brag or complain when they win
-  or lose a job, and steal jobs for the winners. We do this for the sake of introducing a new component, `MessageBus` that can be flooded with messages coming from 
-  heroes and the person in need. To check the messages poured on `MessageBus` &mdash; int this scenario &mdash; we will use the console log. 
-  
-.alert.is-important
-  :marked
-    In this scenario, we start from the application version completed and backed up at the end of [A malicious hero steals the job](#-8-a-malicious-hero-steals-the-job-mdash-issues-with-multiple-facades)
-    section.
-    
-:marked
-  The `MessageBus` component is very simple, it declares a single `broadcastMessage()` method:
-
-+makeExample('component-communication/ts/message-bus/src/app/message-bus.ts', null, 'message-bus.ts')
-  
-:marked
-  To leverage `MessageBus` in `HeroJobBoard`, we pass a `MessageBus` instance in the constructor, and append the call of `broadcastMessage()` to `inviteAllHeroes()`,
-  `announceJob()` and `assignJob()`:
-
-code-example(format='linenums', language='typescript').
-  export class HeroJobBoard{
-      constructor(private jobService: JobService,
-          private messageBus: MessageBus) {
-          jobService.post(null);
-      }
-      // ...
-      
-      inviteAllHeroes() {
-          // ...
-          this.messageBus.broadcastMessage('Heroes invited.');
-      }
-      
-      // ...
-      announceJob(request) {
-          // ...
-          this.messageBus.broadcastMessage('Job announced: ' + request.trim());
-      }
-    
-      assignJob(hero: Hero) {
-          this.messageBus.broadcastMessage('Job "' + this.jobRequest 
-              + '" assigned to ' + hero.name);
-      }
-  }
-
-:marked
-  Similarly, we inject `MessageBus` into `InvitedHero`, and invoke `broadcastMessage()` in `undertakeJob()` and `stealJob()`:
-  
-code-example(format='linenums', language='typescript').
-  export class InvitedHero {
-      // ...
-      constructor(private jobService: JobService,
-          private messageBus: MessageBus) {
-          // ...
-      }
-      // ...
-      
-      undertakeJob() {
-          // ...
-          this.messageBus.broadcastMessage('*** I, ' + this.hero.name
-            + ', proudly undertake the job!')
-      }
-    
-      stealJob() {
-          this.messageBus.broadcastMessage('*** I, ' + this.hero.name
-              + ', stole the job... Hahaha...');
-      }
-  }
-
-:marked
-  In order `HeroJobBoard` and `InviteHero` instances can access the `MessageBus` instance, we need to add it to the `providers` annotation 
-  property of `HeroJobBoard`:
-  
-+makeExample('component-communication/ts/message-bus/src/app/hero-job-board.ts', 'providers', 'hero-job-board.ts', {blk: /(MessageBus)/g})
-  
-:marked
-  Just as `JobService`, the `MessageBus` instance is injected into the constructors of `InvitedHero` instances by Angular, as they are the 
-  children of the single `HeroJobBoard` instance.
-  When we run the app, `MessageBus` shows the activity in the console log:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/message-bus-ui.png" alt="Messages in the console")
-  
-:marked
-  ## #11: Message Board &mdash; receiving messages from an unrelated component
-  
-  It's great that we can log messages, but it would be great to show them on UI of the Her Job Board application. Let's create a new component,
-  `MessageBoard`, which displays messages sent to `MessageBus`. Our `MessageBus` component is generic, although right now it accepts messages 
-  only from `HeroJobBoard` and `InvitedHero`, it can receive messages from any other app. When we create `MessageBoard`, we rather nest it into
-  `HeroJobApp` instead of `HeroJobBoard` so that later messges from application components outside of the `HeroJobBoard` subtree can be displayed, too.
-  The hierarchy and communication of the app components (excluding `JobService` for the sake of simplification) now looks like this:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/message-board-communication.png" alt="Message board")
-  
-:marked
-  Let's change the `MessageBus` component so that it will raise an event any time a new message is received &mdash; while still writing the message
-  to the console log:
-  
-+makeExample('component-communication/ts/message-board/src/app/message-bus.ts', null, 'message-bus.ts', {blk: /(messageReceived)/g})
-  
-:marked
-  Now we can add create the `MessageBoard` component that listens to the `messageReceived` event of `MessageBus`, appends the new message to
-  its internal store, and displays it. Evidently, `MessageBoard` depends on `MessageBus`, and we resolve this dependency with constructor injection:
-  
-+makeExample('component-communication/ts/message-board/src/app/message-board.ts', null, 'message-board.ts')
-  
-:marked
-  Now, let's modify `app.ts`, to add `MessageBoard` to the UI. We add this component deliberately to `HeroJobApp` and not to `HeroJobBoard`:
-  
-+makeExample('component-communication/ts/message-board/fragments/app-1.ts', null, 'app.ts', {pnk: /(&lt;message-board&gt;)/g})
-  
-:marked
-  At this point, we have every component on its right place. However, when we run the app, we get an Angular error message in the console log of the browser:
-  
-code-example(language='text').
-  EXCEPTION: No provider for MessageBus! (MessageBoard -> MessageBus)
-
-:marked
-  This error points out to an important fact: Angular could not inject `MessageBus` into the `MessageBoard` constructor. Previously we were indulged,
-  because dependent object injected to `HeroJobBoard` were inherited by child components. But `MessageBoard` is not in the `HeroJobBoard` subtree, so
-  it cannot obtain the `MessageBus` instance we injected to `HeroJobBoard`.
-  
-  The solution is simple: we need to inject `MessageBus` into `HeroJobApp`:
-  
-code-example(format='linenums', language='typescript').
-  // ...
-  import {MessageBus} from './message-bus';
-
-  @Component({
-      // ...
-      providers: [MessageBus]
-  })
-  class HeroJobApp { }
-
-  bootstrap(HeroJobApp);
-
-:marked
-  When we run the app, messages are displayed in the console log, but they are not shown in `MessageBoard`. Did we still miss something? The console log
-  does not indicate any Angular or other issue.
-  
-  The cause of the phenomenon is that we forgot to remove `MessageBus` from `providers` in `hero-job-board.ts`.
-  
-code-example(format='linenums', language='typescript').
-  @Component({
-      // ...
-      providers: [JobService, MessageBus]
-  })
-  export class HeroJobBoard{
-      // ...
-  }
-  
-:marked
-  When we run the app, there are two `MessageBus` instances. One is used by `MessageBoard` &mdash; it listens to messages &mdash; and another 
-  in the `HeroJobBoard` subtree. Messages are sent to the second instance, but `MessageBoard` listens to the first.
-  
-  To resolve the issue, we simply remove `MessageBus` from the provider list in `HeroJobBoard`. Now, the message board works exactly as we expect:
-  
-figure.image-display
-  img(src="/resources/images/devguide/component-communication/message-board-ui.png" alt="Message board")
   
 :marked
   ## Conclusion

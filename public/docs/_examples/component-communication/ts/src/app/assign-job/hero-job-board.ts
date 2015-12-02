@@ -44,11 +44,10 @@ import {JobService} from './job-service';
   directives: [HeroPanel],
   providers: [JobService]
 })
+// #docregion component
 export class HeroJobBoard {
   newRequest: string = null;
-  winner: Hero = null;
   constructor(private jobService: JobService) {
-    
   }
 
   get invitedHeroes() {
@@ -59,10 +58,13 @@ export class HeroJobBoard {
     return this.jobService.respondingHeroes;
   }
 
+  get winner() {
+    return this.jobService.winner;
+  }
+  
   inviteHeroes() {
     this.jobService.inviteHeroes();
     this.newRequest = null;
-    this.winner = null;
   }
   
   announceJob() {
@@ -72,13 +74,13 @@ export class HeroJobBoard {
   get jobStatus() {
     if (!this.jobService.request) { return "No job request announced" }
     if (this.winner) { return "Job assigned"; }
-    return this.jobService.respondingHeroes.length
+    return this.respondingHeroes.length
       ? "Responding heroes"
       : "No responding heroes";
   }
 
   assignJob(hero: Hero) {
-    this.winner = hero;
     this.jobService.assignJob(hero);
   }
 }
+// #enddocregion

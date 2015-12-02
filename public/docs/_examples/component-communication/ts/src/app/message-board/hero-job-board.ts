@@ -47,11 +47,9 @@ import {MessageBus} from './message-bus';
 })
 export class HeroJobBoard {
   newRequest: string = null;
-  winner: Hero = null;
   constructor(
     private jobService: JobService,
     private messageBus: MessageBus) {
-    
   }
 
   get invitedHeroes() {
@@ -62,10 +60,13 @@ export class HeroJobBoard {
     return this.jobService.respondingHeroes;
   }
 
+  get winner() {
+    return this.jobService.winner;
+  }
+  
   inviteHeroes() {
     this.jobService.inviteHeroes();
     this.newRequest = null;
-    this.winner = null;
     this.messageBus.broadcastMessage('Heroes invited.');
   }
   
@@ -86,7 +87,6 @@ export class HeroJobBoard {
   }
 
   assignJob(hero: Hero) {
-    this.winner = hero;
     this.jobService.assignJob(hero);
     this.messageBus.broadcastMessage(
       'Job assigned to ' + hero.name + ".");
