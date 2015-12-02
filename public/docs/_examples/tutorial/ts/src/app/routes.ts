@@ -1,4 +1,4 @@
-import {Route, RouteDefinition} from 'angular2/router';
+import {RouteDefinition} from 'angular2/router';
 import {HeroesComponent} from './heroes.component';
 import {HeroDetailComponent} from './hero-detail.component';
 import {DashboardComponent} from './dashboard.component';
@@ -10,7 +10,7 @@ export const ROUTE_NAMES = {
 }
 
 export const ROUTES: RouteDefinition[] = [
-  {path: '/', redirectTo: '/dashboard' },
+  {path: '/', redirectTo: [ROUTE_NAMES.dashboard] },
   {path: '/dashboard', name: ROUTE_NAMES.dashboard, component: DashboardComponent},
   {path: '/heroes', name: ROUTE_NAMES.heroes, component: HeroesComponent},
   {path: '/detail/:id', name: ROUTE_NAMES.heroDetail, component: HeroDetailComponent}
