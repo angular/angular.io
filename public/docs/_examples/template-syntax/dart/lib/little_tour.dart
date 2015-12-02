@@ -16,7 +16,7 @@ import 'package:angular2/angular2.dart';
 class LittleTourComponent {
   List<String> heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
 
-  addHero(InputElement newHero) {
+  void addHero(InputElement newHero) {
     print(newHero.runtimeType);
     if (newHero.value != null && newHero.value.length > 0) {
       heroes.add(newHero.value);
