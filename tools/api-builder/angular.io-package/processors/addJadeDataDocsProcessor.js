@@ -72,7 +72,6 @@ module.exports = function addJadeDataDocsProcessor() {
           .value();
 
           doc.childPages = modulePageInfo;
-          console.log(doc.childPages);
 
           // ADD TO APP DATA DOC
           appDataDoc.data[doc.id] = modulePageInfo;
