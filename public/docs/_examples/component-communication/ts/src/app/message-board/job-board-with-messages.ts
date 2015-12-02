@@ -1,3 +1,4 @@
+// #docregion
 import {Component} from 'angular2/angular2';
 import {HeroJobBoard} from './hero-job-board';
 import {MessageBoard} from './message-board';
@@ -12,4 +13,5 @@ import {MessageBus} from './message-bus';
   directives: [MessageBoard, HeroJobBoard],
   providers: [MessageBus]
 })
-export class JobBoardWithMessages { } 
+export class JobBoardWithMessages { }
+// #enddocregion 

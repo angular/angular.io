@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Component, Input} from 'angular2/angular2';
 import {Hero} from '../hero';
 import {JobService} from './job-service';
 
@@ -26,25 +26,27 @@ import {JobService} from './job-service';
       </button>
     </div>
   `,
-  styleUrls: ['app/hero-panel.css'],
-  directives: [CORE_DIRECTIVES]
+  styleUrls: ['app/hero-panel.css']
 })
+// #docregion component
 export class HeroPanel {
     @Input() hero: Hero;
     request: string = null;
     undertaken: boolean;
-    winner: Hero = null;
     
     constructor(private jobService: JobService) {
-      var component = this;
       jobService.jobAnnounced.subscribe(
         (job: string) =>
-          component.request = job
+          this.request = job
       )
       jobService.jobAssigned.subscribe(
         (hero: Hero) =>
-          component.winner = hero
+          this.winner = hero
       )
+    }
+    
+    get winner() {
+      return this.jobService.winner;
     }
     
     takeJob() {
@@ -58,3 +60,4 @@ export class HeroPanel {
         (this.undertaken ? "I lost the job :-(" : "Job taken.");
   }
 }
+// #enddocregion component
