@@ -10,9 +10,9 @@ import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
   }
 })
 
-// #docregion class
+// #docregion class-1
 export class Highlight {
-// #enddocregion class
+// #enddocregion class-1
 // #enddocregion full
   /*
 // #docregion highlight
@@ -20,12 +20,19 @@ export class Highlight {
 // #enddocregion highlight
   */
 // #docregion full
-// #docregion class
+// #docregion class-1
 // #docregion color
   @Input('my-highlight') highlightColor: string;
 // #enddocregion color
 
   private _defaultColor = 'red';
+// #enddocregion class-1
+  // #docregion defaultColor
+  @Input() set defaultColor(colorName:string){
+    this._defaultColor = colorName || this._defaultColor;
+  }
+  // #enddocregion defaultColor
+// #docregion class-1
 
   constructor(private el: ElementRef, private renderer: Renderer) { }
 
@@ -37,7 +44,6 @@ export class Highlight {
   private _highlight(color:string) {
     this.renderer.setElementStyle(this.el, 'background-color', color);
   }
-
 }
-// #enddocregion class
+// #enddocregion class-1
 // #enddocregion full
