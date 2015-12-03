@@ -1,3 +1,4 @@
+
 include ../../../../_includes/_util-fns
 :marked
   We learned the basics of Angular Dependency injection in an
@@ -91,189 +92,47 @@ figure.image-display
 
   Let’s take a look at the `HeroesListComponent` which is the root component for this example.
 
-  ```
-  import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
-  import {HeroService} from './hero.service';
-  import {HeroCardComponent} from './hero-card.component';
-  import {HeroEditorComponent} from './hero-editor.component';
-  import {Hero} from './hero';
++makeExample('hierarchical-dependency-injection/ts/src/app/heroes-list.component.ts')
 
-  @Component({
-    selector: 'heroes-list-component',
-    template: `
-      <div>
-        <ul>
-          <li *ng-for="#editItem of heroes">
-            <hero-card-component
-              [hidden]="editItem.editing"
-              [hero]="editItem.item">
-            </hero-card-component>
-            <button
-              [hidden]="editItem.editing"
-              (click)="editItem.editing = true">
-                edit
-            </button>
-            <hero-editor-component
-              (saved)="onSaved(editItem, $event)"
-              (canceled)="onCanceled(editItem)"
-              [hidden]="!editItem.editing"
-              [hero]="editItem.item">
-            </hero-editor-component>
-          </li>
-        </ul>
-      </div>`,
-    directives: [CORE_DIRECTIVES, HeroCardComponent, HeroEditorComponent]
-  })
-  export class HeroesListComponent {
-    heroes: Array<Hero>;
-    constructor(HeroService: HeroService) {
-      this.heroes = HeroService.getHeroes()
-                                .map(item => new EditItem(item));
-    }
-
-    onSaved (editItem: EditItem<Hero>, updatedHero: Hero) {
-      editItem.item = updatedHero;
-      editItem.editing = false;
-    }
-
-    onCanceled (editItem: EditItem<Hero>) {
-      editItem.editing = false;
-    }
-  }
-
-  class EditItem<T> {
-    item: T;
-    editing: boolean
-    constructor (public item T) {}
-  }
-
-  bootstrap(HeroesListComponent, [HeroService]);
-  ```
-
+:marked
   Notice that it imports the `HeroService` that we’ve used before so we can skip its declaration. The only difference is that we’ve used a more formal approach for our `Hero`model and defined it upfront as such.
 
-  ```
-  export class Hero {
-    name: string;
-    power: string;
-  }
-  ```
++makeExample('hierarchical-dependency-injection/ts/src/app/hero.ts')
 
+:marked
   Our `HeroesListComponent` defines a template that creates a list of `HeroCardComponents` and `HeroEditorComponents`, each bound to an instance of hero that is returned from the `HeroService`. Ok, that’s not entirely true. It actually binds to an `EditItem<Hero>` which is a simple generic datatype that can wrap any type and indicate if the item being wrapped is currently being edited or not.
 
++makeExample('hierarchical-dependency-injection/ts/src/app/edit-item.ts')
+
+:marked
   But how is `HeroCardComponent` implemented? Let’s take a look.
 
-  ```
-  import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
-  import {Hero} from './hero';
++makeExample('hierarchical-dependency-injection/ts/src/app/hero-card.component.ts')
 
-  @Component({
-    selector: 'hero-card.component',
-    properties: ['hero'],
-    template: `
-      <div>
-        <span>Name:</span>
-        <span>{{hero.name}}</span>
-      </div>`,
-    directives: [CORE_DIRECTIVES]
-  })
-  export class HeroCardComponent {
-    hero: Hero;
-  }
-  ```
-
+:marked
   The `HeroCardComponent` is basically a component that defines a template to render a hero. Nothing more.
 
-  Let’s get to the interesting part and take a look at the `HeroEditComponent`
+  Let’s get to the interesting part and take a look at the `HeroEditorComponent`
 
-  ```
-  import {Component, FORM_DIRECTIVES, EventEmitter, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
-  import {RestoreService} from './restore.service';
-  import {Hero} from './hero';
++makeExample('hierarchical-dependency-injection/ts/src/app/hero-editor.component.ts')
 
-  @Component({
-    selector: 'hero-editor-component',
-    events: ['canceled', 'saved'],
-    properties: ['hero'],
-    providers: [RestoreService],
-    template: `
-      <div>
-        <span>Name:</span>
-        <input [(ng-model)]="hero.name"/>
-        <div>
-          <button (click)="onSaved()">save</button>
-          <button (click)="onCanceled()">cancel</button>
-        </div>
-      </div>`,
-    directives: [CORE_DIRECTIVES, FORM_DIRECTIVES]
-  })
-  export class HeroEditorComponent {
-    canceled = new EventEmitter();
-    saved = new EventEmitter();
-
-    constructor(private restoreService: RestoreService<Hero>) {}
-
-    set hero (hero: Hero) {
-      this.restoreService.setItem(hero);
-    }
-
-    get hero () {
-      return this.restoreService.getItem();
-    }
-
-    onSaved () {
-      this.saved.next(this.restoreService.getItem());
-    }
-
-    onCanceled () {
-      this.hero = this.restoreService.restoreItem();
-      this.canceled.next(this.hero);
-    }
-  }
-  ```
-
-  Now here it’s getting interesting. The `HeroEditComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead this is a perfect use case to abstract it into it’s own generic service since we have probably more cases like this in our app.
+:marked
+  Now here it’s getting interesting. The `HeroEditorComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead this is a perfect use case to abstract it into it’s own generic service since we have probably more cases like this in our app.
 
   And this is where the `RestoreService` enters the stage.
 
-  ```
-  export class RestoreService<T> {
-    originalItem: T;
-    currentItem: T;
++makeExample('hierarchical-dependency-injection/ts/src/app/restore-service.ts')
 
-    setItem (item: T) {
-      this.originalItem = item;
-      this.currentItem = this.clone(item);
-    }
-
-    getItem () :T {
-      return this.currentItem;
-    }
-
-    restoreItem () :T {
-      this.currentItem = this.originalItem;
-      return this.getItem();
-    }
-
-    clone (item: T) :T {
-      // super poor clone implementation
-      return JSON.parse(JSON.stringify(item));
-    }
-  }
-  ```
-
+:marked
   All this tiny service does is define an API to set a value of any type which can be altered, retrieved or set back to it’s initial value. That’s exactly what we need to implement the desired functionality.
 
   Our `HeroEditComponent` uses this services under the hood for it’s `hero` property. It intercepts the `get` and `set` method to delegate the actual work to our `RestoreService` which in turn makes sure that we won’t work on the original item but on a copy instead.
 
   At this point we may be scratching our heads asking what this has to do with component injectors? If we look closely at our `HeroEditComponent` we’ll notice this piece of code
 
-  ```
-  …
-  providers: [RestoreService]
-  …
-  ```
++makeExample('hierarchical-dependency-injection/ts/src/app/hero-editor.component.ts', 'providers')
 
+:marked
   This creates a binding for the `RestoreService` in the injector of the `HeroEditComponent`. But couldn’t we simply alter our bootstrap call to this?
 
   ```

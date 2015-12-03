@@ -71,6 +71,8 @@ module.exports = function addJadeDataDocsProcessor() {
           .sortBy('name')
           .value();
 
+          doc.childPages = modulePageInfo;
+
           // ADD TO APP DATA DOC
           appDataDoc.data[doc.id] = modulePageInfo;
 

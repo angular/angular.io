@@ -25,11 +25,14 @@ var TOOLS_PATH = './tools';
 var ANGULAR_PROJECT_PATH = '../angular';
 var PUBLIC_PATH = './public';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
+var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
+var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
+var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
 
 var _devguideShredOptions =  {
   examplesDir: path.join(DOCS_PATH, '_examples'),
@@ -50,7 +53,6 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 
-
 // Public tasks
 
 gulp.task('default', ['help']);
@@ -67,19 +69,19 @@ gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
 });
 
-gulp.task('serve-and-sync-api-docs', ['build-docs'], function (cb) {
+gulp.task('serve-and-sync-api', ['build-docs'], function (cb) {
   watchAndSync({apiDocs: true, apiExamples: true}, cb);
 });
 
-gulp.task('serve-and-sync-devGuide', ['build-docs'], function (cb) {
-  watchAndSync({devGuide: true}, cb);
+gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers', '_zip-examples'], function (cb) {
+  watchAndSync({devGuide: true, localFiles: true}, cb);
 });
 
 gulp.task('build-and-serve', ['build-docs'], function (cb) {
   watchAndSync({localFiles: true}, cb);
 });
 
-gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', '_zip-examples']);
+gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
 
@@ -95,9 +97,9 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
-
-
-
+gulp.task('build-plunkers', function() {
+  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
+});
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
@@ -166,8 +168,6 @@ gulp.task('check-deploy', ['build-docs'], function() {
 gulp.task('test-api-builder', function (cb) {
   execCommands(['npm run test-api-builder'], {}, cb);
 });
-
-
 
 
 // Internal tasks

@@ -68,7 +68,7 @@ function createShredPackage(shredOptions) {
     .config(function(readFilesProcessor, regionFileReader) {
       readFilesProcessor.fileReaders = [regionFileReader];
     })
-    // default configs - may be overriden
+    // default configs - may be overridden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
       readFilesProcessor.basePath = "/";
