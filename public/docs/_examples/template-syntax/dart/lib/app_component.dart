@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.app_component;
 
 import 'dart:html';
@@ -11,22 +12,10 @@ import 'package:template_syntax/loop_back_component.dart';
 import 'package:template_syntax/key_up_components.dart';
 import 'package:template_syntax/little_hero.dart';
 
-List<Hero> _MockHeroes = [
-  new Hero('Hercules',
-      lastName: 'Son of Zeus',
-      birthdate: new DateTime(1970, 1, 25),
-      url: 'http://www.imdb.com/title/tt0065832/',
-      rate: 325),
-  new Hero('eenie', lastName: 'toe'),
-  new Hero('Meanie', lastName: 'Toe'),
-  new Hero('Miny', lastName: 'Toe'),
-  new Hero('Moe', lastName: 'Toe')
-];
-
 enum _Color { Red, Green, Blue }
 
-@Component(selector: 'my-app')
-@View(
+@Component(
+    selector: 'my-app',
     templateUrl: 'my-app.html',
     directives: const [
       CORE_DIRECTIVES,
@@ -41,10 +30,19 @@ enum _Color { Red, Green, Blue }
       LittleHeroComponent,
     ])
 class AppComponent {
-  List<Hero> heroes = _MockHeroes;
-  Hero currentHero = _MockHeroes.first;
+  List<Hero> heroes = [
+    new Hero('Hercules',
+        lastName: 'Son of Zeus',
+        birthdate: new DateTime(1970, 1, 25),
+        url: 'http://www.imdb.com/title/tt0065832/',
+        rate: 325),
+    new Hero('eenie', lastName: 'toe'),
+    new Hero('Meanie', lastName: 'Toe'),
+    new Hero('Miny', lastName: 'Toe'),
+    new Hero('Moe', lastName: 'Toe')
+  ];
+  Hero currentHero;
   Hero nullHero = null; // or undefined
-
   bool isUnchanged = true;
   bool isSpecial = true;
   bool isActive = false;
@@ -61,12 +59,16 @@ class AppComponent {
       'https://angular.io/resources/images/logos/standard/shield-large.png';
   Map product = {'name': 'frimfram', 'price': 42};
 
+  AppComponent() {
+    currentHero = heroes.first;
+  }
+
   colorToggle() {
     color = color == _Color.Red ? _Color.Blue : _Color.Red;
   }
 
   getStyles(Element el) {
-    var showStyles = this.setStyles();
+    var showStyles = setStyles();
     return JSON.encode(showStyles);
   }
 
@@ -91,7 +93,7 @@ class AppComponent {
   }
 
   setLastName(event) {
-    this.currentHero.lastName = event;
+    currentHero.lastName = event;
   }
 
   setClasses() {
@@ -120,3 +122,4 @@ class AppComponent {
     }
   }
 }
+// #enddocregion

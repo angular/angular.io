@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.hero_detail_component;
 
 import 'package:angular2/angular2.dart';
@@ -25,3 +26,4 @@ class HeroDetailComponent {
     deleted.add(hero);
   }
 }
+// #enddocregion

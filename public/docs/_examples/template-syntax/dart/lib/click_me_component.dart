@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.click_me_component;
 
 import 'dart:html';
@@ -11,3 +12,4 @@ class ClickMeComponent {
     window.alert('You are my hero!');
   }
 }
+// #enddocregion

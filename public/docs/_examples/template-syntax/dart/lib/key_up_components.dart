@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.key_up_components;
 
 import 'package:angular2/angular2.dart';
@@ -47,3 +48,4 @@ class KeyUpComponentV3 {
 class KeyUpComponentV4 {
   String values = '';
 }
+// #enddocregion

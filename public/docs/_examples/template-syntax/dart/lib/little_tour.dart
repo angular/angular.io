@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.little_tour;
 
 import 'dart:html';
@@ -24,3 +25,4 @@ class LittleTourComponent {
     }
   }
 }
+// #enddocregion

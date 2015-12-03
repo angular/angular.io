@@ -1,3 +1,4 @@
+// #docregion
 library template_syntax.hero;
 
 class Hero {
@@ -10,8 +11,9 @@ class Hero {
   int rate = 100;
 
   Hero(this.firstName, {this.lastName, this.birthdate, this.url, this.rate}) {
-    this.id = _nextId++;
+    id = _nextId++;
   }
 
-  String get fullName => firstName + ' ' + lastName;
+  String get fullName => '$firstName $lastName';
 }
+// #enddocregion
