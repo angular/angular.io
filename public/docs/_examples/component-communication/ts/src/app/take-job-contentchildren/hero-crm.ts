@@ -1,3 +1,4 @@
+// #docregion
 import {Directive, Input} from 'angular2/angular2';
 
 @Directive({
@@ -6,5 +7,5 @@ import {Directive, Input} from 'angular2/angular2';
 export class HeroCrm {
   @Input() id: number;
   @Input() name: string;
-  @Input() distinguished: boolean;
 }
+// #enddocregion

@@ -8,22 +8,22 @@ include ../../../../_includes/_util-fns
   This way, we can create smaller building blocks with their own boundaries of responsibility, and compose the entire application
   from them.
   
-  Generally, an Angular app is a tree of components &mdash; with the bootstrapped component as the root. Thinking about an app 
+  Generally, an Angular app is a tree of components &mdash; with the bootstrapped component as the root. Thinking of an app's 
   structure as a tree, there are components that are in the same branch of the component tree &mdash; these form parent and child hierarchies
-  &mdash;, and components that are not directly related: they are in different branches. Evidently, these have to communicate with each other
+  &mdash;, and components that are not directly related: they are in different branches. Evidently, components need to communicate with each other
   to carry out the task the app is created for.
   
   As we already learned, _component_ is a pivotal concept of Angular, and it was designed with _inter-component communication_ in mind.
-  We can imagine the following information flows:
-  * From a parent to its child and children
+  We can think of the following information flows:
+  * From a parent to its children
   * From a child to its parent
   * Among unrelated, completely decoupled components
   
-  In this chapter, we will learn 6 frequently used Angular mechanisms and techniques available for inter-component communication.
+  In this chapter, we will learn six frequently used Angular mechanisms and techniques available for inter-component communication.
   We will also get acquainted with the tradeoffs of each mechanism, and understand the scenarios best suited for using a particular method of communication.
   Before diving deeply into the details, here is a short overview of these techniques:
   
-  __#1: Parent to child communication with property binding__
+  __#1: Parent to child communication with input property binding__
   
   The `prop-value` expression of the parent is bound to the `child-prop` input property of the child. `child-prop` is updated every time when `prop-value` changes:
   
@@ -36,7 +36,7 @@ include ../../../../_includes/_util-fns
 +makeExample('component-communication/ts/fragments/property-binding-intro-2.html')
   
 :marked
-  [Jump to details](#-1-parent-to-child-communication-with-property-binding)
+  [Jump to details](#-1-parent-to-child-communication-with-input-property-binding)
 
 :marked
   __#2: Child to parent communication with event emitting__
@@ -48,8 +48,8 @@ include ../../../../_includes/_util-fns
   
 :marked
   Here, the child event is emitted by the `raiseMyEvent` method. The parent declares the `handleMyEvent()` method and binds it to the `child-event`
-  output property of the child. Events can have arguments (here, `"Fired!"` is this argument) that can be passed to the parent.
-  At the parent side `$event` represents the argument passed.
+  output property of the child. Events can have arguments &mdash; here, `"Fired!"` is the argument &mdash;, which can be passed to the parent.
+  At the parent side `$event` represents the argument emitted with the event.
   
   [Jump to details](#-2-child-to-parent-communication-with-event-emitting)
 
@@ -103,15 +103,45 @@ include ../../../../_includes/_util-fns
 +makeExample('component-communication/ts/fragments/message-bus-intro.ts')
 
 :marked
-  We rely on Angular's dependency injection to allow the components use the message bus.
+  We rely on Angular's dependency injection to allow the components to use the message bus.
   
   [Jump to details](#-5-communication-among-unrelated-components-via-a-message-bus)
 
-  __#6: Parent to child communication where chidren are transposed in &mdash; using `@Query`__
+  __#6: Parent to child communication where children are transposed in &mdash; using `@ContentChildren`__
   
-  _Exemplification_
+  Often, we define nested content in a parent component's definition:
+  
++makeExample('component-communication/ts/fragments/contentchildren-intro.html')
 
-  [Jump to details](#parent-to-child-communication-where-chidren-are-transposed-in-mdash-using-query-)
+:marked
+  Here,`child-content` is just a directive that defines content:
+  
++makeExample('component-communication/ts/fragments/contentchildren-intro.ts', 'child-content')
+
+:marked
+  We'd like to render a view so that a `ChildComponent` component is used for each `child-content`:
+  
++makeExample('component-communication/ts/fragments/contentchildren-intro.ts', 'child-comp')
+
+:marked
+  Somehow, we need to transpose the `child-content` elements into `parent-comp` as `ChildComponent` instances, and want to communicate
+  from the parent component to its children. We know that input data binding is a simple and great way to implement parent-to-child 
+  communication so that we'd like to apply a template like this:
+  
++makeExample('component-communication/ts/fragments/contentchildren-intro.ts', 'parent-comp-def', null, {pnk: /(myContent)/g})
+
+:marked
+  The issue is that we do not know how to get a collection of `child-content` elements and store them in `myContent` so that we
+  can iterate through this collection, define the child component instances, and establish the input property binding.
+  
+  Angular provides the `@ContentChildren` annotation we can use to define that we need to get a collection of children that are used
+  as content within our parent component. The framework takes care of initializing this collection during component instantiation, and
+  is also detects changes, and dynamically updates the collection of children:
+  
++makeExample('component-communication/ts/fragments/contentchildren-intro.ts', 'parent-comp', null, {pnk: /(@ContentChildren)/g})
+
+:marked
+  [Jump to details](#-6-parent-to-child-communication-where-children-are-transposed-in-mdash-using-contentchildren-)
 
   ### The Hero Job Board sample
   
@@ -131,7 +161,7 @@ figure.image-display
 :marked
   Let's start, and dive into the details.
   
-  ## #1: Parent to child communication with property binding
+  ## #1: Parent to child communication with input property binding
   
   Angular allows components to declare _data-bound input properties_. These are like regular component, but the value of an 
   input property takes its value from the expression bound to it. The framework automatically updates data-bound input properties
@@ -142,20 +172,20 @@ figure.image-display
   
   Input data binding can be used to pass data from a parent component to a single child, to all or a set of its children.
   As its name suggests, we can pass only data values with input property binding. This method is not suitable for sending messages that can be represented only
-  with method calls, and it does not allow passing data from a child component to its parent.
+  with method calls, and this mechanism does not allow passing data from a child component to its parent.
   
   ### Establishing an input property binding
   
   The Hero Job Board application uses input data binding to pass the information about an invited hero from `HeroJobBoard` (parent) to all
-  `HeroPanel` children. The `HeroJobBoard` component is the one that knows the circle of heroes to invite to listen to job requests, and it embeds 
-  `HeroPanel` component instances that represent the control panel of heroes.
+  `HeroPanel` children. The `HeroJobBoard` component is the one that knows the circle of heroes who should be invited to listen to job requests, and it embeds 
+  a `HeroPanel` component instance for each hero.
   
-  In this scenario, `HeroPanel` declares the `hero` property as an input property, as the `@Input` decorator suggests:
+  In this scenario, `HeroPanel` declares an input property, `hero`, as the `@Input()` decorator suggests:
   
-+makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', null, 'invite-heroes/hero-panel.ts', {pnk: /(@Input)/g})
++makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', null, 'invite-heroes/hero-panel.ts', {pnk: /(@Input\(\))/g})
 
 :marked
-  Now, `HeroJobBoard` can iterate through its `invitedHeroes` collection and set up its `HeroPanel` children so that a single hero is
+  `HeroJobBoard` can iterate through its `invitedHeroes` collection and set up its `HeroPanel` children so that a single hero is
   assigned to each of them through the `hero` input property. As we learned before, the Angular property binding syntax 
   (property name wrapped into square brackets) is used:
 
@@ -163,14 +193,14 @@ figure.image-display
   
 :marked
   The `Hero.heroes` static collection contains six heroes for demonstration purposes. When the application starts, `invitedHeroes` is empty, 
-  but clicking the __Invite heroes__ button invokes `inviteHeroes()` and fills up `invitedHeroes`. According the template definition, these bindings
-  are established between `HeroJobBoard` and its `HeroPanel` children:
+  but clicking the __Invite heroes__ button invokes `inviteHeroes()` and fills up the `invitedHeroes` array. According the template definition, 
+  these bindings are established between `HeroJobBoard` and its `HeroPanel` children:
   
 figure.image-display
   img(src="/resources/images/devguide/component-communication/parent-and-children.png" alt="Input data binding")
   
 :marked
-  The application UI reflects this stucture:
+  When we run the app and click the **Invite heroes** button, the application UI reflects this stucture:
 
 figure.image-display
   img(src="/resources/images/devguide/component-communication/heroes-invited-ui.png" alt="Heroes are invited")
@@ -178,20 +208,20 @@ figure.image-display
 :marked
   ### Using `@Input`
   
-  `Input` is defined in the core module of Angular, and we need to import it:
+  `Input` is defined in the core module of Angular, and we need to import it so that we can use it:
   
 +makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', 'import', null, {blk: /(Input)/g})
 
 :marked
   `@Input()` always must be used with parentheses:
 
-+makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', 'input-def', null, {pnk: /(@Input)/g})
++makeExample('component-communication/ts/src/app/invite-heroes/hero-panel.ts', 'input-def', null, {pnk: /(@Input\(\))/g})
 
 :marked
 .alert.is-critical
   :marked
     It's easy to forget the parentheses. Our application will fail mysteriously if we do.
-  
+
 :marked
   Instead of using the `@Input()` annotation, we can use the `inputs` annotation property of `@Component()` to specify input properties.
 
@@ -217,7 +247,7 @@ code-example(format='linenums', language='typescript').
   
   We have already implemented the functionality behind the __Invite heroes__ function with input data binding. The same mechanism allows us
   to implement announcing jobs. As the altered definition of `HeroPanel` shows, now it has another input property, `request`, which is used
-  in the template in two expressions:
+  within the template in two expressions:
 
 +makeExample('component-communication/ts/src/app/send-job-request/hero-panel.ts', 'component', 'send-job-request/hero-panel.ts (extract)')
 
@@ -225,24 +255,30 @@ code-example(format='linenums', language='typescript').
   As the value of `request` changes, the value of the `class` attribute is updated, as well as the text of the `<h4>` tag through the 
   `request || 'No job announced'` expression. The `HeroJobBoard` side of the input data binding is as simple as we expect:
   
-+makeExample('component-communication/ts/fragments/sending-request.ts', null, 'send-job-request/hero-job-board.ts (extract)')
++makeExample('component-communication/ts/fragments/sending-request.ts', null, 'send-job-request/hero-job-board.ts (extract)', {pnk: /(\[request\]=request)/g})
 
 :marked
-  After inviting heroes, clicking the **Ask** button invokes `announceJob()` that sets the `request` property of `HeroJobBoard` &mdash; and Angular propagates the change to all 
-  `HeroPanel` instances:
+  After inviting heroes, clicking the **Ask** button invokes `announceJob()` that sets the `request` property of `HeroJobBoard` &mdash; and Angular propagates this
+  change to all `HeroPanel` instances:
 
 figure.image-display
   img(src="/resources/images/devguide/component-communication/send-job-request-ui.png" alt="Job request is sent")
   
 :marked
+  Now, let's see how a child can communicate with its parent.
+  
   ## #2: Child to parent communication with event emitting
   
   Input property binding is an easy-to-use technique that works great in most parent-to-child communication scenarios. As the expression bound to
-  the input property changes, the modification is immediately propagated to all children. At first sight we may think that this mechanism could be
-  applied in the opposite direction, to send data from a child to its parent, Angular does not implement it.
+  the input property changes, the modification is immediately propagated to all children. At first we may think that this mechanism could be
+  applied in the opposite direction, to send data from a child to its parent.
   
-  It is a deliberate design decision. Angular was designed with _unidirectional data flow_ in mind. This approach allows better performance, 
-  and avoids issues coming from recursion when both communicating parties watch for property changes, and may change the same property, too.
+  Angular does not implement input data binding in this direction.
+  
+  It is a deliberate design decision. Angular was designed with _unidirectional data flow_ in mind. This approach allows better performance 
+  when detecting and propagating property changes, which would not be easily available with _two-directional data flow_ mechanisms. 
+  It allows avoiding issues coming from recursion, too, when both communicating parties watch for property changes and at the same time may change
+  the very same property's value.
   
   Instead of using a duplex communication channel between parent and child components, we can use two simplex channels, one from the parent to 
   a child (or children), and another one in the opposite direction, from the child to its parent. While you can use input property binding
@@ -251,18 +287,18 @@ figure.image-display
   ### Establishing output event binding
   
   The Hero Job Board application uses output event binding to sign that a hero undertakes the announced job. The `HeroPanel` component declares 
-  an output property with a type of `EventEmitter`, though which &mdash; as the type name suggests &mdash; it can emit an event. The parent 
+  an output property with a type of `EventEmitter`, through which &mdash; as the type name suggests &mdash; it can emit an event. The parent 
   `HeroJobBoard` component can use the output property to attach an event handler to that particular event.
   
-  `HeroPanel` declares the `onJobTaken` property as an output event property, as the `@Output` decorator indicates:
+  `HeroPanel` declares the `onJobTaken` output event property, as the `@Output` decorator indicates:
   
-+makeExample('component-communication/ts/src/app/take-job-event/hero-panel.ts', 'component', 'take-job-event/hero-panel.ts (extract)', {pnk: /(@Output|takeJob\(\)|onJobTaken\.next)/g})
++makeExample('component-communication/ts/src/app/take-job-event/hero-panel.ts', 'component', 'take-job-event/hero-panel.ts (extract)', {pnk: /(@Output\(\)|takeJob\(\)|onJobTaken\.next)/g})
 
 :marked
-  The `takeJob()` method invokes the `next()` method of the `onJobTaken` property, and passes the `hero` assigned to this very `HeroPanel`. 
-  The argument of `next()` is the argument of the event emitted. Thanks to the strong type notation in TypeScript, `EventEmitter` is a generic type,
+  The `takeJob()` method invokes the `next()` method of `onJobTaken`, and passes the `hero` assigned to this `HeroPanel`. 
+  The parameter of `next()` is the argument of the event emitted. Thanks to the strong type notation in TypeScript, `EventEmitter` is a generic type,
   so we could declare `onJobTaken` as an `EventEmitter<Hero>`. When we invoke `next`, the TypeScript compiler checks whether the event argument 
-  is a `Hero` instance.
+  is compatible with `Hero`.
   
   To use `@Output()` and `EventEmitter`, `HeroPanel` needs to import them:
   
@@ -270,16 +306,16 @@ figure.image-display
 
 :marked
   Now our `HeroPanel` is ready to emit its event. `HeroJobBoard` attaches its `heroTakesJob()` event handler method to the `onJobTaken` output
-  property of `HeroPanel` using the output property binding &mdash; wrapping the snake-case name of the output property, `on-job-taken` into parentheses.
-  In the output property binding expression is uses the `$event` identifier that represents the argument of the emitted event:
+  event of `HeroPanel` using the output property binding syntax &mdash; wrapping the snake-case name of the output property, `on-job-taken`, into parentheses.
+  The output property binding expression is passes the `$event` identifier that represents the argument of the emitted event:
   
 +makeExample('component-communication/ts/src/app/take-job-event/hero-job-board.ts', 'component', 'take-job-event/hero-job-board.ts', {pnk: /(\(on-job-taken\))/g, blk: /(heroTakesJob\(hero: Hero\))/g})
 
 :marked
   The event argument is the `hero` property value of `HeroPanel` that is passed to the `next()` method of the `EventEmitter` instance beyond
-  the `onJobTaken`. `HeroJobBoard` receives the `Hero` instance that undertakes the job, and adds it to its `respondingHeroes` collection.
+  `onJobTaken`. `HeroJobBoard` receives the `Hero` instance that undertakes the job, and adds it to its `respondingHeroes` array.
   
-  With output event binding, we established this communication from `HeroPanel` children to `HeroJobBoard`:
+  With output event binding, we established this communication structure from `HeroPanel` children to `HeroJobBoard`:
   
 figure.image-display
   img(src="/resources/images/devguide/component-communication/child-to-parent.png" alt="Output event binding")
@@ -300,7 +336,7 @@ figure.image-display
   
 :marked
   Instead of decorating properties with the `@Output()` annotation, `@Component()` can be used to define output properties.
-  We could have declared that `onJobTaken` is on output property by setting up the `outputs` annotation property of `@Component`:
+  We could have declared that `onJobTaken` is an output property by setting up the `outputs` annotation property of `@Component`:
   
 +makeExample('component-communication/ts/fragments/alternative-output.ts', null, null, {pnk: /(outputs)/g})
 
@@ -314,16 +350,16 @@ figure.image-display
   it may depend on its source.
   
   We can pass arguments to events, and these arguments should contain all information the parent needs to know to process the child components'
-  messages properly. We can use the non-generic `EventEmitter` type that allows usinf any type of event arguments. However, most events 
-  &mdash; as a result of careful desing &mdash; expect well-defined arguments that can be represented with strong TypeScript types.
+  messages properly. We can use the non-generic `EventEmitter` type that allows using any type of event arguments. However, we'd better use
+  events with well-defined arguments that can be represented with strong TypeScript types.
   
 .alert.is-helpful
   :marked
-    Angular encourages us to use strong event argument types whenever it's possible, as it allows us to create more maintainable and
+    Angular encourages us to use strong event argument types whenever it's possible, because it allows creating more maintainable and
     less error-prone code.
   
 :marked
-.alert.is-important
+.alert.is-critical
   :marked
     Nothing prevents us to create event argument types that pass back a reference to the child component instance to its parent so that the 
     parent component can use it directly. **It is a bad practice, we should avoid it**. Angular provides mechanisms parent components can use
@@ -539,18 +575,86 @@ figure.image-display
   img(src="/resources/images/devguide/component-communication/message-board-ui.png" alt="MessageBoard in action")
   
 :marked
-  ## #6: Parent to child communication where chidren are transposed in &mdash; using `@Query`
+  ## #6: Parent to child communication where children are transposed in &mdash; using `@ContentChildren`
   
-  _Content_
+  There are situations, when a parent component cannot influence the set of its child components, because the collection of its children is managed
+  by an external entity. However, even in this case, the parent needs to communicate with each children. How can the parent establish the communication channel 
+  to its children? Angular provides several mechanism to achive this, here we show the usage of the `@ContentChildren` annotation.
   
-  ## Conclusion
+  In the previous scenarios, the `HeroJobBoard` component managed the collection of heroes to invite:
   
-  _Content_
++makeExample('component-communication/ts/fragments/heroes-to-invite.ts', null, null, {pnk: /(invitedHeroes)/g, blk: /(Hero\.heroes)/g})
 
- 
-  ## __Do not review the subsequent sections!__ _Everything from here is old content to be removed_
+:marked
+  `HeroJobBoard` gets the collection of heroes from the `heroes` static property of the `Hero` class. This solution is pretty useful for demonstration,
+  but it does not refelect the real life. In a real application, the list of heroes is probably retrieved from the backend.
+  
+  Let's play with the idea &mdash; and it's seems realistic &mdash; that the list of heroes to invite is managed outside of `HeroJobBoard`, even it
+  changes while we use the app. The Hero Job Board application's logic requires that by the time we click the **Invite heroes** button, we need to know 
+  the list of heroes to invite, so that the corresponding `HeroPanel` components could be nested into `HeroJobBoard`.
+  
+  For the sake of simplicity, we declare the list of heroes to invite as the content of `HeroJobBoard`:
+  
++makeExample('component-communication/ts/src/app/take-job-contentchildren/job-board-with-content.ts', null, 'take-job-contentchildren/job-board-with-content.ts', {blk: /(HeroCrm)/g})
+
+:marked
+.alert.is-helpful
+  :marked
+    We need a component that can be used as the one to be the root component displayed by `router-outlet` we use in this example &mdash; that is why we
+    use `JobBoardWithContent`. Of course, we set up the routing configuration for this scenario path to use `JobBoardWithContent`as the root component displayed by
+    `router-outlet`.
   
 :marked
+  Here, we imitate that hero information is coming from our Hero CRM system, and each hero is represented by a `hero-crm` entity. Just for the sake of
+  demonstration, we add two `hero-crm` tags deliberately with markup. `HeroCrm` could be a standard component, but we implement it as a directive &mdash; 
+  a component without a view or internal logic &mdash; it only holds data:
+  
++makeExample('component-communication/ts/src/app/take-job-contentchildren/hero-crm.ts', null, 'take-job-contentchildren/hero-crm.ts')
+
+:marked
+  Both the `id` and `name` property is decorated with `@Input()` so that we can use input data binding in `JobBoardWithContent` &mdash; 
+  as we already learned it in the first scenario.
+  
+  ### Adding `@ContentChildren`
+
+  Now, our task is to inject the list of heroes into `HeroJobBoard` so that we can create the corresponding `HeroPanel` components. We are going to use
+  the `@ContentChildren` annotation of Angular. We decorate a component property with `@ContentChildren(C)`, and set the type of the property as `QueryList<C>`,
+  where `C` represents the type of the children. Here is how we use this decorator with `HeroJobBoard`:
+  
++makeExample('component-communication/ts/fragments/heroes-to-invite-2.ts', null, 'take-job-contentchildren/hero-job-board.ts (extract)', {blk: /(@ContentChildren\(HeroCrm\)|QueryList&lt;HeroCrm&gt;)/g, pnk: /(heroesToInvite)/g})
+
+:marked
+  Now, in the template definition we use `heroesToInvite` property to create the `HeroPanel` components to each hero.
+  
+  When `HeroJobBoard` is instantiated, the framework assigns a `QueryList<HeroCrm>` instance to `heroesToInvite`. At this moment this list is empty.
+  `QueryList` observes the changes of the parent component's content, updates its content accordingly. Changes in `QueryList`'s content are observed
+  by change detection, and trigger re-rendering, if necessary.
+  
+.alert.is-helpful
+  :marked
+    The `inviteHeros()` method uses the `toArray()` method of `QueryList` to convert the `QueryList<HeroCrm>` object to a `Hero[]`. Because the shape of
+    `HeroCrm` is compatible with `Hero` &mdash; they have the same properties &mdash; TypeScript allows this implicit conversion.
+    
+    The component lifecycle has an explicit point when the content of `HeroJobBoard` is collected by the framework, and then `heroesToInvite` is updated. You can hook into
+    this lifecycle event by defining the `afterContentInit()` method, and carry out any additional setup you may need to use the collection of children.
+
+:marked
+  We do not need to change any other components to complete out task. When the app is running, and the **Invite heroes** button is clicked, we 
+  can see 8 heroes instead of the 6 we saw in the previous scenarios:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/with-contentchildren-ui.png" alt="Heroes by @ContentChildren")
+  
+:marked
+  The `JobBoardWithContent` component nests 8 `hero-crm` children: 6 coming from `Hero.heroes`, and 2 others (Dynama and Magma) added with direct markup.
+  
+  ### A few additional comments about `@ContentChildren`
+  
+  * `@ContentChildren` provides a mechanism for a parent to know its children defined as content. We can use all communication techniques between the
+  parent and its children (in both direction) you already learned in this chapter.
+  * Components can have multiple `@ContentChildren` properties witch different child types.
+  * `QueryList` has a `changes` property that provides a `subscribes()` method to be notified about changes in the content children.
+  
   ## Conclusion
   
   Angular provides great communication mechanisms among components within an application. If we have components within the same tree or subtree,
@@ -567,10 +671,10 @@ figure.image-display
     * invoke its methods,
     * and subscribe to its events.
     
-  As we discussed, intermediary components are great alternatives for parent to child, and child to parent communication, too.
-  
+  As we discussed, intermediary components are great alternatives for parent to child, and child to parent communication, too. With the help of 
+  `@ContentChildren` we can transpose children into their parent, and utilize the parent-to-child or child-to-parent communication techniques we 
+  already learned.
+
   In this chapter, we identified a few issues Angular developers should be aware of when designing and implementing inter-component communication:
-  * Using a direct reference to the parent component in a child to parent communication scenario &mdash; ie. by passing down the reference
-  through data binding &mdash; is an **antipattern**. It makes the app less testable and maintainable, and makes it fragile.
-  * When working with intermediary communication components, we need to take care of designing the communication facades. We should expose only those operations to 
-  communicating parties that they need to use, and disallow invoking operations intended to be utilized only by other communication parties.
+  Using a direct reference to the parent component in a child to parent communication scenario &mdash; ie. by passing down the reference
+  through data binding &mdash; is an **antipattern**. This may break Angular's data flow, and make our app fragile.
