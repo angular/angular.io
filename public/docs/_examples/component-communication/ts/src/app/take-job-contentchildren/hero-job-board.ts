@@ -1,4 +1,4 @@
-import {Component, ContentChildren, QueryList} from 'angular2/angular2';
+import {Component, ContentChildren, QueryList} from 'angular2/core';
 import {HeroPanel} from './hero-panel';
 import {Hero} from '../hero';
 import {HeroCrm} from './hero-crm'
@@ -20,12 +20,12 @@ import {HeroCrm} from './hero-crm'
       <h3>{{jobStatus}}</h3>
       <div *ng-for="#hero of respondingHeroes" class="responding-hero">
         <span class="hero-name">{{hero.name}}</span>
-        <button>Assign</button>
+        <button [disabled]='true'>Assign</button>
       </div>
     </div>
 
     <div class='hero-panel-list'>
-      <hero-panel *ng-for='#hero of heroesToInvite'
+      <hero-panel *ng-for='#hero of invitedHeroes'
         [hero]='hero'
         [request]=request
         (on-job-taken)='heroTakesJob($event)'>

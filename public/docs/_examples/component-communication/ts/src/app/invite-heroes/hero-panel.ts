@@ -1,6 +1,6 @@
 // #docregion
 // #docregion import
-import {Component, Input} from 'angular2/angular2';
+import {Component, Input} from 'angular2/core';
 // #enddocregion import
 import {Hero} from '../hero';
 

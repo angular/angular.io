@@ -1,4 +1,4 @@
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {HeroPanel} from './hero-panel';
 
 import {Hero} from '../hero';
