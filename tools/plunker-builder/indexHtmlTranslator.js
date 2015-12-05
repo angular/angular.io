@@ -33,27 +33,27 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.46/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.47/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.46/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.47/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.46/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.47/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.46/testing.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.47/testing.js'
   },
   {
     pattern: 'link',
     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    to: 'https://cdnjs.com/libraries/twitter-bootstrap/3.3.5'
+    to: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css'
     // to: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css'
   },
   {
