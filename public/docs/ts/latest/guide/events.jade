@@ -1,0 +1,505 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  # Understanding Events
+
+  Events are an essential part of every web application that is written in JavaScript, either in the browser or on the server. Angular uses events to enable data flow out of components. We can listen, subscribe to, or emit events in our applications. In this chapter we will learn what events are and how we can use them in our Angular components or directives to tell the surrounding application that something happened.
+
+  But before we dive into events in Angular, let's first talk about events in general. What is an event? What triggers them? How are they executed? Events in JavaScript is basically a tool to notify something else that something happened inside an element. Often we want to react to a click on a button or the submission of a form and events exist for exactly that purpose.
+  
+  To react to such an event, we have to register so called **event handlers**. We've probably all set up any kind of event handler in one of the applications that we've built in the past. Maybe even without us realising it. For example, if we want some certain code to be executed when a button on our website is clicked, we have several ways to react to it. One way is to use the `onclick` attribute on the element that fires the `click` event.
+
+  ```
+  <button onclick="doSomething()">Click me!</button>
+  ```
+
+  In JavaScript land, `doSomething` would be a function on the **global scope**, which will then be executed when this button is clicked.
+
+  ```
+  function doSomething() {
+    console.log('You clicked the button!')
+  }
+  ```
+
+  Another way to register an event listener is to use the browsers DOM APIs. `addEventListener()` is a method that we can call on a DOM object to register a listener, that listens to certain events and executes corresponding handlers when these events occur.
+
+  The following code shows the imperative version of the previous example:
+
+  ```
+  var button = document.querySelector('button');
+  button.addEventListener('click', doSomething);
+  ```
+
+  Developers with a jQuery background are probably more familiar with this bit of code:
+
+  ```
+  $('button').on('click', doSomething);
+  ```
+
+  It's a different syntax, but it all boils down to adding an event listener to some element. Of course, next to `click`, there are other event types. Even though, most of the time we deal with events caused by user interactions, like `click`, `submit`, `change` or `input`, there are other things that trigger events too. For instance, if we fetch some data from a remote server using JavaScript, we do that using `XMLHttpRequest` objects, which we can interact with through events.
+  
+  ```
+  var xhr = new XMLHttpRequest();
+
+  xhr.addEventListener('load', handleResponse);
+  xhr.open('GET', 'http://example.com');
+  xhr.send();
+  ```
+  
+  Both, the `window` and the `document` objects in the browser fire events too. The `window` object notifies us, when the window size has changed. When we load a website, `document` fires a ` DOMContentLoaded` event as soon as the requested HTML document has been loaded. If there are scripts or referenced styles in the document, the browser loads them too and once all additional assets are loaded, the `document` object fires a `load` event. Here's what that could look like:
+  
+  ```
+  document.addEventListener('DOMContentLoaded', function () {
+    // do something when website is loaded
+  });
+  ```
+  
+  We can find a full list of all standard events in this [comprehensive guide](https://developer.mozilla.org/en-US/docs/Web/Events). The event-driven nature of JavaScript enables us to write asynchronous non blocking code. To get a better understanding of what that means, we highly recommend watching this [talk]() about how the browser event loop works.
+  
+  ## Event Bubbleing
+
+  Another interesting thing to note about events is the way they propagate through the DOM. We've learned that DOM objects fire events, but what happens when two objects are nested, which is quite common in the world of HTML?
+
+  Let's say we have the following markup:
+
+  ```
+  <p><a href="#">Click me!</a></p>
+  ```
+
+  When we click the `<a>` tag, we also click the `<p>` tag. So which DOM object will fire the event? The anchor or the paragraph? It turns out that most, **but not all**, DOM events bubble up the entire tree. Which means, if we click that `<a>` tag, it'll fire the `click` event and if there's an event handler registered on that object, it'll be executed. However, if that particular event handler doesn't cancel the propagation of that event, which is possible, it'll continue to bubble up, which will cause the execution of other event handlers that are registered higher in the DOM tree.
+
+  ```
+  var a = document.querySelector('a');
+  var p = document.querySelector('p');
+
+  a.addEventListener('click', function () {
+    console.log('anchor clicked!');
+  });
+
+  p.addEventListener('click', function () {
+    console.log('paragraph clicked!');
+  });
+
+  // Will log:
+  // -----------
+  // anchor clicked!
+  // paragraph clicked!
+  ```
+
+  We can actively stop the propagation though. Whenever a native DOM event is fired, the handler has access to an `event` object which comes with a couple of properties and methods we might be interested in. One of those methods is `stopPropagation()` which basically causes the event to stop to propagate:
+
+  ```
+  var a = document.querySelector('a');
+  var p = document.querySelector('p');
+
+  a.addEventListener('click', function (event) {
+    console.log('anchor clicked!');
+    event.stopPropagation();
+  });
+
+  p.addEventListener('click', function () {
+    console.log('paragraph clicked!');
+  });
+
+  // Will log:
+  // -----------
+  // anchor clicked!
+  ```
+
+  Now that we have a basic understanding of what events are and how they work, let's take a look at how Angular integrates them into the framework and how we teach our components to fire their own events.
+
+  # Events in Angular
+
+  Angular integrates native (DOM) events, but also **Custom Events** (which we haven't covered yet), very nicely due to it's implementation of [Zones](). Whenever an event occures, Angular performs a change detection to eventually update the view if needed.
+
+  There are other asynchronous operations that trigger change detection, which sums up to three things:
+
+  - **Events** - User interaction, `click`, `submit`, `input`, ...
+  - **XMLHttpRequest** - Data is returned from a remote server which cause a change in the model
+  - **Timeouts** - Some code is executed asynchronously at a later time
+
+  We don't have to do anything special to, for example, perform a `setTimeout()` that notifies the framework that something has changed, but we'll run into a new syntax to listen to events declaratively. This is due to possible Custom Events that can be fired by **Web Components**. Let's take a look at how we listen to events in Angular.
+
+  ## Listening to events
+
+  Since Angular helps us in writing web applications declaratively, it makes it super easy to listen to events in our HTML templates. In fact, we don't have to learn anything new to do the same we did earlier in this chapter. The only thing that is changes the syntax (and that for various reasons).
+
+  Let's say we have a `HeroDetail` component that displays some details of a hero:
+
+  ```
+  import {Component, Input} from 'angular2/core';
+
+  @Component({
+    selector: 'hero-detail',
+    template: `
+      <div class="hero-detail">
+        <h1>{{hero.name}}</h1>
+        <p>{{hero.description}}</p>
+        <div class="skills">
+          <h4>Skills:</h4>
+          <ul>
+            <li *ngFor="#skill of hero.skills">
+              <strong>{{skill.name}}</strong><br>
+              <p>{{skill.description}}</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    `,
+  })
+  export class HeroDetail {
+    @Input() hero: Hero;
+  }
+  ```
+
+  Nothing special going on here. `HeroDetail` has an input property `hero` that can be bound to from the outside world (as we do in Angular 2). It then displays the name, description, and a list of skills of the given `Hero` object.
+
+  Well that's cool, but it turns out that super heroes can have many super skills, which means this list of skills can be quite long. We want this list to be collapsable so that it's only shown when the user clicks on a button that toggles the list. Alright, the mission is clear: We need to add a button with a `click` handler that causes this list to toggle.
+
+  Let's do it one step at a time and add the button to our component's template:
+
+  ```
+  <div class="hero-detail">
+    <h1>{{hero.name}}</h1>
+    <p>{{hero.description}}</p>
+    <!-- we added a button right here -->
+    <button>Show skills:</button>
+    <div class="skills">
+      <h4>Skills:</h4>
+      <ul>
+        <li *ngFor="#skill of hero.skills">
+          <strong>{{skill.name}}</strong><br>
+          <p>{{skill.description}}</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+  ```
+
+  The next thing we need to do is to add an event listener for a `click` event that this button fires when it's clicked. We've learned that in vanilla JavaScript, we use DOM APIs like `addEventListener()` for this. Angular provides a nice declarative way to listen to events, which is very similar to the good old attribute event listener. The basic syntax looks like this:
+
+  ```
+  <ANY (eventName)="statementExpression()"></ANY>
+  ```
+
+  We talk about the "what" and "why" of this syntax in very deep detail in our developer guide about Angular's [template syntax](). The short version is, that we can listen to **any** DOM event, by adding the event name as attribute to the element and surround it with parenthesis. This means, all events are treated the same. If we use web components that fire their custom events, we can totally bind to them using this syntax! Whenever the given event type is emitted, the assigned statement expression is going to be called on the component that takes care of this template.
+
+  If we want to listen to the `click` event on our button and execute a `toggleSkillList()` method, it would look something like this:
+
+  ```
+  <button (click)="toggleSkillList()">Show skills</button>
+  ```
+
+  Even though this looks very similar to the `onclick=""` version, there's a big difference in how Angular approaches event handler execution that are registered declaratively. Angular never executes an expression statement on the global scope. All template expressions are evaluated in the current component, making them scoped to this particular part of the application.
+
+  This also clarifies where `toggleSkillList()` needs to be defined. Since this is the `HeroDetail` component's template, `toggleSkillList()` is expected on that component. Let's implement this method. All it does is toggling a flag that configures if the skills are displayed or not.
+
+  ```
+  export class HeroDetail {
+    @Input() hero: Hero;
+    skillsVisible: boolean = false;
+
+    toggleSkillList() {
+      this.skillsVisible = !this.skillsVisible;
+    }
+  }
+  ```
+  
+  Now that the visibility state is represented inside our component, we can use this property as an expression to also visually hide and show the skills in the template. There are several ways to do this but we'll go with a property binding that sets the value of the `display` style property.
+
+  ```
+  <div class="skills" [style.display]="skillsVisible ? 'block' : 'none'">
+    <h4>Skills:</h4>
+    <ul>
+      <li *ngFor="#skill of hero.skills">
+        <strong>{{skill.name}}</strong><br>
+        <p>{{skill.description}}</p>
+      </li>
+    </ul>
+  </div>
+  ```
+
+  How cool is that? Here's a runnable example, try it out!
+
+  [TODO(pascal): add runnable embedded example]
+
+  ## Accessing the event object
+
+  As we've mentioned ealier, when events are emitted, event handlers get access to an `Event` object that holds information about the event type and other things. How can we access this object in our component? Angular introduces a special `$event` expression that represents the event object in our template. `$event` is automatically available as local callback variable that we can pass to our event handler likes this:
+
+  ```
+  <button (click)="toggleSkillList($event)">Show skills</button>
+  ```
+
+  Now that this statement expression get an argument, we can extend `toggleSkills()` implementation accordingly:
+
+  ```
+  export class HeroDetail {
+    ...
+
+    toggleSkillList(event: Event) {
+      // do something with `event` here
+
+      this.skillsVisible = !this.skillsVisible;
+    }
+  }
+  ```
+
+  ## Emitting component events
+
+  We've learned how to listen to native and custom events declaratively in a component's template, and how to execute dedicated event handlers accordingly. One thing we realise, is that (DOM) events are always emitted by (DOM) objects. We listen to `click` events on buttons and anchor elements. We listen to `change` events on input elements. We also heard that even web components, custom elements, can fire their own custom events. But what about our Angular components? If we consume a component, from the template point of view, it's also just an element right? Can we add event listener to them too? Can they emit their own events? **Of course they can and we'll lean how!**
+
+  Our `HeroDetail` component now implements the functionality of toggling the skills, but what if the outside world wants to react to exactly that? Currently the consumer of this component isn't notified in any way when the list is toggled and we want to change that. We want that `HeroDetail` **emits** a `toggleSkills`, `displaySkills` and `hideSkills` event. How do we get there?
+
+  ### Component Outputs
+
+  In Angular, data can flow basically in two directions. It either flows **into** a component, that's when we bind to **input** properties, or it flows **out** of the component, that's when we bind to **output** events. Angular provides two decorators, `@Input()` and `@Output()`, that let us easily define what a component's inputs and outputs are. Whereas `@Input()` properties can be of any type, an `@Output()` property is always of type `EventEmitter`. An `EventEmitter` object provides APIs to emit events at certain points of time.
+
+  Let's declare outputs for the three events that our component should emit at runtime:
+
+  ```
+  import {EventEmitter, Output} from 'angular2/angular2';
+
+  @Component(...)
+  export class HeroDetail {
+    @Output() toggleSkills: EventEmitter = new EventEmitter();
+    @Output() displaySkills: EventEmitter = new EventEmitter();
+    @Output() hideSkills: EventEmitter = new EventEmitter();
+
+    ...
+  }
+  ```
+
+  The output property name is also the event typ that is going to be exposed to the outside world, allowing us to listen to `(toggleSkills)`, `(displaySkills)` and `(hideSkills)` respectively. However, if we do want to expose a different event name, we can simply do so by defining it as part of the `@Output()` decorator configuration like this:
+
+  ```
+  @Output('otherName') toggleSkills: EventEmitter = new EventEmitter();
+  ```
+  For this example we stick with the shorthand syntax.
+  
+  Great, we're almost there! The next thing we need to do is to teach our component to actually **emit** events. It really depends on the implementation of the component when events should be fired. We want that `toggleSkills` is emitted whenever the component's toggle button is clicked. We can emit events using `EventEmitter.emit()`. Let's extend our component's `toggleSkillList()` with API.
+
+  ```
+  export class HeroDetail {
+    @Output() toggleSkills: EventEmitter = new EventEmitter();
+    ...
+
+    toggleSkillList() {
+      this.skillsVisible = !this.skillsVisible;
+      this.toggleSkills.emit();
+    }
+  }
+  ```
+
+  That's it! We can now listen to this particular event using the tools we already know! Here's a simplified `HeroApp` component that uses `HeroDetail` and listens to its `toggleSkills` event.
+
+  ```
+  import {Component} from 'angular2/angular2';
+  import {HeroDetail} from './hero_detail';
+
+  @Component({
+    selector: 'hero-app',
+    template: `
+      <h1>Hero App</h1>
+      <hero-detail (toggleSkills)="doSomething()"></hero-detail>
+    `,
+    directives: [HeroDetail]
+  })
+  class HeroApp {
+
+    doSomething() {
+      alert('Skills have been toggled!');
+    }
+  }
+  ```
+
+  Implementing the other to events with the knowledge we have, is very simple. All we have to do is to emit `displaySkills` when `skillsVisible` is `true`, and `hideSkills` when it's `false`. Let's do it right away!
+
+  ```
+  export class HeroDetail {
+    ...
+
+    toggleSkillList() {
+      this.skillsVisible = !this.skillsVisible;
+      this.toggleSkills.emit();
+      (this.skillsVisible) ? this.displaySkills.emit() : this.hideSkills.emit();
+    }
+  }
+  ```
+
+  And to proof that everything's working, here's our `HeroApp` that subscribes to these events in action:
+
+  [TODO(pascal): add runnable example]
+
+  ```
+  import {Component} from 'angular2/angular2';
+  import {HeroDetail} from './hero_detail';
+
+  @Component({
+    selector: 'hero-app',
+    template: `
+      <h1>Hero App</h1>
+      <hero-detail
+        (toggleSkills)="doSomething()"
+        (displaySKills)="doSomethingElse()"
+        (hideSkills)="doAnotherThing()"
+        ></hero-detail>
+    `,
+    directives: [HeroDetail]
+  })
+  class HeroApp {
+
+    doSomething() {
+      alert('Skills have been toggled!');
+    }
+
+    doSomethingElse() {
+      alert('Skills have been displayed!');
+    }
+
+    doAnotherThing() {
+      alert('Skills have been hid!');
+    }
+  }
+  ```
+
+  ## Host Events
+
+  So far we've learned how to listen to existing and emit our own custom events. That's all we need to know right? Well, it turns out that there's yet **another** kind of event we might want to work with: **Host Events**.
+
+  Host events are simply events that are emitted by the host itself. But what is the host? As we've mentioned earlier, one thing that events have in common is that they are always emitted by a (DOM) object. If we click on a button, the button emits the `click` event. If skills in our `HeroDetail` component are displayed, it emits the `displaySkills` event. From a consumer perspective, the host is always the element we're using in our HTML template. From an author perspective, the host is the underlying element of our directive or component. Sometimes, we need to know when an event on the host event is emitted.
+
+  Imagine we want to build a simple `dropdown` directive that we can put on any element to hide and show some of its children, depending on a CSS class controlled by another directive. Let's take a look at the following markup:
+
+  ```
+  <div class="dropdown">
+    <button class="dropdown-toggle">Toggle dropdown</button>
+
+    <!-- dropdown items go here -->
+  </div>
+  ```
+
+  We want the `.dropdown` element to act as the wrapper that adds or removes the `open` class when `.dropdown-toggle` is clicked. In other words, we need two directives that listen to the `click` host events of their hosts respectively.
+
+  The first thing we do is to implement the `dropdown` directive that maintains an `open` property.
+
+  ```
+  import {Directive} from 'angular2/core';
+
+  @Directive({
+    selector: '[dropdown]',
+    host: {
+      '[class.open]': 'open'
+    }
+  })
+  class Dropdown {
+    open: boolean = false;
+  }
+  ```
+
+  We're using the `@Directive()` decorator, since we want this directive to be usable on any element. It is not a self-contained component. The host configuration simply tells Angular to add the `open` CSS class on the host element (the one where the directive is applied to), when the directive's `open` property is `true`, or remove it when it's `false` respectively. Alternatively, we could make the `open` property configurable via property binding:
+
+  ```
+  import {Input} from 'angular2/core';
+
+  class Dropdown {
+    @Input() open: boolean = false;
+  }
+  ```
+
+  Now that we have a directive that we can apply on any element to toggle an `open` CSS class depending on its dedicated property, we can easily create another directive that can be used as a "remote" to toggle that value accordingly:
+
+  ```
+  @Directive({
+    selector: '[dropdownToggle]',
+  })
+  class DropdownToggle {
+    
+    _dropdown: Dropdown;
+
+    constructor(dropdown: Dropdown) {
+      this._dropdown = dropdown;
+    }
+
+    toggleOpen() {
+      this._dropdown.open = !this._dropdown.open;
+    }
+  }
+  ```
+
+  The nice thing about Angular's [Dependency Injection](), is that we can use it to ask for other directive instances that surround our directive. `DropdownToggle` explicitely asks for a dependency of type `Dropdown`, so it expects `Dropdown` somewhere in one of its parents in the DOM/injector hierarchy. So what we're doing here is effectively asking for the next `Dropdown` instance that occurs in our DOM tree. `toggleOpen()` simply negates the `open` property of the received `Dropdown` instance.
+
+  We can apply both directives to our existing markup like this:
+
+  ```
+  <div dropdown class="dropdown">
+    <button dropdownToggle class="dropdown-toggle">Toggle dropdown</button>
+
+    <!-- dropdown items go here -->
+  </div>
+  ```
+
+  So far nothing really happens, because nothing triggers `DropdownToggle`'s `toggleOpen()` method. We want it to be executed, whenever the button is clicked. How do we do this? This is exactly where host events come into play. We can bind `toggleOpen()` to the `click` event of the element like this:
+
+  ```
+  @Directive({
+    selector: '[dropdownToggle]',
+    host: {
+      '(click)': 'toggleOpen()'
+    }
+  })
+  class DropdownToggle { 
+    ...
+  }
+  ```
+
+  This looks familiar right? It's the same syntax we use to listen to events anyway. We can take it one step further and use Angular's `HostListener()` decorator to make the code less verbose:
+
+  ```
+  import {HostListener} from 'angular2/core';
+
+  @Directive({
+    selector: '[dropdownToggle]'
+  })
+  class DropdownToggle { 
+    ...
+
+    @HostListener('click')
+    toggleOpen() {
+      this._dropdown.open = !this._dropdown.open;
+    }
+  }
+  ```
+
+  And of course, if we're interested in the event object that is usually exposed to event listeners, we can optionally pass it to our handler function like this:
+
+  ```
+  @HostListener('click', ['$event'])
+  toggleOpen(event: Event) {
+    this._dropdown.open = !this._dropdown.open;
+  }
+  ```
+
+  ## Host Events with targets
+
+  At the beginning of this chapter we said that objects like `document` and `window` emit their own events too. Sometimes we want to listen these events. Luckily, Angular provides an easy way to listen to events emitted by global objects such as `window`, `document` and `body`. All we have to do is to prefix the event name with a `[TARGET]:`.
+
+  For example, if we want to listen to the `keydown` event on the `body` because we want to close an open modal when the user presses the ESC key, we can do it like this:
+
+  ```
+  @Directive({
+    selector: '[modalContainer]'
+    host: {
+      '(body:keydown)': 'documentKeypress($event)'
+    }
+  })
+  class ModalContainer {
+    ...
+
+    documentKeypress(event: KeyboardEvent) {
+      if (event.keyCode == KeyCodes.ESCAPE) {
+        this.dialogRef.close();
+      }
+    }
+  }
+  ```
