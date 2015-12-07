@@ -3,7 +3,7 @@ var Q = require("q");
 var del = require('del')
 // delPromise is a 'promise' version of del
 var delPromise =  Q.denodeify(del);
-var globule = require('globule');
+var globby = require('globby');
 var path = require('canonical-path');
 var fs = require('fs');
 var JsDiff = require('diff');
@@ -25,7 +25,7 @@ describe('doc-shredder', function() {
       return shred(_shredOptions);
     }).then(function() {
       var mdOvrPath = path.join(_shredOptions.fragmentsDir, '**/*.ovr.*');
-      var fileNames = globule.find([mdOvrPath]);
+      var fileNames = globby.sync([mdOvrPath], { ignore: ["**/node_modules/**"] });
       var errs = [];
       fileNames.forEach(function(fileName) {
         console.log('comparing: ' + fileName);

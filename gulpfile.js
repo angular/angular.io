@@ -16,6 +16,7 @@ var fs = fsExtra;
 var exec = require('child_process').exec;
 var execPromise = Q.denodeify(exec);
 var prompt = require('prompt');
+var globby = require("globby");
 
 // TODO:
 //  1. Think about using runSequence
@@ -33,6 +34,7 @@ var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
 var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
+var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
 var _devguideShredOptions =  {
   examplesDir: path.join(DOCS_PATH, '_examples'),
@@ -53,6 +55,8 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 
+
+
 // Public tasks
 
 gulp.task('default', ['help']);
@@ -64,6 +68,23 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   var shouldRemove = taskName === 'default';
   return shouldRemove;
 }));
+
+gulp.task('add-example-symlinks', function() {
+  var realPath = path.join(EXAMPLES_PATH, '/node_modules');
+  var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
+
+  nodeModulesPaths.forEach(function(linkPath) {
+    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
+    fsUtils.addSymlink(realPath, linkPath);
+  });
+});
+
+gulp.task('remove-example-symlinks', function() {
+  var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
+  nodeModulesPaths.forEach(function(linkPath) {
+    fsUtils.removeSymlink(linkPath);
+  });
+});
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
@@ -147,9 +168,11 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
-gulp.task('check-deploy', ['build-docs'], function() {
+// gulp.task('check-deploy', ['build-docs'], function() {
+gulp.task('check-deploy', function() {
   gutil.log('running harp compile...');
   return execPromise('npm run harp -- compile . ./www', {}).then(function() {
+    gutil.log('compile ok - running live server ...');
     execPromise('npm run live-server ./www');
     return askDeploy();
   }).then(function(shouldDeploy) {
@@ -161,6 +184,8 @@ gulp.task('check-deploy', ['build-docs'], function() {
     }
   }).then(function(s) {
     gutil.log(s.join(''));
+  }).catch(function(e) {
+    gutil.log(e);
   });
 });
 
@@ -171,6 +196,8 @@ gulp.task('test-api-builder', function (cb) {
 
 
 // Internal tasks
+
+
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
@@ -198,6 +225,19 @@ gulp.task('_zip-examples', function() {
 
 
 // Helper functions
+
+function getNodeModulesPaths(basePath) {
+  var jsonPattern = path.join(basePath, "**/package.json");
+  var exceptJsonPattern = "!" + path.join(basePath, "/package.json");
+  var nmPattern =  path.join(basePath, "**/node_modules/**");
+  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
+  // same as above but perf can differ.
+  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
+  var paths = fileNames.map(function(fileName) {
+    return path.join(path.dirname(fileName), "/node_modules");
+  });
+  return paths;
+}
 
 function watchAndSync(options, cb) {
 
@@ -450,6 +490,7 @@ function addKeyValue(map, key, value) {
     map[key] = [value];
   }
 }
+
 
 // Synchronously execute a chain of commands.
 // cmds: an array of commands

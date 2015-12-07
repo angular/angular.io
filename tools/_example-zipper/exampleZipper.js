@@ -10,8 +10,7 @@ var archiver = require('archiver');
 
 var fs = require('fs');
 var mkdirp = require('mkdirp');
-
-var globule = require('globule');
+var globby = require('globby');
 
 var regionExtractor = require('../doc-shredder/regionExtractor');
 
@@ -19,7 +18,7 @@ var regionExtractor = require('../doc-shredder/regionExtractor');
 // globs is an array of globs
 function zipExamples(sourceDirName, outputDirName) {
   var gpath = path.join(sourceDirName, '**/*zipconfig.json');
-  var configFileNames = globule.find([gpath]);
+  var configFileNames = globby.sync([gpath], { ignore: ['**/node_modules/**'] });
   configFileNames.forEach(function(configFileName) {
     zipExample(configFileName, sourceDirName, outputDirName);
   });
@@ -46,7 +45,12 @@ function zipExample(configFileName, sourceDirName, outputDirName) {
   }
 
   var outputFileName = path.join(outputDirName, relativeDirName, baseFileName + ".zip");
-  var fileNames = globule.find(fileGlobs, { srcBase: configDirName, prefixBase: configDirName });
+  // old code
+  // var fileNames = globule.find(fileGlobs, { srcBase: configDirName, prefixBase: configDirName });
+  fileGlobs = fileGlobs.map(function(fileGlob) {
+    return path.join(configDirName, fileGlob);
+  });
+  var fileNames = globby.sync(fileGlobs, { ignore: ["**/node_modules/**"] });
 
   var zip = createZipArchive(outputFileName);
   fileNames.forEach(function(fileName) {
