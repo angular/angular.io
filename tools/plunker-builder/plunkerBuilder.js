@@ -4,7 +4,7 @@ var Q = require('q');
 var _ = require('lodash');
 var jsdom = require("jsdom");
 var fs = require("fs");
-var globule = require('globule');
+var globby = require('globby');
 var mkdirp = require('mkdirp');
 
 var indexHtmlTranslator = require('./indexHtmlTranslator');
@@ -20,7 +20,7 @@ function buildPlunkers(basePath, destPath, options) {
   var gpaths = configExtns.map(function(extn) {
     return path.join(basePath, '**/' + extn);
   });
-  var fileNames = globule.find(gpaths);
+  var fileNames = globby.sync(gpaths, { ignore: "**/node_modules/**"});
   fileNames.forEach(function(configFileName) {
     try {
       buildPlunkerFrom(configFileName, basePath, destPath);
@@ -94,10 +94,11 @@ function initConfigAndCollectFileNames(configFileName) {
       return path.join(basePath, fileName);
     }
   });
-  var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
+  // var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
+  var defaultExcludes = [ '!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
-  config.fileNames = globule.find(gpaths);
+  config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
   config.basePath = basePath;
   return config;
 }
