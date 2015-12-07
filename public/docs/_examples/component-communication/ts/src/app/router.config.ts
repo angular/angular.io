@@ -13,7 +13,7 @@ export const ROUTES:RouteDefinition[] = [
   {path: '/send-job-request',         name: 'Send Job Request',            component: SendJobRequest},
   {path: '/take-job-event',           name: 'Take Job (event)',            component: TakeJobEvent},
   {path: '/take-job-parentref',       name: 'Take Job (parent reference)', component: TakeJobParentRef},
-  {path: '/assign-job',               name: 'Assign Job',                  component: AssignJob},
+  {path: '/assign-job',               name: 'Assign Job (service)',        component: AssignJob},
   {path: '/message-board',            name: 'Message Board',               component: JobBoardWithMessages},
   {path: '/take-job-contentchildren', name: 'Using @ContentChildren',      component: JobBoardWithContent}
 ];

@@ -1,9 +1,8 @@
-import {Component} from 'angular2/core';
+import {Component, provide} from 'angular2/core';
 import {bootstrap} from 'angular2/platform/browser';
-
-
 import {Router, RouteConfig, RouteDefinition,
         ROUTER_DIRECTIVES, ROUTER_PROVIDERS,
+        APP_BASE_HREF,
         RouterOutlet} from 'angular2/router';
 
 import {ROUTES, LINKS} from './router.config';
@@ -23,5 +22,6 @@ import {ROUTES, LINKS} from './router.config';
 class AppComponent { }
 
 bootstrap(AppComponent, [
-  ROUTER_PROVIDERS
+  ROUTER_PROVIDERS,
+  provide(APP_BASE_HREF, {useValue: '/src/'} )
 ]);

@@ -14,7 +14,7 @@ import {MessageBus} from './message-bus';
       </ul>
     </div>
     `,
-    styleUrls: ['app/message-board.css']
+  styleUrls: ['app/hero-job-board.css']
 })
 export class MessageBoard {
   private messages: string[] = [];
