@@ -10,8 +10,8 @@ import 'package:angular2/angular2.dart';
       '(mouseleave)': 'onMouseLeave()'
     })
 class Highlight {
-  var _renderer;
-  var _el;
+  Renderer _renderer;
+  ElementRef _el;
 
   onMouseEnter() {
     _highlight("yellow");
@@ -25,8 +25,5 @@ class Highlight {
     _renderer.setElementStyle(_el, 'background-color', color);
   }
 
-  Highlight(ElementRef el, Renderer renderer) {
-    _el = el;
-    _renderer = renderer;
-  }
+  Highlight(ElementRef this._el, Renderer this._renderer);
 }

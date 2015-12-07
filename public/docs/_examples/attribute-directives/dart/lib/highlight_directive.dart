@@ -16,9 +16,10 @@ class Highlight {
     _defaultColor = (colorName ?? _defaultColor);
   }
 
-  var _renderer;
-  var _el;
-  var _defaultColor = 'red';
+  String _defaultColor = 'red';
+  Renderer _renderer;
+  ElementRef _el;
+
 
   onMouseEnter() {
     _highlight(highlightColor ?? _defaultColor);
@@ -32,8 +33,6 @@ class Highlight {
     _renderer.setElementStyle(_el, 'background-color', color);
   }
 
-  Highlight(ElementRef el, Renderer renderer) {
-    _el = el;
-    _renderer = renderer;
-  }
+  Highlight(ElementRef this._el, Renderer this._renderer);
+
 }
