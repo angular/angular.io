@@ -1,5 +1,6 @@
 // #docregion
-import {Component, bootstrap} from 'angular2/angular2';
+import {Component} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
 import {EditItem} from './edit-item';
 import {HeroesService} from './heroes-service';
 import {HeroCardComponent} from './hero-card.component';

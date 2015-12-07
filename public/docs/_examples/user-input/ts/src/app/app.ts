@@ -2,8 +2,9 @@
 
 // imports formatted for dev guide only
 // #docregion little-tour-of-heroes-app
-import {bootstrap, Component, CORE_DIRECTIVES} from 'angular2/angular2';
- 
+import {Component, CORE_DIRECTIVES} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
+
 // #enddocregion little-tour-of-heroes-app
 
 
@@ -14,7 +15,7 @@ import {bootstrap, Component, CORE_DIRECTIVES} from 'angular2/angular2';
 })
 class ClickMeComponent {
   onClickMe(){
-    alert('You are my hero!')    
+    alert('You are my hero!')
   }
 }
 // #enddocregion click-me-component
@@ -40,7 +41,7 @@ class LoopbackComponent {
 class KeyUpComponent {
   values='';
   onKey(event) {
-    this.values += event.target.value + ' | ';  
+    this.values += event.target.value + ' | ';
   }
 }
 // #enddocregion key-up-component
@@ -57,7 +58,7 @@ class KeyUpComponent {
 class KeyUpComponentV2 {
   values='';
   onKey(value) {
-    this.values += value + ' | ';  
+    this.values += value + ' | ';
   }
 }
 // #enddocregion key-up2-component
@@ -84,8 +85,8 @@ class KeyUpComponentV3 {
   template: `
     <h4>Type away! Press [enter] or mouse away when done.</h4>
     <div>
-      <input #box 
-        (keyup.enter)="values=box.value" 
+      <input #box
+        (keyup.enter)="values=box.value"
         (blur)="values=box.value">
     <div>
     <div>{{values}}</div>
@@ -102,16 +103,16 @@ class KeyUpComponentV4 {
   templateUrl: 'app/app.html',
   directives: [
     CORE_DIRECTIVES,
-    ClickMeComponent, 
-    KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3, KeyUpComponentV4, 
+    ClickMeComponent,
+    KeyUpComponent, KeyUpComponentV2, KeyUpComponentV3, KeyUpComponentV4,
     LoopbackComponent,
   ]
 })
-class AppComponent { 
+class AppComponent {
 
   onClickMe(event){
     let evtMsg = event ? ' Event target class is '+ event.target.className  : '';
-    alert('Click me.'+evtMsg)    
+    alert('Click me.'+evtMsg)
   }
 }
 
@@ -124,7 +125,7 @@ bootstrap(AppComponent);
   selector: 'little-tour',
   template: `
     <h4>Little Tour of Heroes</h4>
-    <input #new-hero 
+    <input #new-hero
       (keyup.enter)="addHero(newHero)"
       (blur)="addHero(newHero)">
     <button (click)=addHero(newHero)>Add</button>
@@ -134,10 +135,10 @@ bootstrap(AppComponent);
 })
 class LittleTour {
   heroes=['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
-  
+
   addHero(newHero) {
-    if (newHero.value) { 
-      this.heroes.push(newHero.value); 
+    if (newHero.value) {
+      this.heroes.push(newHero.value);
       newHero.value = null; // clear the newHero textbox
     }
   }

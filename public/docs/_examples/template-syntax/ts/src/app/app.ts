@@ -8,12 +8,13 @@
 
 /// #docplaster
 
-import {bootstrap, Component, CORE_DIRECTIVES,
+import {Component, CORE_DIRECTIVES,
   Input, Output,
   Directive,
   ElementRef, EventEmitter,
   NgForm, FORM_DIRECTIVES
-} from 'angular2/angular2';
+} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
 
 class Hero {
   public id:number

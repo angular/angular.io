@@ -1,4 +1,4 @@
-import {bootstrap} from 'angular2/angular2';
+import {bootstrap} from 'angular2/platform/browser';
 import {BackendService} from './backend.service';
 import {HeroService} from './hero.service';
 import {Logger} from './logger.service';

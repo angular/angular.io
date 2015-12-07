@@ -1,4 +1,4 @@
-import {bootstrap} from 'angular2/angular2';
+import {bootstrap} from 'angular2/platform/browser';
 import {AppCtorComponent} from './app-ctor';
 import {AppComponent as v1} from './app.1';
 import {AppComponent as v2} from './app.2';
