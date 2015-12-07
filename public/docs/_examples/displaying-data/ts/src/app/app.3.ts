@@ -1,6 +1,7 @@
 // #docregion
 // #docregion import-ng-if
-import {Component, bootstrap, NgFor, NgIf} from 'angular2/angular2';
+import {Component, NgFor, NgIf} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
 // #enddocregion import-ng-if
 // #docregion import-hero
 import {Hero} from './hero';

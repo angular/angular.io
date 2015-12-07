@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion full
-import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
+import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
 
 @Directive({
   selector: '[my-highlight]',

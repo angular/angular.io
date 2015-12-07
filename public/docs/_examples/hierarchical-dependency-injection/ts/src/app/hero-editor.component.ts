@@ -1,5 +1,5 @@
 // #docregion
-import {Component, Input, Output, EventEmitter} from 'angular2/angular2';
+import {Component, Input, Output, EventEmitter} from 'angular2/core';
 import {RestoreService} from './restore-service';
 import {Hero} from './hero';
 

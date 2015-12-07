@@ -1,5 +1,5 @@
 // #docregion
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Highlight} from './highlight.directive'
 
 @Component({

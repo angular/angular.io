@@ -1,6 +1,6 @@
 // #docplaster
 
-import {Component} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {Hero} from './hero';
 import {HeroDetailComponent} from './hero-detail.component';
 import {HeroService} from './hero.service'
@@ -12,7 +12,7 @@ import {HeroService} from './hero.service'
   selector:    'hero-list',
   templateUrl: 'app/hero-list.component.html',
   directives:  [HeroDetailComponent],
-// #docregion providers  
+// #docregion providers
   providers:   [HeroService]
 })
 // #enddocregion providers
@@ -25,7 +25,7 @@ export class HeroesComponent { ... }
 // #docregion class
 export class HeroListComponent {
 // #docregion ctor
-  constructor(service: HeroService) { 
+  constructor(service: HeroService) {
     this.heroes = service.getHeroes();
   }
 // #enddocregion ctor

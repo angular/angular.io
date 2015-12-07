@@ -1,8 +1,8 @@
 // #docregion
-import {Component, FORM_DIRECTIVES} from 'angular2/angular2'
+import {Component, FORM_DIRECTIVES} from 'angular2/core'
 import {ExponentialStrengthPipe} from './exponential-strength-pipe'
 
-@Component({ 
+@Component({
   selector: 'power-boost-calculator',
   template: `
     <h2>Power Boost Calculator</h2>
@@ -15,7 +15,7 @@ import {ExponentialStrengthPipe} from './exponential-strength-pipe'
   pipes: [ExponentialStrengthPipe],
   directives: [FORM_DIRECTIVES]
 })
-export class PowerBoostCalculator { 
+export class PowerBoostCalculator {
   power = 5;
   factor = 1;
 }

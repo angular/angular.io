@@ -4,13 +4,14 @@ import {PowerBoostCalculator} from './power-boost-calculator';
 import {HeroListComponent} from './hero-list-component';
 
 // #docregion hero-birthday
-import {bootstrap, Component} from 'angular2/angular2'
+import {Component} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
 
-@Component({ 
+@Component({
   selector: 'hero-birthday',
   // #docregion hero-birthday-template
   template: `<p>The hero's birthday is {{ birthday | date }}</p>`
-  // #enddocregion hero-birthday-template  
+  // #enddocregion hero-birthday-template
 })
 export class HeroBirthday {
   birthday = new Date(1988,3,15); // April 15, 1988
@@ -36,11 +37,11 @@ class MyHeroAsyncMessageComponent {
 
 //// Drives the rest of the pipes chapter examples ///
 
-@Component({ 
+@Component({
   selector: 'my-app',
   templateUrl: 'app/app.html',
   directives:[
-    HeroBirthday2, 
+    HeroBirthday2,
     PowerBooster, PowerBoostCalculator,
     MyHeroAsyncMessageComponent,
     HeroListComponent]
@@ -49,4 +50,3 @@ class AppComponent {
   birthday = new Date(1988,3,15); // April 15, 1988
 }
 bootstrap(AppComponent);
-  

@@ -1,7 +1,8 @@
 // #docplaster
 // #docregion final
 // #docregion imports
-import {Component, bootstrap, CORE_DIRECTIVES} from 'angular2/angular2';
+import {Component, CORE_DIRECTIVES} from 'angular2/core';
+import {bootstrap} from 'angular2/platform/browser';
 // #enddocregion imports
 import {Hero} from './hero'
 
