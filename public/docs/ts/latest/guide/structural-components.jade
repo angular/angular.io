@@ -1,0 +1,393 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  [Intro to Structural Components].
+  
+  In this chapter we will learn
+  
+  - [what structural components are](#definition)
+  
+  [Live example](/resources/live-examples/structural-components/ts/src/plnkr.html).
+ 
+<a id="definition"></a>
+.l-main-section
+:marked
+  ## What are structural components?
+  
+  [Talk about it]
+
+.l-main-section  
+:marked
+  ## Configurable component DOM
+  
+  We've seen how a structural directive can use a template to add and remove template content from the DOM.
+  We can do more. We can incorporate the developers content *within our directive's own template*.
+  Let's explain.
+  
+  Usually, when we add a component's tags to a template,
+  Angular discards everthing between our element's opening tag and its closing tag.
+  Consider this simple component.
+
++makeExample('structural-components/ts/src/app/my-component.component.ts')(format=".")
+:marked
+  We apply it in a parent template in the usual way:
++makeExample('structural-components/ts/src/app/my-component.component.html', 'my-component-1')(format=".")
+:marked
+  Angular displays the templated paragraph as we expect it should. The DOM looks like this:
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/my-component-content.png' alt="my-component content" width="270")
+:marked
+  We can influence the component by binding to it.
++makeExample('structural-components/ts/src/app/my-component.component.html', 'my-component-2')(format=".")
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/my-component-content-2.png' alt="my-component content #2" width="250")
+:marked
+  That's cool. But it's a limited, programmatic form of customization. 
+  It doesn't give the UI designer the flexibility
+  to put arbitrary HTML on the page that the component can manipulate and redisplay. 
+    
+  Suppose we *had* some HTML that we want the component to redisplay.
+  Logically, we'd put that HTML between our component tags. What happens when we do this?
+
++makeExample('structural-components/ts/src/app/my-component.component.html', 'my-component-3')(format=".")
+:marked
+  Too bad! Angular discards everything between the `my-component` tags and renders the component template
+  as if nothing happened. We're back to this:
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/my-component-content.png' alt="my-component content" width="270")
+:marked
+  That is not what we intended. We want Angular to **incorporate** the material between the tags
+  *within* the component's template. 
+  
+  This is a powerful idea. If we could do it, we could create reusable components that
+  manipulate *external* DOM elements, oblivious to their representation. We could also provide
+  a component with a template with which to render certain data within itself.  
+  
+  Angular 2 provides the mechanisms to do just this. Over the next sections
+  we'll see how to build such a configurable component that receives from the 
+  outside a great deal of source material that it can manipulate and project 
+  inside of himself.
+  
+  We'll focus on three main points:
+  
+  * How to projects elements in the component declaration
+  
+  * How to provide and use templates in a component
+  
+  * How to interact with components imperatively
+  
+.l-main-section  
+:marked
+  ## Heroes Dashboard
+  
+  Our example app is a dashboard from which we can get an overview of the status
+  of both our HQ, and of our heroes.
+  
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/dashboard-full.gif' alt="full dashboard")  
+
+:marked
+  Our dashboard will receive a representation of the HQ alerts from the component 
+  DOM declaration, together with a list of heroes and a template of how to 
+  represent a hero component.
+  We'll also interact with these `hero-detail` components via the `Recall all heroes` button.
+  
+  A hero is a simple class with id, name and status.
+  
+  Our main application is `my-app`, which contains a list of heroes, an alert 
+  and a function to update our alert. 
+  In its template, we have a declaration of `hero-dashboard`.
+
+  Our `hero-detail` component receives a hero to display and has a `recall()`
+  method, that will note that hero as being recalled.
+  
+  We also have a [pipe](pipes) called `hero-detail-status-pipe` that will let us 
+  filter an array of heroes by their status.
+  
+  And finally, we'll start with a barebones version of our `hero-dashboard`,
+  that we'll fill in as we go.
+  
+code-example.
+    angular2-hero-dashboard
+      ├── node_modules
+      ├── src
+      |    ├── app
+      |    |    ├── app.component.html
+      |    |    ├── app.component.ts
+      |    |    ├── boot.ts
+      |    |    ├── hero.ts
+      |    |    ├── hero-dashboard.css
+      |    |    ├── hero-dashboard.component.html
+      |    |    ├── hero-dashboard.component.ts
+      |    |    ├── hero-detail.css
+      |    |    ├── hero-detail.component.ts
+      |    |    └── hero-status.pipe.ts
+      |    ├── index.html
+      |    └── tsconfig.json
+      └── package.json
+:marked
+  Here are all of the interesting files in this application.
++makeTabs(`
+  structural-components/ts/src/app/app.component.ts, 
+  structural-components/ts/src/app/app.component.html, 
+  structural-components/ts/src/app/hero.ts,
+  structural-components/ts/src/app/hero-dashboard.component.1.ts,
+  structural-components/ts/src/app/hero-dashboard.component.1.html,
+  structural-components/ts/src/app/hero-detail.component.ts,
+  structural-components/ts/src/app/hero-status.pipe.ts`,
+  null, 
+  `app.component.ts,
+  app.component.html,
+  hero.ts,
+  hero-dashboard.component.ts,
+  hero-dashboard.component.html,
+  hero-detail.component.ts,
+  hero-status.pipe.ts`)
+
+:marked
+  At this point we don't see much. We have a header, space for the HQ alerts,
+  lanes for each hero status, and a button.
+  
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/dashboard-empty.png' alt="empty dashboard")
+
+:marked
+  But first, let's dive a bit deeper into DOM.
+
+.l-main-section  
+:marked
+  ## A tale of three DOMs
+  
+  We are used to seeing only one DOM - the one containing the elements in our layout. 
+  In Angular we call this the "light" or the "view" DOM. 
+  
+  But now we see that with structural directives, a component's own template DOM may supersede this light DOM.
+  What's the point of this?
+  
+  The answer lies in [Shadow Dom](http://webcomponents.org/polyfills/shadow-dom/),
+  a part of the [Web Components Spec](http://w3c.github.io/webcomponents/spec/shadow/).
+  Angular uses Shadow DOM emulation by default, but can be configured to either
+  use a native browser Shadow DOM implementation, or to not use it at all.
+  
+  Shadow DOM lets Angular 2 encapsulate a components DOM. This is why styles
+  we declare for a component don't leak out and affect other components.
+  Everything is nice and tidy inside our components.
+  
+  According to the spec, we have can have a total of *three* DOM trees inside an
+  element: **light DOM**, **shadow DOM** and **composed DOM**.
+  
+  **Light DOM** is what we see when *using* a component. It's what component
+  consumers interact with, and how they can give component creators some DOM
+  for them to use. In our previous example, this was the light DOM:
+  
++makeExample('structural-components/ts/src/app/my-component.component.html', 'my-component-4')(format=".")
+
+:marked
+  **Shadow DOM** is what we see when *creating* a component. It's what component
+  creators interact with, and what they use to structure their components.
+  Templates is where we keep our shadow DOM in angular.
+
++makeExample('structural-components/ts/src/app/my-component.component.ts')(format=".")
+
+:marked
+  **Composed DOM** is what the browser ultimately renders, and thus what we see
+  in the browser.
+  
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/my-component-content.png' alt="my-component content")
+
+:marked
+  So when we talked about projection and using externally provided DOM inside
+  our components, what we meant was that we were going to declare elements in 
+  the *light DOM* and use them from within our *shadow DOM*, creating the 
+  *composed DOM* that the browser will render. 
+  
+  The projected light DOM elements still remain in their original context as
+  far as bindings are concerned - they are merely being *rendered* inside 
+  another component. 
+  
+  This is important because they will still use their inputs and outputs from
+  the component where they are *declared*, and not where they are *displayed*.
+  
+  Knowing this, how is projection related to the templates?
+  It is true that the original template is in a components light DOM, but it's
+  used as a 'inert' master copy from which instances are stamped out within the
+  shadow DOM. 
+  For this reason, these copies will use bindings found *within* the component
+  instead of using the parent components bindings in the light DOM.
+  
+.l-main-section  
+:marked
+  ## Element projection
+  
+  Projection in Angular 2 is done via the `<ng-content>` component. It takes
+  a CSS selector via the `select` attribute, which it'll use to choose which
+  elements from the parent component to project.
+  
+  In the case of our dashboard, we want to pull in the following element found
+  in the parent component template:
+  
++makeExample('structural-components/ts/src/app/app.component.html', 'alert', 'app.component.html')(format=".")
+  
+:marked
+  A simple way to select this element is via the `span.alert` selector. To slot
+  it into our `hero-dashboard` template, all we have to do is add in an
+  `ng-content` with that selector:
+
++makeExample('structural-components/ts/src/app/hero-dashboard.component.html', 'ng-content-alert', 'hero-dashboard.component.html')(format=".")  
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/ng-content-alert.png' alt="ng-content projection alert")
+  
+:marked
+  And here we have it! We should be mindful though: if our selector had picked
+  up more than one element, `ng-content` would display them all one after the 
+  other, in the order found in the light DOM.
+  
+  There's another important bit here: the click handler on alert. Our dashboard
+  doesn't have any `updateAlert` method, yet...
+  
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/projection-bindings.gif' alt="projection bindings")
+    
+:marked
+  The binding still works! Its calling the method defined in our parent
+  component, `AppComponent`.
+  
++makeExample('structural-components/ts/src/app/app.component.ts', 'alert', 'app.component.ts')(format=".")    
+
+:marked
+  This makes sense if we think about it. The alert is being *rendered* in
+  our dashboard, but it still very much exists and is part of `AppComponent`.
+  In fact, if it wasn't so, the initial alert text wouldn't appear either since
+  it's a binding on `AppComponent` as well.
+
+.l-main-section  
+:marked
+  ## Templates for components
+  
+  Our dashboard also takes in a template of how should heroes be rendered.
+  Notice the `#hero` [local template variable](template-syntax.html#local-vars),
+  it's going to be very relevant soon.
+
++makeExample('structural-components/ts/src/app/app.component.html', 'template', 'app.component.html')(format=".")
+
+:marked
+  To reference this template from within our component we will use our familiar
+  `TemplateRef` but this time we will not inject it in the constructor.
+  
+  Instead, we will use the `ContentChild` annotation. This annotation takes
+  a component, finds the its **first** instance in the current components light 
+  DOM, and binds it to the annotated variable.
+  
++makeExample('structural-components/ts/src/app/hero-dashboard.component.ts', 'content-child', 'hero-dashboard.component.js')(format=".")
+
+:marked
+  When trying to find `<template>` we have to use the `TemplateRef` as argument
+  for the `ContentChild` annotation. This is because `<template>` is a very
+  special core part of Angular 2 - not quite a standalone component, but rather 
+  a fundamental part of the framework.
+  
+  If we wanted to find another component - say, `hero-detail` - we could query
+  `@ContentChild(HeroDetailComponent) heroDetail: HeroDetailComponent;` instead.
+  
+  Doing this in our `HeroDashboardComponent` right now wouldn't give us anything
+  though. Which is odd, since the the light DOM for `<hero-dashboard>` clearly
+  has `<hero-detail [hero]="hero"></hero-detail>`.
+  
+  This ties back into templates - they are 'inert' as we saw 
+  [before](#a-tale-of-three-doms). Their content is not instantiated, thus
+  our light DOM does not contain any `<hero-detail>`, only a template.
+  
+  Now we have a hold of the template in `heroTmpl`. To render it, we will use
+  a `ngFor` with a twist - we're going to give it a `TemplateRef` via the
+  `[ngFor-template]` binding.
+  
+  This is also where the `#hero` that we saw earlier in the template comes into 
+  play. `ngFor` will assign the current element to the template's local variable.
+  
++makeExample('structural-components/ts/src/app/hero-dashboard.component.html', 'ngFor-template', 'hero-dashboard.component.html')(format=".")
+
+:marked
+  This way we can stamp out in our dashboards shadow DOM copies of the template
+  provided in its light DOM. Our dashboard never even knew what these look like!
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/ngFor-template.png' alt="ngFor-template")
+  
+.l-main-section  
+:marked
+  ## Components as first-class citizens
+  
+  At this point we're interacting with instantiated, 'living' components at 
+  quite a high level. We can declare them, send them over to over to be rendered
+  elsewhere and even use them as templates for other components content.
+  
+  The only thing missing is to talk to them directly. Our `HeroDetailComponent`
+  has a `recall` method inside of it that we'd like to access:
+  
++makeExample('structural-components/ts/src/app/hero-detail.component.ts', 'recall', 'hero-detail.component.js')(format=".")
+
+:marked
+  We now have many `<hero-detail>` inside our dashboard, each with a different
+  hero. Specifically, inside the shadow DOM.
+  
+  To get a hold of this list of `HeroDetailComponent`, we can use the 
+  `@ViewChildren` annotation. There is a certain similarity between this 
+  annotation and the similarly named one in the previous section.
+  
+  `@ContentChild` gives us the **first** component of a type inside the 
+  **shadow DOM**, whereas `@ContentChildren` would give us a list of **all**
+  of them.
+  
+  `@ViewChild` gives us the **first** component of a type inside the 
+  **light DOM**, whereas `@ViewChildren` would give us a list of **all**
+  of them.
+  
+  Lists given by `@ContentChildren` and `@ViewChildren` are of the `QueryList`
+  type, and guaranteed to always the current, up to date components.
+  
+  Even though the `HeroDetail` component are declared in the template present in 
+  the light DOM, our copies of it were stamped out *inside* the shadow DOM for
+  `HeroDashboardComponent` by `ngFor`. Thus we must make use of `@ViewChildren` 
+  instead of `@ContentChildren`.
+  
+  Having these components, we can now interact with them. Since they are just
+  DOM elements we can simply access their properties and methods directly.
+  
++makeExample('structural-components/ts/src/app/hero-dashboard.component.ts', 'view-children', 'hero-dashboard.component.js')(format=".")
+
+:marked
+  Now when we click our button, the `recall` method will be called on all 
+  `HeroDetail` components present inside the dashboard.
+  
+.l-main-section  
+:marked
+  ## Finished dashboard
+  
+  And thus, our dashboard component is now finished! It should function
+  like shown initially:
+  
+figure.image-display
+  img(src='/resources/images/devguide/structural-components/dashboard-full.gif' alt="full dashboard")
++makeTabs(`
+  structural-components/ts/src/app/hero-dashboard.component.ts,
+  structural-components/ts/src/app/hero-dashboard.component.html`,
+  null, 
+  `hero-dashboard.component.ts,
+  hero-dashboard.component.html`)
+
+.l-main-section  
+:marked
+  ## Wrapping up
+  
+  That was a lot to take in! But we've finished this chapter richer for all
+  we've learned. Let's recap:
+  
+  - We saw how structural directives instantiate fresh copies of a template
+  - We created our own structural directive
+  - We learned the about light and shadow DOM
+  - We created the component that took projected light DOM content
+  - We stamped out copies of a light DOM template
+  - We interacted directly with components within our component
