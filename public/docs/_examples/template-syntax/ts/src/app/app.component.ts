@@ -1,4 +1,5 @@
-import {Component, NgForm} from 'angular2/core';
+import {Component} from 'angular2/core';
+import {NgForm} from 'angular2/common';
 
 import {Hero} from './hero';
 import {HeroDetailComponent, BigHeroDetailComponent} from './hero-detail.component';
