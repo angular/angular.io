@@ -9,7 +9,7 @@ module.exports = function createCheatsheetDoc(createDocMessage, renderMarkdown) 
       var cheatsheetDoc = {
         id: 'cheatsheet',
         aliases: ['cheatsheet'],
-        docType: 'json-data',
+        docType: 'cheatsheet-data',
         sections: []
       };
 
