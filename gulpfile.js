@@ -101,6 +101,10 @@ gulp.task('build-plunkers', function() {
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
+gulp.task('build-dart-cheatsheet', [], function() {
+  return buildApiDocs('dart');
+});
+
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
   if (argv.after) {
@@ -290,15 +294,21 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
 
 // Generate the API docs for the specified language, if not specified then it defaults to ts
 function buildApiDocs(targetLanguage) {
-  var ALLOWED_LANGUAGES = ['ts', 'js'];
+  var ALLOWED_LANGUAGES = ['ts', 'js', 'dart'];
+  var GENERATE_API_LANGUAGES = ['ts', 'js'];
   checkAngularProjectPath();
   try {
     // Build a specialized package to generate different versions of the API docs
     var package = new Package('apiDocs', [require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
-    package.config(function(targetEnvironments, writeFilesProcessor) {
+    package.config(function(targetEnvironments, writeFilesProcessor, readTypeScriptModules) {
       ALLOWED_LANGUAGES.forEach(function(target) { targetEnvironments.addAllowed(target); });
       if (targetLanguage) {
         targetEnvironments.activate(targetLanguage);
+
+        if (GENERATE_API_LANGUAGES.indexOf(targetLanguage) === -1) {
+          // Don't read TypeScript modules if we are not generating API docs - Dart I am looking at you!
+          readTypeScriptModules.$enabled = false;
+        }
         writeFilesProcessor.outputFolder  = targetLanguage + '/latest/api';
       }
     });

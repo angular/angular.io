@@ -101,6 +101,12 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     pathTemplate: path.resolve(PUBLIC_PATH, 'resources/js/${id}'),
     outputPathTemplate: '${path}.json'
   });
+
+  computePathsProcessor.pathTemplates.push({
+    docTypes: ['cheatsheet-data'],
+    pathTemplate: '../guide/cheatsheet.json',
+    outputPathTemplate: '${path}'
+  });
 })
 
 .config(function(getLinkInfo) {

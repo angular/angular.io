@@ -31,10 +31,6 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     vm.apiList = response.data;
   });
 
-  $http.get('/resources/js/cheatsheet.json').then(function(response) {
-    vm.cheatsheet = response.data;
-  });
-
   vm.showDocsNav = false;
   vm.showMainNav = false;
   vm.showMenu    = false;
@@ -71,10 +67,6 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
   ];
   vm.apiType     = '';
   vm.apiFilter   = '';
-
-  vm.getSafeHtml = function(html) {
-    return $sce.trustAsHtml(html);
-  };
 
   /*
    * Prettify Code
