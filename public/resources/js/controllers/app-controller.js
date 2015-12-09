@@ -69,9 +69,11 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     { name: 'angular2/common', title: 'angular2/common' },
     { name: 'angular2/animate', title: 'angular2/animate' },
     { name: 'angular2/http', title: 'angular2/http' },
+    { name: 'angular2/http/testing', title: 'angular2/http/testing' },
     { name: 'angular2/instrumentation', title: 'angular2/instrumentation' },
     { name: 'angular2/platform/browser', title: 'angular2/platform/browser' },
     { name: 'angular2/router', title: 'angular2/router' },
+    { name: 'angular2/router/testing', title: 'angular2/router/testing' },
     { name: 'angular2/testing', title: 'angular2/testing' }
   ];
   vm.apiType     = '';
