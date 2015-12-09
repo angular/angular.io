@@ -55,6 +55,15 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     else vm.apiType = type;
   };
 
+  vm.openFeedback = function() {
+    var configuration = {
+      'productId': '410509',
+      'authuser': '1',
+      'bucket': 'angulario'
+    };
+    userfeedback.api.startFeedback(configuration);
+  };
+
   vm.apiSections = [
     { name: 'angular2/core', title: 'angular2/core' },
     { name: 'angular2/common', title: 'angular2/common' },
