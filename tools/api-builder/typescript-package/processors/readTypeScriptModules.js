@@ -214,7 +214,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
       location: getLocation(exportSymbol)
     };
 
-    if (exportDoc.docType === 'var' || exportDoc.docType === 'const') {
+    if (exportDoc.docType === 'var' || exportDoc.docType === 'const' || exportDoc.docType === 'let') {
       exportDoc.symbolTypeName = exportSymbol.valueDeclaration.type &&
                                  exportSymbol.valueDeclaration.type.typeName &&
                                  exportSymbol.valueDeclaration.type.typeName.text;

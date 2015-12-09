@@ -56,6 +56,24 @@ module.exports = function createCompilerHost(log) {
       },
       getNewLine: function() {
         return ts.sys.newLine;
+      },
+      fileExists(fileName) {
+        var text, resolvedPath, resolvedPathWithExt;
+
+        // Strip off the extension and resolve relative to the baseDir
+        baseFilePath = fileName.replace(/\.[^.]+$/, '');
+        resolvedPath = path.resolve(baseDir, baseFilePath);
+
+        // Iterate through each possible extension and return the first source file that is actually found
+        for(var i=0; i<extensions.length; i++) {
+          // Try reading the content from files using each of the given extensions
+          resolvedPathWithExt = resolvedPath + extensions[i];
+          if (fs.existsSync(resolvedPathWithExt)) return true;
+        }
+        return false;
+      },
+      readFile(fileName) {
+        console.log('readFile - NOT IMPLEMENTED', fileName);
       }
     };
   };
