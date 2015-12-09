@@ -1,3 +1,4 @@
+// #docregion
 library developer_guide_intro.hero_detail_component;
 
 import 'package:angular2/angular2.dart';

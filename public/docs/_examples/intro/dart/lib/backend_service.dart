@@ -1,3 +1,4 @@
+// #docregion
 library developer_guide_intro.backend_service;
 
 import 'package:angular2/angular2.dart';
@@ -6,7 +7,7 @@ import 'package:developer_guide_intro/hero.dart';
 
 @Injectable()
 class BackendService {
-  var _logger;
+  Logger _logger;
   getAll(type) {
     // TODO get from the database and return as a promise
     if (type == Hero) {
@@ -20,7 +21,5 @@ class BackendService {
     throw new Error();
   }
 
-  BackendService() {
-    _logger = new Logger();
-  }
+  BackendService(Logger this._logger);
 }

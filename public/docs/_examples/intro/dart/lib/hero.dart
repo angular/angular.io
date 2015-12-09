@@ -1,3 +1,4 @@
+// #docregion
 library developer_guide_intro.hero;
 
 class Hero {
