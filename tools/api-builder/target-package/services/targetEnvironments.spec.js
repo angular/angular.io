@@ -28,7 +28,7 @@ describe('target inline-tag-def', function() {
       te.removeAllowed('b');
       expect(te.isActive('a')).toBe(false);
       expect(function() { te.isActive('b'); })
-          .toThrow('Error accessing target "b". It is not in the list of allowed targets: a');
+          .toThrowError('Error accessing target "b". It is not in the list of allowed targets: a');
     });
   });
 
@@ -99,7 +99,7 @@ describe('target inline-tag-def', function() {
       expect(te.someActive([])).toBe(false);
 
       expect(function() { te.someActive('d'); })
-          .toThrow('Error accessing target "d". It is not in the list of allowed targets: a,b,c');
+          .toThrowError('Error accessing target "d". It is not in the list of allowed targets: a,b,c');
     });
   });
 });
