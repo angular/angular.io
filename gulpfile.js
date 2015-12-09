@@ -83,7 +83,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
 
 gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
   return buildShredMaps(true);
