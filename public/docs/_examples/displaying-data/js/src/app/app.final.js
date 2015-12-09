@@ -1,7 +1,8 @@
 // #docplaster
 // #docregion final
+(function() {
 
-var MyApp = ng.Component({
+var AppComponent = ng.Component({
   selector: 'my-app',
   templateUrl: 'app/app.final.html'
 })
@@ -19,6 +20,7 @@ var MyApp = ng.Component({
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  ng.bootstrap(MyApp);
+  ng.bootstrap(AppComponent);
 });
 //#enddocregion final
+})();
