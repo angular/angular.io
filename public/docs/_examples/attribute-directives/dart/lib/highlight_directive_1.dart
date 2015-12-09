@@ -5,8 +5,8 @@ import 'package:angular2/angular2.dart';
 
 @Directive(selector: '[my-highlight]')
 class Highlight {
-  Highlight(ElementRef el, Renderer renderer) {
+  Highlight(ElementRef element, Renderer renderer) {
     //el.nativeElement.style.backgroundColor = 'yellow';
-    renderer.setElementStyle(el, 'background-color', 'yellow');
+    renderer.setElementStyle(element, 'background-color', 'yellow');
   }
 }
