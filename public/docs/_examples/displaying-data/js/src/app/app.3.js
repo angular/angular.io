@@ -3,11 +3,8 @@
 
 var AppComponent = ng.Component({
   selector: 'my-app',
-  // #docregion template
   templateUrl: 'app/app.3.html'
-  // #enddocregion template
 })
-// #docregion class
 .Class({
   constructor: function() {
     this.title = 'Tour of Heroes';
@@ -23,9 +20,9 @@ var AppComponent = ng.Component({
   }
 });
 
-// #enddocregion class
 document.addEventListener('DOMContentLoaded', function () {
   ng.bootstrap(AppComponent);
 });
-// #enddocregion
+
 })();
+// #enddocregion

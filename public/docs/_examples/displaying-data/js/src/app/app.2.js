@@ -3,9 +3,7 @@
 
 var AppComponent = ng.Component({
   selector: 'my-app',
-  // #docregion template
   templateUrl: 'app/app.2.html',
-  // #enddocregion template
 })
 // #docregion mock-heroes
 .Class({
@@ -15,10 +13,11 @@ var AppComponent = ng.Component({
     this.myHero = this.heroes[0];
   }
 });
-
 // #enddocregion mock-heroes
+
 document.addEventListener('DOMContentLoaded', function () {
   ng.bootstrap(AppComponent);
 });
-// #enddocregion
+
 })();
+// #enddocregion
