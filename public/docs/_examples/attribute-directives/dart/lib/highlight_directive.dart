@@ -1,4 +1,5 @@
-// #docregion
+// #docplaster
+// #docregion full
 library attribute_directives.highlight_directive;
 
 import 'package:angular2/angular2.dart';
@@ -9,22 +10,39 @@ import 'package:angular2/angular2.dart';
       '(mouseenter)': 'onMouseEnter()',
       '(mouseleave)': 'onMouseLeave()'
     })
+// #docregion class-1
 class Highlight {
+  // #enddocregion class-1
+// #enddocregion full
+  /*
+// #docregion highlight
+  @Input() myHighlight: string;
+// #enddocregion highlight
+  */
+// #docregion full
+// #docregion class-1
+// #docregion color
   @Input('my-highlight') String highlightColor;
-
-  @Input() set defaultColor(String colorName){
-    _defaultColor = (colorName ?? _defaultColor);
-  }
+// #enddocregion color
 
   String _defaultColor = 'red';
+  // #enddocregion class-1
+  // #docregion defaultColor
+  @Input() set defaultColor(String colorName) {
+    _defaultColor = (colorName ?? _defaultColor);
+  }
+  // #enddocregion defaultColor
+// #docregion class-1
+
   Renderer _renderer;
   ElementRef _element;
 
-
+// #docregion mouse-enter
   onMouseEnter() {
     _highlight(highlightColor ?? _defaultColor);
   }
 
+// #enddocregion mouse-enter
   onMouseLeave() {
     _highlight(null);
   }
@@ -34,5 +52,6 @@ class Highlight {
   }
 
   Highlight(ElementRef this._element, Renderer this._renderer);
-
 }
+// #enddocregion class-1
+// #enddocregion full
