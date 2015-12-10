@@ -122,7 +122,7 @@ export class AppComponent {
   // #docregion setStyles2
   setStyles2() {
     return {
-      // camelCase style properties works too
+      // camelCase style properties work too
       fontStyle:  this.canSave      ? 'italic' : 'normal',  // italic
       fontWeight: !this.isUnchanged ? 'bold'   : 'normal',  // normal
       fontSize:   this.isSpecial    ? 'x-large': 'smaller', // larger
