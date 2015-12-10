@@ -3,6 +3,10 @@ module.exports = {
 };
 
 var _rxRules = {
+  basehref: {
+    from: /<base href=".*">/,
+    to: '<script>document.write(\'<base href="\' + document.location + \'" />\');</script>'
+  },
   script: {
     from: /<script.*".*%tag%".*>.*<\/script>/,
     to: '<script src="%tag%"></script>'
@@ -25,6 +29,9 @@ var _rxRules = {
 
 var _rxData = [
   {
+    pattern: 'basehref',
+  },
+  {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
     to:   ['https://rawgithub.com/systemjs/systemjs/0.19.6/dist/system.js', 'https://code.angularjs.org/tools/typescript.js']
@@ -33,22 +40,22 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.47/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.51/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.47/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.51/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.47/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.51/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.47/testing.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.51/testing.js'
   },
   {
     pattern: 'link',
