@@ -6,6 +6,7 @@ import 'package:angular2/bootstrap.dart';
 import 'package:displaying_data/app_component_final.dart' as v4;
 
 main() {
+// pick one
 //  bootstrap(v1.AppComponent);
 //  bootstrap(v2.AppComponent);
 //  bootstrap(v3.AppComponent);

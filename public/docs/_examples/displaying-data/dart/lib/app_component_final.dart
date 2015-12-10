@@ -1,7 +1,10 @@
-// #docregion
+// #docplaster
+// #docregion final
 library displaying_data.app_component_final;
 
+// #docregion imports
 import 'package:angular2/angular2.dart';
+// #enddocregion imports
 import 'package:displaying_data/hero.dart';
 
 final List<Hero> _heroes = [
@@ -22,11 +25,23 @@ final List<Hero> _heroes = [
     {{ hero.name }}
   </li>
 </ul>
-<p *ng-if="heroes.length > 3">There are many heroes!</p>''',
-    directives: const [CORE_DIRECTIVES])
+<!--#docregion message-->
+<p *ng-if="heroes.length > 3">There are many heroes!</p>
+<!--#enddocregion message-->
+''',
+// #docregion directives
+    directives: const [CORE_DIRECTIVES]
+// #enddocregion directives
+    )
 class AppComponent {
   String title = 'Tour of Heroes';
   List<Hero> heroes = _heroes;
   Hero myHero = _heroes[0];
 }
-// #enddocregion
+//#enddocregion final
+/*
+// #docregion final
+
+bootstrap(AppComponent);
+//#enddocregion final
+*/

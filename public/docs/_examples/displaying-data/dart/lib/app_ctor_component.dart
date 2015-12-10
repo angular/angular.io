@@ -8,6 +8,7 @@ import 'package:angular2/angular2.dart';
     template: '''
 <h1>{{title}} [Ctor version]</h1>
 <h2>My favorite hero is: {{myHero}}</h2>''')
+// #docregion app-ctor
 class AppCtorComponent {
   String title;
   String myHero;
@@ -17,4 +18,4 @@ class AppCtorComponent {
     this.myHero = 'Windstorm';
   }
 }
-// #enddocregion
+// #enddocregion app-ctor
