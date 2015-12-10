@@ -28,9 +28,9 @@ module.exports = function addJadeDataDocsProcessor() {
       var modules = [];
 
       var appDataDoc = {
-        id: 'app-data',
-        aliases: ['app-data'],
-        docType: 'json-data',
+        id: 'api-list-data',
+        aliases: ['api-list-data'],
+        docType: 'api-list-data',
         data: {}
       };
       extraDocs.push(appDataDoc);
