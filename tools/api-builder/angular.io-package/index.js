@@ -99,9 +99,9 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   });
 
   computePathsProcessor.pathTemplates.push({
-    docTypes: ['json-data'],
-    pathTemplate: path.resolve(PUBLIC_PATH, 'resources/js/${id}'),
-    outputPathTemplate: '${path}.json'
+    docTypes: ['api-list-data'],
+    pathTemplate: 'api-list.json',
+    outputPathTemplate: '${path}'
   });
 
   computePathsProcessor.pathTemplates.push({

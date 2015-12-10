@@ -1,14 +1,10 @@
 /*
- * Apllication Controller
+ * Application Controller
  *
  */
 
 angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', function ($mdDialog, $timeout, $http, $sce) {
   var vm = this;
-
-  $http.get('/resources/js/app-data.json').then(function(response) {
-    vm.apiList = response.data;
-  });
 
   vm.showDocsNav = false;
   vm.showMainNav = false;
@@ -29,11 +25,6 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     vm.showMenu = !vm.showMenu;
   };
 
-  vm.setType = function (type) {
-    if (type === vm.apiType) vm.apiType = '';
-    else vm.apiType = type;
-  };
-
   vm.openFeedback = function() {
     var configuration = {
       'productId': '410509',
@@ -42,21 +33,6 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     };
     userfeedback.api.startFeedback(configuration);
   };
-
-  vm.apiSections = [
-    { name: 'angular2/core', title: 'angular2/core' },
-    { name: 'angular2/common', title: 'angular2/common' },
-    { name: 'angular2/animate', title: 'angular2/animate' },
-    { name: 'angular2/http', title: 'angular2/http' },
-    { name: 'angular2/http/testing', title: 'angular2/http/testing' },
-    { name: 'angular2/instrumentation', title: 'angular2/instrumentation' },
-    { name: 'angular2/platform/browser', title: 'angular2/platform/browser' },
-    { name: 'angular2/router', title: 'angular2/router' },
-    { name: 'angular2/router/testing', title: 'angular2/router/testing' },
-    { name: 'angular2/testing', title: 'angular2/testing' }
-  ];
-  vm.apiType     = '';
-  vm.apiFilter   = '';
 
   /*
    * Prettify Code
