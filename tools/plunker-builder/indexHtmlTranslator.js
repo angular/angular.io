@@ -4,7 +4,7 @@ module.exports = {
 
 var _rxRules = {
   basehref: {
-    from: /<base href=".*">/,
+    from: /<base href=".*"[/]?>/,
     to: '<script>document.write(\'<base href="\' + document.location + \'" />\');</script>'
   },
   script: {
