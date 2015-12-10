@@ -322,14 +322,16 @@ function apiExamplesWatch(postShredAction) {
 function devGuideExamplesWatch(shredOptions, postShredAction) {
   var includePattern = path.join(shredOptions.examplesDir, '**/*.*');
   var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
-  gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
+  // removed this version because gulp.watch has the same glob issue that dgeni has.
+  // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
+  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**']});
+  gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
     return docShredder.shredSingleDir(shredOptions, event.path).then(postShredAction);
   });
 }
-
 
 
 // Generate the API docs for the specified language, if not specified then it defaults to ts

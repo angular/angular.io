@@ -6,6 +6,7 @@ var del = require('del');
 var delPromise =  Q.denodeify(del);
 var Dgeni = require('dgeni');
 var _ = require('lodash');
+var globby = require('globby');
 
 var shred = function(shredOptions) {
   try {
@@ -74,7 +75,7 @@ function createShredPackage(shredOptions) {
       readFilesProcessor.basePath = "/";
 
       // Specify collections of source files that should contain the documentation to extract
-      var extns = ['*.js', '*.html', '*.ts', '*.css', '*.json', '*.dart', '*.yaml' ];
+      var extns = ['*.ts', '*.html', '*.js', '*.css', '*.json', '*.dart', '*.yaml' ];
       var includeFiles = extns.map(function(extn) {
         if (options.includeSubdirs) {
           return path.join(options.examplesDir, '**', extn);
@@ -82,10 +83,16 @@ function createShredPackage(shredOptions) {
           return path.join(options.examplesDir, extn);
         }
       });
+
+      // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
+      // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
+      var nmPattern = '**/node_modules/**';
+      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
-        include: includeFiles,
-        exclude: ['**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**'],
+        include: includeFiles ,
+        exclude: [ '**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.examplesDir
@@ -128,9 +135,17 @@ var createShredMapPackage = function(mapOptions) {
           return path.join(options.jadeDir, extn);
         }
       });
+
+      // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
+      // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
+      var nmPattern = '**/node_modules/**';
+      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+
+
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles,
+        exclude: ['**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.jadeDir
