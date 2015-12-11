@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion full
-import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
+import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
 
 @Directive({
-  selector: '[my-highlight]',
+  selector: '[myHighlight]',
   host: {
     '(mouseenter)': 'onMouseEnter()',
     '(mouseleave)': 'onMouseLeave()'
@@ -22,7 +22,7 @@ export class Highlight {
 // #docregion full
 // #docregion class-1
 // #docregion color
-  @Input('my-highlight') highlightColor: string;
+  @Input('myHighlight') highlightColor: string;
 // #enddocregion color
 
   private _defaultColor = 'red';
@@ -42,7 +42,7 @@ export class Highlight {
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color:string) {
-    this.renderer.setElementStyle(this.el, 'background-color', color);
+    this.renderer.setElementStyle(this.el, 'backgroundColor', color);
   }
 }
 // #enddocregion class-1
