@@ -1,5 +1,5 @@
 // #docregion
-import {Component, bootstrap} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 
 @Component({
   selector: 'my-app',
@@ -14,5 +14,3 @@ export class AppComponent {
   title = 'Tour of Heroes';
   myHero = 'Windstorm';
 }
-
-bootstrap(AppComponent);
