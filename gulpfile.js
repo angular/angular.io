@@ -69,6 +69,14 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
+gulp.task('enforce-example-boilerplate', function() {
+  var sourceFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js'].map(function(fn) {
+    return path.join(EXAMPLES_PATH, fn);
+  });
+  var packagePaths = getPackagePaths(EXAMPLES_PATH);
+  return copyFiles(sourceFiles, packagePaths );
+});
+
 gulp.task('add-example-symlinks', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
@@ -230,7 +238,22 @@ gulp.task('_zip-examples', function() {
 
 // Helper functions
 
-function getNodeModulesPaths(basePath) {
+// returns a promise
+function copyFiles(fileNames, destPaths) {
+  var copy = Q.denodeify(fsExtra.copy);
+  var copyPromises = [];
+  destPaths.forEach(function(destPath) {
+    fileNames.forEach(function(fileName) {
+      var baseName = path.basename(fileName);
+      var destName = path.join(destPath, baseName);
+      var p = copy(fileName, destName, { clobber: true});
+      copyPromises.push(p);
+    });
+  });
+  return Q.all(copyPromises);
+}
+
+function getPackagePaths(basePath) {
   var jsonPattern = path.join(basePath, "**/package.json");
   var exceptJsonPattern = "!" + path.join(basePath, "/package.json");
   var nmPattern =  path.join(basePath, "**/node_modules/**");
@@ -238,7 +261,14 @@ function getNodeModulesPaths(basePath) {
   // same as above but perf can differ.
   // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
   var paths = fileNames.map(function(fileName) {
-    return path.join(path.dirname(fileName), "/node_modules");
+    return path.dirname(fileName);
+  });
+  return paths;
+}
+
+function getNodeModulesPaths(basePath) {
+  var paths = getPackagePaths.map(function(packagePath) {
+    return path.join(packagePath, "/node_modules");
   });
   return paths;
 }
