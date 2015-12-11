@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Input, Output, EventEmitter} from 'angular2/angular2';
-import {RestoreService} from './restore-service';
+import {Component, Input, Output, EventEmitter} from 'angular2/core';
+import {RestoreService} from './restore.service';
 import {Hero} from './hero';
 
 @Component({
@@ -11,7 +11,7 @@ import {Hero} from './hero';
   template: `
     <div>
       <span>Name:</span>
-      <input [(ng-model)]="hero.name"/>
+      <input [(ngModel)]="hero.name"/>
       <div>
         <button (click)="onSaved()">save</button>
         <button (click)="onCanceled()">cancel</button>
