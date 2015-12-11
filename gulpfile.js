@@ -54,8 +54,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-
-
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
 // Public tasks
 
@@ -69,7 +68,8 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-gulp.task('add-example-symlinks', function() {
+// requires admin access
+gulp.task('add-example-boilerplate',  function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
 
@@ -77,13 +77,20 @@ gulp.task('add-example-symlinks', function() {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
+  var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
+    return path.join(EXAMPLES_PATH, fn);
+  });
+  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  return copyFiles(sourceFiles, examplePaths );
 });
 
-gulp.task('remove-example-symlinks', function() {
+gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
   nodeModulesPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
+  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
@@ -230,15 +237,51 @@ gulp.task('_zip-examples', function() {
 
 // Helper functions
 
-function getNodeModulesPaths(basePath) {
-  var jsonPattern = path.join(basePath, "**/package.json");
-  var exceptJsonPattern = "!" + path.join(basePath, "/package.json");
+// returns a promise
+function copyFiles(fileNames, destPaths) {
+  var copy = Q.denodeify(fsExtra.copy);
+  var copyPromises = [];
+  destPaths.forEach(function(destPath) {
+    fileNames.forEach(function(fileName) {
+      var baseName = path.basename(fileName);
+      var destName = path.join(destPath, baseName);
+      var p = copy(fileName, destName, { clobber: true});
+      copyPromises.push(p);
+    });
+  });
+  return Q.all(copyPromises);
+}
+
+function deleteFiles(baseFileNames, destPaths) {
+  var remove = Q.denodeify(fsExtra.remove);
+  var delPromises = [];
+  destPaths.forEach(function(destPath) {
+    baseFileNames.forEach(function(baseFileName) {
+      var destFileName = path.join(destPath, baseFileName);
+      var p = remove(destFileName);
+      delPromises.push(p);
+    });
+  });
+  return Q.all(delPromises);
+}
+
+function getExamplePaths(basePath) {
+  var jsonPattern = path.join(basePath, "**/example-config.json");
+  // ignore (skip) the top level version.
+  var exceptJsonPattern = "!" + path.join(basePath, "/example-config.json");
   var nmPattern =  path.join(basePath, "**/node_modules/**");
   var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
   // same as above but perf can differ.
   // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
   var paths = fileNames.map(function(fileName) {
-    return path.join(path.dirname(fileName), "/node_modules");
+    return path.dirname(fileName);
+  });
+  return paths;
+}
+
+function getNodeModulesPaths(basePath) {
+  var paths = getExamplePaths(basePath).map(function(examplePath) {
+    return path.join(examplePath, "/node_modules");
   });
   return paths;
 }
