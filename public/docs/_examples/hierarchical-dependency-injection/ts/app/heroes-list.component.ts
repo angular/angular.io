@@ -1,7 +1,7 @@
 // #docregion
-import {Component, bootstrap} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 import {EditItem} from './edit-item';
-import {HeroesService} from './heroes-service';
+import {HeroesService} from './heroes.service';
 import {HeroCardComponent} from './hero-card.component';
 import {HeroEditorComponent} from './hero-editor.component';
 import {Hero} from './hero';
@@ -11,7 +11,7 @@ import {Hero} from './hero';
   template: `
     <div>
       <ul>
-        <li *ng-for="#editItem of heroes">
+        <li *ngFor="#editItem of heroes">
           <hero-card
             [hidden]="editItem.editing"
             [hero]="editItem.item">
@@ -49,5 +49,5 @@ export class HeroesListComponent {
   }
 }
 
-bootstrap(HeroesListComponent, [HeroesService]);
+
 // #enddocregion
