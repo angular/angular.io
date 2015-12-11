@@ -1,4 +1,4 @@
-import {Injectable} from 'angular2/angular2';
+import {Injectable} from 'angular2/core';
 import {Hero} from './hero';
 import {BackendService} from './backend.service';
 import {Logger} from './logger.service';
@@ -7,7 +7,7 @@ import {Logger} from './logger.service';
 @Injectable()
 export class HeroService {
   constructor(private _backend: BackendService, private _logger:Logger){}
-  
+
   getHeroes() {
     // TODO return as a promise
     let heroes = <Hero[]> this._backend.getAll(Hero);
