@@ -267,7 +267,7 @@ function getPackagePaths(basePath) {
 }
 
 function getNodeModulesPaths(basePath) {
-  var paths = getPackagePaths.map(function(packagePath) {
+  var paths = getPackagePaths(basePath).map(function(packagePath) {
     return path.join(packagePath, "/node_modules");
   });
   return paths;
