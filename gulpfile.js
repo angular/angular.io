@@ -54,8 +54,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-
-
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js'];
 
 // Public tasks
 
@@ -70,7 +69,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 gulp.task('enforce-example-boilerplate', function() {
-  var sourceFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js'].map(function(fn) {
+  var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
   var packagePaths = getPackagePaths(EXAMPLES_PATH);
@@ -235,6 +234,11 @@ gulp.task('_zip-examples', function() {
   exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
 });
 
+gulp.task('_clean-example-boilerplate', function() {
+  var packagePaths = getPackagePaths(EXAMPLES_PATH);
+  deleteFiles(_exampleBoilerplateFiles, packagePaths);
+});
+
 
 // Helper functions
 
@@ -251,6 +255,20 @@ function copyFiles(fileNames, destPaths) {
     });
   });
   return Q.all(copyPromises);
+}
+
+function deleteFiles(baseFileNames, delPaths) {
+  var remove = Q.denodeify(fsExtra.remove);
+  var delPromises = [];
+  delPaths.forEach(function(delPath) {
+    baseFileNames.forEach(function(baseFileName) {
+      var destName = path.join(delPath, baseFileName);
+      var p = remove(destName);
+      delPromises.push(p);
+    });
+  });
+  return Q.all(delPromises);
+
 }
 
 function getPackagePaths(basePath) {
