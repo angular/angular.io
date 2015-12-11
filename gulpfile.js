@@ -69,7 +69,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-gulp.task('enforce-example-boilerplate', function() {
+gulp.task('update-example-boilerplate', function() {
   var sourceFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js'].map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
