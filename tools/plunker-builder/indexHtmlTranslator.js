@@ -40,22 +40,22 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.51/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.52/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.51/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.52/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.51/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.52/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.51/testing.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.52/testing.js'
   },
   {
     pattern: 'link',

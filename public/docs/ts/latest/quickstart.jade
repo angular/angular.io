@@ -10,479 +10,494 @@ include ../../../_includes/_util-fns
     in JavaScript and Dart by selecting either of those languages from the combo-box in the banner.
 
 .l-main-section
+:marked
+  ## See It Run!
+
+  Running the [live example](/resources/live-examples/quickstart/ts/plnkr.html)
+  is the quickest way to see an Angular 2 app come to life.
+  
+  Clicking that link fires up a browser, loads the sample in [plunker](http://plnkr.co/ "Plunker"),
+  and displays a simple message:
+
+figure.image-display
+  img(src='/resources/images/devguide/quickstart/my-first-app.png' alt="Output of quickstart app")
+:marked
+  Here is the file structure:
+
+code-example(format="").
+  angular2-quickstart
+  ├─ app
+  │   ├── app.component.ts
+  │   └── boot.ts
+  ├─ index.htm  
+  └─ license.md
+:marked
+  Functionally, it's an `index.html` and two TypeScript files in an `app/` folder.
+  We can handle that!
+  
+  Of course we won't build  many apps that only run in plunker. 
+  Let's follow a process that's closer to what we'd do in real life.
+  
+  1. Set up our development environment
+  1. Write the Angular root component for our main app
+  1. Bootstrap it to take control of the main web page
+  1. Write the main page (`index.html`)
+  
+.l-sub-section
   :marked
-    ## The shortest, quickest ...
-
-    Let's put something on the screen in Angular 2 as quickly as we can.
-
-  .l-sub-section
-    :marked
-      While we are about to describe steps to take on your development machine,
-      you could take these same steps in an interactive, online coding environment
-      such as [plunker](http://plnkr.co/ "Plunker"). You won't have to
-      install a static server to run the app there.
-
-      If you like what you see - and we think you will - you can repeat this
-      exercise on your own machine later.
-
-  :marked
-    **Create a new folder** to hold our application project, perhaps like this:
-    ```
-    mkdir angular2-quickstart
-    cd    angular2-quickstart
-    ```
-.l-main-section
-  :marked
-    ## Our first Angular component
-
-    **Add a new file** called **`app.ts`** and paste the following lines:
-
-  +makeExample('quickstart/ts/src/app/app.ts', null, 'app.ts')
-
-  :marked
-    We've just defined an Angular 2 **component**,
-    one of the most important Angular 2 features.
-    Components are our primary means of creating application views
-    and supporting them with application logic.
-
-    Ours is an empty, do-nothing class named `AppComponent`.
-    It would expand with properties and application
-    logic when we're ready to build a substantive application.
-
-    Above the class we see the `@Component` decoration.
-
-  .l-sub-section
-    :marked
-      The `@` symbol before the method name identifies `Component` as a decoration.
-      A "decoration" is a TypeScript language feature
-      for creating metadata about the class. Angular finds this metadata
-      in the transpiled JavaScript and responds appropriately.
-  :marked
-    `@Component` tells Angular that this class *is an Angular component*.
-    The configuration object passed to the `@Component` method has two
-    fields, a `selector` and a `template`.
-
-    The `selector` specifies a CSS selector for a host HTML element named `my-app`.
-    Angular creates and displays an instance of our `AppComponent`
-    wherever it encounters a `my-app` element.
-
-    The `template` field is the component's companion template
-    that tells Angular how to render a view.
-    Our template is a single line of HTML announcing "My First Angular App".
-
-    The `bootstrap` method tells Angular to start the application with this
-    component at the application root.
-    We'd be correct to guess that someday our application will
-    consist of more components arising in tree-like fashion from this root.
-
-    In the top line we imported the `Component` and `bootstrap` symbols
-    from the Angular 2 library. That's the way we do things now.
-    We no longer expect to find our code or any library code in a global namespace.
-    We `import` exactly what we need, as we need it, from named file and library resources.
+    We really can build the QuickStart from scratch in five minutes 
+    if we follow the instructions and ignore the commentary.
+    
+    Most of us will be interested in the "why" as well as the "how" and that will take longer.
+:marked
 
 .l-main-section
+:marked
+  ## Development Environment
+  
+  We'll need a place to stand (the application project folder), some libraries, 
+  some TypeScript configuration and the TypeScript-aware editor of your choice.
+
+  ### Create a new project folder
+  
+code-example(format="").
+  mkdir angular2-quickstart
+  cd    angular2-quickstart
+:marked
+  ### Add the libraries we need
+  
+  We recommend the **npm** package manager for acquiring and managing our development libraries.
+
+.l-sub-section
   :marked
-    ## Add `index.html`
+    Don't have npm?
+    [Get it now](https://docs.npmjs.com/getting-started/installing-node "Installing Node.js and updating npm")
+    because we're going to use it now and repeatedly throughout this documentation.
+:marked
+  Add a **package.json** file to the project folder and copy/paste the following:
++makeJson('quickstart/ts/package.1.json', null, 'package.json')(format=".")  
 
-    **Create** an `index.html` file.
-
-    **Paste** the following lines into it ... and we'll discuss them:
-
-  +makeExample('quickstart/ts/src/index.1.html', null, 'index.html')
-
+.l-sub-section
   :marked
-    We see three noteworthy sections of HTML:
+    Itching to know the details? We explain in the [appendix below](#package-json)  
+:marked
+  Install these packages by opening a terminal window (command window in Windows) and
+  running this npm command.
+code-example(format="").
+  npm install
+:marked
+.l-sub-section
+  :marked
+    A few scary messages in red may appear in the console. Ignore them.
+    What matters is is if it finishes cleanly. If it does, continue on.
+    If it doesn't, time to stop and find out why. 
+:marked
+  ### Configure TypeScript
 
-    1. We load JavaScript libraries from the web.
-    Let's take them on faith without further discussion.<br/><br/>
-
-    2. We configure something called `System` and ask it to import the
-    application file with our `AppComponent` that we just wrote.
-    `System` is the module loader (from the `system.js` library),
-    a tool that can `import` code;
-    remember the `import` statement in our `AppComponent`?
-
-      We're also asking `system.js` to "transpile" (AKA "compile") our
-      TypeScript source code into JavaScript ... right here in the browser.<br/><br/>
-
-    3. We note the `<my-app>` tag in the `<body>`.
-    That's the custom HTML element we identified in the `@Component` decoration
-    adorning our `AppComponent` class.
+  We must guide the TypeScript compiler with very specific settings.
+  
+  Add a **tsconfig.json** file to the project folder and copy/paste the following:
++makeJson('quickstart/ts/tsconfig.1.json', null, 'tsconfig.json')(format=".")
+.l-sub-section
+  :marked
+   We explore the `tsconfig.json` in an [appendix below](#tsconfig)
+:marked
+  **We're all set.** Let's write some code.
 
 .l-main-section
+:marked
+  ## Our First Angular Component
+  
+  The *Component* is the most fundamental of Angular concepts. 
+  A component manages a view - a piece of the web page where we display information
+  to the user and respond to user feedback.
+  
+  Technically, a component is a class that controls a view template.
+  We'll write a lot of them as we build Angular apps. This is our first attempt
+  so we'll keep it ridiculously simple.
+  
+  ### Create an application source sub-folder
+  
+  We like to keep our application code in a sub-folder off the root called `app/`.
+  Execute the following command in the console window.
+code-example(format="").
+  mkdir app
+  cd    app
+:marked
+  ### Add the component file
+  Now add a file named **app.component.ts** and paste the following lines:
++makeExample('quickstart/ts/app/app.component.ts', null, 'app/app.component.ts')(format=".")
+
+:marked
+  ### The Component class
+  At the bottom of the file is an empty, do-nothing class named `AppComponent`.
+  When we're ready to build a substantive application, 
+  we can expand this class with properties and application logic. 
+  Our `AppComponent` class is empty because we don't need it to do anything in this QuickStart.
+  
+  We do **export** the `AppComponent` class. Our component is a module. 
+  Another part of the application will import our module and put it to work.
+  
+  ### Modules
+  Angular apps are modular. They consist of many files each dedicated to a purpose.
+  Our `app.component` file is both the home and the name of the module that 
+  provides the application's root component &mdash; its top level component.
+  
+  A more sophisticated application would have child components that descended from
+  `AppComponent` in a visual tree. 
+  Quickstart isn't sophisticated; one component is all we need.
+  Yet modules play a fundamental organizational role in even this small app.
+  
+  Modules rely on other modules. In TypeScript Angular apps, when we need something
+  provided by another module, we import it.
+  
+  Angular is a collection of library modules. 
+  Each library is a module made up of several, related feature modules. 
+  
+  The `angular2/core` library is the primary module and we need something from it.
+  We need the `Component`function.
+  
+  When we want something from a module, we `import` it. 
+  We begin by importing the `Component` symbol from Angular.
++makeExample('quickstart/ts/app/app.component.ts', 'import')(format=".")
+:marked
+  Then we use it to define metadata about the `AppComponent`
+  
+  ### Component Metadata
+  A class becomes an Angular component when we give it metadata.
+  Angular needs the metadata to understand how to construct the view
+  and how the component interacts with other parts of the application.
+  
+  We define a component's metadata with the `Component` function.
+  In TypeScript we apply that function to the class as a *decorator* 
+  by prefixing it with the **@** symbol and invoking it
+  just above the component class:
++makeExample('quickstart/ts/app/app.component.ts', 'metadata', 'app/app.component.ts (metadata)')
+:marked
+  `@Component` tells Angular that this class *is an Angular component*.
+  The configuration object passed to the `@Component` method has two
+  fields, a `selector` and a `template`.
+
+  The `selector` specifies a CSS selector for a host HTML element named `my-app`.
+  Angular creates and displays an instance of our `AppComponent`
+  wherever it encounters a `my-app` element in the host HTML.
+  
+.alert.is-helpful
   :marked
-    ## Run it!
+    Remember the `my-app` selector! We'll need that information when we write our `index.html`
+:marked
+  The `template` property holds the component's companion template.
+  A template is a form of HTML that tells Angular how to render a view.
+  Our template is a single line of HTML announcing "My First Angular App".
+  
+  Now we need something to tell Angular to load this component.
 
-    We need a static file server to serve our application to the browser.
-
-  .l-sub-section
-    :marked
-      Don't have a static file server handy?  Let's install one of our favorites
-      called [live-server](https://www.npmjs.com/package/live-server "Live-server")
-      with the **npm package manager**.
-
-      Don't have npm?
-      [Get it now](https://docs.npmjs.com/getting-started/installing-node "Installing Node.js and updating npm")
-      because we're going to use it now and repeatedly throughout this documentation.
-
-      Once you have `npm` installed, open a terminal window and enter
-
-    pre.prettyprint.lang-bash
-      code npm install -g live-server
-
+  ### Give it the boot
+  
+  Add a new file , `boot.ts`, to the `app/` folder as follows:
++makeExample('quickstart/ts/app/boot.ts', null, 'app/boot.ts')(format=".")
+:marked
+  We need two things to launch the application:
+  1. Angular's browser `bootstrap` function
+  1. The application root component that we just wrote.
+  
+  We import both. Then we call `bootstrap`, passing in the **root component type**, 
+  `AppComponent`.
+  
+.l-sub-section
   :marked
-    Open a terminal window and enter
-
-  pre.prettyprint.lang-bash
-      code live-server
-  :marked
-    In a few moments, a browser tab should open and display
-
-  figure.image-display
-    img(src='/resources/images/devguide/quickstart/my-first-app.png' alt="Output of quickstart app")
-
-  :marked
-    Congratulations!  We are in business.
-
-  .alert.is-helpful
-    :marked
-      If you see `Loading...` displayed instead, see the
-      [Browser ES6 support appendix](#es6support).
+    ### bootstrapping is platform-specific
+    Note that `bootstrap` function comes from a *different library*, `angular2/platform/browser`.
+    Most Angular applications run only in a browser and we'll call the bootstrap function from
+    this library most of the time. 
+    
+    It is possible to load a component in a different enviroment such as we might do
+    if we wished to render the first page of our application on the server.
+    That would require a different kind of bootstrap function. 
+:marked
+  We've asked Angular to launch the app in a browser with our component at the root.
+  Where will Angular put it? 
 
 .l-main-section
-  :marked
-    ## What's wrong with this?
+:marked
+  ## Add the `index.html`
+  
+  Angular displays our application in a specific location on our `index.html`.
+  It's time to create that file.
 
-    We were up and running in a hurry and we could explore Angular
-    in this manner for quite some time.
+  We won't put our `index.html` in the `app/` folder. 
+  We'll locate it **up one level, in the project root folder**.
+  
+code-example(format="").
+  cd ..
+:marked
+  Now create the`index.html` file and paste the following lines:
++makeExample('quickstart/ts/index.html', null, 'index.html')
+:marked
+  There are three noteworthy sections of HTML:
 
-    For a number of reasons this isn't a good approach for building an application.
-    <!-- TODO The formatting here is a little weird. Should improve readability. -->
+  1. We load the JavaScript libraries we need.<br/>
 
-    * Transpiling TypeScript in the browser becomes tediously slow when our
-    app grows beyond a few files. We certainly won't do that in production. We should learn to
-    compile locally and push the generated JavaScript to the server. We'll need some tools for that.
+  2. We configure something called `System` and ask it to import the
+  boot file we just wrote.
 
-
-    * Downloading JavaScript libraries from the web is OK for demos but
-    it slows our development. Every time our app reloads, it must refetch these libraries.
-    Don't count on browser caching.
-    Our debugging and live-reload techniques will bust the browser cache. Loading libraries
-    from the web also prevents us from developing our application offline or where connectivity is
-    poor. Let's learn to download the libraries to our machine and serve them locally.
-
-
-    * We want our development cycle to be as fast and friction-free as possible.
-    When we change our code, we want to see the results in the browser immediately.
-    We have tools and procedures for that.
-
-.l-main-section
-  :marked
-    ## Upping our game
-      Let's take a few more steps to put our development on a better foundation. We will
-
-      1. Revise the application project structure for future growth
-      1. Install a few tools and packages
-      1. Revise the **`index.html`** to use local library resources
-      1. Compile the TypeScript locally and watch for changes
-
-    Shut down the `live-server` running in the terminal window (Ctrl-C) and proceed as follows.
+  3. We add the `<my-app>` tag in the `<body>`. **This is where our app lives!**
+  
+  Something has to find and load our application modules. We're using **SystemJS** to do that.
+  There are other choices and we're not saying SystemJS is the best. We like it and it works.
+  
+  The specifics of SystemJS configuration are out of bounds. 
+  We'll briefly describe this particular configuration in the [appendix below](#systemjs).
+  
+  When Angular calls the `bootstrap` function in `boot.ts`, it reads the `AppComponent`
+  metadata, finds the `my-app` selector, locates an element tag named `my-app`,
+  and loads our application between those tags.
 
 .l-main-section
+:marked
+  ## Compile and run!
+  
+  Open a terminal window and enter this command:
+code-example(format="").
+  npm run both
+:marked
+  That command runs two parallel node processes
+  1. The TypeScript compiler in watch mode
+  1. A static server called **lite-server** that loads `index.html` in a browser
+  and refreshes the browser when application files change
+
+  In a few moments, a browser tab should open and display
+
+figure.image-display
+  img(src='/resources/images/devguide/quickstart/my-first-app.png' alt="Output of quickstart app")
+
+:marked
+  Congratulations!  We are in business.
+
+.alert.is-helpful
   :marked
-    ## Revise the application project structure
+    If you see `Loading...` displayed instead, see the
+    [Browser ES6 support appendix](#es6support).
+:marked
+  ### Make some changes
+  
+  Try changing the message to "My SECOND Angular 2 app".
+  
+  The TypeScript compiler and `lite-server` are watching.
+  They should detect the change, recompile the TypeScript into JavaScript,
+  refresh the browser, and display the revised message.
 
-    At the moment we're dumping everything into the "angular2-quickstart" **root folder**.
-    Not bad when there are only two files. Not good as our application evolves.
-
-    Let's give our project a little structure.
-
-    We'll add a sub-folder - `src` - to hold project source code and a sub-sub-folder - `src/app` -
-    to hold the application source code.
-
-    In OS/X and Linux:
-
-  pre.prettyprint.lang-bash
-    code mkdir -p src/app
-
-  :marked
-    In Windows:
-
-  pre.prettyprint.lang-bash
-    code mkdir src\app
-
-  :marked
-    **Move `index.html`** into the **`src`** folder.
-
-    **Move `app.ts`** into the **`src/app`** folder.
-
-    Our project folders should look like this.
-    ```
-    angular2-quickstart
-    └── src
-        ├── app
-        │   └── app.ts
-        └── index.html
-    ```
+  It's a nifty way to develop an application!
+  
+  We close the terminal window when we're done to terminate both the compiler and the server.
 
 .l-main-section
-  :marked
-    ## Install npm packages locally
-
-    We'll replace the web-based scripts in our `index.html` with
-    scripts resident on our local machine.
-    We get those scripts by installing two runtime `npm` packages into our project.
-
-    >**angular2** - the Angular 2 library.
-
-    >**systemjs** - an open-source library that provides module loading.
-
-    We'll also install two development tools:
-
-    >**typescript** - the TypeScript compiler
-
-    >**[live-server](https://www.npmjs.com/package/live-server "Live-server")** - the static file server that reloads the browser when files change.
-    We may have loaded it earlier. We're doing it again
-    locally in our project so we are no longer vulnerable to
-    a global uninstall or version change.
-
-    **Open** a terminal window at our application's **root folder**
-
-    Enter these commands:
-    ```
-    npm init -y
-    npm i angular2@2.0.0-alpha.44 systemjs@0.19.2 --save --save-exact
-    npm i typescript live-server --save-dev
-    ```
-
-    These commands both *install* the packages and *create* an npm `package.json` that will
-    help us develop and maintain our application in the future.
-    The essence of our `package.json` should look like this:
-
-  +makeJson('quickstart/ts/package.json', { paths: 'name, version, dependencies, devDependencies'})
-
-  :marked
-    There is also a `scripts` section. **Find and replace** it with the following:
-
-  +makeJson('quickstart/ts/package.json', { paths: 'scripts'})
-
-  :marked
-    We've just extended our project world with script commands
-    that we'll be running very soon.
-
-.l-main-section
-  :marked
-    ## Update `index.html`
-
-    **Replace** the library scripts section with references to
-    scripts in the packages we just installed.
-
-  +makeExample('quickstart/ts/src/index.html', 'libraries')
-
-  :marked
-    **Update** the `System` configuration script as follows.
-
-  +makeExample('quickstart/ts/src/index.html', 'systemjs')
-
-  .l-sub-section
-    :marked
-      We won't be transpiling TypeScript in the browser anymore.
-      We'll do that on our machine and ship the generated JavaScript
-      files to the server.
-
-      We have to re-configure `system.js` to expect JavaScript files
-      with a `.js` extension by default.
-      Someday we might add a `Foo` class to our application in a `foo.ts`
-      file and import it like this
-
-    pre.prettyprint.lang-bash
-      code import {Foo} from './app/foo'
-    :marked
-       `system.js`will know to look for a file named `foo.js` in the `src/app` folder.
-
-       That's exactly what we're doing in the last line. We're
-       importing our main application file `app` (the generated `app.js` to be precise)
-       from the `src/app/` folder (we moved it there, remember?)
-  :marked
-    Here's the final version
-
-  +makeExample('quickstart/ts/src/index.html', null, 'index.html')
-
-.l-main-section
-  :marked
-    ## Prepare for TypeScript Compilation
-
-    ### Add the TypeScript configuration file
-
-    We'll add a configuration file named **`tsconfig.json`**
-    to tell the editor how to interpret our TypeScript code and
-    to simplify the TypeScript compilation command that we'll run very soon.
-
-    **Change to the `src` folder and create a `tsconfig.json`** file with the following content:
-  +makeJson('quickstart/ts/src/tsconfig.json', null, 'tsconfig.json')
-
-  .alert.is-helpful
-    :marked
-      See the [TypeScript configuration appendix](#tsconfig) to learn more about
-      this file and these settings.
-
-.l-main-section
-  :marked
-    ## Final structure
-    Our final project folder structure should look like this:
-    ```
-    angular2-quickstart
+:marked
+  ## Final structure
+  Our final project folder structure looks like this:
+code-example(format="").
+  angular2-quickstart
     ├── node_modules
-    ├── src
-    │    ├── app
-    |    │    └── app.ts
-    │    ├── index.html
-    │    └── tsconfig.json
-    └── package.json
-    ```
+    ├── app
+    │    ├── app.component.ts
+    |    └── boot.ts
+    ├── index.html
+    ├── package.json
+    └── tsconfig.json
+:marked
+  And here are the files:
++makeTabs(`
+    quickstart/ts/app/app.component.ts,
+    quickstart/ts/app/boot.ts,
+    quickstart/ts/index.html,
+    quickstart/ts/package.1.json,
+    quickstart/ts/tsconfig.json
+  `,null,
+  `app/app.component.ts, app/boot.ts, index.html,package.json, tsconfig.json`)
+:marked
 
 .l-main-section
-  :marked
-    ## Compile the TypeScript to JavaScript
+:marked
+  ## Wrap Up
+  Our first application doesn't do much. It's basically "Hello, World" for Angular 2.
 
-    We no longer transpile TypeScript to JavaScript in the browser.
-    We run the **T**ype**S**cript **C**ompiler (TSC) on our machine instead.
+  We kept it simple in our first pass: we wrote a little Angular component,
+  we added some JavaScript libraries to `index.html`, and launched with a
+  static file server. That's about all we'd expect to do for a "Hello, World" app.
 
-    Open a terminal window in the **root of the application folder** and enter:
+  **We have greater ambitions.**
 
-  pre.prettyprint.lang-bash
-    code npm run tsc
+  The good news is that the overhead of setup is (mostly) behind us. 
+  We'll probably only touch the `package.json` to update libraries.
+  We'll likely open `index.html` only if we need to add a library or some css stylesheets.
 
-  :marked
-    When it's done we should find the generated *app.js* file in the *src* folder and also an *app.map.js* file that
-    helps debuggers navigate between the JavaScript and the TypeScript source.
+  We're about to take the next step and build a small application that 
+  demonstrates the great things we can build with Angular 2.
 
-    Our script set the compiler watch option (`-w`) so the
-    compiler stays alive when it's finished.
-    It watches for changes to our **`.ts`** files
-    and recompiles them automatically.
+  Join us on the [Tour of Heroes Tutorial](./tutorial)!
 
-    Leave this command running in the terminal window.
-    You can stop it anytime with `Ctrl-C`.
 
 .l-main-section
-  :marked
-    ## Run the app!
-
-    Now we are ready to see our app in action.
-
-    Open another terminal window in the **root of the application folder** and
-    launch `live-server` again although this time we'll do it with
-    one of our `npm` script commands:
-
-  pre.prettyprint.lang-bash
-    code npm start
-
-  :marked
-    **live-server** loads the browser for us, serves the HTML and JavaScript files,
-    and displays our application message once more:
-
-  figure.image-display
-    img(src='/resources/images/devguide/quickstart/my-first-app.png' alt="Output of quickstart app")
-
-  :marked
-    ### Make some changes
-    **`live-server`** detects changes to our files and refreshes the browser page for us automatically.
-
-    Try changing the message to "My SECOND Angular 2 app".
-
-    The TypeScript compiler in the first terminal window is watching our source code. It recompiles and produces
-    the revised *app.js*.  The `live-server` sees that change and reloads the browser.
-
-    Keep `live-server` running in this terminal window. You can stop it anytime with `Ctrl-C`.
-
+:marked
+  ## Appendices
+  The balance of this chapter is a set of appendices that
+  elaborate some of the points we covered quickly above.
+  
+  There is no essential material here. Continued reading is for the curious.
+  
 .l-main-section
+:marked
+  <a id="package-json"></a>
+  ### Appendix: package.json
+
+  [npm](https://docs.npmjs.com/) is a popular package manager and Angular application developers rely on it
+  to acquire and manage the libraries their apps require.
+  
+  We specify the packages we need in an npm [package.json](https://docs.npmjs.com/files/package.json) file.
+  
+  The Angular team suggests the packages listed in the `dependencies` and `devDependencies`
+  sections listed in this file:
+
++makeJson('quickstart/ts/package.1.json',{ paths: 'dependencies, devDependencies'}, 'package.json (dependencies)')(format=".") 
+:marked
+.l-sub-section
   :marked
-    ## What have we done?
-    Our first application doesn't do much. It's basically "Hello, World" for Angular 2.
-
-    We kept it simple in our first pass: we wrote a little Angular component,
-    we added some JavaScript libraries to `index.html`, and launched with a
-    static file server. That's about all we'd expect to do for a "Hello, World" app.
-
-    **We have greater ambitions.**
-
-    We won't ask Angular to build "Hello, World".
-    We are asking it to help us build sophisticated applications with sophisticated requirements.
-
-    So we made some strategic technology investments to reach our larger goals
-
-    * our application loads faster with libraries installed locally and
-    we can develop offline if we wish.
-
-    * we're pre-compiling our TypeScript.
-
-    * we're running the compiler and live-server with commands that give us immediate feedback as we make changes.
-
-    The good news is that the overhead of setup is (mostly) behind us.
-    We're about to build a small application that demonstrates the great things
-    we can build with Angular 2.
-
-    <!--TODO: Join us on the [Tour of Heroes](./toh-pt1.html) -->
-
-
+    There are other possible package choices. 
+    We're recommending this particular set that we know work well together. 
+    Play along with us for now. 
+    Feel free to make substitutions later to suit your tastes and experience.
+:marked
+  A `package.json` has an optional **scripts** section where we can define helpful
+  commands to perform development and build tasks. 
+  We've included a number of such scripts in our suggested `package.json`:
++makeJson('quickstart/ts/package.1.json',{ paths: 'scripts'}, 'package.json (scripts)')(format=".") 
+:marked
+  We've seen how we can run the compiler and a server at the same time with this command:
+code-example(format="").
+  npm run both
+:marked
+  We execute npm scripts in that manner: `npm run` + *script-name*. Here's what these scripts do:
+  
+  * `npm run tsc` - run the TypeScript compiler once
+  
+  * `npm run tsc:w` - run the TypeScript compiler in watch mode; 
+  the process keeps running, awaiting changes to TypeScript files and re-compiling when it sees them.
+  
+  * `npm run lite` - run the [lite-server](https://www.npmjs.com/package/lite-server), 
+  a light-weight, static file server, written and maintained by [John Papa](http://johnpapa.net/) 
+  with excellent support for Angular apps that use routing.
+  
 <!-- Move this to the Style Guide when we have one -->
 .l-main-section
-  :marked
-    <a id="tsconfig"></a>
-    ### Appendix: TypeScript configuration
-    We added a TypeScript configuration file (`tsconfig.json`) to our project to
-    guide the compiler as it generates JavaScript files.
-    Get details about `tsconfig.json` from the official
-    [TypeScript wiki](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
+:marked
+  <a id="tsconfig"></a>
+  ### Appendix: TypeScript configuration
+  We added a TypeScript configuration file (`tsconfig.json`) to our project to
+  guide the compiler as it generates JavaScript files.
+  Get details about `tsconfig.json` from the official
+  [TypeScript wiki](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
 
-    We'd like a moment to discuss the `noImplicitAny` flag.
-    TypeScript developers disagree about whether it should be `true` or `false`.
-    There is no correct answer and we can change the flag later.
-    But our choice now can make a difference in larger projects so it merits
-    discussion.
+  The options and flags in the file we provided are essential.
+  
+  We'd like a moment to discuss the `noImplicitAny` flag.
+  TypeScript developers disagree about whether it should be `true` or `false`.
+  There is no correct answer and we can change the flag later.
+  But our choice now can make a difference in larger projects so it merits
+  discussion.
 
-    When the `noImplicitAny` flag is `false`,
-    the compiler silently defaults the type of a variable to `any` if it cannot infer
-    the type based on how the variable is used. That's what we mean by "implicitly `any`".
+  When the `noImplicitAny` flag is `false`,
+  the compiler silently defaults the type of a variable to `any` if it cannot infer
+  the type based on how the variable is used. That's what we mean by "implicitly `any`".
 
-    When the `noImplicitAny` flag is `true` and the TypeScript compiler cannot infer
-    the type, it still generates the JavaScript files but
-    it also reports an error.
+  When the `noImplicitAny` flag is `true` and the TypeScript compiler cannot infer
+  the type, it still generates the JavaScript files but
+  it also reports an error.
 
-    For this project and the other examples in this Developer Guide
-    we set the `noImplicitAny` flag to `false`.
-    Developers who prefer stricter type checking should set the `noImplicitAny` flag to `true`.
-    We can still set a variable's type to `any` if
-    that seems like the best choice. We'd be doing so explicitly after
-    giving the matter some thought.
+  In this QuickStart and many of the other samples in this Developer Guide
+  we set the `noImplicitAny` flag to `false`.
+  
+  Developers who prefer stricter type checking should set the `noImplicitAny` flag to `true`.
+  We can still set a variable's type to `any` if
+  that seems like the best choice. We'd be doing so explicitly after
+  giving the matter some thought.
 
-    If we set the `noImplicitAny` flag to `true`, we may get implicit index errors as well.
-    If we feel these are more annoying than helpful,
-    we can suppress them with the following additional flag.
-    ```
-    "suppressImplicitAnyIndexErrors":true
-    ```
+  If we set the `noImplicitAny` flag to `true`, we may get implicit index errors as well.
+  If we feel these are more annoying than helpful,
+  we can suppress them with the following additional flag.
+  ```
+  "suppressImplicitAnyIndexErrors":true
+  ```
 
 .l-main-section
+:marked
+  <a id="systemjs"></a>
+  ### Appendix: SystemJS Configuration
+  
+  The QuickStart uses [SystemJS](https://github.com/systemjs/systemjs) to load application
+  and library modules. 
+  There are alternatives that work just fine including the well-regarded [webpack](https://webpack.github.io/).
+  SystemJS happens to be a good choice but we want to be clear that it was a choice and not a preference.
+  
+  All module loaders require configuration and all loader configuration 
+  becomes complicated rather quickly as soon as the file structure diversifies and
+  we start thinking about building for production and performance.
+  
+  We suggest becoming well-versed in the loader of your choice.
+.l-sub-section
   :marked
-    <a id="es6support"></a>
-    ### Appendix: Browser ES6 support
-    Angular 2 requires ES6 support, such as can be found in most modern
-    browsers. For older browsers (including IE 11) you can use a shim to get
-    the needed functionality.
-
-    After creating `package.json` (halfway through the quickguide), run this
-    command to add a shim to the project:
-
-  code-example(language="sh" format=".").
-    npm install es6-shim --save
-
+    Learn more about SystemJS configuration [here](https://github.com/systemjs/systemjs/blob/master/docs/config-api.md).
+:marked
+  With those caustions in mind, what are we doing here?
++makeExample('quickstart/ts/index.html', 'systemjs', 'index.html (System configuration')(format=".")
+:marked
+  The `packages:` line tells SystemJS what to do when it sees a request for a 
+  module from the `app/` folder. 
+  
+  Our QuickStart makes such requests when one of its
+  application TypeScript files has an import statement like this:
++makeExample('quickstart/ts/app/boot.ts', 'app-component', 'boot.ts (excerpt)')(format=".")
+:marked
+  Notice that the module name (after `from`) does not mention a filename extension. 
+  The `packages:` configuration tells SystemJS to default the extension to 'js', a JavaScript file.
+  
+  That makes sense because we transpile TypeScript to JavaScript
+  *before* running the application.
+  
+.l-sub-section
   :marked
-    Now you can load the shim in your `index.html` before the other scripts:
+    In the live example on plunker we transpile (AKA compile) to JavaScript in the browser
+    on the fly. That's fine for a demo. That's not our preference for development or production.
+    
+    We recommend transpiling (AKA compiling) to JavaScript during a build phase 
+    before running the application for several reasons including:
+    
+    * We see compiler warnings and errors that are hidden from us in the browser.
+    
+    * Pre-compilation simpifies the module loading process and 
+    it's much easier to diagnose problem when this is a separate, external step.
+       
+    * Pre-compilation means a faster user experience because the browser doesn't waste time compiling.
+    
+    * We iterate development faster because we only re-compile changed files.
+    We notice the difference as soon as the app grows beyond a handful of files.
+    
+    * pre-compilation fits into a continuous integration process of build, test, deploy.
+:marked
+  The `System.Import` call tells SystemJS to import the `boot` file 
+  (`boot.js` ... after transpiling `boot.ts`, remember?).
+  `boot` is where we tell Angular to launch the application.
+  
+  All other modules are loaded upon request
+  either by an import statement or by Angular itself.
+  
+.l-main-section
+:marked
+  <a id="es6support"></a>
+  ### Appendix: Browser ES6 support
+  Angular 2 relies on some ES2015 features, most of them found in modern
+  browsers. Some browsers (including IE 11) require a shim to support the
+  the needed functionality.
+  Try loading the following shim *above* the other scripts in the `index.html`:
 
-  code-example(language="html" format=".").
-    &lt;script src=&quot;../node_modules/es6-shim/es6-shim.js&quot;&gt;&lt;/script&gt;
-
-
-
+code-example(language="html" format=".").
+  &lt;script src=&quot;node_modules/es6-shim/es6-shim.js&quot;&gt;&lt;/script&gt;
