@@ -1,7 +1,5 @@
 // #docregion
-// #docregion imports
-import {Component, bootstrap, NgFor} from 'angular2/angular2';
-// #enddocregion imports
+import {Component} from 'angular2/core';
 
 @Component({
   selector: 'my-app',
@@ -12,16 +10,13 @@ import {Component, bootstrap, NgFor} from 'angular2/angular2';
     <p>Heroes:</p>
     <ul>
   // #docregion li-repeater
-      <li *ng-for="#hero of heroes">
+      <li *ngFor="#hero of heroes">
         {{ hero }}
       </li>
   // #enddocregion li-repeater
     </ul>
-  `,
+  `
   // #enddocregion template
-  // #docregion directives
-  directives: [NgFor]
-  // #enddocregion directives
 })
 // #docregion mock-heroes
 export class AppComponent {

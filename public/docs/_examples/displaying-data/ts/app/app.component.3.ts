@@ -1,7 +1,5 @@
 // #docregion
-// #docregion import-ng-if
-import {Component, bootstrap, NgFor, NgIf} from 'angular2/angular2';
-// #enddocregion import-ng-if
+import {Component} from 'angular2/core';
 // #docregion import-hero
 import {Hero} from './hero';
 // #enddocregion import-hero
@@ -11,18 +9,15 @@ import {Hero} from './hero';
   // #docregion template
   template: `
     <h1>{{title}}</h1>
-    <h2>My favorite hero is: {{myHero}}</h2>
+    <h2>My favorite hero is: {{myHero.name}}</h2>
     <p>Heroes:</p>
     <ul>
-      <li *ng-for="#hero of heroes">
+      <li *ngFor="#hero of heroes">
         {{ hero.name }}
       </li>
     </ul>
-  `,
+  `
   // #enddocregion template
-  // #docregion directives
-  directives: [NgFor, NgIf]
-  // #enddocregion directives
 })
 // #docregion class
 export class AppComponent {
