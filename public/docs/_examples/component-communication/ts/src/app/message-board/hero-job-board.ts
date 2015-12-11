@@ -14,13 +14,13 @@ import {MessageBus} from './message-bus';
       </div>
       
       <h3>Job Request</h3>
-      <input [(ng-model)]="newRequest" (keyup.enter)="announceJob()"
+      <input [(ngModel)]="newRequest" (keyup.enter)="announceJob()"
         placeholder="Enter a job request">
       <button (click)="announceJob()">Ask</button>
       
       <h3>{{jobStatus}}</h3>
-      <div *ng-if='!winner'>
-        <div *ng-for="#hero of respondingHeroes" class="responding-hero">
+      <div *ngIf='!winner'>
+        <div *ngFor="#hero of respondingHeroes" class="responding-hero">
           <span class="hero-name">{{hero.name}}</span>
           <button (click)='assignJob(hero)'>
             Assign
@@ -28,7 +28,7 @@ import {MessageBus} from './message-bus';
         </div>
       </div>
       
-      <div *ng-if="winner">
+      <div *ngIf="winner">
         The winner is
         <span class="winner">{{winner.name}}</span>
       </div>
@@ -36,7 +36,7 @@ import {MessageBus} from './message-bus';
 
     <div class='hero-panel-list'>
       <hero-panel 
-        *ng-for='#hero of invitedHeroes'
+        *ngFor='#hero of invitedHeroes'
         [hero]='hero'>
       </hero-panel>
     </div>

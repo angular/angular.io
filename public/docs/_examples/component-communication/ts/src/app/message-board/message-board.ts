@@ -8,7 +8,7 @@ import {MessageBus} from './message-bus';
     <div class='message-board'
       [hidden]='messages.length==0'>
       <ul>
-        <li class='message' *ng-for='#msg of messages'>
+        <li class='message' *ngFor='#msg of messages'>
           {{msg}}
         </li>
       </ul>

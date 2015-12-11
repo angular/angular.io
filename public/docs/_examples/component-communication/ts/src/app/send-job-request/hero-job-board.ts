@@ -13,19 +13,19 @@ import {Hero} from '../hero';
       </div>
       
       <h3>Job Request</h3>
-      <input [(ng-model)]="newRequest" (keyup.enter)="announceJob()"
+      <input [(ngModel)]="newRequest" (keyup.enter)="announceJob()"
         placeholder="Enter a job request">
       <button (click)="announceJob()">Ask</button>
       
       <h3>Responding heroes</h3>
-      <div *ng-for="#hero of respondingHeroes" class="responding-hero">
+      <div *ngFor="#hero of respondingHeroes" class="responding-hero">
         <span class="hero-name">{{hero.name}}</span>
         <button>Assign</button>
       </div>
     </div>
 
     <div class='hero-panel-list'>
-      <hero-panel *ng-for='#hero of invitedHeroes'
+      <hero-panel *ngFor='#hero of invitedHeroes'
         [hero]='hero'
         [request]=request>
       </hero-panel>

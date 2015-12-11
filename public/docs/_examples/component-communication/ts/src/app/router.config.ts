@@ -18,7 +18,5 @@ export const ROUTES:RouteDefinition[] = [
   {path: '/take-job-contentchildren', name: 'Using @ContentChildren',      component: JobBoardWithContent}
 ];
 
-// Build router links array from route names
-// Ex: <a [router-link]="['Assign Job']">Assign Job</a>
 export const LINKS = ROUTES.map((r:RouteDefinition) =>
-  r.name ? `<a [router-link]="['${r.name}']">${r.name}</a>` : '');
+  r.name ? `<a [routerLink]="['${r.name}']">${r.name}</a>` : '');

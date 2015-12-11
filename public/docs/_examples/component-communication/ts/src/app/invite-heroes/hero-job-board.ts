@@ -15,7 +15,7 @@ import {Hero} from '../hero';
     </div>
     
     <div class='hero-panel-list'>
-      <hero-panel *ng-for='#hero of invitedHeroes'
+      <hero-panel *ngFor='#hero of invitedHeroes'
         [hero]='hero'>
       </hero-panel>
     </div>

@@ -12,7 +12,7 @@ import {JobService} from './job-service';
         [class.undertaken]="undertaken">
         {{request || 'No job announced'}}
       </h4>
-    <h3 *ng-if="winner"
+    <h3 *ngIf="winner"
       [class.won] ="undertaken && winner==hero"
       [class.lost]="undertaken && winner!=hero"
       [class.else]="!undertaken">

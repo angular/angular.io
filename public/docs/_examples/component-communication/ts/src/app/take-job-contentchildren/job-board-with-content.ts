@@ -9,7 +9,7 @@ import {HeroCrm} from './hero-crm';
   template: `
     <hero-job-board>
       <hero-crm [id]="17" [name]="'Dynama'"></hero-crm>
-      <hero-crm *ng-for="#hero of heroesFromCrm"
+      <hero-crm *ngFor="#hero of heroesFromCrm"
         [id]="hero.id"
         [name]="hero.name">
       </hero-crm>
