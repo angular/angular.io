@@ -1,8 +1,8 @@
 // #docregion
-import {Directive, ElementRef, Renderer, Input} from 'angular2/angular2';
+import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
 
 @Directive({
-  selector: '[my-highlight]',
+  selector: '[myHighlight]',
   // #docregion host
   host: {
     '(mouseenter)': 'onMouseEnter()',
@@ -22,7 +22,7 @@ export class Highlight {
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color: string) {
-    this.renderer.setElementStyle(this.el, 'background-color', color);
+    this.renderer.setElementStyle(this.el, 'backgroundColor', color);
   }
   // #enddocregion mouse-methods
 
