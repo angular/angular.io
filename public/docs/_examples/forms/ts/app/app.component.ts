@@ -1,5 +1,5 @@
 // #docregion
-import {bootstrap, Component} from 'angular2/angular2'
+import {Component}         from 'angular2/core';
 import {HeroFormComponent} from './hero-form.component'
 
 @Component({
@@ -7,6 +7,4 @@ import {HeroFormComponent} from './hero-form.component'
   template: '<hero-form></hero-form>',
   directives: [HeroFormComponent]
 })
-class AppComponent { }
-
-bootstrap(AppComponent);
+export class AppComponent { }

@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion
 // #docregion first, final
-import {Component} from 'angular2/angular2';
-
-import { Hero } from './hero';
+import {Component} from 'angular2/core';
+import {NgForm}    from 'angular2/common';
+import { Hero }    from './hero';
 
 @Component({
   selector: 'hero-form',
@@ -32,10 +32,10 @@ export class HeroFormComponent {
 
   // Reveal in html:
   //   AlterEgo via form.controls = {{showFormControls(hf)}}
-  showFormControls(form){
-    return form.controls.alterEgo &&
+  showFormControls(form:NgForm){
+    return form.controls['alterEgo'] &&
     // #docregion form-controls
-      form.controls.name.value; // Dr. IQ
+      form.controls['name'].value; // Dr. IQ
     // #enddocregion form-controls
   }
   /////////////////////////////
