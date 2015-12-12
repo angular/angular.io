@@ -54,8 +54,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-
-
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
 // Public tasks
 
@@ -70,14 +69,19 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 gulp.task('update-example-boilerplate', function() {
-  var sourceFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js'].map(function(fn) {
+  var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
-  var packagePaths = getPackagePaths(EXAMPLES_PATH);
-  return copyFiles(sourceFiles, packagePaths );
+  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  return copyFiles(sourceFiles, examplePaths );
 });
 
-gulp.task('add-example-symlinks', function() {
+gulp.task('_remove-example-boilerplate', function() {
+  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
+});
+
+gulp.task('add-example-symlinks', ['update-example-boilerplate'], function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
 
@@ -253,9 +257,23 @@ function copyFiles(fileNames, destPaths) {
   return Q.all(copyPromises);
 }
 
-function getPackagePaths(basePath) {
-  var jsonPattern = path.join(basePath, "**/package.json");
-  var exceptJsonPattern = "!" + path.join(basePath, "/package.json");
+function deleteFiles(baseFileNames, destPaths) {
+  var remove = Q.denodeify(fsExtra.remove);
+  var delPromises = [];
+  destPaths.forEach(function(destPath) {
+    baseFileNames.forEach(function(baseFileName) {
+      var destFileName = path.join(destPath, baseFileName);
+      var p = remove(destFileName);
+      delPromises.push(p);
+    });
+  });
+  return Q.all(delPromises);
+}
+
+function getExamplePaths(basePath) {
+  var jsonPattern = path.join(basePath, "**/example-config.json");
+  // ignore (skip) the top level version.
+  var exceptJsonPattern = "!" + path.join(basePath, "/example-config.json");
   var nmPattern =  path.join(basePath, "**/node_modules/**");
   var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
   // same as above but perf can differ.
@@ -267,8 +285,8 @@ function getPackagePaths(basePath) {
 }
 
 function getNodeModulesPaths(basePath) {
-  var paths = getPackagePaths(basePath).map(function(packagePath) {
-    return path.join(packagePath, "/node_modules");
+  var paths = getExamplePaths(basePath).map(function(examplePath) {
+    return path.join(examplePath, "/node_modules");
   });
   return paths;
 }
