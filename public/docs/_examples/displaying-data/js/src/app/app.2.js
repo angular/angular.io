@@ -1,9 +1,9 @@
 // #docregion
 (function() {
 
-var AppComponent = ng.Component({
+var AppComponent = ng.core.Component({
   selector: 'my-app',
-  templateUrl: 'app/app.2.html',
+  templateUrl: 'app/app.2.html'
 })
 // #docregion mock-heroes
 .Class({
@@ -16,7 +16,7 @@ var AppComponent = ng.Component({
 // #enddocregion mock-heroes
 
 document.addEventListener('DOMContentLoaded', function () {
-  ng.bootstrap(AppComponent);
+  ng.platform.browser.bootstrap(AppComponent);
 });
 
 })();

@@ -1,7 +1,7 @@
 // #docregion
 (function() {
 
-var AppComponent = ng.Component({
+var AppComponent = ng.core.Component({
   selector: 'my-app',
   templateUrl: 'app/app.1.html'
 })
@@ -13,7 +13,7 @@ var AppComponent = ng.Component({
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-  ng.bootstrap(AppComponent);
+  ng.platform.browser.bootstrap(AppComponent);
 });
 
 })();
