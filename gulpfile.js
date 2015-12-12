@@ -68,7 +68,15 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-gulp.task('update-example-boilerplate', function() {
+// requires admin access
+gulp.task('add-example-boilerplate',  function() {
+  var realPath = path.join(EXAMPLES_PATH, '/node_modules');
+  var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
+
+  nodeModulesPaths.forEach(function(linkPath) {
+    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
+    fsUtils.addSymlink(realPath, linkPath);
+  });
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
@@ -77,25 +85,12 @@ gulp.task('update-example-boilerplate', function() {
 });
 
 gulp.task('remove-example-boilerplate', function() {
-  var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
-});
-
-gulp.task('add-example-symlinks', ['update-example-boilerplate'], function() {
-  var realPath = path.join(EXAMPLES_PATH, '/node_modules');
-  var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
-
-  nodeModulesPaths.forEach(function(linkPath) {
-    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
-    fsUtils.addSymlink(realPath, linkPath);
-  });
-});
-
-gulp.task('remove-example-symlinks', ['remove-example-boilerplate'], function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
   nodeModulesPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
+  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
