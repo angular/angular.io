@@ -76,7 +76,7 @@ gulp.task('update-example-boilerplate', function() {
   return copyFiles(sourceFiles, examplePaths );
 });
 
-gulp.task('_remove-example-boilerplate', function() {
+gulp.task('remove-example-boilerplate', function() {
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   return deleteFiles(_exampleBoilerplateFiles, examplePaths );
 });
@@ -91,7 +91,7 @@ gulp.task('add-example-symlinks', ['update-example-boilerplate'], function() {
   });
 });
 
-gulp.task('remove-example-symlinks', function() {
+gulp.task('remove-example-symlinks', ['remove-example-boilerplate'], function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
   nodeModulesPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
