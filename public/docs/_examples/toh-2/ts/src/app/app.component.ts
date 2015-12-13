@@ -1,7 +1,7 @@
 // #docregion pt1
-import {bootstrap, Component, FORM_DIRECTIVES} from 'angular2/angular2';
+import {Component} from 'angular2/core';
 
-class Hero {
+interface Hero {
   id: number;
   name: string;
 }
@@ -16,18 +16,17 @@ class Hero {
       <label>name: </label>
       <div><input [(ng-model)]="hero.name" placeholder="name"></div>
     </div>
-    `,
-  directives: [FORM_DIRECTIVES]
+    `
 })
-class AppComponent {
+export class AppComponent {
   public title = 'Tour of Heroes';
   public hero: Hero = {
     id: 1,
     name: 'Windstorm'
   };
+  public heroes: HEROES;
 }
 
-bootstrap(AppComponent);
 // #enddocregion pt1
 // #docregion hero-array
 var HEROES: Hero[] = [

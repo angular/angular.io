@@ -1,5 +1,5 @@
 // #docregion ng-for
-<li *ng-for="#hero of heroes">
+<li *ngFor="#hero of heroes">
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 // #enddocregion ng-for
@@ -7,14 +7,14 @@
 // #docregion heroes-styled
 <h2>My Heroes</h2>
 <ul class="heroes">
-  <li *ng-for="#hero of heroes">
+  <li *ngFor="#hero of heroes">
     <span class="badge">{{hero.id}}</span> {{hero.name}}
   </li>
 </ul>
 // #enddocregion heroes-styled
 
 // #docregion selectedHero-click
-<li *ng-for="#hero of heroes" (click)="onSelect(hero)">
+<li *ngFor="#hero of heroes" (click)="onSelect(hero)">
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 // #enddocregion selectedHero-click
@@ -24,25 +24,42 @@
 <div><label>id: </label>{{selectedHero.id}}</div>
 <div>
     <label>name: </label>
-    <input [(ng-model)]="selectedHero.name" placeholder="name"/>
+    <input [(ngModel)]="selectedHero.name" placeholder="name"/>
 </div>
 // #enddocregion selectedHero-details
 
 // #docregion ng-if
-<div *ng-if="selectedHero">
+<div *ngIf="selectedHero">
   <h2>{{selectedHero.name}} details!</h2>
   <div><label>id: </label>{{selectedHero.id}}</div>
   <div>
     <label>name: </label>
-    <input [(ng-model)]="selectedHero.name" placeholder="name"/>
+    <input [(ngModel)]="selectedHero.name" placeholder="name"/>
   </div>
 </div>
 // #enddocregion ng-if
 
 // #docregion ng-class
-<li *ng-for="#hero of heroes"
-  [ng-class]="getSelectedClass(hero)"
+<li *ngFor="#hero of heroes"
+  [ngClass]="getSelectedClass(hero)"
   (click)="onSelect(hero)">
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 // #enddocregion ng-class
+
+// #docregion hero-array-1
+  public heroes: HEROES;
+// #enddocregion hero-array-1
+
+// #docregion heroes-template-1
+  <h2>My Heroes</h2>
+  <ul class="heroes">
+    <li>
+      <!-- each hero goes here -->
+    </li>
+  </ul>
+// #enddocregion heroes-template-1
+
+// #docregion heroes-ngfor-1
+  <li *ngFor="#hero of heroes">
+// #enddocregion heroes-ngfor-1
