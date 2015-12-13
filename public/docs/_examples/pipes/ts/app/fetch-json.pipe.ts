@@ -1,7 +1,6 @@
-///<reference path="./window.extension.d.ts"/>
-
+/// <reference path='./window.extension.d.ts'/>
 // #docregion
-import {Pipe} from 'angular2/angular2';
+import {Pipe} from 'angular2/core';
 
 // #docregion pipe-metadata
 @Pipe({
@@ -12,13 +11,12 @@ import {Pipe} from 'angular2/angular2';
 export class FetchJsonPipe {
   private fetchedValue:any;
   private fetchPromise:Promise<any>;
+
   transform(value:string, args:string[]):any {
     if (!this.fetchPromise) {
       this.fetchPromise = window.fetch(value)
-        .then(result => result.json())
-        .then(json => {
-          this.fetchedValue = json;
-        });
+        .then((result:any) => result.json())
+        .then((json:any)   => this.fetchedValue = json);
     }
 
     return this.fetchedValue;

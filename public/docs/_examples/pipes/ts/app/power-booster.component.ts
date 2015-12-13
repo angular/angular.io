@@ -1,8 +1,8 @@
 // #docregion
-import {Component} from 'angular2/angular2'
-import {ExponentialStrengthPipe} from './exponential-strength-pipe'
+import {Component} from 'angular2/core';
+import {ExponentialStrengthPipe} from './exponential-strength.pipe';
 
-@Component({ 
+@Component({
   selector: 'power-booster',
   template: `
     <h2>Power Booster</h2>
