@@ -1,4 +1,4 @@
-// #docregion pt1
+// #docregion pt2
 import {Component} from 'angular2/core';
 
 interface Hero {
@@ -16,7 +16,34 @@ interface Hero {
       <label>name: </label>
       <div><input [(ng-model)]="hero.name" placeholder="name"></div>
     </div>
-    `
+    <h2>My Heroes</h2>
+    <ul class="heroes">
+      <li *ngFor="#hero of heroes"
+        [class.selected]="hero === selectedHero"
+        (click)="onSelect(hero)">
+        <span class="badge">{{hero.id}}</span> {{hero.name}}
+      </li>
+    </ul>
+  `,
+  styles:[`
+    .heroes {list-style-type: none; margin-left: 1em; padding: 0; width: 10em;}
+    
+    .heroes li { cursor: pointer; position: relative; left: 0; transition: all 0.2s ease; }
+    
+    .heroes li:hover {color: #369; background-color: #EEE; left: .2em;}
+    
+    .heroes .badge {
+      font-size: small;
+      color: white;
+      padding: 0.1em 0.7em;
+      background-color: #369;
+      line-height: 1em;
+      position: relative;
+      left: -1px;
+      top: -1px;
+    }
+    .selected { background-color: #EEE; color: #369; }
+  `]  
 })
 export class AppComponent {
   public title = 'Tour of Heroes';
@@ -25,9 +52,12 @@ export class AppComponent {
     name: 'Windstorm'
   };
   public heroes: HEROES;
+  public selectedHero: Hero;
+  
+  onSelect(hero: Hero) { this.selectedHero = hero; }
 }
+// #enddocregion pt2
 
-// #enddocregion pt1
 // #docregion hero-array
 var HEROES: Hero[] = [
   { "id": 11, "name": "Mr. Nice" },
@@ -42,3 +72,5 @@ var HEROES: Hero[] = [
   { "id": 20, "name": "Tornado" }
 ];
 // #enddocregion hero-array
+
+// #enddocregion pt2

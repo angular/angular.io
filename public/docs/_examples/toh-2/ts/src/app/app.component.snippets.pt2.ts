@@ -75,7 +75,7 @@ styles:[`
     top: -1px;
   }
   .selected { background-color: #EEE; color: #369; }
-`],
+`]
 // #enddocregion styles-1
 
 // #docregion selected-hero-1
