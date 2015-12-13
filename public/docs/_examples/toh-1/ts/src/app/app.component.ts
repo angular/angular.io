@@ -18,7 +18,7 @@ interface Hero {
     </div>
     `
 })
-class AppComponent {
+export class AppComponent {
   public title = 'Tour of Heroes';
   public hero: Hero = {
     id: 1,

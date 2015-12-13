@@ -30,3 +30,18 @@ template:`
   </div>
   `
 // #enddocregion editing-Hero
+
+// #docregion app-component-1
+  export class AppComponent {
+    public title = 'Tour of Heroes';
+    public hero = 'Windstorm';
+  }
+// #enddocregion app-component-1
+
+
+// #docregion hero-interface-1
+  interface Hero {
+    id: number;
+    name: string;
+  }
+// #enddocregion hero-interface-1
