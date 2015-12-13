@@ -1,5 +1,4 @@
 // #docregion pt1
-import {bootstrap} from 'angular2/platform/browser';
 import {Component} from 'angular2/core';
 
 interface Hero {
@@ -27,7 +26,6 @@ class AppComponent {
   };
 }
 
-bootstrap(AppComponent);
 // #enddocregion pt1
 // #docregion hero-array
 var HEROES: Hero[] = [
