@@ -39,14 +39,6 @@
 </div>
 // #enddocregion ng-if
 
-// #docregion ng-class
-<li *ngFor="#hero of heroes"
-  [ngClass]="getSelectedClass(hero)"
-  (click)="onSelect(hero)">
-  <span class="badge">{{hero.id}}</span> {{hero.name}}
-</li>
-// #enddocregion ng-class
-
 // #docregion hero-array-1
   public heroes: HEROES;
 // #enddocregion hero-array-1
@@ -91,9 +83,14 @@
     onSelect(hero: Hero) { this.selectedHero = hero; }
 // #enddocregion on-select-1
 
-// #docregion getSelectedClass-1
-    getSelectedClass(hero: Hero) {
-      return { 'selected': hero === this.selectedHero };
-    }
-// #enddocregion getSelectedClass-1
+// #docregion class-selected-1
+    [class.selected]="hero === selectedHero"
+// #enddocregion class-selected-1
 
+// #docregion class-selected-2
+<li *ngFor="#hero of heroes"
+  [class.selected]="hero === selectedHero"
+  (click)="onSelect(hero)">
+  <span class="badge">{{hero.id}}</span> {{hero.name}}
+</li>
+// #enddocregion class-selected-2
