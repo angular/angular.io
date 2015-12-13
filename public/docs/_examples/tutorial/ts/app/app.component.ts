@@ -6,8 +6,18 @@ import {DashboardComponent} from './dashboard.component';
 
 @Component({
   selector: 'my-app',
-  templateUrl: 'app/app.component.html',
-  styleUrls: ['app/app.component.css'],
+  template: `
+    <h1>{{title}}</h1>
+    <a [routerLink]="['Dashboard']">Dashboard</a>
+    <a [routerLink]="['Heroes']">Heroes</a>
+    <router-outlet></router-outlet>
+  `,
+  styles: [`
+    a {padding: 5px;text-decoration: none;}
+    a:visited, a:link {color: #444;}
+    a:hover {color: white; background-color: #1171a3;}
+    a.router-link-active {color: white; background-color: #52b9e9;}
+  `],
   directives: [ROUTER_DIRECTIVES]
 })
 @RouteConfig([
