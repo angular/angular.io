@@ -24,7 +24,7 @@
 <div><label>id: </label>{{selectedHero.id}}</div>
 <div>
     <label>name: </label>
-    <input [(ng-model)]="selectedHero.name" placeholder="name"></input>
+    <input [(ng-model)]="selectedHero.name" placeholder="name"/>
 </div>
 // #enddocregion selectedHero-details
 
@@ -34,7 +34,7 @@
   <div><label>id: </label>{{selectedHero.id}}</div>
   <div>
     <label>name: </label>
-    <input [(ng-model)]="selectedHero.name" placeholder="name"></input>
+    <input [(ng-model)]="selectedHero.name" placeholder="name"/>
   </div>
 </div>
 // #enddocregion ng-if

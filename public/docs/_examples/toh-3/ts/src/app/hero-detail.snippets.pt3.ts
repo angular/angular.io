@@ -7,7 +7,7 @@
         <div><label>id: </label>{{hero.id}}</div>
         <div>
           <label>name: </label>
-          <input [(ng-model)]="hero.name" placeholder="name"></input>
+          <input [(ng-model)]="hero.name" placeholder="name"/>
         </div>
       </div>
     `,
@@ -24,7 +24,7 @@
           <div><label>id: </label>{{hero.id}}</div>
             <div>
               <label>name: </label>
-              <input [(ng-model)]="hero.name" placeholder="name"></input>
+              <input [(ng-model)]="hero.name" placeholder="name"/>
             </div>
           </div>
     `,
