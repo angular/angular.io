@@ -38,10 +38,16 @@ template:`
   }
 // #enddocregion app-component-1
 
-
 // #docregion hero-interface-1
   interface Hero {
     id: number;
     name: string;
   }
 // #enddocregion hero-interface-1
+
+// #docregion hero-property-1
+  public hero: Hero = {
+    id: 1,
+    name: 'Windstorm'
+  };
+// #enddocregion hero-property-1
