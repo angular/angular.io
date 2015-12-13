@@ -1,5 +1,6 @@
 // #docregion pt1
-import {bootstrap, Component, FORM_DIRECTIVES} from 'angular2/angular2';
+import {bootstrap} from 'angular2/platform/browser';
+import {Component} from 'angular2/core';
 
 class Hero {
   id: number;
@@ -16,8 +17,7 @@ class Hero {
       <label>name: </label>
       <div><input [(ng-model)]="hero.name" placeholder="name"></div>
     </div>
-    `,
-  directives: [FORM_DIRECTIVES]
+    `
 })
 class AppComponent {
   public title = 'Tour of Heroes';
