@@ -9,4 +9,6 @@ import {Component} from 'angular2/core';
 	template: '<h1>My First Angular 2 App</h1>'
 })
 // #enddocregion metadata
+// #docregion export
 export class AppComponent { }
+// #enddocregion export
