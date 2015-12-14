@@ -50,10 +50,11 @@ angularIO.directive('apiList', function () {
         function(filter, type, sections) {
           $ctrl.filteredSections.length = 0;
           angular.forEach($ctrl.sections, function(section, title) {
+            var matchesModule = $ctrl.apiFilter == '' || title.toLowerCase().indexOf($ctrl.apiFilter.toLowerCase()) !== -1;
             var filteredItems = section.filter(function(item) {
               var matchesDocType = !$ctrl.apiType || $ctrl.apiType.matches.indexOf(item.docType) !== -1;
               var matchesTitle = $ctrl.apiFilter == '' || item.title.toLowerCase().indexOf($ctrl.apiFilter.toLowerCase()) !== -1;
-              return matchesDocType && matchesTitle;
+              return matchesDocType && (matchesTitle || matchesModule);
             });
             if (filteredItems.length) {
               $ctrl.filteredSections.push({ title: title, items: filteredItems });
