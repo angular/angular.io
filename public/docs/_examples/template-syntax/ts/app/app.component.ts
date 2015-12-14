@@ -111,18 +111,31 @@ export class AppComponent {
   // #docregion setStyles
   setStyles() {
     return {
+      // CSS property names
       'font-style':  this.canSave      ? 'italic' : 'normal',  // italic
       'font-weight': !this.isUnchanged ? 'bold'   : 'normal',  // normal
       'font-size':   this.isSpecial    ? 'x-large': 'smaller', // larger
     }
   }
   // #enddocregion setStyles
-
-  toeChoice(picker:HTMLFieldSetElement){
+ 
+  // #docregion setStyles2
+  setStyles2() {
+    return {
+      // camelCase style properties works too
+      fontStyle:  this.canSave      ? 'italic' : 'normal',  // italic
+      fontWeight: !this.isUnchanged ? 'bold'   : 'normal',  // normal
+      fontSize:   this.isSpecial    ? 'x-large': 'smaller', // larger
+    }
+  }
+  // #enddocregion setStyles2
+  
+  toeChoice = '';
+  toeChooser(picker:HTMLFieldSetElement){
     let choices = picker.children;
     for (let i=0; i<choices.length; i++){
       var choice = <HTMLInputElement>choices[i];
-      if (choice.checked) {return choice.value}
+      if (choice.checked) {return this.toeChoice = choice.value}
     }
   }
 

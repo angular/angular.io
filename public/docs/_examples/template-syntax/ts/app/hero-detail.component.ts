@@ -1,3 +1,4 @@
+// #docplaster
 import {Component, Input, Output, EventEmitter} from 'angular2/core';
 
 import {Hero} from './hero';
@@ -39,10 +40,6 @@ export class HeroDetailComponent {
 
 @Component({
   selector: 'big-hero-detail',
-  /*
-  inputs: ['hero'],
-  outputs: ['deleted'],
-  */
   template: `
   <div style="border: 1px solid black; padding:3px">
     <img src="{{heroImageUrl}}" style="float:left; margin-right:8px;">
