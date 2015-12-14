@@ -19,7 +19,7 @@ import 'package:developer_guide_intro/hero_service.dart';
 // #enddocregion metadata
 /*
 // #docregion metadata, providers
-export class HeroesComponent { ... }
+class HeroListComponent { ... }
 // #enddocregion metadata, providers
 */
 // #docregion class
