@@ -1,10 +1,12 @@
 // #docregion pt1
 import {Component} from 'angular2/core';
 
+// #docregion hero-interface-1
 interface Hero {
   id: number;
   name: string;
 }
+// #enddocregion hero-interface-1
 
 @Component({
   selector: 'my-app',
