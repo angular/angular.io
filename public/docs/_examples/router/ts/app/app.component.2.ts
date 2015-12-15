@@ -41,3 +41,6 @@ import {HeroDetailComponent}   from './heroes/hero-detail.component';
 export class AppComponent { }
 // #enddocregion route-config
 // #enddocregion
+
+// #docregion child-router-link
+// #enddocregion child-router-link
