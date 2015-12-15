@@ -45,7 +45,7 @@ var _rxData = [
   },
   {
     pattern: 'script',
-    from: 'node_modules/angular2/bundles/angular2-all.umd.dev.js',
+    from: 'node_modules/angular2/bundles/angular2-all.umd.js',
     to: 'https://code.angularjs.org/2.0.0-beta.0/angular2-all.umd.dev.js'
   },  
   {
@@ -60,7 +60,7 @@ var _rxData = [
   },  
   {
     pattern: 'script',
-    from: 'node_modules/rxjs/bundles/rx.umd.js',
+    from: 'node_modules/rxjs/bundles/Rx.umd.js',
     to: 'https://code.angularjs.org/2.0.0-beta.0/Rx.umd.js'
   },  
   {
