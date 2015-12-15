@@ -7,6 +7,7 @@ angularIO.directive('apiList', function () {
       '<div ng-cloak="ng-cloak" class="banner">' +
       '  <dl class="api-key">' +
       '    <dt>Display:</dt>' +
+      '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
       '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)" class="{{apiType.cssClass}}">{{apiType.title}}</dd>' +
       '  </dl>' +
       '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" class="api-filter">' +
