@@ -1,16 +1,22 @@
 var _ = require('lodash');
 
-module.exports = function createCheatsheetDoc(createDocMessage, renderMarkdown) {
+module.exports = function createCheatsheetDoc(createDocMessage, renderMarkdown, versionInfo, targetEnvironments) {
   return {
     $runAfter: ['processing-docs'],
     $runBefore: ['docs-processed'],
     $process: function(docs) {
 
+      var currentEnvironment = targetEnvironments.isActive('ts') && 'TypeScript' ||
+                               targetEnvironments.isActive('js') && 'JavaScript' ||
+                               targetEnvironments.isActive('dart') && 'Dart';
+
       var cheatsheetDoc = {
         id: 'cheatsheet',
         aliases: ['cheatsheet'],
         docType: 'cheatsheet-data',
-        sections: []
+        sections: [],
+        version: versionInfo,
+        currentEnvironment: currentEnvironment
       };
 
       docs = docs.filter(function(doc) {
