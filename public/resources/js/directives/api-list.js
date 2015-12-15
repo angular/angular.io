@@ -1,4 +1,6 @@
 angularIO.directive('apiList', function () {
+  var API_FILTER_KEY = 'api_filter';
+  var API_TYPE_KEY = 'api_type';
   return {
     restrict: 'E',
     template:
@@ -20,11 +22,20 @@ angularIO.directive('apiList', function () {
       '  </div>' +
       '</article>',
     controllerAs: '$ctrl',
-    controller: function($scope, $attrs, $http) {
+    controller: function($scope, $attrs, $http, $location) {
       var $ctrl = this;
 
-      $ctrl.apiType     = null;
-      $ctrl.apiFilter   = '';
+      $ctrl.apiTypes = [
+        { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
+        { cssClass: 'class', title: 'Class', matches: ['class'] },
+        { cssClass: 'interface', title: 'Interface', matches: ['interface'] },
+        { cssClass: 'function', title: 'function', matches: ['function'] },
+        { cssClass: 'const', title: 'Const or Enum', matches: ['const', 'enum'] },
+        { cssClass: 'var', title: 'Variable', matches: ['var', 'let'] }
+      ];
+
+      $ctrl.apiFilter = getApiFilterFromLocation();
+      $ctrl.apiType = getApiTypeFromLocation();
       $ctrl.filteredSections = [];
 
       $ctrl.setType = function (type) {
@@ -36,23 +47,19 @@ angularIO.directive('apiList', function () {
         $ctrl.sections = response.data;
       });
 
-      $ctrl.apiTypes = [
-        { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
-        { cssClass: 'class', title: 'Class', matches: ['class'] },
-        { cssClass: 'interface', title: 'Interface', matches: ['interface'] },
-        { cssClass: 'function', title: 'function', matches: ['function'] },
-        { cssClass: 'const', title: 'Const or Enum', matches: ['const', 'enum'] },
-        { cssClass: 'var', title: 'Variable', matches: ['var', 'let'] }
-      ];
-
       $scope.$watchGroup(
         [function() { return $ctrl.apiFilter}, function() { return $ctrl.apiType; }, function() { return $ctrl.sections; }],
-        function(filter, type, sections) {
+        function() {
+          var apiFilter = ($ctrl.apiFilter || '').toLowerCase();
+
+          $location.search(API_FILTER_KEY, apiFilter || null);
+          $location.search(API_TYPE_KEY, $ctrl.apiType && $ctrl.apiType.title || null);
+
           $ctrl.filteredSections.length = 0;
           angular.forEach($ctrl.sections, function(section, title) {
             var filteredItems = section.filter(function(item) {
               var matchesDocType = !$ctrl.apiType || $ctrl.apiType.matches.indexOf(item.docType) !== -1;
-              var matchesTitle = $ctrl.apiFilter == '' || item.title.toLowerCase().indexOf($ctrl.apiFilter.toLowerCase()) !== -1;
+              var matchesTitle = !apiFilter || item.title.toLowerCase().indexOf(apiFilter) !== -1;
               return matchesDocType && matchesTitle;
             });
             if (filteredItems.length) {
@@ -61,6 +68,25 @@ angularIO.directive('apiList', function () {
           });
         }
       );
+
+      function getApiFilterFromLocation() {
+        return $location.search()[API_FILTER_KEY] || null;
+      }
+
+      function getApiTypeFromLocation() {
+        var apiFilter = $location.search()[API_TYPE_KEY];
+        if (!apiFilter) {
+          return null;
+        } else if (!$ctrl.apiFilter || $ctrl.apiFilter.title != apiFilter) {
+          for(var i = 0, ii = $ctrl.apiTypes.length; i < ii; i++) {
+            if ($ctrl.apiTypes[i].title == apiFilter) {
+              return $ctrl.apiTypes[i];
+            }
+          }
+        }
+        // If we get here then the apiType query didn't match any apiTypes
+        $location.search(API_TYPE_KEY, null);
+      }
     }
   };
 });
