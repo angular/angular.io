@@ -22,7 +22,6 @@ import {HeroDetailComponent}   from './heroes/hero-detail.component';
 // #docregion route-config
 @RouteConfig([
 
-/*
   // #docregion route-config-cc
   { // Crisis Center child route
     path: '/crisis-center/...',
@@ -30,15 +29,15 @@ import {HeroDetailComponent}   from './heroes/hero-detail.component';
     component: CrisisCenterComponent,
     useAsDefault: true
   },
-
   // #enddocregion route-config-cc
-  */
-  {path: '/crisis-center/...',   name: 'CrisisCenter',     component: CrisisCenterComponent, useAsDefault: true},
+
   {path: '/heroes',   name: 'Heroes',     component: HeroListComponent},
   {path: '/hero/:id', name: 'HeroDetail', component: HeroDetailComponent},
-  // #docregion other
-  {path: '/*other',  redirectTo: ['CrisisCenter']},
-  // #enddocregion other
+  // #enddocregion route-config
+  // #docregion asteroid-route
+  {path: '/disaster', name: 'Asteroid', redirectTo: ['CrisisCenter', 'CrisisDetail', {id:3}]}
+   // #enddocregion asteroid-route
+   // #docregion route-config
 ])
 // #enddocregion route-config
 export class AppComponent { }

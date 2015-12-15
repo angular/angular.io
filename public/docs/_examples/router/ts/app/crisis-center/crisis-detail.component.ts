@@ -58,6 +58,9 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
   // #docregion canDeactivate
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
+    // Allow navigation (`true`) if no crisis or the crisis is unchanged.
+    // Otherwise ask the user with the dialog service and return its
+    // promise which resolves true-or-false when the user decides
     return !this.crisis ||
            this.crisis.name === this.editName ||
            this._dialog.confirm('Discard changes?');

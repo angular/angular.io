@@ -34,7 +34,9 @@ export class HeroListComponent implements OnInit {
   }
   // #docregion select
   onSelect(hero: Hero) {
+    // #docregion nav-to-detail
     this._router.navigate( ['HeroDetail', { id: hero.id }] );
+    // #enddocregion nav-to-detail
   }
   // #enddocregion select
 }
