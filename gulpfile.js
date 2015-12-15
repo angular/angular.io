@@ -179,8 +179,7 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
-// gulp.task('check-deploy', ['build-docs'], function() {
-gulp.task('check-deploy', function() {
+gulp.task('check-deploy', ['build-docs'], function() {
   gutil.log('running harp compile...');
   return execPromise('npm run harp -- compile . ./www', {}).then(function() {
     gutil.log('compile ok - running live server ...');
