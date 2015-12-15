@@ -16,7 +16,7 @@ var _rxRules = {
     to: '<link rel="stylesheet" href="%tag%">'
   },
   config: {
-    from: /\s*System.config\(\{\s*packages:[\s\S]*\}\}\s*\}\);/m,
+    from: /\s*System.config\(\{[\s\S]*\}\);/m,
     to: "\n" +
         "      System.config({\n" +
         "        transpiler: 'typescript', \n" +
