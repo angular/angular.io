@@ -92,6 +92,13 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
   });
 
+
+  computePathsProcessor.pathTemplates.push({
+    docTypes: ['decorator'],
+    pathTemplate: '${moduleDoc.moduleFolder}/${name}-${docType}.html',
+    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
+  });
+
   computePathsProcessor.pathTemplates.push({
     docTypes: ['jade-data'],
     pathTemplate: '${originalDoc.moduleFolder}/_data',
