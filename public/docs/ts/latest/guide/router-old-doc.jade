@@ -1,0 +1,724 @@
+.l-main-section
+
+  h2#section-route-use Using the Component Router
+  p There are three steps to setting up routing with Angular's Component Router
+  ol
+    li Install the Component Router
+    li Map paths to components
+    li Link to routes
+
+
+.l-main-section
+
+  h2#section-install-router Import the Component Router
+
+  p.
+    Create two files, <code>index.html</code> and <code>app.ts</code>, both at the root of the project:
+
+  pre.prettyprint.lang-bash
+    code.
+      touch index.html app.ts
+
+  p Your app directory should look something like:
+  pre.prettyprint.lang-bash
+    code.
+      app.ts
+      index.html
+      package.json
+      node_modules/
+      └── ...
+
+  p.
+    Because the component is an addition to the core, you must install Angular's Component Router into your app.
+    When using the angular2.dev.js bundle you have include the additional router.dev.js bundle.
+
+  p.
+    Add Angular and Component Router into your app by adding the relevant <code>&lt;script&gt;</code> tags into your
+    <code>index.html</code>:
+
+  //ANGULAR 1
+  pre.prettyprint.lang-html.is-angular1.is-hidden
+    code.
+      &lt;!doctype html&gt;
+      &lt;html lang=&quot;en&quot;&gt;
+      &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;base href=&quot;/&quot;&gt;
+        &lt;title&gt;My app&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
+        &lt;div ng-outlet&gt;&lt;/div&gt;
+              &lt;script src=&quot;/node_modules/angular/angular.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/dist/router.es5.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;/app/app.js&quot;&gt;&lt;/script&gt;
+      &lt;/body&gt;
+      &lt;/html&gt;
+
+  pre.prettyprint.lang-html.is-angular2
+    code.
+      &lt;!doctype html&gt;
+      &lt;html lang=&quot;en&quot;&gt;
+      &lt;head&gt;
+        &lt;meta charset=&quot;utf-8&quot;&gt;
+        &lt;base href=&quot;/&quot;&gt;
+        &lt;title&gt;My app&lt;/title&gt;
+      &lt;/head&gt;
+      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
+        &lt;script src=&quot;https://jspm.io/system@0.16.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.21/angular2.dev.js&quot;&gt;&lt;/script&gt;
+        &lt;script src=&quot;https://code.angularjs.org/2.0.0-alpha.21/router.dev.js&quot;&gt;&lt;/script&gt;
+        &lt;script&gt;
+          System.import(&#39;main&#39;);
+        &lt;/script&gt;
+      &lt;/body&gt;
+      &lt;/html&gt;
+
+
+  p.is-angular2.
+    Then you can add the router into your app by importing the Router module in your <code>app.ts</code> file:
+
+  .code-box.is-angular2
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        import {Component, View, bootstrap} from 'angular2/angular2';
+        import {Router, RouterOutlet, RouterLink} from 'angular2/router';
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        // self-executing bundle deploys angular APIs on the window object.
+        window.angular;
+        // the router APIs are part of the router sub-object.
+        window.angular.router;
+
+  p.is-angular1.is-hidden.
+    This is a pretty typical angular app, except the <code>ng-outlet</code> directive. <code>ng-outlet</code> is like
+    <code>ng-view</code>; it's a placeholder for part of your app loaded dynamically based on the route configuration.
+
+  p.is-angular2.
+    This is the same as you've seen in the rest of Angular 2, except the <code>router-outlet</code> directive.
+    <code>router-outlet</code> is a placeholder for part of your app loaded dynamically based on the route configuration.
+
+  p So how do we configure the app? Let's open <code>app.ts</code> and find out. Add this to the file:
+
+  //ANGULAR 1
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
+    code.
+      angular.module('app', ['ngNewRouter'])
+        .controller('AppController', ['$router', AppController]);
+
+      AppController.$routeConfig = [
+        {path: '/', component: 'home' }
+      ];
+      function AppController ($router) {}
+
+  // ANGULAR 2
+  .code-box
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        import {Component, View, bootstrap} from 'angular2/angular2';
+        import {routerInjectables, RouterOutlet} from 'angular2/router';
+
+        import {HomeComp} from './components/home';
+
+        @Component({
+          selector: 'my-app'
+        })
+        @View({
+          template: '&lt;router-outlet&gt;&lt;/router-outlet&gt;',
+          directives: [RouterOutlet]
+        })
+        @RouteConfig([
+          {path: '/', component: HomeComp }
+        ])
+        class AppComp {}
+
+        bootstrap(AppComp, routerInjectables);
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        var HomeComp = function() {};
+        ...
+
+        var AppComp = function() {};
+        AppComp.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'my-app'
+          }),
+          new angular.ViewAnnotation({
+            template: '&lt;router-outlet&gt;&lt;/router-outlet&gt;',
+            directives: [angular.router.RouterOutlet]
+          }),
+          new angular.router.RouteConfigAnnotation([
+            {path: '/', component: HomeComp}
+          ])
+        ];
+
+        angular.bootstrap(AppComp, routerInjectables);
+
+
+  p.is-angular1.is-hidden.
+    The <code>ngComponentRouter</code> module provides a new service, <code>$router</code>. In the configuration, we map paths
+    to components. What's a component? Let's talk about that for a bit.
+
+  p.is-angular2.
+    The <code>angular2/router</code> module provides <code>routerInjectables</code>, which is an array of all of the services
+    you'll need to use the component router in your app.
+
+.l-main-section
+  h2#section-map-paths-to-components Map paths to components
+
+  //- TODO - Alex - would it make more sense to have some paragraph styles conditionalized like this??
+  p.angular1.is-hidden.
+    In Angular 1, a "routable component" is a template, plus a controller, plus a router. You can configure how to map
+    component names to controllers and templates in the <code>$componentLoader</code> service.
+
+  p.
+    A component's template can have "outlets," which are holes in the DOM for loading parts of your app based on the
+    route configuration and it can ask the DI system for an instance of Router. A component's router tells the component what to put
+    inside the outlets based on URL. The configuration maps routes to components for each outlet.
+
+  p Let's make a <code>home</code> component that our app can route to:
+
+  pre.prettyprint.lang-bash
+    code.
+      mkdir -p components/home
+      touch components/home/home.html components/home/home.js
+
+  p This creates our component directory and its corresponding files: a template and a JavaScript component.
+
+  p Let's open <code>home.html</code> and add some content:
+
+  pre.prettyprint.lang-html
+    code.
+      &lt;h1&gt;Hello {{home.name}}!&lt;/h1&gt;
+
+  p.is-angular1.is-hidden.
+    Components use the "controller as" syntax, so if we want to access property <code>name</code> of the controller, we
+    write the binding as <code>home.name</code>.
+
+  p Let's make a controller:
+  //ANGULAR 1
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
+    code.
+      angular.module('app.home', [])
+        .controller('HomeController', [function () {
+          this.name = 'Friend';
+        }]);
+
+  // ANGULAR 2
+  .code-box
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        @Component({
+          selector: 'home-cmp'
+        })
+        @View({
+          template: 'Hello {{name}}'
+        })
+        export class HomeComponent {
+          name:string;
+          constructor() {
+            this.name = 'Friend';
+          }
+        }
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        function HomeComponent() {
+          this.name = 'Friend';
+        }
+
+        AppComponent.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'home-cmp'
+          }),
+          new angular.ViewAnnotation({
+            template: 'Hello {{name}}'
+          })
+        ];
+
+
+  p.is-angular1.is-hidden.
+    To wire this up, we need to add a <code>&lt;script&gt;</code> tag to our <code>index.html</code>:
+    pre.prettyprint.lang-html
+      code.
+        ...
+        &lt;script src=&quot;./components/home/home.js&quot;&gt;&lt;/script&gt;
+
+  //ANGULAR 1
+  p.is-angular1.is-hidden.
+    And add the controller's module as a dependency to our main module in <code>app.js</code>:
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
+    code.
+      angular.module('app', ['ngNewRouter', 'app.home'])
+        .controller('AppController', ['$router', AppController]);
+      // ...
+
+  p.
+    To wire this up, we need to import the component into the rest of our app.
+  // ANGULAR 2
+  .code-box.is-angular2
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        import {HomeComp} from './components/home';
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        // Use your favorite module system / bundler for ES5.
+
+
+  p If you load up the app, you should see <code>Hello Friend!</code>
+
+.l-main-section
+  h2#section-link-to-routes Link to routes
+
+  p Let's add another route and then link to it. This route will have a route parameter, <code>id</code>.
+
+  p In <code>app.js</code>:
+  //ANGULAR 1
+  pre.prettyprint.lang-javascript.is-hidden
+    code.
+      angular.module('app', ['ngNewRouter'])
+        .controller('AppController', ['$router', AppController]);
+            AppController.$routeConfig = [
+        { path: '/',           component: 'home' },
+        { path: '/detail/:id', component: 'detail' }
+      ];
+      function AppController ($router) {}
+
+  // ANGULAR 2
+  .code-box
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        ...
+        @RouteConfig([
+          { path: '/',           component: HomeComp },
+          { path: '/detail/:id', component: DetailComp }
+        ])
+        class AppComp {}
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        var AppComp = function() {};
+        AppComp.annotations = [
+          ...
+          new angular.router.RouteConfigAnnotation([
+            { path: '/', component: HomeComp}
+            { path: '/detail/:id', component: DetailComp }
+          ])
+        ];
+
+        angular.bootstrap(AppComp, routerInjectables);
+
+
+  p.
+    We can link to our detail component using the
+    <code class="is-angular2">router-link</code><code class="is-angular1 is-hidden">ng-link</code> directive.
+    Add this to <code class="is-angular2">template</code><code class="is-angular1 is-hidden">index.html</code>:
+
+  pre.prettyprint.lang-html.is-angular1.is-hidden.
+    code.
+      &lt;body ng-app=&quot;myApp&quot; ng-controller=&quot;AppController as app&quot;&gt;
+        &lt;a ng-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
+        ...
+
+  pre.prettyprint.lang-html.is-angular2
+    code.
+        &lt;a ng-link=&quot;detail({id: 5})&quot;&gt;link to detail&lt;/a&gt;
+
+  p This directive will generate an <code>href</code> and update the browser URL.
+
+  p We should also implement our detail component. Let's make these new files:
+
+  pre.prettyprint.lang-bash
+    code.
+      mkdir components/detail
+      touch components/detail/detail.html components/detail/detail.ts
+
+  p In <code>detail.ts</code>, we implement a controller that uses the <code>id</code> route parameter:
+
+  //ANGULAR 1
+  pre.prettyprint.lang-javascript.is-hidden
+    code.
+      angular.module('app.detail', ['ngNewRouter'])
+        .controller('DetailController', ['$routeParams', DetailController]);
+
+      function DetailController ($routeParams) {
+        this.id = $routeParams.id;
+      }
+
+  // ANGULAR 2
+  .code-box
+    pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+      code.
+        @Component({
+          selector: 'detail-cmp'
+        })
+        @View({
+          template: 'User ID: {{id}}'
+        })
+        export class DetailComp {
+          id: string;
+          constructor(routeParams:RouteParams) {
+            this.id = routeParams.get('id');
+          }
+        }
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        function DetailComp(routeParams) {
+          this.id = routeParams.get('id');
+        }
+
+        DetailComp.annotations = [
+          new angular.ComponentAnnotation({
+            selector: 'detail-cmp'
+          }),
+          new angular.ViewAnnotation({
+            template: 'User ID: {{id}}'
+          })
+        ];
+
+        DetailComp.parameters = [[RouteParams]];
+
+
+  p.is-angular1.is-hidden.
+    And then we can display the <code>id</code> in our template by adding this to <code>detail.html</code>:
+
+  pre.prettyprint.lang-html.is-angular1.is-hidden
+    code.
+      &lt;p&gt;detail {{detail.id}}&lt;/p&gt;
+
+  p.is-angular1.is-hidden.
+    Finally, we'd wire up the controller by adding a script tag and making our <code>app</code> module depend on
+    <code>app.detail</code>.
+
+
+.l-main-section
+
+  h2#section-configuring-the-router Configuring the Router
+
+  p.
+    Unlike other routing systems, Component Router maps URLs to components. A router takes an array of pairings like
+    this:
+
+  //ANGULAR 1
+  pre.prettyprint.lang-javascript.is-angular1.is-hidden
+    code.
+      //ES5
+      MyController.$routeConfig = [
+        { path: '/user', component: 'user' }
+      ];
+
+
+  //ANGULAR 2
+  .code-box.is-angular2
+    pre.prettyprint.linenums.lang-javascript(data-name="typescript")
+      code.
+        @Component()
+        @View()
+        @RouteConfig([
+          { path: '/user', component: UserComponent }
+        ])
+        class MyComp {}
+    pre.prettyprint.linenums.lang-javascript(data-name="es5")
+      code.
+        function MyComp() {};
+        MyComp.annotations = [
+          new angular.ComponentAnnotation({ ...  }),
+          new angular.ViewAnnotation({ ...  }),
+          new angular.router.RouteConfigAnnotation([
+            {path: '/', component: UserComponent}
+          ])
+
+
+  .l-sub-section
+    h3#section-sibling-outlets Sibling Outlets
+
+
+    p You can configure multiple outlets on the same path like this:
+
+    //ANGULAR 1
+    .codebox.is-angular1.is-hidden
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          //ES5
+          MyController.$routeConfig = [
+              { path: '/user',
+                components: {
+                  master: 'userList',
+                  detail: 'user'
+              } }
+            ];
+
+      pre.prettyprint.linenums.lang-html(data-name="html")
+      code.
+        //HTML
+        &lt;div ng-outlet=&quot;master&quot;&gt;&lt;/div&gt;
+        &lt;div ng-outlet=&quot;detail&quot;&gt;&lt;/div&gt;
+
+
+    //ANGULAR 2
+    .code-box.is-angular2
+      pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+        code.
+          //TypeScript
+          @Component({})
+          @View({
+            template:
+              `&lt;div router-outlet="master"&gt;&lt;/div&gt;
+               &lt;div router-outlet="detail"&gt;&lt;/div&gt;`,
+            directives: [RouterOutlet, RouterLink]
+          })
+          @RouteConfig({
+            path: '/user', components: {
+              master: UserListComp,
+              detail: UserComp
+            }
+          })
+          class MyComponent {}
+
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          function MyComponent() {};
+          MyComponent.annotations = [
+            new angular.ComponentAnnotation({ ...  }),
+            new angular.ViewAnnotation({
+                template:
+                  '&lt;div router-outlet="master"&gt;&lt;/div&gt;' +
+                  '&lt;div router-outlet="detail"&gt;&lt;/div&gt;',
+                directives: [RouterOutlet]
+              }),
+            new angular.router.RouteConfigAnnotation([{
+                path: '/user', components: {
+                    master: UserComponent,
+                    detail: UserComp
+                }
+              }])
+            ];
+
+    p You can link to any sibling just as you normally would:
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-html.is-angular1.is-hidden
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a ng-link=&quot;userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a ng-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+    //ANGULAR 2
+    pre.prettyprint.linenums.lang-html.is-angular2
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a router-link=&quot;userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a router-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+
+    p Or, you can explicitly link to a outlet-component pair like this:
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-html.is-angular1.is-hidden
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a ng-link=&quot;master:userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a ng-link=&quot;detail:user&quot;&gt;link to user component&lt;/a&gt;
+
+    //ANGULAR 2
+    pre.prettyprint.linenums.lang-html.is-angular2
+      code.
+        //HTML
+        &lt;p&gt;These both link to the same view:&lt;/p&gt;
+        &lt;a router-link=&quot;master:userList&quot;&gt;link to userList&lt;/a&gt;
+        &lt;a router-link=&quot;detail:user&quot;&gt;link to user component&lt;/a&gt;
+
+  .l-sub-section
+    h3#section-redirecting-routes Redirecting routes
+
+    p You can use `redirectTo` for migrating to a new URL scheme and setting up default routes.
+
+    p.
+      For example, as specified below, when a user navigates to `/`, the URL changes to `/user` and the outlet
+      at that level loads the `user` component.
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
+      code.
+        //ES5
+        MyController.$routeConfig = [
+          { path: '/', redirectTo: '/user' },
+          { path: '/user', component: 'user' }
+        ];
+        function MyController() {}
+
+    //ANGULAR 2
+    .code-box.is-angular2
+      pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+        code.
+          //TypeScript
+          @Component({})
+          @View({
+            directives: [RouterOutlet]
+          })
+          @RouteConfig([
+            { path: '/', redirectTo: '/user' },
+            { path: '/user', component: UserComp }
+          ])
+          class MyComp {}
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          function MyComponent() {};
+          MyComponent.annotations = [
+            new angular.ComponentAnnotation({ ...  }),
+            new angular.ViewAnnotation({
+                directives: [RouterOutlet]
+              }),
+            new angular.router.RouteConfigAnnotation([
+                { path: '/user', component: UserComp }
+                { path: '/', redirectTo: '/user' },
+              ])
+            ];
+
+
+  .l-sub-section
+    h3#section-aliases Aliases
+
+    p.
+      When linking to a route, you normally use the name of the component. You can also specify an alias to use
+      instead.
+
+    p Consider the following route configuration:
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
+      code.
+        //ES5
+        MyController.$routeConfig = [
+          { path: '/', component: 'user' }
+        ];
+
+    //ANGULAR 2
+    .code-box.is-angular2
+      pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+        code.
+          //TypeScript
+          @Component({
+            selector: 'my-comp'
+          })
+          @View({
+            directives: [RouterOutlet]
+          })
+          @RouteConfig([
+            { path: '/', component: UserComp }
+          ])
+          class MyComp {}
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          function MyComp() {};
+          MyComp.annotations = [
+            new angular.ComponentAnnotation({ ...  }),
+            new angular.ViewAnnotation({
+                directives: [RouterOutlet]
+              }),
+            new angular.router.RouteConfigAnnotation([
+                { path: '/', component: UserComp }
+              ])
+          ];
+
+
+    p We can link to the route in our template with the name of the component:
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-html.is-angular1.is-hidden
+      code.
+        //HTML
+        &lt;a ng-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+    //ANGULAR 2
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;a router-link=&quot;user&quot;&gt;link to user component&lt;/a&gt;
+
+    p Or, we can define an alias <code>myUser</code> like this:
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
+      code.
+        //ES5
+        MyController.$routeConfig = [
+          { path: '/', component: 'user', as: 'myUser' }
+        ];
+
+    //ANGULAR 2
+    .code-box.is-angular2
+      pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+        code.
+          //TypeScript
+          @Component()
+          @View()
+          @RouteConfig([
+            { path: '/', component: UserComp, as: 'myUser' }
+          ])
+          class MyComp {}
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          //ES5
+          //TODO: Need Angular 2 ES5 Example here
+
+
+    p And refer instead to the alias for the component in our template, with the same end-result:
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-html.is-angular1.is-hidden
+      code.
+        //HTML
+        &lt;a ng-link=&quot;myUser&quot;&gt;link to user component&lt;/a&gt;
+
+    //ANGULAR 2
+    pre.prettyprint.linenums.lang-html
+      code.
+        //HTML
+        &lt;a router-link=&quot;myUser&quot;&gt;link to user component&lt;/a&gt;
+
+
+    p.
+      This is especially useful when you have sibling components, but want to refer to an entire level of routing in
+      your controller. For example:
+
+    //ANGULAR 1
+    pre.prettyprint.linenums.lang-javascript.is-angular1.is-hidden(data-name="es5")
+      code.
+        //ES5
+        MyController.$routeConfig = [
+          { path: '/',
+            components: {
+              master: 'userList',
+              detail: 'user'
+            },
+            as: 'myUser'
+          }
+        ];
+
+    //ANGULAR 2
+    .code-box.is-angular2
+      pre.prettyprint.linenums.lang-typescript(data-name="typescript")
+        code.
+          //TypeScript
+          @RouteConfig([
+            { path: '/', components:
+                { master: UserListComp, detail: UserComp },
+            as: 'myUser' }
+          ])
+      pre.prettyprint.linenums.lang-javascript(data-name="es5")
+        code.
+          new angular.router.RouteConfigAnnotation([
+              { path: '/', components:
+                    { master: UserListComp, detail: UserComp },
+                as: 'myUser' }
+            ])
+
+
+  //- TODO(btford): expand on this.
+  .l-sub-section
+    h3#dynamic-configuration Dynamic Configuration
+
+    p.is-angular2.
+      You can configure dynamic routing by asking the DI system for a <code>Router</code>.
+
+    p.is-angular1.is-hidden
+      You can configure dynamic routing by making a request for <code>$router</code>.
