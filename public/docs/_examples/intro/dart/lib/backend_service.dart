@@ -7,8 +7,8 @@ import 'package:developer_guide_intro/hero.dart';
 
 @Injectable()
 class BackendService {
-  Logger _logger;
-  getAll(type) {
+  final Logger _logger;
+  List getAll(type) {
     // TODO get from the database and return as a promise
     if (type == Hero) {
       return [
@@ -18,7 +18,7 @@ class BackendService {
       ];
     }
     _logger.error('Cannot get object of this type');
-    throw new Error();
+    throw new ArgumentError("TODO: put log content here");
   }
 
   BackendService(Logger this._logger);

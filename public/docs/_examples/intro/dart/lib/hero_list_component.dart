@@ -12,7 +12,7 @@ import 'package:developer_guide_intro/hero_service.dart';
 // #enddocregion providers
     selector: 'hero-list',
     templateUrl: 'hero_list_component.html',
-    directives: const [CORE_DIRECTIVES, HeroDetailComponent],
+    directives: const [HeroDetailComponent],
 // #docregion providers
     providers: const [HeroService])
 // #enddocregion providers

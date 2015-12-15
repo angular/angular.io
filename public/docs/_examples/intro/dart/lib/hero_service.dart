@@ -8,8 +8,8 @@ import 'package:developer_guide_intro/logger_service.dart';
 // #docregion class
 @Injectable()
 class HeroService {
-  BackendService _backendService;
-  Logger _logger;
+  final BackendService _backendService;
+  final Logger _logger;
   HeroService(Logger this._logger, BackendService this._backendService);
   List<Hero> getHeroes() {
     List<Hero> heroes = _backendService.getAll(Hero);
