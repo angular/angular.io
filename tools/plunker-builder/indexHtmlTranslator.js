@@ -34,28 +34,49 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   ['https://rawgithub.com/systemjs/systemjs/0.19.6/dist/system.js', 'https://code.angularjs.org/tools/typescript.js']
+    to:   ['https://code.angularjs.org/tools/system.js', 'https://code.angularjs.org/tools/typescript.js']
+    //to:   ['https://rawgithub.com/systemjs/systemjs/0.19.6/dist/system.js', 'https://code.angularjs.org/tools/typescript.js']
     // to: ['https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.18.4/system.js', 'https://code.angularjs.org/tools/typescript.js' ]
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.53/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/angular2.dev.js'
   },
   {
     pattern: 'script',
+    from: 'node_modules/angular2/bundles/angular2-all.umd.dev.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/angular2-all.umd.dev.js'
+  },  
+  {
+    pattern: 'script',
+    from: 'node_modules/angular2/bundles/angular2-polyfills.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/angular2-polyfills.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/rxjs/bundles/Rx.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/Rx.js'
+  },  
+  {
+    pattern: 'script',
+    from: 'node_modules/rxjs/bundles/rx.umd.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/Rx.umd.js'
+  },  
+  {
+    pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.53/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.53/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/http.dev.js'
   },
   {
     pattern: 'script',
-    from: 'node_modules/angular2/bundles/testing.js',
-    to: 'https://code.angularjs.org/2.0.0-alpha.53/testing.js'
+    from: 'node_modules/angular2/bundles/testing.dev.js',
+    to: 'https://code.angularjs.org/2.0.0-alpha.55/testing.dev.js'
   },
   {
     pattern: 'link',
