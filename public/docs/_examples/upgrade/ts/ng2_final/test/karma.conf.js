@@ -4,15 +4,16 @@ module.exports = function(config){
     basePath : '..',
     files : [
       'node_modules/systemjs/dist/system.src.js',
+      'node_modules/angular2/bundles/angular2-polyfills.js',
       'node_modules/angular2/bundles/angular2.dev.js',
+      'node_modules/rxjs/bundles/Rx.js',
       'node_modules/angular2/bundles/http.dev.js',
-      'node_modules/angular2/bundles/testing.js',
+      'node_modules/angular2/bundles/testing.dev.js',
       'node_modules/angular2/bundles/router.dev.js',
       'test/karma_test_shim.js',
       {pattern: 'app/js/**/*.js', included: false, watched: true},
-      {pattern: 'app/**/*.html', included: false, watched: true},
-      {pattern: 'test/unit/**/*.js', included: false, watched: true},
-      {pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false}
+      {pattern: 'app/js/**/*.html', included: false, watched: true},
+      {pattern: 'test/unit/**/*.js', included: false, watched: true}
     ],
     autoWatch : true,
     frameworks: ['jasmine'],
@@ -28,7 +29,7 @@ module.exports = function(config){
     },
     proxies: {
       // required for component assests fetched by Angular's compiler
-      "/app/js/": "/base/src/app/js/"
+      "/js/": "/base/app/js/"
     }
   });
 };

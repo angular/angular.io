@@ -17,13 +17,7 @@ System.config({
               pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath]
               return pathsMapping;
             }, {})
-    },
-    'rxjs': {
-      defaultExtension: 'js'
     }
-  },
-  map: {
-    'rxjs' : '/base/node_modules/rxjs'
   }
 });
 
