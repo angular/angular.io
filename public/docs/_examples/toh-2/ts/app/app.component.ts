@@ -27,13 +27,14 @@ interface Hero {
       </div>
     </div>
   `,
+// #docregion styles-1
   styles:[`
     .heroes {list-style-type: none; margin-left: 1em; padding: 0; width: 10em;}
-    
+
     .heroes li { cursor: pointer; position: relative; left: 0; transition: all 0.2s ease; }
-    
+
     .heroes li:hover {color: #369; background-color: #EEE; left: .2em;}
-    
+
     .heroes .badge {
       font-size: small;
       color: white;
@@ -45,14 +46,19 @@ interface Hero {
       top: -1px;
     }
     .selected { background-color: #EEE; color: #369; }
-  `]  
+  `]
+// #enddocregion styles-1
 })
 export class AppComponent {
   public title = 'Tour of Heroes';
   public heroes = HEROES;
+// #docregion selected-hero-1
   public selectedHero: Hero;
-  
+// #enddocregion selected-hero-1
+
+// #docregion on-select-1
   onSelect(hero: Hero) { this.selectedHero = hero; }
+// #enddocregion on-select-1
 }
 // #enddocregion pt2
 
