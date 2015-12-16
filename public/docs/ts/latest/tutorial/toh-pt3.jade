@@ -140,194 +140,6 @@ code-example(format="." language="bash").
 
   We’ve created our first reusable component!
 
-  <!-- TODO
-  .l-sub-section
-    :marked
-      Learn more about reusable components in the chapter [Reusable Components]
-  :marked -->
-
-  ## Creating a Hero Service
-  Our stakeholders have shared their larger vision for our app. They tell us they want to show the heroes in various ways in different pages. We have a way to select a hero from a list, but we will also need a dashboard with the top heroes and a separate view for editing hero details.
-
-  All of these views need hero data. Our `AppComponent` defines and uses a list of heroes, but it is not ideal to create our AppComponent when just the heroes data elsewhere. Fortunately we can create a shared service that will provide the heroes.
-
-  ### Creating the HeroService
-  Were going to create a service that can be used by any component that wants hero data. Let’s start by creating a file and naming it `hero.service.ts`. We name the class `HeroService` and export it, so our components can import it.
-  ```
-  export class HeroService { }
-  ```
-  #### The getHeroes Method
-  We create a method named `getHeroes` in our `HeroService`. It will return an array of `Hero` objects, so let’s import the `Hero` class and define our method.
-  ```
-  import { Hero } from './hero';
-
-  export class HeroService {
-    getHeroes() : Hero[] {
-    }
-  }
-  ```
-  #### Mocking the Heroes
-  Our `HeroService` shouldn’t be defining the hero data. Instead, the service should handle retrieving the data from another source. That source could be a mock data, a web service, or even local storage. We will design our `HeroService` to get the data from any of these sources and not affect the calling component. This will make it more reusable and more testable.
-
-  Once.
-
-  We have a list of heroes in `AppComponent`. We will move it to a new file named `mock-heroes.ts` and export the list.
-
-+makeExample('toh-3/ts-snippets/app/mock-heroes.ts', 'mocking-heroes')
-
-:marked
-  ### Returning the Mocked Heroes
-  Our `HeroService` needs to get the list of heroes, so let’s import the mocked heroes module. Then we’ll return the HEROES array.
-  ```
-  import {Hero} from './hero';
-  import {HEROES} from './mock-heroes';
-
-  export class HeroService {
-    getHeroes() {
-      return HEROES;
-    }
-  }
-  ```
-  TypeScript can implicitly determine that that return type is `Hero[]` since the return value is of that same type. This allows use to remove the explicit return type from the `getHeroes` method.
-
-  ### Injecting the Hero Service
-  We’ve set ourselves up so we can use the `HeroService` from other components. Let’s import the `HeroService` in our `AppComponent`.
-  ```
-  import {HeroService} from './hero.service';
-  ```
-  Importing the service allows us to reference it, but we need to make sure the `HeroService` dependency is instantiated when our component needs it. We inject the `HeroService` into our `AppComponent`’s constructor.
-  ```
-  constructor(private _heroService: HeroService) { }
-  ```
-  We just injected our dependency into the component, thus we performed Dependency Injection.
-
-.l-sub-section
-  :marked
-    Learn more about Dependency Injection in chapter [Dependency Injection](dependency-injection.html)
-
-:marked
-  We made our instance of the injected `HeroService` be a private property on our `AppComponent` class. As a convention we prefixed the private property with an underscore.
-
-  Since we are not defining the heroes in the `AppComponent` any longer, let’s refactor the `hero` property declaration to be an uninitialized array of `Hero`.
-  ```
-  public heroes: Hero[];
-  ```
-
-  ### The OnInit Lifecycle Hook
-  When our `AppComponent` is created we want it to get the list of heroes. We need to know when the component is initialized and activated, so we’ll use the `OnInit` lifecycle event to tell us this.
-
-  Let’s import Angular’s `OnInit` interface, implement it on our `AppComponent` and define its required `onInit` method. First we add the `OnInit` interface to the import statement.
-  ```
-  import {bootstrap, Component, CORE_DIRECTIVES, FORM_DIRECTIVES, OnInit} from 'angular2/angular2';
-  ```
-  Now we implement the interface.
-  ```
-  class AppComponent implements OnInit {
-  ```
-  Then we define the `onInit` method and get our heroes from our `HeroService`.
-  ```
-  onInit() {
-    this.heroes = this._heroService.getHeroes();
-  }
-  ```
-  <!-- TODO
-  .l-sub-section
-    :marked
-      Learn more about lifecycle hooks in chapter [Lifecycle Hooks]
-  :marked
-  -->
-
-  Why not use the constructor to get the heroes? When we test our application we want an opportunity to create the class without any state being set. This will make it easier to test and reduce external factors, such as calling a service in the constructor.  Therefore the constructor is best suited to help us inject dependencies and initialize variables. We need a place to get our heroes right after our class is constructed but before the view is rendered. The OnInit lifecycle hook gives us this opportunity.
-  <!-- TODO
-  .l-sub-section
-    :marked
-      Learn more about testing components in chapter [Testing Components]
-  :marked
-  -->
-  ### Binding the Hero Service
-  When we view our app in the browser we see we have an error displayed in the developer console
-
-code-example(format="." language="html").
-    EXCEPTION: No provider for HeroService! (AppComponent -> HeroService)
-
-:marked
-  We used Dependency Injection to tell our `AppComponent` that it should inject the `HeroService`. However we need to tell our app about the `HeroService` so it can provide it when needed. The way we do this is by declaring the `HeroService` as a binding when we bootstrap our app.
-  Let’s pass a second argument to the `bootstrap` method to declare the `HeroService` as an application binding.
-  ```
-  bootstrap(AppComponent, [HeroService]);
-  ```
-  We can add other bindings here, as needed.
-
-  When we view our app in the browser the error is gone and our application runs as expected showing our list of heroes.
-
-  ## Promises
-  Our `HeroService` synchronously returns a list of heroes. It operates synchronously because the list of heroes is mocked. What happens when we want to switch that to get the heroes from a web service? The web service call over http would happen  asynchronously.
-
-  We don’t yet call http, but we aspire to in later chapters.  So how do we write our `HeroService` so that it won’t require refactoring the consumers of `HeroService` later? We make our `HeroService`’s `getHeroes` method return a promise to provide the heroes.
-
-  The key is that our components won’t know how the data is being retrieved. We can return mock heroes or heroes from http, and the component will call the service’s method the same way.
-
-  ### Returning a Promise
-  Let’s refactor the `getHeroes` method in `HeroService` to return the heroes in a promise.
-  ```
-  import { Hero } from './hero';
-  import { HEROES } from './mock-heroes';
-
-  export class HeroService {
-    getHeroes() {
-      return Promise.resolve(HEROES);
-    }
-  }
-  ```
-  The `Promise` is immediately resolving and passing the the hero data back in the promise.
-
-  ### Acting on a Promise
-  Let’s refactor the `getHeroes` method in `HeroService` to return the heroes in a promise. First, we create a new method in the `AppComponent` to get the heroes and named it `getHeroes`.
-
-  When we call our heroes we start by resetting  the `selectedHero` and `heroes` properties.
-  ```
-    getHeroes() {
-      this.selectedHero = undefined;
-      this.heroes = [];
-    }
-  ```
-  The `getHeroes` method in `HeroService` returns a promise. So we cannot simply set the return value to `this.heroes`. The method returns a promise and the `heroes` property expects an array of `Hero`. What do we do?
-
-  We define a `then` to handle the response from the promise when it resolves. We will set the heroes inside of the `then`.
-  ```
-  this._heroService.getHeroes()
-    .then(heroes => this.heroes = heroes);
-  ```
-  The `then` accepts a function, in this case a lambda that passes in the heroes and sets them to the `heroes` property on `AppComponent`.
-
-  We need to return a value for the heroes from the method so a caller can get the heroes when they are ready. Let’s return our component’s `heroes` property, which we first reset to an empty array.
-  ```
-  return this.heroes;
-  ```
-  When we put this all together we see we are setting our heroes to an empty array. Then we call the service and get a promise. Finally we return the reference to our `heroes` property, which has the empty array.
-  ```
-  getHeroes() {
-    this.selectedHero = undefined;
-    this.heroes = [];
-
-    this._heroService.getHeroes()
-      .then(heroes => this.heroes = heroes);
-
-    return this.heroes;
-  }
-  ```
-  So how do the heroes get populated?  When the promise resolves, the `heroes` are updated to include the response from the promise.
-
-  Finally we call the method we just created in our `onInit` method.
-  ```
-  onInit() {
-    this.heroes = this.getHeroes();
-  }
-  ```
-  When we view our app in the browser we can see the heroes are displayed.
-
-  We are using mock data right now, but we aspire to call a web service over http asynchronously in the future. When we do refactor to use http, the beauty of the promise we created here is that our component won’t have to change at all!
-
   ### Reviewing the App Structure
   Let’s verify that we have the following structure after all of our good refactoring in this chapter:
 
@@ -341,22 +153,19 @@ code-example(format="." language="html").
       .file boot.ts
       .file hero.ts
       .file hero-detail.component.ts
-      .file hero.service.ts
-      .file mock-heroes.ts
     .file index.html
     .file package.json
     .file tsconfig.json
+
+.l-main-section
 :marked
-  ## Recap
-  ### The Road We’ve Travelled
+  ## The Road We’ve Travelled
   Let’s take stock in what we’ve built.
-  - We created a reusable component
-  - We learned how to make a component accept input
-  - We created a service class that can be shared by many components
-  - We created mock hero data and imported them into our service
-  - We designed our service to return a promise and our component to get our data from the promise
+
+  * We created a reusable component
+  * We learned how to make a component accept input
+
+  [Run the live example for part 3](/resources/live-examples/toh-3/ts/plnkr.html)
 
   ### The Road Ahead
-  . . . We’ll learn more about all of these in the next chapter.
-
-  Our Tour of Heroes has become more reusable using shared components and services. We want to create a dashboard, add menu links that route between the views, and format data in a template. As our app evolves, we’ll learn how to design it to make it easier to grow and maintain. We’ll learn more about these tasks in the coming chapters.
+  Our Tour of Heroes has become more reusable using shared components. We want to create reusable services that retrieve our data. As our app evolves, we’ll learn how to design it to make it easier to grow and maintain. We’ll learn more about these tasks in the coming chapters.
