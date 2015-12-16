@@ -35,23 +35,18 @@ code-example(format="." language="bash").
   Our heroes list and our hero details are all in the same component. What if we want to reuse the hero details somewhere else in our app? This would be difficult since it is intermixed with the heroes list. Let’s make this easier and separate the hero details into its own component to make this more reusable.
 
   ### Separating the Hero Detail Component
-  We’ll need a new file and a new component to host our hero details. Let’s create a new file named `hero-detail.component.ts` with a component named `HeroDetailComponent`.
-  ```
-  @Component({
-    selector: 'my-hero-detail'
-  })
-  export class HeroDetailComponent { }
-  ```
+  We’ll need a new file and a new component to host our hero details. Let’s create a new file named `hero-detail.component.ts` in the `app` folder, and create a component named `HeroDetailComponent`.
+
++makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-1', 'hero-detail.component.ts (HeroDetailComponent)')
+
+:marked
   We want to use `HeroDetailComponent` from our original `AppComponent`.  We’ll need the selector name when we refer to it in `AppComponent`’s template. We export the `HeroDetailComponent` here so we can later import it into our `AppComponent`, which we’ll do after we finish creating our `HeroDetailComponent`.
 
   We anticipate our template will contain multiple lines. So let’s initialize the `template` property to an empty string between back-ticks.
-  ```
-  @Component({
-    selector: 'my-hero-detail',
-    template: ``
-  })
-  export class HeroDetailComponent { }
-  ```
+
++makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-2', 'hero-detail.component.ts (Empty template)')
+
+:marked
   Remember, we want to refer to our `HeroDetailComponent` in the `AppComponent`. This is why we export the `HeroDetailComponent` class.
 
   #### Hero Detail Template
@@ -59,44 +54,41 @@ code-example(format="." language="bash").
 
   Let’s also change the name of the property in the template from `selectedHero` to `hero`, as it is more appropriate for a reusable component.
 
-+makeExample('toh-3/ts-snippets/app/hero-detail.snippets.pt3.ts', 'template')
++makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-3', 'hero-detail.component.ts (Detail template)')
 
 :marked
-  Our `HeroDetailComponent` uses `ng-model` (which is in the `FORM_DIRECTIVES` array) and `ng-if` (which is in the `CORE_DIRECTIVES` array).  We have to tell our component about these directives, so we declare them in the `directives` property of the `@Component` decorator.
-
   Now our hero detail template exists only in our `HeroDetailComponent`.
 
   #### Importing
   Now that we have the foundation for the component, we need to make sure that we import everything we are using in the component. Let’s add the following import statement to the top of our `hero-detail.component.ts` file to get the exports from Angular that we are using.
-  ```
-  import {Component, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-  ```
+
++makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'imports-1', 'hero-detail.component.ts (Importing Component)')
+
+:marked
   #### Declaring our Hero
   Our `HeroDetailComponent`’s template refers to a hero, so let’s add a property on the component to hold the hero.
-  ```
-  export class HeroDetailComponent {
-    public hero: Hero;
-  }
-  ```
-  Uh oh. We declare the `hero` property as being of type `Hero` but our `Hero` class is over in the `app.ts` file. We now have two components, each in their own file, that need to reference the `Hero` class. Let’s solve this problem by removing the `Hero` class from `app.ts` and moving it to its own file named `hero.ts`.
-  ```
-  export class Hero {
-    id: number;
-    name: string;
-  }
-  ```
-  We export the `Hero` class from `hero.ts` because we will need to import it in both of our component files. Let’s add the following import statement to the top of both `app.ts` and `hero.-detail.component.ts`.
-  ```
-  import {Hero} from './hero';
-  ```
-  Now we can also use the `Hero` class from other files by importing it.
+
++makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-property', 'hero-detail.component.ts (Hero property)')
+
+:marked
+  Uh oh. We declare the `hero` property as being of type `Hero` but our `Hero` interface is over in the `app.component.ts` file. We now have two components, each in their own file, that need to reference the `Hero` interface. Let’s solve this problem by removing the `Hero` interface from `app.component.ts` and moving it to its own file named `hero.ts`.
+
++makeExample('toh-3/ts/app/hero.ts', 'hero-interface', 'hero.ts (Exported Hero interface)')
+
+:marked
+  We export the `Hero` interface from `hero.ts` because we will need to import it in both of our component files. Let’s add the following import statement to the top of both `app.component.ts` and `hero.-detail.component.ts`.
+
++makeExample('toh-3/ts/app/app.component.ts', 'hero-import', 'hero-detail.component.ts and app.component.ts (Import the Hero interface)')
+
+:marked
+  Now we can also use the `Hero` interface from other files by importing it.
 
   #### Defining the Input for HeroDetailComponent
   Our `HeroDetailComponent` needs to be told what hero to use. We have a `hero` property, but we need a way for the `AppComponent` to tell the `HeroDetailComponent`  the  hero it should use.
 
   Let’s declare the inputs for our component in the `@Component` decorator’s `inputs` property. We will set the input to the `hero` property so it matches the `hero` property on the `HeroDetailComponent`.
 
-+makeExample('toh-3/ts-snippets/app/hero-detail.snippets.pt3.ts', 'inputs')
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'inputs', 'hero-detail.component.ts (Component input)')
 
 :marked
   Now our `AppComponent`, or any component that refers to `HeroDetailComponent`, can tell the `HeroDetailComponent` which hero to use.
@@ -105,39 +97,44 @@ code-example(format="." language="bash").
   Our `HeroDetailComponent` is ready, but we need to go back to the `AppComponent` and clean up some loose ends.
 
   First we need to tell our `AppComponent` about our new component. Let’s add an import statement so we can refer to the `HeroDetailComponent`.
-  ```
-  import {HeroDetailComponent} from './hero-detail.component';
-  ```
-  Let’s find the location of the template content we removed from `AppComponent` and refer to our new component.
-  ```
-  <my-hero-detail></my-hero-detail>
-  ```
-  This would be good enough if the component did not have any inputs. But we do, so we want to pass the selected hero to the `hero` input of the `HeroDetailComponent`, as shown below:
-  ```
-  <my-hero-detail [hero]="selectedHero"></my-hero-detail>
-  ```
-  Our `AppComponent`’s template should now look like this
 
-+makeExample('toh-3/ts-snippets/app/hero-detail.component.pt3.html')
++makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-import', 'app.component.ts (Importing HeroDetailComponent)')
 
 :marked
-  #### Naming Convention
-  We want to identify which files are components. Our `AppComponent` is named `app.ts` while our `HeroDetailComponent` is `hero-detail.component.ts`. That’s not very consistent and we can make it easier to know what is in each file by following a naming convention where we identify which files contain a component.
+  Let’s find the location of the template content we removed from `AppComponent` and refer to our new component.
 
-  Let’s rename `app.ts` to `app.component.ts`.
++makeExample('toh-3/ts-snippets/app.component.pt3.html', 'component-1', 'app.component.ts (Using HeroDetailComponent)')
 
-  <!-- TODO
-  .l-sub-section
-    :marked
-      Learn more about naming conventions in the chapter [Naming Conventions]
+:marked
+  This would be good enough if the component did not have any inputs. But we do, so we want to pass the selected hero to the `hero` input of the `HeroDetailComponent`, as shown below:
++makeExample('toh-3/ts-snippets/app.component.pt3.html', 'component-2', 'app.component.ts (Passing the hero to HeroDetailComponent)')
+
+:marked
+  ### Declaring HeroDetailComponent
+  We've imported `HeroDetailComponent`, we've used it in the template, but we haven't told our `AppComponent` that we intend to use it in the template. We must declare our intention to use `HeroDetailComponent` in `AppComponent`.
+
+  Let's add the `directives` property to our `@Component` decorator and set it to an array which contains the `HeroDetailComponent`. We'll do this after our `template` and `styles` properties in the `@Component` decorator.
++makeExample('toh-3/ts/app/app.component.ts', 'declaring', 'app.component.ts (Declaring HeroDetailComponent)')
+
+:marked
+  Our `AppComponent`’s template should now look like this
+
++makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-template', 'app.component.ts (Template)')
+
+.l-sub-section
   :marked
-  -->
+    Naming conventions can be useful.
+    We want to identify which files are components. Our `AppComponent` is named `app.component.ts` and our `HeroDetailComponent` is `hero-detail.component.ts`. We follow this consistent pattern which makes it easy to know what is in each file, by following a naming convention where we identify which files contain a component.
 
-  Remember that our application kicks off by entering our starting point, which is `app.component.ts`. We just renamed this file, but we also have to change every place we import this module. Our entry point is in our `index.html` file. Let’s change the following statement to import `app.component`.
-  ```
-  System.import('app/app.component');
-  ```
+  :marked
+    <!-- TODO
+    .l-sub-section
+      :marked
+        Learn more about naming conventions in the chapter [Naming Conventions]
+    :marked
+    -->
 
+:marked
   ### Checking Our Work
   When we view our app in the browser we see the list of heroes. When we select a hero we can see the selected hero’s details. If we want to show hero details somewhere else in our app we can use the `HeroDetailComponent` and pass in a hero.
 

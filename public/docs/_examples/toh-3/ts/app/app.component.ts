@@ -1,13 +1,14 @@
-// #docregion pt2
 import {Component} from 'angular2/core';
-
-interface Hero {
-  id: number;
-  name: string;
-}
+// #docregion hero-import
+import {Hero} from './hero';
+// #enddocregion hero-import
+// #docregion hero-detail-import
+import {HeroDetailComponent} from './hero-detail.component';
+// #enddocregion hero-detail-import
 
 @Component({
   selector: 'my-app',
+// #docregion hero-detail-template
   template:`
     <h1>{{title}}</h1>
     <h2>My Heroes</h2>
@@ -18,16 +19,9 @@ interface Hero {
         <span class="badge">{{hero.id}}</span> {{hero.name}}
       </li>
     </ul>
-    <div *ngIf="selectedHero">
-      <h2>{{selectedHero.name}} details!</h2>
-      <div><label>id: </label>{{selectedHero.id}}</div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="selectedHero.name" placeholder="name"/>
-      </div>
-    </div>
+    <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
-// #docregion styles-1
+// #enddocregion hero-detail-template
   styles:[`
     .heroes {list-style-type: none; margin-left: 1em; padding: 0; width: 10em;}
     .heroes li { cursor: pointer; position: relative; left: 0; transition: all 0.2s ease; }
@@ -43,23 +37,19 @@ interface Hero {
       top: -1px;
     }
     .selected { background-color: #EEE; color: #369; }
-  `]
-// #enddocregion styles-1
+  `],
+// #docregion declaring
+  directives: [HeroDetailComponent]
+// #enddocregion declaring
 })
 export class AppComponent {
   public title = 'Tour of Heroes';
   public heroes = HEROES;
-// #docregion selected-hero-1
   public selectedHero: Hero;
-// #enddocregion selected-hero-1
 
-// #docregion on-select-1
   onSelect(hero: Hero) { this.selectedHero = hero; }
-// #enddocregion on-select-1
 }
-// #enddocregion pt2
 
-// #docregion hero-array
 var HEROES: Hero[] = [
   { "id": 11, "name": "Mr. Nice" },
   { "id": 12, "name": "Narco" },
@@ -72,6 +62,3 @@ var HEROES: Hero[] = [
   { "id": 19, "name": "Magma" },
   { "id": 20, "name": "Tornado" }
 ];
-// #enddocregion hero-array
-
-// #enddocregion pt2
