@@ -1,0 +1,928 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  Testing is an essential part of the application development.
+  Ideally it is integral to our daily process, not something we tack on at the end if there is still budget.
+  
+  Angular2 is designed with testing and testability at the forefront.
+  This chapter explains principals and techniques for testing Angular 2 applications.
+  
+  There are five main sections, each covering a variety of topics:
+  
+  1. [Introduction to Angular 2 testing](#introduction)
+  1. [Fundaments of testing with Jasmine](#fundamentals)
+  1. [The app we will test](#app-intro)
+  1. [First test of the app](#first-app-test)
+  1. [Test an Angular pipe](#pipe-testing)
+  
+  *More is on the way.*
+  
+  We write **unit tests** to explore and confirm the **behavior** of parts of our application.
+
+.l-main-section
+<a id="introduction"></a>
+:marked
+  # Introduction to Angular 2 Testing  
+  We like *having* unit tests for many reasons, three of them in particular:
+
+  1. They **guard** against breaking existing code (“regressions”) when we make changes.
+  1. They **clarify** what  the code does both when used as intended and when faced with deviant conditions.
+  1. They **reveal** mistakes in design and implementation. Tests force us to look at our code from many angles. When a part of our application seems hard to test, we may have discovered a design flaw, something we can cure now rather than later when it becomes expensive to fix.
+
+  While we like *having* tests, we don’t always like *making* tests. It’s a bit like the difference between *having* money (yeah!) and *making* money (oof!).
+
+  Our lofty goal in this chapter is to make it easy for you to write Angular application tests. If that goal exceeds our reach, we can at least make testing *easier*… and easy enough that you’ll want to write tests for your application.
+
+  ## The Testing Spectrum
+
+  Exploring behavior with tests is called “Functional Testing”.  There are other important forms of testing such as acceptance, security, performance, and deployment testing. We concentrate on functional testing in this section.
+
+  There is considerable variety within functional testing, a spectrum from short, quick pure unit tests to long running end-to-end tests. We could classify them in broad groups:
+
+figure.image-display
+  img(src='/resources/images/devguide/unit-testing/spectrum.png' alt="Functional Testing Spectrum")
+
+:marked
+  <table style="box-shadow: none">
+    <tr>
+      <td style="border-bottom: none">Pure unit test</td>
+      <td style="border-bottom: none; width: 80%">We test the part in isolation. Either the part  has no dependencies or we fake all of its dependencies during the test.</td>
+    </tr>
+    <tr>
+      <td style="border-bottom: none">Close-in integration</td>
+      <td style="border-bottom: none">We test a part as it collaborates with closely related parts and/or with the Angular framework. We may fake some of its dependencies.</td>
+    </tr>
+    <tr>
+      <td style="border-bottom: none">High level integration</td>
+      <td style="border-bottom: none">We test a part as it interacts with many, wide-ranging aspects of the system including the browser DOM. 
+      Such tests are often asynchronous which means the test runner must pause until the entire tested sequence completes.</td>
+    </tr>
+    <tr>
+      <td style="border-bottom: none">Cross network integration</td>
+      <td style="border-bottom: none">A more demanding “high level integration” test that reaches across the network boundary to touch a test server, 
+      such as tests of a data service that exercise both client and server components.</td>
+    </tr>
+    <tr>
+      <td style="border-bottom: none">End-to-End (E2E)</td>
+      <td style="border-bottom: none">We simulate the actions of users as they navigate through the application. 
+      Such tests strive to investigate the behavior of the application as a whole, replicating the user experience as faithfully as possible.</td>
+    </tr>
+  </table>
+
+  Each kind of test has its strengths and weaknesses. The tests to the left in the spectrum are typically easier to write, more focused, more robust, 
+  and often run faster than the tests to the right. It’s much easier to create adverse, stressful conditions for a pure unit test than an end-to-end test. 
+  We get a lot of value for comparatively little effort. That may be why we write a lot more unit tests than end-to-end tests.
+
+  On the other hand, the shorter tests can’t reveal the integration problems that may be hiding at the boundaries within the actual application.
+  We can *simulate* problems that we *imagine* might arise. But we will miss the problems in the real system that we didn’t anticipate.
+
+  We need the full spectrum of tests to assure the behavioral quality of the entire application.
+
+  In this Unit Testing section we learn to write tests in all of these categories *except end-to-end*.
+  We cover **end-to-end** tests in a separate section because they require special tools and considerations.
+
+  We’ll begin on the left side of the spectrum, with pure unit tests of simple parts such as the `Hero` model class and a custom pipe named `InitCapsPipe`. 
+  Then we work our way to the right as we explore the more complex parts of our application such as components, the router, and remote data access.
+
+  We’ll learn a number of tips and tricks along the way, including:
+  * what’s worth testing and what isn’t
+  * when a test is telling us to rethink our design
+  * how to debug our tests
+  * how to write asynchronous tests
+  * when to mock and how
+
+  ## Unit Testing Chapters
+  <!-- TODO This toc feels out of place here -->
+
+  Here is what we’ll learn in the unit testing chapters.
+
+  1. Jasmine Testing 101
+    - setup to run Jasmine tests in the browser
+    - basic Jasmine testing skills
+    - write simple Jasmine tests in TypeScript
+    - debug a test in the browser
+  1. The Application Under Test
+  1. Test a class
+    - test a simple application class outside of Angular
+    - where to put the test file
+    - load a test file with SystemJS
+  1. Test a Pipe
+    - test a simple Angular Pipe class
+    - add the Angular 2 library to the  test harness
+    - load multiple test files using SystemJS
+  1. Test an Asynchronous Service
+    - test an asynchronous service class outside of Angular
+    - write a test plan in code
+    - fake a dependency
+    - master the `catch(fail).then(done)` pattern
+    - move setup to `beforeEach`
+    - test when a dependency fails
+    - control async test timeout
+  1. The Angular Test Environment
+    - the Angular test environment and why we need help
+    - add the Angular Test libraries to the  test harness
+    - test the same async service using Angular Dependency Injection
+    - reduce friction with test helpers
+    - introducing spies
+  1. Test a Component
+     - test the component outside of Angular
+    - mock the dependent asynchronous service
+    - simulate interaction with the view (no DOM)
+    - use a spy-promise to control asynchronous test flow
+  1. Test a Component in the DOM
+    - test the component inside the Angular test environment
+    - use the `TestComponentBuilder`
+    - more test helpers
+    - interact with the DOM
+    - bind to a mock dependent asynchronous service
+  1. Run the tests with karma
+
+  It’s a big agenda. Fortunately, you can learn a little bit at a time and put each lesson to use.
+
+.callout.is-helpful
+  header How to Use This Guide
+  :marked
+    The Unit Testing chapters build upon each other. We recommend reading them in order.
+    We're also assuming that you're already comfortable with basic Angular 2 concepts and the tools
+    we introduced in the [QuickStart](../quickstart.html) and
+    the [Tour of Heroes](../tutorial/) tutorial
+    such as <code>npm</code>, <code>gulp</code>, and <code>live-server</code>.
+
+:marked
+  Let’s get started!
+
+
+.l-main-section
+<a id="fundamentals"></a>
+:marked
+  # Fundaments of Jasmine Testing
+  
+  We’ll write our tests with the [Jasmine test framework](http://jasmine.github.io/2.3/introduction.html).
+  We’ll start by getting *some* tests to work - *any* tests at all.
+
+  We will learn
+    - basic Jasmine testing skills
+    - to run our tests in the browser
+    - to write simple Jasmine tests in TypeScript
+    - to debug a test in the browser
+
+  **Create a new project folder** perhaps called `angular2-unit-testing`.
+.l-main-section
+:marked
+  ## Install npm packages locally
+
+  Next follow all of  the steps prescribed in  “Install npm packages locally” of the
+  [QuickStart](../quickstart.html).
+
+  We’ll also add the Jasmine package via `npm`:
+
+pre.prettyprint.lang-bash
+   code npm install jasmine-core --save-dev --save-exact
+
+.alert.is-important
+  :marked
+    Be sure to install `jasmine-core` , not `jasmine`!
+
+:marked
+  **Create a sub-folder `src` ** for our tests and then **cd into it**.
+
+  We are going to **display and control our tests in the browser**.
+
+.l-sub-section
+  :marked
+    The browser is nice during development of a few tests. It’s not the best venue for working with a lot of tests and it won’t do at all for build automation. We’ll switch to the karma test-runner when the time comes. But the browser will do for now.
+
+:marked
+  Create a new file called`unit-tests.html` and enter the following:
+  ```
+  <html>
+  <head>
+    <title>1st Jasmine Tests</title>
+    <link rel="stylesheet" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+  </head>
+
+  <body>
+  </body>
+
+  </html>
+  ```
+
+  In the head we have three Jasmine scripts and one Jasmine css file. That’s the foundation for running any tests.
+
+  We’ll write our first test with inline JavaScript inside the body tag:
+
+  ```
+  <script>
+    it('true is true', function(){ expect(true).toEqual(true); });
+  </script>
+  ```
+
+  Now open `unit-tests.html` in a browser and see the Jasmine HTML test output:
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/jasmine-1-spec-0-failures.png' style="height:170px;" alt="Jasmine HTML test output")
+
+:marked
+  It doesn’t get much simpler than that!
+
+.l-main-section
+:marked
+  ## First TypeScript Test
+  Perhaps too simple. We won’t write our entire test suite inside one HTML file.
+  Let’s **extract** that line of test code to a **new file in `src` called `1st.spec.ts` ** .
+
+.l-sub-section
+  :marked
+    Among Jasmine developers, a test is known as a “spec” and test filenames include the word “spec”.  We’ll stick with that convention.
+
+:marked
+  The test we wrote is valid TypeScript because any JavaScript is valid TypeScript. But let’s make it more modern with an arrow function:
+  ```
+  it('true is true', () => expect(true).toEqual(true));
+  ```
+  Now modify `unit-tests.html` to load the script:
+  ```
+  <script src="1st.spec.js"></script>
+  ```
+  Hold on!   We wrote a TypeScript file but we’re loading a JavaScript file?
+
+  That’s a reminder that we need to compile our TypeScript test files as we do our TypeScript application files.  Do that next.
+
+.l-main-section
+:marked
+  ## Prepare for TypeScript
+
+  As we’ve seen before, we first have to tell the compiler how to compile our TypeScript files with
+  a ** `tsconfig.json` **.
+
+  We can copy one from an application we wrote previously and paste it into our src sub-folder.
+  It should look something like this:
+
+  ```
+  {
+      "compilerOptions": {
+      "target": "ES5",
+      "module": "commonjs",
+      "sourceMap": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true
+    }
+  }
+  ```
+  ## Compile and Run
+
+  Compile in the terminal window using the npm script command
+
+pre.prettyprint.lang-bash
+  code npm run tsc
+
+.alert.is-helpful
+  :marked
+    Our editor and the compiler may complain that they don’t know
+    what `it` and `expect` are because they lack the typing files that describe Jasmine.
+    We can ignore those annoying complaints for now as they are harmless.
+
+:marked
+  If we reload the browser, we should see the same Jasmine test-runner output as before.
+
+  We’ll be evolving these tests rapidly and it would be nice to have the browser refresh automatically as we make changes and recompile.
+
+  Let’s launch with **live-server** in a second terminal window:
+
+pre.prettyprint.lang-bash
+  code npm start
+
+:marked
+  Now navigate to `1st-tests.html`
+
+  We should get the same Jasmine test-runner output as before.
+
+.l-main-section
+:marked
+  ## Add a describe and another test
+
+  We can’t tell what file produced these test results. We only have one file at the moment but soon we’ll write more.
+
+  We should wrap this test into something that identifies the file. In Jasmine that “something” is a `describe` function.  Every test file should have at least one `describe` that identifies the file holding the test(s).
+
+  Here’s what our revised `1st.spec.ts` looks like when wrapped in a `describe`:
+  ```
+  describe('1st tests', () => {
+
+    it('true is true', () => expect(true).toEqual(true));
+
+  });
+  ```
+  And here’s how the test report displays it.
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/test-report-1-spec-0-failures.png' style="height:100px;" alt="1 spec, 0 failures")
+
+:marked
+  Let’s add another Jasmine test to `1st.spec.ts`
+  ```
+  it('null is not the same thing as undefined',
+    () => expect(null).not.toEqual(undefined)
+  );
+  ```
+  You knew that right?  Let’s prove it with this test. The browser should refresh after you paste that test, and show:
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/test-report-2-specs-0-failures.png' style="height:100px;" alt="refreshed 2 specs, 0 failures")
+
+:marked
+  What does a failing test look like? Remove the `.not`. The browser refreshes and shows:
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/test-report-2-specs-1-failure.png' style="height:190px;" alt="failing test 2 specs, 1 failure")
+
+:marked
+  Click the `Spec List` link just below “2 specs, 1 failure” to see the summary again:
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/spec-list-2-specs-1-failure.png' style="height:140px;" alt="2 specs, 1 failure")
+
+:marked
+  We can re-run just the failing test by double-clicking it.  Try it!
+
+.l-main-section
+:marked
+  ## Debug the test
+  Suppose we didn’t know what was going on.  We can debug it in the browser.
+
+    - Open the browser’s “Developer Tools” (F12 or Ctrl-Shift-I).
+    - Pick the “sources” section
+    - Open the `1st.spec.ts` test file (Ctrl-P, then start typing the name of the file).
+    - Set a breakpoint on the second line of the failing test
+    - Refresh the browser … and it stops at our breakpoint.
+    - Open the console window at the bottom  (press Esc)
+    - Type `null === undefined` … … and we should see this:
+
+figure.image-display
+    img(src='/resources/images/devguide/jasmine-testing-101/null-to-equal-undefined.png' style="height:500px;" alt="null === undefined")
+
+:marked
+  How about that!  They really aren’t equal.
+    - remove the breakpoint (right-click in the “Breakpoints” section and chose “Remove breakpoint”)
+    - Click the “play” icon to resume the test  (or F8)
+
+  And the test finishes.  Close the browser tools (click the close box or press F12 or Ctrl-Shift-I)
+
+  Fix the test (restore the `.not`);  the browser should refresh automatically and all tests pass.
+
+  Congratulations … you’ve completed Jasmine testing 101.
+
+  <!-- TODO
+  .l-main-section
+  :marked
+    ## Learn more
+    Learn more about basic Jasmine testing here
+    [Resources TBD](./#)
+    -->
+
+.l-main-section
+:marked
+  ## What’s Next?
+  Now that we’re familiar with Jasmine on its own, we’re ready to test an application.
+
+  What application? We introduce you to it in the next chapter.
+
+
+.l-main-section
+<a id="app-intro"></a>
+:marked
+  # The App We Test
+
+  We’ll need an Angular application to test, one as simple as possible while having 
+  all the angular features we want to test.
+
+  <!-- TODO We have such an app that you can download [here](./#). -->It’s a one-screen variation on the “Tour of Heroes” that should be familiar to you as a reader of this Developers Guide.
+
+  Our test app displays a list of heroes - all favorites of the user named “Bongo”. It looks like this:
+
+figure.image-display
+  img(src='/resources/images/devguide/application-under-test/bongos-heroes.png'
+  style="width:400px;" alt="Bongo's Heroes")
+
+:marked
+  At the top is a master list of heroes; at the bottom the detail for the current hero. 
+  Click a hero in the list to change the current hero. Change the name in the textbox 
+  and that name updates everywhere. The *Update* button modifies the `Hero.name` in an 
+  arbitrary way and that change also propagates everywhere on screen. 
+  The *Delete* button deletes the hero from the list and a new hero becomes current. 
+  *Refresh* clears both the list and detail, then restores the original list of heroes.
+
+  <!-- TODO You can see a short video of the app in action [here](./#) -->
+
+  This simple app illustrates a number of Angular features that we’d like to test.
+
+    - A simple service that presents the `username` (“Bongo”)
+    - A dataservice that fetches and caches the list of heroes.
+    - The dataservice depends in turn on another “backend” service that handles the interaction with a remote web api
+    - A master `HeroesComponent` presents the list
+    - The master communicates with a detail component `HeroDetailComponent` about the current hero both through an attribute and an event.
+    - The detail’s template is nested within the master component’s template.
+    - The `name` textbox illustrates two-way databinding
+    - The update button demonstrates that a programmatic change to the databound model propagates to both component views
+    - The delete button triggers an event that is caught by the parent component
+  <!-- TODO - [TBD: need to add a filter and a directive to this sample] -->
+  <!-- TODO - [TBD: need to shoehorn the router in somehow] -->
+
+  We’ll examine the implementation details as we evolve our tests.
+
+.l-main-section
+:marked
+  ## What’s Next?
+  Now that we’re familiar with how the test app works, we’re ready to poke at it with our first application tests written in Jasmine.
+
+
+.l-main-section
+<a id="first-app-test"></a>
+:marked
+  # Our First App Test
+
+  In this chapter we’ll setup the environment for testing our sample application and write a few easy Jasmine tests of the app’s simplest parts.
+  We'll learn:
+  - to test one of our application classes
+  - why we prefer our test files to be next to their corresponding source files
+  - to run tests with an `npm` command
+  - load the test file with SystemJS
+
+.l-main-section
+:marked
+  ## Create the test-runner HTML
+
+  Step away from the Jasmine 101 folder and turn to the root folder of the application that we downloaded in the previous chapter.
+
+  Locate the `src` folder that contains the application `index.html`
+
+  Create a new, sibling HTML file, ** `unit-tests.html` ** and copy over the same basic material from the  `unit-tests.html` in the [Jasmine 101](./jasmine-testing-101.html) chapter.
+
+  ```
+  <html>
+  <head>
+    <title>1st Jasmine Tests</title>
+    <link rel="stylesheet" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
+
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
+    <script src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
+  </head>
+
+  <body>
+  </body>
+
+  </html>
+  ```
+
+  We’re picking up right where we left off. All we’ve done is change the title.
+
+.l-main-section
+:marked
+  ## Update `package.json` for testing
+
+  We’ll assume that the application has a `package.json` file that looks more or less like
+  the one we prescribed in the “Install npm packages locally” section of the
+  [QuickStart](../quickstart.html).
+
+  We must install the Jasmine package as well:
+
+pre.prettyprint.lang-bash
+  code npm install jasmine-core --save-dev --save-exact
+
+.alert.is-important Be sure to install <code>jasmine-core</code> , not <code>jasmine</code>!
+
+:marked
+  Let’s make one more change to the `package.json` script commands.
+
+  **Open the `package.json` ** and scroll to the `scripts` node. Look for the command named `test`.  Change it to:
+
+    "test": "live-server --open=src/unit-tests.html"
+
+  That command will launch `live-server` and open a browser to the `unit-tests.html` page we just wrote.
+
+.l-main-section
+:marked
+  ## First app tests
+
+  Believe it or not … we could start testing *some* of our app right away. For example, we can test the `Hero` class:
+  ```
+  let nextId = 30;
+
+  export class Hero {
+    constructor(
+      public id?: number,
+      public name?: string,
+      public power?: string,
+      public alterEgo?: string
+    ) {
+      this.id = id || nextId++;
+    }
+
+    clone() { return Hero.clone(this); }
+
+    static clone = (h:any) => new Hero(h.id, h.name, h.alterEgo, h.power);
+
+    static setNextId = (next:number) => nextId = next;
+  }
+  ```
+
+  Let’s add a couple of simple tests in the `<body>` element.
+
+  First, we’ll load the JavaScript file that defines the `Hero` class.
+
+  ```
+  <!-- load the application's Hero definition -->
+  <script src="app/hero.js"></script>
+  ```
+
+  Next, we’ll add an inline script element with the `Hero`tests themselves
+
+  ```
+  <script>
+    // Demo only!
+    describe('Hero', function() {
+
+      it('has name given in the constructor', function() {
+        var hero = new Hero(1, 'Super Cat');
+        expect(hero.name).toEqual('Super Cat');
+      });
+
+      it('has the id given in the constructor', function() {
+        var hero = new Hero(1, 'Super Cat');
+        expect(hero.id).toEqual(1);
+      });
+
+    });
+  </script>
+  ```
+
+  That’s the basic Jasmine we learned back in “Jasmine 101”.
+
+  Notice that we surrounded our tests with ** `describe('Hero')` **.
+
+  **By convention, our test always begin with a `describe` that identifies the application part under test.**
+
+  The description should be sufficient to identify the tested application part and its source file. Almost any convention will do as long as you and your team follow it consistently and are never confused.
+
+.l-main-section
+:marked
+  ## Run the tests
+
+  Open one terminal window and run the watching compiler command: `npm run tsc`
+
+  Open another terminal window and run live-server: `npm test`
+
+  The browser should launch and display the two passing tests:
+
+figure.image-display
+  img(src='/resources/images/devguide/first-app-tests/passed-2-specs-0-failures.png' style="width:400px;" alt="Two passing tests")
+
+
+.l-main-section
+:marked
+  ## Critique
+
+  Is this `Hero` class even worth testing? It’s essentially a property bag with almost no logic.  Maybe we should have tested the cloning feature. Maybe we should have tested id generation. We didn’t bother because there wasn’t much to learn by doing that.
+
+  It’s more important to take note of the `//Demo only` comment in the `unit-tests.html`.
+
+  ** We’ll never write real tests in the HTML this way**. It’s nice that we can write *some* of our application tests directly in the HTML. But dumping all of our tests into HTML is not sustainable and even if we didn’t mind that approach, we could only test a tiny fraction of our app this way.
+
+  We need to relocate these tests to a separate file.  Let’s do that next.
+
+.l-main-section
+:marked
+  ## Where do tests go?
+
+  Some people like to keep their tests in a `tests` folder parallel to the application source folder.
+
+  We are not those people. We like our unit tests to be close to the source code that they test. We prefer this approach because
+  - The tests are easy to find
+  - We see at a glance if an application part lacks tests.
+  - Nearby tests can teach us about how the part works; they express the developers intention and reveal how the developer thinks the part should behave under a variety of circumstances.
+  - When we move the source (inevitable), we remember to move the test.
+  - When we rename the source file (inevitable), we remember to rename the test file.
+
+  We can’t think of a downside. The server doesn’t care where they are.  They are easy to find and distinguish from application files when named conventionally.
+
+  You may put your tests elsewhere if you wish. We’re putting ours inside the app, next to the source files that they test.
+
+.l-main-section
+:marked
+  ## First spec file
+
+  **Create** a new file, ** `hero.spec.ts` ** in `src/app` next to `hero.ts`.
+
+  Notice the “.spec” suffix in the test file’s filename, appended to the name of the file holding the application part we’re testing.
+
+.alert.is-important  All of our unit test files follow this .spec naming pattern.
+
+:marked
+  Move the tests we just wrote in`unit-tests.html` to `hero.spec.ts` and convert them from JavaScript into TypeScript:
+
+  ```
+  import {Hero} from './hero';
+
+  describe('Hero', () => {
+
+    it('has name given in the constructor', () => {
+      let hero = new Hero(1, 'Super Cat');
+      expect(hero.name).toEqual('Super Cat');
+    });
+
+    it('has id given in the constructor', () => {
+      let hero = new Hero(1, 'Super Cat');
+      expect(hero.id).toEqual(1);
+    });
+  })
+
+  ```
+
+  ### Import the part we’re testing
+
+  During our conversion to TypeScript, we added an `import {Hero} from './hero' ` statement.
+
+  If we forgot this import, a TypeScript-aware editor would warn us, with a squiggly red underline, that it can’t find the definition of the `Hero` class.
+
+  TypeScript doesn’t know what a `Hero` is. It doesn’t know about the script tag back in the `unit-tests.html` that loads the `hero.js` file.
+
+  ### Update unit-tests.html
+
+  Next we update the `unit-tests.html` with a reference to our new `hero-spec.ts` file. Delete the inline test code.  The revised pertinent HTML looks like this:
+
+    <script src="app/hero.js"></script>
+    <script src="app/hero.spec.js"></script>
+
+  ### Run and Fail
+
+  Look over at the browser (live-server will have reloaded it).  The browser displays
+
+figure.image-display
+  img(src='/resources/images/devguide/first-app-tests/Jasmine-not-running-tests.png' style="width:400px;" alt="Jasmine not running any tests")
+
+:marked
+  That’s Jasmine saying “**things are _so_ bad that _I’m not running any tests_.**”
+
+  Open the browser’s Developer Tools (F12, Ctrl-Shift-i). There’s an error:
+
+code-example(format="" language="html").
+  Uncaught ReferenceError: exports is not defined
+
+.l-main-section
+:marked
+  ## Load tests with SystemJS
+
+  The immediate cause of the error is the `export` statement in `hero.ts`.
+  That error was there all along.
+  It wasn’t a problem until we tried to `import` the `Hero` class in our tests.
+
+  Our test environment lacks support for module loading.
+  Apparently we  can’t simply load our application and test scripts like we do with 3rd party JavaScript libraries.
+
+  We are committed to module loading in our application.
+  Our app will call `import`.  Our tests must do so too.
+
+  We add module loading support in four steps:
+
+  1. add the *system.js* module management library
+  1. configure *SystemJS* to look for JavaScript files by default
+  1. import our test files
+  1. tell Jasmine to run the imported tests
+
+  These steps are all clearly visible, in exactly that order, in the following lines that
+  replace the `<body>` contents in `unit-tests.html`:
+
+  ```
+  <body>
+    <!-- #1. add the system.js library -->
+    <script src="../node_modules/systemjs/dist/system.src.js"></script>
+
+    <script>
+      // #2. Configure systemjs to use the .js extension
+      //     for imports from the app folder
+      System.config({
+        packages: {
+          'app': {defaultExtension: 'js'}
+        }
+      });
+
+      // #3. Import the spec file explicitly
+      System.import('app/hero.spec')
+
+        // #4. wait for all imports to load ...
+        //     then re-execute `window.onload` which
+        //     triggers the Jasmine test-runner start
+        //     or explain what went wrong
+        .then(window.onload)
+        .catch(console.error.bind(console));
+    </script>
+  </body>
+  ```
+
+  Look in the browser window. Our tests pass once again.
+
+figure.image-display
+  img(src='/resources/images/devguide/first-app-tests/test-passed-once-again.png' style="width:400px;" alt="Tests passed once again")
+
+.l-main-section
+:marked
+  ## Observations
+
+  ### System.config
+  SystemJS demands that we specify a default extension for the filenames that correspond to whatever it is asked to import.
+  Without that default, it would translate an import statement such as `import {Hero} from ‘./here’` to a request for the file named `hero`.
+  Not `hero.js`. Just plain `hero`.  Our server would error with “404 - not found” because it doesn’t have a file of that name.
+
+  Once configured with a default extension of ‘js’,&nbsp;  SystemJS requests `hero.js` which *does* exist and is promptly returned by our server.
+
+  ### Asynchronous System.import
+  The call to `System.import` shouldn’t surprise us but it’s asynchronous nature might.
+  If we ponder this for a moment, we realize that it must be asynchronous because
+  SystemJS may have to fetch the corresponding JavaScript file from the server.
+  Accordingly, `System.import` returns a promise and we must wait for that promise to resolve.
+  Only then can Jasmine start evaluating the imported tests.
+
+  ### window.onload
+  Jasmine doesn’t have a `start` method.  It wires its own start to the browser window’s `load` event.
+  That makes sense if we’re loading our tests with script tags.
+  The browser raises the `load` event when it finishes loading all scripts.
+
+  But we’re not loading test scripts inline anymore.
+  We’re using the SystemJS module loader and it won’t be done until long after the browser raised the `load` event.
+  Meanwhile, Jasmine started and ran to completion … with no tests to evaluate … before the import completed.
+
+  So we must wait until the import completes and only then call the window `onLoad` handler.
+  Jasmine re-starts, this time with our imported test queued up.
+
+.l-main-section
+:marked
+  ## What’s Next?
+  We are able to test a part of our application with simple Jasmine tests.
+  The part was a stand-alone class that made no mention or use of Angular.
+
+  That’s not rare but it’s not typical either. Most of our application parts make some use of the Angular framework.
+
+  In the next chapter, we’ll test a class that does rely on Angular.
+
+
+.l-main-section
+<a id="pipe-testing"></a>
+:marked
+  # Test an Angular Pipe
+  
+  We’ll test an Angular pipe in this chapter
+
+  An Angular pipe is a declarative way in HTML to transform some input into some displayable output.
+
+  We’ll look at our app’s custom `InitCapsPipe` that converts a string of words into a string of capitalized words.
+
+  We use it our `hero-detail.component.html` template to turn a hero name like “eeny weenie” into “Eeny Weenie”
+
+code-example(format="linenums" language="html" escape="html").
+  <h2>{{hero.name  | initCaps}} is {{userName}}'s current super hero!</h2>
+
+:marked
+  The code for `InitCapsPipe` in `init-caps-pipe.ts` is quite brief:
+
+  ```
+  import {Pipe} from 'angular2/core';
+
+  @Pipe({ name: 'initCaps' })
+  export class InitCapsPipe {
+    transform(value: string) {
+      return value.toLowerCase().replace(/(?:^|\s)[a-z]/g, function(m) {
+        return m.toUpperCase();
+      });
+    }
+  }
+  ```
+
+  In this chapter we will:
+  - add the Angular 2 library to our test harness
+  - test this custom Angular pipe class
+  - load multiple test files in our test harness, using SystemJS
+
+:marked
+  ## Add the Angular library
+  Looking back at `unit-tests.html` we realize that we have not loaded the Angular library.
+  Yet we were able to load and test the application’s `Hero` class.
+
+  **We were lucky!**  The `Hero` class has no dependence on Angular.
+  If it had depended on Angular, we’d still be staring at the Jasmine “big-time fail” screen:
+
+figure.image-display
+  img(src='/resources/images/devguide/testing-an-angular-pipe/big-time-fail-screen.png'
+      style="width:400px;" alt="Jasmine's' big time fail screen")
+
+:marked
+  If we then opened the browser’s Developer Tools (F12, Ctrl-Shift-I) and looked
+  in the console window, we would see that SystemJS
+  tried to load Angular and couldn't find it.
+
+code-example(format="" language="html" escape="html").
+  GET http://127.0.0.1:8080/src/angular2/core 404 (Not Found)
+
+:marked
+  We are writing an Angular application afterall and
+  we were going to need Angular sooner or later. That time has come.
+  The `InitCapsPipe` clearly depends on Angular as is clear in the first few lines:
+  ```
+  import {Pipe} from 'angular2/core';
+
+  @Pipe({ name: 'initCaps' })
+  export class InitCapsPipe {
+  ```
+  **Open** `unit-tests.html`
+
+  **Find** the `src="../node_modules/systemjs/dist/system.src.js"></script>`
+
+  **Replace** Step #1  with these two scripts:
+  ```
+  <!-- #1. add the system.js and angular libraries -->
+  <script src="../node_modules/systemjs/dist/system.src.js"></script>
+  <script src="../node_modules/angular2/bundles/angular2.dev.js"></script>
+  ```
+  ## Add another spec file
+
+  **Create** an *`init-caps-pipe.spec.ts`* next to `init-caps-pipes.ts` in `src/app`
+
+  **Stop and restart the TypeScript compiler** to ensure we compile the new file.
+
+  **Add** the following lines of rather obvious Jasmine test code
+  ```
+  import {InitCapsPipe} from './init-caps-pipe';
+
+  describe('InitCapsPipe', () => {
+    let pipe:InitCapsPipe;
+
+    beforeEach(() => {
+      pipe = new InitCapsPipe();
+    });
+
+    it('transforms "abc" to "Abc"', () => {
+      expect(pipe.transform('abc')).toEqual('Abc');
+    });
+
+    it('transforms "abc def" to "Abc Def"', () => {
+      expect(pipe.transform('abc def')).toEqual('Abc Def');
+    });
+
+    it('leaves "Abc Def" unchanged', () => {
+      expect(pipe.transform('Abc Def')).toEqual('Abc Def');
+    });
+  });
+  ```
+  Note that each test is short (one line in our case).
+  It has a clear label that accurately describes the test. And it makes exactly one expectation.
+
+  Anyone can read these tests and understand quickly what the test does and what the pipe does.
+  If one of the tests fails, we know which expected behavior is no longer true.
+  We’ll have little trouble maintaining these tests and adding more like them as we encounter new conditions to explore.
+
+  That’s the way we like our tests!
+
+  ## Add this spec to `unit-tests.html`
+
+  Now let’s wire our new spec file into the HTML test harness.
+
+  Open `unit-tests.html`. Find `System.import('app/hero.spec')`.
+
+  Hmm. We can’t just add `System.import('app/init-caps-pipe.spec')`.
+
+  The first `System.import` returns a promise as does this second import.
+  We can’t run any of the Jasmine tests until **both imports are finished**.
+
+  Fortunately, we can create a new `Promise` that wraps both import promises and waits
+  for both to finish loading.
+  ```
+  // #3. Import the spec files explicitly
+  Promise.all([
+    System.import('app/hero.spec'),
+    System.import('app/init-caps-pipe.spec')
+  ])
+  ```
+  Try it. The browser should refresh and show
+
+figure.image-display
+  img(src='/resources/images/devguide/testing-an-angular-pipe/5-specs-0-failures.png'
+  style="width:400px;" alt="import promises 5 specs, 0 failures")
+
+:marked
+  We have a pattern for adding new tests.
+
+  In the future, when we add a new spec, we add another `System.import('app/some.spec')` to
+  the array argument passed to `Promise.all`.
+
+  ## What’s Next?
+
+  Now we can test parts of our application that we *load* asynchronously with SystemJS.
+
+  What about testing parts that *are themselves asynchronous*?
+
+  In the next chapter we’ll test a service with a public asynchronous method that fetches heroes
+  from a remote server.
