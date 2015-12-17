@@ -3,16 +3,23 @@ import {Hero} from './hero';
 import {BackendService} from './backend.service';
 import {Logger} from './logger.service';
 
-// #docregion class
 @Injectable()
+// #docregion class
 export class HeroService {
-  constructor(private _backend: BackendService, private _logger:Logger){}
+  // #docregion ctor
+  constructor(
+    private _backend: BackendService,
+    private _logger: Logger) { }
+  // #enddocregion ctor
+
+  private _heroes:Hero[] = [];
 
   getHeroes() {
-    // TODO return as a promise
-    let heroes = <Hero[]> this._backend.getAll(Hero);
-    this._logger.log(`Got ${heroes.length} heroes from the server.`);
-    return heroes;
+    this._backend.getAll(Hero).then( (heroes:Hero[]) => {
+      this._logger.log(`Fetched ${heroes.length} heroes.`);
+      this._heroes.push(...heroes); // fill cache
+    });
+    return this._heroes;
   }
 }
 // #enddocregion class
