@@ -7,96 +7,101 @@ import 'dart:convert';
 import 'package:angular2/angular2.dart';
 import 'package:template_syntax/hero.dart';
 import 'package:template_syntax/hero_detail_component.dart';
-import 'package:template_syntax/click_me_component.dart';
-import 'package:template_syntax/loop_back_component.dart';
-import 'package:template_syntax/key_up_components.dart';
-import 'package:template_syntax/little_hero.dart';
+import 'package:template_syntax/my_click_directive.dart';
+
+// Alerter fn: monkey patch during test
 
 enum _Color { Red, Green, Blue }
 
 @Component(
     selector: 'my-app',
-    templateUrl: 'my-app.html',
+    templateUrl: 'app-component.html',
     directives: const [
       CORE_DIRECTIVES,
       FORM_DIRECTIVES,
       HeroDetailComponent,
-      ClickMeComponent,
-      LoopBackComponent,
-      KeyUpComponent,
-      KeyUpComponentV2,
-      KeyUpComponentV3,
-      KeyUpComponentV4,
-      LittleHeroComponent,
+      BigHeroDetailComponent,
+      MyClickDirective,
+      MyClickDirective2
     ])
 class AppComponent {
-  List<Hero> heroes = [
-    new Hero('Hercules',
-        lastName: 'Son of Zeus',
-        birthdate: new DateTime(1970, 1, 25),
-        url: 'http://www.imdb.com/title/tt0065832/',
-        rate: 325),
-    new Hero('eenie', lastName: 'toe'),
-    new Hero('Meanie', lastName: 'Toe'),
-    new Hero('Miny', lastName: 'Toe'),
-    new Hero('Moe', lastName: 'Toe')
-  ];
-  Hero currentHero;
-  Hero nullHero = null; // or undefined
-  bool isUnchanged = true;
-  bool isSpecial = true;
-  bool isActive = false;
-  bool canSave = true;
-  int val = 2;
-  dynamic color = _Color.Red;
-  String title = 'Template Syntax';
+  String heroName;
+  String help;
   String actionName = 'Go for it';
-  String heroImageUrl =
-      'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
-  String villainImageUrl =
-      'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png';
-  String iconUrl =
-      'https://angular.io/resources/images/logos/standard/shield-large.png';
-  Map product = {'name': 'frimfram', 'price': 42};
+  String title = 'Template Syntax';
+  String heroImageUrl = 'assets/images/hero.png';
+  String villainImageUrl = 'assets/images/villain.png';
+  String iconUrl = 'assets/images/ng-logo.png';
+  int val = 2;
+  bool canSave = true;
+  bool isActive = false;
+  bool isSpecial = true;
+  bool isUnchanged = true;
+  bool isSelected = false;
+  _Color color = _Color.Red;
+  List<Hero> heroes = Hero.MockHeroes;
+  Hero selectedHero = Hero.MockHeroes[0];
+  Hero currentHero = Hero.MockHeroes[0];
+  Hero nullHero = null;
+  Object product = {'name': 'frimfram', 'price': 42};
+  Event clickity;
+  FormElement form;
 
-  AppComponent() {
-    currentHero = heroes.first;
-  }
-
-  colorToggle() {
+  void alerter(String msg) => window.alert(msg);
+  void callFax(String value) => alerter('Faxing $value ...');
+  void callPhone(String value) => alerter('Calling $value ...');
+  void colorToggle() {
     color = color == _Color.Red ? _Color.Blue : _Color.Red;
   }
 
-  getStyles(Element el) {
+  int get getVal => val;
+
+  void onCancel(KeyboardEvent event) {
+    DivElement el = event.target;
+    var evtMsg = event != null ? 'Event target is ${el.innerHtml}' : '';
+    alerter('Canceled. $evtMsg');
+  }
+
+  void onClickMe(KeyboardEvent event) {
+    DivElement el = event.target;
+    var evtMsg = event != null ? 'Event target class is ${el.className}' : '';
+    alerter('Click me. $evtMsg');
+  }
+
+  void onSave(KeyboardEvent event) {
+    DivElement el = event.target;
+    var evtMsg = event != null ? ' Event target is ${el.innerHtml}' : '';
+    alerter('Saved.$evtMsg');
+  }
+
+  void onHeroDeleted(Hero hero) => alerter('Deleted hero: ${hero.firstName}');
+
+  void onSubmit(NgForm form) {
+    var evtMsg = form.valid
+        ? ' Form value is ${JSON.encode(form.value)}'
+        : ' Form is invalid';
+    alerter('Form submitted. $evtMsg');
+  }
+
+  void setUpperCaseFirstName(String firstName) {
+    currentHero.firstName = firstName.toUpperCase();
+  }
+
+  Object getStyles(Element el) {
     var showStyles = setStyles();
     return JSON.encode(showStyles);
   }
 
-  getVal() {
-    return val;
+  Object setStyles() {
+    var styles = {
+      'font-style': canSave ? 'italic' : 'normal', // italic
+      'font-weight': !isUnchanged ? 'bold' : 'normal', // normal
+      'font-size': isSpecial ? 'larger' : 'smaller', // larger
+    };
+    return styles;
   }
 
-  onSave(event) {
-    var evtMsg = event ? ' Event target is ' + event.target.innerText : '';
-    window.alert('Saved.' + evtMsg);
-  }
-
-  onDeleted(hero) {
-    window.alert('Deleted hero: ' + (hero.firstName));
-  }
-
-  onSubmit(NgForm form) {
-    var evtMsg = form.valid
-        ? ' Form value is ' + JSON.encode(form.value)
-        : ' Form is invalid';
-    window.alert('Form submitted.' + evtMsg);
-  }
-
-  setLastName(event) {
-    currentHero.lastName = event;
-  }
-
-  setClasses() {
+  Object setClasses() {
     return {
       'saveable': canSave, // true
       'modified': !isUnchanged, // false
@@ -104,16 +109,8 @@ class AppComponent {
     };
   }
 
-  setStyles() {
-    return {
-      'font-style': canSave ? 'italic' : 'normal', // italic
-      'font-weight': !isUnchanged ? 'bold' : 'normal', // normal
-      'font-size': isSpecial ? 'larger' : 'smaller', // larger
-    };
-  }
-
-  toeChoice(HtmlElement picker) {
-    var choices = picker.children;
+  toeChoice(Element picker) {
+    List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
       var choice = choices[i];
       if (choice.checked) {
@@ -122,4 +119,3 @@ class AppComponent {
     }
   }
 }
-// #enddocregion
