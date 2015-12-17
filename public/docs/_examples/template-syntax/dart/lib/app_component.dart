@@ -43,9 +43,22 @@ class AppComponent {
   Hero selectedHero = Hero.MockHeroes[0];
   Hero currentHero = Hero.MockHeroes[0];
   Hero nullHero = null;
-  Object product = {'name': 'frimfram', 'price': 42};
+  Map product = {'name': 'frimfram', 'price': 42};
   Event clickity;
   FormElement form;
+
+  Map classes = {
+    'saveable': false, // true
+    'modified': false, // false
+    'special': false // true
+  };
+
+  Map styles = {
+    'font-style': 'normal',
+    'font-weight': 'normal',
+    'font-size': 'smaller'
+  };
+
 
   void alerter(String msg) => window.alert(msg);
   void callFax(String value) => alerter('Faxing $value ...');
@@ -87,26 +100,24 @@ class AppComponent {
     currentHero.firstName = firstName.toUpperCase();
   }
 
-  Object getStyles(Element el) {
+  String getStyles(Element el) {
     var showStyles = setStyles();
     return JSON.encode(showStyles);
   }
 
-  Object setStyles() {
-    var styles = {
-      'font-style': canSave ? 'italic' : 'normal', // italic
-      'font-weight': !isUnchanged ? 'bold' : 'normal', // normal
-      'font-size': isSpecial ? 'larger' : 'smaller', // larger
-    };
+  Map setStyles() {
+    styles['font-style'] = canSave ? 'italic' : 'normal';
+    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal';
+    styles['font-size'] = isSpecial ? 'larger' : 'smaller';
     return styles;
   }
 
-  Object setClasses() {
-    return {
-      'saveable': canSave, // true
-      'modified': !isUnchanged, // false
-      'special': isSpecial // true
-    };
+  Map setClasses() {
+    classes['saveable']= canSave;
+    classes['modified'] = !isUnchanged;
+    classes['special'] = isSpecial;
+
+    return classes;
   }
 
   toeChoice(Element picker) {
