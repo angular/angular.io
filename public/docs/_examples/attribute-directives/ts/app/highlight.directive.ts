@@ -11,7 +11,7 @@ import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
 })
 
 // #docregion class-1
-export class Highlight {
+export class HighlightDirective {
 // #enddocregion class-1
 // #enddocregion full
   /*

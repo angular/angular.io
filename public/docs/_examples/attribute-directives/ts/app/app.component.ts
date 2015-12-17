@@ -1,11 +1,11 @@
 // #docregion
 import {Component} from 'angular2/core';
-import {Highlight} from './highlight.directive'
+import {HighlightDirective} from './highlight.directive'
 
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
-  directives: [Highlight]
+  directives: [HighlightDirective]
 })
 
 export class AppComponent { }

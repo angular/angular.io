@@ -54,21 +54,10 @@ include ../../../../_includes/_util-fns
 
   Let's build a small illustrative example together.
 
-  ### Setup
+:marked
+  ### Our first draft
   Create a new project folder (`attribute-directives`) and follow the steps in the [QuickStart](../quickstart.html).
   
-  As in the [tutorial](/docs/ts/latest/tutorial/), we'll rename `app.ts` to `app.component.ts`
-  and relocate the call to `bootstrap` to a separate `boot.ts` file.
-+makeExample('attribute-directives/ts/app/boot.ts', null, 'app/boot.ts')
-:marked
-  A clean `app.component.ts` without bootstrapping is much easier to test.
-  
-  Finally, we remember to update `index.html` to load `boot.ts`
-  
-code-example.
-  System.import('app/boot');
-:marked
-  ### Write the directive
   Add a new file to the `app` folder called `highlight.directive.ts` and add the following code:
 +makeExample('attribute-directives/ts/app/highlight.directive.1.ts', null, 'app/highlight.directive.ts')
 
@@ -98,28 +87,30 @@ code-example.
     The `ng` prefix belongs to Angular. 
     We need a prefix of our own, preferably short, and `my` will do for now.
 :marked
-  After the `@Component` metadata comes the directive's controller class which we are exporting
+  After the `@Directive` metadata comes the directive's controller class which we are exporting
   to make it accessible to other components. 
-  The directive's controller class contains the logic for our directive.
+  The directive's controller class contains the logic for the directive.
   
   Angular creates a new instance of the directive's controller class for
   each matching element, injecting  an *Element Reference* and 
-  the *Renderer* service as arguments to our constructor. 
-  We'll need them to set the element's background color.
+  the *Renderer* service as arguments to the constructor. 
+  We'll need those *services* to set the element's background color.
     
-  Our code shows two ways to do that.
+  Our code shows two ways to set the color.
   
   We could access the `nativeElement` property of the element reference 
-  and set the element's background using the browser DOM API. We don't need
-  the `Renderer` for this technique. But we commented it out.
+  and set the element's background color using the browser DOM API. We don't need
+  the `Renderer` for this approach. 
+  
+  We commented this technique out. It works. But we don't like it.
 
-  We chose the second way, the preferred way, that relies on the `Renderer` service
+  We prefer the second way that relies on the `Renderer` service
   to set the element properties.
 
 .l-sub-section
   :marked
     ### Why prefer the Renderer?
-    Manipulating the DOM directly is a practice we should *avoid* because it chains us
+    Manipulating the DOM directly is a practice we'd rather *avoid* because it chains us
     to the browser DOM API.
     
     The  `Renderer` insulates our code from the browser's API. 
@@ -134,13 +125,13 @@ code-example.
 .l-main-section
 :marked
   ## Apply the attribute directive
-  The `AppComponent` will be the test harness for our `highlight` directive.
+  The `AppComponent` will be the test harness for our `HighlightDirective`.
   Let's give it a new template that 
   applies the directive as an attribute to a `span` element.
   In Angular terms, the `<span>` element will be the attribute **host**.
   
   We'll put the template in its own `app.component.html` file that looks like this:
-+makeExample('attribute-directives/ts/app/app.component.1.html',null,'app/app.component.html')
++makeExample('attribute-directives/ts/app/app.component.1.html',null,'app/app.component.html')(format=".")
 :marked
   A separate template file is clearly overkill for a 2-line template. 
   Hang in there; we're going to expand it later.
@@ -160,7 +151,7 @@ figure.image-display
   Let's recap what happened.
   
   Angular found the `myHighlight` attribute on the `<span>` element. It created
-  an instance of the `Highlight` directive class, 
+  an instance of the `HighlightDirective` class, 
   injecting both a reference to the element and the `Renderer` service into the constructor.
   The constructor told the `Renderer` to set the `<span>` element's background style to yellow.
 
@@ -179,7 +170,7 @@ figure.image-display
   Start with event detection. 
   We add a `host` property to the directive metadata and give it a configuration object
   that specifies two mouse events and the directive methods to call when they are raised.
-+makeExample('attribute-directives/ts/app/highlight.directive.2.ts','host')
++makeExample('attribute-directives/ts/app/highlight.directive.2.ts','host')(format=".")
 :marked
 .l-sub-section
   :marked
@@ -196,7 +187,7 @@ figure.image-display
     Let's roll with the `host` property. 
 :marked
   Now we implement those two mouse event handlers:
-+makeExample('attribute-directives/ts/app/highlight.directive.2.ts','mouse-methods')
++makeExample('attribute-directives/ts/app/highlight.directive.2.ts','mouse-methods')(format=".")
 :marked
   Notice that they delegate to a helper method that calls the `Renderer` service
   as we used to do in the constructor.
@@ -205,7 +196,7 @@ figure.image-display
   we still want the injected `ElementRef` and `Renderer` service.
   We revise the constructor signature to capture the injectables in private variables
   and clear the body.
-+makeExample('attribute-directives/ts/app/highlight.directive.2.ts','ctor')
++makeExample('attribute-directives/ts/app/highlight.directive.2.ts','ctor')(format=".")
 :marked
   Here's the updated directive:
 +makeExample('attribute-directives/ts/app/highlight.directive.2.ts',null, 'app/highlight.directive.ts')
@@ -228,6 +219,7 @@ figure.image-display
   Here is the final version of the class:
   
 +makeExample('attribute-directives/ts/app/highlight.directive.ts', 'class-1', 'app/highlight.directive.ts (class only)')
+<a id="input"></a>
 :marked
   The new `highlightColor` property is called an "input" property because data flows from the binding expression into our directive.
   Notice that we call the `@Input()` decorator function while defining the property.
@@ -235,8 +227,10 @@ figure.image-display
 :marked
   This `@Input` decorator adds metadata to the class that makes the `highlightColor` property  available for property binding
   under the `myHighlight` alias. 
-  We must add this input metadata. Angular will give us an error if we try to bind 
-  to a property without declaring it as an input.
+  We must add this input metadata. 
+  Angular will reject a binding to this property if we don't declare it as an input.
+  
+  See the [appendix](#why-input) below to learn why.
 .l-sub-section
   :marked
     The developer who uses our directive expects to bind to the attribute name, `myHighlight`.
@@ -295,7 +289,7 @@ figure.image-display
   
   Let's let the template developer set the default color, the color that prevails until the user picks a highlight color.
   We'll add a second **input** property to `HighlightDirective` called `defaultColor`:
-+makeExample('attribute-directives/ts/app/highlight.directive.ts', 'defaultColor')
++makeExample('attribute-directives/ts/app/highlight.directive.ts', 'defaultColor')(format=".")
 :marked
   The `defaultColor` property has a setter that overrides the hard-coded default color, "red".
   We don't need a getter.
@@ -305,11 +299,11 @@ figure.image-display
   Remember that a *component is a directive too*. 
   We can add as many component property bindings as we need by stringing them along in the template
   as in this example that sets the `a`, `b`, `c` properties to the string literals 'a', 'b', and 'c'. 
-  ```
-  <my-component [a]="'a'" [b]="'b'" [c]="'c'"><my-component>
-  ```
+code-example(format="." ).
+  &lt;my-component [a]="'a'" [b]="'b'" [c]="'c'">&lt;my-component>
+:marked
   We do the same thing with an attribute directive.
-+makeExample('attribute-directives/ts/app/app.component.html', 'defaultColor')
++makeExample('attribute-directives/ts/app/app.component.html', 'defaultColor')(format=".")
 :marked
   Here we're binding the user's color choice to the `myHighlight` attribute as we did before.
   We're *also* binding the literal string, 'violet', to the `defaultColor`.
@@ -343,3 +337,45 @@ figure.image-display
    boot.ts,
    index.html
   `)
+
+
+<a id="why-input"></a>
+.l-main-section
+:marked
+  ### Appendix: Input properties
+  
+  Earlier we declared the `highlightColor` property to be an ***input*** property of our
+  `HighlightDirective`
+ 
+  We've seen properties in bindings before. 
+  We never had to declare them as anything. Why now?
+  
+  Angular makes a subtle but important distinction between binding **sources** and **targets**.
+  
+  In all previous bindings, the directive or component property was a binding ***source***.
+  A property is a *source* if it appears in the template expression to the ***right*** of the (=).
+  
+  A property is a *target* when it appears to the ***left** of the (=) ...
+  as it is does when we bind to the `myHighlight` property of the `HighlightDirective`, 
++makeExample('attribute-directives/ts/app/app.component.html','span')(format=".")
+:marked
+  The 'color' in `[myHighlight]="color"` is a binding ***source***.
+  A source property doesn't require a declaration.
+  
+  The 'myHighlight' in `[myHighlight]="color"` *is* a binding ***target***.
+  We must declare it as an *input* property.
+  Angular rejects the binding with a clear error if we don't.
+  
+  Angular treats a *target* property differently for a good reason.
+  A component or directive in target position needs protection.
+  
+  Imagine that our `HighlightDirective` did truly wonderous things.
+  We graciously made a gift of it to the world. 
+  
+  To our surprise, some people &mdash; perhaps naively &mdash;
+  started binding to *every* property of our directive. 
+  Not just the one or two properties we expected them to target. *Every* property.
+  That could really mess up our directive in ways we didn't anticipate and have no desire to support.
+  
+  The *input* declaration ensures that consumers of our directive can only bind to
+  the properties of our public API ... nothing else.

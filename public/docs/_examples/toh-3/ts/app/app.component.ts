@@ -1,3 +1,4 @@
+//#docregion
 import {Component} from 'angular2/core';
 // #docregion hero-import
 import {Hero} from './hero';
@@ -38,9 +39,9 @@ import {HeroDetailComponent} from './hero-detail.component';
     }
     .selected { background-color: #EEE; color: #369; }
   `],
-// #docregion declaring
+// #docregion directives
   directives: [HeroDetailComponent]
-// #enddocregion declaring
+// #enddocregion directives
 })
 export class AppComponent {
   public title = 'Tour of Heroes';

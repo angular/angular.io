@@ -27,117 +27,176 @@ include ../../../../_includes/_util-fns
   We want to start the TypeScript compiler, have it watch for changes, and start our server. We'll do this by typing
 
 code-example(format="." language="bash").
-  npm run go
+  npm start
 
 :marked
   This will keep the application running while we continue to build the Tour of Heroes.
 
   ## Making a Hero Detail Component
-  Our heroes list and our hero details are all in the same component. What if we want to reuse the hero details somewhere else in our app? This would be difficult since it is intermixed with the heroes list. Let’s make this easier and separate the hero details into its own component to make this more reusable.
+  Our heroes list and our hero details are in the same component in the same file.
+  They're small now but each could grow. 
+  We are sure to receive new requirements for one and not the other.
+  Yet every change puts both components at risk and doubles the testing burden without benefit.
+  If we had to reuse the hero details elsewhere in our app,
+  the heroes list would tag along for the ride. 
+  
+  Our current component violates the 
+  [Single Responsibility Principle](https://blog.8thlight.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html).
+  It's only a tutorial but we can still do things right &mdash; 
+  especially if doing them right is easy and we learn how to build Angular apps in the process.
+  
+  Let’s break the hero details out into its own component.
 
   ### Separating the Hero Detail Component
-  We’ll need a new file and a new component to host our hero details. Let’s create a new file named `hero-detail.component.ts` in the `app` folder, and create a component named `HeroDetailComponent`.
+  Add a new file named `hero-detail.component.ts` to the `app` folder and create `HeroDetailComponent` as follows.
 
-+makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-1', 'hero-detail.component.ts (HeroDetailComponent)')
-
-:marked
-  We want to use `HeroDetailComponent` from our original `AppComponent`.  We’ll need the selector name when we refer to it in `AppComponent`’s template. We export the `HeroDetailComponent` here so we can later import it into our `AppComponent`, which we’ll do after we finish creating our `HeroDetailComponent`.
-
-  We anticipate our template will contain multiple lines. So let’s initialize the `template` property to an empty string between back-ticks.
-
-+makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-2', 'hero-detail.component.ts (Empty template)')
-
-:marked
-  Remember, we want to refer to our `HeroDetailComponent` in the `AppComponent`. This is why we export the `HeroDetailComponent` class.
-
-  #### Hero Detail Template
-  Our heroes and hero details are combined in one template in `AppComponent` so we need to separate them. Let’s move the appropriate template content from `AppComponent` and paste it in the template property of  `HeroDetailComponent`.
-
-  Let’s also change the name of the property in the template from `selectedHero` to `hero`, as it is more appropriate for a reusable component.
-
-+makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-detail-component-3', 'hero-detail.component.ts (Detail template)')
-
-:marked
-  Now our hero detail template exists only in our `HeroDetailComponent`.
-
-  #### Importing
-  Now that we have the foundation for the component, we need to make sure that we import everything we are using in the component. Let’s add the following import statement to the top of our `hero-detail.component.ts` file to get the exports from Angular that we are using.
-
-+makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'imports-1', 'hero-detail.component.ts (Importing Component)')
-
-:marked
-  #### Declaring our Hero
-  Our `HeroDetailComponent`’s template refers to a hero, so let’s add a property on the component to hold the hero.
-
-+makeExample('toh-3/ts-snippets/hero-detail.component.pt3.ts', 'hero-property', 'hero-detail.component.ts (Hero property)')
-
-:marked
-  Uh oh. We declare the `hero` property as being of type `Hero` but our `Hero` interface is over in the `app.component.ts` file. We now have two components, each in their own file, that need to reference the `Hero` interface. Let’s solve this problem by removing the `Hero` interface from `app.component.ts` and moving it to its own file named `hero.ts`.
-
-+makeExample('toh-3/ts/app/hero.ts', 'hero-interface', 'hero.ts (Exported Hero interface)')
-
-:marked
-  We export the `Hero` interface from `hero.ts` because we will need to import it in both of our component files. Let’s add the following import statement to the top of both `app.component.ts` and `hero.-detail.component.ts`.
-
-+makeExample('toh-3/ts/app/app.component.ts', 'hero-import', 'hero-detail.component.ts and app.component.ts (Import the Hero interface)')
-
-:marked
-  Now we can also use the `Hero` interface from other files by importing it.
-
-  #### Defining the Input for HeroDetailComponent
-  Our `HeroDetailComponent` needs to be told what hero to use. We have a `hero` property, but we need a way for the `AppComponent` to tell the `HeroDetailComponent`  the  hero it should use.
-
-  Let’s declare the inputs for our component in the `@Component` decorator’s `inputs` property. We will set the input to the `hero` property so it matches the `hero` property on the `HeroDetailComponent`.
-
-+makeExample('toh-3/ts/app/hero-detail.component.ts', 'inputs', 'hero-detail.component.ts (Component input)')
-
-:marked
-  Now our `AppComponent`, or any component that refers to `HeroDetailComponent`, can tell the `HeroDetailComponent` which hero to use.
-
-  ### Making AppComponent Refer to the HeroDetailComponent
-  Our `HeroDetailComponent` is ready, but we need to go back to the `AppComponent` and clean up some loose ends.
-
-  First we need to tell our `AppComponent` about our new component. Let’s add an import statement so we can refer to the `HeroDetailComponent`.
-
-+makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-import', 'app.component.ts (Importing HeroDetailComponent)')
-
-:marked
-  Let’s find the location of the template content we removed from `AppComponent` and refer to our new component.
-
-+makeExample('toh-3/ts-snippets/app.component.pt3.html', 'component-1', 'app.component.ts (Using HeroDetailComponent)')
-
-:marked
-  This would be good enough if the component did not have any inputs. But we do, so we want to pass the selected hero to the `hero` input of the `HeroDetailComponent`, as shown below:
-+makeExample('toh-3/ts-snippets/app.component.pt3.html', 'component-2', 'app.component.ts (Passing the hero to HeroDetailComponent)')
-
-:marked
-  ### Declaring HeroDetailComponent
-  We've imported `HeroDetailComponent`, we've used it in the template, but we haven't told our `AppComponent` that we intend to use it in the template. We must declare our intention to use `HeroDetailComponent` in `AppComponent`.
-
-  Let's add the `directives` property to our `@Component` decorator and set it to an array which contains the `HeroDetailComponent`. We'll do this after our `template` and `styles` properties in the `@Component` decorator.
-+makeExample('toh-3/ts/app/app.component.ts', 'declaring', 'app.component.ts (Declaring HeroDetailComponent)')
-
-:marked
-  Our `AppComponent`’s template should now look like this
-
-+makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-template', 'app.component.ts (Template)')
-
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'v1', 'hero-detail.component.ts (initial version)')(format=".")
 .l-sub-section
   :marked
-    Naming conventions can be useful.
-    We want to identify which files are components. Our `AppComponent` is named `app.component.ts` and our `HeroDetailComponent` is `hero-detail.component.ts`. We follow this consistent pattern which makes it easy to know what is in each file, by following a naming convention where we identify which files contain a component.
+    ### Naming conventions
+    We like to identify at a glance which classes are components and which files contain components. 
+    
+    Notice that  we have an `AppComponent` in a file named `app.component.ts` and our new
+    `HeroDetailComponent` is in a file named `hero-detail.component.ts`. 
+    
+    All of our component names end in "Component".  All of our component file names end in ".component".
+    
+    We spell our file names in lower dash case (AKA "kebab case") so we don't worry about
+    case sensitivity on the server or in source control.
 
-  :marked
     <!-- TODO
     .l-sub-section
       :marked
         Learn more about naming conventions in the chapter [Naming Conventions]
     :marked
     -->
+:marked
+  We begin by importing the `Component` function from Angular so that we have it handy when we create 
+  the metadata for our component. 
+  
+  We create metadata with the `@Component` decorator where we 
+  specify the selector name that identifies this component's element.
+  Then we export the class to make it available to other components.
+  
+  When we finish here, we'll import it into `AppComponent` and refer to its `<my-hero-detail>`  element.
+:marked
+  #### Hero Detail Template
+  At the moment, the *Heroes* and *Hero Detail* views are combined in one template in `AppComponent`.
+  Let’s **cut** the *Hero Detail* content from `AppComponent` and **paste** it into the new template property of  `HeroDetailComponent`.
+
+  We previously bound to the `selectedHero.name` property of the `AppComponent`.
+  Our `HeroDetailComponent` will have a `hero` property, not a `selectedHero` property.
+  So we replace `selectedHero` with `hero` everywhere in our new template. That's our only change.
+  The result looks like this:
+
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'template', 'hero-detail.component.ts (template)')(format=".")
 
 :marked
-  ### Checking Our Work
-  When we view our app in the browser we see the list of heroes. When we select a hero we can see the selected hero’s details. If we want to show hero details somewhere else in our app we can use the `HeroDetailComponent` and pass in a hero.
+  Now our hero detail layout exists only in the `HeroDetailComponent`.
+
+  #### Add the *hero* property
+  Let’s add that `hero` property we were talking about to the component class.
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'hero')
+:marked
+  Uh oh. We declared the `hero` property as type `Hero` but our `Hero` interface is over in the `app.component.ts` file. 
+  We have two components, each in their own file, that need to reference the `Hero` interface. 
+  
+  We solve the problem by relocating the `Hero` interface from `app.component.ts` to its own `hero.ts` file.
+
++makeExample('toh-3/ts/app/hero.ts', null, 'hero.ts (Exported Hero interface)')(format=".")
+
+:marked
+  We export the `Hero` interface from `hero.ts` because we'll need to reference it in both component files. 
+  Add the following import statement near the top of both `app.component.ts` and `hero.-detail.component.ts`.
+
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'hero-import', 'hero-detail.component.ts and app.component.ts (Import the Hero interface)')
+
+:marked
+  #### The *hero* property is an ***input***
+  
+  The `HeroDetailComponent` must be told what hero to display. Who will tell it? The parent `AppComponent`! 
+  
+  The `AppComponent` knows which hero to show: the hero that the user selected from the list. 
+  The user's selection is in its `selectedHero` property.
+  
+  We will soon update the `AppComponent` template so that it binds its `selectedHero` property
+  to the `hero` property of our `HeroDetailComponent`. The binding *might* look like this:
+code-example(format=".").
+  &lt;my-hero-detail [hero]="selectedHero">&lt;/my-hero-detail>
+:marked
+  Notice that the `hero` property is the ***target*** of a property binding &mdash; it's in square brackets to the left of the (=).
+  
+  Angular insists that we declare a ***target*** property to be an ***input*** property.
+  If we don't, Angular rejects the binding and throws an error.
+.l-sub-section
+  :marked
+    We explain input properties in more detail [here](../guide/attribute-directives.html#why-input) 
+    where we also explain why *target* properties require this special treament and 
+    *source* properties do not.
+:marked
+  There are a couple of ways we can declare that `hero` is an *input*. 
+  We'll do it by adding an `inputs` array to the `@Component` metadata.
++makeExample('toh-3/ts/app/hero-detail.component.ts', 'inputs')
+  
+.l-sub-section
+  :marked
+    Learn about the `@Input()` decorator way in the 
+    [Attribute Directives](../guide/attribute-directives.html#input) chapter.
+:marked
+
+.l-main-section
+:marked
+  ## Refresh the AppComponent
+  We return to the `AppComponent` and teach it to use the `HeroDetailComponent`.
+
+  We begin by importing the `HeroDetailComponent` so we can refer to it.
+
++makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-import')
+
+:marked
+  Find the location in the template where we removed the *Hero Detail* content
+  and add an element tag that represents the `HeroDetailComponent`.
+code-example(format=".").
+  &lt;my-hero-detail>&lt;/my-hero-detail>
+.l-sub-section
+  :marked
+    *my-hero-detail* is the name we set as the  `selector` in the `HeroDetailComponent` metadata.
+:marked
+ The two components won't coordinate until we bind the `selectedHero` property of the `AppComponent` 
+ to the `HeroDetailComponent` element's `hero` property  like this:
+code-example(format=".")
+  &lt;my-hero-detail [hero]="selectedHero">&lt;/my-hero-detail>
+:marked
+  The `AppComponent`’s template should now look like this
+
++makeExample('toh-3/ts/app/app.component.ts', 'hero-detail-template', 'app.component.ts (Template)')
+:marked
+  Thanks to the binding, the `HeroDetailComponent` should receive the hero from the `AppComponent` and display that hero's detail beneath the list.
+  The detail should update every time the user picks a new hero.
+  
+  It's not happening yet!
+  
+  We click among the heroes. No details. We look for an error in the console of the browser development tools. No error.
+  
+  It is as if Angular were ignoring the new tag. That's because *it is ignoring the new tag*.
+  
+  ### The *directives* array
+  A browser ignores HTML tags and attributes that it doesn't recognize. So does Angular.
+  
+  We've imported `HeroDetailComponent`, we've used it in the template, but we haven't told Angular about it.
+  
+  We tell Angular about it by listing it in the metadata `directives` array. Let's add that array property to the bottom of the
+  `@Component` configuration object, immediately after the `template` and `styles` properties.
++makeExample('toh-3/ts/app/app.component.ts', 'directives')
+
+
+:marked
+  ### It works!
+  When we view our app in the browser we see the list of heroes. 
+  When we select a hero we can see the selected hero’s details. 
+  
+  What's fundamentally new is that we can use this `HeroDetailComponent`
+  to show hero details anywhere in the app.
 
   We’ve created our first reusable component!
 
@@ -157,18 +216,35 @@ code-example(format="." language="bash").
     .file index.html
     .file package.json
     .file tsconfig.json
+:marked
+  Here are the code files we discussed in this chapter.
+
++makeTabs(`
+  toh-3/ts/app/hero-detail.component.ts,
+  toh-3/ts/app/app.component.ts,
+  toh-3/ts/app/hero.ts
+  `,'',`
+  app/hero-detail.component.ts,
+  app/app.component.ts,
+  app/hero.ts
+  `)
 
 .l-main-section
 :marked
   ## The Road We’ve Travelled
-  Let’s take stock in what we’ve built.
+  Let’s take stock of what we’ve built.
 
   * We created a reusable component
   * We learned how to make a component accept input
+  * We learned to bind a parent component to a child component.
+  * We learned to declare the application directives we need in a `directives` array.
 
-  [Run the live example for part 3](/resources/live-examples/toh-3/ts/plnkr.html)
+  [Run the live example for part 3](/resources/live-examples/toh-3/ts/plnkr.html).
 
-  ### The Road Ahead
+
+.l-main-section
+:marked
+  ## The Road Ahead
   Our Tour of Heroes has become more reusable using shared components. 
   We want to create reusable services that retrieve our data. As our app evolves, 
   we’ll learn how to design it to make it easier to grow and maintain. 
