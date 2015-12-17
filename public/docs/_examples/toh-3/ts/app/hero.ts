@@ -1,6 +1,6 @@
-// #docregion hero-interface
+// #docregion
 export interface Hero {
   id: number;
   name: string;
 }
-// #enddocregion hero-interface
+// #enddocregion

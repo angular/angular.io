@@ -11,7 +11,7 @@ import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
   // #enddocregion host
 })
 
-export class Highlight {
+export class HighlightDirective {
   // #docregion ctor
   constructor(private el: ElementRef, private renderer: Renderer) {
   }
