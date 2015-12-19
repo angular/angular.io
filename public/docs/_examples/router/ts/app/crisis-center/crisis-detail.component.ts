@@ -4,11 +4,11 @@
 import {Component, OnInit} from 'angular2/core';
 import {Crisis, CrisisService} from './crisis.service';
 import {RouteParams, Router} from 'angular2/router';
-// #docregion ngCanDeactivate
+// #docregion routerCanDeactivate
 import {CanDeactivate, ComponentInstruction} from 'angular2/router';
 import {DialogService} from '../dialog.service';
 
-// #enddocregion ngCanDeactivate
+// #enddocregion routerCanDeactivate
 
 @Component({
   // #docregion template
@@ -28,13 +28,13 @@ import {DialogService} from '../dialog.service';
   // #enddocregion template
   styles: ['input {width: 20em}']
 })
-// #docregion ngCanDeactivate, cancel-save
+// #docregion routerCanDeactivate, cancel-save
 export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
   public crisis: Crisis;
   public editName: string;
 
-// #enddocregion ngCanDeactivate, cancel-save
+// #enddocregion routerCanDeactivate, cancel-save
   constructor(
     private _service: CrisisService,
     private _router: Router,
@@ -87,7 +87,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     this._router.navigate(route);
   }
   // #enddocregion gotoCrises
-// #docregion ngCanDeactivate, cancel-save
+// #docregion routerCanDeactivate, cancel-save
 }
-// #enddocregion ngCanDeactivate, cancel-save
+// #enddocregion routerCanDeactivate, cancel-save
 // #enddocregion
