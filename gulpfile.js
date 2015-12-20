@@ -62,6 +62,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
 gulp.task('e2e', function() {
+  copyExampleBoilerplate();
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
   var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
   return r.promise.then(function(x) {
@@ -160,7 +161,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access
-gulp.task('add-example-boilerplate',  function() {
+gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
 
@@ -168,12 +169,16 @@ gulp.task('add-example-boilerplate',  function() {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
+  copyExampleBoilerplate();
+});
+
+function copyExampleBoilerplate() {
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   return copyFiles(sourceFiles, examplePaths );
-});
+} ;
 
 gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
