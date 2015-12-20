@@ -15,8 +15,13 @@ var fsExtra = require('fs-extra');
 var fs = fsExtra;
 var exec = require('child_process').exec;
 var execPromise = Q.denodeify(exec);
+// cross platform version of spawn that also works on windows.
+var xSpawn = require('cross-spawn');
 var prompt = require('prompt');
 var globby = require("globby");
+// Ugh... replacement needed to kill processes on any OS
+// - because childProcess.kill does not work properly on windows
+var treeKill = require("tree-kill");
 
 // TODO:
 //  1. Think about using runSequence
@@ -55,6 +60,82 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
+
+gulp.task('e2e', function() {
+  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+  var outputFile = path.join(process.cwd(), 'protractor-results.txt');
+  var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
+  fs.writeFileSync(outputFile, header);
+  var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
+  return r.promise.then(function(x) {
+    var appDir = path.join(EXAMPLES_PATH, 'quickstart/ts');
+    var protractorConfigPath = path.resolve(path.join(EXAMPLES_PATH, '/quickstart/protractor.config.js'));
+    return runE2eTests(appDir, protractorConfigPath, outputFile);
+  }).then(function(x) {
+    var appDir = path.join(EXAMPLES_PATH, 'quickstart/js');
+    var protractorConfigPath = path.resolve(path.join(EXAMPLES_PATH, '/quickstart/protractor.config.js'));
+    return runE2eTests(appDir, protractorConfigPath, outputFile);
+  }).fail(function(e){
+    return e;
+  });
+});
+
+function runE2eTests(appDir, protractorConfigPath, outputFile ) {
+  // start the app
+  var appRun = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
+
+  // start protractor
+  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+  var protractorRun = spawnExt('protractor',
+    [ protractorConfigPath, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+  return protractorRun.promise.then(function(data) {
+    // kill the app now that protractor has completed.
+    treeKill(appRun.proc.pid);
+    // Ugh... proc.kill does not work properly on windows with child processes.
+    // appRun.proc.kill();
+    return data;
+  }).fail(function(err) {
+    // Ugh... proc.kill does not work properly on windows with child processes.
+    // appRun.proc.kill();
+    treeKill(appRun.proc.pid)
+    return err;
+  });
+}
+
+// returns both a promise and the spawned process so that it can be killed if needed.
+function spawnExt(command, args, options) {
+  var deferred = Q.defer();
+  var descr = command + " " + args.join(' ');
+  var proc;
+  gutil.log('running: ' + descr);
+  try {
+    proc = xSpawn.spawn(command, args, options);
+  } catch(e) {
+    gutil.log(e);
+    deferred.reject(e);
+    return { proc: null, promise: deferred.promise };
+  }
+  //if (proc == null) {
+  //  deferred.reject('unable to run: ' + command);
+  //  return { proc: null, promise: deferred.promise };
+  //}
+  proc.stdout.on('data', function (data) {
+    gutil.log(data.toString());
+  });
+  proc.stderr.on('data', function (data) {
+    gutil.log(data.toString());
+    // deferred.reject(data);
+  });
+  proc.on('close', function (data) {
+    gutil.log('completed: ' + descr);
+    deferred.resolve(data);
+  });
+  proc.on('error', function (data) {
+    gutil.log(data.toString());
+    deferred.reject(data);
+  });
+  return { proc: proc, promise: deferred.promise };
+}
 
 // Public tasks
 
