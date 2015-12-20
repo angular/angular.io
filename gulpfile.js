@@ -63,33 +63,34 @@ var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js'
 
 gulp.task('e2e', function() {
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+  var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
+  return r.promise.then(function(x) {
+    return findAndRunE2eTests();
+  }).fail(function(e) {
+    return e;
+  });
+});
+
+function findAndRunE2eTests() {
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
   var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
   fs.writeFileSync(outputFile, header);
-  var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
 
   var combos = [];
   var protractorConfigFilenames = getProtractorConfigFiles(EXAMPLES_PATH);
   protractorConfigFilenames.forEach(function(pcFilename) {
     // get all of the examples under each dir where a pcFilename is found
     examplePaths = getExamplePaths(path.dirname(pcFilename));
-    pcFilename = path.resolve(pcFilename);
     examplePaths.forEach(function(exPath) {
       combos.push( { examplePath: exPath, protractorConfigFilename: pcFilename });
     })
   });
-
-  return r.promise.then(function(x) {
-    return combos.reduce(function (promise, combo) {
-      return promise.then(function () {
-        return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
-      });
-    }, Q.resolve());
-  }).fail(function(e) {
-    return e;
-  });
-
-});
+  return combos.reduce(function (promise, combo) {
+    return promise.then(function () {
+      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
+    });
+  }, Q.resolve());
+}
 
 
 function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
@@ -97,9 +98,10 @@ function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   var appRun = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
 
   // start protractor
+  var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
   var protractorRun = spawnExt('protractor',
-    [ protractorConfigFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+    [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
   return protractorRun.promise.then(function(data) {
     // kill the app now that protractor has completed.
     treeKill(appRun.proc.pid);
