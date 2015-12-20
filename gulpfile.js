@@ -62,23 +62,32 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
 gulp.task('e2e', function() {
+
   copyExampleBoilerplate();
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
   var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
   return r.promise.then(function(x) {
-    return findAndRunE2eTests();
+    return findAndRunE2eTests(argv.filter);
   }).fail(function(e) {
     return e;
   });
 });
 
-function findAndRunE2eTests() {
+function findAndRunE2eTests(filter) {
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
   var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
+  if (filter) {
+    header += '  Filter: ' + filter.toString() + '\n\n';
+  }
   fs.writeFileSync(outputFile, header);
 
   var combos = [];
   var protractorConfigFilenames = getProtractorConfigFiles(EXAMPLES_PATH);
+  if (filter) {
+    protractorConfigFilenames = protractorConfigFilenames.filter(function (fn) {
+      return fn.match(filter) != null;
+    })
+  }
   protractorConfigFilenames.forEach(function(pcFilename) {
     // get all of the examples under each dir where a pcFilename is found
     examplePaths = getExamplePaths(path.dirname(pcFilename));
