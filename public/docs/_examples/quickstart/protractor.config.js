@@ -19,9 +19,8 @@ exports.config = {
   // Framework to use. Jasmine is recommended.
   framework: 'jasmine',
 
-  // Spec patterns are relative to the current working directly when
-  // protractor is called.
-  specs: ['**/*.e2e-spec.js'],
+  // Spec patterns are relative to this config file
+  specs: ['**/*e2e-spec.js' ],
 
   // For angular2 tests
   useAllAngular2AppRoots: true,
@@ -87,7 +86,7 @@ function Reporter(options) {
 
   this.jasmineDone = function() {
     outputFile = options.outputFile;
-    console.log('Completed - writing output to: ' + outputFile);
+    // console.log('Completed - appending output to: ' + outputFile);
     fs.appendFileSync(outputFile, _output.join('\n')+ '\n\n');
   };
 

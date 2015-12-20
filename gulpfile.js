@@ -67,27 +67,39 @@ gulp.task('e2e', function() {
   var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
   fs.writeFileSync(outputFile, header);
   var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
+
+  var combos = [];
+  var protractorConfigFilenames = getProtractorConfigFiles(EXAMPLES_PATH);
+  protractorConfigFilenames.forEach(function(pcFilename) {
+    // get all of the examples under each dir where a pcFilename is found
+    examplePaths = getExamplePaths(path.dirname(pcFilename));
+    pcFilename = path.resolve(pcFilename);
+    examplePaths.forEach(function(exPath) {
+      combos.push( { examplePath: exPath, protractorConfigFilename: pcFilename });
+    })
+  });
+
   return r.promise.then(function(x) {
-    var appDir = path.join(EXAMPLES_PATH, 'quickstart/ts');
-    var protractorConfigPath = path.resolve(path.join(EXAMPLES_PATH, '/quickstart/protractor.config.js'));
-    return runE2eTests(appDir, protractorConfigPath, outputFile);
-  }).then(function(x) {
-    var appDir = path.join(EXAMPLES_PATH, 'quickstart/js');
-    var protractorConfigPath = path.resolve(path.join(EXAMPLES_PATH, '/quickstart/protractor.config.js'));
-    return runE2eTests(appDir, protractorConfigPath, outputFile);
-  }).fail(function(e){
+    return combos.reduce(function (promise, combo) {
+      return promise.then(function () {
+        return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
+      });
+    }, Q.resolve());
+  }).fail(function(e) {
     return e;
   });
+
 });
 
-function runE2eTests(appDir, protractorConfigPath, outputFile ) {
+
+function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   // start the app
   var appRun = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
 
   // start protractor
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
   var protractorRun = spawnExt('protractor',
-    [ protractorConfigPath, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+    [ protractorConfigFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
   return protractorRun.promise.then(function(data) {
     // kill the app now that protractor has completed.
     treeKill(appRun.proc.pid);
@@ -115,22 +127,18 @@ function spawnExt(command, args, options) {
     deferred.reject(e);
     return { proc: null, promise: deferred.promise };
   }
-  //if (proc == null) {
-  //  deferred.reject('unable to run: ' + command);
-  //  return { proc: null, promise: deferred.promise };
-  //}
   proc.stdout.on('data', function (data) {
     gutil.log(data.toString());
   });
   proc.stderr.on('data', function (data) {
     gutil.log(data.toString());
-    // deferred.reject(data);
   });
   proc.on('close', function (data) {
     gutil.log('completed: ' + descr);
     deferred.resolve(data);
   });
   proc.on('error', function (data) {
+    gutil.log('completed with error:' + descr);
     gutil.log(data.toString());
     deferred.reject(data);
   });
@@ -343,6 +351,17 @@ function deleteFiles(baseFileNames, destPaths) {
     });
   });
   return Q.all(delPromises);
+}
+
+function getProtractorConfigFiles(basePath) {
+  var jsonPattern = path.join(basePath, "**/*protractor.config.js");
+  // ignore (skip) the top level version.
+  var exceptJsonPattern = "!" + path.join(basePath, "/*protractor.config.js");
+  var nmPattern =  path.join(basePath, "**/node_modules/**");
+  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
+  // same as above but perf can differ.
+  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
+  return fileNames;
 }
 
 function getExamplePaths(basePath) {
