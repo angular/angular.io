@@ -32,18 +32,31 @@ describe('Forms Tests', function () {
     });
   });
 
+  it('should hide form after submit', function () {
+    var alterEgoEle = element.all(by.css('input[ngcontrol=alterEgo]')).get(0);
+    expect(alterEgoEle.isDisplayed()).toBe(true);
+    var submitButtonEle = element.all(by.css('button[type=submit]')).get(0);
+    submitButtonEle.click().then(function() {
+      expect(alterEgoEle.isDisplayed()).toBe(false);
+    })
+  });
+
   it('should reflect submitted data after submit', function () {
     var test = 'testing 1 2 3';
-    // var nameEle = element(by.name('name'));
-    var nameEle = element.all(by.css('input[ngcontrol=name]')).get(0);
-    nameEle.getAttribute('value').then(function(value) {
-      nameEle.sendKeys(test);
-      expect(nameEle.getAttribute('value')).toEqual(value + test);
+    var newValue;
+    var alterEgoEle = element.all(by.css('input[ngcontrol=alterEgo]')).get(0);
+    alterEgoEle.getAttribute('value').then(function(value) {
+      alterEgoEle.sendKeys(test);
+      newValue = value + test;
+      expect(alterEgoEle.getAttribute('value')).toEqual(newValue);
     }).then(function() {
       var b = element.all(by.css('button[type=submit]')).get(0);
       return b.click();
     }).then(function() {
-      expect(element(by.css('h2')).getText()).toContain('You submitted the following');
+      var alterEgoTextEle = element(by.cssContainingText('div', 'Alter Ego'));
+      expect(alterEgoTextEle.isPresent()).toBe(true, 'cannot locate "Alter Ego" label');
+      var divEle = element(by.cssContainingText('div', newValue));
+      expect(divEle.isPresent()).toBe(true, 'cannot locate div with this text: ' + newValue);
     });
   });
 });

@@ -1,7 +1,6 @@
 // IN PROGRESS
 describe('Hierarchical dependency injection', function () {
 
-
   beforeEach(function () {
     browser.get('');
   });
