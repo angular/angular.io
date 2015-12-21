@@ -1,4 +1,3 @@
-
 describe('Attribute directives', function () {
 
   var _title = "My First Attribute Directive";

@@ -1,4 +1,3 @@
-
 describe('Displaying Data Tests', function () {
 
   var _title = "Tour of Heroes";
