@@ -82,17 +82,20 @@ function findAndRunE2eTests(filter) {
   fs.writeFileSync(outputFile, header);
 
   var combos = [];
-  var protractorConfigFilenames = getProtractorConfigFiles(EXAMPLES_PATH);
+  var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
   if (filter) {
-    protractorConfigFilenames = protractorConfigFilenames.filter(function (fn) {
+    e2eSpecPaths = e2eSpecPaths.filter(function (fn) {
       return fn.match(filter) != null;
     })
   }
-  protractorConfigFilenames.forEach(function(pcFilename) {
+  var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
+  e2eSpecPaths.forEach(function(specPath) {
+    var destConfig = path.join(specPath, 'protractor.config.js');
+    fsExtra.copySync(srcConfig, destConfig);
     // get all of the examples under each dir where a pcFilename is found
-    examplePaths = getExamplePaths(path.dirname(pcFilename));
+    examplePaths = getExamplePaths(specPath, true);
     examplePaths.forEach(function(exPath) {
-      combos.push( { examplePath: exPath, protractorConfigFilename: pcFilename });
+      combos.push( { examplePath: exPath, protractorConfigFilename: destConfig });
     })
   });
   return combos.reduce(function (promise, combo) {
@@ -186,8 +189,12 @@ function copyExampleBoilerplate() {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return copyFiles(sourceFiles, examplePaths );
-} ;
+  return copyFiles(sourceFiles, examplePaths).then(function() {
+    var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
+    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+    return copyFiles(sourceFiles, e2eSpecPaths);
+  });
+}
 
 gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
@@ -195,7 +202,10 @@ gulp.task('remove-example-boilerplate', function() {
     fsUtils.removeSymlink(linkPath);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths).then(function() {
+    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+    return deleteFiles(['protractor.config.js'], e2eSpecPaths);
+  })
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
@@ -369,29 +379,20 @@ function deleteFiles(baseFileNames, destPaths) {
   return Q.all(delPromises);
 }
 
-function getProtractorConfigFiles(basePath) {
-  var jsonPattern = path.join(basePath, "**/*protractor.config.js");
-  // ignore (skip) the top level version.
-  var exceptJsonPattern = "!" + path.join(basePath, "/*protractor.config.js");
-  var nmPattern =  path.join(basePath, "**/node_modules/**");
-  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
-  // same as above but perf can differ.
-  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
-  return fileNames;
-}
+//function getProtractorConfigFiles(basePath) {
+//  var jsonPattern = path.join(basePath, "**/*protractor.config.js");
+//  // ignore (skip) the top level version.
+//  var exceptJsonPattern = "!" + path.join(basePath, "/*protractor.config.js");
+//  var nmPattern =  path.join(basePath, "**/node_modules/**");
+//  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
+//  // same as above but perf can differ.
+//  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
+//  return fileNames;
+//}
 
-function getExamplePaths(basePath) {
-  var jsonPattern = path.join(basePath, "**/example-config.json");
-  // ignore (skip) the top level version.
-  var exceptJsonPattern = "!" + path.join(basePath, "/example-config.json");
-  var nmPattern =  path.join(basePath, "**/node_modules/**");
-  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
-  // same as above but perf can differ.
-  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
-  var paths = fileNames.map(function(fileName) {
-    return path.dirname(fileName);
-  });
-  return paths;
+function getE2eSpecPaths(basePath) {
+  var paths = getPaths(basePath, '*e2e-spec.js', true);
+  return _.uniq(paths);
 }
 
 function getNodeModulesPaths(basePath) {
@@ -399,6 +400,31 @@ function getNodeModulesPaths(basePath) {
     return path.join(examplePath, "/node_modules");
   });
   return paths;
+}
+
+function getExamplePaths(basePath, includeBase) {
+  // includeBase defaults to false
+  return getPaths(basePath, "example-config.json", includeBase)
+}
+
+function getPaths(basePath, filename, includeBase) {
+  var filenames = getFilenames(basePath, filename, includeBase);
+  var paths = filenames.map(function(fileName) {
+    return path.dirname(fileName);
+  });
+  return paths;
+}
+
+function getFilenames(basePath, filename, includeBase) {
+  // includeBase defaults to false
+  var includePatterns = [path.join(basePath, "**/" + filename)];
+  if (!includeBase) {
+    // ignore (skip) the top level version.
+    includePatterns.push("!" + path.join(basePath, "/" + filename));
+  }
+  var nmPattern = path.join(basePath, "**/node_modules/**");
+  var filenames = globby.sync(includePatterns, {ignore: [nmPattern]});
+  return filenames;
 }
 
 function watchAndSync(options, cb) {
