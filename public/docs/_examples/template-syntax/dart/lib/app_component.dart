@@ -17,8 +17,6 @@ enum _Color { Red, Green, Blue }
     selector: 'my-app',
     templateUrl: 'app-component.html',
     directives: const [
-      CORE_DIRECTIVES,
-      FORM_DIRECTIVES,
       HeroDetailComponent,
       BigHeroDetailComponent,
       MyClickDirective,
