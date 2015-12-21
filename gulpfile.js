@@ -61,7 +61,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 
 var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
-gulp.task('e2e', function() {
+gulp.task('run-e2e-tests', function() {
 
   copyExampleBoilerplate();
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
