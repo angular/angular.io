@@ -83,17 +83,18 @@ function findAndRunE2eTests(filter) {
 
   var combos = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-  if (filter) {
-    e2eSpecPaths = e2eSpecPaths.filter(function (fn) {
-      return fn.match(filter) != null;
-    })
-  }
+
   var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
   e2eSpecPaths.forEach(function(specPath) {
     var destConfig = path.join(specPath, 'protractor.config.js');
     fsExtra.copySync(srcConfig, destConfig);
     // get all of the examples under each dir where a pcFilename is found
     examplePaths = getExamplePaths(specPath, true);
+    if (filter) {
+      examplePaths = examplePaths.filter(function (fn) {
+        return fn.match(filter) != null;
+      })
+    }
     examplePaths.forEach(function(exPath) {
       combos.push( { examplePath: exPath, protractorConfigFilename: destConfig });
     })
