@@ -8,12 +8,6 @@ import 'package:angular2/angular2.dart';
 import 'package:displaying_data/hero.dart';
 
 // #enddocregion import-hero
-final List<Hero> _heroes = [
-  new Hero(1, 'Windstorm'),
-  new Hero(13, 'Bombasto'),
-  new Hero(15, 'Magneta'),
-  new Hero(20, 'Tornado')
-];
 
 @Component(
     selector: 'my-app',
@@ -23,14 +17,11 @@ final List<Hero> _heroes = [
 <h2>My favorite hero is: {{myHero.name}}</h2>
 <p>Heroes:</p>
 <ul>
-  <li *ng-for="#hero of heroes">
+  <li *ngFor="#hero of heroes">
     {{ hero.name }}
   </li>
-</ul>''',
+</ul>'''
 // #enddocregion template
-// #docregion directives
-    directives: const [NgFor, NgIf]
-// #enddocregion directives
     )
 // #docregion heroes
 final List<Hero> _heroes = [

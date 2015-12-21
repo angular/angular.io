@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion final
-library displaying_data.app_component_final;
+library displaying_data.app_component;
 
 // #docregion imports
 import 'package:angular2/angular2.dart';
@@ -21,18 +21,14 @@ final List<Hero> _heroes = [
 <h2>My favorite hero is: {{myHero.name}}</h2>
 <p>Heroes:</p>
 <ul>
-  <li *ng-for="#hero of heroes">
+  <li *ngFor="#hero of heroes">
     {{ hero.name }}
   </li>
 </ul>
 <!--#docregion message-->
-<p *ng-if="heroes.length > 3">There are many heroes!</p>
+<p *ngIf="heroes.length > 3">There are many heroes!</p>
 <!--#enddocregion message-->
-''',
-// #docregion directives
-    directives: const [CORE_DIRECTIVES]
-// #enddocregion directives
-    )
+''')
 class AppComponent {
   String title = 'Tour of Heroes';
   List<Hero> heroes = _heroes;

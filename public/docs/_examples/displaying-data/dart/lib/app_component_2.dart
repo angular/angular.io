@@ -14,14 +14,13 @@ import 'package:angular2/angular2.dart';
 <h2>My favorite hero is: {{myHero}}</h2>
 <p>Heroes:</p>
 <ul>
-  <li *ng-for="#hero of heroes">
+<!-- docregion li-repeater -->
+  <li *ngFor="#hero of heroes">
     {{ hero }}
   </li>
-</ul>''',
+<!-- enddocregion li-repeater -->
+</ul>'''
 // #enddocregion template
-// #docregion directives
-    directives: const [NgFor]
-// #enddocregion directives
     )
 // #docregion mock-heroes
 const List<String> _heroes = const [
