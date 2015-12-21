@@ -21,7 +21,7 @@ class LittleTourComponent {
   List<String> heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
 
   void addHero(String newHero) {
-    if (newHero != null && newHero.length > 0) {
+    if (newHero?.length > 0) {
       heroes.add(newHero);
     }
   }
