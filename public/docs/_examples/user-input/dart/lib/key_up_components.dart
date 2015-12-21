@@ -1,50 +1,85 @@
+// #docplaster
 // #docregion
 library user_input.key_up_components;
 
+import 'dart:html';
+
 import 'package:angular2/angular2.dart';
 
-@Component(selector: 'key-up')
-@View(
-    template: '''<h4>Give me some keys!</h4>
-    <div><input (keyup)="onKey(\$event)"><div>
-    <div>{{values}}</div>''')
-class KeyUpComponent {
+// #docregion key-up-component-1
+@Component(
+    selector: 'key-up1',
+// #docregion key-up-component-1-template
+    template: '''
+      <input (keyup)="onKey(\$event)">
+      <p>{{values}}</p>
+    '''
+// #enddocregion key-up-component-1-template
+    )
+// #docregion key-up-component-1-class, key-up-component-1-class-no-type
+class KeyUpComponentV1 {
   String values = '';
-  onKey(event) {
+
+  // #enddocregion key-up-component-1-class, key-up-component-1-class-no-type
+  /*
+  // #docregion key-up-component-1-class-no-type
+  onKey(dynamic event) {
     values += event.target.value + ' | ';
   }
+  // #enddocregion key-up-component-1-class-no-type
+  */
+  // #docregion key-up-component-1-class
+  onKey(KeyboardEvent event) {
+    InputElement el = event.target;
+    values += '${el.value}  | ';
+  }
+// #docregion key-up-component-1-class-no-type
 }
+// #enddocregion key-up-component-1,key-up-component-1-class, key-up-component-1-class-no-type
 
-@Component(selector: 'key-up2')
-@View(
-    template: '''<h4>Give me some more keys!</h4>
-    <div><input #box (keyup)="onKey(box.value)"><div>
-    <div>{{values}}</div>''')
+//////////////////////////////////////////
+
+// #docregion key-up-component-2
+@Component(
+    selector: 'key-up2',
+    template: '''
+      <input #box (keyup)="onKey(box.value)">
+      <p>{{values}}</p>
+    ''')
 class KeyUpComponentV2 {
   String values = '';
   onKey(value) {
-    values += value + ' | ';
+    values += '$value | ';
   }
 }
+// #enddocregion key-up-component-2
 
-@Component(selector: 'key-up3')
-@View(
-    template: '''<h4>Type away! Press [enter] when done</h4>
-    <div><input #box (keyup.enter)="values=box.value"><div>
-    <div>{{values}}</div>''')
+//////////////////////////////////////////
+
+// #docregion key-up-component-3
+@Component(
+    selector: 'key-up3',
+    template: '''
+      <input #box (keyup.enter)="values=box.value">
+      <p>{{values}}</p>
+    ''')
 class KeyUpComponentV3 {
   String values = '';
 }
+// #enddocregion key-up-component-3
 
-@Component(selector: 'key-up4')
-@View(
-    template: '''<h4>Type away! Press [enter] or mouse away when done.</h4>
-    <div>
+//////////////////////////////////////////
+
+// #docregion key-up-component-4
+@Component(
+    selector: 'key-up4',
+    template: '''
       <input #box
         (keyup.enter)="values=box.value"
         (blur)="values=box.value">
-    <div>
-    <div>{{values}}</div>''')
+      <p>{{values}}</p>
+    ''')
 class KeyUpComponentV4 {
   String values = '';
 }
+// #enddocregion key-up-component-4

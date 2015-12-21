@@ -1,14 +1,18 @@
 // #docregion
 library user_input.click_me_component;
 
-import 'dart:html';
-
 import 'package:angular2/angular2.dart';
 
-@Component(selector: 'click-me')
-@View(template: '''<button (click)="onClickMe()">Click me</button>''')
+// #docregion click-me-component
+@Component(
+    selector: 'click-me',
+    template: '''<button (click)="onClickMe()">Click me!</button>
+    {{clickMessage}}''')
 class ClickMeComponent {
+  String clickMessage = '';
+
   onClickMe() {
-    window.alert('You are my hero!');
+    clickMessage = 'You are my hero!';
   }
 }
+// #enddocregion click-me-component
