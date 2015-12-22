@@ -1,4 +1,4 @@
-describeIf(browser.appIsTs || browser.appIsDart, 'Forms Tests', function () {
+describeIf(browser.appIsTs, 'Forms Tests', function () {
 
   beforeEach(function () {
     browser.get('');
@@ -11,16 +11,15 @@ describeIf(browser.appIsTs || browser.appIsDart, 'Forms Tests', function () {
 
   it('should not display message before submit', function () {
     var ele = element(by.css('h2'));
-    // expect(ele.isPresent()).toBeFalsy();
-    expect(ele.isDisplayed()).toBeFalsy();
+    expect(ele.isDisplayed()).toBe(false);
   });
 
   it('should hide form after submit', function () {
     var ele = element.all(by.css('h1')).get(0);
-    expect(ele.isDisplayed()).toBeTruthy();
+    expect(ele.isDisplayed()).toBe(true);
     var b = element.all(by.css('button[type=submit]')).get(0);
     b.click().then(function() {
-      expect(ele.isDisplayed()).toBeFalsy();
+      expect(ele.isDisplayed()).toBe(false);
     });
   });
 
