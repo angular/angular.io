@@ -1,5 +1,3 @@
-
-
 describeIf(browser.appIsTs || browser.appIsDart, 'Forms Tests', function () {
 
   beforeEach(function () {
