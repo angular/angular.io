@@ -8,6 +8,7 @@
 var fs = require('fs');
 var path = require('canonical-path');
 
+
 exports.config = {
   directConnect: true,
 
@@ -21,6 +22,7 @@ exports.config = {
 
   // Spec patterns are relative to this config file
   specs: ['**/*e2e-spec.js' ],
+
 
   // For angular2 tests
   useAllAngular2AppRoots: true,
@@ -39,7 +41,23 @@ exports.config = {
 
     // debugging
     console.log('browser.params:' + JSON.stringify(browser.params));
+    var appDir = browser.params.appDir;
+    if (appDir) {
+      if (appDir.match('/ts') != null) {
+        browser.appIsTs = true;
+      } else if (appDir.match('/js') != null) {
+        browser.appIsJs = true;
+      } else if (appDir.match('/dart') != null) {
+        browser.appIsDart = true;
+      } else {
+        browser.appIsUnknown = true;
+      }
+    } else {
+      browser.appIsUnknown = true;
+    }
     jasmine.getEnv().addReporter(new Reporter( browser.params )) ;
+    global.describeIf = describeIf;
+    global.itIf = itIf;
   },
 
   jasmineNodeOpts: {
@@ -49,6 +67,24 @@ exports.config = {
     print: function() {}
   }
 };
+
+function describeIf(cond, name, func) {
+  if (cond) {
+    describe(name, func);
+  } else {
+    xdescribe('*** Skipped *** - ' + name, func);
+  }
+}
+
+function itIf(cond, name, func) {
+  if (cond) {
+    it(name, func);
+  } else {
+    xit('*** Skipped *** - ' + name, func);
+  }
+}
+
+
 
 function Reporter(options) {
   this.defaultOutputFile = path.resolve(process.cwd(), "../../", 'protractor-results.txt');

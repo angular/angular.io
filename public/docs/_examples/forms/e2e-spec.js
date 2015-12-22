@@ -1,4 +1,6 @@
-describe('Forms Tests', function () {
+
+
+describeIf(browser.appIsTs || browser.appIsDart, 'Forms Tests', function () {
 
   beforeEach(function () {
     browser.get('');
@@ -59,3 +61,4 @@ describe('Forms Tests', function () {
     });
   });
 });
+

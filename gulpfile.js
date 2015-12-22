@@ -99,6 +99,7 @@ function findAndRunE2eTests(filter) {
       combos.push( { examplePath: exPath, protractorConfigFilename: destConfig });
     })
   });
+  // run the tests sequentially
   return combos.reduce(function (promise, combo) {
     return promise.then(function () {
       return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
