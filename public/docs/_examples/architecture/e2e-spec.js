@@ -1,4 +1,3 @@
-
 describe('Architecture', function () {
 
   var _title = "Hero List";
