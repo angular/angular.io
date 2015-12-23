@@ -65,10 +65,13 @@ var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js'
 // i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
 // 'foo' in their folder names.
 gulp.task('run-e2e-tests', function() {
-  copyExampleBoilerplate();
-  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-  var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
-  return r.promise.then(function(x) {
+  var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
+  spawnInfo.promise.then(function() {
+    copyExampleBoilerplate();
+    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+    spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
+    return spawnInfo.promise;
+  }).then(function(x) {
     return findAndRunE2eTests(argv.filter);
   }).fail(function(e) {
     return e;
