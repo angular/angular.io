@@ -31,7 +31,7 @@ import {Hero} from './hero';
 export class HeroDetailComponent {
 // #enddocregion v1
 // #docregion hero
-  public hero: Hero;
+  hero: Hero;
 // #enddocregion hero
 // #docregion v1
 }

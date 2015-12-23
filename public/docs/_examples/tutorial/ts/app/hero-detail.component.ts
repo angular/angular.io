@@ -1,5 +1,6 @@
 import {Component, OnInit} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
+
 import {Hero} from './hero';
 import {HeroService} from './hero.service';
 
@@ -17,10 +18,8 @@ export class HeroDetailComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.hero) {
-      let id = +this._routeParams.get('id');
-      this._heroService.getHero(id).then(hero => this.hero = hero);
-    }
+    let id = +this._routeParams.get('id');
+    this._heroService.getHero(id).then(hero => this.hero = hero);
   }
 
   goBack() {

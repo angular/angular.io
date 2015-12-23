@@ -79,10 +79,10 @@ interface Hero {
 // #enddocregion styles-1
 })
 export class AppComponent {
-  public title = 'Tour of Heroes';
-  public heroes = HEROES;
+  title = 'Tour of Heroes';
+  heroes = HEROES;
 // #docregion selected-hero-1
-  public selectedHero: Hero;
+  selectedHero: Hero;
 // #enddocregion selected-hero-1
 
 // #docregion on-select-1

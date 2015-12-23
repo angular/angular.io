@@ -1,3 +1,4 @@
+// #docregion
 import {Component} from 'angular2/core';
 import {Hero} from './hero';
 
@@ -5,8 +6,10 @@ import {Hero} from './hero';
   selector: 'my-hero-detail',
   template: `
     <div *ngIf="hero">
-      <h2>{{hero.name}} details!</h2>
-      <div><label>id: </label>{{hero.id}}</div>
+      <h2>{{hero.name}} details</h2>
+      <div>
+        <label>id: </label>{{hero.id}}
+      </div>
       <div>
         <label>name: </label>
         <input [(ngModel)]="hero.name" placeholder="name"/>
@@ -16,5 +19,5 @@ import {Hero} from './hero';
   inputs: ['hero']
 })
 export class HeroDetailComponent {
-  public hero: Hero;
+  hero: Hero;
 }

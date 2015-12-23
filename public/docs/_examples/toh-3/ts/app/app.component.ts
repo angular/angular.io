@@ -76,9 +76,9 @@ import {HeroDetailComponent} from './hero-detail.component';
 // #enddocregion directives
 })
 export class AppComponent {
-  public title = 'Tour of Heroes';
-  public heroes = HEROES;
-  public selectedHero: Hero;
+  title = 'Tour of Heroes';
+  heroes = HEROES;
+  selectedHero: Hero;
 
   onSelect(hero: Hero) { this.selectedHero = hero; }
 }

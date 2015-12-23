@@ -9,6 +9,7 @@ import {HeroService} from './hero.service';
 
 @Component({
   selector: 'my-app',
+  // #docregion template
   template:`
     <h1>{{title}}</h1>
     <h2>My Heroes</h2>
@@ -21,6 +22,7 @@ import {HeroService} from './hero.service';
     </ul>
     <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
+  // #enddocregion template  
   styles:[`
     .selected {
       background-color: #CFD8DC !important;
@@ -73,9 +75,9 @@ import {HeroService} from './hero.service';
   providers: [HeroService]
 })
 export class AppComponent implements OnInit {
-  public title = 'Tour of Heroes';
-  public heroes: Hero[];
-  public selectedHero: Hero;
+  title = 'Tour of Heroes';
+  heroes: Hero[];
+  selectedHero: Hero;
 
   constructor(private _heroService: HeroService) { }
 

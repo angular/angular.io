@@ -27,11 +27,11 @@ import {HeroService} from './hero.service.1';
 // #docregion on-init
 export class AppComponent implements OnInit {
   // #enddocregion on-init
-  public title = 'Tour of Heroes';
+  title = 'Tour of Heroes';
   // #docregion heroes-prop
-  public heroes: Hero[];
+  heroes: Hero[];
   // #enddocregion heroes-prop
-  public selectedHero: Hero;
+  selectedHero: Hero;
 
   // #docregion new-service
   heroService = new HeroService(); // don't do this
@@ -61,3 +61,4 @@ export class AppComponent implements OnInit {
   // #docregion on-init
 }
 // #enddocregion on-init
+// #enddocregion
