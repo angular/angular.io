@@ -2,7 +2,7 @@ describe('Attribute directives', function () {
 
   var _title = "My First Attribute Directive";
 
-  beforeEach(function () {
+  beforeAll(function () {
     browser.get('');
   });
 

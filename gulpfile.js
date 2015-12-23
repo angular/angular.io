@@ -123,23 +123,23 @@ function findAndRunE2eTests(filter) {
 // to the outputFile.
 function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   // start the app
-  var appRun = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
+  var appRunSpawnInfo = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
 
   // start protractor
   var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-  var protractorRun = spawnExt('protractor',
+  var spawnInfo = spawnExt('protractor',
     [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
-  return protractorRun.promise.then(function(data) {
+  return spawnInfo.promise.then(function(data) {
     // kill the app now that protractor has completed.
-    treeKill(appRun.proc.pid);
+    treeKill(appRunSpawnInfo.proc.pid);
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
     return data;
   }).fail(function(err) {
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
-    treeKill(appRun.proc.pid)
+    treeKill(appRunSpawnInfo.proc.pid)
     return err;
   });
 }

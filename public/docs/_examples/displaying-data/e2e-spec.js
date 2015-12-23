@@ -3,7 +3,7 @@ describe('Displaying Data Tests', function () {
   var _title = "Tour of Heroes";
   var _defaultHero = 'Windstorm'
 
-  beforeEach(function () {
+  beforeAll(function () {
     browser.get('');
   });
 
