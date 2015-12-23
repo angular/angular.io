@@ -2,9 +2,15 @@ describe('Architecture', function () {
 
   var _title = "Hero List";
 
-  beforeEach(function () {
+  beforeAll(function () {
     browser.get('');
   });
+
+  function itReset(name, func) {
+    it(name, function() {
+      browser.get('').then(func);
+    });
+  }
 
   it('should display correct title: ' + _title, function () {
     expect(element(by.css('h2')).getText()).toEqual(_title);
@@ -26,14 +32,14 @@ describe('Architecture', function () {
     });
   })
 
-  it('should display correct detail after modification', function() {
+  itReset('should display correct detail after modification', function() {
     var detailView = element(by.css('hero-detail'));
     expect(detailView.isPresent()).toBe(false);
     // select the 2nd element
     var selectEle = element.all(by.css('hero-list > div')).get(1);
-    selectEle.click().then(function() {
+    selectEle.click().then(function () {
       return selectEle.getText();
-    }).then(function(selectedHeroName) {
+    }).then(function (selectedHeroName) {
       var detailTitleEle = element(by.css('hero-detail > h4'));
       expect(detailTitleEle.getText()).toContain(selectedHeroName);
       var heroNameEle = element.all(by.css('hero-detail input')).get(0);

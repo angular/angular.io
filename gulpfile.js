@@ -61,8 +61,10 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 
 var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
 
+// --filter may be passed in to filter/select _example app subdir names
+// i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
+// 'foo' in their folder names.
 gulp.task('run-e2e-tests', function() {
-
   copyExampleBoilerplate();
   var exePath = path.join(process.cwd(), "./node_modules/.bin/");
   var r = spawnExt('webdriver-manager',['update'], { cwd: exePath });
@@ -73,7 +75,11 @@ gulp.task('run-e2e-tests', function() {
   });
 });
 
+// finds all of the *e2e-spec.tests under the _examples folder along
+// with the corresponding apps that they should run under. Then run
+// each app/spec collection sequentially.
 function findAndRunE2eTests(filter) {
+  // create an output file with header.
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
   var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
   if (filter) {
@@ -81,9 +87,10 @@ function findAndRunE2eTests(filter) {
   }
   fs.writeFileSync(outputFile, header);
 
-  var combos = [];
+  // create an array of combos where each
+  // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
+  var exeConfigs = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-
   var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
   e2eSpecPaths.forEach(function(specPath) {
     var destConfig = path.join(specPath, 'protractor.config.js');
@@ -96,18 +103,21 @@ function findAndRunE2eTests(filter) {
       })
     }
     examplePaths.forEach(function(exPath) {
-      combos.push( { examplePath: exPath, protractorConfigFilename: destConfig });
+      exeConfigs.push( { examplePath: exPath, protractorConfigFilename: destConfig });
     })
   });
+
   // run the tests sequentially
-  return combos.reduce(function (promise, combo) {
+  return exeConfigs.reduce(function (promise, combo) {
     return promise.then(function () {
       return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
     });
   }, Q.resolve());
 }
 
-
+// start the example in appDir; then run protractor with the specified
+// fileName; then shut down the example.  All protractor output is appended
+// to the outputFile.
 function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   // start the app
   var appRun = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
@@ -186,11 +196,16 @@ gulp.task('add-example-boilerplate', function() {
   copyExampleBoilerplate();
 });
 
+// copies boilerplate files to locations
+// where an example app is found
+// also copies protractor.config.js file
 function copyExampleBoilerplate() {
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  // copies protractor.config.js from _examples dir to each subdir that
+  // contains a e2e-spec file.
   return copyFiles(sourceFiles, examplePaths).then(function() {
     var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
     var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
@@ -381,17 +396,8 @@ function deleteFiles(baseFileNames, destPaths) {
   return Q.all(delPromises);
 }
 
-//function getProtractorConfigFiles(basePath) {
-//  var jsonPattern = path.join(basePath, "**/*protractor.config.js");
-//  // ignore (skip) the top level version.
-//  var exceptJsonPattern = "!" + path.join(basePath, "/*protractor.config.js");
-//  var nmPattern =  path.join(basePath, "**/node_modules/**");
-//  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
-//  // same as above but perf can differ.
-//  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
-//  return fileNames;
-//}
-
+// TODO: filter out all paths that are subdirs of another
+// path in the result.
 function getE2eSpecPaths(basePath) {
   var paths = getPaths(basePath, '*e2e-spec.js', true);
   return _.uniq(paths);
