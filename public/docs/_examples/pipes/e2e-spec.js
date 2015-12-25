@@ -1,4 +1,3 @@
-// Not yet complete
 describe('Pipes', function () {
 
   beforeAll(function () {
