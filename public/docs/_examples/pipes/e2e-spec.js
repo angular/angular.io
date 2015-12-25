@@ -37,4 +37,43 @@ describe('Pipes', function () {
     });
   });
 
+  it('should be able to chain and compose pipes', function () {
+    var chainedPipeEles = element.all(by.cssContainingText('my-app p', "The chained hero's"));
+    expect(chainedPipeEles.count()).toBe(3, "should have 3 chained pipe examples");
+    expect(chainedPipeEles.get(0).getText()).toContain('APR 15, 1988');
+    expect(chainedPipeEles.get(1).getText()).toContain('FRIDAY, APRIL 15, 1988');
+    expect(chainedPipeEles.get(2).getText()).toContain('FRIDAY, APRIL 15, 1988');
+  });
+
+  it('should be able to use ExponentialStrengthPipe pipe', function () {
+    var ele = element(by.css('power-booster p'));
+    expect(ele.getText()).toContain('Super power boost: 1024');
+  });
+
+  it('should be able to use the exponential calculator', function () {
+    var eles = element.all(by.css('power-boost-calculator input'));
+    var baseInputEle = eles.get(0);
+    var factorInputEle = eles.get(1);
+    var outputEle = element(by.css('power-boost-calculator p'));
+    baseInputEle.clear().then(function() {
+      return sendKeys(baseInputEle, "7");
+    }).then(function() {
+      return factorInputEle.clear();
+    }).then(function() {
+      return sendKeys(factorInputEle, "3");
+    }).then(function() {
+      expect(outputEle.getText()).toContain("343");
+    });
+  });
+
+  // Hack - because of bug with send keys
+  function sendKeys(element, str) {
+    return str.split('').reduce(function (promise, char) {
+      return promise.then(function () {
+        return element.sendKeys(char);
+      });
+    }, element.getAttribute('value'));
+    // better to create a resolved promise here but ... don't know how with protractor;
+  }
+
 });
