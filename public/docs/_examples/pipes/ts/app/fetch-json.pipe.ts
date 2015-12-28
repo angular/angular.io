@@ -1,6 +1,6 @@
 /// <reference path='./window.extension.d.ts'/>
 // #docregion
-import {Pipe} from 'angular2/core';
+import {Pipe, PipeTransform} from 'angular2/core';
 
 // #docregion pipe-metadata
 @Pipe({
@@ -8,7 +8,7 @@ import {Pipe} from 'angular2/core';
   pure: false
 })
 // #enddocregion pipe-metadata
-export class FetchJsonPipe {
+export class FetchJsonPipe  implements PipeTransform{
   private fetchedValue:any;
   private fetchPromise:Promise<any>;
 
