@@ -66,7 +66,7 @@ var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js'
 // 'foo' in their folder names.
 gulp.task('run-e2e-tests', function() {
   var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
-  spawnInfo.promise.then(function() {
+  return spawnInfo.promise.then(function() {
     copyExampleBoilerplate();
     var exePath = path.join(process.cwd(), "./node_modules/.bin/");
     spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});

@@ -1,4 +1,3 @@
-// Not yet complete
 describe('Structural Directives', function () {
 
   // tests interact - so we need beforeEach instead of beforeAll
