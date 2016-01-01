@@ -22,8 +22,7 @@ import {CrisisService}         from './crisis.service';
   // #docregion default-route
   {path:'/',         name: 'CrisisCenter', component: CrisisListComponent, useAsDefault: true},
   // #enddocregion default-route
-  {path:'/:id',      name: 'CrisisDetail', component: CrisisDetailComponent},
-  {path:'/list/:id', name: 'CrisisList',   component: CrisisListComponent}
+  {path:'/:id',      name: 'CrisisDetail', component: CrisisDetailComponent}
 ])
 // #enddocregion route-config
 export class CrisisCenterComponent { }

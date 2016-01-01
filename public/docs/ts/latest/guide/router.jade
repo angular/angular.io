@@ -202,7 +202,7 @@ figure.image-display
    Both buttons navigate back to the *Crisis Center* and its list of crises.
 
    Suppose we click a crisis, make a change, but ***do not click either button***.
-   Maye we click the browser back button instead. Maybe we click the "Heroes" link. 
+   Maybe we click the browser back button instead. Maybe we click the "Heroes" link. 
    
    Do either. Up pops a dialog box.
 figure.image-display
@@ -285,7 +285,7 @@ figure.image-display
     We should only need this trick for the live example, not production code.
 :marked
   ### Booting with the router service providers
-  Our app launches from the `boot.ts` file in the `~/app` folder so let's start there.
+  Our app launches from the `boot.ts` file in the `/app` folder so let's start there.
   It's short and all of it is relevant to routing.
 +makeExample('router/ts/app/boot.1.ts','all', 'boot.ts')(format=".")
 :marked
@@ -438,7 +438,7 @@ figure.image-display
   That's unrealistic and ultimately not maintainable.
   We think it's better to put each feature area in its own folder.
 
-  Our first step is to **create a separate `app/heroes/` folder**.
+  Our first step is to **create a separate `app/heroes/` folder**
   and add *Hero Management* feature files there.
 
   We won't be creative about it. Our example is pretty much a
@@ -467,8 +467,8 @@ figure.image-display
     .file hero-list.component.ts
     .file hero.service.ts
 :marked
-  We'll provide the `HeroService` during bootstrapping
-  so that is available everywhere in the app (see `boot.ts`) .
+  We provide the `HeroService` in the application root `AppComponent`
+  so that is available everywhere in the app.
 
   Now it's time for some surgery to bring these files and the rest of the app
   into alignment with our application router.
@@ -663,8 +663,8 @@ code-example(format="." language="bash").
   `AppComponent` route configuration. If we rename a *Crisis Center* component or change a route definition,
   we'll be changing the `AppComponent` too.
 
-  * If we followed *Heroes* lead, we'd be adding the `CrisisService` to the providers in `boot.ts`.
-  Now both `HeroService` and `CrisisService` would be available everywhere although
+  * If we followed *Heroes* lead, we'd be adding the `CrisisService` to the providers in `app.component.ts`.
+  Then both `HeroService` and `CrisisService` would be available everywhere although
   they're only needed in their respective feature modules. That stinks.
 
   Changes to a sub-module such as *Crisis Center* shouldn't provoke changes to the `AppComponent` or `boot.ts`.
@@ -746,19 +746,28 @@ code-example(format="." language="bash").
   ### Child Route Configuration
   The `CrisisCenterComponent` is a *Routing Component* like the `AppComponent`.
 
-  The `@RouteConfig` decorator that adorns the `CrisisCenterComponent` class defines routes in the same way
+  The `@RouteConfig` decorator that adorns the `CrisisCenterComponent` class defines routes in much the same way
   that we did earlier.
 +makeExample('router/ts/app/crisis-center/crisis-center.component.ts', 'route-config', 'app/crisis-center/crisis-center.component.ts (routes only)' )(format=".")
 :marked
-  There are three *Crisis Center* routes, two of them with an `id` parameter.
-  They refer to components we haven't talked about yet but whose purpose we
-  can guess by their names.
+  There is an *important difference in the paths*. They both begin at `/`. 
+  Normally such paths would refer to the root of the application.
+  Here they refer to the **root of the child component!**.
+  
+  The Component Router composes the final route by concatenating route paths beginning with the ancestor paths to this child router.
+  In our example, there is one ancestor path: "crisis-center". 
+  The final route to the `HeroDetailComponent` displaying hero 11 would be something like:
+code-example(format="").
+  localhost:3000//crisis-center/11
+:marked
+  We cannot know this simply by looking at the `CrisisCenterComponent` alone.
+  We can't tell that it is a *child* routing component.
+  We can't tell that its routes are child routes; they are indistinguiable from top level application routes.
 
-  We cannot tell by looking at the `CrisisCenterComponent` that it is a child component
-  of an application. We can't tell that its routes are child routes.
-
-  That's intentional. The *Crisis Center* shouldn't know that it is the child of anything.
-  It might be the top level component of its own application. It might be repurposed in a different application.
+  Such ignorance is intentional. The *Crisis Center* shouldn't know that it is the child of anything.
+  Today it is a child component one level down. 
+  Tomorrow it might be the top level component of its own application. 
+  Next month it might be re-purposed in a different application.
   The *Crisis Center* itself is indifferent to these possibilities.
 
   *We* make it a child component of our application by reconfiguring the routes of the top level `AppComponent`.
@@ -767,8 +776,9 @@ code-example(format="." language="bash").
   Here is is the revised route configuration for the parent `AppComponent`:
 +makeExample('router/ts/app/app.component.ts', 'route-config', 'app/app.component.ts (routes only)' )
 :marked
-  The second and third *Hero* routes haven't changed.
-  The first *Crisis Center* route has changed &mdash; *signficantly* &mdash; and we've formatted it to draw attention to the differences:
+  The last two *Hero* routes haven't changed.
+  
+  The first *Crisis Center* route has changed &mdash; *significantly* &mdash; and we've formatted it to draw attention to the differences:
 +makeExample('router/ts/app/app.component.ts', 'route-config-cc')(format=".")
 :marked
   Notice that the **path ends with a slash and three trailing periods (`/...`)**.
@@ -794,7 +804,7 @@ code-example(format="." language="bash").
 
   It could be any of the three. In the absence of additional information, the router can't decide and must throw an error.
   
-  We've tried the sample application and it didn't fail. We must have done something.
+  We've tried the sample application and it didn't fail. We must have done something right.
 
   Scroll to the end of the child `CrisisCenterComponent`s first route.
 +makeExample('router/ts/app/crisis-center/crisis-center.component.ts', 'default-route', 'app/crisis-center/crisis-center.component.ts (default route)')(format=".")
@@ -879,9 +889,11 @@ code-example(format="").
     by waiting for the user's answer asynchronously. Waiting for the user asynchronously
     is like waiting for the server asynchronously.
 :marked
-  The dialog service returns a [promise](http://www.html5rocks.com/en/tutorials/es6/promises/).
-  The promise *resolves* when the user eventually decides
-  to discard changes and navigate away (`true`) or keep the pending changes and stay in the crisis editor (`false`).
+  The `DialogService` (injected in the `AppComponent` for app-wide use) does the asking.
+  
+  It returns a [promise](http://www.html5rocks.com/en/tutorials/es6/promises/) that
+  *resolves* when the user eventually decides what to do: either
+  to discard changes and navigate away (`true`) or to preserve the pending changes and stay in the crisis editor (`false`).
 
 <a id="CanDeactivate"></a>
 <a id="routerCanDeactivate"></a>
@@ -890,16 +902,17 @@ code-example(format="").
 +makeExample('router/ts/app/crisis-center/crisis-detail.component.ts', 'routerCanDeactivate', 'crisis-detail.component.ts (excerpt)')
 :marked
   Notice that the `routerCanDeactivate` method *can* return synchronously; 
-  it returns `true` immediately if there are no pending changes.
-  But it can also return a promise and the router will wait for that promise
-  to resolve before navigating away or staying put.
+  it returns `true` immediately if there is no crisis or there are no pending changes.
+  But it can also return a promise and the router will wait for that promise to resolve to truthy (navigate) or falsey (stay put).
 
   **Two critical points**
-  1. The router hook is optional. We don't inherit from a base class. We simply implement the method or not.
+  1. The router hook is optional. We don't inherit from a base class. We simply implement the interface method or not.
 
   1. We rely on the router to call the hook. We don't worry about all the ways that the user
   could navigate away. That's the router's job.
   We simply write this method and let the router take it from there.
+  
+  The final code for the *Crisis Center* feature is [here](#crisis-center-structure-and-code).
 
 <a id="final-app"></a>
 .l-main-section

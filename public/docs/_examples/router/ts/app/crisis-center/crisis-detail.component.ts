@@ -31,8 +31,8 @@ import {DialogService} from '../dialog.service';
 // #docregion routerCanDeactivate, cancel-save
 export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
-  public crisis: Crisis;
-  public editName: string;
+  crisis: Crisis;
+  editName: string;
 
 // #enddocregion routerCanDeactivate, cancel-save
   constructor(
@@ -56,16 +56,17 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   }
   // #enddocregion ngOnInit
 
-  // #docregion canDeactivate
-  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
-    // Allow navigation (`true`) if no crisis or the crisis is unchanged.
+  // #docregion routerCanDeactivate
+  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : any {
+    // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
+    if (!this.crisis || this.crisis.name === this.editName) {
+      return true;
+    }
     // Otherwise ask the user with the dialog service and return its
-    // promise which resolves true-or-false when the user decides
-    return !this.crisis ||
-           this.crisis.name === this.editName ||
-           this._dialog.confirm('Discard changes?');
+    // promise which resolves to true or false when the user decides
+    return this._dialog.confirm('Discard changes?');
   }
-  // #enddocregion canDeactivate
+  // #enddocregion routerCanDeactivate
 
   // #docregion cancel-save
   cancel() {
@@ -82,7 +83,9 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   // #docregion gotoCrises
   gotoCrises() {
     let route =
-      ['CrisisList',  {id: this.crisis ? this.crisis.id : null} ]
+      // pass along the crisis id if available
+      // so that the CrisisList component can select that crisis
+      ['CrisisCenter',  {id: this.crisis ? this.crisis.id : null} ]
 
     this._router.navigate(route);
   }
