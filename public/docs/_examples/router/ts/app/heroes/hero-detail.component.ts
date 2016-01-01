@@ -19,7 +19,7 @@ import {RouteParams, Router} from 'angular2/router';
   `,
 })
 export class HeroDetailComponent implements OnInit  {
-  public hero: Hero;
+  hero: Hero;
 
   // #docregion ctor
   constructor(

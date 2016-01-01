@@ -7,6 +7,8 @@ import {CrisisCenterComponent} from './crisis-center/crisis-center.component';
 import {HeroListComponent}     from './heroes/hero-list.component';
 import {HeroDetailComponent}   from './heroes/hero-detail.component';
 
+import {DialogService}         from './dialog.service';
+import {HeroService}           from './heroes/hero.service';
 
 @Component({
   selector: 'my-app',
@@ -38,12 +40,15 @@ import {HeroDetailComponent}   from './heroes/hero-detail.component';
 // #docregion template
   template: `
     <h1 class="title">Component Router</h1>
-    <a [routerLink]="['CrisisCenter', 'CrisisCenter']">Crisis Center</a>
-    <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
-    <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:2}]">Dragon Crisis</a>
+    <nav>
+      <a [routerLink]="['CrisisCenter', 'CrisisCenter']">Crisis Center</a>
+      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
+      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:2}]">Dragon Crisis</a>
+    </nav>
     <router-outlet></router-outlet>
   `,
 // #enddocregion template
+  providers:  [DialogService, HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
 @RouteConfig([

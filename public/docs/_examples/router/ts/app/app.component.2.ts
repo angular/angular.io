@@ -9,16 +9,20 @@ import {CrisisListComponent}   from './crisis-list.component';
 // #docregion hero-import
 import {HeroListComponent}     from './heroes/hero-list.component';
 import {HeroDetailComponent}   from './heroes/hero-detail.component';
+import {HeroService}           from './heroes/hero.service';
 // #enddocregion hero-import
 
 @Component({
   selector: 'my-app',
   template: `
     <h1>Component Router</h1>
-    <a [routerLink]="['CrisisCenter']">Crisis Center</a>
-    <a [routerLink]="['Heroes']">Heroes</a>
+    <nav>
+      <a [routerLink]="['CrisisCenter']">Crisis Center</a>
+      <a [routerLink]="['Heroes']">Heroes</a>
+    </nav>
     <router-outlet></router-outlet>
   `,
+  providers:  [HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion

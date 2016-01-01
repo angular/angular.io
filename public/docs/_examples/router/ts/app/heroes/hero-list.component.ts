@@ -20,8 +20,8 @@ import {Router}              from 'angular2/router';
   // #enddocregion template
 })
 export class HeroListComponent implements OnInit {
-  public heroes: Hero[];
-  public selectedHero: Hero;
+  heroes: Hero[];
+  selectedHero: Hero;
 
   // #docregion ctor
   constructor(

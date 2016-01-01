@@ -17,7 +17,7 @@ import {Router, RouteParams} from 'angular2/router';
   `,
 })
 export class CrisisListComponent implements OnInit {
-  public crises: Crisis[];
+  crises: Crisis[];
   // #docregion isSelected
   private _selectedId: number;
 
