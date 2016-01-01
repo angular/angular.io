@@ -5,7 +5,7 @@ import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
     selector: '[myHighlight]'
 })
 
-export class Highlight {
+export class HighlightDirective {
     constructor(el: ElementRef, renderer: Renderer) {
         //el.nativeElement.style.backgroundColor = 'yellow';
        renderer.setElementStyle(el, 'backgroundColor', 'yellow');

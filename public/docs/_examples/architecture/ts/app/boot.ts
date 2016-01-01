@@ -7,7 +7,5 @@ import {BackendService} from './backend.service';
 import {Logger}         from './logger.service';
 
 // #docregion bootstrap
-bootstrap(AppComponent, [
-  BackendService, HeroService, Logger
-]);
+bootstrap(AppComponent, [BackendService, HeroService, Logger]);
 // #enddocregion bootstrap

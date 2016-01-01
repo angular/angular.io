@@ -22,7 +22,7 @@ If you are only going to work on a specific part of the docs, such as the API or
 
 * `serve-and-sync` : watch all the local Jade/Sass files, the API source and examples, and the dev guide files
 * `serve-and-sync-api-docs` : watch only the API source and example files
-* `serve-and-sync-devGuide` : watch only the dev guide files
+* `serve-and-sync-devguide` : watch only the dev guide files
 * `build-and-serve` : watch only the local Jade/Sass files
 
 ## Technology Used
