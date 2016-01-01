@@ -1,11 +1,10 @@
 // #docplaster
-// #docregion
 import {Component} from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 
-import {CrisisCenterComponent} from './crisis-center/crisis-center.component';
-import {HeroListComponent}     from './heroes/hero-list.component';
-import {HeroDetailComponent}   from './heroes/hero-detail.component';
+import {CrisisCenterComponent} from './crisis-center/crisis-center.component.1';
+import {HeroListComponent}     from './heroes/hero-list.component.1';
+import {HeroDetailComponent}   from './heroes/hero-detail.component.1';
 
 import {DialogService}         from './dialog.service';
 import {HeroService}           from './heroes/hero.service';
@@ -36,7 +35,6 @@ import {HeroService}           from './heroes/hero.service';
   <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
   // #enddocregion princess-anchor
   */
-// #docregion
 // #docregion template
   template: `
     <h1 class="title">Component Router</h1>

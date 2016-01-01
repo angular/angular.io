@@ -4,10 +4,14 @@
 import {Component, OnInit} from 'angular2/core';
 import {Crisis, CrisisService} from './crisis.service';
 import {RouteParams, Router} from 'angular2/router';
+// #docregion routerCanDeactivate
 import {CanDeactivate, ComponentInstruction} from 'angular2/router';
 import {DialogService} from '../dialog.service';
 
+// #enddocregion routerCanDeactivate
+
 @Component({
+  // #docregion template
   template: `
   <div *ngIf="crisis">
     <h3>"{{editName}}"</h3>
@@ -21,14 +25,16 @@ import {DialogService} from '../dialog.service';
     <button (click)="cancel()">Cancel</button>
   </div>
   `,
+  // #enddocregion template
   styles: ['input {width: 20em}']
 })
-
+// #docregion routerCanDeactivate, cancel-save
 export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
   crisis: Crisis;
   editName: string;
 
+// #enddocregion routerCanDeactivate, cancel-save
   constructor(
     private _service: CrisisService,
     private _router: Router,
@@ -36,6 +42,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     private _dialog: DialogService
     ) { }
 
+  // #docregion ngOnInit
   ngOnInit() {
     let id = +this._routeParams.get('id');
     this._service.getCrisis(id).then(crisis => {
@@ -47,7 +54,9 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
       }
     });
   }
+  // #enddocregion ngOnInit
 
+  // #docregion routerCanDeactivate
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : any {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
     if (!this.crisis || this.crisis.name === this.editName) {
@@ -57,7 +66,9 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     // promise which resolves to true or false when the user decides
     return this._dialog.confirm('Discard changes?');
   }
+  // #enddocregion routerCanDeactivate
 
+  // #docregion cancel-save
   cancel() {
     this.editName = this.crisis.name;
     this.gotoCrises();
@@ -67,16 +78,15 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     this.crisis.name = this.editName;
     this.gotoCrises();
   }
+  // #enddocregion cancel-save
 
   // #docregion gotoCrises
   gotoCrises() {
-    let crisisId = this.crisis ? this.crisis.id : null;
-    // Pass along the hero id if available
-    // so that the CrisisListComponent can select that hero.
-    // Add a totally useless `foo` parameter for kicks.
-    // #docregion gotoCrises-navigate
-    this._router.navigate(['CrisisCenter',  {id: crisisId, foo: 'foo'} ]);
-    // #enddocregion gotoCrises-navigate
+    // Like <a [routerLink]="['CrisisCenter']">Crisis Center</a
+    this._router.navigate(['CrisisCenter']);
   }
   // #enddocregion gotoCrises
+// #docregion routerCanDeactivate, cancel-save
 }
+// #enddocregion routerCanDeactivate, cancel-save
+// #enddocregion
