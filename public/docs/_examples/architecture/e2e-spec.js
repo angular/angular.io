@@ -46,7 +46,8 @@ describe('Architecture', function () {
 
       // check that both the initial selected item and the detail title reflect changes
       // made to the input box.
-      heroNameEle.sendKeys('foo');
+      // heroNameEle.sendKeys('foo');
+      sendKeys(heroNameEle, 'foo');
       expect(detailTitleEle.getText()).toContain('foo');
       expect(selectEle.getText()).toContain('foo');
 

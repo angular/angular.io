@@ -44,7 +44,8 @@ describeIf(browser.appIsTs, 'Forms Tests', function () {
     var newValue;
     var alterEgoEle = element.all(by.css('input[ngcontrol=alterEgo]')).get(0);
     alterEgoEle.getAttribute('value').then(function(value) {
-      alterEgoEle.sendKeys(test);
+      // alterEgoEle.sendKeys(test);
+      sendKeys(alterEgoEle, test);
       newValue = value + test;
       expect(alterEgoEle.getAttribute('value')).toEqual(newValue);
     }).then(function() {

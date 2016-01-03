@@ -37,7 +37,8 @@ describe('Hierarchical dependency injection', function () {
     var editButtonEle = heroEle.element(by.cssContainingText('button','edit'));
     editButtonEle.click().then(function() {
       inputEle = heroEle.element(by.css('hero-editor input'));
-      return inputEle.sendKeys("foo");
+      // return inputEle.sendKeys("foo");
+      return sendKeys(inputEle, "foo");
     }).then(function() {
       buttonName = shouldSave ? 'save' : 'cancel';
       var buttonEle = heroEle.element(by.cssContainingText('button', buttonName));
