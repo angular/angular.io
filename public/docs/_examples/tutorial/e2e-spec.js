@@ -1,4 +1,3 @@
-// Not yet complete
 describe('Tutorial', function () {
 
   beforeAll(function () {
