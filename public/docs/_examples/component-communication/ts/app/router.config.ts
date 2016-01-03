@@ -10,8 +10,8 @@ import {JobBoardWithContent}              from './take-job-contentchildren/job-b
 export const ROUTES:RouteDefinition[] = [
   {path: '/invite-heroes',            name: 'Invite',                      component: InviteHero, useAsDefault: true},
   {path: '/send-job-request',         name: 'Send Job Request',            component: SendJobRequest},
-  {path: '/take-job-event',           name: 'Take Job',            component: TakeJobEvent},
-  {path: '/assign-job',               name: 'Assign Job',        component: AssignJob},
+  {path: '/take-job-event',           name: 'Take Job',                    component: TakeJobEvent},
+  {path: '/assign-job',               name: 'Assign Job',                  component: AssignJob},
   {path: '/message-board',            name: 'Message Board',               component: JobBoardWithMessages},
   {path: '/take-job-contentchildren', name: 'Using @ContentChildren',      component: JobBoardWithContent}
 ];
