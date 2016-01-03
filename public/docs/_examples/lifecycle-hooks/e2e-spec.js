@@ -38,7 +38,8 @@ describe('Lifecycle hooks', function () {
     expect(titleEle.getText()).toContain('Windstorm can sing');
     var changeLogEles = onChangesViewEle.all(by.css('div'));
     expect(changeLogEles.count()).toEqual(3, "should start with 3 messages");
-    heroNameInputEle.sendKeys('-foo-').then(function () {
+    // heroNameInputEle.sendKeys('-foo-').then(function () {
+    sendKeys(heroNameInputEle, '-foo-').then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
       expect(changeLogEles.count()).toEqual(3, "should still have 3 messages");
       // protractor bug with sendKeys means that line below does not work.
@@ -138,17 +139,6 @@ describe('Lifecycle hooks', function () {
       expect(logEles.count()).toBe(7, 'should now have 7 log entries - 3 prev + 1 reset + 2 destroy + 1 init');
     })
   });
-
-
-  // Hack - because of bug with send keys
-  function sendKeys(element, str) {
-    return str.split('').reduce(function (promise, char) {
-      return promise.then(function () {
-        return element.sendKeys(char);
-      });
-    }, element.getAttribute('value'));
-    // better to create a resolved promise here but ... don't know how with protractor;
-  }
 
 
 });

@@ -65,14 +65,6 @@ describe('Pipes', function () {
     });
   });
 
-  // Hack - because of bug with send keys
-  function sendKeys(element, str) {
-    return str.split('').reduce(function (promise, char) {
-      return promise.then(function () {
-        return element.sendKeys(char);
-      });
-    }, element.getAttribute('value'));
-    // better to create a resolved promise here but ... don't know how with protractor;
-  }
+
 
 });
