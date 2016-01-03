@@ -10,8 +10,7 @@ import {MessageBus} from './message-bus';
     <message-board></message-board>
     <hero-job-board></hero-job-board>
   `,
-  directives: [MessageBoard, HeroJobBoard],
-  providers: [MessageBus]
+  directives: [MessageBoard, HeroJobBoard]
 })
 export class JobBoardWithMessages { }
 // #enddocregion 

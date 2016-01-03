@@ -1,21 +1,16 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {MessageBus} from './message-bus';
+// #docregion component
+import {Component, provide} from 'angular2/core';
+import {MessageBus, theMessageBus} from './message-bus';
 
 @Component({
   selector: 'message-board',
-  template: `
-    <div class='message-board'
-      [hidden]='messages.length==0'>
-      <ul>
-        <li class='message' *ngFor='#msg of messages'>
-          {{msg}}
-        </li>
-      </ul>
-    </div>
-    `,
-  styleUrls: ['app/hero-job-board.css']
+  templateUrl: 'app/message-board/message-board-template.html',
+  styleUrls: ['app/hero-job-board.css'],
+  providers: [provide(MessageBus, {useValue: theMessageBus})]
 })
+// #enddocregion component
+// #docregion class
 export class MessageBoard {
   private messages: string[] = [];
   constructor(private messageBus: MessageBus) {
@@ -25,4 +20,5 @@ export class MessageBoard {
       })
   }
 }
+// #enddocregion class
 // #enddocregion

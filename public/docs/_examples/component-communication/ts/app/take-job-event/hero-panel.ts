@@ -31,7 +31,7 @@ export class HeroPanel {
   undertaken: boolean;
 
   takeJob() {
-    this.onJobTaken.next(this.hero);
+    this.onJobTaken.emit(this.hero);
     this.undertaken = true;
   }
 }

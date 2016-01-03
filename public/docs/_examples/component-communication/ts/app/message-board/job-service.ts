@@ -28,12 +28,12 @@ export class JobService {
   
   announceJob(request: string) {
     this._request = request;
-    this._jobAnnounced.next(request);
+    this._jobAnnounced.emit(request);
   }
   
   assignJob(hero: Hero) {
     this._winner = hero;
-    this._jobAssigned.next(hero);
+    this._jobAssigned.emit(hero);
   }
   
   get winner(): Hero {

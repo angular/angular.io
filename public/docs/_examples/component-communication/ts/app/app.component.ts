@@ -9,7 +9,7 @@ import {ROUTES, LINKS} from './router.config';
 @Component({
   selector: 'my-app',
   template:
-    '<h1 class="title"><a href="/src/">Component Communication</a></h1>' +
+    '<h1 class="title"><a href=".">Component Communication</a></h1>' +
     '<div class="links">' + LINKS.join(' ') + '</div>' +
     '<router-outlet></router-outlet>',
   styleUrls: ['app/hero-job-board.css'],
