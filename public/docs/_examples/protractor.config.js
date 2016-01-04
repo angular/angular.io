@@ -7,6 +7,7 @@
 
 var fs = require('fs');
 var path = require('canonical-path');
+var _ = require('lodash');
 
 
 exports.config = {
@@ -33,14 +34,14 @@ exports.config = {
   // resultJsonOutputFile: "foo.json",
   
   onPrepare: function() {
-    // SpecReporter
+    //// SpecReporter
     //var SpecReporter = require('jasmine-spec-reporter');
-    //// add jasmine spec reporter
     //jasmine.getEnv().addReporter(new SpecReporter({displayStacktrace: 'none'}));
-    // jasmine.getEnv().addReporter(new SpecReporter({displayStacktrace: 'all'}));
+    //// jasmine.getEnv().addReporter(new SpecReporter({displayStacktrace: 'all'}));
 
     // debugging
-    console.log('browser.params:' + JSON.stringify(browser.params));
+    // console.log('browser.params:' + JSON.stringify(browser.params));
+
     var appDir = browser.params.appDir;
     if (appDir) {
       if (appDir.match('/ts') != null) {
@@ -73,7 +74,7 @@ function describeIf(cond, name, func) {
   if (cond) {
     describe(name, func);
   } else {
-    xdescribe('*** Skipped *** - ' + name, func);
+    xdescribe(name, func);
   }
 }
 
@@ -81,7 +82,7 @@ function itIf(cond, name, func) {
   if (cond) {
     it(name, func);
   } else {
-    xit('*** Skipped *** - ' + name, func);
+    xit(name, func);
   }
 }
 
@@ -97,75 +98,93 @@ function sendKeys(element, str) {
 
 
 function Reporter(options) {
-  this.defaultOutputFile = path.resolve(process.cwd(), "../../", 'protractor-results.txt');
-  var _output = [];
-  var _logDepth = 0;
-  var __pad = '                                 ';
+  var _defaultOutputFile = path.resolve(process.cwd(), "../../", 'protractor-results.txt');
+  options.outputFile = options.outputFile || _defaultOutputFile;
+
+  var _root = { appDir: options.appDir, suites: [] };
+  log('AppDir: ' + options.appDir, +1);
   var _currentSuite;
-  options.outputFile = options.outputFile || this.defaultOutputFile;
-  log('AppDir: ' + options.appDir);
 
   this.suiteStarted = function(suite) {
-    _logDepth++;
-    log('Suite: ' + suite.description);
-    // debugging info
-    // log('Suite stringify:' + JSON.stringify(suite));
-    // log('argv stringify:' + JSON.stringify(process.argv));
-    _currentSuite = suite;
-    _currentSuite.ok = true;
+    _currentSuite = { description: suite.description, status: null, specs: [] };
+    _root.suites.push(_currentSuite);
+    log('Suite: ' + suite.description, +1);
   };
 
   this.suiteDone = function(suite) {
-    var status = _currentSuite.ok ? 'Suite passed: ' : 'Suite failed: ';
-    log(status + suite.description);
-    _logDepth--;
+    var statuses = _currentSuite.specs.map(function(spec) {
+      return spec.status;
+    });
+    statuses = _.uniq(statuses);
+    var status = statuses.indexOf('failed') >= 0 ? 'failed' : statuses.join(', ');
+    _currentSuite.status = status;
+    log('Suite ' + _currentSuite.status + ': ' + suite.description, -1);
   };
 
   this.specStarted = function(spec) {
-    _logDepth++;
+
   };
 
   this.specDone = function(spec) {
-    log(spec.status + ": " + spec.description);
-    logFailedSpec(spec);
-    _logDepth--;
+    var currentSpec = {
+      description: spec.description,
+      status: spec.status
+    };
+    if (spec.failedExpectations.length > 0) {
+      currentSpec.failedExpectations = spec.failedExpectations;
+    }
+
+    _currentSuite.specs.push(currentSpec);
+    log(spec.status + ' - ' + spec.description);
   };
 
   this.jasmineDone = function() {
     outputFile = options.outputFile;
-    // console.log('Completed - appending output to: ' + outputFile);
-    fs.appendFileSync(outputFile, _output.join('\n')+ '\n\n');
+    //// Alternate approach - just stringify the _root - not as pretty
+    //// but might be more useful for automation.
+    // var output = JSON.stringify(_root, null, 2);
+    var output = formatOutput(_root);
+    fs.appendFileSync(outputFile, output);
   };
 
-  function logFailedSpec(spec) {
-    if (spec.failedExpectations.length == 0) return;
-    _logDepth++;
-    spec.failedExpectations.forEach(function(exp) {
-      log('detail: ' + exp.message);
-      _currentSuite.ok = false;
+  // for output file output
+  function formatOutput(output) {
+    var indent = '  ';
+    var pad = '  ';
+    var results = [];
+    results.push('AppDir:' + output.appDir);
+    output.suites.forEach(function(suite) {
+      results.push(pad + 'Suite: ' + suite.description + ' -- ' + suite.status);
+      pad+=indent;
+      suite.specs.forEach(function(spec) {
+        results.push(pad + spec.status + ' - ' + spec.description);
+        if (spec.failedExpectations) {
+          pad+=indent;
+          spec.failedExpectations.forEach(function (fe) {
+            results.push(pad + 'message: ' + fe.message);
+          });
+          pad=pad.substr(2);
+        }
+      });
+      pad = pad.substr(2);
+      results.push('');
     });
-    _logDepth--;
+    results.push('');
+    return results.join('\n');
   }
 
-  function log(msg) {
-    msg = lpad(msg, 3 * _logDepth);
-    console.log(msg);
-    _output.push(msg);
+  // for console output
+  var _pad;
+  function log(str, indent) {
+    _pad = _pad || '';
+    if (indent == -1) {
+      _pad = _pad.substr(2);
+    }
+    console.log(_pad + str);
+    if (indent == 1) {
+      _pad = _pad + '  ';
+    }
   }
 
-  function lpad(value, length) {
-    return __pad.substr(0,length) + value;
-  }
+}
 
-};
-
-// To be copied into e2e-tests experiencing sendKeys bug.
-//// Hack - because of bug with send keys
-//function sendKeys(element, str) {
-//  return str.split('').reduce(function (promise, char) {
-//    return promise.then(function () {
-//      return element.sendKeys(char);
-//    });
-//  }, element.getAttribute('value'));
-//  // better to create a resolved promise here but ... don't know how with protractor;
-//}
