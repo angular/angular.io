@@ -59,7 +59,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ];
 
 // --filter may be passed in to filter/select _example app subdir names
 // i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
@@ -71,8 +71,10 @@ gulp.task('run-e2e-tests', function() {
     var exePath = path.join(process.cwd(), "./node_modules/.bin/");
     spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
     return spawnInfo.promise;
-  }).then(function(x) {
+  }).then(function() {
     return findAndRunE2eTests(argv.filter);
+  }).then(function(status) {
+    reportStatus(status);
   }).fail(function(e) {
     return e;
   });
@@ -82,6 +84,7 @@ gulp.task('run-e2e-tests', function() {
 // with the corresponding apps that they should run under. Then run
 // each app/spec collection sequentially.
 function findAndRunE2eTests(filter) {
+  var startTime = new Date().getTime();
   // create an output file with header.
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
   var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
@@ -111,11 +114,20 @@ function findAndRunE2eTests(filter) {
   });
 
   // run the tests sequentially
+  var status = { passed: [], failed: [] };
   return exeConfigs.reduce(function (promise, combo) {
     return promise.then(function () {
-      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile);
+      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
+        var arr = ok ? status.passed : status.failed;
+        arr.push(combo.examplePath);
+      })
     });
-  }, Q.resolve());
+  }, Q.resolve()).then(function() {
+    var stopTime = new Date().getTime();
+    status.elapsedTime = (stopTime - startTime)/1000;
+    fs.appendFileSync(outputFile, '\nElaped Time: ' + status.elapsedTime + ' seconds');
+    return status;
+  });
 }
 
 // start the example in appDir; then run protractor with the specified
@@ -132,16 +144,33 @@ function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
     [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
   return spawnInfo.promise.then(function(data) {
     // kill the app now that protractor has completed.
-    treeKill(appRunSpawnInfo.proc.pid);
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
-    return data;
+    treeKill(appRunSpawnInfo.proc.pid);
+    return true;
   }).fail(function(err) {
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
-    treeKill(appRunSpawnInfo.proc.pid)
-    return err;
+    treeKill(appRunSpawnInfo.proc.pid);
+    return false;
   });
+}
+
+function reportStatus(status) {
+  gutil.log('Suites passed:');
+  status.passed.forEach(function(val) {
+    gutil.log('  ' + val);
+  });
+
+  gutil.log('Suites failed:');
+  status.failed.forEach(function(val) {
+    gutil.log('  ' + val);
+  });
+
+  if (status.failed.length == 0) {
+    gutil.log('All tests passed');
+  }
+  gutil.log('Elapsed time: ' +  status.elapsedTime + ' seconds');
 }
 
 // returns both a promise and the spawned process so that it can be killed if needed.
