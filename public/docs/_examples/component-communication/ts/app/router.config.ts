@@ -6,7 +6,7 @@ import {HeroJobBoard as LogJobRequest}    from './log-job-request/hero-job-board
 import {HeroJobBoard as TakeJobEvent}     from './take-job-event/hero-job-board';
 import {HeroJobBoard as AssignJob}        from './assign-job/hero-job-board';
 import {JobBoardWithMessages}             from './message-board/job-board-with-messages';
-import {JobBoardWithContent}              from './take-job-contentchildren/job-board-with-content';
+import {HeroJobBoard as BoardWithContent} from './invite-contentchildren/hero-job-board';
 
 export const ROUTES:RouteDefinition[] = [
   {path: '/invite-heroes',            name: 'Invite',                      component: InviteHero, useAsDefault: true},
@@ -15,7 +15,7 @@ export const ROUTES:RouteDefinition[] = [
   {path: '/take-job-event',           name: 'Take Job',                    component: TakeJobEvent},
   {path: '/assign-job',               name: 'Assign Job',                  component: AssignJob},
   {path: '/message-board',            name: 'Message Board',               component: JobBoardWithMessages},
-  {path: '/take-job-contentchildren', name: 'Using @ContentChildren',      component: JobBoardWithContent}
+  {path: '/invite-contentchildren',   name: 'Using @ContentChildren',      component: BoardWithContent}
 ];
 
 export const LINKS = ROUTES.map((r:RouteDefinition) =>
