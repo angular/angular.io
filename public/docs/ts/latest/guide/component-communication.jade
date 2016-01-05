@@ -25,6 +25,8 @@ include ../../../../_includes/_util-fns
 +makeExample('component-communication/ts/app/invite-heroes/job-board-template.html', 'input-binding')
   
 :marked
+  Angular allows us to catch input property value changes at the child's side, so we can apply our own logic to respond to a particular change.
+  
   [Jump to details](#-1-parent-to-child-communication-with-input-property-binding)
 
 :marked
@@ -300,7 +302,53 @@ figure.image-display
   img(src="/resources/images/devguide/component-communication/send-job-request-ui.png" alt="Job request is sent")
   
 :marked
-  In this sample, heroes do not have a way to accept a job. Thinking in property binding, we could have passed an object to the child 
+  ### Catch input property changes
+  
+  Angular allows us to intercept property value changes in these ways:
+  * We can create a setter method for an input property. In the setter we can check property values &mdash; manage
+  invalid values &mdash; and carry out any additional tasks according to componen's logic.
+  * We can use the `OnChanges` lifecycle hook and define the `ngOnChanges` lifecycle hook methods that is called every time when an
+  input or output property's value changes. With this method, we can catch the names of affected propeties, their previous and current values.
+  
+.alert.is-helpful
+  :marked
+    We can learn more details about `ngOnChanges` and its usage in the [Lifecycle Hooks](./lifecycle-hooks.html) chapter.
+
+:marked
+  Let's alter the `HeroPanel` component so that it applies a property setter for `request` and intercepts the changes of both input 
+  properties (`hero` and `request`, respectively) and log how those change:
+  
++makeExample('component-communication/ts/app/log-job-request/hero-panel.ts', 'class', 'log-job-request/hero-panel.ts', {pnk: /(set request|ngOnChanges)/g})
+
+:marked
+  The setter logs the job request, and adds a `***` prefix to an urgent request &mdash; to one that contains a '`$`' substring.
+  The `ngOnChanges` method iterates through the changes, and logs each property's name, previous and current value.
+  
+.alert.is-helpful
+  :marked
+    We can access this sample through the `Log Job Request` link.
+
+:marked
+  When we run the sample, we can check that the '`I need urgent$ help`' request is transformed to '`*** I need urgent help!`':
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/request-setter.png" alt="Request setter")
+  
+:marked
+  We can also check that `request` setter and `ngOnChange` log property changes on console output. This figure shows the bottom 
+  of the log when we click the **Invite heroes** button:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/heroes-invited-log.png" alt="Heroes invited log")
+  
+:marked
+  When we send a second job request after a first one, we can see a similar log excerpt:
+  
+figure.image-display
+  img(src="/resources/images/devguide/component-communication/request-sent-log.png" alt="Request sent log")
+  
+:marked
+  In this sample, heroes did not have a way to accept a job. Thinking in property binding, we could have passed an object to the child 
   component, which has a callback method that the child could use to sign it undertakes the job. However, that would be hacky.
   
   Child components don't use property binding to communicate with their parents. They can talk to their parents with _events_.
