@@ -15,8 +15,13 @@ var fsExtra = require('fs-extra');
 var fs = fsExtra;
 var exec = require('child_process').exec;
 var execPromise = Q.denodeify(exec);
+// cross platform version of spawn that also works on windows.
+var xSpawn = require('cross-spawn');
 var prompt = require('prompt');
 var globby = require("globby");
+// Ugh... replacement needed to kill processes on any OS
+// - because childProcess.kill does not work properly on windows
+var treeKill = require("tree-kill");
 
 // TODO:
 //  1. Think about using runSequence
@@ -54,7 +59,150 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ]
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ];
+
+// --filter may be passed in to filter/select _example app subdir names
+// i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
+// 'foo' in their folder names.
+gulp.task('run-e2e-tests', function() {
+  var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
+  return spawnInfo.promise.then(function() {
+    copyExampleBoilerplate();
+    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+    spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
+    return spawnInfo.promise;
+  }).then(function() {
+    return findAndRunE2eTests(argv.filter);
+  }).then(function(status) {
+    reportStatus(status);
+  }).fail(function(e) {
+    return e;
+  });
+});
+
+// finds all of the *e2e-spec.tests under the _examples folder along
+// with the corresponding apps that they should run under. Then run
+// each app/spec collection sequentially.
+function findAndRunE2eTests(filter) {
+  var startTime = new Date().getTime();
+  // create an output file with header.
+  var outputFile = path.join(process.cwd(), 'protractor-results.txt');
+  var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
+  if (filter) {
+    header += '  Filter: ' + filter.toString() + '\n\n';
+  }
+  fs.writeFileSync(outputFile, header);
+
+  // create an array of combos where each
+  // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
+  var exeConfigs = [];
+  var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+  var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
+  e2eSpecPaths.forEach(function(specPath) {
+    var destConfig = path.join(specPath, 'protractor.config.js');
+    fsExtra.copySync(srcConfig, destConfig);
+    // get all of the examples under each dir where a pcFilename is found
+    examplePaths = getExamplePaths(specPath, true);
+    if (filter) {
+      examplePaths = examplePaths.filter(function (fn) {
+        return fn.match(filter) != null;
+      })
+    }
+    examplePaths.forEach(function(exPath) {
+      exeConfigs.push( { examplePath: exPath, protractorConfigFilename: destConfig });
+    })
+  });
+
+  // run the tests sequentially
+  var status = { passed: [], failed: [] };
+  return exeConfigs.reduce(function (promise, combo) {
+    return promise.then(function () {
+      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
+        var arr = ok ? status.passed : status.failed;
+        arr.push(combo.examplePath);
+      })
+    });
+  }, Q.resolve()).then(function() {
+    var stopTime = new Date().getTime();
+    status.elapsedTime = (stopTime - startTime)/1000;
+    fs.appendFileSync(outputFile, '\nElaped Time: ' + status.elapsedTime + ' seconds');
+    return status;
+  });
+}
+
+// start the example in appDir; then run protractor with the specified
+// fileName; then shut down the example.  All protractor output is appended
+// to the outputFile.
+function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
+  // start the app
+  var appRunSpawnInfo = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
+
+  // start protractor
+  var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
+  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+  var spawnInfo = spawnExt('protractor',
+    [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+  return spawnInfo.promise.then(function(data) {
+    // kill the app now that protractor has completed.
+    // Ugh... proc.kill does not work properly on windows with child processes.
+    // appRun.proc.kill();
+    treeKill(appRunSpawnInfo.proc.pid);
+    return true;
+  }).fail(function(err) {
+    // Ugh... proc.kill does not work properly on windows with child processes.
+    // appRun.proc.kill();
+    treeKill(appRunSpawnInfo.proc.pid);
+    return false;
+  });
+}
+
+function reportStatus(status) {
+  gutil.log('Suites passed:');
+  status.passed.forEach(function(val) {
+    gutil.log('  ' + val);
+  });
+
+  gutil.log('Suites failed:');
+  status.failed.forEach(function(val) {
+    gutil.log('  ' + val);
+  });
+
+  if (status.failed.length == 0) {
+    gutil.log('All tests passed');
+  }
+  gutil.log('Elapsed time: ' +  status.elapsedTime + ' seconds');
+}
+
+// returns both a promise and the spawned process so that it can be killed if needed.
+function spawnExt(command, args, options) {
+  var deferred = Q.defer();
+  var descr = command + " " + args.join(' ');
+  var proc;
+  gutil.log('running: ' + descr);
+  try {
+    proc = xSpawn.spawn(command, args, options);
+  } catch(e) {
+    gutil.log(e);
+    deferred.reject(e);
+    return { proc: null, promise: deferred.promise };
+  }
+  proc.stdout.on('data', function (data) {
+    gutil.log(data.toString());
+  });
+  proc.stderr.on('data', function (data) {
+    gutil.log(data.toString());
+  });
+  proc.on('close', function (data) {
+    gutil.log('completed: ' + descr);
+    deferred.resolve(data);
+  });
+  proc.on('error', function (data) {
+    gutil.log('completed with error:' + descr);
+    gutil.log(data.toString());
+    deferred.reject(data);
+  });
+  return { proc: proc, promise: deferred.promise };
+}
 
 // Public tasks
 
@@ -69,7 +217,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access
-gulp.task('add-example-boilerplate',  function() {
+gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
 
@@ -77,12 +225,25 @@ gulp.task('add-example-boilerplate',  function() {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
+  copyExampleBoilerplate();
+});
+
+// copies boilerplate files to locations
+// where an example app is found
+// also copies protractor.config.js file
+function copyExampleBoilerplate() {
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return copyFiles(sourceFiles, examplePaths );
-});
+  // copies protractor.config.js from _examples dir to each subdir that
+  // contains a e2e-spec file.
+  return copyFiles(sourceFiles, examplePaths).then(function() {
+    var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
+    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+    return copyFiles(sourceFiles, e2eSpecPaths);
+  });
+}
 
 gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
@@ -90,7 +251,10 @@ gulp.task('remove-example-boilerplate', function() {
     fsUtils.removeSymlink(linkPath);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return deleteFiles(_exampleBoilerplateFiles, examplePaths );
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths).then(function() {
+    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+    return deleteFiles(['protractor.config.js'], e2eSpecPaths);
+  })
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
@@ -264,18 +428,11 @@ function deleteFiles(baseFileNames, destPaths) {
   return Q.all(delPromises);
 }
 
-function getExamplePaths(basePath) {
-  var jsonPattern = path.join(basePath, "**/example-config.json");
-  // ignore (skip) the top level version.
-  var exceptJsonPattern = "!" + path.join(basePath, "/example-config.json");
-  var nmPattern =  path.join(basePath, "**/node_modules/**");
-  var fileNames = globby.sync( [ jsonPattern, exceptJsonPattern ], { ignore: [nmPattern] } );
-  // same as above but perf can differ.
-  // var fileNames = globby.sync( [jsonPattern, "!" + nmPattern]);
-  var paths = fileNames.map(function(fileName) {
-    return path.dirname(fileName);
-  });
-  return paths;
+// TODO: filter out all paths that are subdirs of another
+// path in the result.
+function getE2eSpecPaths(basePath) {
+  var paths = getPaths(basePath, '*e2e-spec.js', true);
+  return _.uniq(paths);
 }
 
 function getNodeModulesPaths(basePath) {
@@ -283,6 +440,31 @@ function getNodeModulesPaths(basePath) {
     return path.join(examplePath, "/node_modules");
   });
   return paths;
+}
+
+function getExamplePaths(basePath, includeBase) {
+  // includeBase defaults to false
+  return getPaths(basePath, "example-config.json", includeBase)
+}
+
+function getPaths(basePath, filename, includeBase) {
+  var filenames = getFilenames(basePath, filename, includeBase);
+  var paths = filenames.map(function(fileName) {
+    return path.dirname(fileName);
+  });
+  return paths;
+}
+
+function getFilenames(basePath, filename, includeBase) {
+  // includeBase defaults to false
+  var includePatterns = [path.join(basePath, "**/" + filename)];
+  if (!includeBase) {
+    // ignore (skip) the top level version.
+    includePatterns.push("!" + path.join(basePath, "/" + filename));
+  }
+  var nmPattern = path.join(basePath, "**/node_modules/**");
+  var filenames = globby.sync(includePatterns, {ignore: [nmPattern]});
+  return filenames;
 }
 
 function watchAndSync(options, cb) {

@@ -6,19 +6,34 @@ import {Component}   from 'angular2/core';
 import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
 
 import {CrisisListComponent}   from './crisis-list.component';
+// #enddocregion
+/*
+// Apparent Milestone 2 imports
+// #docregion
 // #docregion hero-import
 import {HeroListComponent}     from './heroes/hero-list.component';
 import {HeroDetailComponent}   from './heroes/hero-detail.component';
+import {HeroService}           from './heroes/hero.service';
 // #enddocregion hero-import
+// #enddocregion
+*/
+// Actual Milestone 2 imports
+import {HeroListComponent}     from './heroes/hero-list.component.1';
+import {HeroDetailComponent}   from './heroes/hero-detail.component.1';
+import {HeroService}           from './heroes/hero.service';
+// #docregion
 
 @Component({
   selector: 'my-app',
   template: `
     <h1>Component Router</h1>
-    <a [routerLink]="['CrisisCenter']">Crisis Center</a>
-    <a [routerLink]="['Heroes']">Heroes</a>
+    <nav>
+      <a [routerLink]="['CrisisCenter']">Crisis Center</a>
+      <a [routerLink]="['Heroes']">Heroes</a>
+    </nav>
     <router-outlet></router-outlet>
   `,
+  providers:  [HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion
@@ -41,6 +56,3 @@ import {HeroDetailComponent}   from './heroes/hero-detail.component';
 export class AppComponent { }
 // #enddocregion route-config
 // #enddocregion
-
-// #docregion child-router-link
-// #enddocregion child-router-link

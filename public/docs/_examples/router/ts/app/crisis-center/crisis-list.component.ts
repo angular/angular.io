@@ -17,8 +17,8 @@ import {Router, RouteParams} from 'angular2/router';
   `,
 })
 export class CrisisListComponent implements OnInit {
-  public crises: Crisis[];
-  // #docregion isSelected
+  crises: Crisis[];
+
   private _selectedId: number;
 
   constructor(
@@ -27,19 +27,14 @@ export class CrisisListComponent implements OnInit {
     routeParams: RouteParams) {
       this._selectedId = +routeParams.get('id');
   }
-  // #enddocregion isSelected
+
+  isSelected(crisis: Crisis) { return crisis.id === this._selectedId; }
 
   ngOnInit() {
     this._service.getCrises().then(crises => this.crises = crises);
   }
-  // #docregion isSelected
 
-  isSelected(crisis: Crisis) { return crisis.id === this._selectedId; }
-  // #enddocregion isSelected
-
-  // #docregion select
   onSelect(crisis: Crisis) {
     this._router.navigate( ['CrisisDetail', { id: crisis.id }]  );
   }
-  // #enddocregion select
 }

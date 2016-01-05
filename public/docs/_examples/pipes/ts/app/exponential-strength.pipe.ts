@@ -1,5 +1,5 @@
 // #docregion
-import {Pipe} from 'angular2/core';
+import {Pipe, PipeTransform} from 'angular2/core';
 /*
  * Raise the value exponentially
  * Takes an exponent argument that defaults to 1.
@@ -10,7 +10,7 @@ import {Pipe} from 'angular2/core';
  *   formats to: 1024
 */
 @Pipe({name: 'exponentialStrength'})
-export class ExponentialStrengthPipe {
+export class ExponentialStrengthPipe implements PipeTransform {
 
   transform(value:number, args:string[]) : any {
     return Math.pow(value, parseInt(args[0] || '1', 10));

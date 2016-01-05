@@ -13,8 +13,10 @@ import {HeroListComponent}     from './hero-list.component';
 // #docregion template
   template: `
     <h1>Component Router</h1>
-    <a [routerLink]="['CrisisCenter']">Crisis Center</a>
-    <a [routerLink]="['Heroes']">Heroes</a>
+    <nav>
+      <a [routerLink]="['CrisisCenter']">Crisis Center</a>
+      <a [routerLink]="['Heroes']">Heroes</a>
+    </nav>
     <router-outlet></router-outlet>
   `,
 // #enddocregion template

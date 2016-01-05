@@ -19,7 +19,7 @@ import {RouteParams, Router} from 'angular2/router';
   `,
 })
 export class HeroDetailComponent implements OnInit  {
-  public hero: Hero;
+  hero: Hero;
 
   // #docregion ctor
   constructor(
@@ -37,8 +37,13 @@ export class HeroDetailComponent implements OnInit  {
 
   // #docregion gotoHeroes
   gotoHeroes() {
-    // <a [routerLink]="['Heroes']">Heroes</a>
-    this._router.navigate(['Heroes']);
+    let heroId = this.hero ? this.hero.id : null;
+    // Pass along the hero id if available
+    // so that the HeroList component can select that hero.
+    // Add a totally useless `foo` parameter for kicks.
+    // #docregion gotoHeroes-navigate
+    this._router.navigate(['Heroes',  {id: heroId, foo: 'foo'} ]);
+    // #enddocregion gotoHeroes-navigate
   }
   // #enddocregion gotoHeroes
 }
