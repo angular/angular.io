@@ -21,8 +21,8 @@ export class TodoApp {
       {text:'build an angular app', done:false}
   ];
 
-  get remaining(): number {
-    return this.todos.reduce((count, todo: Todo) => count + todo.done, 0);
+  get remaining() {
+    return this.todos.reduce((count, todo: Todo) => count + !todo.done, 0);
   }
 
   archive(): void {
