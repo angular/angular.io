@@ -2,34 +2,742 @@ include ../../../../_includes/_util-fns
 
 :marked
   Having an existing Angular 1 application doesn't mean that we can't
-  begin enjoying everything Angular 2 has to offer. That's beause
-  Angular 2 comes with built-in tools for migrating Angular 1 projects
-  over to the Angular 2 platform.
-  
-  One of the keys to a successful upgrade is to do it incrementally,
-  by running the two frameworks side by side in the same application,
-  and porting Angular 1 components to Angular 2 one by one. This makes
-  it possible to upgrade even large and complex applications without
-  disrupting other work. The `upgrade` module in Angular 2 has
-  been designed to make incremental upgrading seamless.
+  begin enjoying everything Angular 2 has to offer. That's beause Angular 2
+  comes with built-in tools for migrating Angular 1 projects over to the
+  Angular 2 platform.
 
-  In this chapter we will look at a complete example of preparing and
-  upgrading an application using the `upgrade` module. The app we're going
-  to work on is [Angular PhoneCat](https://github.com/angular/angular-phonecat)
+  Some applications will be easier to upgrade than others, and there are
+  ways in which we can make it easier for ourselves. It is possible to
+  prepare and align Angular 1 applications with Angular 2 even before beginning
+  the upgrade process. These preparation steps are all about making the code
+  more decoupled, more maintainable, and up to speed with modern development
+  tools. That means the preparation work will not only make the eventual upgrade
+  easier, but will also generally improve our Angular 1 applications.
+
+  One of the keys to a successful upgrade is to do it incrementally,
+  by running the two frameworks side by side in the same application, and
+  porting Angular 1 components to Angular 2 one by one. This makes it possible
+  to upgrade even large and complex applications without disrupting other
+  business, because the work can be done collaboratively and spread over
+  a period of time. The `upgrade` module in Angular 2 has been designed to
+  make incremental upgrading seamless.
+
+  1. [Preparation](#preparation)
+      1. [Following The Angular Style Guide](#following-the-angular-style-guide)
+      2. [Using a Module Loader](#using-a-module-loader)
+      3. [Migrating to TypeScript](#migrating-to-typescript)
+      4. [Using Component Directives](#using-component-directives)
+  2. [Upgrading with The Upgrade Adapter](#upgrading-with-the-upgrade-adapter)
+      1. [How The Upgrade Adapter Works](#how-the-upgrade-adapter-works)
+      2. [Bootstrapping Hybrid Angular 1+2 Applications](#bootstrapping-hybrid-angular-1-2-applications)
+      3. [Using Angular 2 Components from Angular 1 Code](#using-angular-2-components-from-angular-1-code)
+      4. [Using Angular 1 Component Directives from Angular 2 Code](#using-angular-1-component-directives-from-angular-2-code)
+      5. [Projecting Angular 1 Content into Angular 2 Components](#projecting-angular-1-content-into-angular-2-components)
+      6. [Transcluding Angular 2 Content into Angular 1 Component Directives](#transcluding-angular-2-content-into-angular-1-component-directives)
+      7. [Making Angular 1 Dependencies Injectable to Angular 2](#making-angular-1-dependencies-injectable-to-angular-2)
+      8. [Making Angular 2 Dependencies Injectable to Angular 1](#making-angular-2-dependencies-injectable-to-angular-1)
+  3. [PhoneCat Preparation Tutorial](#phonecat-preparation-tutorial)
+      1. [Switching to TypeScript And Module Loading](#switching-to-typescript-and-module-loading)
+      2. [Preparing Unit and E2E Tests](#preparing-unit-and-e2e-tests)
+      3. [Enjoying The Benefits of TypeScript](#enjoying-the-benefits-of-typescript)
+
+  4. [PhoneCat Upgrade Tutorial](#phonecat-upgrade-tutorial)
+      1. [Bootstrapping A Hybrid 1+2 PhoneCat](#bootstrapping-a-hybrid-1-2-phonecat)
+      2. [Upgrading the Phone factory](#upgrading-the-phone-factory)
+      3. [Upgrading Controllers to Components](#upgrading-controllers-to-components)
+      4. [Switching To The Angular 2 Router And Bootstrap](#switching-to-the-angular-2-router-and-bootstrap)
+      5. [Saying Goodbye to Angular 1](#saying-goodbye-to-angular-1)
+
+.l-main-section
+:marked
+  # Preparation
+  
+  There are many ways to structure Angular 1 applications. When we begin
+  to upgrade these applications to Angular 2, some will turn out to be
+  much more easy to work with than others. There are a few key techniques
+  and patterns that we can apply to future proof our apps even before we
+  begin the migration.
+
+  ## Following The Angular Style Guide
+
+  The [Angular Style Guide](https://github.com/johnpapa/angular-styleguide)
+  collects patterns and practices that have been proven to result in
+  cleaner and more maintainable Angular 1 applications. It contains a wealth
+  of information about how to write and organize Angular code - and equally
+  importantly - how **not** to write and organize Angular code.
+
+  Angular 2 is a reimagined version of the best parts of Angular 1. In that
+  sense, its goals are the same as the Angular Style Guide's: To preserve
+  the good parts of Angular 1, and to avoid the bad parts. There's a lot
+  more to Angular 2 than just that of course, but this does mean that
+  *following the style guide helps make your Angular 1 app more closely
+  aligned with Angular 2*.
+
+  There are a few rules in particular that will make it much easier to do
+  *an incremental upgrade* using the Angular 2 `upgrade` module:
+
+  * The [Rule of 1](https://github.com/johnpapa/angular-styleguide#single-responsibility)
+    states that there should be one component per file. This not only makes
+    components easy to navigate and find, but will also allow us to migrate
+    them between languages and frameworks one at a time. In this example application,
+    each controller, factory, and filter is in its own source file.
+  * The [Folders-by-Feature Structure](https://github.com/johnpapa/angular-styleguide#style-y152)
+    and [Modularity](https://github.com/johnpapa/angular-styleguide#modularity)
+    rules define similar principles on a higher level of abstraction: Different parts of the
+    application should reside in different directories and Angular modules.
+    
+  When an application is laid out feature per feature in this way, it can also be
+  migrated one feature at a time. For applications that don't already look like
+  this, applying the rules in the Angular style guide is a highly recommended
+  preparation step. And this is not just for the sake of the upgrade - it is just
+  solid advice in general!
+
+  ## Using a Module Loader
+  
+  When we break application code down into one component per file, we often end
+  up with a project structure with a large number of relatively small files. This is
+  a much neater way to organize things than a small number of large files, but it
+  doesn't work that well if you have to load all those files to the HTML page with
+  `<script>` tags. Especially when you also have to maintain those tags in the correct
+  order. That's why it's a good idea to start using a *module loader*.
+  
+  Using a module loader such as [SystemJS](https://github.com/systemjs/systemjs),
+  [Webpack](http://webpack.github.io/), or [Browserify](http://browserify.org/)
+  allows us to use the built-in module systems of the TypeScript or ES2015 languages in our apps.
+  We can use the `import` and `export` features that explicitly specify what code can
+  and will be shared between different parts of the application. For ES5 applications
+  we can use CommonJS style `require` and `module.exports` features. In both cases,
+  the module loader will then take care of loading all the code the application needs
+  in the correct order.
+
+  When we then take our applications into production, module loaders also make it easier
+  to package them all up into production bundles with batteries included.
+
+:marked
+  ## Migrating to TypeScript
+
+  If part of our Angular 2 upgrade plan is to also take TypeScript into use, it makes
+  sense to bring in the TypeScript compiler even before the upgrade itself begins.
+  This means there's one less thing to learn and think about during the actual upgrade.
+  It also means we can start using TypeScript features in our Angular 1 code.
+
+  Since TypeScript is a superset of ECMAScript 2015, which in turn is a superset
+  of ECMAScript 5, "switching" to TypeScript doesn't necessarily require anything
+  more than installing the TypeScript compiler and switching renaming files from
+  `*.js` to `*.ts`. But just doing that is not hugely useful or exciting, of course.
+  Additional steps like the following can give us much more bang for the buck:
+
+  * For applications that use a module loader, TypeScript imports and exports
+    (which are really ECMAScript 2015 imports and exports) can be used to organize
+    code into modules.
+  * Type annotations can be gradually added to existing functions and variables
+    to pin down their types and get benefits like build-time error checking,
+    great autocompletion support and inline documentation.
+  * JavaScript features new to ES2015, like `let`s and `const`s, default function
+    parameters, and destructuring assignments can also be gradually added to make
+    the code more expressive.
+  * Services and controllers can be turned into *classes*. That way they'll be a step
+    closer to becoming Angular 2 service and component classes, which will make our
+    life easier once we do the upgrade.
+    
+  ## Using Component Directives
+
+  In Angular 2, components are the main primitive from which user interfaces
+  are built. We define the different parts of our UIs as components, and then
+  compose the UI by using components in our templates.
+  
+  You can also do this in Angular 1, using *component directives*. These are
+  directives that define their own templates, controllers, and input/output bindings -
+  the same things that Angular 2 components define. Applications built with
+  component directives are much easier to migrate to Angular 2 than applications
+  built with lower-level features like `ng-controller`,  `ng-include`, and scope
+  inheritance.
+  
+  To be Angular 2 compatible, an Angular 1 component directive should configure
+  these attributes:
+  
+  * `restrict: 'E'`. Components are usually used as elements.
+  * `scope: {}` - an isolate scope. In Angular 2, components are always isolated
+    from their surroundings, and we should do this in Angular 1 too.
+  * `bindToController: {}`. Component inputs and outputs should be bound
+    to the controller instead of using the `$scope`. 
+  * `controller` and `controllerAs`. Components have their own controllers.
+  * `template` or `templateUrl`. Components have their own templates.
+  
+  Component directives may also use the following attributes:
+  
+  * `transclude: true`, if the component needs to transclude content from elsewhere.
+  * `require`, if the component needs to communicate with some parent component's
+    controller.
+    
+  Component directives **may not** use the following attributes:
+  
+  * `compile`. This will not be supported in Angular 2.
+  * `replace: true`. Angular 2 never replaces a component element with the
+    component template. This attribute is also deprecated in Angular 1.
+  * `priority` and `terminal`. While Angular 1 components may use these,
+    they are not used in Angular 2 and it is better not to write code
+    that relies on them.
+    
+  An Angular 1 component directive that is fully aligned with the Angular 2
+  architecture may look something like this:
+    
++makeExample('upgrade/ts/adapter/app/js/hero-detail.directive.ts')
+
+:marked
+  Angular 1.5 introduces the [component API](https://docs.angularjs.org/api/ng/type/angular.Module)
+  that makes it easier to define directives like these. It is a good idea to use
+  this API for component directives for several reasons:
+  
+  * It requires less boilerplate code.
+  * It enforces the use of component best practices like `controllerAs`.
+  * It has good default values for directive attributes like `scope`,
+    `restrict`, and `transclude`.
+    
+  The component directive example from above looks like this when expressed
+  using the component API:
+  
++makeExample('upgrade/ts/adapter/app/js/upgrade-io/hero-detail.component.ts')
+
+
+
+.l-main-section
+:marked
+  # Upgrading with The Upgrade Adapter
+  
+  The `upgrade` module in Angular 2 is a very userful tool for upgrading
+  anything but the smallest of applications. With it we can mix and match
+  Angular 1 and 2 components in the same application and have them interoperate
+  seamlessly. That means we don't have to do the upgrade work all at once,
+  since there's a natural coexistence between the two frameworks during the
+  transition period.
+
+  ## How The Upgrade Adapter Works
+
+  The primary tool provided by the upgrade module is called the `UpgradeAdapter`.
+  This is a service that can bootstrap and manage hybrid applications that support
+  both Angular 2 and Angular 1 code.
+
+  When we use `UpgradeAdapter`, what we're really doing is *running both versions
+  of Angular at the same time*. All Angular 2 code is running in the Angular 2
+  framework, and Angular 1 code in the Angular 1 framework. Both of these are the
+  actual, fully featured versions of the frameworks. There is no emulation going on,
+  so we can expect to have all the features and natural behavior of both frameworks.
+
+  What happens on top of this is that components and services managed by one
+  framework can interoperate with those from the other framework. This happens
+  in three main areas: Dependency injection, the DOM, and change detection.
+  
+  ### Dependency Injection
+
+  Dependency injection is front and center in both Angular 1 and
+  Angular 2, but there are some key differences between the two
+  frameworks in how it actually works.
+
+table
+  tr
+    th Angular 1
+    th Angular 2
+  tr
+    td
+      :marked
+        Dependency injection tokens are always strings
+    td
+      :marked
+        Tokens [can have different types](../guide/dependency-injection.html).
+        They are often classes. They may also be strings.
+  tr
+    td
+      :marked
+        There is exactly one injector. Even in multi-module applications,
+        everything is poured into one big namespace.
+    td
+      :marked
+        There is a [tree hierarchy of injectors](../guide/hierarchical-dependency-injection.html),
+        with a root injector and an additional injector for each component.
+    
+:marked
+  Even accounting for these differences we can still have dependency injection
+  interoperability. The `UpgradeAdapter` resolves the differences and makes
+  everything work seamlessly:
+
+  * We can make Angular 1 services available for injection to Angular 2 code
+    by *upgrading* them. The same singleton instance of each service is shared
+    between the frameworks. In Angular 2 these services will always be in the
+    *root injector* and available to all components. They will always have
+    *string tokens* - the same tokens that they have in Angular 1.
+  * We can also make Angular 2 services available for injection to Angular 1 code
+    by *downgrading* them. Only services from the Angular 2 root injector can
+    be downgraded. Again, the same singleton instances are shared between the frameworks.
+    When we register a downgrade, we explicitly specify a *string token* that we want to
+    use in Angular 1.
+  
+figure.image-display
+  img(src="/resources/images/devguide/upgrade/injectors.png" alt="The two injectors in a hybrid application" width="700")
+
+:marked
+  ### Components and the DOM
+
+  What we'll find in the DOM of a hybrid application are components and
+  directives from both Angular 1 and Angular 2. These components
+  communicate with each other by using the input and output bindings
+  of their respective frameworks, which the `UpgradeAdapter` bridges
+  together. They may also communicate through shared injected dependencies,
+  as described above.
+
+  There are two key things to understand about what happens in the DOM
+  of a hybrid application:
+
+  1. Every element in the DOM is owned by exactly one of the two
+     frameworks. The other framework ignores it. If an element is
+     owned by Angular 1, Angular 2 treats it as if it didn't exist,
+     and vice versa.
+  2. The root of the application *is always an Angular 1 template*.
+
+  So a hybrid application begins life as an Angular 1 application,
+  and it is Angular 1 that processes its root template. Angular 2 then steps
+  into the picture when an Angular 2 component is used somewhere in
+  the application templates. That component's view will then be managed
+  by Angular 2, and it may use any number of Angular 2 components and
+  directives.
+
+  Beyond that, we may interleave the two frameworks as much as we need to.
+  We always cross the boundary between the two frameworks by one of two
+  ways:
+
+  1. By using a component from the other framework: An Angular 1 template
+     using an Angular 2 component, or an Angular 2 template using an
+     Angular 1 component.
+  2. By transcluding or projecting content from the other framework. The
+    `UpgradeAdapter` bridges the related concepts of  Angular 1 transclusion
+     and Angular 2 content projection together.
+
+figure.image-display
+ img(src="/resources/images/devguide/upgrade/dom.png" alt="DOM element ownership in a hybrid application" width="500")
+
+:marked
+  Whenever we use a component that belongs to the other framework, a
+  switch between framework boundaries occurs. However, that switch only
+  happens to the *children* of the component element. Consider a situation
+  where we use an Angular 2 component from Angular 1 like this:
+
+  ```
+  <ng2-component></ng2-component>
+  ```
+
+  The DOM element `<ng2-component>` will remain to be an Angular 1 managed
+  element, because it's defined in an Angular 1 template. That also
+  means you can apply additional Angular 1 directives to it, but *not*
+  Angular 2 directives. It is only in the template of the `Ng2Component`
+  component where Angular 2 steps in. This same rule also applies when you
+  use Angular 1 component directives from Angular 2.
+  
+:marked
+  ### Change Detection
+
+  Change detection in Angular 1 is all about `scope.$apply()`. After every
+  event that occurs, `scope.$apply()` gets called. This is done either
+  automatically by the framework, or in some cases manually by our own
+  code. It is the point in time when change detection occurs and data
+  bindings get updated.
+
+  In Angular 2 things are different. While change detection still
+  occurs after every event, no one needs to call `scope.$apply()` for
+  that to happen. This is because all Angular 2 code runs inside something
+  called the [Angular zone](../api/core/NgZone-class.html). Angular always
+  knows when the code finishes, so it also knows when it should kick off
+  change detection. The code itself doesn't have to call `scope.$apply()`
+  or anything like it.
+
+  In the case of hybrid applications, the `UpgradeAdapter` bridges the
+  Angular 1 and Angular 2 approaches. Here's what happens:
+
+  * Everything that happens in the application runs inside the Angular 2 zone.
+    This is true whether the event originated in Angular 1 or Angular 2 code.
+    The zone triggers Angular 2 change detection after every event.
+  * The `UpgradeAdapter` will invoke the Angular 1 `$rootScope.$apply()` after
+    every turn of the Angular zone. This also triggers Angular 1 change
+    detection after every event.
+    
+figure.image-display
+  img(src="/resources/images/devguide/upgrade/change_detection.png" alt="Change detection in a hybrid application" width="600")
+
+:marked
+  What this means in practice is that we do not need to call `$apply()` in
+  our code, regardless of whether it is in Angular 1 on Angular 2. The
+  `UpgradeAdapter` does it for us. We *can* still call `$apply()` so there
+  is no need to remove such calls from existing code. Those calls just don't
+  have any effect in a hybrid application.
+
+  
+:marked
+  When we downgrade an Angular 2 component and then use it from Angular 1,
+  the component's inputs will be watched using Angular 1 change detection.
+  When those inputs change, the corresponding properties in the component
+  are set. We can also hook into the changes by implementing the
+  [OnChanges](../api/core/OnChanges-interface.html) interface in the component,
+  just like we could if it hadn't been downgraded.
+
+  Correspondingly, when we upgrade an Angular 1 component and use it from Angular 2,
+  all the bindings defined for the component directive's `scope` (or `bindToController`)
+  will be hooked into Angular 2 change detection. They will be treated
+  as regular Angular 2 inputs and set onto the scope (or controller) when
+  they change.
+
+  ## Bootstrapping Hybrid Angular 1+2 Applications
+
+  The first step to upgrading an application using the `UpgradeAdapter` is
+  always to bootstrap it as a hybrid that supports both Angular 1 and
+  Angular 2.
+
+  Pure Angular 1 applications can be bootstrapped in two ways: By using an `ng-app`
+  directive somewhere on the HTML page, or by calling
+  [angular.bootstrap](https://docs.angularjs.org/api/ng/function/angular.bootstrap)
+  from JavaScript. In Angular 2, only the second method is possible - there is
+  no `ng-app` in Angular 2. This is also the case for hybrid applications.
+  Therefore, it is a good preliminary step to switch Angular 1 applications to use the
+  JavaScript bootstrap method even before switching them to hybrid mode.
+
+  Say we have an `ng-app` driven bootstrap such as this one:
+  
++makeExample('upgrade/ts/adapter/app/index-ng-app.html', null, null, {otl: /(ng-app.*ng-strict-di)/})
+
+:marked
+  We can remove the `ng-app` and `ng-strict-di` directives from the HTML
+  and instead switch to calling `angular.bootstrap` from JavaScript, which
+  will result in the same thing:
+
++makeExample('upgrade/ts/adapter/app/js/1-bootstrap/app.module.ts', 'bootstrap')
+
+:marked
+  To then switch the application into hybrid mode, we must first
+  install Angular 2 to the project. Follow the instructions in
+  [the QuickStart](../quickstart.html) for some pointers on this.
+  When we have Angular 2 installed, we can import and instantiate
+  the `UpgradeAdapter`, and then call its `bootstrap` method. It
+  is designed to take the exact same arguments as
+  [angular.bootstrap](https://docs.angularjs.org/api/ng/function/angular.bootstrap)
+  so that it is easy to make the switch:
+
++makeExample('upgrade/ts/adapter/app/js/1-2-hybrid-bootstrap/app.module.ts', 'bootstrap')
+
+:marked
+  At this point we'll be running a hybrid Angular 1+2 application! All the
+  existing Angular 1 code will work as it always did, but we are now ready
+  to run Angular 2 code as well.
+
+.alert.is-helpful
+  :marked
+    One notable difference between `angular.bootstrap` and
+    `upgradeAdapter.bootstrap` is that the latter works *asynchronously*.
+    This means that we cannot assume that the application has been instantiated
+    immediately after the bootstrap call returns.
+    
+:marked
+  As we begin to migrate components to Angular 2, we'll be using the
+  `UpgradeAdapter` for more than just bootstrapping. It'll be important
+  to use the **same** instance of the adapter across the whole application,
+  because it stores internal information about what's going on in the application.
+  It'll be useful to have a module for a shared `UpgradeAdapter` instance in
+  the project:
+  
++makeExample('upgrade/ts/adapter/app/js/1-2-hybrid-shared-adapter-bootstrap/upgrade_adapter.ts', null, 'upgrade_adapter.ts')
+
+:marked
+  This shared instance can then be pulled in to all the modules that need it:
+  
++makeExample('upgrade/ts/adapter/app/js/1-2-hybrid-shared-adapter-bootstrap/app.module.ts', 'bootstrap')
+
+:marked
+  ## Using Angular 2 Components from Angular 1 Code
+figure
+  img(src="/resources/images/devguide/upgrade/a1-to-a2.png" alt="Using an Angular 2 component from Angular 1 code" align="left" style="width:250px; margin-left:-40px;margin-right:10px" )
+:marked
+  Once we're running a hybrid app, we can start the gradual process of upgrading
+  code. One of the more common patterns for doing that is to use an Angular 2 component
+  in an Angular 1 context. This could be a completely new component or one that was
+  previously Angular 1 but has been rewritten for Angular 2.
+  
+  Say we have a simple Angular 2 component that shows information about a hero:
+  
++makeExample('upgrade/ts/adapter/app/js/downgrade-static/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+:marked
+  If we want to use this component from Angular 1, we need to *downgrade* it
+  using the upgrade adapter. What we get when we do that is an Angular 1
+  *directive*, which we can then register into our Angular 1 module:
+  
++makeExample('upgrade/ts/adapter/app/js/downgrade-static/app.module.ts', 'downgradecomponent')
+
+:marked
+  What we have here is an Angular 1 directive called `heroDetail`, which we can
+  use like any other directive in our Angular 1 templates. 
+  
++makeExample('upgrade/ts/adapter/app/index-downgrade-static.html', 'usecomponent')
+
+.alert.is-helpful
+  :marked
+    Note that since Angular 1 directives are matched based on their name,
+    *the selector metadata of the Angular 2 component is not used in Angular 1*.
+    It is matched as an element directive (`restrict: 'E'`) called `heroDetail`.
+
+:marked
+  Most components are not quite this simple, of course. Many of them
+  have *inputs and outputs* that connect them to the outside world. An
+  Angular 2 hero detail component with inputs and outputs might look
+  like this:
+   
++makeExample('upgrade/ts/adapter/app/js/downgrade-io/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+:marked
+  These inputs and outputs can be supplied from the Angular 1 template, and the
+  `UpgradeAdapter` takes care of bridging them over:
+  
++makeExample('upgrade/ts/adapter/app/index-downgrade-io.html', 'usecomponent')
+
+:marked
+  Note that even though we are in an Angular 1 template, **we're using Angular 2
+  attribute syntax to bind the inputs and outputs**. This is a requirement for downgraded
+  components. The expressions themselves are still regular Angular 1 expressions.
+
+  The `$event` variable can be used in outputs to gain access to the
+  object that was emitted. In this case it will be the `Hero` object, because
+  that is what was passed to `this.deleted.emit()`.
+  
+  Since this is an Angular 1 template, we can still use other Angular 1
+  directives on the element, even though it has Angular 2 binding attributes on it.
+  For  example, we can easily make multiple copies of the component using `ng-repeat`:
+  
++makeExample('upgrade/ts/adapter/app/index-downgrade-io.html', 'userepeatedcomponent')
+
+:marked
+  ## Using Angular 1 Component Directives from Angular 2 Code
+figure
+  img(src="/resources/images/devguide/upgrade/a2-to-a1.png" alt="Using an Angular 1 component from Angular 2 code" align="left" style="width:250px; margin-left:-40px;margin-right:10px" )
+:marked
+  So, we can write an Angular 2 component and then use it from Angular 1
+  code. This is very useful when we start our migration from lower-level
+  components and work our way up. But in some cases it is more convenient
+  to do things in the opposite order: To start with higher-level components
+  and work our way down. This too can be done using the `UpgradeAdapter`.
+  We can *upgrade* Angular 1 component directives and then use them from
+  Angular 2.
+  
+  Not all kinds of Angular 1 directives can be upgraded. The directive
+  really has to be a *component directive*, with the characteristics
+  [described in the preparation guide above](#using-component-directives).
+  Our safest bet for ensuring compatibility is using the
+  [component API](https://docs.angularjs.org/api/ng/type/angular.Module) 
+  introduced in Angular 1.5.
+  
+  A simple example of an upgradable component is one that just has a template
+  and a controller: 
+   
++makeExample('upgrade/ts/adapter/app/js/upgrade-static/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+:marked
+  We can *upgrade* this component to Angular 2 using the `UpgradeAdapter`'s
+  `upgradeNg1Component` method. It takes the name of an Angular 1 component
+  directive and returns an Angular 2 **component class**. When we then
+  want to use it from an Angular 2 component, we list it the in the `directives`
+  metadata of the component and then just use it in the Angular 2 template:
+  
++makeExample('upgrade/ts/adapter/app/js/upgrade-static/container.component.ts', null, 'container.component.ts')
+
+.alert.is-helpful
+  :marked
+    Upgraded components always have an element selector, which is based
+    on the original name of the original Angular 1 component directive.
+
+
+:marked
+  An upgraded component may also have inputs and outputs, as defined by
+  the scope/controller bindings of the original Angular 1 component
+  directive. When we use the component from an Angular 2 template,
+  we provide the inputs and outputs using **Angular 2 template syntax**,
+  with the following rules:
+  
+table
+  tr
+    th
+    th Binding definition
+    th Template syntax
+  tr
+    th Attribute binding
+    td
+      :marked
+        `myAttribute: '@myAttribute'`
+    td
+      :marked
+        `<my-component myAttribute="value">`
+  tr
+    th Expression binding
+    td
+      :marked
+        `myOutput: '&myOutput'`
+    td
+      :marked
+        `<my-component (myOutput)="action()">`
+  tr
+    th Two-way binding
+    td
+      :marked
+        `myValue: '=myValue'`
+    td
+      :marked
+        As input: `<my-component [myValue]="anExpression">` or
+        as two-way binding: `<my-component [(myValue)]="anExpression"`
+
+:marked
+  As an example, say we have a hero detail Angular 1 component directive
+  with one input and one output:
+  
++makeExample('upgrade/ts/adapter/app/js/upgrade-io/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+:marked
+  We can upgrade this component to Angular 2, and then provide the input
+  and output using Angular 2 template syntax:
+  
++makeExample('upgrade/ts/adapter/app/js/upgrade-io/container.component.ts', null, 'container.component.ts')
+
+
+:marked
+  ## Projecting Angular 1 Content into Angular 2 Components
+figure
+  img(src="/resources/images/devguide/upgrade/a1-to-a2-with-projection.png" alt="Projecting Angular 1 content into Angular 2" align="left" style="width:250px; margin-left:-40px;margin-right:10px" )
+:marked
+  When we are using a downgraded Angular 2 component from an Angular 1
+  template, the need may arise to *transclude* some content into it. This
+  is also possible. While there is no such thing as transclusion in Angular 2,
+  there is a very similar concept called *content projection*. The `UpgradeAdapter`
+  is able to make these two features interoperate.
+  
+  Angular 2 components that support content projection make use of an `<ng-content>`
+  tag within them. Here's an example of such a component:
+  
++makeExample('upgrade/ts/adapter/app/js/1-to-2-projection/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+:marked
+  When using the component from Angular 1, we can supply contents for it. Just
+  like they would be transcluded in Angular 1, they get projected to the location
+  of the `<ng-content>` tag in Angular 2:
+  
++makeExample('upgrade/ts/adapter/app/index-1-to-2-projection.html', 'usecomponent')
+
+.alert.is-helpful
+  :marked
+    When Angular 1 content gets projected inside an Angular 2 component, it still
+    remains in "Angular 1 land" and is managed by the Angular 1 framework.
+    
+:marked
+  ## Transcluding Angular 2 Content into Angular 1 Component Directives
+figure
+  img(src="/resources/images/devguide/upgrade/a2-to-a1-with-transclusion.png" alt="Projecting Angular 2 content into Angular 1" align="left" style="width:250px; margin-left:-40px;margin-right:10px" )
+:marked
+  Just like we can project Angular 1 content into Angular 2 components,
+  we can *transclude* Angular 2 content into Angular 1 components, whenever
+  we are using upgraded versions from them.
+  
+  When an Angular 1 component directive supports transclusion, it may use
+  the `ng-transclude` directive in its template to mark the transclusion
+  point:
+  
++makeExample('upgrade/ts/adapter/app/js/2-to-1-transclusion/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+.alert.is-helpful
+  :marked
+    The directive also needs to have the `transclude: true` option enabled.
+    It is on by default for component directives defined with the
+    1.5 component API.
+    
+:marked
+  If we upgrade this component and use it from Angular 2, we can populate
+  the component tag with contents that will then get transcluded:
+  
++makeExample('upgrade/ts/adapter/app/js/2-to-1-transclusion/container.component.ts', null, 'container.component.ts')
+
+:marked
+  ## Making Angular 1 Dependencies Injectable to Angular 2
+  
+  When running a hybrid app, we may bump into situations where we need to have
+  some Angular 1 dependencies to be injected to Angular 2 code. This may be
+  because we have some business logic still in Angular 1 services, or because
+  we need some of Angular 1's built-in services like `$location` or `$timeout`.
+  
+  In these situations, it is possible to *upgrade* an Angular 1 provider to
+  Angular 2. This makes it possible to then inject it somewhere in Angular 2
+  code. For example, we might have a service called `HeroesService` in Angular 1:
+  
++makeExample('upgrade/ts/adapter/app/js/1-to-2-providers/heroes.service.ts', null, 'heroes.service.ts')
+
+:marked
+  We can ugprade the service using the `UpgradeAdapter`'s `upgradeNg1Provider` method
+  by giving it the name of the service. This adds the service into Angular 2's root injector.
+  
++makeExample('upgrade/ts/adapter/app/js/1-to-2-providers/app.module.ts', 'register', 'app.module.ts')
+
+:marked
+  We can then inject it in Angular 2 using a string token that matches
+  its original name in Angular 1:
+  
++makeExample('upgrade/ts/adapter/app/js/1-to-2-providers/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+.alert.is-helpful
+  :marked
+    In this example we upgraded a service class, which has the added benefit that
+    we can use a TypeScript type annotation when we inject it. While it doesn't
+    affect how the dependency is handled, it enables the benefits of static type
+    checking. This is not required though, and any Angular 1 service, factory, or
+    provider can be upgraded.
+  
+:marked
+  ## Making Angular 2 Dependencies Injectable to Angular 1
+
+  In addition to upgrading Angular 1 dependencies, we can also *downgrade* 
+  Angular 2 dependencies, so that we can use them from Angular 1. This can be
+  useful when we start migrating services to Angular 2 or creating new services
+  in Angular 2 while we still have components written in Angular 1.
+  
+  For example, we might have an Angular 2 service called `Heroes`:
+  
++makeExample('upgrade/ts/adapter/app/js/2-to-1-providers/heroes.ts', null, 'heroes.ts')
+
+:marked
+  We can again use the `UpgradeAdapter` for this, but first we need to register `Heroes`
+  to the Angular 2 injector itself. In a pure Angular 2 application we would do this
+  when we bootstrap the app, as described in the [dependency injection guide](dependency-injection.html#!#providers).
+  But since hybrid applications are bootstrapped using the `UpgradeAdapter`, we also
+  need to register our Angular 2 providers using `UpgradeAdapter`. It has a method
+  called `addProvider` for this purpose.
+  
+  Once we've registered the Angular 2 provider, we can turn `Heroes` into an *Angular 1
+  factory function* using `upgradeAdapter.downgradeNg2Provider()`. We can
+  then plug the factory into an Angular 1 module, at which point we also choose what the
+  name of the dependency will be in Angular 1:
+  
++makeExample('upgrade/ts/adapter/app/js/2-to-1-providers/app.module.ts', 'register', 'app.module.ts')
+
+:marked
+  After this, the service is injectable anywhere in our Angular 1 code:
+  
++makeExample('upgrade/ts/adapter/app/js/2-to-1-providers/hero-detail.component.ts', null, 'hero-detail.component.ts')
+
+.l-main-section
+:marked
+  # PhoneCat Preparation Tutorial
+
+  In this section and the one following it we will look at a complete example of
+  preparing and upgrading an application using the `upgrade` module. The app
+  we're going to work on is [Angular PhoneCat](https://github.com/angular/angular-phonecat)
   from [the original Angular 1 tutorial](https://docs.angularjs.org/tutorial),
   which is where many of us began our Angular adventures. Now we'll see how to
   bring that application to the brave new world of Angular 2.
   
-  During the process we'll learn
-  
-  - How to prepare and align an Angular 1 application with Angular 2
-  
-  - How to use the SystemJS module loader and TypeScript with Angular 1
-  
-  - How to develop and test a hybrid Angular 1+2 application
-  
-  - How to migrate an application to Angular 2 one component at a time
-  
+  During the process we'll learn how to apply the steps outlined in the 
+  [preparation guide](#preparation) in practice: We'll align the application
+  with Angular 2 and also take both the SystemJS module loader and TypeScript
+  into use.
+
   To follow along with the tutorial, clone the
   [angular-phonecat](https://github.com/angular/angular-phonecat) repository
   and apply the steps as we go
@@ -40,11 +748,8 @@ include ../../../../_includes/_util-fns
     assumes yet. There's [a pull request](https://github.com/angular/angular-phonecat/pull/289)
     that will change this. Meanwhile, you'll find a good starting point from
     [this commit](https://github.com/teropa/angular-phonecat/commit/d6fb83e1c2db9d1812c7c478fdb8d92301ef0061).
-
-.l-main-section
-:marked
-  ## Preparing for the Upgrade
   
+:marked
   In terms of project structure, this is where our work begins
   
 .filetree
@@ -100,7 +805,8 @@ include ../../../../_includes/_util-fns
 :marked
   This is actually a pretty good starting point. In particular, this organization
   follows the [Angular Style Guide](https://github.com/johnpapa/angular-styleguide),
-  which is an important [preparation step](preparation.html) before a successful upgrade. 
+  which is an important [preparation step](#following-the-angular-style-guide) before
+  a successful upgrade. 
   
   * Each controller, factory, and filter is in its own source file, as per the
     [Rule of 1](https://github.com/johnpapa/angular-styleguide#single-responsibility).
@@ -112,7 +818,7 @@ include ../../../../_includes/_util-fns
     rules.
 
 :marked
-  ## TypeScript And Module Loading
+  ## Switching to TypeScript And Module Loading
   
   Since we're going to be writing our Angular 2 code in TypeScript, it makes sense to
   bring in the TypeScript compiler even before we begin upgrading.
@@ -305,7 +1011,7 @@ include ../../../../_includes/_util-fns
   support our new module organization.
   
 :marked
-  ## Preparing Tests
+  ## Preparing Unit and E2E Tests 
   
   Our project has both E2E Protractor tests and some Karma unit tests in it.
   Both of those are going to need a bit of work.
@@ -447,8 +1153,8 @@ include ../../../../_includes/_util-fns
   closer to becoming Angular 2 component classes, which will make our life
   easier once we do the upgrade.
   
-  Angular 1 expects controllers to be constructor functions, and that's what
-  ES2015/TypeScript classes really are, and that means we can just register a
+  Angular 1 expects controllers to be constructor functions. That's what
+  ES2015/TypeScript classes really are, so that means we can just register a
   class as a controller and Angular 1 will happily use it. We also won't 
   need to make any changes to our test suite as the external behavior of the
   controllers will not change.
@@ -483,26 +1189,32 @@ include ../../../../_includes/_util-fns
   a good candidate for converting to classes, since like controllers,
   they're also constructor functions. But we only have the `Phone` factory
   in this project, and that's a bit special since it's an `ngResource`
-  factory. So we won't be doing anything to it in the preparation stage,
-  but will instead turn it directly into an Angular 2 service in the
+  factory. So we won't be doing anything to it in the preparation stage.
+  We'll instead turn it directly into an Angular 2 service in the
   next section.
+
+
+
+
+
+
 
 .l-main-section
 :marked
-  ## Gradually Upgrading to Angular 2
+  # PhoneCat Upgrade Tutorial
   
   Having completed our preparation work, let's get going with the Angular 2
-  upgrade itself. We'll do this incrementally with the help of the `upgrade` module 
-  that comes with Angular 2. By the time we're done, we can remove Angular 1
-  from the project completely, but the key is to do it piece by piece
-  without breaking the application.
+  upgrade of PhoneCat. We'll do this incrementally with the help of the
+  [upgrade module](#upgrading-with-the-upgrade-adapter) that comes with Angular 2.
+  By the time we're done, we'll be able to remove Angular 1 from the project
+  completely, but the key is to do this piece by piece without breaking the application.
   
 .alert.is-important The project also contains some animations, which we are not yet upgrading in this version of the guide. This will change in a later release.
   
 :marked
   Let's install Angular 2 into the project. Add the Angular 2 dependencies
-  to `package.json` as described in the package.json appendix of the
-  [Quickstart](../quickstart.html).
+  to `package.json` as described in the [package.json appendix of the
+  Quickstart](../quickstart.html#package-json).
   Then run:
   
   ```
@@ -510,7 +1222,7 @@ include ../../../../_includes/_util-fns
   ```
   
   We can then load Angular 2 into the application by adding some `<script>`
-  tags to `index.html`. They should go before the `<script>` tag with the
+  tags to `index.html`. They should go before the `<script>` tag that has the
   `System.config()` invocation:
   
 +makeExample('upgrade/ts/ng2_initial/app/index.html', 'ng2')
@@ -535,7 +1247,7 @@ include ../../../../_includes/_util-fns
     for some workarounds.
 
 :marked
-  ## Bootstrapping Hybrid 1+2 Applications
+  ## Bootstrapping A Hybrid 1+2 PhoneCat
 
   What we'll do next is bootstrap the application as a *hybrid application*
   that supports both Angular 1 and Angular 2 components. Once we've done that
@@ -567,22 +1279,10 @@ include ../../../../_includes/_util-fns
   `scenarios.ts`.
   
 :marked
-  To boostrap a hybrid application, we first need to initialize an `UpgradeAdapter`.
-  This is an object that comes with the `angular2/upgrade` module. It provides the
-  glue that joins the two versions of the framework together. It can be used to
-  
-  * Upgrade Angular 1 directives to Angular 2 components
-  * Downgrade Angular 2 components to Angular 1 directives
-  * Upgrade Angular 1 factories, services, and providers to Angular 2 services
-  * Downgrade Angular 2 services to Angular 1 factories
-  * Bootstrap and manage hybrid Angular 1+2 applications
-  
-  Together these features allow us to very flexibly mix and match the two
-  frameworks in our apps. This flexibility is great because there are many 
-  different kinds of Angular code out there. Even within a single app,
-  we may need different strategies to deal with different kinds of components.
-  
-  Let's import the `UpgradeAdapter` class into `app.module.ts`:
+  To boostrap a hybrid application, we first need to initialize an `UpgradeAdapter`,
+  which [provides the glue](#upgrading-with-the-upgrade-adapter) that joins the two
+  versions of the framework together. Let's import the `UpgradeAdapter` class into
+  `app.module.ts`:
   
 +makeExample('upgrade/ts/ng2_initial/app/js/app.module.ts', 'adapter-import', 'app/js/app.module.ts')
 
@@ -607,7 +1307,7 @@ include ../../../../_includes/_util-fns
   
     
 :marked
-  ## Upgrading Services
+  ## Upgrading the Phone factory
 
   The first piece we'll port over to Angular 2 is the `Phone` factory, which
   resides in `app/js/core/phones.factory.ts` and makes it possible for controllers
@@ -750,6 +1450,13 @@ include ../../../../_includes/_util-fns
   In any case, what we've achieved is a migration of a service to Angular 2
   without having to yet migrate the controllers that use it.
   
+.alert.is-helpful
+  :marked
+    You could use the `toPromise` method of `Observable` to turn those Observables
+    into Promises in the service to further reduce the amount of changes
+    needed in controller code.
+  
+:marked
   To bring our test suite up to speed with the changes, we should first enable
   the Angular 2 test support library in our unit test suite. We first need to 
   add the angular `testing` bundle to list of files that Karma is loading:
@@ -844,8 +1551,8 @@ include ../../../../_includes/_util-fns
 
 :marked
   In the list we need to replace the `ng-repeat` with an `*ngFor` and its
-  `#var of iterable` syntax, as described in our
-  [Template Syntax guide](../guide/template-syntax.html).
+  `#var of iterable` syntax, which is [described in our
+  Template Syntax guide](../guide/template-syntax.html#directives).
   
   For the images, we can replace `ng-src` with the standard `src`, but will use a
   property binding. Note that we're also adding a `name` CSS class for the phone name.
@@ -997,10 +1704,10 @@ include ../../../../_includes/_util-fns
   * Just like we did in the phone list, we've replaced `ng-src` with property
     bindings for the standard `src`.
   * We're using the property binding syntax around `ng-class`. Though Angular 2
-    does have a very similar `ngClass` as Angular 1 does, its value is not
-    magically evaluated as an expression. In Angular 2 we always specify
-    in the template when an attribute's value is a property expression, as opposed
-    to a literal string.
+    does have [a very similar `ngClass`](../guide/template-syntax.html#directives)
+    as Angular 1 does, its value is not magically evaluated as an expression.
+    In Angular 2 we always specify  in the template when an attribute's value is
+    a property expression, as opposed to a literal string.
   * We've replaced `ng-repeat`s with `*ngFor`s.
   * We've replaced `ng-click` with an event binding for the standard `click`.
   * In all references to `phone`, we're using the elvis operator `?.` for
@@ -1028,7 +1735,7 @@ include ../../../../_includes/_util-fns
   pipe instead of an Angular 1 filter.
   
   While there is no upgrade method in the upgrade adapter for filters, we
-  can just transform the filter function into a class that fulfills
+  can just turn the filter function into a class that fulfills
   the contract for Angular 2 Pipes. The implementation is the same as before.
   It just comes in a different kind of package. While changing it, also
   rename the file to `CheckmarkPipe.ts`:
@@ -1143,7 +1850,7 @@ table
   There are just two more things to do: We need to switch the router to
   the Angular 2 one, and then bootstrap the app as a pure Angular 2 app.
   
-  Let's do the routing part first. Angular 2 comes with a shiny new router,
+  Let's do the routing part first. Angular 2 comes with a [shiny new router](router.html),
   but it isn't included by default. Just like we did with `Http`, we need to
   include it in `index.html` before the `System.config()` script first:
   
@@ -1161,7 +1868,7 @@ table
   Let's change this now and add an `AppComponent` class, which replaces the
   `configure` function in `app.module.ts`:
 
-+makeExample('upgrade/ts/ng2_final/app/js/app.ts', 'appcomponent')
++makeExample('upgrade/ts/ng2_final/app/js/app.ts', 'appcomponent', 'app/js/app.module.ts')
 
 :marked
   This is a component that plugs in to an `<pc-app>` element on the page,
@@ -1275,7 +1982,8 @@ table
   module configuration files and type definition files, and not required
   in Angular 2:
   
-  * `app/js/core/core.module.ts` (also `app/js/core/upgrade_adapter.ts`)
+  * `app/js/core/core.module.ts`
+  * `app/js/core/upgrade_adapter.ts`
   * `app/js/phone_detail/phone_detail.module.ts`
   * `app/js/phone_list/phone_list.module.ts`
   * `test/test_helper.ts`

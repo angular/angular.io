@@ -1,12 +1,13 @@
+// #docplaster
 // #docregion
 // #docregion iife
 (function(app) {
   // #enddocregion iife
   // #docregion ng-namespace-funcs, export
-  app.AppComponent = ng.core
+  app.AppComponent =
     // #enddocregion export
     // #docregion component
-    .Component({
+    ng.core.Component({
       // #enddocregion ng-namespace-funcs
       selector: 'my-app',
       template: '<h1>My First Angular 2 App</h1>'

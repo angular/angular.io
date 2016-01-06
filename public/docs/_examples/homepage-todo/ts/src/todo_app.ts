@@ -5,7 +5,7 @@ import {TodoList} from './todo_list';
 import {TodoForm} from './todo_form';
 
 @Component({
-  selector: 'todo',
+  selector: 'todo-app',
   template: `
     <h2>Todo</h2>
     <span>{{remaining}} of {{todos.length}} remaining</span>
@@ -21,8 +21,8 @@ export class TodoApp {
       {text:'build an angular app', done:false}
   ];
 
-  get remaining(): number {
-    return this.todos.reduce((count, todo: Todo) => count + todo.done, 0);
+  get remaining() {
+    return this.todos.reduce((count: number, todo: Todo) => count + +!todo.done, 0);
   }
 
   archive(): void {

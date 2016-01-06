@@ -16,7 +16,7 @@ import {CanDeactivate, ComponentInstruction, Router} from 'angular2/router';
   styles: ['input {width: 20em}']
 })
 export class AddCrisisComponent implements CanDeactivate {
-  public editName: string;
+  editName: string;
 
   constructor(
     private _service: CrisisService,

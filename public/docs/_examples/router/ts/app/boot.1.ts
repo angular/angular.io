@@ -18,6 +18,6 @@ bootstrap(AppComponent, [
 import {AppComponent as ac} from './app.component.1';
 bootstrap(ac, [
 // #docregion all
-  ROUTER_PROVIDERS,
+  ROUTER_PROVIDERS
 ]);
 // #enddocregion all
