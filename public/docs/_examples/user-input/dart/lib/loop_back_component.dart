@@ -1,6 +1,4 @@
 // #docregion
-library user_input.loop_back_component;
-
 import 'package:angular2/angular2.dart';
 
 // #docregion loop-back-component

@@ -1,7 +1,5 @@
 // #docplaster
 // #docregion
-library user_input.key_up_components;
-
 import 'dart:html';
 
 import 'package:angular2/angular2.dart';

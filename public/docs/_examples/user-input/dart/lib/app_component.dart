@@ -1,16 +1,15 @@
 // #docregion
-library user_input.app_component;
-
 import 'package:angular2/angular2.dart';
-import 'package:user_input/click_me_component.dart';
-import 'package:user_input/click_me_component_2.dart';
-import 'package:user_input/loop_back_component.dart';
-import 'package:user_input/key_up_components.dart';
-import 'package:user_input/little_tour_component.dart';
+
+import 'click_me_component.dart';
+import 'click_me_component_2.dart';
+import 'loop_back_component.dart';
+import 'keyup_components.dart';
+import 'little_tour_component.dart';
 
 @Component(
     selector: 'my-app',
-    templateUrl: 'app-component.html',
+    templateUrl: 'app_component.html',
     directives: const [
       ClickMeComponent,
       ClickMeComponent2,
