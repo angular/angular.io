@@ -1,472 +1,264 @@
-.l-main-section
-  p.
-      Let's walk through how to display a property and a list of properties,
-      and then to conditionally show content
-      based on state. The final UI looks like this:
+include ../../../../_includes/_util-fns
 
-  figure.image-display
-    img(src='/resources/images/examples/displaying-data-example1.png' alt="Example of Todo App")
+:marked
+  We typically display data in Angular by binding controls in an HTML template
+  to properties of an Angular component.
 
-.l-main-section
-  h2#section-create-an-entry-point Create entry points and pubspec
+  In this chapter, we'll create a component with a list of heroes. Each hero has a name.
+  We'll display the list of hero names and
+  conditionally show a selected hero in a detail area below the list.
 
-  p.
-    Open your favorite editor and create a directory with
-    a <code>web/main.dart</code> file,
-    a <code>web/index.html</code> file, and
-    a <code>pubspec.yaml</code> file:
+  The final UI looks like this:
 
-  code-tabs
-    code-pane(language="dart" name="web/main.dart" format="linenums").
-      import 'package:angular2/bootstrap.dart';
-      import 'package:displaying_data/show_properties.dart';
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/final.png" alt="Final UI")
 
-      main() {
-        bootstrap(DisplayComponent);
-      }
-    code-pane(language="html" name="web/index.html" format="linenums").
-      &lt;!DOCTYPE html&gt;
-      &lt;html&gt;
-        &lt;head&gt;
-          &lt;title&gt;Displaying Data&lt;/title&gt;
-          &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
-          &lt;script async src=&quot;main.dart&quot; type=&quot;application/dart&quot;&gt;&lt;/script&gt;
-          &lt;script async src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
-        &lt;/head&gt;
-        &lt;body&gt;
-          &lt;display&gt;&lt;/display&gt;
-        &lt;/body&gt;
-      &lt;/html&gt;
-    code-pane(language="yaml" name="pubspec.yaml" format="linenums").
-      name: displaying_data
-      description: Dart version of Angular 2 example, Displaying Data
-      version: 0.0.1
-      dependencies:
-        angular2: 2.0.0-alpha.47
-        browser: ^0.10.0
-      transformers:
-      - angular2:
-          entry_points: web/main.dart
-  p.
-   All of this code should look familiar from the previous page,
-   except for the imports in <code>main.dart</code>.
-   The import of <code>show_properties.dart</code>
-   lets you implement part of the app in a different Dart file.
-   You've previously seen <code>angular2.dart</code> imported,
-   but that's unnecessary here because this version of <code>main.dart</code>
-   doesn't implement any components or other injectable types.
-
-  p.
-   All three of these files remain similar in the rest of the examples,
-   so we'll focus on what changes.
 
 <a id="interpolation"></a>
 .l-main-section
-  h2#section-showing-properties-with-interpolation Showing properties with interpolation
-  p.
-    The simple method for binding text into templates is through interpolation,
-    where you put the name of a property
-    inside <strong ng-non-bindable="">{{ }}</strong>.
+:marked
+  ## Showing component properties with interpolation
+  The easiest way to display a component property
+  is to bind the property name through interpolation.
+  With interpolation, we put the property name in the view template, enclosed in double curly braces: `{{myHero}}`.
 
-  p.
-    To see this working, first create a <code>lib</code> directory.
-    Under it, put a Dart file named <code>show_properties.dart</code>
-    that contains the following code:
+  Let's build a small illustrative example together.
 
-  code-example(language="dart" format="linenums" escape="html").
-    // lib/show_properties.dart
-    library displaying_data.show_properties;
+  <a id="platform_directives"></a>
+  Create a new project folder (`displaying`) and create 3 files:
+  `pubspec.yaml`, `web/index.html`, and `web/main.dart`.
+  Put these contents in the files:
 
-    import 'package:angular2/angular2.dart';
+- var stylePattern = [{ otl: /(platform_directives.*$)/gm }, null, null];
++makeTabs('displaying-data/dart/pubspec.yaml, displaying-data/dart/web/index.html, displaying-data/dart/web/main.dart', ',,final', 'pubspec.yaml, web/index.html, web/main.dart', stylePattern)
 
-    @Component(selector: 'display')
-    @View(template: '''
-    <p>My name: {{ myName }}</p>
-    ''')
-    class DisplayComponent {
-      String myName = 'Alice';
-    }
+:marked
+  All of this code should look familiar from the
+  [QuickStart](../quickstart.html),
+  except for the `platform_directives` entry in `pubspec.yaml`
+  and the imports in `main.dart`.
 
-  p.
-    You've just defined a component that encompasses a view and controller for the app. The view
-    defines a template:
+  In `pubspec.yaml`, the `platform_directives` entry lets us use
+  core directives, such as the NgFor directive that we'll soon add to our app.
 
-  code-example(language="html" escape="html").
-    <p>My name: {{ myName }}</p>
+  In `main.dart`, importing `app_component.dart` lets us implement part
+  of the app in a different Dart file. The QuickStart version of `main.dart`
+  imported `angular2.dart`, but we don't need that import here because
+  this version of `main.dart` is so basic: it only bootstraps the app,
+  and doesn't implement any components or other injectable types.
 
-  p.
-   Angular will automatically pull the value of <code>myName</code> and
-   insert it into the browser,
-   automatically updating it whenever it changes.
+  So that the code can run,
+  let's create a stub for the `<my-app>` component.
 
-  .callout.is-helpful
-    header Note
-    p.
-      While you've used <code>template:</code> to specify an inline view, for larger templates you'd
-      want to move them to a separate file and load them with <code>templateUrl:</code> instead.
+  Create a new directory called `lib`.
+  In it, put a file called `app_component.dart`
+  with the following code:
 
-  p.
-   One thing to notice is that although you've written
-   your <code>DisplayComponent</code> class, you haven't
-   used <code>new</code> to instantiate it.
-   Because your class is associated with <code>&lt;display&gt;</code> elements in
-   the DOM, Angular automatically calls <code>new</code> on
-   <code>DisplayComponent</code> and bind its properties to
-   that part of the template.
++makeExample('displaying-data/dart/lib/app_component_1.dart', null, 'lib/app_component.dart')
 
-  p.
-   When you're building templates, data bindings like these have access to
-   the same scope of
-   properties as your controller class does.
-   Here your class is <code>DisplayComponent</code>, which has
-   just one property, <code>myName</code>.
+:marked
+  We defined a component with two properties: `title` and `myHero`.
+  The template displays the two component properties using double curly brace
+  interpolation:
 
-  p.
-    Add a second line to the template,
-    so you can see Angular dynamically update content:
++makeExample('displaying-data/dart/lib/app_component_1.dart', 'template')(format=".")
 
-  code-example(language="html").
-    &lt;p&gt;Current time: {{ time }}&lt;/p&gt;
+:marked
+  Angular automatically pulls the value of the `title` and `myHero` properties from the component and
+  inserts those values into the browser. Angular updates the display
+  when these properties change.
 
-  p.
-    Then import <code>dart:async</code> so you can use a Timer,
-    and give the <code>DisplayComponent</code> a starting value for time and
-    create a periodic Timer call to update the time:
 
-  code-example(language="dart").
-    import 'dart:async';
-    ...
-    class DisplayComponent {
-      String myName = 'Alice';
-      String time;
-      Timer _timer;
+.l-sub-section
+  :marked
+    More precisely, the redisplay occurs after some kind of asynchronous event related to
+    the view such as a keystroke, a timer completion, or an async `XHR` response.
+    We don't have those in this sample.
+    But then the properties aren't changing on their own either. For the moment we must operate on faith.
+:marked
+  Notice that we haven't called **new** to create an instance of the `AppComponent` class.
+  Angular is creating an instance for us. How?
 
-      DisplayComponent() {
-        _updateTime(null);
-        _timer = new Timer.periodic(new Duration(seconds: 1), _updateTime);
-      }
+  Notice the CSS `selector` in the `@Component` decorator that specifies an element named "my-app".
+  Remember back in QuickStart that we added the `<my-app>` element to the body of our `index.html` file:
++makeExample('displaying-data/dart/web/index.html', 'my-app')(format=".")
 
-      _updateTime(Timer _) {
-        time = new DateTime.now().toString();
-      }
-    }
 
-  p Reload the app, and you'll now see the seconds updating automatically.
+:marked
+  When we bootstrap with the `AppComponent` class (in `main.dart`), Angular looks for a `<my-app>`
+  in the `index.html`, finds it, instantiates an instance of `AppComponent`, and renders it
+  inside the `<my-app>` tag.
 
-<a id="ng-for"></a>
+  Try running the app. It should display the title and hero name:
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/title-and-hero.png" alt="Title and Hero")
+// TODO: Here the TS version says "Let's review some of the choices we made and consider alternatives." However, it's unclear where this review ends. Clarify the structure in the TS, and make sure this is the best place for the Dart version of this section.
+
+#performance.l-sub-section
+  :marked
+    ### Template inline or template file?
+
+    We can store our component's template in one of two places.
+    We can define it *inline* using the `template` property, as we do here.
+    Or we can define the template in a separate HTML file and link to it in
+    the component metadata using the `@Component` decorator's `templateUrl` property.
+
+    The choice between inline and separate HTML is a matter of taste,
+    circumstances, and organization policy.
+    Here we're using inline HTML because the template is small, and the demo
+    is simpler without the additional HTML file.
+
+    In either style, the template data bindings have the same access to the component's properties.
+
+
+<a id="ngFor"></a>
 .l-main-section
-  h2#Create-an-array Display an iterable using *ng-for
-  p Moving up from a single value, create a property that's a list of values.
+:marked
+  ## Showing a list property with NgFor
 
-  code-example(language="dart").
-    class DisplayComponent {
-      String myName = 'Alice';
-      List&lt;String&gt; friendNames = const [
-        'Aarav',
-        'Martín',
-        'Shannon',
-        'Ariana',
-        'Kai'
-      ];
-    }
+  We want to display a list of heroes. We begin by adding a list of hero names to the component and redefine `myHero` to be the first name in the list.
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'mock-heroes', 'lib/app_component.dart (excerpt)')(format=".")
 
-  p.
-    You can then use this list in your template with
-    the <code>ng-for</code> directive to create copies of DOM elements
-    with one for each item in the list.
+:marked
+  Now we use the Angular `NgFor` "repeater" directive in the template to display
+  each item in the `heroes` list.
 
-  code-example(language="dart").
-    @View(template: '''
-    &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-    &lt;p&gt;Friends:&lt;/p&gt;
-    &lt;ul&gt;
-       &lt;li <span class="pnk">*ng-for="#name of friendNames"</span>&gt;
-          {{ name }}
-       &lt;/li&gt;
-    &lt;/ul&gt;
-    ''', <span class="pnk">directives: const [NgFor]</span>)
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'template','lib/app_component.dart (excerpt)')(format=".")
 
-  p.
-    To make <code>ng-for</code> work,
-    you need to add the Angular <code>NgFor</code> directive,
-    so that Angular knows to include it.
-    Add <code>NgFor</code> using the optional <code>directives</code> parameter.
 
-  p Reload and you've got your list of friends!
-  p.
-    Again, Angular will mirror changes you make to this list over in the DOM.
-    Add a new item and it appears in your list.
-    Delete one and Angular deletes the &lt;li&gt;.
-    Reorder items and Angular makes the corresponding reorder of the DOM list.
+:marked
+  Our presentation is the familiar HTML unordered list with `<ul>` and `<li>` tags. Let's focus on the `<li>` tag.
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'li-repeater')(format=".")
 
-  p Let's look at the few lines that do the work again:
+:marked
+  We added a somewhat mysterious `*ngFor` to the `<li>` element.
+  That's the Angular "repeater" directive.
+  Its presence on the `<li>` tag marks that `<li>` element (and its children) as the "repeater template".
 
-  code-example(language="html").
-    &lt;li *ng-for=&quot;#name of friendNames&quot;&gt;
-       {{ name }}
-    &lt;/li&gt;
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in `*ngFor`.
+    <!-- Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ngFor) chapter.-->
 
-  p The way to read this is:
-  ul
-    li.
-      <code>*ng-for</code>: Create a DOM element for each item in an
-      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterable</a>
-       such as a list.
-    li <code>#name</code>: Refer to individual values of the iterable as <code>name</code>.
-    li <code>of friendNames</code>: The iterable to use is called <code>friendNames</code> in the current controller.
+:marked
+  Notice the `#hero` in the `NgFor` double-quoted instruction.
+  The `#hero` is a local template variable
+  <!-- TODO: link to (./template-syntax.html#local-vars) -->
+  declaration.
+  The `#` prefix declares a local variable name named `hero`.
 
-  p Using this syntax, you can build UI lists from any iterable object.
+  Angular duplicates the `<li>` for each item in the list, setting the `hero` variable
+  to the item (the hero) in the current iteration. Angular uses that variable as the
+  context for the interpolation in the double curly braces.
+
+.l-sub-section
+  :marked
+    We happened to give `NgFor` a list to display.
+    In fact, `NgFor` can repeat items for any [Iterable](https://api.dartlang.org/stable/dart-core/Iterable-class.html) object.
+
+:marked
+  Assuming we're still running under the `npm go` command,
+  we should see heroes appearing in an unordered list.
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/hero-names-list.png" alt="After ngfor")
+
+.callout.is-important
+  header Did the app break?
+  :marked
+    If the app stops working after adding `*ngFor`,
+    make sure `pubspec.yaml` has the [correct **platform_directives** entry](#platform_directives).
+    A missing or incorrect `platform_directives` entry results in template parse errors.
 
 .l-main-section
-  h2#Create-a-class Create a model and inject it
-  p.
-    Before we get too much further, we should mention that
-    putting the model (list) directly into the controller isn't proper form.
-    We should separate the concerns by having another class
-    serve the role of model and inject it into the controller.
+:marked
+  ## Creating a class for the data
 
-  p.
-    Make a <code>FriendsService</code> class to implement a model
-    containing a list of friends.
-    Put this in a new file under <code>lib/</code>
-    named <code>friends_service.dart</code>. Here's what the class looks like:
+  We are defining our data directly inside our component.
+  That's fine for a demo but certainly isn't a best practice. It's not even a good practice.
+  Although we won't do anything about that in this chapter, we'll make a mental note to fix this down the road.
 
-  code-example(language="dart" format="linenums").
-    // lib/friends_service.dart
-    library displaying_data.friends_service;
+  At the moment, we're binding to a list of strings. We do that occasionally in real applications, but
+  most of the time we're binding to more specialized objects.
 
-    import 'package:angular2/angular2.dart';
+  Let's turn our list of hero names into a list of `Hero` objects. For that we'll need a `Hero` class.
 
-    @Injectable()
-    class FriendsService {
-      List&lt;String&gt; names = ['Aarav', 'Martín', 'Shannon', 'Ariana', 'Kai'];
-    }
+  Create a new file in the `lib/` folder called `hero.dart` with the following code.
++makeExample('displaying-data/dart/lib/hero.dart',null,'lib/hero.dart')
 
-  p.
-    Now you can replace the current list of friends in DisplayComponent.
-    Import <code>friends_service.dart</code>,
-    and add a FriendsService parameter to the constructor.
-    Then set <code>friendNames</code> to the names provided by the service.
+:marked
+  We've defined a class with a constructor, a string description, and two properties: `id` and `name`.
 
-  code-example(language="dart").
-    // In lib/show_properties.dart
-    ...
-    <span class="pnk">import 'package:displaying_data/friends_service.dart';</span>
-    ...
-    class DisplayComponent {
-      String myName = 'Alice';
-      List&lt;String&gt; friendNames;
-
-      DisplayComponent(<span class="pnk">FriendsService friendsService</span>) {
-        <span class="pnk">friendNames = friendsService.names;</span>
-      }
-    }
-
-  p.
-    Next, make FriendsService available to dependency injection
-    by adding a <code>viewProviders</code> parameter to DisplayComponent's
-    <code>@Component</code> annotation:
-
-  code-example(language="dart").
-    @Component(selector: 'display', <span class="pnk">viewProviders: const [FriendsService]</span>)
-
-<a id="ng-if"></a>
 .l-main-section
-  h2#Conditionally-displaying-data-with-NgIf Conditionally display data using *ng-if
-  p.
-    Lastly, before we move on, let's handle showing parts of our UI conditionally with <code>*ng-if</code>.  The
-    <code>NgIf</code> directive adds or removes elements from the DOM based on the expression you provide.
+:marked
+  ## Using the Hero class
+  Let's make the `heroes` property in our component return a list of these Hero objects.
+- var stylePattern = { otl: /(import.*$)|(final)|(new Hero.*$)/gm };
++makeExample('displaying-data/dart/lib/app_component_3.dart', 'heroes', 'app_component.dart (excerpt)', stylePattern)(format=".")
 
-  p See it in action by adding a paragraph at the end of your template:
+:marked
+  We'll have to update the template.
+  At the moment it displays the string value of the `Hero` object.
+  Let's fix that so we display only the hero's `name` property.
+- var stylePattern = { otl: /(myHero\.name)|(hero\.name)/gm };
++makeExample('displaying-data/dart/lib/app_component_3.dart', 'template','app_component.dart (template)', stylePattern)(format=".")
 
-  code-example(language="html").
-    &lt;p *ng-if="friendNames.length &gt; 3"&gt;You have many friends!&lt;/p&gt;
 
-  p.
-    Also add <code>NgIf</code> to the list of directives,
-    so Angular knows to include it:
+:marked
+  Our display looks the same, but now we know much better what a hero really is.
 
-  code-example(language="dart").
-    directives: const[NgFor, <span class="pnk">NgIf</span>]
-  p.
-    The list currently has 5 items, so if you run the app you'll see the message
-    congratulating you on your many friends.
-    Remove two items from the list, reload your browser,
-    and see that the message no longer displays.
-
-  p Here's the final code.
-
-  code-tabs
-    code-pane(language="dart" name="lib/show_properties.dart" format="linenums").
-      library displaying_data.show_properties;
-
-      import 'package:angular2/angular2.dart';
-      import 'package:displaying_data/friends_service.dart';
-
-      @Component(selector: 'display', viewProviders: const [FriendsService])
-      @View(template: '''
-      &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-      &lt;p&gt;Friends:&lt;/p&gt;
-      &lt;ul&gt;
-         &lt;li *ng-for="#name of friendNames"&gt;
-            {{ name }}
-         &lt;/li&gt;
-      &lt;/ul&gt;
-      &lt;p *ng-if="friendNames.length &gt; 3"&gt;You have many friends!&lt;/p&gt;
-      ''', directives: const [NgFor, NgIf])
-      class DisplayComponent {
-        String myName = 'Alice';
-        List&lt;String&gt; friendNames;
-
-        DisplayComponent(FriendsService friendsService) {
-          friendNames = friendsService.names;
-        }
-      }
-    code-pane(language="dart" name="lib/friends_service.dart" format="linenums").
-      library displaying_data.friends_service;
-
-      import 'package:angular2/angular2.dart';
-
-      @Injectable()
-      class FriendsService {
-        List&lt;String&gt; names = ['Aarav', 'Martín', 'Shannon', 'Ariana', 'Kai'];
-      }
-    code-pane(language="dart" name="web/main.dart" format="linenums").
-      import 'package:angular2/bootstrap.dart';
-      import 'package:displaying_data/show_properties.dart';
-
-      main() {
-        bootstrap(DisplayComponent);
-      }
-    code-pane(language="html" name="web/index.html" format="linenums").
-      &lt;!DOCTYPE html&gt;
-      &lt;html&gt;
-        &lt;head&gt;
-          &lt;title&gt;Displaying Data&lt;/title&gt;
-          &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
-          &lt;script async src=&quot;main.dart&quot; type=&quot;application/dart&quot;&gt;&lt;/script&gt;
-          &lt;script async src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
-        &lt;/head&gt;
-        &lt;body&gt;
-          &lt;display&gt;&lt;/display&gt;
-        &lt;/body&gt;
-      &lt;/html&gt;
-    code-pane(language="yaml" name="pubspec.yaml" format="linenums").
-      name: displaying_data
-      description: Displaying Data example
-      version: 0.0.1
-      dependencies:
-        angular2: 2.0.0-alpha.47
-        browser: ^0.10.0
-      transformers:
-      - angular2:
-          entry_points: web/main.dart
+<a id="ngIf"></a>
 .l-main-section
-  h2#section-explanations Explanations
+:marked
+  ## Conditional display with NgIf
 
-  .l-sub-section
-    h3 Using multiple Dart files in an Angular app
+  Sometimes the app should display a view or a portion of a view only under specific circumstances.
 
-    p.
-      Dart offers a few ways to implement an app in multiple files.
-      In this guide, each example is in a single package,
-      and each Dart file implements a separate library.
-      For a bigger project, you might split the code into libraries
-      in two or more packages.
+  In our example, we'd like to display a message if we have a large number of heroes &mdash; say, more than 3.
 
-    p.
-      To use the API defined in <code>show_properties.dart</code>,
-      <code>main.dart</code> must import that file.
-      The import statement uses the package name
-      (defined in <code>pubspec.yaml</code> to be <b>displaying_data</b>)
-      and the path to <code>show_properties.dart</code>
-      (starting at the app's top directory,
-      but omitting the <code>lib/</code> directory).
-
-    code-example(language="dart").
-      // In web/main.dart:
-      ...
-      import 'package:displaying_data/show_properties.dart';
-      ...
-
-      // In lib/show_properties.dart:
-      library displaying_data.show_properties;
-      ...
-
-    p.
-      The name that <code>show_properties.dart</code> specifies for its library
-      is similar to the path used to import the library,
-      but with no ".dart" suffix and
-      with dots (<code>.</code>) instead of slashes (<code>/</code>).
-      <a href="https://www.dartlang.org/articles/style-guide/#do-name-libraries-and-source-files-using-lowercasewithunderscores">Naming
-      conventions for libraries</a>,
-      along with lots of other helpful information, are in the
-      <a href="https://www.dartlang.org/articles/style-guide/">Dart Style Guide</a>.
-
-    p.
-      Another import lets <code>show_properties.dart</code>
-      use the API defined in <code>friends_service.dart</code>:
-
-    code-example(language="dart").
-      // In lib/show_properties.dart:
-      library displaying_data.show_properties;
-      ...
-      import 'package:displaying_data/friends_service.dart';
-      ...
-
-      // In lib/friends_service.dart:
-      library displaying_data.friends_service;
-      ...
-
-    p.
-      Because both <code>show_properties.dart</code> and <code>friends_service.dart</code>
-      are under <code>lib</code>,
-      the import could instead use a relative path:
-
-    code-example(language="dart").
-      // In lib/show_properties.dart:
-      library displaying_data.show_properties;
-      ...
-      import 'friends_service.dart';
-      ...
-
-      // In lib/friends_service.dart:
-      library displaying_data.friends_service;
-      ...
-
-    p.
-      The app's entry point—<code>main.dart</code>—imports
-      <code>bootstrap.dart</code> so that it can call <code>bootstrap()</code>.
-      Both <code>show_properties.dart</code> and <code>friends_service.dart</code>
-      import <code>angular2.dart</code>
-      so that they can define Angular components and models.
-
-    code-example(language="dart").
-      // In web/main.dart:
-      import 'package:angular2/bootstrap.dart';
-      ...
-      bootstrap(...)
-      ...
-
-      // In lib/show_properties.dart:
-      ...
-      import 'package:angular2/angular2.dart';
-      ...
-      @Component(...)
-      @View(...)
-      ...
-
-      // In lib/friends_service.dart:
-      ...
-      import 'package:angular2/angular2.dart';
-      ...
-      @Injectable()
-      ...
+  The Angular `NgIf` directive inserts or removes an element based on a boolean condition.
+  We can see it in action by adding the following paragraph at the bottom of the template:
++makeExample('displaying-data/dart/lib/app_component.dart', 'message')
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in `*ngIf`.
+    <!-- Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ngIf) chapter. -->
 
 
-    p.
-      For more information on implementing Dart libraries, see
-      <a href="https://www.dartlang.org/docs/dart-up-and-running/ch02.html#libraries-and-visibility">Libraries and visibility</a>
-      in the
-      <a href="https://www.dartlang.org/docs/dart-up-and-running/ch02.html">Dart language tour</a>.
+:marked
+  The template expression
+  <!--PENDING: link to (./template-syntax.html#template-expressions)-->
+  inside the double quotes looks much like Dart, and it _is_ much like Dart.
+  When the component's list of heroes has more than 3 items, Angular adds the paragraph to the DOM and the message appears.
+  If there are 3 or fewer items, Angular omits the paragraph, so no message appears.
 
+.alert.is-helpful
+  :marked
+    Angular isn't showing and hiding the message. It is adding and removing the paragraph element from the DOM.
+    That hardly matters here. But it would matter a great deal, from a performance perspective, if
+    we were conditionally including or excluding a big chunk of HTML with many data bindings.
+
+:marked
+  Try it out. Because the list has four items, the message should appear.
+  Go back into `app_component.dart` and delete or comment out one of the elements from the hero list.
+  The browser should refresh automatically and the message should disappear.
+
+.l-main-section
+:marked
+  ## Summary
+  Now we know how to use:
+  - **interpolation** with double curly braces to display a component property
+  - **`NgFor`** to display a list of items
+  - a Dart class to shape the **model data** for our component and display properties of that model
+  - **`NgIf`** to conditionally display a chunk of HTML based on a boolean expression
+
+
+  Here's our final code:
+
++makeTabs(`displaying-data/dart/lib/app_component.dart,
+           displaying-data/dart/lib/hero.dart,
+           displaying-data/dart/pubspec.yaml,
+           displaying-data/dart/web/index.html,
+           displaying-data/dart/web/main.dart`,
+           ',,,,final',
+           'lib/app_component.dart, lib/hero.dart, pubspec.yaml, web/index.html, web/main.dart')

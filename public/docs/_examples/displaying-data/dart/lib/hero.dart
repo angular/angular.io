@@ -1,12 +1,9 @@
 // #docregion
-library displaying_data.hero;
-
 class Hero {
-  // #docregion id-parameter
-  int number;
-  // #enddocregion id-parameter
+  int id;
   String name;
 
-  Hero(this.number, this.name);
+  Hero(this.id, this.name);
+  String toString() => '$id: $name';
 }
 // #enddocregion

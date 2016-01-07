@@ -1,6 +1,4 @@
 // #docregion
-library displaying_data.app_component_1;
-
 import 'package:angular2/angular2.dart';
 
 @Component(
