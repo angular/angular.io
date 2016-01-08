@@ -25,9 +25,9 @@ final List<Hero> _heroes = [
     {{ hero.name }}
   </li>
 </ul>
-<!--#docregion message-->
+// #docregion message
 <p *ngIf="heroes.length > 3">There are many heroes!</p>
-<!--#enddocregion message-->
+// #enddocregion message
 ''')
 class AppComponent {
   String title = 'Tour of Heroes';
@@ -35,9 +35,3 @@ class AppComponent {
   Hero myHero = _heroes[0];
 }
 //#enddocregion final
-/*
-// #docregion final
-
-bootstrap(AppComponent);
-//#enddocregion final
-*/

@@ -1,7 +1,5 @@
 include ../../../../_includes/_util-fns
 
-<!-- http://plnkr.co/edit/x9JYbC -->
-
 :marked
   We typically display data in Angular by binding controls in an HTML template
   to properties of an Angular component.
@@ -15,8 +13,6 @@ include ../../../../_includes/_util-fns
 figure.image-display
   img(src="/resources/images/devguide/displaying-data/final.png" alt="Final UI")
 
-:marked
-  [Run the live example](/resources/live-examples/displaying-data/ts/plnkr.html)
 
 <a id="interpolation"></a>
 .l-main-section
@@ -28,32 +24,51 @@ figure.image-display
 
   Let's build a small illustrative example together.
 
-  Create a new project folder (`displaying-data`) and follow the steps in the [QuickStart](../quickstart.html).
+  <a id="platform_directives"></a>
+  Create a new project folder (`displaying`) and create 3 files:
+  `pubspec.yaml`, `web/index.html`, and `web/main.dart`.
+  Put these contents in the files:
 
-  Then modify the `app.component.ts` file by changing the template and the body of the component.
-  When we're done, it should look like this:
-
-+makeExample('displaying-data/ts/app/app.component.1.ts', null, 'app/app.component.ts')
+- var stylePattern = [{ otl: /(platform_directives.*$)/gm }, null, null];
++makeTabs('displaying-data/dart/pubspec.yaml, displaying-data/dart/web/index.html, displaying-data/dart/web/main.dart', ',,final', 'pubspec.yaml, web/index.html, web/main.dart', stylePattern)
 
 :marked
-  We added two properties to the formerly empty component: `title` and `myHero`.
+  All of this code should look familiar from the
+  [QuickStart](../quickstart.html),
+  except for the `platform_directives` entry in `pubspec.yaml`
+  and the imports in `main.dart`.
 
-  Our revised template displays the two component properties using double curly brace
+  In `pubspec.yaml`, the `platform_directives` entry lets us use
+  core directives, such as the NgFor directive that we'll soon add to our app.
+
+  In `main.dart`, importing `app_component.dart` lets us implement part
+  of the app in a different Dart file. The QuickStart version of `main.dart`
+  imported `angular2.dart`, but we don't need that import here because
+  this version of `main.dart` is so basic: it only bootstraps the app,
+  and doesn't implement any components or other injectable types.
+
+  So that the code can run,
+  let's create a stub for the `<my-app>` component.
+
+  Create a new directory called `lib`.
+  In it, put a file called `app_component.dart`
+  with the following code:
+
++makeExample('displaying-data/dart/lib/app_component_1.dart', 'fixed-lib', 'lib/app_component.dart')
+
+:marked
+  We defined a component with two properties: `title` and `myHero`.
+  The template displays the two component properties using double curly brace
   interpolation:
 
-+makeExample('displaying-data/ts/app/app.component.1.ts', 'template')(format=".")
-.l-sub-section
-  :marked
-    The template is a multi-line string within ECMAScript 2015 backticks (\`).
-    The backtick (\`) &mdash; which is *not* the same character as a single
-    quote (') &mdash; has many nice features. The feature we're exploiting here
-    is the ability to compose the string over several lines, which makes for
-    much more readable HTML.
++makeExample('displaying-data/dart/lib/app_component_1.dart', 'template')(format=".")
 
 :marked
   Angular automatically pulls the value of the `title` and `myHero` properties from the component and
   inserts those values into the browser. Angular updates the display
   when these properties change.
+
+
 .l-sub-section
   :marked
     More precisely, the redisplay occurs after some kind of asynchronous event related to
@@ -65,70 +80,56 @@ figure.image-display
   Angular is creating an instance for us. How?
 
   Notice the CSS `selector` in the `@Component` decorator that specifies an element named "my-app".
-  Remember back in QuickStart that we added the `<my-app>` element to the body of our `index.html`
-+makeExample('displaying-data/ts/index.html', 'my-app')(format=".")
+  Remember back in QuickStart that we added the `<my-app>` element to the body of our `index.html` file:
++makeExample('displaying-data/dart/web/index.html', 'my-app')(format=".")
+
 
 :marked
-  When we bootstrap with the `AppComponent` class (see `boot.ts`), Angular looks for a `<my-app>`
+  When we bootstrap with the `AppComponent` class (in `main.dart`), Angular looks for a `<my-app>`
   in the `index.html`, finds it, instantiates an instance of `AppComponent`, and renders it
   inside the `<my-app>` tag.
 
-  We're ready to see changes in a running app by firing up the npm script that both compiles and serves our applications
-  while watching for changes.
-code-example(format="").
-  npm start
-:marked
-  We should see the title and hero name:
+  Try running the app. It should display the title and hero name:
 figure.image-display
   img(src="/resources/images/devguide/displaying-data/title-and-hero.png" alt="Title and Hero")
 :marked
-  Let's review some of the choices we made and consider alternatives.
+  [PENDING: Here the TS version says "Let's review some of the choices we made and consider alternatives." However, it's unclear where this review ends. Clarify the structure in the TS, and make sure this is the best place for the Dart version of this section.]
 
-  ## Template inline or template file?
+#performance.l-sub-section
+  :marked
+    ### Template inline or template file?
 
-  We can store our component's template in one of two places.
-  We can define it *inline* using the `template` property, as we do here.
-  Or we can define the template in a separate HTML file and link to it in
-  the component metadata using the `@Component` decorator's `templateUrl` property.
+    We can store our component's template in one of two places.
+    We can define it *inline* using the `template` property, as we do here.
+    Or we can define the template in a separate HTML file and link to it in
+    the component metadata using the `@Component` decorator's `templateUrl` property.
 
-  The choice between inline and separate HTML is a matter of taste,
-  circumstances, and organization policy.
-  Here we're using inline HTML because the template is small, and the demo
-  is simpler without the HTML file.
+    The choice between inline and separate HTML is a matter of taste,
+    circumstances, and organization policy.
+    Here we're using inline HTML because the template is small, and the demo
+    is simpler without the additional HTML file.
 
-  In either style, the template data bindings have the same access to the component's properties.
+    In either style, the template data bindings have the same access to the component's properties.
 
-  ## Constructor or variable initialization?
-
-  We initialized our component properties using variable assignment.
-  This is a wonderfully concise and compact technique.
-
-  Some folks prefer to declare the properties and initialize them within a constructor like this:
-+makeExample('displaying-data/ts/app/app-ctor.component.ts', 'app-ctor')(format=".")
-
-:marked
-  That's fine too. The choice is a matter of taste and organization policy.
-  We'll adopt the more terse "variable assignment" style in this chapter simply because
-  there will be less code to read.
 
 <a id="ngFor"></a>
 .l-main-section
 :marked
-  ## Showing an array property with NgFor
+  ## Showing a list property with NgFor
 
-  We want to display a list of heroes. We begin by adding a mock heroes name array to the component,
-  just above `myHero`, and redefine `myHero` to be the first name in the array.
-+makeExample('displaying-data/ts/app/app.component.2.ts', 'mock-heroes', 'app/app.component.ts (class)')(format=".")
+  We want to display a list of heroes. We begin by adding a list of hero names to the component and redefine `myHero` to be the first name in the list.
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'mock-heroes', 'lib/app_component.dart (excerpt)')(format=".")
 
 :marked
   Now we use the Angular `NgFor` "repeater" directive in the template to display
   each item in the `heroes` list.
 
-+makeExample('displaying-data/ts/app/app.component.2.ts', 'template','app/app.component.ts (template)')(format=".")
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'template','lib/app_component.dart (excerpt)')(format=".")
+
 
 :marked
   Our presentation is the familiar HTML unordered list with `<ul>` and `<li>` tags. Let's focus on the `<li>` tag.
-+makeExample('displaying-data/ts/app/app.component.2.ts', 'li-repeater')(format=".")
++makeExample('displaying-data/dart/lib/app_component_2.dart', 'li-repeater')(format=".")
 
 :marked
   We added a somewhat mysterious `*ngFor` to the `<li>` element.
@@ -137,12 +138,14 @@ figure.image-display
 
 .alert.is-important
   :marked
-    Don't forget the leading asterisk (\*) in `*ngFor`. It is an essential part of the syntax.
-    Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ngFor) chapter.
+    Don't forget the leading asterisk (\*) in `*ngFor`.
+    <!-- Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ngFor) chapter.-->
 
 :marked
   Notice the `#hero` in the `NgFor` double-quoted instruction.
-  The `#hero` is a [local template variable](./template-syntax.html#local-vars) declaration.
+  The `#hero` is a local template variable
+  <!-- PENDING: link to (./template-syntax.html#local-vars) -->
+  declaration.
   The `#` prefix declares a local variable name named `hero`.
 
   Angular duplicates the `<li>` for each item in the list, setting the `hero` variable
@@ -151,15 +154,24 @@ figure.image-display
 
 .l-sub-section
   :marked
-    We happened to give `NgFor` an array to display.
-    In fact, `NgFor` can repeat items for any [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)
-    object.
+    We happened to give `NgFor` a list to display.
+    In fact, `NgFor` can repeat items for any [Iterable](https://api.dartlang.org/stable/dart-core/Iterable-class.html) object.
+    [PENDING: that used to link to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols. Confirm
+    that Iterable is indeed what's supported in Dart.)
+
 :marked
   Assuming we're still running under the `npm go` command,
   we should see heroes appearing in an unordered list.
 
 figure.image-display
   img(src="/resources/images/devguide/displaying-data/hero-names-list.png" alt="After ngfor")
+
+.callout.is-important
+  header Did the app break?
+  :marked
+    If the app stops working after adding `*ngFor`,
+    make sure `pubspec.yaml` has the [correct **platform_directives** entry](#platform_directives).
+    A missing or incorrect `platform_directives` entry results in template parse errors.
 
 .l-main-section
 :marked
@@ -169,41 +181,31 @@ figure.image-display
   That's fine for a demo but certainly isn't a best practice. It's not even a good practice.
   Although we won't do anything about that in this chapter, we'll make a mental note to fix this down the road.
 
-  At the moment, we're binding to an array of strings. We do that occasionally in real applications, but
-  most of the time we're displaying objects &mdash; potentially instances of classes.
+  At the moment, we're binding to a list of strings. We do that occasionally in real applications, but
+  most of the time we're binding to more specialized objects.
 
-  Let's turn our array of hero names into an array of `Hero` objects. For that we'll need a `Hero` class.
+  Let's turn our list of hero names into a list of `Hero` objects. For that we'll need a `Hero` class.
 
-  Create a new file in the `app/` folder called `hero.ts` with the following short bit of code.
-+makeExample('displaying-data/ts/app/hero.ts', null, 'app/hero.ts')(format = ".")
-
-:marked
-  We've defined a class with a constructor and two properties: `id` and `name`.
-
-  It might not look like we have properties, but we do. We're taking
-  advantage of a TypeScript shortcut in our declaration of the constructor parameters.
-
-  Consider the first parameter:
-+makeExample('displaying-data/ts/app/hero.ts', 'id-parameter')
+  Create a new file in the `lib/` folder called `hero.dart` with the following code.
++makeExample('displaying-data/dart/lib/hero.dart',null,'lib/hero.dart')
 
 :marked
-  That brief syntax does a lot:
-  * declares a constructor parameter and its type
-  * declares a public property of the same name
-  * initializes that property with the corresponding argument when we "new" an instance of the class
+  We've defined a class with a constructor, a string description, and two properties: `id` and `name`.
 
 .l-main-section
 :marked
   ## Using the Hero class
-  Let's redefine the `heroes` property in our component to return an array of these Hero objects
-  and also set the `myHero` property with the first of these mock heroes.
-+makeExample('displaying-data/ts/app/app.component.3.ts', 'heroes', 'app.component.ts (excerpt)')(format=".")
+  Let's make the `heroes` property in our component return a list of these Hero objects.
+- var stylePattern = { otl: /(import.*$)|(final)|(new Hero.*$)/gm };
++makeExample('displaying-data/dart/lib/app_component_3.dart', 'heroes', 'app_component.dart (excerpt)', stylePattern)(format=".")
 
 :marked
   We'll have to update the template.
-  At the moment it displays the entire `hero` object, which used to be a string value.
-  Let's fix that so we interpolate the `hero.name` property.
-+makeExample('displaying-data/ts/app/app.component.3.ts', 'template','app.component.ts (template)')(format=".")
+  At the moment it displays the string value of the `Hero` object.
+  Let's fix that so we display only the hero's `name` property.
+- var stylePattern = { otl: /(myHero\.name)|(hero\.name)/gm };
++makeExample('displaying-data/dart/lib/app_component_3.dart', 'template','app_component.dart (template)', stylePattern)(format=".")
+
 
 :marked
   Our display looks the same, but now we know much better what a hero really is.
@@ -217,29 +219,31 @@ figure.image-display
 
   In our example, we'd like to display a message if we have a large number of heroes &mdash; say, more than 3.
 
-  The Angular `NgIf` directive inserts or removes an element based on a truthy/falsey condition.
+  The Angular `NgIf` directive inserts or removes an element based on a boolean condition.
   We can see it in action by adding the following paragraph at the bottom of the template:
-+makeExample('displaying-data/ts/app/app.component.ts', 'message')
++makeExample('displaying-data/dart/lib/app_component.dart', 'message')
 .alert.is-important
   :marked
-    Don't forget the leading asterisk (\*) in `*ngIf`. It is an essential part of the syntax.
-    Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ngIf) chapter.
+    Don't forget the leading asterisk (\*) in `*ngIf`.
+    <!-- Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ngIf) chapter. -->
+
 
 :marked
-  The [template expression](./template-syntax.html#template-expressions) inside the double quotes
-  looks much like JavaScript and it _is_ much like JavaScript.
+  The template expression
+  <!--PENDING: link to (./template-syntax.html#template-expressions)-->
+  inside the double quotes looks much like Dart, and it _is_ much like Dart.
   When the component's list of heroes has more than 3 items, Angular adds the paragraph to the DOM and the message appears.
   If there are 3 or fewer items, Angular omits the paragraph, so no message appears.
 
 .alert.is-helpful
   :marked
     Angular isn't showing and hiding the message. It is adding and removing the paragraph element from the DOM.
-    That hardly matters here. It would matter a great deal from a performance perspective if
+    That hardly matters here. But it would matter a great deal, from a performance perspective, if
     we were conditionally including or excluding a big chunk of HTML with many data bindings.
 
 :marked
-  Try it out. Because the array has four items, the message should appear.
-  Go back into `app.component.ts` and delete or comment out one of the elements from the hero array.
+  Try it out. Because the list has four items, the message should appear.
+  Go back into `app_component.dart` and delete or comment out one of the elements from the hero list.
   The browser should refresh automatically and the message should disappear.
 
 .l-main-section
@@ -248,13 +252,16 @@ figure.image-display
   Now we know how to use:
   - **interpolation** with double curly braces to display a component property
   - **`NgFor`** to display a list of items
-  - a TypeScript class to shape the **model data** for our component and display properties of that model
+  - a Dart class to shape the **model data** for our component and display properties of that model
   - **`NgIf`** to conditionally display a chunk of HTML based on a boolean expression
+
 
   Here's our final code:
 
-+makeTabs(`displaying-data/ts/app/app.component.ts,
-           displaying-data/ts/app/hero.ts,
-           displaying-data/ts/app/boot.ts`,
-           'final,,',
-           'app/app.component.ts, app/hero.ts, boot.ts')
++makeTabs(`displaying-data/dart/lib/app_component.dart,
+           displaying-data/dart/lib/hero.dart,
+           displaying-data/dart/pubspec.yaml,
+           displaying-data/dart/web/index.html,
+           displaying-data/dart/web/main.dart`,
+           'final,,,,final',
+           'lib/app_component.dart, lib/hero.dart, pubspec.yaml, web/index.html, web/main.dart')

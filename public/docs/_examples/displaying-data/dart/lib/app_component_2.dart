@@ -1,10 +1,16 @@
 // #docregion
 library displaying_data.app_component_2;
 
-// #docregion imports
 import 'package:angular2/angular2.dart';
 
-// #enddocregion imports
+// #docregion mock-heroes
+const List<String> _heroes = const [
+  'Windstorm',
+  'Bombasto',
+  'Magneta',
+  'Tornado'
+];
+// #enddocregion mock-heroes
 
 @Component(
     selector: 'my-app',
@@ -14,22 +20,15 @@ import 'package:angular2/angular2.dart';
 <h2>My favorite hero is: {{myHero}}</h2>
 <p>Heroes:</p>
 <ul>
-<!-- docregion li-repeater -->
+// #docregion li-repeater
   <li *ngFor="#hero of heroes">
     {{ hero }}
   </li>
-<!-- enddocregion li-repeater -->
+// #enddocregion li-repeater
 </ul>'''
 // #enddocregion template
     )
 // #docregion mock-heroes
-const List<String> _heroes = const [
-  'Windstorm',
-  'Bombasto',
-  'Magneta',
-  'Tornado'
-];
-
 class AppComponent {
   String title = 'Tour of Heroes';
   List<String> heroes = _heroes;
