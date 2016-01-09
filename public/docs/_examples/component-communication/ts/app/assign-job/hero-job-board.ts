@@ -16,7 +16,7 @@ export class HeroJobBoard {
   newRequest: string = null;
   constructor(private jobService: JobService) {
   }
-// ...
+  // ...
 // #enddocregion annotation
 
   get invitedHeroes() {
