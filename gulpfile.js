@@ -30,7 +30,9 @@ var treeKill = require("tree-kill");
 var TOOLS_PATH = './tools';
 var ANGULAR_PROJECT_PATH = '../angular';
 var PUBLIC_PATH = './public';
+var TEMP_PATH = './_temp';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
+
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
@@ -344,8 +346,7 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
 });
 
 gulp.task('check-deploy', ['build-docs'], function() {
-  gutil.log('running harp compile...');
-  return execPromise('npm run harp -- compile . ./www', {}).then(function() {
+  return harpCompile().then(function() {
     gutil.log('compile ok - running live server ...');
     execPromise('npm run live-server ./www');
     return askDeploy();
@@ -363,7 +364,6 @@ gulp.task('check-deploy', ['build-docs'], function() {
   });
 });
 
-
 gulp.task('test-api-builder', function (cb) {
   execCommands(['npm run test-api-builder'], {}, cb);
 });
@@ -371,7 +371,14 @@ gulp.task('test-api-builder', function (cb) {
 
 // Internal tasks
 
-
+// used to test just harpCompile without a build step
+gulp.task('_harp-compile', function() {
+  return harpCompile().then(function() {
+    gutil.log('compile ok');
+  }).catch(function(e) {
+    gutil.log('compile failed');
+  });
+});
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
@@ -399,6 +406,45 @@ gulp.task('_zip-examples', function() {
 
 
 // Helper functions
+
+function harpCompile() {
+  var deferred = Q.defer();
+  gutil.log('running harp compile...');
+  showHideExampleNodeModules('hide');
+  var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', './www' ]);
+  spawnInfo.promise.then(function(x) {
+    showHideExampleNodeModules('show');
+    if (x !== 0) {
+      deferred.reject(x)
+    } else {
+      deferred.resolve(x);
+    }
+  }).catch(function(e) {
+    showHideExampleNodeModules('show');
+    deferred.reject(e);
+  });
+  return deferred.promise;
+}
+
+// harp has issues with node_modules under the public dir
+// but we need them there for example testing and development
+// this method allows the node modules folder under '_examples'
+// to be temporarily moved out from under 'public' while harp
+// compilation is occurring.
+function showHideExampleNodeModules(showOrHide) {
+  var nmPath = path.join(EXAMPLES_PATH, "/node_modules");
+  var nmHiddenPath = path.join(TEMP_PATH, "/node_modules");
+  if (showOrHide == 'hide' && fs.existsSync(nmPath)) {
+    if (!fs.existsSync(TEMP_PATH)) {
+      fs.mkdirSync(TEMP_PATH);
+    }
+    fs.renameSync(nmPath, nmHiddenPath);
+  } else if (showOrHide == 'show' && fs.existsSync(nmHiddenPath)) {
+    fs.renameSync(nmHiddenPath, nmPath);
+    fs.rmdirSync(TEMP_PATH);
+  }
+}
+
 
 // returns a promise
 function copyFiles(fileNames, destPaths) {
