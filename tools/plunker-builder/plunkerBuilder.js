@@ -9,10 +9,22 @@ var mkdirp = require('mkdirp');
 
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
+var COPYRIGHT, COPYRIGHT_JS, COPYRIGHT_HTML;
 
 module.exports = {
   buildPlunkers: buildPlunkers
 };
+
+buildCopyrightStrings();
+
+function buildCopyrightStrings() {
+  var COPYRIGHT = 'Copyright 2016 Google Inc. All Rights Reserved.\n'
+    + 'Use of this source code is governed by an MIT-style license that\n'
+    + 'can be found in the LICENSE file at http://angular.io/license';
+  var pad = '\n\n';
+  COPYRIGHT_JS_CSS = pad + '/*\n' + COPYRIGHT + '\n*/';
+  COPYRIGHT_HTML = pad + '<!-- \n' + COPYRIGHT + '\n-->'
+}
 
 function buildPlunkers(basePath, destPath, options) {
   var errFn = options.errFn || function(e) { console.log(e); };
@@ -121,6 +133,12 @@ function createPostData(config) {
     } else {
       content = fs.readFileSync(fileName, 'utf-8');
     }
+
+    if (extn == '.js' || extn == '.ts' || extn == '.css') {
+      content = content + COPYRIGHT_JS_CSS;
+    } else if (extn == '.html') {
+      content = content + COPYRIGHT_HTML;
+    }
     // var escapedValue = escapeHtml(content);
 
     var relativeFileName = path.relative(config.basePath, fileName);
@@ -143,7 +161,9 @@ function createPostData(config) {
 
     postData['files[' + relativeFileName + ']'] = content;
   });
-  postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
+
+  // Leave here in case we want to add a md file later.
+  // postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
 
   var tags = ['angular2', 'example'].concat(config.tags || []);
   tags.forEach(function(tag,ix) {
