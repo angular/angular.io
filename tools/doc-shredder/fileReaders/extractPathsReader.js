@@ -6,8 +6,9 @@
 var path = require('canonical-path');
 
 module.exports = function extractPathsReader(log) {
-  // regex for makeTabs line
-  var rx = /\s*\+make(?:=Tabs|Example|Json)\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
+  // regexs for makeTabs. makeExample and makeJson lines
+  var rx = /\s*\+make(?:=Tabs|Example)\(\s*["'](.*?)["']\s*,\s*["'](.*?)["'].*?\)/g
+  var rxJson = /\s*\+makeJson\(\s*["'](.*?)["']\s*,.*?\)/g
   return {
     name: 'extractPathsReader',
 
@@ -22,6 +23,12 @@ module.exports = function extractPathsReader(log) {
         filePaths.forEach(function(filePath, ix) {
           var region = regions && regions[ix];
           fragItems.push( { mixinPath: filePath, region: region } );
+        });
+      }
+      while ((r = rxJson.exec(content)) !== null) {
+        var filePaths = r[1].split(',');
+        filePaths.forEach(function(filePath) {
+          fragItems.push( { mixinPath: filePath, region: null } );
         });
       }
       if (fragItems.length) {
