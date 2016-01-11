@@ -10,7 +10,7 @@ import 'package:user_input/little_tour_component.dart';
 
 @Component(
     selector: 'my-app',
-    templateUrl: 'app-component.html',
+    templateUrl: 'app_component.html',
     directives: const [
       ClickMeComponent,
       ClickMeComponent2,
