@@ -7,29 +7,16 @@ include ../../../../_includes/_util-fns
   In this chapter we'll learn what Dependency Injection is, why we want it, and how to use it.
   <a name="why-di"></a>
 .l-main-section
+
+
 :marked
   ## Why Dependency Injection?
 
   Let's start with the following code.
 
-  ```
-  class Engine {}
++makeExample('dependency-injection/ts/app/car.ts', 'car')
 
-  class Tires {}
-
-  class Car {
-    private engine: Engine;
-    private tires: Tires;
-
-    constructor() {
-      this.engine = new Engine();
-      this.tires = new Tires();
-    }
-    // Method using the engine and tires
-    drive() {}
-  }
-  ```
-
+:marked
   Our `Car` creates everything it needs inside its constructor.
   What's the problem?
 
@@ -73,21 +60,21 @@ include ../../../../_includes/_util-fns
   How can we make `Car` more robust, more flexible, and more testable?
 
   That's super easy. We probably already know what to do. We change our `Car` constructor to this:
+
   <a name="ctor-injection"></a>
-  ```
-  constructor(engine: Engine, tires: Tires) {
-    this.engine = engine;
-    this.tires = tires;
-  }
-  ```
+
++makeExample('dependency-injection/ts/app/car-ctor.partial.ts', 'car-ctor-di')
+
+:marked
   See what happened? We moved the definition of the dependencies to the constructor.
   Our `Car` class no longer creates an engine or tires.
   It just consumes them.
 
   Now we create a car by passing the engine and tires to the constructor.
-  ```
-  var car = new Car(new Engine(), new Tires());
-  ```
+
++makeExample('dependency-injection/ts/app/car.ts', 'car-ctor-instantiation')
+
+:marked
   How cool is that?
   The definition of the engine and tire dependencies are decoupled from the `Car` class itself.
   We can pass in any kind of engine or tires we like, as long as they
@@ -98,9 +85,10 @@ include ../../../../_includes/_util-fns
   :marked
     The consumer of `Car` has the problem. The consumer must update the car creation code to
     something like:
-    ```
-    var car = new Car(new Engine(theNewParameter), new Tires());
-    ```
+
+  +makeExample('dependency-injection/ts/app/car.ts', 'car-ctor-instantiation-with-param')
+
+  :marked
     The critical point is this: `Car` itself did not have to change.
     We'll take care of the consumer's problem soon enough.
 
@@ -109,10 +97,10 @@ include ../../../../_includes/_util-fns
   of its dependencies.
   We can pass mocks to the constructor that do exactly what we want them to do
   during each test:
-  ```
-  var car = new Car(new MockEngine(), new MockLowPressureTires());
-  ```
 
++makeExample('dependency-injection/ts/app/car.ts', 'car-ctor-instantiation-with-mocks')
+
+:marked
   **We just learned what Dependency Injection is**.
 
   It's a coding pattern in which a class receives its dependencies from external
@@ -125,13 +113,10 @@ include ../../../../_includes/_util-fns
   We need something that takes care of assembling these parts for us.
 
   We could write a giant class to do that:
-  ```
-  class SuperFactory {
-    createEngine = () => new Engine();
-    createTires =  () => new Tires();
-    createCar = () => new Car(this.createEngine(), this.createTires());
-  }
-  ```
+
++makeExample('dependency-injection/ts/app/car-factory.ts')
+
+:marked
   It's not so bad now with only three creation methods.
   But maintaining it will be hairy as the application grows.
   This `SuperFactory` is going to become a huge spider web of
@@ -145,19 +130,16 @@ include ../../../../_includes/_util-fns
   We register some classes with this `Injector` and it figures out how to create them.
 
   When we need a `Car`, we simply ask the `Injector` to get it for us and we're good to go.
-  ```
-  function main() {
-    var injector = new Injector([Car, Engine, Tires, Logger]);
-    var car = injector.get(Car);
-    car.drive();
-  }
-  ```
+
++makeExample('dependency-injection/ts/app/main.partial.ts')
+
+:marked
   Everyone wins. The `Car` knows nothing about creating an `Engine` or `Tires`.
   The consumer knows nothing about creating a `Car`.
   We don't have a gigantic factory class to maintain.
   Both `Car` and consumer simply ask for what they need and the `Injector` delivers.
 
-  This is what a **Dependency InjectionFramework** is all about.
+  This is what a **Dependency Injection Framework** is all about.
 
   Now that we know what Dependency Injection is and appreciate its benefits,
   let's see how it is implemented in Angular.
@@ -174,21 +156,17 @@ include ../../../../_includes/_util-fns
 
   We'll begin with a simplified version of the `HeroesComponent`
   that we built in the [The Tour of Heroes](../tutorial/).
-  ```
-  import {Component} from 'angular2/angular2';
-  import {Hero} from './hero';
-  import {HEROES} from './mock-heroes';
 
-  @Component({
-    selector: 'my-heroes'
-    templateUrl: 'app/heroes.component.html'
-  })
-  export class HeroesComponent {
++makeTabs(
+  `dependency-injection/ts/app/heroes.component.ts,
+  dependency-injection/ts/app/hero.ts,
+  dependency-injection/ts/app/mock_heroes.ts`,
+  '',
+  `heroes.component.ts,
+  hero.ts,
+  mock_heroes.ts`)
 
-    heroes: Hero[] = HEROES;
-
-  }
-  ```
+:marked
   It assigns a list of mocked heroes to its `heroes` property for binding within the template.
   Pretty straight forward.
 
@@ -202,24 +180,10 @@ include ../../../../_includes/_util-fns
 .l-sub-section
   :marked
     Write this service in its own file. See [this note](#forward-ref) to understand why.
+
++makeExample('dependency-injection/ts/app/hero.service.ts')
+
 :marked
-  ```
-  import {Hero} from './hero';
-  import {HEROES} from './mock-heroes';
-
-  class HeroService {
-
-    heroes: Hero[];
-
-    constructor() {
-      this.heroes = HEROES;
-    }
-
-    getHeroes() {
-      return this.heroes;
-    }
-  }
-  ```
   Our `HeroService` exposes a `getHeroes()` method that returns
   the same mock data as before but none of its consumers need to know that.
 
@@ -232,35 +196,33 @@ include ../../../../_includes/_util-fns
   We don't have to create the injector.
   <a name="bootstrap"></a>
   Angular creates an application-wide injector for us during the bootstrap process.
-  ```
-  bootstrap(HeroesComponent);
-  ```
 
++makeExample('dependency-injection/ts/app/boot.ts')
+
+:marked
   Let’s configure the injector at the same time that we bootstrap by adding
   our `HeroService` to an array in the second argument.
   We'll explain that array when we talk about [providers](#providers) later in this chapter.
-  ```
-  bootstrap(AppComponent, [HeroService]);
-  ```
+
++makeExample('dependency-injection/ts/app/boot.2.ts')
+
+:marked
   That’s it! The injector now knows about the `HeroService` which is available for injection across our entire application.
 
   ### Preparing the `HeroesComponent` for injection
 
   The `HeroesComponent` should get its heroes from this service.
   Per the dependency injection pattern, the component must "ask for" the service in its constructor [as we explained
-  earlier](#ctor-injection)".
+  earlier](#ctor-injection).
 
-  ```
-  constructor(heroService: HeroService) {
-    this.heroes = heroService.getHeroes();
-  }
-  ```
++makeExample('dependency-injection/ts/app/heroes.component-di.partial.ts')
+
   <a name="di-metadata"></a>
 .l-sub-section
   :marked
     Adding a parameter to the constructor isn't all that's happening here.
 
-    We are writing the app in TypeScript and have followed the parameter name with a type notation, `:HeroService`.
+    We are writing the app in TypeScript and have followed the parameter name with a type annotation, `:HeroService`.
     The class is also decorated with the `@Component` decorator (scroll up to confirm that fact).
 
     When the TypeScript compiler evaluates this class, it sees the decorator and adds class metadata
@@ -273,19 +235,22 @@ include ../../../../_includes/_util-fns
   ### Creating the `HeroesComponent` with the injector (implicitly)
   When we introduced the idea of an injector above, we showed how to create
   a new `Car` with that injector.
-  ```
-  var car = injector.get(Car);
-  ```
+
++makeExample('dependency-injection/ts/app/main.partial.ts', 'injector-call')
+
+:marked
   Search the entire Tour of Heroes source. We won't find a single line like
-  ```
-  var hc = injector.get(HeroesComponent);
-  ```
+
++makeExample('dependency-injection/ts/app/main.partial.ts', 'injector-call-2')
+
+:marked
   We *could* write code like that if we wanted to. We just don't have to.
   Angular does that for us when it renders a `HeroesComponent`
   whether we ask for it in an HTML template ...
-  ```
-  <my-heroes></heroes>
-  ```
+
++makeExample('dependency-injection/ts/app/main.partial.ts', 'hs-tag')
+
+:marked
   ... or navigate to a `HeroesComponent` view with the [router](./router.html).
 
   ### Singleton services
@@ -301,12 +266,10 @@ include ../../../../_includes/_util-fns
 
   Mission accomplished!  We don't even need the Angular Dependency Injection system to test the `HeroesComponent`.
   We simply create a new `HeroesComponent` with a mock service and poke at it:
-  ```
-  it("should have heroes when created", () => {
-    let hc = new HeroesComponent(mockService);
-    expect(hc.heroes.length).toEqual(mockService.getHeroes().length);
-  })
-  ```
+
++makeExample('dependency-injection/ts/app/test.partial.ts', 'spec')
+
+:marked
   ### When the service needs a service
   Our `HeroService` is very simple. It doesn't have any dependencies of its own.
 
@@ -315,27 +278,10 @@ include ../../../../_includes/_util-fns
   We'd apply the same "constructor injection" pattern.
 
   Here's a rewrite of `HeroService` with a new constructor that takes a `logger` parameter.
-  ```
-  import {Injectable} from 'angular2/angular2';
-  import {Hero} from './hero';
-  import {HEROES} from './mock-heroes';
-  import {Logger} from './logger';
+  
++makeExample('dependency-injection/ts/app/hero_with_logger.service.ts')
 
-  @Injectable()
-  class HeroService {
-
-    heroes: Hero[];
-
-    constructor(private logger: Logger) {
-      this.heroes = HEROES;
-    }
-
-    getHeroes() {
-      this.logger.log('Getting heroes ...')
-      return this.heroes;
-    }
-  }
-  ```
+:marked
   The constructor now asks for an injected instance of a `Logger` and stores it in a private property called `logger`.
   We call that property within our `getHeroes()` method when anyone asks for heroes.
 
@@ -349,7 +295,7 @@ include ../../../../_includes/_util-fns
   We haven't seen `@Injectable()` before.
   As it happens, we could have added it to `HeroService`. We didn't bother because we didn't need it then.
 
-  We need it now ... now that our service has an injected dependency.
+  We need it now... now that our service has an injected dependency.
   We need it because Angular requires constructor parameter metadata in order to inject a `Logger`.
   As [we mentioned earlier](#di-metadata), TypeScript *only generates metadata for classes that have a decorator*. .
 
@@ -363,9 +309,10 @@ include ../../../../_includes/_util-fns
   ## Injector Providers
 
   Remember when we added the `HeroService` to an array in the [bootstrap](#bootstrap) process?
-  ```
-  bootstrap(AppComponent, [HeroService]);
-  ```
+
++makeExample('dependency-injection/ts/app/boot.2.ts')
+
+:marked
   That list of classes is actually a list of **providers**.
 
   "Providers" create the instances of the things that we ask the injector to inject.
@@ -409,11 +356,10 @@ include ../../../../_includes/_util-fns
   We do that regularly when testing a component that we're creating with dependency injection.
   In this example, we tell the injector
   to return a `MockHeroService` when something asks for the `HeroService`.
-  ```
-  beforeEachProviders(() => [
-    provide(HeroService, {useClass: MockHeroService});
-  ]);
-  ```
+
++makeExample('dependency-injection/ts/app/test.partial.ts', 'beforeEach')
+
+:marked
   ### Value Providers
 
   Sometimes it's easier to provide a ready-made object rather than ask the injector to create it from a class.
@@ -421,14 +367,10 @@ include ../../../../_includes/_util-fns
   We do that a lot when we write tests. We might write the following test setup
   for  tests that explore how the `HeroComponent` behaves when the `HeroService`
   returns an empty hero list.
-  ```
-  beforeEachProviders(() => {
 
-    let emptyHeroService = { getHeroes: () => [] };
++makeExample('dependency-injection/ts/app/test.partial.ts', 'beforeEach-value-provider')
 
-    return [ provide(HeroService, {useValue: emptyHeroService}) ];
-  });
-  ```
+:marked
   Notice we defined the recipe with `useValue` instead of `useClass`.
 
   ### Factory Providers
@@ -441,33 +383,18 @@ include ../../../../_includes/_util-fns
   We decide to extend our `HeroService` constructor to accept a `useCoolFeature` flag
   that toggles the feature on or off.
   We rewrite the `HeroService` again as follows.
-  ```
-  @Injectable()
-  class HeroService {
 
-    heroes: Hero[];
++makeExample('dependency-injection/ts/app/hero_with_logger.service.2.ts')
 
-    constructor(private logger: Logger, private useCoolFeature: boolean) {
-      this.heroes = HEROES;
-    }
-
-    getHeroes() {
-      let msg = this.useCoolFeature ? 'the cool new way' : 'the old way';
-      this.logger.log('Getting heroes ...' + msg)
-      return this.heroes;
-    }
-  }
-  ```
+:marked
   The feature flag is a simple boolean value. We'd like to inject the flag but it seems silly to write an entire class for a
   simple flag.
 
   We can replace the `HeroService` provider with a factory function that creates a properly configured `HeroService` for the current user.
   We'll' build up to that result, beginning with our definition of the factory function:
-  ```
-  let heroServiceFactory = (logger: Logger, userService: UserService) => {
-    return new HeroService(logger, userService.user.isSpecial);
-  }
-  ```
+
++makeExample('dependency-injection/ts/app/hero_factory.partial.ts', 'factory')
+
 .l-sub-section
   :marked
     The factory takes two parameters: the logger service and a user service.
@@ -479,12 +406,9 @@ include ../../../../_includes/_util-fns
   We use dependency injection everywhere so of course the factory function depends on
   two injected services: `Logger` and `UserService`.
   We declare those requirements in our provider definition object:
-  ```
-  let heroServiceDefinition = {
-     useFactory: heroServiceFactory,
-     deps: [Logger, UserService]
-  };
-  ```
+
++makeExample('dependency-injection/ts/app/hero_factory.partial.ts', 'provider-config')
+
 .l-sub-section
   :marked
     The `useFactory` field tells Angular that the provider is a factory function and that its implementation is the `heroServiceFactory`.
@@ -494,24 +418,20 @@ include ../../../../_includes/_util-fns
 :marked
   Finally, we create the provider and adjust the bootstrapping to include that provider
   among its provider registrations.
-  ```
-  let heroServiceProvider = provide(HeroService, heroServiceDefinition);
 
-  bootstrap(AppComponent, [heroServiceProvider, Logger, UserService]);
-  ```
++makeExample('dependency-injection/ts/app/hero_factory.partial.ts', 'provider-bootstrap')
 
+:marked
   ### String tokens
 
   Sometimes we have an object dependency rather than a class dependency.
 
   Applications often define configuration objects with lots of small facts like the title of the application or the address of a web api endpoint.
   These configuration objects aren't always instances of a class. They're just objects ... like this one:
-  ```
-  let config = {
-    apiEndpoint: 'api.heroes.com',
-    title: 'The Hero Employment Agency'
-  };
-  ```
+
++makeExample('dependency-injection/ts/app/value-provider.partial.ts', 'config')
+
+:marked
   We'd like to make this `config` object available for injection.
   We know we can register an object with a "Value Provider". But what do we use for the token?
 
@@ -526,31 +446,25 @@ include ../../../../_includes/_util-fns
   the injector locates dependency values and providers by this token.
 
   We'll register our configuration object with a string-based token!
-  ```
-  bootstrap(AppComponent, [
-    // other providers //
-    provide('App.config', {useValue:config})
-  ]);
-  ```
 
++makeExample('dependency-injection/ts/app/value-provider.partial.ts', 'config')
+
+:marked
   Let's apply what we've learned and update the `HeroesComponent` constructor so it can display the configured title.
   Right now the constructor signature is
-  ```
-  constructor(heroService: HeroService)
-  ```
+
++makeExample('dependency-injection/ts/app/heroes.component-di.partial.ts', 'ctor-signature')
+
+:marked
   We might think we can add the `config` dependency by writing:
-  ```
-  // FAIL!
-  constructor(heroService: HeroService, config: config)
-  ```
+
++makeExample('dependency-injection/ts/app/heroes.component-di.partial.ts', 'ctor-di-fail')
+
+:marked
   That's not going to work. There is no type called `config` and we didn't register the `config` object under that name anyway.
   We'll need a little help from another Angular decorator called `@Inject`.
-  ```
-  import {Inject} from 'angular2/angular2'
 
-  constructor(heroService: HeroService, @Inject('app.config') config)
-
-  ```
++makeExample('dependency-injection/ts/app/heroes.component-di.partial.ts', 'inject-decorator')
 
 .l-main-section
 :marked
@@ -579,15 +493,8 @@ include ../../../../_includes/_util-fns
   To understand why, paste the following incorrect, ultra-simplified rendition of these two
   classes into the [TypeScript playground](http://www.typescriptlang.org/Playground).
 
-  ```
-  class HeroesComponent {
-    static $providers=[HeroService]
-  }
++makeExample('dependency-injection/ts/app/null-reference-error.ts', 'simplified-annotation')
 
-  class HeroService { }
-
-  alert(HeroesComponent.$providers)
-  ```
 .l-sub-section
   :marked
     The `HeroService` is incorrectly defined below the `HeroComponent`.
@@ -602,23 +509,10 @@ include ../../../../_includes/_util-fns
   This is the equivalent of the null reference error thrown at runtime.
 
   We understand why when we review the generated JavaScript which looks like this:
-  ```
-  var HeroesComponent = (function () {
-      function HeroesComponent() {
-      }
-      HeroesComponent.$providers = [HeroService];
-      return HeroesComponent;
-  })();
 
-  var HeroService = (function () {
-      function HeroService() {
-      }
-      return HeroService;
-  })();
++makeExample('dependency-injection/ts/app/null-reference-error.ts', 'simplified-annotation-transpiled')
 
-  alert(HeroesComponent.$providers);
-  ```
-
+:marked
   Notice that the TypeScript compiler turns classes into function expressions
   assigned to variables. The value of the captured `HeroService` variable is undefined
   when the `$providers` array is assigned. The `HeroService` variable gets its value too late
