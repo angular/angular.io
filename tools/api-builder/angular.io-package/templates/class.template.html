@@ -1,0 +1,75 @@
+{% include "lib/githubLinks.html" -%}
+{% include "lib/paramList.html" -%}
+{% extends 'layout/base.template.html' -%}
+
+{% block body %}
+include {$ relativePath(doc.path, '_util-fns') $}
+
+h2(class="{$ doc.docType $} export")
+  pre.prettyprint
+    code.
+      export {$ doc.docType $} {$ doc.name $}
+
+p.location-badge.
+  exported from {@link {$ doc.moduleDoc.id $} {$doc.moduleDoc.id $} }
+  defined in {$ githubViewLink(doc) $}
+
+:marked
+{%- if doc.notYetDocumented %}
+  *Not Yet Documented*
+{% else %}
+{$ doc.description | indentForMarkdown(2) | trimBlankLines $}
+{% endif %}
+
+{% block additional %}
+{% endblock %}
+
+{% block annotations %}
+{%- if doc.decorators.length %}
+.l-main-section
+  h2 Annotations
+{%- for decorator in doc.decorators %}
+  .l-sub-section
+    h3.annotation
+      pre.prettyprint
+        code.
+          @{$ decorator.name $}{$ paramList(decorator.arguments) | indent(10, false) $}{% endfor %}{% endif %}
+{% endblock %}
+
+
+{%- if doc.constructorDoc and not doc.constructorDoc.internal %}
+.l-main-section
+  h2 Constructor
+  .l-sub-section
+    h3#{$ doc.constructorDoc.name | toId $}
+      pre.prettyprint
+        code.
+          {$ doc.constructorDoc.name $}{$ paramList(doc.constructorDoc.parameters) | indent(8, false) | trim $}
+    :marked
+      {%- if doc.constructorDoc.notYetDocumented %}
+      *Not Yet Documented*
+      {% else %}
+{$ doc.constructorDoc.description | indentForMarkdown(6) | replace('## Example', '') | replace('# Example', '') | trimBlankLines $}
+      {% endif -%}
+{% endif %}
+
+{% if doc.members.length -%}
+.l-main-section
+  h2 Members
+{%- for member in doc.members %}{% if not member.internal %}
+  .l-sub-section
+    h3#{$ member.name | toId $}
+      pre.prettyprint
+        code.
+          {$ member.name $}{$ paramList(member.parameters) | indent(8, false) | trim $}{$ returnType(member.returnType) $}
+
+    :marked
+      {%- if member.notYetDocumented %}
+        *Not Yet Documented*
+      {% else %}
+{$ member.description | indentForMarkdown(6) | replace('## Example', '') | replace('# Example', '') | trimBlankLines $}
+      {% endif %}
+{% endif %}{% endfor %}
+{%- endif -%}
+
+{% endblock %}
