@@ -1,7 +1,7 @@
 // #docplaster
 import {Directive,  Output, ElementRef, EventEmitter} from 'angular2/core';
 
-@Directive({selector:'[mClick]'})
+@Directive({selector:'[myClick]'})
 export class MyClickDirective {
   // #docregion my-click-output-1
   @Output('myClick') clicks = new EventEmitter<string>();
