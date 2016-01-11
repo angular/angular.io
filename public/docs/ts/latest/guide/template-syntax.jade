@@ -16,6 +16,8 @@ include ../../../../_includes/_util-fns
 
   >[Template expressions](#template-expressions)
 
+  >[Template statements](#template-statements)
+  
   >[Binding syntax](#binding-syntax)
 
   >[Property Binding](#property-binding)
@@ -82,67 +84,156 @@ include ../../../../_includes/_util-fns
   But it is not literally true. Interpolation is actually a special syntax that Angular converts into a
   [Property Binding](#property-binding) as we explain below. The implications and consequences can be profound.
 
-  But before we explore that assertion, we’ll take a closer look at template expressions.
+  But before we explore that assertion, we’ll take a closer look at template expressions and statements.
 
+<a id="template-expressions"></a>
 .l-main-section
 :marked
   ## Template Expressions
-  We saw a template expression within the interpolation braces.
-  We’ll see template expressions again in [Property Bindings](#property-binding) (`[property]="expression"`) and
-  [Event Bindings](#event-binding) (`(event)="expression"`).
+  A template **expression** produces a value. 
+  Angular executes the expression and assigns it to property of a binding target such
+  as an HTML element, a component, or a directive.
+  
+  We put a template expression within the interpolation braces when we wrote `{{1 + 1}}`.
+  We’ll see template expressions again in [Property Bindings](#property-binding) , 
+  appearing in quotes to the right of the (=) symbol as in `[property]="expression"`.
 
-  A template expression is a JavaScript-like expression. Many JavaScript expressions are legal template expressions but not all and there are a few language extensions. Notable differences include:
-  * Assignment is prohibited except in [Event Bindings](#event-binding).
-  * The `new` operator is prohibited.
-  * The bit-wise operators, `|` and `&`, are not supported.
-  * Increment and decrement operators, `++` and `--`, aren’t supported.
-  * [Template expression operators](#expression-operators), such as `|` and `?.`, add new meaning.
+  We write template expressions in a language that looks like JavaScript. 
+  Many JavaScript expressions are legal template expressions but not all.
+  JavaScript expressions that have or promote side-effects are prohibited including:
+  * assignment (`=`)
+  * the `new` operator
+  * chaining expressions with `;` or `,`
+  * increment and decrement operators, `++` and `--`.
 
+  Other notable differences from JavaScript syntax include:
+  * no support for the bit-wise operators, `|` and `&`
+  * new [template expression operators](#expression-operators), such as `|` and `?.`
+  
+  <a id="expression-context"></a>
+  ### Expression Context
+  
   Perhaps more surprising, we cannot refer to anything in the global namespace.
-  We can’t refer to `window` or `document`. We can’t call `console.log`.
+  We can’t refer to `window` or `document`. We can’t call `console.log` or `Math.max`.
   We are restricted to referencing members of the expression context.
+  
+  The *expression context* is typically the **component instance**, the source of binding values.
 
-  The **expression context** is typically the **component instance** supporting a particular template instance.
-.l-sub-section
-  :marked
-    We speak of component and template ***instances***. Angular creates multiple concrete instances from a component class and its template.
-
-    For example, we may define a component and template to display a list item and tell Angular to create new instances of that component/template pair for each item in a list. There’s a separate, independent expression context for each item in that list as well.
-
-:marked
-  When we see `title` wrapped in double-curly braces, <code>{{ }}</code>.,
-  we know that it is a property of a parent component.
-  When we see `[disabled]="isUnchanged"` or `(click)="onCancel()”`,
-  we know we are referring to that component's `isUnchanged` property and `onCancel` method respectively.
+  When we see *title* wrapped in double-curly braces, <code>{{title}}</code>,
+  we know that `title` is a property of the data-bound component.
+  When we see *isUnchanged* in `[disabled]="isUnchanged"`,
+  we know we are referring to that component's `isUnchanged` property.
 
   The component itself is usually the expression *context* in which case
   the template expression usually references that component.
+  
   The expression context may include an object other than the component.
+  A [local template variable](#local-vars) is one such alternative context object.
+  
 
-  A [local template variable](#local-vars) is one such supplemental context object;
-  we’ll discuss that option below.
+  <a id="no-side-effects"></a>
+  ### Expression Guidelines
+  Template expressions can make or break an application. 
+  Please follow these guidelines unless you have an exceptionally good reason to break them
+  in specific circumstances that you thoroughly understand.
+  
+  #### No visible side-effects
 
-  Another is the **`$event`** variable that contains information about an event raised on an element;
-  we’ll talk about that when we consider [Event Bindings](#event-binding).
+  A template expression should have ***no visible side-effects***. 
+  We're not allowed to change any application state other than the value of the
+  target property.
+  
+  This rule is essential to Angular's "unidirectional data flow" policy.
+  We should never worry that reading a component value might change some other displayed value.
+  The view should be stable throughout a single rendering pass.
+  
+  #### Finish fast
+  Angular executes template expressions more often than we might think.
+  Expressions should finish quickly or the user experience may drag, especially on slower devices.
+  
+  #### Keep them simple
+  Although we can write quite complex template expressions, we strongly discourage that practice. 
+  Most readers frown on JavaScript in the HTML. 
+  A property name or method call should be the norm. 
+  An occasional Boolean negation (`!`) is OK. 
+  Otherwise, confine application and business logic to the component itself where it will be easier to develop and test.    
+  
+  #### Idempotent Expressions
+  An [idempotent](https://en.wikipedia.org/wiki/Idempotence) expression is ideal because
+  it is free of side-effects and improves Angular's change detection performance.
+
+  In Angular terms, an idempotent expression always returns *exactly the same thing* until
+  one of its dependent values changes.
+  
+  Dependent values should not change during a single turn of the JavaScript virtual machine.
+  If an idempotent expression returns a string or a number, it returns the same string or number
+  when called twice in a row. If the expression returns an object (including a `Date` or `Array`),
+  it returns the same object *reference* when called twice in a row. 
+
+<a id="template-statements"></a>
+.l-main-section
+:marked
+  ## Template Statements
+  
+  A template **statement** responds to an ***event*** raised by a binding target 
+  such as an element, component, or directive.
+  
+  We’ll see template statements in [Event Bindings](#event-binding), 
+  appearing in quotes to the right of the (=) symbol as in `(event)="statement"`.
+
+  A template statement *has a side-effect*. 
+  It's how we update application state from user input.
+  There would be no point to responding to an event otherwise.
 .l-sub-section
   :marked
-    Although we can write quite complex template expressions, we strongly discourage that practice. Most readers frown on JavaScript in the HTML. A property name or method call should be the norm. An occasional Boolean negation (`!`) is OK. Otherwise, confine application and business logic to the component itself where it will be easier to develop and test.
+    Responding to events is the other side of Angular's "unidirectional data flow".
+    We're free to change anything, anywhere, during this turn of the JavaScript virtual machine.
 :marked
-  Now that we have a feel for template expressions, we’re ready to learn about the varieties of data binding syntax beyond Interpolation.
+  Angular template statements are also written in a language that looks like JavaScript.
+  The template statement parser is different than the template expression parser and 
+  specifically supports both assignment (=) and chaining expressions with semicolons (;) and commas (,).
+  
+  However, certain JavaScript syntax is not allowed:
+  * the `new` operator
+  * increment and decrement operators, `++` and `--`
+  * bit-wise operators, `|` and `&`
+  * the [template expression operators](#expression-operators)
+  
+  As with expressions, we cannot refer to anything in the global namespace.
+  We can’t refer to `window` or `document`. We can’t call `console.log` or `Math.max`.
+  
+  We are restricted to referencing members of the statement context.
+  The **statement context** is typically the **component instance** to which we are binding an event.
 
+  The *onSave* in `(click)="onSave()"` is sure to be a method of the data-bound component instance.
+  
+  The statement context may include an object other than the component.
+  A [local template variable](#local-vars) is one such alternative context object. 
+  We'll frequently see the reserved `$event` symbol in event binding statements,
+  representing the "message" or "payload" of the raised event. 
+.l-sub-section
+  :marked
+    Although we can write quite complex template statements, we strongly discourage that practice. 
+    Most readers frown on JavaScript in the HTML. 
+    A method call or simple property assignment should be the norm.
+:marked
+  Now that we have a feel for template expressions and statements, 
+  we’re ready to learn about the varieties of data binding syntax beyond Interpolation.
 
 .l-main-section
 :marked
   <a id="binding-syntax"></a>
   ## Binding syntax overview
-  Data binding is a mechanism for coordinating what users see with application data values.  While we could push values to and pull values from HTML,
+  Data binding is a mechanism for coordinating what users see with application data values.  
+  While we could push values to and pull values from HTML,
   the application is easier to write, read, and maintain if we turn these chores over to a binding framework.
-  We simply declare bindings between the HTML and the data properties and let the framework do the work.
+  We simply declare bindings between binding sources and target HTML elements and let the framework do the work.
 
   Angular provides many kinds of data binding and we’ll discuss each of them in this chapter.
   First we'll take a high level view of Angular data binding and its syntax.
 
-  We can group all bindings into three categories by the direction in which data flows. Each category has its distinctive syntax:
+  We can group all bindings into three categories by the direction in which data flows. 
+  Each category has its distinctive syntax:
 table
   tr
     th Data Direction
@@ -165,8 +256,8 @@ table
       td One way<br>from view target<br>to data source
       td
         code-example(format="" ).
-          (target) = "expression"
-          on-target = "expression"
+          (target) = "statement"
+          on-target = "statement"
       td Event
     tr
       td Two way
@@ -176,10 +267,8 @@ table
           bindon-target = "expression"
       td Two-way
 :marked
-  **Template expressions must be surrounded in quotes**
-  except for interpolation expressions which must not be quoted.
-
-  All binding types except interpolation have a **target name** to the left of the equal sign, either surrounded by punctuation (`[]`, `()`) or preceded by a prefix (`bind-`, `on-`, `bindon-`).
+  Binding types other than interpolation have a **target name** to the left of the equal sign, 
+  either surrounded by punctuation (`[]`, `()`) or preceded by a prefix (`bind-`, `on-`, `bindon-`).
 
   What is that target? Before we can answer that question, we must challenge ourselves to look at Template HTML in a new way.
 
@@ -187,8 +276,8 @@ table
 
   With all the power of data binding and our ability to extend the HTML vocabulary
   with custom markup, it is tempting to think of Template HTML as “HTML Plus”.
-  Well it is “HTML Plus”.
-
+  
+  *Well it is HTML Plus*.
   But it’s also significantly different than the HTML we’re used to.
   We really need a new mental model.
 
@@ -214,7 +303,7 @@ table
 
   Our intuition is wrong! Our everyday HTML mental model is misleading us.
   In fact, once we start data binding, we are no longer working with HTML *attributes*. We aren't setting attributes.
-  We are setting the *properties* of DOM elements, Components, and Directives.
+  We are setting the *properties* of DOM elements, components, and directives.
 
 .l-sub-section
   :marked
@@ -336,7 +425,8 @@ table
 .l-main-section
 :marked
   ## Property Binding
-  We write a template **Property Binding** when we want to set a property of a view element to the value of a template expression.
+  We write a template **Property Binding** when we want to set a property of a view element to the value of 
+  a [template expression](#template-expressions).
 
   The most common Property Binding sets an element property to a component property value as when
   we bind the source property of an image element to the component’s `heroImageUrl` property.
@@ -352,8 +442,26 @@ table
   for parent and child components to communicate)
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-4')(format=".")
 :marked
-  People often describe Property Binding as “one way data binding” because it can flow a value in one direction, from a component’s data property to an element property.
+  ### One-way *in*
+  People often describe property binding as *one way data binding* because it flows a value in one direction, 
+  from a component’s data property into a target element property.
+  
+  We cannot use property binding to pull values *out* of the target element.
+  We can't bind to a property of the target element to read it. We can only set it.
 
+.l-sub-section
+  :marked
+    Nor can we use property binding to *call* a method on the target element.
+    
+    If the element raises events we can listen to them with an [event binding](#event-binding).
+    
+    If we must read a target element property or call one of its methods,
+    we'll need a different technique. 
+    See the API reference for 
+    [viewChild](../api/core/ViewChild-var.html) and 
+    [contentChild](../api/core/ContentChild-var.html).
+
+:marked
   ### Binding Target
   A name between enclosing square brackets identifies the target property. The target property in this example is the image element’s `src` property.
 
@@ -527,11 +635,12 @@ code-example(format="", language="html").
   keystrokes, mouse movements, clicks and touches.
   We declare our interest in user actions through Angular Event Binding.
 
+  Event Binding syntax consists of a target event within parentheses on the left of an equal sign and a quoted
+  [**template statement**](#template-statements) on the right.
+  
   The following Event Binding listens for the button’s click event and calls the component's `onSave()` method:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
 :marked
-  Event Binding syntax consists of a target event on the left of an equal sign and a template expression on the right: `(click)="onSave()"`
-
   ### Binding target
   A **name between enclosing parentheses** identifies the target event. In the following example, the target is the button’s click event.
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
@@ -546,11 +655,11 @@ code-example(format="", language="html").
   If the name fails to match an element event or an output property of a known directive,
   Angular reports an “unknown directive” error.
 
-  ### $event and event handling expressions
+  ### $event and event handling statements
   In an Event Binding, Angular sets up an event handler for the target event.
 
-  When the event is raised, the handler executes the template expression.
-  The template expression typically involves a receiver that wants to do something
+  When the event is raised, the handler executes the template statement.
+  The template statement typically involves a receiver that wants to do something
   in response to the event such as take a value from the HTML control and store it
   in a model.
 
@@ -565,7 +674,7 @@ code-example(format="", language="html").
 +makeExample('template-syntax/ts/app/app.component.html', 'without-NgModel')(format=".")
 :marked
   We’re binding the input box `value` to a `firstName` property and we’re listening for changes by binding to the input box’s `input` event.
-  When the user makes changes, the `input` event is raised, and the binding executes the expression within a context that includes the DOM event object, `$event`.
+  When the user makes changes, the `input` event is raised, and the binding executes the statement within a context that includes the DOM event object, `$event`.
 
   We must follow the `$event.target.value` path to get the changed text so we can update the `firstName`
 
@@ -578,19 +687,19 @@ code-example(format="", language="html").
   Now imagine a parent component that listens for that event with an Event Binding.
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-to-component')(format=".")
 :marked
-  The event binding surfaces the *hero-to-delete* emitted by `HeroDetail` to the expression via the `$event` variable.
+  The event binding surfaces the *hero-to-delete* emitted by `HeroDetail` to the statement via the `$event` variable.
   We pass it along to the parent `onHeroDeleted()` method.
   That method presumably knows how to delete the hero.
 
-  Evaluation of an Event Binding template expression may have side-effects as this one clearly does.
-  They are not just OK (unlike in property bindings); they are expected.
+  Evaluation of this Event Binding template statement has a side-effect. It deletes a hero.
+  Side-effects are not just OK; they are expected.
 
-  The expression could update the model thereby triggering other changes that percolate through the system, changes that
+  The statement could update the model thereby triggering other changes that percolate through the system, changes that
   are ultimately displayed in this view and other views.
   The event processing may result in queries and saves to a remote server. It's all good.
 
   ### Event bubbling and propagation
-  Angular invokes the event-handling expression if the event is raised by the current element or one of its child elements.
+  Angular invokes the event-handling statement if the event is raised by the current element or one of its child elements.
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-bubbling')(format=".")
 :marked
   Many DOM events, both [native](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Overview_of_Events_and_Handlers ) and [custom](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events ),  “bubble” events up their ancestor tree of DOM elements until an event handler along the way prevents further propagation.
@@ -600,16 +709,16 @@ code-example(format="", language="html").
     `EventEmitter` events don’t bubble.
 
 :marked
-  The result of an Event Binding expression determines if
+  The result of an Event Binding statement determines if
   [event propagation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation)
   continues or stops with the current element.
 
-  Event propagation stops if the binding expression returns a falsey value (as does a method with no return value).
+  Event propagation stops if the binding statement returns a falsey value (as does a method with no return value).
   Clicking the button in this next example triggers a save;
   the click doesn't make it to the outer `<div>` so it's save is not called:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-no-propagation')(format=".")
 :marked
-  Propagation continues if the expression returns a truthy value. The click is heard both by the button
+  Propagation continues if the statement returns a truthy value. The click is heard both by the button
   and the outer `<div>`, causing a double save:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-propagation')(format=".")
 
@@ -622,6 +731,12 @@ code-example(format="", language="html").
 
   The `NgModel` directive serves that purpose as seen in this example:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
+.callout.is-important
+  header 
+    :marked
+       <span style="font-family:consolas; monospace">[()]</span> = banana in a box
+  :marked
+    To remember that the parentheses go inside the brackets, visualize a *banana in a box*.
 :marked
   If we prefer the “canonical” prefix form to the punctuation form, we can write
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-2')(format=".")
@@ -844,6 +959,9 @@ figure.image-display
 
 +makeExample('template-syntax/ts/app/app.component.html', 'NgFor-3')(format=".")
 :marked
+.l-sub-section
+  :marked
+    Learn about other special values such as `last`, `even` and `odd` in the [API](../api/common/NgFor-directive.html) guide.
 
 <a name="star-template"></a>
 <a name="structural-directive"></a>
@@ -980,30 +1098,33 @@ figure.image-display
 :marked
   ## Input and Output Properties
   We can only bind to **target directive** properties that are either **inputs** or **outputs**.
+  
+.alert.is-important
+  :marked
+    A *component is a directive*. We use the terms "directive" and "component" interchangeably.
 
 .l-sub-section
   :marked
     We're drawing a sharp distinction between a data binding **target** and a data binding **source**.
 
-    The target is to the *left* of the (=) in a binding expression.
-    The source is on the *right* of the (=).
+    The *target* of a binding is to the *left* of the (=).
+    The *source* is on the *right* of the (=).
+    
+    The *target* of a binding is the property or event inside the binding punctuation: `[]`, `()` or `[()]`.
+    The *source* is either inside quotes (") or within an interpolation (`{}`).
 
-    Every member of a **source** directive (typically a component) is automatically available for binding.
-    We don't have to do anything special to access a component member in the quoted template expression
-    to the right of the (=).
+    Every member of a **source** directive or component is automatically available for binding.
+    We don't have to do anything special to access a component member in a template expression or statement.
 
-    We have *limited* access to members of a **target** directive (typically a component).
-    We can only bind to  *input* and *output* properties of target components to the left of the (=).
-
-    Also remember that a *component is a directive*.
-    In this section, we use the terms "directive" and "component" interchangeably.
+    We have *limited* access to members of a **target** directive or component.
+    We can only bind to properties that are explicitly identified as *inputs* and *outputs*.
 :marked
-  In this chapter we’ve focused mainly on binding to component members within template expressions
-  on the *right side of the binding declaration*.
-  A member in that position is a binding “data source”. It's not a target for binding.
+  In this chapter we’ve focused mainly on binding to component members within template expressions and statements
+  that appear on the *right side of the binding declaration*.
+  A member in that position is a binding “data source”.
 
   In the following example, `iconUrl` and `onSave` are members of the `AppComponent`
-  referenced within template expressions to the *right* of the (=).
+  referenced within quoted syntax to the right of the (=).
 +makeExample('template-syntax/ts/app/app.component.html', 'io-1')(format=".")
 :marked
   They are *neither inputs nor outputs* of `AppComponent`. They are data sources for their bindings.
@@ -1011,16 +1132,13 @@ figure.image-display
   Now look at the `HeroDetailComponent` when it is the **target of a binding**.
 +makeExample('template-syntax/ts/app/app.component.html', 'io-2')(format=".")
 :marked
-  Both `HeroDetail.hero` and `HeroDetail.deleted` are on the **left side** of binding expressions.
-  `HeroDetail.hero` is the target of a Property Binding.  `HeroDetail.deleted` is the target of an Event Binding.
-
-
-  **Data flow  *into* the `HeroDetail.hero` target property** from the template expression.
-  Therefore `HeroDetail.hero` is an ***input*** property from the perspective of `HeroDetail`.
-
-  **Events stream *out* of the `HeroDetail.deleted` target  property** and toward the receiver within the template expression.
-  Therefore `HeroDetail.deleted` is an ***output*** property from the perspective of `HeroDetail`.
-
+  Both `HeroDetail.hero` and `HeroDetail.deleted` are on the **left side** of binding declarations.
+  `HeroDetail.hero` is inside brackets; it is the target of a Property Binding. 
+  `HeroDetail.deleted` is inside parentheses; it is the target of an Event Binding.
+  
+  ### Declaring input and output properties
+  Target properties must be explicitly marked as inputs or outputs.
+  
   When we peek inside `HeroDetailComponent` we see that these properties are marked
   with decorators as input and output properties.
 +makeExample('template-syntax/ts/app/hero-detail.component.ts', 'input-output-1')(format=".")
@@ -1035,9 +1153,22 @@ figure.image-display
     We can specify an input/output property with a decorator or in one the metadata arrays.
     Don't do both!
 :marked
+  ### Input or Output?
+
+  *Input* properties usually receive data values.
+  *Output* properties expose event producers (e.g, an `EventEmitter`).
+  
+  The terms "input" and "output" reflect the perspective of the target directive.
+  
+  `HeroDetail.hero` is an ***input*** property from the perspective of `HeroDetailComponent`
+  because data flow  *into* that property from a template binding expression.
+
+  `HeroDetail.deleted` is an ***output*** property from the perspective of `HeroDetailComponent`
+  because events stream *out* of that property and toward the handler in a template binding statement.
+  
   ### Aliasing input/output properties
 
-  Sometimes we want the public name of the property to be different from the internal name.
+  Sometimes we want the public name of an input/output property to be different from the internal name.
 
   This is frequently the case with [Attribute Directives](attribute-directives.html).
   Directive consumers expect to bind to the name of the directive.
@@ -1045,14 +1176,23 @@ figure.image-display
 
   The directive name is often a poor choice for the the internal property name
   because it rarely describes what the property does.
-  The corresponding `MyClickDirective` internal property is called `clicks`.
+  `myClick` is not a good name for a property that emits click events.
 
-  Fortunately, we can alias the internal name to meet the conventional needs of the directive's consumer.
-  We alias in decorator syntax like this:
+  Fortunately, we can have a public name for the property that meets conventional expectations
+  and use a different name internally
+  by providing a public alias for the internal property name in the decorator like this:
 +makeExample('template-syntax/ts/app/my-click.directive.ts', 'my-click-output-1')(format=".")
+:marked
+  Now the directive name, `myClick`, is the public facing property name to which we can bind
++makeExample('template-syntax/ts/app/app.component.html', 'my-click')(format=".")
+:marked
+  while inside the directive, the property is known as `clicks`.
+  
+  With aliasing we please both the directive consumer and the directive author.
 .l-sub-section
   :marked
-    The equivalent aliasing with the `outputs` array requires a colon-delimited string with
+    We can alias property names in the `inputs` and `outputs` arrays as well.
+    We write a colon-delimited string with
     the internal property name on the left and the public name on the right:
   +makeExample('template-syntax/ts/app/my-click.directive.ts', 'my-click-output-2')(format=".")
 

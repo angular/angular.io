@@ -1,3 +1,5 @@
+//#docplaster
+
 import {Component} from 'angular2/core';
 import {NgForm} from 'angular2/common';
 
@@ -36,6 +38,11 @@ export class AppComponent {
   colorToggle() {this.color = (this.color === Color.Red)? Color.Blue : Color.Red}
 
   currentHero = Hero.MockHeroes[0];
+
+  // DevMode memoization fields
+  private _priorClasses:{};
+  private _priorStyles:{};
+  private _priorStyles2:{};
 
   getStyles(el:Element){
     let styles = window.getComputedStyle(el);
@@ -100,36 +107,61 @@ export class AppComponent {
 
   // #docregion setClasses
   setClasses() {
-    return {
+    let classes =  {
       saveable: this.canSave,      // true
       modified: !this.isUnchanged, // false
       special: this.isSpecial,     // true
     }
+    // #enddocregion setClasses
+    // compensate for DevMode (sigh)
+    if (JSON.stringify(classes) === JSON.stringify(this._priorClasses)){
+       return this._priorClasses;
+    }
+    this._priorClasses = classes;
+    // #docregion setClasses
+    return classes;
   }
   // #enddocregion setClasses
 
+
   // #docregion setStyles
   setStyles() {
-    return {
+    let styles = {
       // CSS property names
       'font-style':  this.canSave      ? 'italic' : 'normal',  // italic
       'font-weight': !this.isUnchanged ? 'bold'   : 'normal',  // normal
       'font-size':   this.isSpecial    ? 'x-large': 'smaller', // larger
     }
+    // #enddocregion setStyles
+    // compensate for DevMode (sigh)
+    if (JSON.stringify(styles) === JSON.stringify(this._priorStyles)){
+       return this._priorStyles;
+    }
+    this._priorStyles = styles;
+    // #docregion setStyles
+    return styles;
   }
   // #enddocregion setStyles
- 
+
   // #docregion setStyles2
   setStyles2() {
-    return {
+    let styles = {
       // camelCase style properties work too
       fontStyle:  this.canSave      ? 'italic' : 'normal',  // italic
       fontWeight: !this.isUnchanged ? 'bold'   : 'normal',  // normal
       fontSize:   this.isSpecial    ? 'x-large': 'smaller', // larger
     }
+    // #enddocregion setStyles2
+    // compensate for DevMode (sigh)
+    if (JSON.stringify(styles) === JSON.stringify(this._priorStyles2)){
+       return this._priorStyles2;
+    }
+    this._priorStyles2 = styles;
+    // #docregion setStyles2
+    return styles;
   }
   // #enddocregion setStyles2
-  
+
   toeChoice = '';
   toeChooser(picker:HTMLFieldSetElement){
     let choices = picker.children;
