@@ -1,199 +1,244 @@
-.l-main-section
-  p.
-    Use the event syntax <strong>(<em>eventName</em>)</strong> to
-    make your application respond to user input.
-  p.
-    You can specify the event handler—a method in the component controller—like this:
+include ../../../../_includes/_util-fns
 
-  code-example(language="html").
-    &lt;input (keyup)="myControllerMethod()"&gt;
-  p.
-    As in previous examples, you can make element references available to
-    other parts of the template as a local
-    variable using the <b>#</b> syntax.
-    Using <code>#</code> and events,
-    you can write the old "update text as you type" example:
-    <!-- PENDING: make sure we use recommended word separation scheme.
-    my-name doesn't work, but my_name does. Would myName work? -->
+:marked
+  When the user clicks a link, pushes a button, or enters text
+  we want to know about it. These user actions all raise DOM events.
+  In this chapter we learn to bind to those events using the Angular
+  event binding syntax.
 
-  code-example(language="html").
-    &lt;input #myname (keyup)&gt;
-    &lt;p&gt;{{myname.value}}&lt;/p&gt;
+  [Run the live example](/resources/live-examples/user-input/ts/plnkr.html)
 
-  p.text-body(ng-non-bindable).
-    In that example, <code>#myname</code> creates a local variable in the template that
-    the <code>&lt;p&gt;</code> element can refer to.
-    The <code>(keyup)</code> tells Angular to trigger updates when it gets a keyup
-    event.  And <code>{{myname.value}}</code> binds the text node of the
-    <code>&lt;p&gt;</code> element to the
-    input's value property.
+:marked
+  ## Binding to user input events
 
-  p.
-    Let's do something a little more complex, where the user enters items
-    that the app adds to a list:
-  figure.image-display
-    img(src='/resources/images/examples/user-input-example1.png' alt="Example of Todo App")
+  We can use [Angular event bindings](./template-syntax.html#event-binding)
+  to respond to [any DOM event](https://developer.mozilla.org/en-US/docs/Web/Events).
 
-
-.l-main-section
-  h2#section-create-an-array-property Create a list property
-  p.
-    With the default files in place,
-    create a TodoController class to manage interactions with the
-    list. Inside TodoController, add a list with some initial items.
-    Then add a method that adds new items
-    to the list.
-
-  code-example(language="dart").
-    class TodoList {
-      List&lt;String&gt; todos =[
-        'Eat breakfast',
-        'Walk dog',
-        'Breathe',
-        'Learn Angular'
-      ];
-
-      addTodo(String todo) {
-        todos.add(todo);
-      }
-    }
-
-.callout.is-helpful
-  header Production Best Practice
-  p.
-      As shown in the previous example, a production application you would
-      separate the model out into another class
-      and inject it into <code>TodoController</code>.
-      We've omitted that here for brevity.
-
-<br><br><!-- PENDING: fix formatting of main sections after callouts -->
-
-.l-main-section
-  h2#section-display-the-list-of-todos Display the list of todos
-  p.
-    Using the <code>*ng-for</code> iterator, create an <code>&lt;li&gt;</code> for each item in the todos list and set
-    its text to the value.
-
-  code-example(language="html").
-    &lt;ul&gt;
-       &lt;li *ng-for=&quot;#todo of todos&quot;&gt;
-         {{ todo }}
-       &lt;/li&gt;
-    &lt;/ul&gt;
+  The syntax is simple. We assign a template expression to the DOM event name, surrounded in parentheses.
+  As an example, here's an event binding that implements a click handler:
++makeExample('user-input/ts/app/click-me.component.ts', 'click-me-button')(format=".", language="html")
 
 <a id="click"></a>
-.l-main-section
-  h2#section-add-todos-to-the-list Add todos to the list via button click
-  p.
-    Now, add a text input and a button for users to add items to the list.  As you saw above, you can create a local
-    variable reference in your template with <code>#varname</code>.  Call it <code>#todotext</code> here.
+:marked
+  The `(click)` to the left of the equal sign identifies the button's click event as the **target of the binding**.
+  The text within quotes on the right is the **template expression** in which we
+  respond to the click event by calling the component's `onClickMe` method. A [template expression](./template-syntax.html#template-expressions) is a subset
+  of JavaScript with a few added tricks.
 
-  code-example(language="html").
-    &lt;input #todotext&gt;
-  p.
-    Specify the target of the click event binding as your controller's
-    <code>addTodo()</code> method and pass
-    it the value. Since you created a reference called <code>todotext</code>,
-    you can get the value with <code>todotext.value.</code>
+  When writing a binding we must be aware of a template expression's **execution context**.
+  The identifiers appearing within an expression belong to a specific context object.
+  That object is usually the Angular component that controls the template  ... which it definitely is
+  in this case because that snippet of HTML belongs to the following component:
 
-  code-example(language="html").
-    &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
-
-  p.
-    To make pressing Enter do something useful,
-    you can add a keyup event handler to the input field.
-    This event handler uses APIs defined in
-    <a href="https://api.dartlang.org/apidocs/channels/stable/dartdoc-viewer/dart:html">dart:html</a>,
-    so be sure to import that library.
-
-  code-example(language="dart").
-    import 'dart:html';
-    ...
-
-    // In the template:
-    &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
-    ...
-
-    // In the component controller class:
-    doneTyping(KeyboardEvent event) {
-      if (event.keyCode == KeyCode.ENTER) {
-        InputElement e = event.target;
-        addTodo(e.value);
-        e.value = null;
-      }
-    }
++makeExample('user-input/ts/app/click-me.component.ts', 'click-me-component', 'app/click-me.component.ts')(format=".")
+:marked
+  When the user clicks the button, Angular calls the component's `onClickMe` method.
 
 .l-main-section
-  h2#section-final-code Final code
+:marked
+  ## Get user input from the $event object
+  We can bind to all kinds of events. Let's bind to the keyup event of an input box and replay
+  what the user types back onto the screen.
 
-  code-tabs
-    code-pane(language="dart" name="lib/todo_list.dart" format="linenums").
-      library user_input.todo_list;
+  This time we'll (1) listen to an event and (2) grab the user's input.
++makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-1-template', 'app/keyup.components.ts (template v.1)')(format=".")
+:marked
+  Angular makes an event object available in the **`$event`** variable,
+  which we pass to the component's `onKey()` method.
+  The user data we want is in that variable somewhere.
++makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-1-class-no-type', 'app/keyup.components.ts (class v.1)')(format=".")
+:marked
+  The shape of the `$event` object is determined by whatever raises the event.
+  The `keyup` event comes from the DOM, so `$event` must be a [standard DOM event object](https://developer.mozilla.org/en-US/docs/Web/API/Event).
+  The `$event.target` gives us an
+  [`HTMLInputElement`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement), which
+  has a `value` property that contains our user input data.
 
-      import 'dart:html';
-      import 'package:angular2/angular2.dart';
+  The `onKey()` component method is where we extract the user's input
+  from the event object, adding that input to the list of user data that we're accumulating in the component's `values` property.
+  We then use [interpolation](./template-syntax.html#interpolation)
+  to display the accumulating `values` property back on screen.
 
-      @Component(selector: 'todo-list')
-      @View(
-          // An alternative to using \$event is to use a raw string instead.
-          // For example, change "template: '''" to "template: r'''".
-          template: '''
-          &lt;ul&gt;
-            &lt;li *ng-for="#todo of todos"&gt;
-              {{ todo }}
-            &lt;/li&gt;
-          &lt;/ul&gt;
+  Enter the letters "abc", and then backspace to remove them.
+  Here's what the UI displays:
+code-example().
+  a | ab | abc | ab | a | |
+figure.image-display
+    img(src='/resources/images/devguide/user-input/keyup1-anim.gif' alt="key up 1")
 
-          &lt;input #todotext (keyup)="doneTyping(\$event)"&gt;
-          &lt;button (click)="addTodo(todotext.value)"&gt;Add Todo&lt;/button&gt;
-      ''', directives: const [NgFor])
-      class TodoList {
-        List&lt;String&gt; todos = [
-          'Eat breakfast',
-          'Walk dog',
-          'Breathe',
-          'Learn Angular'
-        ];
+<a id="keyup1"></a>
+.l-sub-section
+  :marked
+    We cast the `$event` as an `any` type, which means we've abandoned strong typing
+    to simplify our code. We generally prefer the strong typing that TypeScript affords.
+    We can rewrite the method, casting to HTML DOM objects like this.
+  +makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-1-class', 'app/keyup.components.ts (class v.1 - strongly typed )')(format=".")
+  :marked
+    <br>Strong typing reveals a serious problem with passing a DOM event into the method:
+    too much awareness of template details, too little separation of concerns.
 
-        addTodo(String todo) {
-          todos.add(todo);
-        }
+    We'll address this problem in our next try at processing user keystrokes.
+:marked
 
-        doneTyping(KeyboardEvent event) {
-          if (event.keyCode == KeyCode.ENTER) {
-            InputElement e = event.target;
-            addTodo(e.value);
-            e.value = null;
-          }
-        }
-      }
-    code-pane(language="dart" name="web/main.dart" format="linenums").
-      import 'package:angular2/bootstrap.dart';
-      import 'package:user_input/todo_list.dart';
+.l-main-section
+:marked
+  ## Get user input from a local template variable
+  There's another way to get the user data without the `$event` variable.
 
-      main() {
-        bootstrap(TodoList);
-      }
-    code-pane(language="html" name="web/index.html" format="linenums").
-      &lt;!DOCTYPE html&gt;
-      &lt;html&gt;
-        &lt;head&gt;
-          &lt;title&gt;User Input&lt;/title&gt;
-          &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot;&gt;
-          &lt;script async src=&quot;main.dart&quot; type=&quot;application/dart&quot;&gt;&lt;/script&gt;
-          &lt;script async src=&quot;packages/browser/dart.js&quot;&gt;&lt;/script&gt;
-        &lt;/head&gt;
-        &lt;body&gt;
-          &lt;todo-list&gt;&lt;/todo-list&gt;
-        &lt;/body&gt;
-      &lt;/html&gt;
-    code-pane(language="yaml" name="pubspec.yaml" format="linenums").
-      name: user_input
-      description: User Input example
-      version: 0.0.1
-      dependencies:
-        angular2: 2.0.0-alpha.45
-        browser: ^0.10.0
-      transformers:
-      - angular2:
-          entry_points: web/main.dart
+  Angular has a syntax feature called [**local template variables**](./template-syntax.html#local-vars).
+  These variables grant us direct access to an element.
+  We declare a local template variable by preceding an identifier with a hash/pound character (#).
+
+  Here's an example of using a local template variable
+  to implement a clever keystroke loopback in an ultra-simple template.
++makeExample('user-input/ts/app/loop-back.component.ts', 'loop-back-component', 'app/loop-back.component.ts')(format=".")
+:marked
+  We've declared a template local variable named `box` on the `<input>` element.
+  The `box` variable is a reference to the `<input>` element itself, which means we can
+  grab the input element's `value` and display it
+  with interpolation between `<p>` tags.
+
+  The template is completely self contained. It doesn't bind to the component,
+  and the component does nothing.
+
+  Type in the input box, and watch the display update with each keystroke. *Voila!*
+
+figure.image-display
+    img(src='/resources/images/devguide/user-input/keyup-loop-back-anim.gif' alt="loop back")
+.l-sub-section
+  :marked
+    **This won't work at all unless we bind to an event**.
+
+    Angular only updates the bindings (and therefore the screen)
+    if we do something in response to asynchronous events such as keystrokes.
+
+    That's why we bind the `keyup` event to an expression that does ... well, nothing.
+    We're binding to the number 0, the shortest expression we can think of.
+    That is all it takes to keep Angular happy. We said it would be clever!
+:marked
+  That local template variable is intriguing. It's clearly easier to get to the textbox with that
+  variable than to go through the `$event` object. Maybe we can rewrite our previous
+  keyup example so that it uses the variable to get the user's input. Let's give it a try.
++makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-2' ,'app/keyup.components.ts (v2)')(format=".")
+:marked
+  That sure seems easier.
+  An especially nice aspect of this approach is that our component code gets clean data values from the view.
+  It no longer requires knowledge of the `$event` and its structure.
+
+<a id="key-event"></a>
+.l-main-section
+:marked
+  ## Key event filtering (with `key.enter`)
+  Perhaps we don't care about every keystroke.
+  Maybe we're only interested in the input box value when the user presses Enter, and we'd like to ignore all other keys.
+  When we bind to the `(keyup)` event, our event handling expression hears *every keystroke*.
+  We could filter the keys first, examining every `$event.keyCode`, and update the `values` property only if the key is Enter.
+
+  Angular can filter the key events for us. Angular has a special syntax for keyboard events.
+  We can listen for just the Enter key by binding to Angular's `keyup.enter` pseudo-event.
+
+  Only then do we update the component's `values` property. (In this example,
+  the update happens inside the event expression. A better practice
+  would be to put the update code in the component.)
++makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-3' ,'app/keyup.components.ts (v3)')(format=".")
+:marked
+  Here's how it works.
+figure.image-display
+    img(src='/resources/images/devguide/user-input/keyup3-anim.gif' alt="key up 3")
+
+.l-main-section
+:marked
+  ## On blur
+
+  Our previous example won't transfer the current state of the input box if the user mouses away and clicks
+  elsewhere on the page. We update the component's `values` property only when the user presses Enter
+  while the focus is inside the input box.
+
+  Let's fix that by listening to the input box's blur event as well.
+
++makeExample('user-input/ts/app/keyup.components.ts', 'key-up-component-4' ,'app/keyup.components.ts (v4)')(format=".")
+
+.l-main-section
+:marked
+  ## Put it all together
+  We learned how to [display data](./displaying-data.html) in the previous chapter.
+  We've acquired a small arsenal of event binding techniques in this chapter.
+
+  Let's put it all together in a micro-app
+  that can display a list of heroes and add new heroes to that list.
+  The user can add a hero by first typing in the input box and then
+  pressing Enter, clicking the Add button, or clicking elsewhere on the page.
+
+figure.image-display
+    img(src='/resources/images/devguide/user-input/little-tour-anim.gif' alt="Little Tour of Heroes")
+:marked
+  Below is the "Little Tour of Heroes"  component.
+  We'll call out the highlights after we bask briefly in its minimalist glory.
+
++makeExample('user-input/ts/app/little-tour.component.ts', 'little-tour', 'app/little-tour.component.ts')(format=".")
+:marked
+  We've seen almost everything here before. A few things are new or bear repeating.
+
+  ### Use template variables to refer to elements
+
+  The `newHero` template variable refers to the `<input>` element.
+  We can use `newHero` from any sibling or child of the `<input>` element.
+
+  Getting the element from a template variable makes the button click handler
+  simpler. Without the variable, we'd have to use a fancy CSS selector
+  to find the input element.
+
+  ### Pass values, not elements
+
+  We could have passed the `newHero` into the component's `addHero` method.
+
+  But that would require `addHero` to pick its way through the `<input>` DOM element,
+  something we learned to dislike in our first try at a [keyup component](#keyup1).
+
+  Instead, we grab the input box *value* and pass *that* to `addHero`.
+  The component knows nothing about HTML or the DOM, which is the way we like it.
+
+  ### Keep template expressions simple
+  We bound `(blur)` to *two* JavaScript statements.
+
+  We like the first one, which calls `addHero`.
+  We do not like the second one, which assigns an empty string to the input box value.
+
+  The second statement exists for a good reason. We have to clear the input box after adding the new hero to the list.
+  The component has no way to do that itself because it has no access to the
+  input box (our design choice).
+
+  Although the example *works*, we are rightly wary of JavaScript in HTML.
+  Template expressions are powerful. We're supposed to use them responsibly.
+  Complex JavaScript in HTML is irresponsible.
+
+  Should we reconsider our reluctance to pass the input box into the component?
+
+  There should be a better third way. And there is, as we'll see when we learn about `NgModel` in the [Forms](forms.html) chapter.
+.l-main-section
+:marked
+  ## Source code
+
+  Here is all the code we talked about in this chapter.
++makeTabs(`
+  user-input/ts/app/click-me.component.ts,
+  user-input/ts/app/keyup.components.ts,
+  user-input/ts/app/loop-back.component.ts,
+  user-input/ts/app/little-tour.component.ts
+  `,'',
+  `click-me.component.ts,
+  keyup.components.ts,
+  loop-back.component.ts,
+  little-tour.component.ts`)
+
+.l-main-section
+:marked
+  ## Summary
+
+  We've mastered the basic primitives for responding to user input and gestures.
+  As powerful as these primitives are, they are a bit clumsy for handling
+  large amounts of user input. We're operating down at the low level of events when
+  we should be writing two-way bindings between data entry fields and model properties.
+
+  Angular has a two-way binding called `NgModel`, which we'll learn about
+  in the `Forms` chapter.
