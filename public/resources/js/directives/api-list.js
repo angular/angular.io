@@ -28,9 +28,10 @@ angularIO.directive('apiList', function () {
 
       $ctrl.apiTypes = [
         { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
+        { cssClass: 'decorator', title: 'Decorator', matches: ['decorator'] },
         { cssClass: 'class', title: 'Class', matches: ['class'] },
         { cssClass: 'interface', title: 'Interface', matches: ['interface'] },
-        { cssClass: 'function', title: 'function', matches: ['function'] },
+        { cssClass: 'function', title: 'Function', matches: ['function'] },
         { cssClass: 'const', title: 'Const or Enum', matches: ['const', 'enum'] },
         { cssClass: 'var', title: 'Variable', matches: ['var', 'let'] }
       ];

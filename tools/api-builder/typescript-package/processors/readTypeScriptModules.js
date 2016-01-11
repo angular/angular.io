@@ -202,6 +202,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
 
     var exportDoc = {
       docType: getExportDocType(exportSymbol),
+      exportSymbol: exportSymbol,
       name: name,
       id: moduleDoc.id + '/' + name,
       typeParams: typeParamString,
