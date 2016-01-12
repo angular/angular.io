@@ -1,6 +1,4 @@
 // #docregion
-library user_input.little_tour_component;
-
 import 'package:angular2/angular2.dart';
 
 // #docregion little-tour

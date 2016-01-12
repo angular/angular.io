@@ -1,6 +1,4 @@
 // #docregion
-library user_input.click_me_component_2;
-
 import 'package:angular2/angular2.dart';
 
 @Component(
