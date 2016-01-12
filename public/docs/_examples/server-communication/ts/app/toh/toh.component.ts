@@ -12,7 +12,7 @@ import {HeroService}       from './hero.service';
   <h1>{{title}}</h1>
   <h3>Heroes:</h3>
   <ul>
-    <li *ngFor="#hero of heroes | async">
+    <li *ngFor="#hero of heroes">
       {{ hero.name }}
     </li>
   </ul>
@@ -28,18 +28,25 @@ export class TohComponent implements OnInit {
 
   constructor (private _heroService: HeroService) {}
 
-  heroes:Observable<Hero[]>;
+  heroes:Hero[];
   title = 'Tour of Heroes';
 
   // #docregion ngOnInit
   ngOnInit() {
-    // <li *ngFor="#hero of heroes | async">
-    this.heroes = this._heroService.getHeroes();
+    this._heroService.getHeroes()
+                     .subscribe(
+                       heroes => this.heroes = heroes,
+                       error => alert(`Server error. Try again later`));
   }
   // #enddocregion ngOnInit
 
+  // #docregion addHero
   addHero (name: string) {
-    name && alert(`Adding hero: "${name}"`);
+    this._heroService.addHero(name)
+                     .subscribe(
+                       hero  => this.heroes.push(hero),
+                       error => alert(error));
   }
+  // #enddocregion addHero
 }
 // #enddocregion component

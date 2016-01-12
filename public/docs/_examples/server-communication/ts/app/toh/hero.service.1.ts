@@ -27,7 +27,8 @@ export class HeroService {
   addHero (name: string) {
     // TODO: Error handling
     return this.http.post(this._heroesUrl, JSON.stringify({ name: 'name' }))
-               .toPromise();
+               .toPromise()
+               .then(res => <Hero> res.json());
   }
   // #enddocregion addhero
 // #docregion v1

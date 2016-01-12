@@ -5,6 +5,7 @@
 import {Injectable} from 'angular2/core';
 import {Http}       from 'angular2/http';
 import {Hero}       from './hero';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class HeroService {
@@ -12,23 +13,33 @@ export class HeroService {
 
   private _heroesUrl = 'app/toh/heroes.json';
 
+  // #docregion error-handling
+  // #docregion logAndPassOn
+  private logAndPassOn (error: Error) {
+    // in a real world app, we may send the server to some remote logging infrastructure
+    // instead of just logging it to the console
+    console.error(error);
+    return Observable.throw(error);
+  }
+  // #enddocregion logAndPassOn
+
   getHeroes () {
-    // TODO: Error handling
     // #docregion http-get
     return this.http.get(this._heroesUrl)
-                    .map(res => <Hero[]> res.json().items);
+                    .map(res => <Hero[]> res.json().items)
+                    .catch(this.logAndPassOn);
     // #enddocregion http-get
   }
+// #enddocregion error-handling
 // #enddocregion v1
 
   // #docregion addhero
   addHero (name: string) {
-    // CHRISTOPH: What are we sending back to the consumer?
-    // Surely not the response object ... after we told the reader that's bad.
-
-    // TODO: Error handling
-    return this.http.post(this._heroesUrl, JSON.stringify({ name: 'name' }));
+    return this.http.post(this._heroesUrl, JSON.stringify({ name: 'name' }))
+                    .map(res => <Hero> res.json())
+                    .catch(this.logAndPassOn)
   }
+
   // #enddocregion addhero
 // #docregion v1
 }
