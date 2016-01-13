@@ -6,7 +6,7 @@ class HeroesService {
   List<Hero> _heroes = [
     new Hero()
       ..name = "RubberMan"
-      ..power = 'flexibility',
+      ..power = 'Flexibility',
     new Hero()
       ..name = "Tornado"
       ..power = 'Weather changer'
