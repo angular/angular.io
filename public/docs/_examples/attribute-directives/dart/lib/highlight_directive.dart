@@ -4,12 +4,10 @@ library attribute_directives.highlight_directive;
 
 import 'package:angular2/angular2.dart';
 
-@Directive(
-    selector: '[my-highlight]',
-    host: const {
-      '(mouseenter)': 'onMouseEnter()',
-      '(mouseleave)': 'onMouseLeave()'
-    })
+@Directive(selector: '[my-highlight]', host: const {
+  '(mouseenter)': 'onMouseEnter()',
+  '(mouseleave)': 'onMouseLeave()'
+})
 // #docregion class-1
 class Highlight {
   // #enddocregion class-1
@@ -34,8 +32,8 @@ class Highlight {
   // #enddocregion defaultColor
 // #docregion class-1
 
-  Renderer _renderer;
-  ElementRef _element;
+  final Renderer _renderer;
+  final ElementRef _element;
 
 // #docregion mouse-enter
   onMouseEnter() {
@@ -51,7 +49,7 @@ class Highlight {
     _renderer.setElementStyle(_element, 'background-color', color);
   }
 
-  Highlight(ElementRef this._element, Renderer this._renderer);
+  Highlight(this._element, this._renderer);
 }
 // #enddocregion class-1
 // #enddocregion full
