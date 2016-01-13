@@ -177,28 +177,57 @@ figure.image-display
 figure.image-display
     img(src='/resources/images/devguide/pipes/power-boost-calculator-anim.gif' alt="Power Boost Calculator")
 :marked
+  ### Pipes and Change Detection
+  When writing pipes, it's useful to understand how they are affected by change detection, since if we misunderstand this, we can have a pipe that doesn't behave the way we want. If we misunderstand this process, it's possible to create a pipe that doesn't update the UI when the data changes. Let's look at an example to understand this better.
 
+  Pipes can filter a list of data to a specific subset. Usually this is done on an array. We'll create a pipe that filters a list of heroes to the heroes who can fly.
++makeExample('pipes/ts/app/flying-heroes.pipe.ts', null, 'app/flying-heroes.pipe.ts')
+
+:marked
+  This pipe allows us to show only the heroes who can fly, but it's important to understand what's going on under the hood, otherwise when we change the data, the UI won't be updated. The transform function receives the original array of heroes as it's first parameter, which we've named allHeroes, and then calls the filter method on that array. The filter method doesn't change the original array, instead it creates a new array. So the view will actually be bound to an entirely new array. This works fine until you do something like change the original array. Let's assume we want to addea new hero to the master list of heroes. We will do this in the most obvious way, by pushing a new item into the array.
+
+  ```
+  this.heroes.push(newHero);
+  ```
+
+  At this point, we want our pipe to re-evaluate the master list, and if this new hero can fly, we'll want the new hero to show up in our filtered list that the pipe produces. Unfortunately this won't happen. The change detection system for pipes is reference based. Therefore a pipe is only re-evaluated when the source object is replaced by a new object. We haven't done that. Pushing a new item into an array doesn't create a new array, it simply mutates the existing array. Therefore change detection won't fire for it and the pipe won't be re-evaluated. If we want our pipe to be re-evaluated, we'll actually need to create a new array for the master list of heroes. Thankfully this is easily done just by changing how we add a new item to the array. Instead of using push, which is a mutation operation, we'll use concat, which produces a new array.
+
+  ```
+  this.heroes = this.heroes.concat([newHero]);
+  ```
+
+  This will replace heroesList with a new array instead of mutating the existing array. 
+
+.callout.is-helpful
+  header Variations in Binding Rules
+  :marked
+    This can be a bit confusing, since if we don't use a pipe, but just have a simple array bound using *ngFor, then using the push function to add a new item to an array works just fine, and the UI updates automatically. But the rules when using a pipe are different. The pipe is only re-evaluated when the reference to the source object is changed.
+
+    This also isn't an issue when we simply change a property in our original array, since the change detection system will be able to detect that and the UI bindings will be updated, but we have to be aware of how this works when dealing with things like the push method on an array.
+  
 .l-main-section
 :marked
-  ## Stateful Pipes
+  ## Impure Pipes
 
-  There are two categories of pipes, stateless and stateful.
+  There are two categories of pipes: **pure** and **impure**. Pipes are pure by default.
+  
+  Pure pipes are only evaluated when the change detection system in Angular notices a change to the input of the pipe. 
+  This ONLY happens when the pipe is given a new object as input. Simply modifying the existing object won't cause the
+  change detection system to fire, and therefore won't re-evaluate the pipe. Pure pipes are most often implemented
+  as pure functions that simply return a value without remembering anything or causing detectable side-effects. As a result they are also stateless.
+  
+  When possible, pipes should be pure. The `DatePipe` in our first example is a pure pipe. So is our custom `ExponentialStrengthPipe`.
 
-  Stateless pipes are pure functions that flow input data
-  through without remembering anything or causing detectable side-effects.
+  In contrast, impure pipes are evaluated on **every** cycle in Angular. This can be as often
+  as every keystroke or mousemove depending on the application. Due to this reality, impure pipes must be implemented with care.
+  This also makes impure pipes able to do things that would otherwise be impossible. Let's look at an example.
 
-  Most pipes are stateless. The `DatePipe` in our first example is a stateless pipe. So is our custom `ExponentialStrengthPipe`.
-
-  Stateful pipes are conceptually similar to classes in object-oriented programming. They can manage the data they transform. A pipe that creates an HTTP request, stores the response and displays the output, is a stateful pipe.
-  Pipes that retrieve or request data should be used cautiously, since working with network data tends to introduce error conditions that are better handled in JavaScript than in a template.
-  We can mitigate this risk by creating a custom pipe for a particular backend and bake-in the essential error-handling.
-
-  ## The stateful `AsyncPipe`
-  The Angular Async pipe is a remarkable example of a stateful pipe.
+  ## The impure `AsyncPipe`
+  The Angular Async pipe is an interesting example of an impure pipe.
   The Async pipe can receive a Promise or Observable as input
   and subscribe to the input automatically, eventually returning the emitted value(s).
 
-  It is stateful because the pipe maintains a subscription to the input and its returned values depend on that subscription.
+  It is also stateful because the pipe maintains a subscription to the input and its returned values depend on that subscription.
 
   In the next example, we bind a simple promise to a view with the async pipe.
 +makeExample('pipes/ts/app/hero-async-message.component.ts', null, 'app/hero-async-message.component.ts')
@@ -211,14 +240,13 @@ figure.image-display
   the component doesn't have to unsubscribe when it is destroyed
   (a potent source of memory leaks).
 
-  ### Implementing a Stateful Pipe
-  Pipes are stateless by default.
-  We must declare a pipe to be stateful
+  ### Implementing an Impure Pipe
+  We must declare a pipe to be impure
   by setting the `pure` property of the `@Pipe` decorator to `false`.
   This setting tells Angular’s change detection system to
   check the output of this pipe each cycle, whether its input has changed or not.
 
-  Here's how we'll decorate our new stateful `FetchJsonPipe` that
+  Here's how we'll decorate our new impure `FetchJsonPipe` that
   makes an HTTP `fetch` request and (eventually) displays the data in the server's response:
 +makeExample('pipes/ts/app/fetch-json.pipe.ts', 'pipe-metadata','app/fetch-json.pipe.ts (metadata)')
 :marked
@@ -249,8 +277,11 @@ figure.image-display
 :marked
   Here's the complete component implementation:
 +makeExample('pipes/ts/app/hero-list.component.ts', null, 'app/hero-list.component.ts')
-:marked
-
+.callout.is-helpful
+  header Performance Implications of Impure Pipes
+  :marked
+    As mentioned previously, impure pipes are run on every cycle, this means that if they do much work, they can quickly bog down our system, as change detection can run as often as every keystroke, or even on mouse movement. Therefore we want them to be as performant as possible. In general they should return quickly if they detect that nothing has changed, as is the case with our FetchJsonPipe. In that example, the first line of code in the transform method checks to see if this.fetchPromise is undefined. If it is then the work is done. That will happen the very first time the pipe is ran. Once that is done, then this.fetchPromise will always be a defined value, so no matter how many times this pipe is evaluated after that, the only code that is run is the if statement which is a very quick check, so it's fine that it will run every time change detection is fired.
+    
 .l-main-section
 :marked
   ## Next Steps
