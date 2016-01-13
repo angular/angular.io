@@ -6,7 +6,7 @@ import {FetchJsonPipe} from './fetch-json.pipe';
   selector: 'hero-list',
   // #docregion template
   template: `
-    <h4>Heroes from JSON File</h4>
+    <h2>Heroes from JSON File</h2>
 
     <div *ngFor="#hero of ('heroes.json' | fetch) ">
       {{hero.name}}
@@ -19,6 +19,4 @@ import {FetchJsonPipe} from './fetch-json.pipe';
   // #enddocregion template
   pipes: [FetchJsonPipe]
 })
-export class HeroListComponent {
-  /* I've got nothing to do ;-) */
-}
+export class HeroListComponent { }

@@ -1,6 +1,6 @@
-/// <reference path='./window.extension.d.ts'/>
 // #docregion
 import {Pipe, PipeTransform} from 'angular2/core';
+import {Http}                from 'angular2/http';
 
 // #docregion pipe-metadata
 @Pipe({
@@ -9,16 +9,20 @@ import {Pipe, PipeTransform} from 'angular2/core';
 })
 // #enddocregion pipe-metadata
 export class FetchJsonPipe  implements PipeTransform{
-  private fetchedValue:any;
-  private fetchPromise:Promise<any>;
+  private fetched:any = null;
+  private prevUrl = '';
 
-  transform(value:string, args:string[]):any {
-    if (!this.fetchPromise) {
-      this.fetchPromise = window.fetch(value)
-        .then((result:any) => result.json())
-        .then((json:any)   => this.fetchedValue = json);
+  constructor(private _http: Http) { }
+
+  transform(url:string):any {
+    if (url !== this.prevUrl) {
+      this.prevUrl = url;
+      this.fetched = null;
+      this._http.get(url)
+        .map( result => result.json() )
+        .subscribe( result => this.fetched = result )
     }
 
-    return this.fetchedValue;
+    return this.fetched;
   }
 }
