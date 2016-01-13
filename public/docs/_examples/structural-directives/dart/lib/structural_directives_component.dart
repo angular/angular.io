@@ -1,12 +1,12 @@
 // #docplaster
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'unless_directive.dart';
-import 'heavy_loader_component.dart';
+import 'package:structural_directives/unless_directive.dart';
+import 'package:structural_directives/heavy_loader_component.dart';
 
 @Component(
     selector: 'structural-directives',
-    templateUrl: 'structural-directives.component.html',
+    templateUrl: 'structural_directives_component.html',
     styles: const ['button { min-width: 100px; }'],
     directives: const [UnlessDirective, HeavyLoaderComponent])
 class StructuralDirectivesComponent {
@@ -16,6 +16,6 @@ class StructuralDirectivesComponent {
   List<String> logs = [];
   String status = 'ready';
 
-  get hero => heroes.elementAt(0);
+  get hero => heroes[0];
 }
 //#enddocregion

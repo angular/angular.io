@@ -6,7 +6,7 @@ import {HeavyLoaderComponent}     from './heavy-loader.component';
 
 @Component({
   selector: 'structural-directives',
-  templateUrl: 'app/structural-directives.component.html',
+  templateUrl: 'app/structural_directives_component.html',
   styles: ['button { min-width: 100px; }'],
   directives: [UnlessDirective, HeavyLoaderComponent]
 })

@@ -17,7 +17,8 @@ class UnlessDirective {
   // #enddocregion unless-constructor
 
   // #docregion unless-set
-  @Input() set myUnless(bool condition) {
+  @Input()
+  set myUnless(bool condition) {
     if (!condition) {
       _viewContainer.createEmbeddedView(_templateRef);
     } else {

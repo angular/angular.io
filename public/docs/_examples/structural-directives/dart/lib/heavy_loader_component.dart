@@ -14,12 +14,12 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Mock todo: get 10,000 rows of data from the server
     _log(
-        "heavy-loader ${this.id} initialized, loading 10,000 rows of data from the server");
+        "heavy-loader ${id} initialized, loading 10,000 rows of data from the server");
   }
 
   ngOnDestroy() {
     // Mock todo: clean-up
-    _log("heavy-loader ${this.id} destroyed, cleaning up");
+    _log("heavy-loader ${id} destroyed, cleaning up");
   }
 
   _log(String msg) {
@@ -31,7 +31,7 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
   /// after one turn of the JavaScript cycle
   /// ensuring display of msg added in onDestroy
   _tick() {
-    new Timer(new Duration(milliseconds: 0), () {});
+    new Future(() {});
   }
 }
 // #enddocregion
