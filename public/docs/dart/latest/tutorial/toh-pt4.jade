@@ -15,8 +15,10 @@ include ../../../../_includes/_util-fns
   Because data services are invariably asynchronous, 
   we'll finish the chapter with a promise-based version of the data service.
 
-:marked
-  [Run the live example for part 4](/resources/live-examples/toh-4/ts/plnkr.html)
+  <!--
+    TODO(kasperpeulen): Make a github repo with gh-pages for this:
+    [Run the live example for part 4](/resources/live-examples/toh-4/dart/plnkr.html)
+  -->
 
 .l-main-section
 :marked
@@ -25,25 +27,25 @@ include ../../../../_includes/_util-fns
   If not, we’ll need to go back and follow the previous chapters.
 
 .filetree
-  .file angular2-tour-of-heroes
+  .file angular2_tour_of_heroes
   .children
-    .file node_modules
-    .file app
+    .file lib
     .children
-      .file app.component.ts
-      .file boot.ts
-      .file hero.ts
-      .file hero-detail.component.ts
-    .file index.html
-    .file package.json
-    .file tsconfig.json
+      .file app_component.dart
+      .file hero.dart
+      .file hero_detail_component.dart
+    .file web
+    .children
+      .file index.html
+      .file main.dart
+    .file pubspec.yaml
 :marked
   ### Keep the app transpiling and running
   Open a terminal/console window. 
-  Start the TypeScript compiler, watch for changes, and start our server by entering the command:
+  Start the Dart compiler, watch for changes, and start our server by entering the command:
 
 code-example(format="." language="bash").
-  npm start
+  pub serve
 
 :marked
   The application runs and updates automatically as we continue to build the Tour of Heroes.
@@ -64,16 +66,16 @@ code-example(format="." language="bash").
   share that service with all components that need heroes.
 
   ### Create the HeroService
-  Create a file in the `app` folder called `hero.service.ts`. 
+  Create a file in the `lib` folder called `hero_service.dart`.
 .l-sub-section
   :marked
-    We've adopted a convention in which we spell the name of a service in lowercase followed by `.service`.
-    If the service name were multi-word, we'd spell the base filename with lower dash case (AKA kebab-case).
-    The `SpecialSuperHeroService` would be defined in the `special-super-hero.service.ts` file.
+    We've adopted a convention in which we spell the name of a service in lowercase followed by `_service`.
+    If the service name were multi-word, we'd spell the base filename with lower underscore case.
+    The `SpecialSuperHeroService` would be defined in the `special_super_hero_service.dart` file.
 :marked
-  We name the class `HeroService` and export it for others to import.
+  We name the class `HeroService`.
 
-+makeExample('toh-4/ts/app/hero.service.1.ts', 'empty-class', 'hero.service.ts (exported class)')(format=".")
++makeExample('toh-4/dart/lib/hero_service_1.dart', 'empty-class', 'hero_service.dart (class)')(format=".")
 
 :marked
   ### Injectable Services
@@ -92,7 +94,7 @@ code-example(format="." language="bash").
 :marked
   ### Getting Heroes
   Add a `getHeroes` method stub.
-+makeExample('toh-4/ts/app/hero.service.1.ts', 'getHeroes-stub', 'hero.service.ts ( getHeroes stub)')(format=".")
++makeExample('toh-4/dart/lib/hero_service_1.dart', 'getHeroes-stub', 'hero_service.dart ( getHeroes stub)')(format=".")
 :marked
   We're holding back on the implementation for a moment to make an important point.
   
@@ -110,34 +112,32 @@ code-example(format="." language="bash").
   We already have mock `Hero` data sitting in the `AppComponent`.  It doesn't belong there. It doesn't belong *here* either.
   We'll move the mock data to its own file.
 
-  Cut the the `HEROES` array from `app.component.ts` and paste it to a new file in the `app` folder named `mock-heroes.ts`.
-  We copy the `import {Hero} ...` statement as well because the heroes array uses the `Hero` interface.
+  Cut the the `mockHeroes` list from `app_component.dart` and paste it to a new file in the `lib` folder named `mock_heroes.dart`.
+  We copy the `import 'hero.dart'` statement as well because the heroes list uses the `Hero` class.
 
-+makeExample('toh-4/ts/app/mock-heroes.ts', null, 'mock-heroes.ts (Heroes array)')
++makeExample('toh-4/dart/lib/mock_heroes.dart', null, 'mock_heroes.dart (Heroes array)')
 :marked
-  We export the `HEROES` constant so we can import it elsewhere &mdash; such as our `HeroService`.
-
-  Meanwhile, back in `app.component.ts` where we cut away the `HEROES` array, 
+  Meanwhile, back in `app_component.dart` where we cut away the `mockHeroes` list,
   we leave behind an uninitialized `heroes` property:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'heroes-prop', 'app.component.ts (heroes property)')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'heroes-prop', 'app_component.dart (heroes property)')(format=".")
 :marked
   ### Return Mocked Heroes
-  Back in the `HeroService`  we import the mock `HEROES` and return it from the `getHeroes` method.
+  Back in the `HeroService`  we import the mock `mockHeroes` and return it from the `getHeroes` method.
   Our `HeroService` looks like this:
-+makeExample('toh-4/ts/app/hero.service.1.ts', null, 'hero.service.ts')(format=".")
++makeExample('toh-4/dart/lib/hero_service_1.dart', null, 'hero_service.dart')(format=".")
 :marked
   ### Use the Hero Service
   We're ready to use the `HeroService` in other components starting with our `AppComponent`.
 
   We begin, as usual, by importing the thing we want to use, the `HeroService`.
-+makeExample('toh-4/ts/app/app.component.ts', 'hero-service-import', 'app.component.ts (import HeroService)')
++makeExample('toh-4/dart/lib/app_component.dart', 'hero-service-import', 'app_component.dart (import HeroService)')
 :marked
   Importing the service allows us to *reference* it in our code. 
   How should the `AppComponent` acquire a runtime concrete `HeroService` instance?
   
   ### Do we *new* the *HeroService*? No way!
   We could create a new instance  of the `HeroService` with "new" like this:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'new-service')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'new-service')(format=".")
 :marked
   That's a bad idea for several reasons including
   
@@ -168,7 +168,7 @@ code-example(format="." language="bash").
   1. we add to the component's `providers` metadata
   
   Here's the constructor:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'app.component.ts (constructor)')
++makeExample('toh-4/dart/lib/app_component_1.dart', 'ctor', 'app_component.dart (constructor)')
 :marked
   The constructor itself does nothing. The parameter simultaneously 
   defines a private `_heroService` property and identifies it as a `HeroService` injection site.
@@ -197,7 +197,7 @@ code-example(format="." language="html").
   Do that by adding the following `providers` array property to the bottom of the component metadata
   in the `@Component` call.
 
-+makeExample('toh-4/ts/app/app.component.1.ts', 'providers', 'app.component.ts (providing HeroService)')
++makeExample('toh-4/dart/lib/app_component_1.dart', 'providers', 'app_component.dart (providing HeroService)')
 :marked
   The `providers` array  tells Angular to create a fresh instance of the `HeroService` when it creates a new `AppComponent`.
   The `AppComponent` can use that service to get heroes and so can every child component of its component tree.
@@ -211,7 +211,7 @@ code-example(format="." language="html").
     
     If the `HeroDetailComponent` needed its parent component's `HeroService`,
     it would ask Angular to inject the service into its constructor which would look just like the one for `AppComponent`:
-  +makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'hero-detail.component.ts (constructor)')
+  +makeExample('toh-4/dart/lib/app_component_1.dart', 'ctor', 'hero_detail_component.dart (constructor)')
   :marked
     The `HeroDetailComponent` must *not* repeat it's parent's `providers` array! Guess [why](#shadow-provider).
     
@@ -222,10 +222,10 @@ code-example(format="." language="html").
   We've got the service in a `_heroService` private variable. Let's use it.
   
   We pause to think. We can call the service and get the data in one line.
-+makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'get-heroes')(format=".")
 :marked
   We don't really need a dedicated method to wrap one line.  We write it anyway:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'getHeroes', 'app.component.ts (getHeroes)')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'getHeroes', 'app_component.dart (getHeroes)')(format=".")
 :marked
   ### The *ngOnInit* Lifecycle Hook
   `AppComponent` should fetch and display heroes without a fuss.
@@ -250,21 +250,21 @@ code-example(format="." language="html").
     Learn more about lifecycle hooks in the [Lifecycle Hooks](../guide/lifecycle-hooks.html) chapter.
 :marked
   Here's the essential outline for the `OnInit` interface:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'on-init', 'app.component.ts (OnInit protocol)')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'on-init', 'app_component.dart (OnInit protocol)')(format=".")
 :marked
   We write an `ngOnInit` method with our initialization logic inside and leave it to Angular to call it
   at the right time. In our case, we initialize by calling `getHeroes`.
-+makeExample('toh-4/ts/app/app.component.1.ts', 'ng-on-init', 'app.component.ts (OnInit protocol)')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'ng-on-init', 'app_component.dart (OnInit protocol)')(format=".")
 :marked
   Our application should be running as expected, showing a list of heroes and a hero detail view
   when we click on a hero name.
   
   We're getting closer. But something isn't quite right.
 
-  ## Async Services and Promises
+  ## Async Services and Futures
   Our `HeroService` returns a list of mock heroes immediately. 
   Its `getHeroes` signature is synchronous
-+makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'get-heroes')(format=".")
 :marked
   Ask for heroes and they are there in the returned result.
    
@@ -275,40 +275,33 @@ code-example(format="." language="html").
   
   We'll have to use some kind of asynchronous technique and that will change the signature of our `getHeroes` method.
   
-  We'll use  *promises*.
+  We'll use  *futures*.
   
-  ### The Hero Service makes a promise  
+  ### The Hero Service returns a future
 
-  A **promise** is ... well it's a promise to call us back later when the results are ready. 
   We ask an asynchronous service to do some work and give it a callback function. 
   It does that work (somewhere) and eventually it calls our function with the results of the work or an error.
 .l-sub-section
   :marked
-    We are simplifying. Learn about ES2015 Promises [here](http://www.datchley.name/es6-promises/) and elsewhere on the web.
+    We are simplifying. Learn about Futures [here](https://www.dartlang.org/docs/tutorials/futures/).
 :marked
-  Update the `HeroService` with this promise-returning `getHeroes` method:
-+makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes', 'hero.service.ts (getHeroes)')(format=".")
+  Update the `HeroService` with this future-returning `getHeroes` method:
++makeExample('toh-4/dart/lib/hero_service.dart', 'get-heroes', 'hero_service.dart (getHeroes)')(format=".")
 :marked
   We're still mocking the data. We're simulating the behavior of an ultra-fast, zero-latency server,
-  by returning an **immediately resolved promise** with our mock heroes as the result.
+  by returning an **immediately resolved future** with our mock heroes as the result.
   
-  ### Act on the Promise
+  ### Act on the Futures
   Returning to the `AppComponent` and its `getHeroes` method, we see that it still looks like this:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'getHeroes', 'app.component.ts (getHeroes - old)')(format=".")
++makeExample('toh-4/dart/lib/app_component_1.dart', 'getHeroes', 'app_component.dart (getHeroes - old)')(format=".")
 :marked
-  As a result of our change to `HeroService`, we're now setting `this.heroes` to a promise rather than an array of heroes. 
+  As a result of our change to `HeroService`, we're now setting `heroes` to a future rather than an list of heroes.
   
-  We have to change our implementation to *act on the promise when it resolves*.
-  When the promise resolves successfully, *then* we will have heroes to display.
-  
-  We pass our callback function as an argument to the promise's **then** method:
-+makeExample('toh-4/ts/app/app.component.ts', 'get-heroes', 'app.component.ts (getHeroes - revised)')(format=".")
-.l-sub-section
-  :marked
-    The [ES2015 arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
-    in the callback is more succint than the equivalent function expression and gracefully handles *this*.
+  We have to change our implementation to *act on the future when it resolves*.
+  We can *await* the future to resolve, and then display the heroes:
++makeExample('toh-4/dart/lib/app_component.dart', 'get-heroes', 'app_component.dart (getHeroes - revised)')(format=".")
 :marked
-  Our callback sets the component's `heroes` property to the array of heroes returned by the service. That's all there is to it!
+  Our callback sets the component's `heroes` property to the list of heroes returned by the service. That's all there is to it!
   
   Our app should still be running, still showing a list of heroes, and still
   responding to a name selection with a detail view.
@@ -320,31 +313,31 @@ code-example(format="." language="html").
   Let’s verify that we have the following structure after all of our good refactoring in this chapter:
 
 .filetree
-  .file angular2-tour-of-heroes
+  .file angular2_tour_of_heroes
   .children
-    .file node_modules
-    .file app
+    .file lib
     .children
-      .file app.component.ts
-      .file boot.ts
-      .file hero.ts
-      .file hero-detail.component.ts
-      .file hero.service.ts
-      .file mock-heroes.ts
-    .file index.html
-    .file package.json
-    .file tsconfig.json
+      .file app_component.dart
+      .file hero.dart
+      .file hero_detail_component.dart
+      .file hero_service.dart
+      .file mock_heroes.dart
+    .file web
+    .children
+      .file index.html
+      .file main.dart
+    .file pubspec.yaml
 :marked
   Here are the code files we discussed in this chapter.
 
 +makeTabs(`
-  toh-4/ts/app/hero.service.ts,
-  toh-4/ts/app/app.component.ts,
-  toh-4/ts/app/mock-heroes.ts
+  toh-4/dart/lib/hero_service.dart,
+  toh-4/dart/lib/app_component.dart,
+  toh-4/dart/lib/mock_heroes.dart
   `,'',`
-  app/hero.service.ts,
-  app/app.component.ts,
-  app/mock-heroes.ts
+  lib/hero_service.dart,
+  lib/app_component.dart,
+  lib/mock_heroes.dart
   `)
 :marked
   ## The Road We’ve Travelled
@@ -354,9 +347,12 @@ code-example(format="." language="html").
   * We used the `ngOnInit` Lifecycle Hook to get our heroes when our `AppComponent` activates
   * We defined our `HeroService` as a provider for our `AppComponent`
   * We created mock hero data and imported them into our service
-  * We designed our service to return a promise and our component to get our data from the promise
+  * We designed our service to return a future and our component to get our data from the future
 
-  [Run the live example for part 4](/resources/live-examples/toh-4/ts/plnkr.html)
+  <!--
+    TODO(kasperpeulen): Make a github repo with gh-pages for this:
+    [Run the live example for part 4](/resources/live-examples/toh-4/dart/plnkr.html)
+  -->
 
   ### The Road Ahead
   Our Tour of Heroes has become more reusable using shared components and services.
@@ -372,10 +368,10 @@ code-example(format="." language="html").
   We can simulate a slow connection.
   
   Add the following `getHeroesSlowly` method to the `HeroService`
-+makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes-slowly', 'hero.service.ts (getHeroesSlowy)')(format=".")
++makeExample('toh-4/dart/lib/hero_service.dart', 'get-heroes-slowly', 'hero_service.dart (getHeroesSlowy)')(format=".")
 :marked
-  Like `getHeroes`, it also returns a promise. 
-  But this promise waits 2 seconds before resolving the promise with mock heroes.
+  Like `getHeroes`, it also returns a future.
+  But this future waits 2 seconds before resolving the future with mock heroes.
   
   Back in the `AppComponent`, swap `_heroService.getHeroesSlowly` for `_heroService.getHeroes`
   and see how the app behaves.
