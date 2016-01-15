@@ -11,16 +11,12 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
   int id = nextId++;
   @Input() List<String> logs;
 
-  ngOnInit() {
-    // Mock todo: get 10,000 rows of data from the server
-    _log(
-        "heavy-loader ${id} initialized, loading 10,000 rows of data from the server");
-  }
+  // Mock todo: get 10,000 rows of data from the server
+  ngOnInit() => _log(
+      "heavy-loader ${id} initialized, loading 10,000 rows of data from the server");
 
-  ngOnDestroy() {
-    // Mock todo: clean-up
-    _log("heavy-loader ${id} destroyed, cleaning up");
-  }
+  // Mock todo: clean-up
+  ngOnDestroy() => _log("heavy-loader ${id} destroyed, cleaning up");
 
   _log(String msg) {
     logs.add(msg);
@@ -30,8 +26,6 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
   /// Triggers the next round of Angular change detection
   /// after one turn of the JavaScript cycle
   /// ensuring display of msg added in onDestroy
-  _tick() {
-    new Future(() {});
-  }
+  _tick() => new Future(() {});
 }
 // #enddocregion

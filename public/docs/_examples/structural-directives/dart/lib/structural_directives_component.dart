@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'package:structural_directives/unless_directive.dart';
-import 'package:structural_directives/heavy_loader_component.dart';
+import 'unless_directive.dart';
+import 'heavy_loader_component.dart';
 
 @Component(
     selector: 'structural-directives',
