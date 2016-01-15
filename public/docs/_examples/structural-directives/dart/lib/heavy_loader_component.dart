@@ -13,10 +13,10 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
 
   // Mock todo: get 10,000 rows of data from the server
   ngOnInit() => _log(
-      "heavy-loader ${id} initialized, loading 10,000 rows of data from the server");
+      "heavy-loader $id initialized, loading 10,000 rows of data from the server");
 
   // Mock todo: clean-up
-  ngOnDestroy() => _log("heavy-loader ${id} destroyed, cleaning up");
+  ngOnDestroy() => _log("heavy-loader $id destroyed, cleaning up");
 
   _log(String msg) {
     logs.add(msg);
