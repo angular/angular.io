@@ -24,7 +24,7 @@ class HeavyLoaderComponent implements OnInit, OnDestroy {
   }
 
   /// Triggers the next round of Angular change detection
-  /// after one turn of the JavaScript cycle
+  /// after one turn of the browser event loop
   /// ensuring display of msg added in onDestroy
   _tick() => new Future(() {});
 }
