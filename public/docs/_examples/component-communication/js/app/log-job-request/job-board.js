@@ -1,5 +1,5 @@
 (function(app) {
-  if (!app.sampleRoots) app.sampleRoots = {};
+  if (!app.scenarioRoots) app.scenarioRoots = {};
   
   var HeroPanel = 
     ng.core.Component({
@@ -69,5 +69,5 @@
       }
     })
     
-  app.sampleRoots.LogJobRequest = HeroJobBoard;
+  app.scenarioRoots.LogJobRequest = HeroJobBoard;
 })(window.app || (window.app = {}));

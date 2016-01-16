@@ -1,5 +1,5 @@
 (function(app) {
-  if (!app.sampleRoots) app.sampleRoots = {};
+  if (!app.scenarioRoots) app.scenarioRoots = {};
   
   var JobService = 
     ng.core.Injectable()
@@ -160,5 +160,5 @@
       }]
     })
 
-  app.sampleRoots.AssignJob = HeroJobBoard;
+  app.scenarioRoots.AssignJob = HeroJobBoard;
 })(window.app || (window.app = {}));
