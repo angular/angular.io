@@ -79,6 +79,16 @@ var _rxData = [
     to: 'https://code.angularjs.org/2.0.0-beta.0/testing.dev.js'
   },
   {
+    pattern: 'script',
+    from: 'node_modules/es6-shim/es6-shim.min.js',
+    to: 'https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.33.3/es6-shim.min.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/systemjs/distsystem-polyfills.js',
+    to: 'https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.16/system-polyfills.js'
+  },
+  {
     pattern: 'link',
     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
     to: 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap-theme.min.css'
