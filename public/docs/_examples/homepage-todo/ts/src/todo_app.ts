@@ -9,7 +9,7 @@ import {TodoForm} from './todo_form';
   template: `
     <h2>Todo</h2>
     <span>{{remaining}} of {{todos.length}} remaining</span>
-    [ <a href="javascript: false" (click)="archive()">archive</a> ]
+    [ <a href="javascript: return false;" (click)="archive()">archive</a> ]
 
     <todo-list [todos]="todos"></todo-list>
     <todo-form (newTask)="addTask($event)"></todo-form>`,
