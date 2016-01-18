@@ -85,7 +85,7 @@ var _rxData = [
   },
   {
     pattern: 'script',
-    from: 'node_modules/systemjs/distsystem-polyfills.js',
+    from: 'node_modules/systemjs/dist/system-polyfills.js',
     to: 'https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.16/system-polyfills.js'
   },
   {
