@@ -284,7 +284,7 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
 
-gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
+gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
 });
 
