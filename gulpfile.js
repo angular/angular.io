@@ -49,6 +49,11 @@ var _devguideShredOptions =  {
   zipDir: path.join(RESOURCES_PATH, 'zips')
 };
 
+var _devguideShredJadeOptions =  {
+  jadeDir: DOCS_PATH
+
+};
+
 var _apiShredOptions =  {
   examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
@@ -260,15 +265,20 @@ gulp.task('remove-example-boilerplate', function() {
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
-  watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
+  // watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
+  watchAndSync({devGuide: true, devGuideJade: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
 });
 
 gulp.task('serve-and-sync-api', ['build-docs'], function (cb) {
   watchAndSync({apiDocs: true, apiExamples: true}, cb);
 });
 
-gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers', '_zip-examples'], function (cb) {
-  watchAndSync({devGuide: true, localFiles: true}, cb);
+gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers' ], function (cb) {
+  watchAndSync({devGuide: true, devGuideJade: true, localFiles: true}, cb);
+});
+
+gulp.task('_serve-and-sync-jade', function (cb) {
+  watchAndSync({devGuideJade: true, localFiles: true}, cb);
 });
 
 gulp.task('build-and-serve', ['build-docs'], function (cb) {
@@ -279,7 +289,7 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
 
-gulp.task('build-devguide-docs', ['_shred-devguide-examples'], function() {
+gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
 });
 
@@ -382,6 +392,15 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
+});
+
+gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade'],  function() {
+  return docShredder.shred( _devguideShredJadeOptions);
+});
+
+gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
+  var cleanPath = path.join(DOCS_PATH, '**/_.*.jade')
+  return delPromise([ cleanPath]);
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
@@ -523,6 +542,9 @@ function watchAndSync(options, cb) {
   if (options.devGuide) {
     devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
   }
+  if (options.devGuideJade) {
+    devGuideSharedJadeWatch( { jadeDir: DOCS_PATH}, browserSync.reload);
+  }
   if (options.apiDocs) {
     apiSourceWatch(browserSync.reload);
   }
@@ -600,6 +622,20 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
     return docShredder.shredSingleDir(shredOptions, event.path).then(postShredAction);
+  });
+}
+
+function devGuideSharedJadeWatch(shredOptions, postShredAction) {
+  var includePattern = path.join(DOCS_PATH, '**/*.jade');
+  var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
+  // removed this version because gulp.watch has the same glob issue that dgeni has.
+  // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
+  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**']});
+  gulp.watch([files], {readDelay: 500}, function (event, done) {
+    gutil.log('Dev Guide jade file changed')
+    gutil.log('Event type: ' + event.type); // added, changed, or deleted
+    gutil.log('Event path: ' + event.path); // The path of the modified file
+    return docShredder.shredSingleJadeDir(shredOptions, event.path).then(postShredAction);
   });
 }
 
