@@ -12,9 +12,9 @@ var shred = function(shredOptions) {
   try {
     var pkg;
     if (shredOptions.jadeDir) {
-      pkg = createJadeShredPackage(shredOptions);
+      pkg = createShredJadePackage(shredOptions);
     } else {
-      pkg = createShredPackage(shredOptions);
+      pkg = createShredExamplePackage(shredOptions);
     }
     var dgeni = new Dgeni([ pkg]);
     return dgeni.generate();
@@ -43,6 +43,23 @@ var shredSingleDir = function(shredOptions, filePath) {
   });
 }
 
+var shredSingleJadeDir = function(shredOptions, filePath) {
+  shredOptions = resolveShredOptions(shredOptions);
+  var fileDir = path.dirname(filePath);
+  var relativePath = path.relative(shredOptions.jadeDir, fileDir);
+  var jadeDir = path.join(shredOptions.jadeDir, relativePath);
+
+  var options = {
+    includeSubdirs: false,
+    jadeDir: jadeDir
+  }
+  var cleanPath = path.join(jadeDir, '_.*.jade')
+  return delPromise([ cleanPath]).then(function(paths) {
+    console.log('Deleted files/folders:\n', paths.join('\n'));
+    return shred(options);
+  });
+}
+
 var buildShredMap = function(shredMapOptions) {
   try {
     var pkg = createShredMapPackage(shredMapOptions);
@@ -58,10 +75,11 @@ var buildShredMap = function(shredMapOptions) {
 module.exports = {
   shred: shred,
   shredSingleDir: shredSingleDir,
+  shredSingleJadeDir: shredSingleJadeDir,
   buildShredMap: buildShredMap
 };
 
-function createShredPackage(shredOptions) {
+function createShredExamplePackage(shredOptions) {
   var pkg = new Dgeni.Package('doc-shredder', [
     // require('dgeni-packages/base') - doesn't work
   ]);
@@ -110,7 +128,7 @@ function createShredPackage(shredOptions) {
   return pkg;
 }
 
-function createJadeShredPackage(shredOptions) {
+function createShredJadePackage(shredOptions) {
   var pkg = new Dgeni.Package('jade-doc-shredder', [
     // require('dgeni-packages/base') - doesn't work
   ]);
