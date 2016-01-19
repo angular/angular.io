@@ -10,7 +10,12 @@ var globby = require('globby');
 
 var shred = function(shredOptions) {
   try {
-    var pkg = createShredPackage(shredOptions);
+    var pkg;
+    if (shredOptions.jadeDir) {
+      pkg = createJadeShredPackage(shredOptions);
+    } else {
+      pkg = createShredPackage(shredOptions);
+    }
     var dgeni = new Dgeni([ pkg]);
     return dgeni.generate();
   } catch(err) {
@@ -104,6 +109,59 @@ function createShredPackage(shredOptions) {
     });
   return pkg;
 }
+
+function createJadeShredPackage(shredOptions) {
+  var pkg = new Dgeni.Package('jade-doc-shredder', [
+    // require('dgeni-packages/base') - doesn't work
+  ]);
+
+  var options = shredOptions;
+  options.jadeDir = path.resolve(options.jadeDir);
+  options.includeSubdirs = options.includeSubdirs == null ? true : options.includeSubdirs;
+
+  initializePackage(pkg)
+    .factory(require('./fileReaders/regionFileReader'))
+    .processor(require('./processors/renderAsJadeProcessor'))
+
+    .config(function(readFilesProcessor, regionFileReader) {
+      readFilesProcessor.fileReaders = [regionFileReader];
+    })
+    // default configs - may be overridden
+    .config(function(readFilesProcessor) {
+      // Specify the base path used when resolving relative paths to source and output files
+      readFilesProcessor.basePath = "/";
+
+      // Specify collections of source files that should contain the documentation to extract
+      var extns = ['*.jade' ];
+      var includeFiles = extns.map(function(extn) {
+        if (options.includeSubdirs) {
+          return path.join(options.jadeDir, '**', extn);
+        } else {
+          return path.join(options.jadeDir, extn);
+        }
+      });
+
+      // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
+      // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
+      var nmPattern = '**/node_modules/**';
+      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+
+      readFilesProcessor.sourceFiles = [ {
+        // Process all candidate files in `src` and its subfolders ...
+        include: includeFiles ,
+        exclude: [ '**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**', '**/_code-examples.jade'],
+        // When calculating the relative path to these files use this as the base path.
+        // So `src/foo/bar.js` will have relative path of `foo/bar.js`
+        basePath: options.jadeDir
+      } ];
+    })
+    .config(function(writeFilesProcessor) {
+      // Specify where the writeFilesProcessor will write our generated doc files
+      writeFilesProcessor.outputFolder  = '.';
+    });
+  return pkg;
+}
+
 
 var createShredMapPackage = function(mapOptions) {
   var pkg = new Dgeni.Package('doc-shred-mapper', [

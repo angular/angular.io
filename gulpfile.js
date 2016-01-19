@@ -49,6 +49,11 @@ var _devguideShredOptions =  {
   zipDir: path.join(RESOURCES_PATH, 'zips')
 };
 
+var _devguideShredJadeOptions =  {
+  jadeDir: DOCS_PATH
+
+};
+
 var _apiShredOptions =  {
   examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
@@ -382,6 +387,15 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
   return docShredder.shred( _devguideShredOptions);
+});
+
+gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade'],  function() {
+  return docShredder.shred( _devguideShredJadeOptions);
+});
+
+gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
+  var cleanPath = path.join(DOCS_PATH, '**/_.*.jade')
+  return delPromise([ cleanPath]);
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
