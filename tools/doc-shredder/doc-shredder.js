@@ -53,11 +53,12 @@ var shredSingleJadeDir = function(shredOptions, filePath) {
     includeSubdirs: false,
     jadeDir: jadeDir
   }
-  var cleanPath = path.join(jadeDir, '_.*.jade')
-  return delPromise([ cleanPath]).then(function(paths) {
-    console.log('Deleted files/folders:\n', paths.join('\n'));
-    return shred(options);
-  });
+  // var cleanPath = path.join(jadeDir, '_.*.jade')
+  //return delPromise([ cleanPath]).then(function(paths) {
+  //  console.log('Deleted files/folders:\n', paths.join('\n'));
+  //  return shred(options);
+  //});
+  return shred(options);
 }
 
 var buildShredMap = function(shredMapOptions) {
