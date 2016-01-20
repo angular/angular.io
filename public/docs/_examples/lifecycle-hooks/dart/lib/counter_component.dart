@@ -31,7 +31,8 @@ class MyCounter implements OnChanges {
     // A change to `counter` is the only change we care about
     SimpleChange prop = changes['counter'];
     var prev = prop.isFirstChange() ? "{}" : prop.previousValue;
-    changeLog.add('counter: currentValue = ${prop.currentValue}, previousValue = $prev');
+    changeLog.add(
+        'counter: currentValue = ${prop.currentValue}, previousValue = $prev');
   }
 }
 
