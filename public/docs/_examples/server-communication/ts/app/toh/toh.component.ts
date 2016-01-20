@@ -1,52 +1,45 @@
+// #docplaster
+
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Observable}        from 'rxjs/Observable';
+import {Component}         from 'angular2/core';
 import {HTTP_PROVIDERS}    from 'angular2/http';
+
 import {Hero}              from './hero';
+import {HeroListComponent} from './hero-list.component';
 import {HeroService}       from './hero.service';
+//#enddocregion
+
+//#docregion in-mem-web-api-imports
+import {provide}           from 'angular2/core';
+import {XHRBackend}        from 'angular2/http';
+
+// in-memory web api imports
+import {InMemoryBackendService,
+        SEED_DATA}         from 'a2-in-memory-web-api/core';
+import {HeroData}          from '../hero-data';
+// #enddocregion in-mem-web-api-imports
+//#docregion
 
 @Component({
   selector: 'my-toh',
 // #docregion template
   template: `
-  <h1>{{title}}</h1>
-  <h3>Heroes:</h3>
-  <ul>
-    <li *ngFor="#hero of heroes">
-      {{ hero.name }}
-    </li>
-  </ul>
-  New Hero:
-  <input #newHero />
-  <button (click)="addHero(newHero.value)">Add Hero</button>
+  <h1>Tour of Heroes</h1>
+  <hero-list></hero-list>
   `,
   // #enddocregion template
-  providers: [HeroService, HTTP_PROVIDERS]
+  directives:[HeroListComponent],
+  providers: [
+    HTTP_PROVIDERS,
+    HeroService,
+//#enddocregion
+//#docregion in-mem-web-api-providers
+    // in-memory web api providers
+    provide(XHRBackend, { useClass: InMemoryBackendService }), // in-mem server
+    provide(SEED_DATA,  { useClass: HeroData }) // in-mem server data
+//#enddocregion in-mem-web-api-providers
+//#docregion
+  ]
 })
-// #docregion component
-export class TohComponent implements OnInit {
-
-  constructor (private _heroService: HeroService) {}
-
-  heroes:Hero[];
-  title = 'Tour of Heroes';
-
-  // #docregion ngOnInit
-  ngOnInit() {
-    this._heroService.getHeroes()
-                     .subscribe(
-                       heroes => this.heroes = heroes,
-                       error => alert(`Server error. Try again later`));
-  }
-  // #enddocregion ngOnInit
-
-  // #docregion addHero
-  addHero (name: string) {
-    this._heroService.addHero(name)
-                     .subscribe(
-                       hero  => this.heroes.push(hero),
-                       error => alert(error));
-  }
-  // #enddocregion addHero
-}
-// #enddocregion component
+export class TohComponent { }
+// #enddocregion

@@ -22,71 +22,82 @@ include ../../../../_includes/_util-fns
   
   We use the Angular `Http` client to communicate via `XMLHttpRequest (XHR)`.
   
-  We'll illustrate with a component that displays heroes retrieved from a server.
-  We've seen this kind of component in many other documentation samples:
+  We'll illustrate with a mini-version of the [tutorial](tutorial.html)'s "Tour of Heroes" (ToH) application.
+  This one gets some heroes from the server, displays them in a list, lets us add new heroes, and save them to the server.
+  
+  It works like this.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/http-toh.gif' alt="ToH mini app" width="250")
+:marked
+  It's implemented with two components &mdash; a parent `TohComponent` shell and the `HeroListComponent` child.
+  We've seen these kinds of component in many other documentation samples. 
+  Let's see how they change to support communication with a server.
+.l-sub-section
+  :marked
+    We're overdoing the "separation of concerns" by creating two components for a tiny demo. 
+    We're making a point about application structure that is easier to justify when the app grows.
+:marked
+  Here is the `TohComponent` shell:
 +makeExample('server-communication/ts/app/toh/toh.component.ts', null, 'app/toh.component.ts')
 :marked
-  Let's break it down.
+  As usual, we import the symbols we need. The newcomer is `HTTP_Providers`, 
+  an array of service providers from the Angular HTTP library.
+  We'll be using that library to access the server.
+  We also import a `HeroService` that we'll look at shortly.
   
-  We import symbols we need, many of them familiar; those that aren't we'll discuss when we use them.
-  
-  The template displays a title, a list of heroes, an input box for a new hero name, and a button to add that hero.
-  It looks like this:
-figure.image-display
-  img(src='/resources/images/devguide/server-communication/hero-list.png' alt="Hero List Component" width="250")
-:marked
-  The component specifies some `providers`: services that this component or one of its child components
-  will ask to perform some tasks. 
+  The component specifies both the `HTTP_Providers` and the `HeroService` in the metadata `providers` array,
+  making them available to the child components of this "Tour of Heroes" application.
+
 .l-sub-section
   :marked
     Learn about providers in the [Dependency Injection](dependency-injection.html) chapter.
 :marked
-  Notable among the providers is `HTTP_PROVIDERS`, an array of service providers from the Angular HTTP library.
-  We'll be using that library to access the server.
-
-  We also specify a `HeroService` that we [inject](dependency-injection.html) into the component's constructor.
-  The component asks this service for heroes to display.
-  We've written such services before. We'll explore this one in detail in a moment.
-   
-  The component calls the `HeroService` inside the `ngOnInit` [lifecycle hook](lifecycle-hooks.html) 
-  rather than in the component's constructor. 
-+makeExample('server-communication/ts/app/toh/toh.component.ts', 'ngOnInit', 'app/toh.component.ts (ngOnInit)')
+  This sample only has one child, the `HeroListComponent` shown here in full:
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', null, 'app/toh/hero-list.component.ts')
 :marked
-  This is a "best practice". 
-  Components are easier to test and debug when their constructors are simple and all real work 
-  (especially calling a remote server) is handled in a separate method. 
-  We can count on Angular to call `ngOnInit` when it creates a new instance of the component.
+  The component template displays a list of heroes with the `NgFor` repeater directive.
   
+  Beneath the heroes is an input box and an *Add Hero* button where we can enter the names of new heroes
+  and add them to the database. 
+  We use a [local template variable](template-syntax.html#local-vars), `newHero`, to access the 
+  value of the input box in the `(click)` event binding. 
+  When the user clicks the button, we pass that value to the component's `addHero` method and then
+  clear it to make ready for a new hero name.
+   
+  ### The `HeroListComponent` class
+  We [inject](dependency-injection.html) the `HeroService` into the constructor.
+  That's the instance of the `HeroService` that we provided in the parent shell `TohComponent`.
+
+  Notice that the component **does not talk to the server directly!**. 
+  The component doesn't know or care how we get the data. 
+  Those details it delegates to the `heroService` class (which we'll get to in a moment).
+  This is a golden rule: *always delegate data access to a supporting service class*.
+  
+  Although the component should request heroes immediately, 
+  we do **not** call the service `get` method in the component's constructor.
+  We call it inside the `ngOnInit` [lifecycle hook](lifecycle-hooks.html) instead
+  and count on Angular to call `ngOnInit` when it instantiates this component. 
+.l-sub-section
+  :marked
+    This is a "best practice". 
+    Components are easier to test and debug when their constructors are simple and all real work 
+    (especially calling a remote server) is handled in a separate method.
 :marked
   Now that the component is square away, we can turn to development of the backend data source
   and the client-side `HeroService` that talks to it.
   
-  ### Fetching `JSON` data
-  The first thing we need is a remote source of heroes such as a JSON file like this one:
-+makeJson('server-communication/ts/app/toh/heroes.json', null, 'app/toh/heroes.json')(format=".")
-.l-sub-section
-  :marked
-    We won't return the heroes array directly 
-    because of the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk) 
-    We embed the heroes array in an `items` property instead.
-:marked
-  It's a general best practice not to
-  make requests directly from within components but to delegate such tasks to dedicated services instead.
-  We've been doing that all along.
+  ### Fetching data
   
-  A key benefit of that approach is that we can change our data access implementation over time
-  without affecting the application components that consume the data.
-  
-  In many of our previous samples we faked the interaction with the backend by
+  In many of our previous samples we faked the interaction with the server by
   returning mock heroes in a service like this one:
-+makeExample('toh-4/ts/app/hero.service.ts', null, 'hero.service.ts')(format=".")
++makeExample('toh-4/ts/app/hero.service.ts', 'just-get-heroes')(format=".")
 :marked
   In this chapter, we get the heroes from the server using Angular's own HTTP Client service.
-  We revise the `HeroService` as follows: 
+  Here's the new `HeroService`: 
 
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'v1', 'app/toh/hero.service.ts')(format=".")
 :marked
-  Notice that we import Angular's `Http` client service and 
+  We begin by importing Angular's `Http` client service and 
   [inject it](dependency-injection.html) into the `HeroService` constructor.
 
   `Http` is not part of the Angular core. It's an optional service in its own `angular2/http` library.
@@ -138,7 +149,7 @@ figure.image-display
   It only takes one `import` statement. 
   It's best to add that statement early when we're bootstrapping the application. 
   :
-+makeExample('server-communication/ts/app/boot.ts', 'import-rxjs', 'app/boot.ts (import rxjs)')(format=".")
++makeExample('server-communication/ts/app/main.ts', 'import-rxjs', 'app/main.ts (import rxjs)')(format=".")
 :marked
   ### Map the response object
   Let's come back to the `HeroService` and look at the `http.get` call again to see why we needed `map()`
@@ -153,12 +164,13 @@ figure.image-display
     The Angular HTTP client follows the ES2015 specification for the
     [response object](https://fetch.spec.whatwg.org/#response-class) returned by the `Fetch` function.
     That spec defines a `json()` method that parses the response body into a JavaScript object.
+
+    We must also know the shape of the data returned by the server API.
+    We shouldn't expect `json()` to return the heroes array directly.
+    The server we're calling always wraps JSON results in an object with a `data`
+    property. We have to unwrap it to get the heroes.
+    This is conventional web api behavior, driven by security concerns.
 :marked
-  We call the `Observable.map` operator with the same kind of transform function that 
-  we'd pass to a `Promise.then`.
-  We remember also that `heroes.json` defined an object with an `items` property
-  that holds our heroes.
-  
   ### Do not return the response object
   Our `getHeroes()` could have returned returned the `Observable<Response>`.
   
@@ -185,36 +197,50 @@ figure.image-display
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'error-handling', 'app/toh/hero.service.ts')(format=".")
 
 :marked
-  In our component we we can now simply pass a second parameter to the `subscribe` function to handle the error case at this level, too.
+  Back in the `HeroListComponent` where we call `heroService.get`, 
+  we pass a second parameter to the `subscribe` function to handle the error case at this level too.
 
-+makeExample('server-communication/ts/app/toh/toh.component.ts', 'ngOnInit', 'app/toh.component.ts (ngOnInit)')
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'ngOnInit', 'app/toh/hero-list.component.ts (ngOnInit)')
 
 
 :marked
   ### Sending data to the server
   
   So far we've seen how to retrieve data from a remote location using Angular's built-in `Http` service. 
-  Wouldn't it be cool if we tweaked our example just a little so that we can create new heroes and save them in the backend?
+  Let's add the ability to create new heroes and save them in the backend.
+
+  We'll create an easy method for the `HeroListComponent` to call, an `addHero` method that takes
+  just the name of a new hero and returns an observable holding the newly-saved hero:
+code-example(format="." language="javascript").
+  addHero (name: string) : Observable&lt;Hero>
+:marked
+  To implement it, we need to know some details about the server's api for creating heroes.
   
-  In order to create a new hero and store it in our backend we should use a 
-  [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request.
-  
-  Let's assume our backend accepts new heroes at the same endpoint when we send them as `POST` request. 
-  The structure it expects is that of our `Hero` entity without the `id` property.
+  [Our data server](#server) follows typical REST guidelines.
+  It expects a [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request
+  at the same endpoint where we `GET` heroes.
+  It expects the new hero data to arrive in the body of the request, 
+  structured like a `Hero` entity but without the `id` property.
+  The body of the request should look like this:
   
 code-example(format="." language="javascript").
   { "name": "Windstorm" }
 :marked
-  It's the backends responsability to generate the `id` for us. For simplicity our backend will return the entire `JSON` representation
-  of the new hero including it's generated id.
-  To build up on this API we first add an `addHero` method to the `HeroService`.
+  The server will generate the `id` and return the entire `JSON` representation
+  of the new hero including its generated id for our convenience.
+  
+  Now that we know how the API works, we implement `addHero`like this:
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
 :marked
-  Notice that the second parameter of the `post` method is for the request body and expects a string. In order to send our hero we have to pass it to `JSON.stringify` first to get an actual JSON string.
-  
-  Revisiting the `addHero` method from our component we notice that it subscribes to the result of the `addHero` method from the `HeroService` 
-  and pushes the new `Hero` into the array of heroes that our component already holds.
-+makeExample('server-communication/ts/app/toh/toh.component.ts', 'addHero', 'app/toh/toh.component.ts (addHero)')(format=".")
+  Notice that the second *body* parameter of the `post` method requires a JSON ***string***
+  so we have to `JSON.stringify` the hero content first.
+.l-sub-section
+  :marked
+    We may be able to skip stringify in the near future.
+:marked
+  Back in the `HeroListComponent`, we see that *its* `addHero` method subscribes to the observable returned by the *service's* `addHero` method.
+  When the data arrive it pushes the new hero object into its `heroes` array for presentation to the user.
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'addHero', 'app/toh/hero-list.component.ts (addHero)')(format=".")
 
 :marked
   ## Communication with `JSONP`
@@ -236,9 +262,10 @@ code-example(format="." language="javascript").
 
   ### Let's fetch some data from wikipedia
   
-  Now that we know why `JSONP` exists, let's build a simple search that shows up suggestions from wikipedia as you type in a text box. Wikipedia offers a `JSONP` api for exactly
-  that purpose.
-  
+  Wikipedia offers a `JSONP` search api. Let's build a simple search that shows suggestions from wikipedia as we type in a text box.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/wiki-1.gif' alt="Wikipedia search app (v.1)" width="250")
+:marked
   Angular provides us with a `Jsonp` services which has the same API surface as the `Http` service with the only difference that it restricts us to use `GET` requests only. This is
   because the nature of `JSONP` does not allow any other kind of requests. In order to use the `Jsonp` service we have to specify the `JSONP_PROVIDERS`.
 
@@ -288,15 +315,19 @@ code-example.
   ### 1. Don't hit the search endpoint on every key stroke
   
   Treat the search endpoint as if you pay for it on a per-request basis. No matter if it's your own hardware or not. We shouldn't be hammering
-  the search enpoint more often than needed. Basically what we want is to hit the search endpoint as soon as the user *stopped typing* instead of
-  with every keystroke.
-
-  ### 2. Don't hit the search endpoint for the same term again that's already in your result list
+  the search enpoint more often than needed. 
+  What we want is to hit the search endpoint as soon as the user *stops typing* instead of after every keystroke.
+  
+  Here's how it *should* work &mdash; and *will* work  &mdash;  when we're done refactoring:
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/wiki-2.gif' alt="Wikipedia search app (v.2)" width="250")
+:marked
+  ### 2. Don't hit the search endpoint for the same term again
   
   Consider you type *foo*, stop, type another *o*, hit return and stop back at *foo*. That should be just one request with the term *foo*
   and not two even if we technically stopped twice after we had *foo*  in the search box.
   
-  ### 3. Deal with out-of-order responses
+  ### 3. Cope with out-of-order responses
 
   When we have multiple requests in-flight at the same time we must account for cases where they come back in unexpected order. Consider we first typed
   *computer*, stop, a request goes out, we type *car*, stop, a request goes out but then the request that carries the results for *computer* comes back
@@ -322,7 +353,6 @@ code-example.
   new values exactly the way we want them to be emitted.
 
 +makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', 'distinctdebounce')(format=".")
-
 :marked
   With the previous change we tamed the input but we still need to deal with the out-of-order cases. At this point we have an `Observable<string>` and a
   `search(term)` method on the `WikipediaService` that returns an `Observable<Array<string>>`. What we want is an `Observable<Array<string>>` that
@@ -333,4 +363,50 @@ code-example.
   emitting values only from the most recent `Observable<T>` that was produced from the outer `Observable`.
   
   This may sound a lot like black magic for people unfamiliar with Observables but as soon as the coin sinks in it's starting to make a whole world of difficult programming tasks appear much simpler.
+
+<a id="server"></a>
+.l-main-section
+:marked
+  ## Appendix: Tour of Heroes in-memory server
+
+  If we only cared to retrieve data, we could tell Angular to get the heroes from a `heroes.json` file like this one:
++makeJson('server-communication/ts/app/heroes.json', null, 'app/heroes.json')(format=".")
+.l-sub-section
+  :marked
+    We wrap the heroes array in an object with a `data` property for the same reason that a data server does:
+    to mitigate the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk)
+    posed by top-level JSON arrays. 
+:marked
+  Our sample saves data. We can't save to a JSON file. We'll need a server ... or a server simulation.
+  This sample uses an in-memory web api simulator that we first installed with `npm`:
+code-example.
+  npm install a2-in-memory-web-api --save
+:marked
+  and then loaded it in our html below the angular script:
++makeExample('server-communication/ts/index.html', 'in-mem-web-api', 'index.html')(format=".")
+:marked
+  The in-memory web api gets its data from a class with a `createDb()` method that returns
+  a "database" object whose keys are collection names ("heroes") 
+  and whose values are arrays of objects in those collections.
+  
+  Here's the class we created for this sample by copy-and-pasting the JSON data:
++makeExample('server-communication/ts/app/hero-data.ts', null, 'app/hero-data.ts')(format=".")
+:marked
+  Finally, we tell Angular to direct its http requests to the in-memory web api service rather
+  than to a remote server.
+  
+  This redirection is easy in Angular because `http` delegates the client/server communication tasks
+  to a helper service called the `XHRBackend`. 
+  
+  To enable our server simulation, we replace the `XHRBackend` service with 
+  the in-memory web api *backend* using standard Angular provider registration
+  in the `TohComponent`. We supply the hero data to the in-memory web api in the same way at the same time.
+  
+  Here are the pertinent details, excerpted from `TohComponent`, starting with the imports:
++makeExample('server-communication/ts/app/toh/toh.component.ts', 'in-mem-web-api-imports', 'toh.component.ts (web api imports)')(format=".")
+:marked
+  Then add these two provider definitions to the component's `providers` array in metadata:
++makeExample('server-communication/ts/app/toh/toh.component.ts', 'in-mem-web-api-providers', 'toh.component.ts (web api providers')(format=".")
+:marked
+  See the full source code in the [live example](/resources/live-examples/server-communication/ts/plnkr.html).
   
