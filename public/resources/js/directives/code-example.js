@@ -13,9 +13,12 @@ angularIO.directive('codeExample', function() {
       var html = (attrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
       var classes = 'prettyprint ' + attrs.format + ' lang-' + attrs.language +
           (attrs.showcase === 'true' ? ' is-showcase' : '');
-      var template =  '<pre class="' + classes + '">' +
-                      '<code ng-non-bindable>' + html + '</code>' +
-                      '</pre>';
+      var template =
+        '<copy-container>' +
+          '<pre class="' + classes + '">' +
+            '<code ng-non-bindable>' + html + '</code>' +
+          '</pre>' +
+        '</copy-container>';
 
       // UPDATE ELEMENT WITH NEW TEMPLATE
       tElement.html(template);
@@ -25,3 +28,10 @@ angularIO.directive('codeExample', function() {
     }
   };
 });
+
+        // '<div style="position: relative">' +
+        //   '<copy-button style="position: absolute; top: 10px; right: 0px; z-index: 1000" ></copy-button>' +
+        //   '<pre class="' + classes + '">' +
+        //     '<code ng-non-bindable>' + html + '</code>' +
+        //   '</pre>' +
+        // '</div>';
