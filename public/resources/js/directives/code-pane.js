@@ -15,10 +15,12 @@ angularIO.directive('codePane', function() {
 
     compile: function(tElement, tAttrs) {
       var html = (tAttrs.escape === "html") ? _.escape(tElement.html()) : tElement.html();
-      var template =  '<pre class="prettyprint ' + tAttrs.format + ' lang-' + tAttrs.language + '" ng-show="selected" >' +
-                      '<code class="animated fadeIn" ng-non-bindable>' + html + '</code>' +
-                      '</pre>';
-
+      var template =
+        '<copy-container ng-show="selected">' +
+          '<pre class="prettyprint ' + tAttrs.format + ' lang-' + tAttrs.language + '">' +
+          '<code class="animated fadeIn" ng-non-bindable>' + html + '</code>' +
+          '</pre>' +
+        '</copy-container>';
 
       // UPDATE ELEMENT WITH NEW TEMPLATE
       tElement.html(template);
