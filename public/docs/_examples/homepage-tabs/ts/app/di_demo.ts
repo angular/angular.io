@@ -2,6 +2,11 @@
 import {Component} from 'angular2/core';
 import {UiTabs, UiPane} from './ui_tabs';
 
+class Detail {
+  title: string;
+  text: string;
+}
+
 @Component({
   selector: 'di-demo',
   template: `
@@ -35,7 +40,7 @@ export class DiDemo {
     });
   }
 
-  removeDetail(detail) {
+  removeDetail(detail:Detail) {
     this.details = this.details.filter((d) => d !== detail);
   }
 }
