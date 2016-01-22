@@ -6,7 +6,7 @@ import {Component} from 'angular2/core';
   selector: 'hello-world',
 
   // Location of the template for this component
-  templateUrl: 'src/hello_world.html'
+  templateUrl: 'app/hello_world.html'
 })
 export class HelloWorld {
 

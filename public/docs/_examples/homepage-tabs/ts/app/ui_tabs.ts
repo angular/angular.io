@@ -34,11 +34,12 @@ export class UiPane {
       <li *ngFor="var pane of panes"
           (click)="select(pane)"
           role="presentation" [class.active]="pane.active">
-        <a href="javascript: false">{{pane.title}}</a>
+        <a>{{pane.title}}</a>
       </li>
     </ul>
     <ng-content></ng-content>
-    `
+    `,
+    styles:['a { cursor: pointer; cursor: hand; }']
 })
 export class UiTabs {
   @ContentChildren(UiPane) panes: QueryList<UiPane>;
