@@ -8,7 +8,7 @@ describe('Lifecycle hooks', function () {
     expect(element.all(by.css('h2')).get(0).getText()).toEqual('Peek-A-Boo');
   });
 
-  it('should be able to drive peek-a-boo button', function () {
+  it('should support peek-a-boo', function () {
     var pabComp = element(by.css('peek-a-boo-parent peek-a-boo'));
     expect(pabComp.isPresent()).toBe(false, "should not be able to find the 'peek-a-boo' component");
     var pabButton = element.all(by.css('peek-a-boo-parent button')).get(0);
@@ -29,80 +29,118 @@ describe('Lifecycle hooks', function () {
     });
   });
 
-  it('should be able to trigger onChanges', function () {
-    var onChangesViewEle = element.all(by.css('on-changes-parent my-hero div')).get(0);
+  it('should support OnChanges hook', function () {
+    var onChangesViewEle = element.all(by.css('on-changes div')).get(0);
     var inputEles = element.all(by.css('on-changes-parent input'));
-    var heroNameInputEle = inputEles.get(0);
-    var powerInputEle = inputEles.get(1);
+    var heroNameInputEle = inputEles.get(1);
+    var powerInputEle = inputEles.get(0);
     var titleEle = onChangesViewEle.element(by.css('p'));
-    expect(titleEle.getText()).toContain('Windstorm can sing');
     var changeLogEles = onChangesViewEle.all(by.css('div'));
-    expect(changeLogEles.count()).toEqual(3, "should start with 3 messages");
+    
+    expect(titleEle.getText()).toContain('Windstorm can sing');
+    expect(changeLogEles.count()).toEqual(2, "should start with 2 messages");
     // heroNameInputEle.sendKeys('-foo-').then(function () {
     sendKeys(heroNameInputEle, '-foo-').then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
-      expect(changeLogEles.count()).toEqual(3, "should still have 3 messages");
+      expect(changeLogEles.count()).toEqual(2, "should still have 2 messages");
       // protractor bug with sendKeys means that line below does not work.
       // return powerInputEle.sendKeys('-bar-');
       return sendKeys(powerInputEle, '-bar-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
-      // 8 == 3 previously + length of '-bar-'
-      expect(changeLogEles.count()).toEqual(8, "should have 8 messages now");
+      // 7 == 2 previously + length of '-bar-'
+      expect(changeLogEles.count()).toEqual(7, "should have 7 messages now");
     });
   });
-
-  it('should support after-view hooks', function () {
-    var inputEle = element(by.css('after-view-parent input'));
-    var buttonEle = element(by.css('after-view-parent button'));
-    var logEles = element.all(by.css('after-view-parent h4 ~ div'));
-    var childViewTextEle = element(by.css('after-view-parent my-child .child'));
-    expect(childViewTextEle.getText()).toContain('Magneta is my hero');
-    expect(logEles.count()).toBeGreaterThan(2);
+  
+  it('should support DoCheck hook', function () {
+    var doCheckViewEle = element.all(by.css('do-check div')).get(0);
+    var inputEles = element.all(by.css('do-check-parent input'));
+    var heroNameInputEle = inputEles.get(1);
+    var powerInputEle = inputEles.get(0);
+    var titleEle = doCheckViewEle.element(by.css('p'));
+    var changeLogEles = doCheckViewEle.all(by.css('div'));
     var logCount;
+    
+    expect(titleEle.getText()).toContain('Windstorm can sing');
+    changeLogEles.count().then(function(count) {
+      expect(count).toBeGreaterThan(3, "should start with at least 4 messages");
+      logCount = count;
+      // heroNameInputEle.sendKeys('-foo-').then(function () {
+      return sendKeys(heroNameInputEle, '-foo-')
+    }).then(function () {
+      expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
+      return changeLogEles.count()
+    }).then(function (count) {
+      expect(count).toEqual(logCount + 10, 'should add 10 more messages')
+      logCount = count;
+      // return powerInputEle.sendKeys('-bar-');
+      return sendKeys(powerInputEle, '-bar-');
+    }).then(function () {
+      expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
+      // 7 == 2 previously + length of '-bar-'
+      expect(changeLogEles.count()).toEqual(logCount + 15, 'should add 15 more messages');
+    });
+  });
+  
+  it('should support AfterView hooks', function () {
+    var parentEle = element(by.tagName('after-view-parent'));
+    var buttonEle = parentEle.element(by.tagName('button')); // Reset
+    var commentEle = parentEle.element(by.className('comment'));    
+    var logEles = parentEle.all(by.css('h4 ~ div'));
+    var childViewInputEle = parentEle.element(by.css('my-child input'));
+    var logCount;
+    
+    expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
+    expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
+
     logEles.count().then(function(count) {
       logCount = count;
-      return sendKeys(inputEle, "-test-");
+      return sendKeys(childViewInputEle, "-test-");
     }).then(function() {
-      expect(childViewTextEle.getText()).toContain('-test-');
+      expect(childViewInputEle.getAttribute('value')).toContain('-test-');
+      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');      
+      expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 6).toEqual(count, "6 additional log messages should have been added");
+      expect(logCount + 11).toEqual(count, "11 additional log messages should have been added");
       logCount = count;
       return buttonEle.click();
     }).then(function() {
-      expect(childViewTextEle.isPresent()).toBe(false,"child view should no longer be part of the DOM");
-      sendKeys(inputEle, "-foo-");
-      expect(logEles.count()).toEqual(logCount, "no additional log messages should have been added");
+      expect(logEles.count()).toBeLessThan(logCount, "log should shrink after reset");
     });
   });
 
-  it('should support after-content hooks', function () {
-    var inputEle = element(by.css('after-content-parent input'));
-    var buttonEle = element(by.css('after-content-parent button'));
-    var logEles = element.all(by.css('after-content-parent h4 ~ div'));
-    var childViewTextEle = element(by.css('after-content-parent my-child .child'));
-    expect(childViewTextEle.getText()).toContain('Magneta is my hero');
-    expect(logEles.count()).toBeGreaterThan(2);
+
+  it('should support AfterContent hooks', function () {
+    var parentEle = element(by.tagName('after-content-parent'));
+    var buttonEle = parentEle.element(by.tagName('button')); // Reset
+    var commentEle = parentEle.element(by.className('comment'));    
+    var logEles = parentEle.all(by.css('h4 ~ div'));
+    var childViewInputEle = parentEle.element(by.css('my-child input'));
     var logCount;
+    
+    expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
+    expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
+
     logEles.count().then(function(count) {
       logCount = count;
-      return sendKeys(inputEle, "-test-");
+      return sendKeys(childViewInputEle, "-test-");
     }).then(function() {
-      expect(childViewTextEle.getText()).toContain('-test-');
+      expect(childViewInputEle.getAttribute('value')).toContain('-test-');
+      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');      
+      expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 6).toEqual(count, "6 additional log messages should have been added");
+      expect(logCount + 11).toEqual(count, "11 additional log messages should have been added");
       logCount = count;
       return buttonEle.click();
     }).then(function() {
-      expect(childViewTextEle.isPresent()).toBe(false,"child view should no longer be part of the DOM");
-      sendKeys(inputEle, "-foo-");
-      expect(logEles.count()).toEqual(logCount, "no additional log messages should have been added");
+      expect(logEles.count()).toBeLessThan(logCount, "log should shrink after reset");
     });
   });
 
-  it('should support "spy" hooks', function () {
+  it('should support spy\'s OnInit & OnDestroy hooks', function () {
     var inputEle = element(by.css('spy-parent input'));
     var addHeroButtonEle = element(by.cssContainingText('spy-parent button','Add Hero'));
     var resetHeroesButtonEle = element(by.cssContainingText('spy-parent button','Reset Heroes'));
@@ -123,7 +161,7 @@ describe('Lifecycle hooks', function () {
     })
   });
 
-  it('should support "spy counter" hooks', function () {
+  it('should support "spy counter"', function () {
     var updateCounterButtonEle = element(by.cssContainingText('counter-parent button','Update'));
     var resetCounterButtonEle = element(by.cssContainingText('counter-parent button','Reset'));
     var textEle = element(by.css('counter-parent my-counter > div'));

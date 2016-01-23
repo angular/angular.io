@@ -1,102 +1,119 @@
+// #docplaster
 // #docregion
-import {
-  Component, Input, Output,
-  AfterContentChecked, AfterContentInit, ContentChild,
-  AfterViewInit, ViewChild
-} from 'angular2/core';
+import {Component,  AfterContentChecked, AfterContentInit, ContentChild} from 'angular2/core';
 
-import {ChildComponent} from './child.component';
 import {LoggerService}  from './logger.service';
 
+//////////////////
+@Component({
+  selector: 'my-child',
+  template: '<input [(ngModel)]="hero">'
+})
+export class ChildComponent {
+  hero = 'Magneta';
+}
+
+//////////////////////
 @Component({
   selector: 'after-content',
-  template: `
-  <div class="after-content">
-    <div>-- child content begins --</div>
-
-    <ng-content></ng-content>
-
-    <div>-- child content ends --</div>
-  </div>
-  `,
-  styles: ['.after-content {background: LightCyan; padding: 8px;}'],
-
+// #docregion template
+  template:`
+    <div>-- projected content begins --</div>
+      <ng-content></ng-content>
+    <div>-- projected content ends --</div>`
+// #enddocregion template
+   + `
+    <p *ngIf="comment" class="comment">
+      {{comment}}
+    </p>
+  `
 })
-export class AfterContentComponent
-  implements AfterContentChecked, AfterContentInit, AfterViewInit {
-
-  private _logger:LoggerService;
-
-  constructor(logger:LoggerService){
-    this._logger = logger;
-    logger.log('AfterContent ctor: ' + this._getMessage());
-  }
+// #docregion hooks
+export class AfterContentComponent implements  AfterContentChecked, AfterContentInit {
+  private _prevHero = '';
 
   // Query for a CONTENT child of type `ChildComponent`
   @ContentChild(ChildComponent) contentChild: ChildComponent;
 
-  // Query for a VIEW child of type`ChildComponent`
-  // No such VIEW child exists!
-  // This component holds content but no view of that type.
-  @ViewChild(ChildComponent) viewChild: ChildComponent;
+// #enddocregion hooks
+  constructor(private _logger:LoggerService){
+    this._logIt('AfterContent constructor');
+  }
 
-
-  ///// Hooks
+// #docregion hooks
   ngAfterContentInit() {
-    // contentChild is set after the content has been initialized
-    this._logger.log('AfterContentInit: ' + this._getMessage());
+    // viewChild is set after the view has been initialized
+    this._logIt('AfterContentInit');
+    this._doSomething();
   }
 
-  ngAfterViewInit() {
-    this._logger.log(`AfterViewInit: There is ${this.viewChild ? 'a' : 'no'} view child`);
-  }
-
-  private _prevHero:string;
   ngAfterContentChecked() {
-    // contentChild is updated after the content has been checked
-    // Called frequently; only report when the hero changes
-    if (!this.contentChild || this._prevHero === this.contentChild.hero) {return;}
-    this._prevHero = this.contentChild.hero;
-    this._logger.log('AfterContentChecked: ' + this._getMessage());
+    // viewChild is updated after the view has been checked
+    if (this._prevHero === this.contentChild.hero) {
+      this._logIt('AfterContentChecked (no change)');
+    } else {
+      this._prevHero = this.contentChild.hero;
+      this._logIt('AfterContentChecked');
+      this._doSomething();
+    }
+  }
+// #enddocregion hooks
+
+  comment = '';
+
+// #docregion do-something
+
+  // This surrogate for real business logic sets the `comment`
+  private _doSomething() {
+    this.comment = this.contentChild.hero.length > 10 ? "That's a long name" : '';
   }
 
-  private _getMessage(): string {
-    let cmp = this.contentChild;
-    return cmp ? `"${cmp.hero}" child content` : 'no child content';
+  private _logIt(method:string){
+    let vc = this.contentChild;
+    let message = `${method}: ${vc ? vc.hero:'no'} child view`
+    this._logger.log(message);
   }
-
+// #docregion hooks
+  // ...
 }
+// #enddocregion hooks
 
-/***************************************/
-
+//////////////
 @Component({
   selector: 'after-content-parent',
   template: `
   <div class="parent">
     <h2>AfterContent</h2>
 
-    <after-content>
-      <input [(ngModel)]="hero">
-      <button (click)="showChild = !showChild">Toggle child view</button>
+    <div   *ngIf="show">` +
+// #docregion parent-template
+     `<after-content>
+        <my-child></my-child>
+      </after-content>`
+// #enddocregion parent-template
++ `</div>
 
-      <my-child *ngIf="showChild" [hero]="hero"></my-child>
-    </after-content>
-
-    <h4>-- Lifecycle Hook Log --</h4>
-    <div *ngFor="#msg of hookLog">{{msg}}</div>
+    <h4>-- AfterContent Logs --</h4>
+    <p><button (click)="reset()">Reset</button></p>
+    <div *ngFor="#msg of logs">{{msg}}</div>
   </div>
   `,
-  styles: ['.parent {background: powderblue; padding: 8px; margin:100px 8px;}'],
-  directives: [AfterContentComponent, ChildComponent],
-  providers:[LoggerService]
+  styles: ['.parent {background: burlywood}'],
+  providers:[LoggerService],
+  directives: [AfterContentComponent, ChildComponent]
 })
 export class AfterContentParentComponent {
-
-  hookLog:string[];
-  hero = 'Magneta';
-  showChild = true;
+  logs:string[];
+  show = true;
 
   constructor(logger:LoggerService){
-    this.hookLog = logger.logs;
+    this.logs = logger.logs;
+  }
+
+  reset() {
+    this.logs.length=0;
+    // quickly remove and reload AfterContentComponent which recreates it
+    this.show = false;
+    setTimeout(() => this.show = true, 0)
   }
 }

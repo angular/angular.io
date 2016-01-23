@@ -58,7 +58,7 @@ export class MyCounter implements OnChanges {
     <div *ngFor="#msg of spyLog">{{msg}}</div>
    </div>
   `,
-  styles: ['.parent {background: gold; padding: 10px; margin:100px 8px;}'],
+  styles: ['.parent {background: gold;}'],
   directives: [MyCounter],
   providers: [LoggerService]
 })
@@ -76,11 +76,13 @@ export class CounterParentComponent {
 
   updateCounter() {
     this.value += 1;
+    this._logger.tick();
   }
 
   reset(){
     this._logger.log('-- reset --');
     this.value=0;
+    this._logger.tick();
   }
 }
 

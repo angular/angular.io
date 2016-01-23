@@ -1,33 +1,23 @@
 // #docregion
-import {Directive, Input,
-        OnInit, OnDestroy} from 'angular2/core';
-
+import {Directive, OnInit, OnDestroy} from 'angular2/core';
 import {LoggerService}  from './logger.service';
 
-/***************************************/
 let nextId = 1;
 
+// #docregion spy-directive
 // Spy on any element to which it is applied.
 // Usage: <div my-spy>...</div>
 @Directive({selector: '[my-spy]'})
 export class Spy implements OnInit, OnDestroy {
 
-  private _id = nextId++;
-  private _logger:LoggerService;
+  constructor(private _logger:LoggerService) { }
 
-  constructor(logger:LoggerService){
-    this._logger = logger;
-  }
+  ngOnInit()    { this._logIt(`onInit`); }
 
-  ngOnInit() {
-    this._logIt(`onInit`);
-  }
-
-  ngOnDestroy() {
-    this._logIt(`onDestroy`);
-  }
+  ngOnDestroy() { this._logIt(`onDestroy`); }
 
   private _logIt(msg:string){
-    this._logger.log(`Spy #${this._id } ${msg}`);
+    this._logger.log(`Spy #${nextId++} ${msg}`);
   }
 }
+// #enddocregion spy-directive

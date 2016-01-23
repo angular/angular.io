@@ -8,48 +8,52 @@ import {Spy} from './spy.directive';
   template: `
   <div class="parent">
     <h2>Spy Directive</h2>
-
-    <input [(ngModel)]="newName" (keyup.enter)="addHero()">
-    <button (click)="addHero()">Add Hero</button>
-    <button (click)="reset()">Reset Heroes</button>
-
-    <p></p>
-    <div *ngFor="#hero of heroes" my-spy class="heroes">
-      {{hero}}
-    </div>
-
-    <h4>-- Spy Lifecycle Hook Log --</h4>
+    <p>
+      <input [(ngModel)]="newName"
+            (keyup.enter)="addHero()"
+            placeholder="Hero name">
+      <button (click)="addHero()">Add Hero</button>
+      <button (click)="reset()">Reset Heroes</button>
+    </p>` +
+// #docregion template
+    `<div *ngFor="#hero of heroes"  my-spy  class="heroes">
+       {{hero}}
+     </div>`
+// #enddocregion template
++ `<h4>-- Spy Lifecycle Hook Log --</h4>
     <div *ngFor="#msg of spyLog">{{msg}}</div>
    </div>
   `,
   styles: [
-     '.parent {background: khaki; padding: 10px; margin:100px 8px}',
+     '.parent {background: khaki;}',
      '.heroes {background: LightYellow; padding: 0 8px}'
   ],
   directives: [Spy],
-  providers: [LoggerService]
+  providers:  [LoggerService]
 })
 export class SpyParentComponent {
   newName = 'Herbie';
   heroes:string[] = ['Windstorm', 'Magneta'];
   spyLog:string[];
 
-  private _logger:LoggerService;
-
-  constructor(logger:LoggerService){
-    this._logger = logger;
-    this.spyLog = logger.logs;
+  constructor(private _logger:LoggerService){
+    this.spyLog = _logger.logs;
   }
 
   addHero() {
     if (this.newName.trim()) {
       this.heroes.push(this.newName.trim());
       this.newName = '';
+      this._logger.tick();
     }
   }
-
+  removeHero(hero:string) {
+    this.heroes.splice(this.heroes.indexOf(hero), 1);
+    this._logger.tick();
+  }
   reset(){
     this._logger.log('-- reset --');
     this.heroes.length = 0;
+    this._logger.tick();
   }
 }

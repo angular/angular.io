@@ -21,7 +21,7 @@ import {LoggerService}  from './logger.service';
     <div *ngFor="#msg of hookLog">{{msg}}</div>
   </div>
   `,
-  styles: ['.parent {background: moccasin; padding: 10px; margin:100px 8px}'],
+  styles: ['.parent {background: moccasin}'],
   directives: [PeekABooComponent],
   providers: [LoggerService]
 })
