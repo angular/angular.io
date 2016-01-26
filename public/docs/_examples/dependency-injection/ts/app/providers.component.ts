@@ -1,4 +1,5 @@
 // Examples of provider arrays
+//#docplaster
 import { Component, Host, Inject, Injectable,
          provide, Provider}    from 'angular2/core';
 
@@ -103,10 +104,8 @@ class EvenBetterLogger {
   template: template,
   providers:
     //#docregion providers-5
-    [
-      UserService,
-      provide(Logger, {useClass: EvenBetterLogger})
-    ]
+    [ UserService,
+      provide(Logger, {useClass: EvenBetterLogger}) ]
     //#enddocregion providers-5
 })
 export class ProviderComponent5 {
@@ -131,11 +130,9 @@ class OldLogger {
   template: template,
   providers:
     //#docregion providers-6a
-    [
-      NewLogger,
+    [ NewLogger,
       // Not aliased! Creates two instances of `NewLogger`
-      provide(OldLogger, {useClass:NewLogger})
-    ]
+      provide(OldLogger, {useClass:NewLogger}) ]
     //#enddocregion providers-6a
 })
 export class ProviderComponent6a {
@@ -156,11 +153,9 @@ export class ProviderComponent6a {
   template: template,
   providers:
     //#docregion providers-6b
-    [
-      NewLogger,
+    [ NewLogger,
       // Alias OldLogger w/ reference to NewLogger
-      provide(OldLogger, {useExisting: NewLogger})
-    ]
+      provide(OldLogger, {useExisting: NewLogger}) ]
     //#enddocregion providers-6b
 })
 export class ProviderComponent6b {
@@ -306,7 +301,9 @@ export class ProviderComponent10b {
         log: (msg:string)=> this._logger.logs.push(msg),
         logs: []
       }
+    // #enddocregion provider-10-logger      
       this._logger.log("Optional logger was not available.")
+    // #docregion provider-10-logger      
     }
     // #enddocregion provider-10-logger
     else {
