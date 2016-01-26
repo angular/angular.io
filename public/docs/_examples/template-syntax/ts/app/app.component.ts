@@ -29,6 +29,7 @@ export class AppComponent {
 
   actionName = 'Go for it';
   alert = alerter;
+  badCurly = 'bad curly';
   callFax(value:string)   {this.alert(`Faxing ${value} ...`)}
   callPhone(value:string) {this.alert(`Calling ${value} ...`)}
   canSave =  true;
@@ -130,7 +131,7 @@ export class AppComponent {
       // CSS property names
       'font-style':  this.canSave      ? 'italic' : 'normal',  // italic
       'font-weight': !this.isUnchanged ? 'bold'   : 'normal',  // normal
-      'font-size':   this.isSpecial    ? 'x-large': 'smaller', // larger
+      'font-size':   this.isSpecial    ? '24px'   : '8px',     // 24px
     }
     // #enddocregion setStyles
     // compensate for DevMode (sigh)
@@ -142,25 +143,6 @@ export class AppComponent {
     return styles;
   }
   // #enddocregion setStyles
-
-  // #docregion setStyles2
-  setStyles2() {
-    let styles = {
-      // camelCase style properties work too
-      fontStyle:  this.canSave      ? 'italic' : 'normal',  // italic
-      fontWeight: !this.isUnchanged ? 'bold'   : 'normal',  // normal
-      fontSize:   this.isSpecial    ? 'x-large': 'smaller', // larger
-    }
-    // #enddocregion setStyles2
-    // compensate for DevMode (sigh)
-    if (JSON.stringify(styles) === JSON.stringify(this._priorStyles2)){
-       return this._priorStyles2;
-    }
-    this._priorStyles2 = styles;
-    // #docregion setStyles2
-    return styles;
-  }
-  // #enddocregion setStyles2
 
   toeChoice = '';
   toeChooser(picker:HTMLFieldSetElement){

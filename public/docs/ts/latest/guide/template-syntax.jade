@@ -680,48 +680,62 @@ code-example(format="", language="html").
   We must follow the `$event.target.value` path to get the changed text so we can update the `firstName`
 
   If the event belongs to a directive (remember: components are directives), `$event` has whatever shape the directive chose to produce.
+
+  <a id="eventemitter"></a>
+  <a id="custom-event"></a>
+  ### Custom events with *EventEmitter*
+  Directives typically raise custom events with an Angular [EventEmitter](../api/core/EventEmitter-class.html). 
+  A directive creates an `EventEmitter` and exposes it as a property. 
+  The directive calls `EventEmitter.emit(payload)` to fire an event, passing in a message payload which can be anything.
+  Parent directives listen for the event by binding to this property and accessing the payload through the `$event` object.
+    
   Consider a `HeroDetailComponent` that produces `deleted` events with an `EventEmitter`.
 +makeExample('template-syntax/ts/app/hero-detail.component.ts', 'deleted', 'HeroDetailComponent.ts (excerpt)')(format=".")
 :marked
-  When something invokes the `onDeleted()` method, we "emit" a `Hero` object.
+  When the user clicks a button, the component invokes the `onDeleted()` method which emits a `Hero` object.
+  The `HeroDetailComponent` doesn't know how to delete a hero. It's job is to present information and
+  respond to user actions.
 
-  Now imagine a parent component that listens for that event with an Event Binding.
+  Now imagine a parent component that binds to the `HeroDetailComponent`'s `deleted` event.
+
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-to-component')(format=".")
 :marked
-  The event binding surfaces the *hero-to-delete* emitted by `HeroDetail` to the statement via the `$event` variable.
-  We pass it along to the parent `onHeroDeleted()` method.
-  That method presumably knows how to delete the hero.
+  When the `deleted` event fires, Angular calls the parent component's `onHeroDeleted` method,
+  passing the *hero-to-delete* (emitted by `HeroDetail`) in the `$event` variable.
 
-  Evaluation of this Event Binding template statement has a side-effect. It deletes a hero.
+  The `onHeroDeleted` method has a side effect. It deletes a hero.
   Side-effects are not just OK; they are expected.
 
-  The statement could update the model thereby triggering other changes that percolate through the system, changes that
-  are ultimately displayed in this view and other views.
-  The event processing may result in queries and saves to a remote server. It's all good.
+  Deleting the hero updates the model perhaps triggering other changes
+  including queries and saves to a remote server. 
+  These changes percolate through the system and are ultimately displayed in this and other views. 
+  It's all good.
 
-  ### Event bubbling and propagation
-  Angular invokes the event-handling statement if the event is raised by the current element or one of its child elements.
-+makeExample('template-syntax/ts/app/app.component.html', 'event-binding-bubbling')(format=".")
-:marked
-  Many DOM events, both [native](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Overview_of_Events_and_Handlers ) and [custom](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events ),  “bubble” events up their ancestor tree of DOM elements until an event handler along the way prevents further propagation.
-
-.l-sub-section
+//
   :marked
-    `EventEmitter` events don’t bubble.
+    ### Event bubbling and propagation
+    Angular invokes the event-handling statement if the event is raised by the current element or one of its child elements.
+  +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-bubbling')(format=".")
+  :marked
+    Many DOM events, both [native](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Overview_of_Events_and_Handlers ) and [custom](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events ),  “bubble” events up their ancestor tree of DOM elements until an event handler along the way prevents further propagation.
 
-:marked
-  The result of an Event Binding statement determines if
-  [event propagation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation)
-  continues or stops with the current element.
+  .l-sub-section
+    :marked
+      `EventEmitter` events don’t bubble.
 
-  Event propagation stops if the binding statement returns a falsey value (as does a method with no return value).
-  Clicking the button in this next example triggers a save;
-  the click doesn't make it to the outer `<div>` so it's save is not called:
-+makeExample('template-syntax/ts/app/app.component.html', 'event-binding-no-propagation')(format=".")
-:marked
-  Propagation continues if the statement returns a truthy value. The click is heard both by the button
-  and the outer `<div>`, causing a double save:
-+makeExample('template-syntax/ts/app/app.component.html', 'event-binding-propagation')(format=".")
+  :marked
+    The result of an Event Binding statement determines if
+    [event propagation](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Examples#Example_5:_Event_Propagation)
+    continues or stops with the current element.
+
+    Event propagation stops if the binding statement returns a falsey value (as does a method with no return value).
+    Clicking the button in this next example triggers a save;
+    the click doesn't make it to the outer `<div>` so it's save is not called:
+  +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-no-propagation')(format=".")
+  :marked
+    Propagation continues if the statement returns a truthy value. The click is heard both by the button
+    and the outer `<div>`, causing a double save:
+  +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-propagation')(format=".")
 
 
 .l-main-section
@@ -847,10 +861,6 @@ figure.image-display
 :marked
   Now add an `NgStyle` property binding to call it like this
 +makeExample('template-syntax/ts/app/app.component.html', 'NgStyle-2')(format=".")
-:marked
-  Alternatively, we can return an object with camelCase style property names with the same effects:
-+makeExample('template-syntax/ts/app/app.component.ts', 'setStyles2')(format=".")
-:marked
 
 <a id="ngIf"></a>
 .l-main-section
