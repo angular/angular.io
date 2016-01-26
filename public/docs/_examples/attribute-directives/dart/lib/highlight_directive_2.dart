@@ -12,7 +12,6 @@ import 'package:angular2/angular2.dart';
 // #enddocregion host
     )
 class Highlight {
-  final Renderer _renderer;
   final ElementRef _element;
 // #docregion mouse-methods
   onMouseEnter() {
@@ -25,11 +24,11 @@ class Highlight {
   // #enddocregion mouse-methods
 
   void _highlight(String color) {
-    _renderer.setElementStyle(_element, 'background-color', color);
+    _element.nativeElement.style.backgroundColor = color;
   }
 
 // #docregion ctor
-  Highlight(this._element, this._renderer);
+  Highlight(this._element);
 // #enddocregion ctor
 }
 // #enddocregion

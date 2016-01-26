@@ -64,9 +64,9 @@ include ../../../../_includes/_util-fns
 :marked
   We begin by importing some symbols from the Angular library.
   We need the `Directive` symbol for the `@Directive` decorator.
-  We need symbols for the *Element Reference* and the *Renderer* service that
-  we will [inject](dependency-injection.html) into the directive's constructor.
-  We don't need `Input` now but we will need it later in the chapter.
+  We need the `ElementRef` to [inject](dependency-injection.html) into the directive's constructor
+  so we can access the DOM element.
+  We don't need `Input` immediately but we will need it later in the chapter.
   
   Then we define the directive metadata in a configuration object passed
   as an argument to the `@Directive` decorator function. 
@@ -98,40 +98,17 @@ include ../../../../_includes/_util-fns
   The directive's controller class contains the logic for the directive.
   
   Angular creates a new instance of the directive's controller class for
-  each matching element, injecting  an *Element Reference* and 
-  the *Renderer* service as arguments to the constructor. 
-  We'll need those *services* to set the element's background color.
-    
-  Our code shows two ways to set the color.
+  each matching element, injecting an Angular `ElementRef` 
+  into the constructor.
   
-  We could access the `nativeElement` property of the element reference 
-  and set the element's background color using the browser DOM API. We don't need
-  the `Renderer` for this approach. 
-  
-  We commented this technique out. It works. But we don't like it.
+  `ElementRef` is a service that grants us direct access to the DOM element
+  through its `nativeElement` property.
+  That's all we need to set the element's background color using the browser DOM API.
 
-  We prefer the second way that relies on the `Renderer` service
-  to set the element properties.
-
-.l-sub-section
-  :marked
-    ### Why prefer the Renderer?
-    Manipulating the DOM directly is a practice we'd rather *avoid* because it chains us
-    to the browser DOM API.
-    
-    The  `Renderer` insulates our code from the browser's API. 
-    That gives us options.
-    The rendering phase could be offloaded to a Web Worker for faster performance.
-    Our directive might work when we ran the application outside the browser,
-    perhaps on the server in a pre-render phase. 
-    Server-side rendering can make our application load faster and
-    is often friendlier to Search Engine Optimizations (SEO).
-
-:marked
 .l-main-section
 :marked
   ## Apply the attribute directive
-  The `AppComponent` will be the test harness for our `HighlightDirective`.
+  The `AppComponent` in this sample is a test harness for our `HighlightDirective`.
   Let's give it a new template that 
   applies the directive as an attribute to a `span` element.
   In Angular terms, the `<span>` element will be the attribute **host**.
@@ -147,19 +124,31 @@ include ../../../../_includes/_util-fns
   We've added an `import` statement to fetch the 'Highlight' directive and 
   added that class to a `directives` array in the component metadata so that Angular 
   will recognize our directive when it encounters `myHighlight` in the template. 
-  Angular would simply ignore the `myHighlight` attribute without it.
-  
+
   We run the app and see that our directive highlights the span text.
   
 figure.image-display
   img(src="/resources/images/devguide/attribute-directives/first-highlight.png" alt="First Highlight")
+.l-sub-section
+  :marked
+    #### Why isn't my directive working? 
+
+    Did you remember to set the `directives` array? It is easy to forget!
+    
+    Open the console in the browser tools and look for an error like this:
+  code-example.format("").
+    EXCEPTION: Template parse errors:
+      Can't bind to 'myHighlight' since it isn't a known native property 
+  :marked
+    Angular detects that we're trying to bind to *something* but it doesn't know what.
+    We have to tell it by listing `HighlightDirective` in the `directives` metadata array.
 :marked
   Let's recap what happened.
   
   Angular found the `myHighlight` attribute on the `<span>` element. It created
   an instance of the `HighlightDirective` class, 
-  injecting both a reference to the element and the `Renderer` service into the constructor.
-  The constructor told the `Renderer` to set the `<span>` element's background style to yellow.
+  injecting a reference to the element into the constructor 
+  where we set the `<span>` element's background style to yellow.
 
 .l-main-section
 :marked
@@ -195,12 +184,11 @@ figure.image-display
   Now we implement those two mouse event handlers:
 +makeExample('attribute-directives/ts/app/highlight.directive.2.ts','mouse-methods')(format=".")
 :marked
-  Notice that they delegate to a helper method that calls the `Renderer` service
-  as we used to do in the constructor.
+  Notice that they delegate to a helper method to set the color.
   
   We no longer need the constructor body but 
-  we still want the injected `ElementRef` and `Renderer` service.
-  We revise the constructor signature to capture the injectables in private variables
+  we still want the injected `ElementRef`.
+  We revise the constructor signature to capture the injected `ElementRef` in a private variable
   and clear the body.
 +makeExample('attribute-directives/ts/app/highlight.directive.2.ts','ctor')(format=".")
 :marked
@@ -233,12 +221,11 @@ figure.image-display
 :marked
   This `@Input` decorator adds metadata to the class that makes the `highlightColor` property  available for property binding
   under the `myHighlight` alias. 
-  We must add this input metadata. 
-  Angular will reject a binding to this property if we don't declare it as an input.
-  
+  We must add this input metadata or Angular will reject the binding.
   See the [appendix](#why-input) below to learn why.
 .l-sub-section
   :marked
+    ### @Input(alias) 
     The developer who uses our directive expects to bind to the attribute name, `myHighlight`.
     The directive property name is `highlightColor`. That's a disconnect.
     
@@ -333,14 +320,14 @@ figure.image-display
   `attribute-directives/ts/app/app.component.ts,
    attribute-directives/ts/app/app.component.html, 
    attribute-directives/ts/app/highlight.directive.ts,
-   attribute-directives/ts/app/boot.ts,
+   attribute-directives/ts/app/main.ts,
    attribute-directives/ts/index.html
   `,
   ',,full',
   `app.component.ts,
    app.component.html,
    highlight.directive.ts,
-   boot.ts,
+   main.ts,
    index.html
   `)
 
@@ -359,9 +346,9 @@ figure.image-display
   Angular makes a subtle but important distinction between binding **sources** and **targets**.
   
   In all previous bindings, the directive or component property was a binding ***source***.
-  A property is a *source* if it appears in the template expression to the ***right*** of the (=).
+  A property is a *source* if it appears in the template expression to the ***right*** of the equals (=).
   
-  A property is a *target* when it appears to the **left** of the (=) ...
+  A property is a *target* when it appears in **square brackets** ([ ]) to the **left** of the equals (=) ...
   as it is does when we bind to the `myHighlight` property of the `HighlightDirective`, 
 +makeExample('attribute-directives/ts/app/app.component.html','span')(format=".")
 :marked
