@@ -1,6 +1,4 @@
 // #docregion
-library template_syntax.hero_detail_component;
-
 import 'package:angular2/angular2.dart';
 import 'package:template_syntax/hero.dart';
 

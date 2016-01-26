@@ -1,6 +1,4 @@
 // #docregion
-library template_syntax.app_component;
-
 import 'dart:html';
 import 'dart:convert';
 
@@ -25,9 +23,6 @@ class AppComponent {
   String help;
   String actionName = 'Go for it';
   String title = 'Template Syntax';
-  String heroImageUrl = 'assets/images/hero.png';
-  String villainImageUrl = 'assets/images/villain.png';
-  String iconUrl = 'assets/images/ng-logo.png';
   String chosenToe;
   int val = 2;
   bool canSave = true;
@@ -39,10 +34,22 @@ class AppComponent {
   List<Hero> heroes = Hero.MockHeroes;
   Hero selectedHero = Hero.MockHeroes[0];
   Hero currentHero = Hero.MockHeroes[0];
-  Hero nullHero = null;
+  final Hero nullHero = null;
   Map product = {'name': 'frimfram', 'price': 42};
-  Event clickity;
   FormElement form;
+  String clickity = '';
+  String clickMessage = '';
+  String clickMessage2 = '';
+
+  // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
+  // Public Domain terms of use: http://www.wpclipart.com/terms.html
+  final String heroImageUrl = 'assets/images/hero.png';
+
+  // villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
+  // Public Domain terms of use http://www.clker.com/disclaimer.html
+  final String villainImageUrl = 'assets/images/villain.png';
+
+  final String iconUrl = 'assets/images/ng-logo.png';
 
   Map classes = {
     'saveable': false, // true
@@ -69,7 +76,7 @@ class AppComponent {
     color = color == _Color.Red ? _Color.Blue : _Color.Red;
   }
 
-  int get getVal => val;
+  int getVal() => val;
 
   void onCancel(MouseEvent event) {
     DivElement el = event.target;

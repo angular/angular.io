@@ -1,6 +1,4 @@
 // #docregion
-library template_syntax.hero;
-
 class Hero {
   static int _nextId = 1;
 
