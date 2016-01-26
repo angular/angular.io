@@ -1,4 +1,4 @@
-describeIf(browser.appIsTs, 'Forms Tests', function () {
+describeIf(browser.appIsTs || browser.appIsJs, 'Forms Tests', function () {
 
   beforeEach(function () {
     browser.get('');
