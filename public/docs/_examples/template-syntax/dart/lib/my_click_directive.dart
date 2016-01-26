@@ -1,6 +1,4 @@
-// #docregion
-library template_syntax.my_click_directive;
-
+// #docplaster
 import 'dart:html';
 
 import 'package:angular2/angular2.dart';
@@ -8,12 +6,18 @@ import 'package:angular2/angular2.dart';
 @Directive(selector: '[myClick]')
 class MyClickDirective {
   // #docregion my-click-output-1
-  @Output()
-  final EventEmitter clicks = new EventEmitter<String>();
+  // @Output(alias) [type info] propertyName = ...
+  @Output('myClick') final EventEmitter clicks = new EventEmitter<String>();
+
   // #enddocregion my-click-output-1
+  bool _toggle = false;
 
   MyClickDirective(ElementRef el) {
-    el.nativeElement.onClick.listen(this.clicks.add('Click!'));
+    Element nativeEl = el.nativeElement;
+    nativeEl.onClick.listen((Event e) {
+      _toggle = !_toggle;
+      clicks.emit(_toggle ? 'Click!' : '');
+    });
   }
 }
 
@@ -22,12 +26,17 @@ class MyClickDirective {
 // #enddocregion my-click-output-2
     selector: '[myClick2]',
 // #docregion my-click-output-2
-    outputs: const ['clicks:myClick'])
+    // ...
+    outputs: const ['clicks:myClick']) // propertyName:alias
 // #enddocregion my-click-output-2
 class MyClickDirective2 {
   final EventEmitter clicks = new EventEmitter<String>();
+  bool _toggle = false;
 
-  MyClickDirective(ElementRef el) {
-    el.nativeElement.onClick.listen(this.clicks.add('Click!'));
+  MyClickDirective2(ElementRef el) {
+    el.nativeElement.onClick.listen((Event e) {
+      _toggle = !_toggle;
+      clicks.emit(_toggle ? 'Click2!' : '');
+    });
   }
 }

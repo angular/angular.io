@@ -1,15 +1,14 @@
 // #docregion
-library template_syntax.app_component;
-
-import 'dart:html';
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:angular2/angular2.dart';
-import 'package:template_syntax/hero.dart';
-import 'package:template_syntax/hero_detail_component.dart';
-import 'package:template_syntax/my_click_directive.dart';
 
-enum _Color { Red, Green, Blue }
+import 'hero.dart';
+import 'hero_detail_component.dart';
+import 'my_click_directive.dart';
+
+enum Color { Red, Green, Blue }
 
 @Component(
     selector: 'my-app',
@@ -24,37 +23,54 @@ class AppComponent {
   String heroName;
   String help;
   String actionName = 'Go for it';
+//  String badCurly = 'special'; // XXX: This isn't working.
+//  String badCurly = 'bad, curly'; // XXX: This isn't working.
+//  String badCurly = 'bad curly'; // XXX: This isn't working.
+  String badCurly = 'bad'; // XXX: This isn't working.
+//  List<String> badCurly = ['bad', 'curly']; // XXX: This isn't working.
   String title = 'Template Syntax';
-  String heroImageUrl = 'assets/images/hero.png';
-  String villainImageUrl = 'assets/images/villain.png';
-  String iconUrl = 'assets/images/ng-logo.png';
-  String chosenToe;
+  String toeChoice;
   int val = 2;
   bool canSave = true;
   bool isActive = false;
   bool isSpecial = true;
   bool isUnchanged = true;
   bool isSelected = false;
-  _Color color = _Color.Red;
+  Color color = Color.Red;
   List<Hero> heroes = Hero.MockHeroes;
   Hero selectedHero = Hero.MockHeroes[0];
   Hero currentHero = Hero.MockHeroes[0];
-  Hero nullHero = null;
+  final Hero nullHero = null;
   Map product = {'name': 'frimfram', 'price': 42};
-  Event clickity;
   FormElement form;
+  String clickity = '';
+  String clickMessage = '';
+  String clickMessage2 = '';
+  final String iconUrl = 'assets/images/ng-logo.png';
 
+  // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
+  // Public Domain terms of use: http://www.wpclipart.com/terms.html
+  final String heroImageUrl = 'assets/images/hero.png';
+
+  // villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
+  // Public Domain terms of use http://www.clker.com/disclaimer.html
+  final String villainImageUrl = 'assets/images/villain.png';
+
+  // #docregion setClasses
   Map classes = {
-    'saveable': false, // true
-    'modified': false, // false
-    'special': false // true
+    'saveable': false,
+    'modified': false,
+    'special': false
   };
+  // #enddocregion setClasses
 
+  // #docregion setStyles
   Map styles = {
     'font-style': 'normal',
     'font-weight': 'normal',
     'font-size': 'smaller'
   };
+  // #enddocregion setStyles
 
   Map styles2 = {
     'fontStyle': 'normal',
@@ -66,31 +82,31 @@ class AppComponent {
   void callFax(String value) => alerter('Faxing $value ...');
   void callPhone(String value) => alerter('Calling $value ...');
   void colorToggle() {
-    color = color == _Color.Red ? _Color.Blue : _Color.Red;
+    color = (color == Color.Red) ? Color.Blue : Color.Red;
   }
 
-  int get getVal => val;
+  int getVal() => val;
 
   void onCancel(MouseEvent event) {
     DivElement el = event.target;
-    var evtMsg = event != null ? 'Event target is ${el.innerHtml}' : '';
+    var evtMsg = event != null ? 'Event target is ${el.innerHtml}.' : '';
     alerter('Canceled. $evtMsg');
   }
 
   void onClickMe(MouseEvent event) {
     DivElement el = event.target;
-    var evtMsg = event != null ? 'Event target class is ${el.className}' : '';
+    var evtMsg = event != null ? 'Event target class is ${el.className}.' : '';
     alerter('Click me. $evtMsg');
   }
 
   bool onSave([MouseEvent event = null]) {
     var evtMsg =
-        event != null ? ' Event target is ${event.target.innerHtml}' : '';
-    alerter('Saved.$evtMsg');
+        event != null ? ' Event target is ${event.target.innerHtml}.' : '';
+    alerter('Saved. $evtMsg');
     return false;
   }
 
-  void onHeroDeleted(Hero hero) => alerter('Deleted hero: ${hero.firstName}');
+  void onHeroDeleted([Hero hero]) => alerter('Deleted hero: ${hero?.firstName}');
 
   void onSubmit(NgForm form) {
     var evtMsg = form.valid
@@ -108,40 +124,32 @@ class AppComponent {
     return JSON.encode(showStyles);
   }
 
-  // #docregion setStyles
-  Map setStyles() {
-    styles['font-style'] = canSave ? 'italic' : 'normal';
-    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal';
-    styles['font-size'] = isSpecial ? 'x-large' : 'smaller';
-    return styles;
-  }
-  // #enddocregion setStyles
-
-  // #docregion setStyles2
-  Map setStyles2() {
-    // camelCase style properties work too [PENDING: no, they don't]
-    styles2['fontStyle'] = canSave ? 'italic' : 'normal';
-    styles2['fontWeight'] = !isUnchanged ? 'bold' : 'normal';
-    styles2['fontSize'] = isSpecial ? 'x-large' : 'smaller';
-    return styles2;
-  }
-  // #enddocregion setStyles2
-
+  // #docregion setClasses
   Map setClasses() {
-    classes['saveable'] = canSave;
-    classes['modified'] = !isUnchanged;
-    classes['special'] = isSpecial;
+    classes['saveable'] = canSave;      // true
+    classes['modified'] = !isUnchanged; // false
+    classes['special'] = isSpecial;     // true
 
     return classes;
   }
+  // #enddocregion setClasses
+
+  // #docregion setStyles
+  Map setStyles() {
+    styles['font-style'] = canSave ? 'italic' : 'normal';     // italic
+    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal'; // normal
+    styles['font-size'] = isSpecial ? '24px' : '8px';         // 24px
+    return styles;
+  }
+  // #enddocregion setStyles
 
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
       var choice = choices[i];
       if (choice.checked) {
-        chosenToe = choice.value;
-        return chosenToe;
+        toeChoice = choice.value;
+        return toeChoice;
       }
     }
   }

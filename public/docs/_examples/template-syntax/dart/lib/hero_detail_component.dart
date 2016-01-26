@@ -1,8 +1,8 @@
+// #docplaster
 // #docregion
-library template_syntax.hero_detail_component;
-
 import 'package:angular2/angular2.dart';
-import 'package:template_syntax/hero.dart';
+
+import 'hero.dart';
 
 var nextHeroDetailId = 1;
 
@@ -11,28 +11,40 @@ var nextHeroDetailId = 1;
 // #enddocregion input-output-2
     selector: 'hero-detail',
 // #docregion input-output-2
+    // ...
     inputs: const ['hero'],
     outputs: const ['deleted'],
 // #enddocregion input-output-2
-    template: '''<div id="lh{{hero?.id}}">
-    {{hero?.fullName}}
+    template: '''
+  <div>
+    <span [style.text-decoration]="lineThrough" >{{hero?.fullName}}</span>
     <img src="{{heroImageUrl}}" style="height:24px">
-    <a href="#lh{{hero?.id}}" (click)="onDelete()">delete</a>
-  </div>'''
+    <a (click)="onDelete()">delete</a>
+  </div>
+'''
 // #docregion input-output-2
     )
 // #enddocregion input-output-2
 class HeroDetailComponent {
-  Hero hero;
-  // #docregion deleted
-
+  Hero hero = new Hero('Zzzzzzzz'); // default sleeping hero
   String heroImageUrl = 'assets/images/hero.png';
-  final EventEmitter deleted = new EventEmitter<Hero>();
+  String lineThrough = ''; // PENDING: use null instead?
 
-  onDelete() {
-    deleted.add(hero);
+  // #docregion deleted
+  final EventEmitter deleted = new EventEmitter<Hero>();
+  // #enddocregion deleted
+
+  HeroDetailComponent() {
+    deleted.listen((Hero _) {
+      lineThrough = (lineThrough == '') ? 'line-through' : '';
+    });
   }
-// #enddocregion deleted
+
+  // #docregion deleted
+  onDelete() {
+    deleted.emit(hero);
+  }
+  // #enddocregion deleted
 }
 
 @Component(
@@ -41,7 +53,8 @@ class HeroDetailComponent {
   inputs: ['hero'],
   outputs: ['deleted'],
   */
-    template: '''<div style="border: 1px solid black; padding:3px">
+    template: '''
+  <div style="border: 1px solid black; padding:3px">
     <img src="{{heroImageUrl}}" style="float:left; margin-right:8px;">
     <div><b>{{hero?.fullName}}</b></div>
     <div>First: {{hero?.firstName}}</div>
@@ -51,17 +64,17 @@ class HeroDetailComponent {
     <div>Rate/hr: {{hero?.rate | currency:'EUR'}}</div>
     <br clear="all">
     <button (click)="onDelete()">Delete</button>
-  </div>''')
+  </div>
+''')
 class BigHeroDetailComponent extends HeroDetailComponent {
   // #docregion input-output-1
   @Input() Hero hero;
-  @Output()
-  final EventEmitter deleted = new EventEmitter<Hero>();
+  @Output() final EventEmitter deleted = new EventEmitter<Hero>();
   // #enddocregion input-output-1
 
   String heroImageUrl = 'assets/images/hero.png';
 
   onDelete() {
-    deleted.add(hero);
+    deleted.emit(hero);
   }
 }
