@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'logger_service.dart';
+
 import 'child_component.dart';
+import 'logger_service.dart';
 
 @Component(
     selector: 'after-content',
@@ -33,18 +34,13 @@ class AfterContentComponent
     _logger.log('AfterContent ctor: $message');
   }
 
-  ///// Hooks
-  ngAfterContentInit() {
-    // contentChild is set after the content has been initialized
-    _logger.log('AfterContentInit: $message');
-  }
+  bool get hasContentChild => contentChild != null;
 
   get hasViewChild => viewChild != null;
 
-  ngAfterViewInit() {
-    _logger
-        .log('AfterViewInit: There is ${hasViewChild ? 'a' : 'no'} view child');
-  }
+  String get message => hasContentChild
+      ? '"${contentChild.hero}" child content'
+      : 'no child content';
 
   ngAfterContentChecked() {
     // contentChild is updated after the content has been checked
@@ -54,11 +50,16 @@ class AfterContentComponent
     _logger.log('AfterContentChecked: $message');
   }
 
-  bool get hasContentChild => contentChild != null;
+  ///// Hooks
+  ngAfterContentInit() {
+    // contentChild is set after the content has been initialized
+    _logger.log('AfterContentInit: $message');
+  }
 
-  String get message => hasContentChild
-      ? '"${contentChild.hero}" child content'
-      : 'no child content';
+  ngAfterViewInit() {
+    _logger
+        .log('AfterViewInit: There is ${hasViewChild ? 'a' : 'no'} view child');
+  }
 }
 
 @Component(

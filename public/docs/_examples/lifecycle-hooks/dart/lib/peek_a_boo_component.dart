@@ -1,7 +1,8 @@
 // #docregion
 // #docregion lc-imports
 import 'package:angular2/angular2.dart';
-import 'package:lifecycle_hooks/logger_service.dart';
+
+import 'logger_service.dart';
 
 int nextId = 1;
 
