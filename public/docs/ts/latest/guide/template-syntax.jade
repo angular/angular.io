@@ -66,9 +66,9 @@ include ../../../../_includes/_util-fns
   We appear to be inserting the result between element tags and assigning to attributes.
   It's convenient to think so, and we rarely suffer for this mistake.
   But it is not literally true. Interpolation is a special syntax that Angular converts into a
-  [property binding](#property-binding), as we explain below. The implications and consequences of property binding, as opposed to attribute assignment, can be profound.
+  [property binding](#property-binding), as we'll explain below.
 
-  But before we explore that assertion, we’ll take a closer look at template expressions and statements.
+  But first, let's take a closer look at template expressions and statements.
 
 <a id="template-expressions"></a>
 .l-main-section
@@ -237,7 +237,7 @@ table
     th Syntax
     th Binding type
   tr
-    td One way<br>from data source<br>to view target
+    td One-way<br>from data source<br>to view target
     td
       code-example(format="" ).
         {{expression}}
@@ -250,14 +250,14 @@ table
       Class<br>
       Style
     tr
-      td One way<br>from view target<br>to data source
+      td One-way<br>from view target<br>to data source
       td
         code-example(format="" ).
           (target) = "statement"
           on-target = "statement"
       td Event
     tr
-      td Two way
+      td Two-way
       td
         code-example(format="" ).
           [(target)] = "expression"
@@ -487,7 +487,7 @@ table
   Of course, our expression might invoke a property or method that has side effects. Angular has no way of knowing that or stopping us.
 
   The expression could call something like `getFoo()`. Only we know what `getFoo()` does.
-  If `getFoo()`  changes something and we happen to be binding to that something, we risk an unpleasant experience. Angular may or may not display the changed value. Angular may detect the change and throw a warning error. Our general advice: stick to data properties and to methods that return values and do no more.
+  If `getFoo()` changes something and we happen to be binding to that something, we risk an unpleasant experience. Angular may or may not display the changed value. Angular may detect the change and throw a warning error. Our general advice: stick to data properties and to methods that return values and do no more.
 
   The template expression should evaluate to a value of the type expected by the target property. Most native element properties expect a string. For example, the image `src` should be set to a string that's an URL for the resource providing the image. On the other hand, the `disabled` property of a button expects a Boolean value, so an expression that's assigned to `disabled` should evaluate to `true` or `false`.
 
@@ -680,25 +680,41 @@ code-example(format="", language="html").
   the path `$event.target.value`.
 
   If the event belongs to a directive (remember: components are directives), `$event` has whatever shape the directive chose to produce.
-  Consider a `HeroDetailComponent` that produces `deleted` events with an `EventEmitter`. <!-- PENDING: I didn't remember seeing EventEmitter before this (although, it turns out, it *is* mentioned in Forms. We should probably introduce it more gently. -->
-+makeExample('template-syntax/ts/app/hero-detail.component.ts', 'deleted', 'HeroDetailComponent.ts (excerpt)')(format=".")
+
+  <a id="eventemitter"></a>
+  <a id="custom-event"></a>
+  ### Custom events with EventEmitter
+
+  Directives typically raise custom events with an Angular [EventEmitter](../api/core/EventEmitter-class.html).
+  A directive creates an `EventEmitter` and exposes it as a property.
+  The directive calls `EventEmitter.emit(payload)` to fire an event, passing in a message payload that can be anything.
+  Parent directives listen for the event by binding to this property and accessing the payload through the `$event` object.
+
+  Consider a `HeroDetailComponent` that produces `deleted` events with an `EventEmitter`.
++makeExample('template-syntax/ts/app/hero-detail.component.ts',
+'deleted', 'HeroDetailComponent.ts (excerpt)')(format=".")
 :marked
-  When something invokes the `onDeleted()` method, `HeroDetailComponent` emits a `Hero` object.
+  When the user clicks a button, the component invokes the `onDeleted()` method, which emits a `Hero` object.
+  The `HeroDetailComponent` doesn't know how to delete a hero. Its job is to present information and
+  respond to user actions.
 
-  Now imagine a parent component that listens for that event with an event binding.
-+makeExample('template-syntax/ts/app/app.component.html', 'event-binding-to-component')(format=".")
+  Now imagine a parent component that binds to the `HeroDetailComponent`'s `deleted` event.
+
++makeExample('template-syntax/ts/app/app.component.html',
+'event-binding-to-component')(format=".")
 :marked
-  The event binding surfaces the `Hero` emitted by `HeroDetailComponent` to the statement via the `$event` variable.
-  We pass it along to the parent `onHeroDeleted()` method.
-  That method presumably knows how to delete the hero.
+  When the `deleted` event fires, Angular calls the parent component's `onHeroDeleted` method,
+  passing the *hero-to-delete* (emitted by `HeroDetail`) in the `$event` variable.
 
-  Evaluation of this event binding template statement has a side effect: It deletes a hero.
-  Side effects in event binding statements are not just OK, they are expected.
+  The `onHeroDeleted` method has a side effect: It deletes a hero.
+  Side effects are not just OK, they are expected.
 
-  The statement could update the model, thereby triggering other changes that percolate through the system &mdash; changes that
-  are ultimately displayed in this view and other views.
-  The event processing may result in queries and saves to a remote server. It's all good.
+  Deleting the hero updates the model, perhaps triggering other changes
+  including queries and saves to a remote server.
+  These changes percolate through the system and are ultimately displayed in this and other views.
+  It's all good.
 
+  <!-- TODO: comment out this section -->
   ### Event bubbling and propagation
   Angular invokes the event-handling statement if the event is raised by the current element or one of its child elements.
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-bubbling')(format=".")
@@ -777,6 +793,7 @@ code-example(format="", language="html").
   Well, `NgModel` can only set the target property.
   What if we need to do something more or something different when the user changes the value?
   Then we need to use the expanded form.
+
   Let's try something silly like forcing the input value to uppercase:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-4')(format=".")
 :marked
@@ -852,6 +869,8 @@ figure.image-display
   Now we just add an `NgStyle` property binding that calls `setStyles`
   and sets the element's styles accordingly:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgStyle-2')(format=".")
+
+  <!-- TODO: comment out the camelCase style name text & example -->
 :marked
   Alternatively, we can use camelCase style names:
 +makeExample('template-syntax/ts/app/app.component.ts', 'setStyles2')(format=".")
@@ -995,7 +1014,7 @@ figure.image-display
   Angular sees the `*` and expands the HTML into the `<template>` tags for us.
 
   ### Expanding `*ngIf`
-  We can do that expansion ourselves, if we wish. Here's some code with `*ngIf`:
+  We can do that expansion ourselves if we wish. Here's some code with `*ngIf`:
 +makeExample('template-syntax/ts/app/app.component.html', 'Template-1')(format=".")
 :marked
   Here's the equivalent with `<template>` and `ngIf`:
@@ -1110,12 +1129,14 @@ figure.image-display
   So far, we’ve focused mainly on binding to component members within template expressions and statements
   that appear on the *right side of the binding declaration*.
   A member in that position is a data binding **source**.
-  <!-- I found this section hard to understand, so I've rewritten it a bit.
-  Please make sure I didn't change the meaning in a bad way. -->
 
   This section concentrates on binding to **targets**, which are directive
-  properties that are either **inputs** or **outputs**.
-  (Remember: All components are directives.)
+  properties on the *left side of the binding declaration*.
+  These directive properties must be declared as **inputs** or **outputs**.
+
+.alert.is-important
+  :markdown
+    Remember: All **components** are **directives**.
 
 :marked
 .l-sub-section
@@ -1129,7 +1150,7 @@ figure.image-display
     The *source* is either inside quotes (`" "`) or within an interpolation (`{}`).
 
     Every member of a **source** directive is automatically available for binding.
-    We don't have to do anything special to access a component member in a template expression or statement.
+    We don't have to do anything special to access a directive member in a template expression or statement.
 
     We have *limited* access to members of a **target** directive.
     We can only bind to properties that are explicitly identified as *inputs* and *outputs*.
@@ -1167,7 +1188,7 @@ figure.image-display
   ### Input or output?
 
   *Input* properties usually receive data values.
-  *Output* properties expose event producers, such as EventEmitter objects.
+  *Output* properties expose event producers, such as `EventEmitter` objects.
 
   The terms _input_ and _output_ reflect the perspective of the target directive.
 
@@ -1213,7 +1234,7 @@ figure.image-display
 .l-main-section
 :marked
   ## Template expression operators
-  The template expression language employs a subset of JavaScript syntax supplemented with some special operators
+  The template expression language employs a subset of JavaScript syntax supplemented with a few special operators
   for specific scenarios. We'll cover two of these operators: _pipe_ and _Elvis_.
 
   <a id="pipe"></a>
@@ -1230,7 +1251,7 @@ figure.image-display
   We can chain expressions through multiple pipes:
 +makeExample('template-syntax/ts/app/app.component.html', 'pipes-2')(format=".")
 :marked
-  And we can configure them, too:
+  And we can configure them too:
 +makeExample('template-syntax/ts/app/app.component.html', 'pipes-3')(format=".")
 :marked
   The `json` pipe is particularly helpful for debugging our bindings:
