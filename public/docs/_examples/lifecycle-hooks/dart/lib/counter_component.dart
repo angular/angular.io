@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'spy_directive.dart';
+
 import 'logger_service.dart';
+import 'spy_directive.dart';
 
 @Component(
     selector: 'my-counter',

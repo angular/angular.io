@@ -1,6 +1,4 @@
 // #docregion all
-library hero_form.hero;
-
 class Hero {
   int number;
   String name;

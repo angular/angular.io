@@ -1,9 +1,8 @@
-library developer_guide_intro.hero_service;
-
 import 'package:angular2/angular2.dart';
-import 'package:developer_guide_intro/hero.dart';
-import 'package:developer_guide_intro/backend_service.dart';
-import 'package:developer_guide_intro/logger_service.dart';
+
+import 'backend_service.dart';
+import 'hero.dart';
+import 'logger_service.dart';
 
 // #docregion class
 @Injectable()

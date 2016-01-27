@@ -1,11 +1,12 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'peek_a_boo_parent_component.dart';
-import 'on_changes_component.dart';
-import 'after_view_component.dart';
+
 import 'after_content_parent.dart';
-import 'spy_component.dart';
+import 'after_view_component.dart';
 import 'counter_component.dart';
+import 'on_changes_component.dart';
+import 'peek_a_boo_parent_component.dart';
+import 'spy_component.dart';
 
 @Component(
     selector: 'my-app',

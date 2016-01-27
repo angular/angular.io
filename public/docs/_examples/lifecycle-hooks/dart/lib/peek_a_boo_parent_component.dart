@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'package:lifecycle_hooks/logger_service.dart';
-import 'package:lifecycle_hooks/peek_a_boo_component.dart';
+
+import 'logger_service.dart';
+import 'peek_a_boo_component.dart';
 
 @Component(
     selector: 'peek-a-boo-parent',

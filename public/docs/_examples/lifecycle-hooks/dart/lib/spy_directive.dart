@@ -1,5 +1,6 @@
 // #docregion
 import 'package:angular2/angular2.dart';
+
 import 'logger_service.dart';
 
 int nextId = 1;

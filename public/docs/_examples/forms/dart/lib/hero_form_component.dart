@@ -1,10 +1,9 @@
 // #docplaster
 // #docregion
 // #docregion no-todo
-library hero_form.hero_form_component;
-
 import 'package:angular2/angular2.dart';
-import 'package:hero_form/hero.dart';
+
+import 'hero.dart';
 
 const List<String> _powers = const [
   'Really Smart',

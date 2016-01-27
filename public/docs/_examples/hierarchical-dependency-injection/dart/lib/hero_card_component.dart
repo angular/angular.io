@@ -1,6 +1,7 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'package:hierarchical_di/hero.dart';
+
+import 'hero.dart';
 
 @Component(
     selector: 'hero-card',

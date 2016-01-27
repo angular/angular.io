@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'unless_directive.dart';
+
 import 'heavy_loader_component.dart';
+import 'unless_directive.dart';
 
 @Component(
     selector: 'structural-directives',
@@ -18,4 +19,3 @@ class StructuralDirectivesComponent {
 
   get hero => heroes[0];
 }
-//#enddocregion
