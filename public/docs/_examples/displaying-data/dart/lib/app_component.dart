@@ -1,11 +1,7 @@
-// #docplaster
-// #docregion final
-library displaying_data.app_component;
-
-// #docregion imports
+// #docregion
 import 'package:angular2/angular2.dart';
-// #enddocregion imports
-import 'package:displaying_data/hero.dart';
+
+import 'hero.dart';
 
 final List<Hero> _heroes = [
   new Hero(1, 'Windstorm'),
@@ -34,4 +30,3 @@ class AppComponent {
   List<Hero> heroes = _heroes;
   Hero myHero = _heroes[0];
 }
-//#enddocregion final

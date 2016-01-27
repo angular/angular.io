@@ -1,6 +1,4 @@
 // #docregion
-library displaying_data.app_component_2;
-
 import 'package:angular2/angular2.dart';
 
 // #docregion mock-heroes
