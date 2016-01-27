@@ -7,7 +7,7 @@ import 'package:template_syntax/hero.dart';
 import 'package:template_syntax/hero_detail_component.dart';
 import 'package:template_syntax/my_click_directive.dart';
 
-enum _Color { Red, Green, Blue }
+enum Color { Red, Green, Blue }
 
 @Component(
     selector: 'my-app',
@@ -30,7 +30,7 @@ class AppComponent {
   bool isSpecial = true;
   bool isUnchanged = true;
   bool isSelected = false;
-  _Color color = _Color.Red;
+  Color color = Color.Red;
   List<Hero> heroes = Hero.MockHeroes;
   Hero selectedHero = Hero.MockHeroes[0];
   Hero currentHero = Hero.MockHeroes[0];
@@ -73,7 +73,7 @@ class AppComponent {
   void callFax(String value) => alerter('Faxing $value ...');
   void callPhone(String value) => alerter('Calling $value ...');
   void colorToggle() {
-    color = color == _Color.Red ? _Color.Blue : _Color.Red;
+    color = (color == Color.Red) ? Color.Blue : Color.Red;
   }
 
   int getVal() => val;
@@ -97,7 +97,7 @@ class AppComponent {
     return false;
   }
 
-  void onHeroDeleted(Hero hero) => alerter('Deleted hero: ${hero.firstName}');
+  void onHeroDeleted(Hero hero) => alerter('Deleted hero: ${hero?.firstName}');
 
   void onSubmit(NgForm form) {
     var evtMsg = form.valid

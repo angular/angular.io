@@ -26,4 +26,6 @@ class Hero {
   ];
 
   String get fullName => '$firstName $lastName';
+
+  String toString() => '$fullName (rate: $rate)';
 }
