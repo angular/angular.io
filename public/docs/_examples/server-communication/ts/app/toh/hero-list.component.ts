@@ -17,23 +17,29 @@ import {HeroService}       from './hero.service';
   <button (click)="addHero(newHero.value); newHero.value=''">
     Add Hero
   </button>
+  <div class="error" *ngIf="errorMessage">{{errorMessage}}</div>
   `,
+  styles: ['.error {color:red;}']
 })
 // #docregion component
 export class HeroListComponent implements OnInit {
 
   constructor (private _heroService: HeroService) {}
 
+  errorMessage: string;
   heroes:Hero[];
 
-  // #docregion ngOnInit
-  ngOnInit() {
+  ngOnInit() { this.getHeroes(); }
+
+  // #docregion methods
+  // #docregion getHeroes
+  getHeroes() {
     this._heroService.getHeroes()
                      .subscribe(
                        heroes => this.heroes = heroes,
-                       error => alert(`Server error. Try again later`));
+                       error =>  this.errorMessage = <any>error);
   }
-  // #enddocregion ngOnInit
+  // #enddocregion getHeroes
 
   // #docregion addHero
   addHero (name: string) {
@@ -41,9 +47,10 @@ export class HeroListComponent implements OnInit {
     this._heroService.addHero(name)
                      .subscribe(
                        hero  => this.heroes.push(hero),
-                       error => alert(error));
+                       error =>  this.errorMessage = <any>error);
 
   }
   // #enddocregion addHero
+  // #enddocregion methods
 }
 // #enddocregion component
