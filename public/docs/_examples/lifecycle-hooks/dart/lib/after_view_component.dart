@@ -50,16 +50,18 @@ class AfterViewParentComponent
     _logger.log('AfterView ctor: $message');
   }
 
-  String get message =>
-      _hasViewChild ? '"${viewChild.hero}" child view' : 'no child view';
   bool get _hasContentChild => contentChild != null;
-
   bool get _hasViewChild => viewChild != null;
 
   ///// Hooks
   ngAfterContentInit() {
     _logger.log(
         'AfterContentInit: There is ${ _hasContentChild ? 'a' : 'no'} content child');
+  }
+
+  ngAfterViewInit() {
+    // viewChild is set after the view has been initialized
+    _logger.log('AfterViewInit: $message');
   }
 
   ngAfterViewChecked() {
@@ -70,8 +72,6 @@ class AfterViewParentComponent
     _logger.log('AfterViewChecked: $message');
   }
 
-  ngAfterViewInit() {
-    // viewChild is set after the view has been initialized
-    _logger.log('AfterViewInit: $message');
-  }
+  String get message =>
+      _hasViewChild ? '"${viewChild.hero}" child view' : 'no child view';
 }

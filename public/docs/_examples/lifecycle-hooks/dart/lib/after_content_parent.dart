@@ -34,13 +34,18 @@ class AfterContentComponent
     _logger.log('AfterContent ctor: $message');
   }
 
-  bool get hasContentChild => contentChild != null;
+  ///// Hooks
+  ngAfterContentInit() {
+    // contentChild is set after the content has been initialized
+    _logger.log('AfterContentInit: $message');
+  }
 
   get hasViewChild => viewChild != null;
 
-  String get message => hasContentChild
-      ? '"${contentChild.hero}" child content'
-      : 'no child content';
+  ngAfterViewInit() {
+    _logger
+        .log('AfterViewInit: There is ${hasViewChild ? 'a' : 'no'} view child');
+  }
 
   ngAfterContentChecked() {
     // contentChild is updated after the content has been checked
@@ -50,16 +55,11 @@ class AfterContentComponent
     _logger.log('AfterContentChecked: $message');
   }
 
-  ///// Hooks
-  ngAfterContentInit() {
-    // contentChild is set after the content has been initialized
-    _logger.log('AfterContentInit: $message');
-  }
+  bool get hasContentChild => contentChild != null;
 
-  ngAfterViewInit() {
-    _logger
-        .log('AfterViewInit: There is ${hasViewChild ? 'a' : 'no'} view child');
-  }
+  String get message => hasContentChild
+      ? '"${contentChild.hero}" child content'
+      : 'no child content';
 }
 
 @Component(

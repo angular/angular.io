@@ -5,6 +5,39 @@ import 'logger_service.dart';
 import 'spy_directive.dart';
 
 @Component(
+    selector: 'my-counter',
+    template: '''
+    <div class="counter">
+      Counter = {{counter}}
+
+      <h5>-- Counter Change Log --</h5>
+      <div *ngFor="#chg of changeLog" mySpy>{{chg}}</div>
+    </div>
+    ''',
+    styles: const [
+      '.counter {background: LightYellow; padding: 8px; margin-top: 8px}'
+    ],
+    directives: const [Spy])
+class MyCounter implements OnChanges {
+  @Input() num counter;
+  List<String> changeLog = [];
+
+  ngOnChanges(Map<String, SimpleChange> changes) {
+    // Empty the changeLog whenever counter goes to zero
+    // hint: this is a way to respond programmatically to external value changes.
+    if (this.counter == 0) {
+      changeLog.clear();
+    }
+
+    // A change to `counter` is the only change we care about
+    SimpleChange prop = changes['counter'];
+    var prev = prop.isFirstChange() ? "{}" : prop.previousValue;
+    changeLog.add(
+        'counter: currentValue = ${prop.currentValue}, previousValue = $prev');
+  }
+}
+
+@Component(
     selector: 'counter-parent',
     template: '''
     <div class="parent">
@@ -35,43 +68,10 @@ class CounterParentComponent {
     reset();
   }
 
+  updateCounter() => value += 1;
+
   reset() {
     _logger.log('-- reset --');
     value = 0;
-  }
-
-  updateCounter() => value += 1;
-}
-
-@Component(
-    selector: 'my-counter',
-    template: '''
-    <div class="counter">
-      Counter = {{counter}}
-
-      <h5>-- Counter Change Log --</h5>
-      <div *ngFor="#chg of changeLog" mySpy>{{chg}}</div>
-    </div>
-    ''',
-    styles: const [
-      '.counter {background: LightYellow; padding: 8px; margin-top: 8px}'
-    ],
-    directives: const [Spy])
-class MyCounter implements OnChanges {
-  @Input() num counter;
-  List<String> changeLog = [];
-
-  ngOnChanges(Map<String, SimpleChange> changes) {
-    // Empty the changeLog whenever counter goes to zero
-    // hint: this is a way to respond programmatically to external value changes.
-    if (this.counter == 0) {
-      changeLog.clear();
-    }
-
-    // A change to `counter` is the only change we care about
-    SimpleChange prop = changes['counter'];
-    var prev = prop.isFirstChange() ? "{}" : prop.previousValue;
-    changeLog.add(
-        'counter: currentValue = ${prop.currentValue}, previousValue = $prev');
   }
 }
