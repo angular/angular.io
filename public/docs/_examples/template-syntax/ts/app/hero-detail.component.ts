@@ -14,28 +14,38 @@ let nextHeroDetailId = 1;
   outputs: ['deleted'],
   // #enddocregion input-output-2
   template: `
-  <div id="lh{{id}}">
-    {{hero?.fullName}}
+  <div>
+    <span [style.text-decoration]="lineThrough" >{{hero?.fullName}}</span>
     <img src="{{heroImageUrl}}" style="height:24px">
-    <a href="#lh{{id}}" (click)="onDelete()">delete</a>
-  </div>`
+    <a (click)="onDelete()">delete</a>
+  </div>`,
+    styles:['a { cursor: pointer; cursor: hand; }']
 // #docregion input-output-2
 })
 // #enddocregion input-output-2
 export class HeroDetailComponent {
-  hero: Hero;
+  constructor() {
+    // Toggle the line-through style so we see something happen
+    // even if no one attaches to the `deleted` event.
+    // Subscribing in ctor rather than the more obvious thing of doing it in
+    // OnDelete because don't want this mess to distract the chapter reader.
+    this.deleted.subscribe(() => {
+      this.lineThrough = this.lineThrough ? '' : 'line-through';
+    })
+  }
+  
 // #docregion deleted
   deleted = new EventEmitter<Hero>();
   onDelete() {
     this.deleted.emit(this.hero);
   }
 // #enddocregion
-
+  
+  hero: Hero = new Hero('','Zzzzzzzz'); // default sleeping hero
   // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
   // Public Domain terms of use: http://www.wpclipart.com/terms.html
   heroImageUrl = 'images/hero.png';
-  id = nextHeroDetailId++;
-
+  lineThrough = '';  
 }
 
 @Component({
