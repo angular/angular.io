@@ -13,4 +13,4 @@ System.register(['angular2/platform/browser', './app.component'], function(expor
         }
     }
 });
-//# sourceMappingURL=boot.js.map
+//# sourceMappingURL=main.js.map
