@@ -16,7 +16,7 @@ class Hero {
   static List<Hero> MockHeroes = [
     new Hero('Hercules',
         lastName: 'Son of Zeus',
-        birthdate: new DateTime(1970, 1, 25),
+        birthdate: new DateTime(1970, 2, 25),
         url: 'http://www.imdb.com/title/tt0065832/',
         rate: 325),
     new Hero('eenie', lastName: 'toe'),
@@ -25,7 +25,10 @@ class Hero {
     new Hero('Moe', lastName: 'Toe')
   ];
 
-  String get fullName => '$firstName $lastName';
+  String get fullName {
+    if (lastName == null) return firstName;
+    return '$firstName $lastName';
+  }
 
   String toString() => '$fullName (rate: $rate)';
 }
