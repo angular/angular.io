@@ -1,5 +1,5 @@
 // #docregion
-import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
+import {Directive, ElementRef, Input} from 'angular2/core';
 
 @Directive({
   selector: '[myHighlight]',
@@ -13,8 +13,7 @@ import {Directive, ElementRef, Renderer, Input} from 'angular2/core';
 
 export class HighlightDirective {
   // #docregion ctor
-  constructor(private el: ElementRef, private renderer: Renderer) {
-  }
+  constructor(private el: ElementRef) { }
   // #enddocregion ctor
 
   // #docregion mouse-methods
@@ -22,7 +21,7 @@ export class HighlightDirective {
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color: string) {
-    this.renderer.setElementStyle(this.el, 'backgroundColor', color);
+    this.el.nativeElement.style.backgroundColor = color;
   }
   // #enddocregion mouse-methods
 

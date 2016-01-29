@@ -32,7 +32,6 @@ class Highlight {
   // #enddocregion defaultColor
 // #docregion class-1
 
-  final Renderer _renderer;
   final ElementRef _element;
 
 // #docregion mouse-enter
@@ -46,10 +45,10 @@ class Highlight {
   }
 
   void _highlight(String color) {
-    _renderer.setElementStyle(_element, 'background-color', color);
+    _element.nativeElement.style.backgroundColor = color;
   }
 
-  Highlight(this._element, this._renderer);
+  Highlight(this._element);
 }
 // #enddocregion class-1
 // #enddocregion full
