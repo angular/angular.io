@@ -1,0 +1,765 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  There are many conceptual and syntactical differences between Angular&nbsp;1 and Angular&nbsp;2.
+  This chapter provides a quick reference guide to some of the common Angular&nbsp;1
+  syntax and its equivalent in Angular&nbsp;2.
+
+.l-main-section
+:marked
+  ## Template Basics
+  Templates are the user-facing part of an Angular application and are written in HTML.
+  The following are some of the key Angular&nbsp;1 template features with the equivalent
+  template syntax in Angular&nbsp;2.
+
+- var top="vertical-align:top"
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th Angular&nbsp;1
+    th Angular&nbsp;2
+  tr(style=top)
+    td
+      :marked
+        ### Bindings/Interpolation
+      code-example.
+         &lt;h2>{{ vm.title }}&lt;/h2>
+      :marked
+        In Angular&nbsp;1, an expression in curly braces denotes one-way binding.
+        This binds the value of the element to a property in the controller
+        associated with this template
+        
+        When using the `controller as` syntax,
+        the binding is prefixed with the controller alias (vm) because we
+        have to be specific about the source of the binding.
+    td
+      :marked
+        ### Bindings/Interpolation
+      code-example.
+         &lt;h2>{{ title }}&lt;/h2>
+      :marked
+        In Angular&nbsp;2, a template expression in curly braces still denotes one-way binding.
+        This binds the value of the element to a property of the component.
+        The context of the binding is implied and is always the
+        associated component, so it needs no reference variable.
+  tr(style=top)
+    td
+      :marked
+        ### Filters
+      code-example.
+         {{ movie.releaseDate | date }}
+      :marked
+        To filter output in our templates in Angular&nbsp;1, we use the pipe character (|) and one or more filters.
+        
+        In this example, we filter the releaseDate to format it as a date.
+    td
+      :marked
+        ### Pipes
+      code-example(format="").
+        {{ movie.releaseDate | date }}
+      :marked
+        In Angular&nbsp;2, we use similar syntax with the pipe (|) character to filter output, but now we call them **pipes**.
+        Many (but not all) of the built-in filters from Angular&nbsp;1 are
+        built-in pipes in Angular&nbsp;2.
+        
+        See the heading "Filters / Pipes" below for more information.
+  tr(style=top)
+    td
+      :marked
+        ### Local variables
+      code-example(format="").
+        &lt;tr ng-repeat="movie in vm.movies">
+          &lt;td>{{ movie.title }}&lt;/td>
+        &lt;/tr>
+      :marked
+        Here, `movie` is a user-defined local variable.
+    td
+      :marked
+        ### Local variables
+      code-example(format="").
+        &lt;tr *ng-for="#movie of vm.movies">
+          &lt;td>{{ movie.title }}&lt;/td>
+        &lt;/tr>
+      :marked
+        In Angular&nbsp;2, we have true local template variables that are explicitly defined using the hash (#) symbol.
+        
+        Using a local template variable, we can move data between elements in the template. We can use the local template
+        variable on the same element, on a sibling elements, or on any child elements.
+<hr>
+:marked
+  ## Template Directives
+  Angular&nbsp;1 provided over seventy built-in directives for use in our templates. 
+  Many of them are no longer needed in Angular&nbsp;2 because of its more capable and expressive binding system. 
+  The following are some of the key Angular&nbsp;1 built-in directives and the equivalent feature in Angular&nbsp;2.
+
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th Angular&nbsp;1
+    th Angular&nbsp;2
+  tr(style=top)
+    td
+      :marked
+        ### ng-app
+      code-example.
+        &lt;body ng-app="movieHunter">      
+      :marked
+        The `ng-app` directive handles the start up process for our Angular&nbsp;1 application and gives it the name of the application's main module.
+        This process is called **bootstrapping**.
+    td
+      :marked
+        ### Bootstrapping
+      code-example(format="").
+        import {bootstrap} from "angular2/platform/browser"
+        import {AppComponent} from "./app.component"
+        
+        bootstrap(AppComponent);
+      :marked
+        In Angular&nbsp;2, the bootstrapping is handled in code instead of in the template by explicitly calling a bootstrap function.
+        By convention, such code is in a file named `main.ts`.
+  tr(style=top)
+    td
+      :marked
+        ### ng-class
+      code-example(format="").
+        &lt;div ng-class="{active: isActive}">
+        &lt;div ng-class="{active: isActive, 
+                        bold: isImportant}">
+      :marked
+        In Angular&nbsp;1, the `ng-class` directive turns on or off CSS style classes
+        based on an expression. That expression is often a key-value control object with each
+        key of the object defined as a CSS class name, and each value defined as a template expression
+        that evaluates to a Boolean value.
+        
+        In the first example, the `active` style class is applied to the element if isActive is true.
+        
+        Multiple style classes can be specified, as shown in the second example.
+    td
+      :marked
+        ### ngClass
+      code-example(format="").
+        &lt;div [ngClass]="{active: isActive}">
+        &lt;div [ngClass]="{active: isActive, 
+                         bold: IsImportant}">
+        &lt;div [class.active]="isActive">
+      :marked
+        In Angular&nbsp;2, the `ngClass` directive works similarly. It turns on or off CSS style classes based on an expression. 
+        
+        In the first example, the `active` style class is applied to the element if isActive is true.
+        
+        Multiple style classes can be specified, as shown in the second example.
+        
+        Angular&nbsp;2 also has **class binding**, which is good way to add or remove a single class.
+        This is shown in the third example.
+  tr(style=top)
+    td
+      :marked
+        ### ng-click
+      code-example(format="").
+        &lt;button ng-click="vm.toggleImage()">
+        &lt;button ng-click="vm.toggleImage($event)">
+      :marked
+        In Angular&nbsp;1, the `ng-click` directive allows us to specify custom behavior when an element is clicked.
+        
+        In the first example, when the button is clicked, the `toggleImage()` method in the controller referenced by the `vm` `controller as` alias is executed.
+        
+        The second example demonstrates passing in the `$event` object, which provides details about the event
+        to the controller.
+    td
+      :marked
+        ### Event binding
+      code-example(format="").
+        &lt;button (click)="toggleImage()">
+        &lt;button (click)="toggleImage($event)">
+      :marked
+        The Angular&nbsp;1 event-based directives do not exist in Angular&nbsp;2. 
+        Rather, we define a one-way binding fron the template view to the component using **event binding**.
+        
+        For event binding, we define the name of the target event within parenthesis and
+        specify a template statement in quotes to the right of the equals. Angular&nbsp;2 then
+        sets up an event handler for the target event. When the event is raised, the handler
+        executes the template statement.
+        
+        In the first example, when the button is clicked, the `toggleImage()` method in the associated component is executed.
+        
+        The second example demonstrates passing in the `$event` object, which provides details about the event
+        to the component.
+        
+        For a list of DOM events, see: https://developer.mozilla.org/en-US/docs/Web/Events
+  tr(style=top)
+    td
+      :marked
+        ### ng-controller
+      code-example(format="").
+        &lt;div ng-controller="MovieListCtrl as vm">
+      :marked
+        In Angular&nbsp;1, the `ng-controller` directive attaches a controller to the view. 
+        Using the `ng-controller` (or defining the controller as part of the routing) tied the
+        view to the controller code associated with that view. 
+    td
+      :marked
+        ### Component decoration
+      code-example(format="").
+        @Component({
+          selector: "my-movie-list",
+          templateUrl: "app/movies/movieListView.html"
+        })
+      :marked
+        In Angular&nbsp;2, the template no longer specifies its associated controller. 
+        Rather, the component specifies its associated template as part of the component class decorator.
+        This allows for building reusable components that include their own user interface.
+  tr(style=top)
+    td
+      :marked
+        ### ng-hide
+        In Angular&nbsp;1, the `ng-hide` directive shows or hides the associated HTML element based on
+        an expression. See `ng-show` for more information.
+    td
+      :marked
+        ### Property binding to the `hidden` property
+        Angular&nbsp;2, uses **property binding** instead of a built-in directive to hide and show HTML elements.
+        See `ng-show` for more information.
+  tr(style=top)
+    td
+      :marked
+        ### ng-href
+      code-example(format="").
+        &lt;a ng-href="#movieDetail/{{ movie.id }}">{{ movie.title }}&lt;/a>">
+      :marked
+        The `ng-href` directive allows Angular&nbsp;1 to preprocess the `href` property so it
+        can replace the binding expression with the appropriate URL before the browser
+        fetches from that URL.
+        
+        NOTE: In Angular&nbsp;1, the `ng-href` is often used to activate a route as part of navigation.
+        This is no longer required in Angular&nbsp;2.
+    td
+      :marked
+        ### Binding to the `href` property
+      code-example(format="").
+        &lt;a [href]="'#movieDetail/' + movie.id">{{ movie.title }}&lt;/a>">
+        &lt;a href="#movieDetail/{{ movie.id }}">{{ movie.title }}&lt;/a>">
+        &lt;a [routerLink]="['MovieDetail', {{ movie.id }}]">{{ movie.title }}&lt;/a>">
+      :marked
+        In Angular&nbsp;2, we bind a template expression directly to the `href` property, there is no built-in directive.
+        
+        We can use property binding, as shown in the first example, by placing square brackets around the HTML property name.
+        
+        Or we can use interpolation, as shown in the second example. Here we don't use square brackets around the HTML property name and
+        we use the interpolation syntax (`{{}}`) around the template expression.
+        
+        Note: In Angular&nbsp;2, `href` is no longer used for routing. Routing uses `routerLink' as shown in the third example.
+  tr(style=top)
+    td
+      :marked
+        ### ng-if
+      code-example(format="").
+        &ltdiv ng-if="listFilter">Movies filtered by: {{listFilter}}</div>
+      :marked
+        In Angular&nbsp;1, the `ng-if` directive removes or recreates a portion of the DOM
+        based on an expression. If the expression is false, the element is removed from the DOM.
+        
+        In this example, the `div` element is removed from the DOM unless the `listFilter` variable is truthy.
+    td
+      :marked
+        ### *ngIf
+      code-example(format="").
+        &ltdiv *ngIf="listFilter">Movies filtered by: {{listFilter.value}}</div>
+      :marked
+        The `*ngIf` directive in Angular&nbsp;2 works the same as the `ng-if` directive in Angular&nbsp;1, 
+        it removes or recreates a portion of the DOM based on an expression. 
+        Notice that the syntax is slightly different. The (*) makes it clear that the `ngIf` is a structural directive,
+        meaning that it modifies the DOM.
+        
+        In this example, the `div` element is removed from the DOM unless the `listFilter` variable is truthy.
+  tr(style=top)
+    td
+      :marked
+        ### ng-model
+      code-example(format="").
+        &lt;input ng-model="vm.movie.title"/>
+      :marked
+        In Angular&nbsp;1, the `ng-model` directive binds a form control to a property in the controller associated with the template.
+        This provides **two-way binding** whereby any changes made to the value on the form is synchronized with the model and
+        any changes to the model are synchronized with the value on the form.
+    td
+      :marked
+        ### ngModel
+      code-example(format="").
+        &lt;input [(ngModel)]="movie.title"/>
+      :marked
+        In Angular&nbsp;2, **two-way binding** is denoted with [()], descriptively referred to as a "banana in a box".
+        This syntax is a short-cut for defining both property binding (from the component to the view) 
+        and event binding (from the view to the component), thereby giving us two-way binding.
+  tr(style=top)
+    td
+      :marked
+        ### ng-repeat
+      code-example(format="").
+        &lttr ng-repeat="movie in vm.movies">
+      :marked
+        In Angular&nbsp;1, the `ng-repeat` directive repeats the associated DOM element
+        for each item from the specified collection.
+        
+        In this example, the table row (`tr`) element is repeated for each movie object in the collection of movies.
+    td
+      :marked
+        ### *ngFor
+      code-example(format="").
+        &lttr *ngFor="#movie of movies">
+      :marked
+        The `*ngFor` directive in Angular&nbsp;2 works similar to the `ng-repeat` directive in Angular&nbsp;1, 
+        it repeats the associated DOM element for each item from the specified collection.
+        More accurately, it turns the defined element (`tr` in this example) and its contents into a template and
+        uses that template to instantiate a view for each item in the list.
+        
+        Notice that the syntax is slightly different. The (*) makes it clear that the `ngFor` is a structural directive,
+        meaning that it modifies the DOM. The (#) identifies `movie` as a local variable. 
+        And the preposition was changed from "in" to "of".
+  tr(style=top)
+    td
+      :marked
+        ### ng-show
+      code-example(format="").
+        &ltdiv ng-show="listFilter">Filter by: {{ listFilter }}</div>
+      :marked
+        In Angular&nbsp;1, the `ng-show` directive shows or hides the associated DOM element based on
+        an expression.
+        
+        In this example, the `div` element is shown if the `listFilter` variable has a value.
+    td
+      :marked
+        ### Property binding to the hidden property
+      code-example(format="").
+        &ltdiv [hidden]="!listFilter.value">Filter by: {{ listFilter.value }}</div>
+      :marked
+        Angular&nbsp;2, uses property binding instead of a built-in directive to hide and show DOM elements.
+        We define property binding by placing square brackets around the target property name and then
+        specifying a template expression after the equal sign.
+        For hiding and showing elements, we bind to the HTML `hidden` property.
+        
+        In this example, the `div` element is hidden if the `listFilter` variable has no value.
+  tr(style=top)
+    td
+      :marked
+        ### ng-src
+      code-example(format="").
+        &ltimg ng-src="{{ movie.imageurl }}">
+      :marked
+        The `ng-src` directive allows Angular&nbsp;1 to preprocess the `src` property so it
+        can replace the binding expression with the appropriate URL before the browser
+        fetches from that URL.
+    td
+      :marked
+        ### Binding to the src property
+      code-example(format="").
+        &ltimg [src]="movie.imageurl">
+        &ltimg src="{{ movie.imageurl }}">
+      :marked
+        In Angular&nbsp;2, we bind a template expression directly to the `src` property, there is no built-in directive.
+        
+        We can use property binding, as shown in the first example, by placing square brackets around the HTML property name.
+        
+        Or we can use interpolation, as shown in the second example. Here we don't use square brackets around the HTML property name and
+        we use the interpolation syntax (`{{}}`) around the template expression.
+  tr(style=top)
+    td
+      :marked
+        ### ng-style
+      code-example(format="").
+        &lt;div ng-style="{ color: colorPreference }">
+      :marked
+        In Angular&nbsp;1, the `ng-style` directive sets a CSS style on an HTML element
+        based on an expression. That expression is often a key-value control object with each
+        key of the object defined as a CSS style name, and each value defined as an expression
+        that evaluates to a value appropriate for the style.
+        
+        In the example, the `color` style is set to the current value of the colorPreference variable.
+    td
+      :marked
+        ### ngStyle
+      code-example(format="").
+        &lt;div [ngStyle]="{ color: colorPreference }">
+        &lt;div [style.color]="colorPreference">
+      :marked
+        In Angular&nbsp;2, the `ngStyle` directive works similarly. It sets a CSS style on an HTML element based on an expression. 
+        
+        In the first example, the `color` style is set to the current value of the colorPreference variable.
+        
+        Angular&nbsp;2 also has **style binding**, which is good way to set a single style.
+        This is shown in the second example.
+  tr(style=top)
+    td
+      :marked
+        ### ng-switch
+      code-example(format="").
+        &lt;div ng-switch="listFilter && vm.checkMovieTitle(listFilter)">
+            &lt;div ng-switch-when="true">Excellent choice!</div>
+            &lt;div ng-switch-when="false">Filtering...</div>
+            &lt;div ng-switch-default>Consider entering a value to filter the list</div>
+        &lt;/div>
+      :marked
+        In Angular&nbsp;1, the `ng-switch` directive swaps the contents of
+        an element by selecting one of the templates based on the current value of an expression.
+        
+        In this example, if `listFilter` is not set, the template displays "Consider entering ...".
+        If the `listFilter` is set, it checks the movie title by calling a controller method.
+        If that method returns `true`, the template displays "Excellent choice!".
+        If that methods returns `false`, the template displays "Filtering...".
+    td
+      :marked
+        ### ngSwitch
+      code-example(format="").
+        &lt;div [ngSwitch]="listFilter.value && checkMovieTitle(listFilter.value)">
+            &lt;template [ngSwitchWhen]="true">Excellent choice!</template>
+            &lt;template [ngSwitchWhen]="false">Filtering...</template>
+            &lt;template ngSwitchDefault>Consider entering a value to filter the list</template>
+        &lt;/div>
+      :marked
+        In Angular&nbsp;2, the `ngSwitch` directive works similarly. It conditionally swaps the contents of
+        an element by selecting one of the embedded templates based on the current value of the expression.
+        
+        In this example, if `listFilter.value` is not set, the template displays "Consider entering ...".
+        If the `listFilter.value` is set, it checks the movie title by calling a component method.
+        If that method returns `true`, the template displays "Excellent choice!".
+        If that methods returns `false`, the template displays "Filtering...".
+<hr>
+:marked
+  ## Filters / Pipes
+  Angular&nbsp;2 **pipes** provide formatting and transformation for data in our template, similar to Angular&nbsp;1 **filters**.
+  Many of the built-in filters in Angular&nbsp;1 have corresponding pipes in Angular&nbsp;2.
+
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th Angular&nbsp;1
+    th Angular&nbsp;2
+  tr(style=top)
+    td
+      :marked
+        ### currency
+      code-example.
+        {{ movie.price | currency }}
+      :marked
+        Formats a number as a currency.
+    td
+      :marked
+        ### currency
+      code-example(format="").
+        {{ movie.price | currency }}
+      :marked
+        The Angular&nbsp;2 `currency` pipe has comparable functionality to the `currency` filter.
+  tr(style=top)
+    td
+      :marked
+        ### date
+      code-example.
+        {{ movie.releaseDate  | date }}
+      :marked
+        Formats a date to a string based on the requested format.
+    td
+      :marked
+        ### date
+      code-example(format="").
+        {{ movie.releaseDate  | date }}
+      :marked
+        The Angular&nbsp;2 `date` pipe has comparable functionality to the `date` filter.
+        
+        However the Angular&nbsp;2 `date` pipe does not process string dates such as
+        "2001-12-19T00:00:00", as might be found in a JSON file. 
+        As a work around, create a convertToDate or similar method in the component:
+      :marked
+      code-example(format="").
+        convertToDate(dateString): Date {
+          return new Date(dateString);
+         }
+      :marked
+        And call that method before filtering with the `date` pipe:
+      :marked
+      code-example(format="").
+        {{ convertToDate(movie.releaseDate) | date}}
+  tr(style=top)
+    td
+      :marked
+        ### filter
+      code-example.
+        &lttr ng-repeat="movie in movieList | filter: {title:listFilter}">
+      :marked
+        Selects a subset of items from the defined collection based on the filter criteria.
+    td
+      :marked
+        ### None
+      :marked
+        There is no comparable filter in Angular&nbsp;2.
+        
+        Filtering can be coded in the component. 
+        If the filtering code is expected to be reused in several templates, consider building a custom pipe.
+  tr(style=top)
+    td
+      :marked
+        ### json
+      code-example.
+        &ltpre>{{movie | json}}</pre>
+      :marked
+        Converts a JavaScript object into a JSON string. This is useful for debugging.
+    td
+      :marked
+        ### json
+      code-example.
+        &ltpre>{{movie | json}}</pre>
+      :marked
+        The Angular&nbsp;2 `json` pipe has comparable functionality to the `json` filter.
+  tr(style=top)
+    td
+      :marked
+        ### limitTo
+      code-example.
+        &lttr ng-repeat="movie in movieList | limitTo: 10">
+      :marked
+        Selects the defined number of items from the collection.
+    td
+      :marked
+        ### None
+        There is no comparable filter in Angular&nbsp;2.
+        Limiting the results can be coded in the component. 
+        If the limiting code is expected to be reused in several templates, consider building a custom pipe.
+  tr(style=top)
+    td
+      :marked
+        ### lowercase
+      code-example.
+        {{ movie.mpaa | lowercase }}
+      :marked
+        Converts the string to lowercase.
+    td
+      :marked
+        ### lowercase
+      code-example.
+        {{ movie.mpaa | lowercase }}
+      :marked
+        The Angular&nbsp;2 `lowercase` pipe has comparable functionality to the `lowercase` filter.
+  tr(style=top)
+    td
+      :marked
+        ### number
+      code-example.
+        {{ movie.starRating  | number }}
+      :marked
+        Formats a number as text.
+    td
+      :marked
+        ### number
+      code-example.
+        {{ movie.starRating | number }}
+        {{ movie.starRating | number:"1.1-2" }}
+      :marked
+        The Angular&nbsp;2 `number` pipe has comparable functionality to the `number` filter.
+        
+        However, Angular&nbsp;2 provides more functionality when defining 
+        the decimal places as shown in the second example above. The pipe argument is defined as follows:
+        * The first number represents the minimum number of integer digits. Defaults to 1.
+        * The second number is the minimum number of fractional digits. Defaults to 0.
+        * The third number is the maximum number of fractional digits. Defaults to 3.
+  tr(style=top)
+    td
+      :marked
+        ### orderBy
+      code-example.
+        &lttr ng-repeat="movie in movieList | orderBy : 'title'">
+      :marked
+        Orders the collection as specified by the expression. 
+        In this example, the movieList is ordered by the movie title.
+    td
+      :marked
+        ### None
+        There is no comparable filter in Angular&nbsp;2.
+        Ordering/sorting the results can be coded in the component. 
+        If the ordering/sorting code is expected to be reused in several templates, consider building a custom pipe.
+  tr(style=top)
+    td
+    td
+      :marked
+        ### async
+        The `async` pipe in Angular&nbsp;2 ... TBD
+  tr(style=top)
+    td
+    td
+      :marked
+        ### percent
+      code-example.
+        {{ movie.approvalRating | percent: "1.0-2" }}
+      :marked
+        The `percent` pipe in Angular&nbsp;2 formats a number as a local percentage. The argument is defined as follows:
+        * The first number represents the minimum number of integer digits. Defaults to 1.
+        * The second number is the minimum number of fractional digits. Defaults to 0.
+        * The third number is the maximum number of fractional digits. Defaults to 3.
+
+:marked
+  ## Controllers / Components
+  In Angular&nbsp;1, we write the code that provides the model and the methods for the view in a **controller**.
+  In Angular&nbsp;2, we build a **component**.
+  
+  Because much of our Angular&nbsp;1 code is in JavaScript, JavaScript code is shown in the Angular&nbsp;1 column.
+  The Angular&nbsp;2 code is shown in TypeScript.
+<hr>
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th Angular&nbsp;1
+    th Angular&nbsp;2
+  tr(style=top)
+    td
+      :marked
+        ### IIFE
+      code-example.
+        (function () {
+        }());
+      :marked
+        In Angular&nbsp;1, we often defined an immediately invoked function expression (or IIFE) around our controller code.
+        This kept our controller code out of the global namespace. 
+    td
+      :marked
+        ### None
+        We don't need to worry about this in Angular&nbsp;2 because we use ES 2015 modules. 
+        And TypeScript takes care of generating those ES 2015 modules for us.
+  tr(style=top)
+    td
+      :marked
+        ### Angular modules
+      code-example.
+        angular.module("movieHunter", ["ngRoute"]);
+      :marked
+        In Angular&nbsp;1, we define an Angular module, which keeps track of our
+        controllers, services, and other code. The second argument defines the list
+        of other modules that this module depends upon.
+    td
+      :marked
+        ### Import
+      code-example.
+        import {Component} from "angular2/core";
+        import {RouteConfig, ROUTER_DIRECTIVES} from "angular2/router";
+      :marked
+        There are no Angular modules in Angular&nbsp;2. We instead use ES 2015 modules and
+        TypeScript takes care of generating those ES 2015 modules for us.
+        
+        We keep track of the code needed by each component
+        using the imports keyword.
+  tr(style=top)
+    td
+      :marked
+        ### Controller registration
+      code-example.
+        angular
+          .module("movieHunter")
+          .controller("MovieHunterCtrl",
+                      ["movieService",
+                       MovieHunterCtrl]);
+      :marked
+        In Angular&nbsp;1, we have code in each controller that looks up an appropriate Angular module
+        and registers the controller with that module. 
+        
+        The first argument is the controller name. The second argument defines the string names of
+        all dependencies injected into this controller, and a reference to the controller function. 
+    td
+      :marked
+        ### Component Decorator
+      code-example(format="").
+        @Component({
+          selector: "my-movie-list",
+          templateUrl: "app/movies/movieListView.html"
+        })
+      :marked
+        In Angular&nbsp;2, we add a decorator to the component class to provide any required metadata.
+        The Component decorator declares that the class is a component and provides metadata about
+        that component, such as its selector (or tag) and its template.
+        
+        This is how we associate a template with code, which is defined in the component class.
+  tr(style=top)
+    td
+      :marked
+        ### Controller function
+      code-example.
+        function MovieListCtrl(movieService) {
+        }
+      :marked
+        In Angular&nbsp;1, we write the code for the model and methods in a controller function. 
+    td
+      :marked
+        ### Component class
+      code-example(format="").
+        export class MovieListComponent {
+        }
+      :marked
+        In Angular&nbsp;2, we create a component class.
+        
+        NOTE: If you are using TypeScript with Angular&nbsp;1 then the only difference here is
+        that the component class must be exported using the `export` keyword.
+  tr(style=top)
+    td
+      :marked
+        ### Dependency injection
+      code-example.
+        function MovieListCtrl(movieService) {
+        }
+      :marked
+        In Angular&nbsp;1, we pass in any dependencies as controller function arguments.
+        In this example, we inject the `movieService` service.
+    td
+      :marked
+        ### Dependency injection
+      code-example(format="").
+        constructor { private _movieService: MovieService }
+      :marked
+        In Angular&nbsp;2, we pass in dependencies as arguments to the component class constructor.
+        In this example, we inject the `MovieService` service.
+        
+        NOTE: If you are using TypeScript with Angular&nbsp;1 then dependency injection is the same.
+<hr>
+:marked
+  ## Style Sheets
+  Style sheets give our application a nice look.
+  In Angular&nbsp;1, we specify the style sheets for our entire application.
+  As the application grows over time, the styles for the many parts of the application
+  are merged, which can cause unexpected results.
+  In Angular&nbsp;2, we can still define style sheets for our entire application. But now we can
+  also associate a style sheet with a specific component's template.
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th Angular&nbsp;1
+    th Angular&nbsp;2
+  tr(style=top)
+    td
+      :marked
+        ### Link tag
+      code-example.
+        &lt;link href="styles.css" rel="stylesheet" />
+      :marked
+        In Angular&nbsp;1, we use a `link` tag in the head section of our `index.html` file
+        to define the styles for our application. 
+    td
+      :marked
+        ### Link tag
+      code-example(format="").
+        &lt;link href="styles.css" rel="stylesheet" />
+      :marked
+        In Angular&nbsp;2, we can continue to use the link tag to define the styles for our application in the `index.html` file.
+        But we can now also define specific styles for our components.
+      :marked
+        ### StyleUrls
+      code-example(format="").
+        @Component({
+          selector: "my-movie-list",
+          templateUrl: "app/movies/movieListView.html",
+          styleUrls: ["styles.css"]
+        })
+      :marked
+        In Angular&nbsp;2, we can use the `styleUrls` property of the component decorator metadata to define 
+        a style sheet for a particular component. 
+        This allows us to set appropriate styles for individual components that won’t leak into 
+        other parts of the application.
+<hr>
