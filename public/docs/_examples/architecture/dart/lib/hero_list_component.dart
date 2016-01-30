@@ -1,10 +1,9 @@
 // #docplaster
-library developer_guide_intro.hero_list_component;
-
 import 'package:angular2/angular2.dart';
-import 'package:developer_guide_intro/hero.dart';
-import 'package:developer_guide_intro/hero_detail_component.dart';
-import 'package:developer_guide_intro/hero_service.dart';
+
+import 'hero.dart';
+import 'hero_detail_component.dart';
+import 'hero_service.dart';
 
 // #docregion metadata
 // #docregion providers

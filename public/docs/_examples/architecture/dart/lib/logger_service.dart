@@ -1,6 +1,4 @@
 // #docregion
-library developer_guide_intro.logger_service;
-
 import 'dart:html';
 
 import 'package:angular2/angular2.dart';

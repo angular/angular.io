@@ -1,6 +1,4 @@
 // #docregion
-library developer_guide_intro.hero;
-
 class Hero {
   static int _nextId = 1;
   int id;

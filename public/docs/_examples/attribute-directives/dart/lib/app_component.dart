@@ -1,8 +1,7 @@
 // #docregion
-library attribute_directives.app_component;
-
 import 'package:angular2/angular2.dart';
-import 'package:attribute_directives/highlight_directive.dart';
+
+import 'highlight_directive.dart';
 
 @Component(
     selector: 'my-app',

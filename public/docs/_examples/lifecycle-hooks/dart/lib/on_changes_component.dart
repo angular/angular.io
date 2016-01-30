@@ -1,6 +1,7 @@
 // #docregion
-import 'package:angular2/angular2.dart';
 import 'dart:convert';
+
+import 'package:angular2/angular2.dart';
 
 class Hero {
   String name;

@@ -1,10 +1,11 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'package:hierarchical_di/hero.dart';
-import 'package:hierarchical_di/heroes_service.dart';
-import 'package:hierarchical_di/hero_editor_component.dart';
-import 'package:hierarchical_di/hero_card_component.dart';
-import 'package:hierarchical_di/edit_item.dart';
+
+import 'edit_item.dart';
+import 'hero.dart';
+import 'hero_card_component.dart';
+import 'hero_editor_component.dart';
+import 'heroes_service.dart';
 
 @Component(
     selector: 'heroes-list',
@@ -41,12 +42,12 @@ class HeroesListComponent {
         .toList();
   }
 
-  onSaved(EditItem<Hero> editItem, Hero updatedHero) {
-    editItem.item = updatedHero;
+  onCanceled(EditItem<Hero> editItem) {
     editItem.editing = false;
   }
 
-  onCanceled(EditItem<Hero> editItem) {
+  onSaved(EditItem<Hero> editItem, Hero updatedHero) {
+    editItem.item = updatedHero;
     editItem.editing = false;
   }
 }

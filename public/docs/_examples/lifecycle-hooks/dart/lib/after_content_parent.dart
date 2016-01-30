@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'logger_service.dart';
+
 import 'child_component.dart';
+import 'logger_service.dart';
 
 @Component(
     selector: 'after-content',

@@ -22,7 +22,7 @@ include ../../../../_includes/_util-fns
   
   We use the Angular `Http` client to communicate via `XMLHttpRequest (XHR)`.
   
-  We'll illustrate with a mini-version of the [tutorial](tutorial.html)'s "Tour of Heroes" (ToH) application.
+  We'll illustrate with a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
   This one gets some heroes from the server, displays them in a list, lets us add new heroes, and save them to the server.
   
   It works like this.
@@ -40,12 +40,12 @@ figure.image-display
   Here is the `TohComponent` shell:
 +makeExample('server-communication/ts/app/toh/toh.component.ts', null, 'app/toh.component.ts')
 :marked
-  As usual, we import the symbols we need. The newcomer is `HTTP_Providers`, 
+  As usual, we import the symbols we need. The newcomer is `HTTP_PROVIDERS`, 
   an array of service providers from the Angular HTTP library.
   We'll be using that library to access the server.
   We also import a `HeroService` that we'll look at shortly.
   
-  The component specifies both the `HTTP_Providers` and the `HeroService` in the metadata `providers` array,
+  The component specifies both the ``HTTP_PROVIDERS` and the `HeroService` in the metadata `providers` array,
   making them available to the child components of this "Tour of Heroes" application.
 
 .l-sub-section
@@ -63,6 +63,8 @@ figure.image-display
   value of the input box in the `(click)` event binding. 
   When the user clicks the button, we pass that value to the component's `addHero` method and then
   clear it to make ready for a new hero name.
+  
+  Below the button is an optional error message.
    
   ### The `HeroListComponent` class
   We [inject](dependency-injection.html) the `HeroService` into the constructor.
@@ -83,7 +85,11 @@ figure.image-display
     Components are easier to test and debug when their constructors are simple and all real work 
     (especially calling a remote server) is handled in a separate method.
 :marked
-  Now that the component is square away, we can turn to development of the backend data source
+  The service `get` and `addHero` methods return an `Observable` to which we `subscribe`, 
+  specifying the actions to take if a method succeeds or fails. 
+  We'll get to observables and subscription shortly.
+  
+  With our basic intuitions about the component squared away, we can turn to development of the backend data source
   and the client-side `HeroService` that talks to it.
   
   ### Fetching data
@@ -182,26 +188,35 @@ figure.image-display
 
   ### Always handle errors
 
-  The eagle-eyed reader may have spotted that we used the `catch` operator in conjunction with the `logAndPassOn` method that we 
-  defined in our service. We haven't discussed so far how that actually works. Generally speaking, whenever we deal with I/O we have to account
-  for the cases where something goes wrong. It may just be an unreachable server or something more subtile.
+  The eagle-eyed reader may have spotted our use of the `catch` operator in conjunction with a `handleError` method.
+  We haven't discussed so far how that actually works. 
+  Whenever we deal with I/O we must be prepared for something to go wrong as it surely will. 
   
-  We could just ignore any errors in our `HeroService` and rely on the component to handle such cases. But it's often better to
-  handle errors on both levels: Service and Component. In our case that may be as simple as logging the errors to the console at the service level
-  and blowing up an alert box in the user's face at the component level.
+  We should catch errors in the `HeroService` and do something with them. 
+  We may also pass an error message back to the component for presentation to the user
+  but only if we can say something the user can understand and act upon.
+
+  In this simple app we provide rudimentary error handling in both the service and the component.
   
-  The `catch` operator lets us do exactly that. This operator reacts to the error case of an Observable. It takes a function that can handle the error
-  and then return a new Observable to continue with. Because we like to keep things simple here, we just defined a function `logAndPassOn` that calls `console.error(error)` and returns a
-  new Observable that re-emits the error with `Observable.throw(error)`.
+  We use the Observable `catch` operator on the service level.
+  It takes an error handling function with the failed `Response` object as the argument.  
+  Our service handler, `errorHandler`, logs the response to the console, 
+  transforms the error into a user-friendly message, and returns the message in a new, failed observable via `Observable.throw`.
 
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'error-handling', 'app/toh/hero.service.ts')(format=".")
 
 :marked
-  Back in the `HeroListComponent` where we call `heroService.get`, 
-  we pass a second parameter to the `subscribe` function to handle the error case at this level too.
+  Back in the `HeroListComponent`, where we called `heroService.get`, 
+  we supply the `subscribe` function with a second function to handle the error message.
+  It sets an `errorMessage` variable which we've bound conditionally in the template.
 
-+makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'ngOnInit', 'app/toh/hero-list.component.ts (ngOnInit)')
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'getHeroes', 'app/toh/hero-list.component.ts (getHeroes)')(format=".")
 
+.l-sub-section
+  :marked
+    Try messing with the value of the api endpoint in the `HeroService` and watch it fail
+  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint', 'app/toh/hero.service.ts (endpoint)')
+    
 
 :marked
   ### Sending data to the server
@@ -242,6 +257,51 @@ code-example(format="." language="javascript").
   When the data arrive it pushes the new hero object into its `heroes` array for presentation to the user.
 +makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'addHero', 'app/toh/hero-list.component.ts (addHero)')(format=".")
 
+:marked
+  ## Falling back to Promises
+  
+  Although the Angular `http` client API returns an `Observable` we can turn it into a 
+  [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) if we prefer.
+  It's easy to do and a promise-based version looks much like the observable-based version in simple cases.
+.l-sub-section
+  :marked
+    While promises may be more familiar, observables have many advantages. 
+    Don't rush to promises until you've observables a chance.
+:marked
+  Let's rewrite the `HeroService` using promises , highlighting just the parts that are different.
++makeTabs(
+  'server-communication/ts/app/toh/hero.service.1.ts,server-communication/ts/app/toh/hero.service.ts', 
+  'methods, methods', 
+  'app/toh/hero.service.ts (promise-based), app/toh/hero.service.ts (observable-based)')
+:marked
+  Converting from an observable to a promise is as simple as calling `toPromise(success, fail)`.
+  
+  We move the observable's `map` callback to the first *success* parameter and its `catch` callback to the second *fail* parameter
+  and we're done!
+  Or we can follow the promise `then.catch` pattern as we do in the second `addHero` example.
+  
+  Our `errorHandler` forwards an error message as a failed promise instead of a failed Observable.
+  
+  We have to adjust the calling component to expect a `Promise` instead of an `Observable`.
+  
++makeTabs(
+  'server-communication/ts/app/toh/hero-list.component.1.ts, server-communication/ts/app/toh/hero-list.component.ts', 
+  'methods, methods', 
+  'app/toh/hero-list.component.ts (promise-based), app/toh/hero-list.component.ts (observable-based)')
+:marked
+  The only obvious difference is that we call `then` on the returned promise instead of `subscribe`.
+  We give both methods the same functional arguments. 
+.l-sub-section
+  :marked
+    The less obvious but critical difference is that these two methods return very different results!
+    
+    The promise-based `then` returns another promise. We can keep chaining more `then` and `catch` calls, getting a new promise each time.
+    
+    The `subscribe` method returns a `Subscription`. A `Subscription` is not another observable. 
+    It's the end of the line for observables. We can't call `map` on it or call `subscribe` again.
+    The `Subscription` object has a different purpose, signified by its primary method, `unsubscribe`.
+    
+    Learn more about observables to understand the implications and consequences of subscriptions.
 :marked
   ## Communication with `JSONP`
 

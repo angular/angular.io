@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'package:hierarchical_di/restore_service.dart';
-import 'package:hierarchical_di/hero.dart';
+
+import 'hero.dart';
+import 'restore_service.dart';
 
 @Component(
     selector: 'hero-editor',
