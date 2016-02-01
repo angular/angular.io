@@ -464,11 +464,9 @@ figure.image-display
   1. the "*is required*" message in a nearby `<div>` which we'll display only if the control is invalid.
 
   Here's how we do it for the *name* input box:
--var stylePattern = { otl: /(#name=&quot;form&quot;)|(.*div.*$)|(Name is required)/gm };
 +makeExample('forms/ts/app/hero-form.component.html', 
   'name-with-error-msg', 
-  'app/hero-form.component.html (excerpt)', 
-  stylePattern)
+  'app/hero-form.component.html (excerpt)')(format=".")
 :marked
   When we added the `ngControl` directive, we bound it to the the model's `name` property.
   
@@ -478,9 +476,22 @@ figure.image-display
   In other words, the `name` local template variable becomes a handle on the `ngControl` object
   for this input box.
 
-  Now we can control visibility of the "name" error message by binding the message `<div>` element's `hidden` property 
-  to the `ngControl` object's `valid` property. The message is hidden while the control is valid;
-  the message is revealed when the control becomes invalid.
+  Now we can control visibility of the "name" error message by binding properties of the `name` control to the message `<div>` element's `hidden` property.
++makeExample('forms/ts/app/hero-form.component.html', 
+  'hidden-error-msg', 
+  'app/hero-form.component.html (excerpt)')
+:marked
+  In this example, we hide the message when the control is valid or pristine; 
+  pristine means the user hasn't changed the value since it was displayed in this form. 
+  
+  This user experience is the developer's choice. Some folks want to see the message at all times.
+  If we ignore the `pristine` state, we would hide the message only when the value is valid.
+  If we arrive in this component with a new (blank) hero or an invalid hero, 
+  we'll see the error message immediately, before we've done anything.
+   
+  Some folks find that behavior disconcerting. They only want to see the message when the user makes an invalid change.
+  Hiding the message while the control is "pristine" achieves that goal.
+  We'll see the significance of this choice when we [add a new hero](#new-hero) to the form.
 <a id="ngForm"></a>
 .l-sub-section
   :marked
@@ -502,7 +513,58 @@ figure.image-display
   We can add the same kind of error handling to the `<select>` if we  want
   but it's not imperative because the selection box already constrains the
   power to valid value.
-
+  
+<a id="new-hero"></a>
+<a id="reset"></a>  
+.l-main-section
+:marked
+  ## Add a hero and reset the form
+  We'd like to add a new hero in this form. 
+  We place a "New Hero" button at the bottom of the form and bind its click event to a component method.
++makeExample('forms/ts/app/hero-form.component.html', 
+  'new-hero-button', 
+  'app/hero-form.component.html (New Hero button)')
+:marked
++makeExample('forms/ts/app/hero-form.component.ts', 
+  'new-hero-v1', 
+  'app/hero-form.component.ts (New Hero method - v1)')(format=".")
+:marked
+  Run the application again, click the *New Hero* button, and the form clears.
+  The *required* bars to the left of the input box are red, indicating invalid `name` and `power` properties.
+  That's understandable as these are required fields. 
+  The error messages are hidden because the form is pristine; we haven't changed anything yet.
+  
+  Enter a name and click *New Hero* again.
+  This time we see an error message! Why? We don't want that when we display a new (empty) hero.
+  
+  Inspecting the element in the browser tools reveals that the *name* input box is no longer pristine.
+  Replacing the hero *did not restore the pristine state* of the control.
+.l-sub-section
+  :marked
+    Upon reflection, we realize that Angular cannot distinguish between
+    replacing the entire hero and clearing the `name` property programmatically.
+    Angular makes no assumptions and leaves the control in its current, dirty state.
+:marked
+  We'll have to reset the form controls manually with a small trick. 
+  We add an `active` flag to the component, initialized to `true`. When we add a new hero,
+  we toggle `active` false and then immediately back to true with a quick `setTimeout`.
++makeExample('forms/ts/app/hero-form.component.ts', 
+  'new-hero', 
+  'app/hero-form.component.ts (New Hero method - final)')(format=".")
+:marked
+  Then we bind the form element to this `active` flag.
++makeExample('forms/ts/app/hero-form.component.html', 
+  'form-active', 
+  'app/hero-form.component.html (Form tag)')
+:marked
+  With `NgIf` bound to the `active` flag, 
+  clicking "New Hero" removes the form from the DOM and recreates it in a blink of an eye.
+  The re-created form is in a pristine state. The error message is hidden.
+.l-sub-section
+  :marked
+    This is a temporary workaround while we await a proper form reset feature.
+:marked
+  
 .l-main-section
 :marked
   ## Submit the form with **ngSubmit**
@@ -616,7 +678,7 @@ figure.image-display
       .file main.ts
     .file index.html
     .file package.json
-    .file styles.cs    
+    .file styles.css    
     .file tsconfig.json  
 :marked
   Here’s the final version of the source:
