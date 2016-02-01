@@ -27,17 +27,37 @@ export class HeroFormComponent {
   get diagnostic() { return JSON.stringify(this.model); }
   // #enddocregion first
 
+  // #docregion final
+  // Reset the form with a new hero AND restore 'pristine' class state
+  // by toggling 'active' flag which causes the form
+  // to be removed/re-added in a tick via NgIf
+  // TODO: Workaround until NgForm has a reset method (#6822)
+  // #docregion new-hero
+  active = true;
 
-  //////// DO NOT SHOW IN DOCS ////////
+  // #docregion new-hero-v1
+  newHero() {
+    this.model = new Hero(42, '', '');
+  // #enddocregion new-hero-v1
+    this.active = false;
+    setTimeout(()=> this.active=true, 0);
+  // #docregion new-hero-v1
+  }
+  // #enddocregion new-hero-v1
+  // #enddocregion new-hero
+  // #enddocregion final
+  //////// NOT SHOWN IN DOCS ////////
 
   // Reveal in html:
-  //   AlterEgo via form.controls = {{showFormControls(hf)}}
+  //   Name via form.controls = {{showFormControls(heroForm)}}
   showFormControls(form:NgForm){
-    return form.controls['alterEgo'] &&
+
+    return form && form.controls['name'] &&
     // #docregion form-controls
-      form.controls['name'].value; // Dr. IQ
+    form.controls['name'].value; // Dr. IQ
     // #enddocregion form-controls
   }
+
   /////////////////////////////
 
   // #docregion first, final
