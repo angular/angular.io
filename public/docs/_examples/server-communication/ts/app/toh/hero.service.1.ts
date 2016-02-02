@@ -4,6 +4,7 @@
 // #docregion
 import {Injectable}     from 'angular2/core';
 import {Http, Response} from 'angular2/http';
+import {Headers, RequestOptions} from 'angular2/http';
 import {Hero}           from './hero';
 
 @Injectable()
@@ -16,11 +17,16 @@ export class HeroService {
   getHeroes () {
     return this.http.get(this._heroesUrl)
                     .toPromise()
-                    .then(res => <Hero[]> res.json().data, this.handleError);
+                    .then(res => <Hero[]> res.json().data, this.handleError)
+                    .then(data => { console.log(data); return data; }); // eyeball results in the console
   }
 
   addHero (name: string) : Promise<Hero> {
-    return this.http.post(this._heroesUrl, JSON.stringify({ name }))
+    let body = JSON.stringify({ name });
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this._heroesUrl, body, options)
                .toPromise()
                .then(res => <Hero> res.json().data)
                .catch(this.handleError);

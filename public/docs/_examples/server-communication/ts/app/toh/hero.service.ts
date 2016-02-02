@@ -4,6 +4,11 @@
 // #docregion v1
 import {Injectable}     from 'angular2/core';
 import {Http, Response} from 'angular2/http';
+// #enddocregion v1
+// #docregion import-request-options
+import {Headers, RequestOptions} from 'angular2/http';
+// #enddocregion import-request-options
+// #docregion v1
 import {Hero}           from './hero';
 import {Observable}     from 'rxjs/Observable';
 
@@ -29,10 +34,17 @@ export class HeroService {
   }
   // #enddocregion error-handling
   // #enddocregion v1
-  
+
   // #docregion addhero
   addHero (name: string) : Observable<Hero>  {
-    return this.http.post(this._heroesUrl, JSON.stringify({ name }))
+
+    let body = JSON.stringify({ name });
+    //#docregion headers
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(this._heroesUrl, body, options)
+    //#enddocregion headers
                     .map(res =>  <Hero> res.json().data)
                     .catch(this.handleError)
   }
