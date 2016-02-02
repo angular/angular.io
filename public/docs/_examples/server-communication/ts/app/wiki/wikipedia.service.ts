@@ -8,16 +8,21 @@ export class WikipediaService {
 
   search (term: string) {
 
+    let wikiUrl = 'http://en.wikipedia.org/w/api.php';
+
+    // #docregion search-parameters
     var params = new URLSearchParams();
-    params.set('search', term);
+    params.set('search', term); // the user's search value
     params.set('action', 'opensearch');
     params.set('format', 'json');
+    params.set('callback', 'JSONP_CALLBACK');
+    // #enddocregion search-parameters
 
-    let wikiUrl = 'http://en.wikipedia.org/w/api.php?callback=JSONP_CALLBACK';
-
-    // TODO: Error handling
+    // #docregion call-jsonp
+    // TODO: Add error handling
     return this.jsonp
                .get(wikiUrl, { search: params })
-               .map(request => request.json()[1]);
+               .map(request => <string[]> request.json()[1]);
+    // #enddocregion call-jsonp
   }
 }

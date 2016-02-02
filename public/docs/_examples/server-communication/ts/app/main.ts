@@ -6,10 +6,10 @@ import {bootstrap}         from 'angular2/platform/browser';
 import 'rxjs/Rx';
 // #enddocregion import-rxjs
 
-import {WikiComponent}     from './wiki/wiki.component';
-import {WikiFormComponent} from './wiki/wiki-form.component';
-import {TohComponent}      from './toh/toh.component';
+import {WikiComponent}        from './wiki/wiki.component';
+import {WikiSmartComponent} from './wiki/wiki-smart.component';
+import {TohComponent}         from './toh/toh.component';
 
 bootstrap(WikiComponent);
-bootstrap(WikiFormComponent);
+bootstrap(WikiSmartComponent);
 bootstrap(TohComponent);

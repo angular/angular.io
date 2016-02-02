@@ -14,6 +14,7 @@ include ../../../../_includes/_util-fns
   [Add headers](#headers)<br>
   [Promises instead of observables](#promises)<br>
   [JSONP](#jsonp)<br>
+  [Set query string parameters](#search-parameters)<br>
   [Debounce search term input](#more-observables)<br>
   [Appendix: the in-memory web api service](#in-mem-web-api)<br>
   
@@ -273,18 +274,18 @@ code-example(format="." language="javascript").
   { "name": "Windstorm" }
 :marked
   The server will generate the `id` and return the entire `JSON` representation
-  of the new hero including its generated id for our convenience, tucked inside an object
-  with a `data` property.
+  of the new hero including its generated id. The hero arrives tucked inside a response object
+  with its own `data` property.
   
   Now that we know how the API works, we implement `addHero`like this:
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'import-request-options', 'app/toh/hero.service.ts (additional imports)')(format=".")  
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
 :marked
   The second *body* parameter of the `post` method requires a JSON ***string***
-  so we have to `JSON.stringify` the hero content first.
+  so we have to `JSON.stringify` the hero content before sending.
 .l-sub-section
   :marked
-    We may be able to skip the body stringify in the near future.
+    We may be able to skip the `stringify` step in the near future.
     
 <a id="headers"></a>
 :marked
@@ -359,125 +360,163 @@ code-example(format="." language="javascript").
 :marked
   ## Get data with `JSONP`
 
-  We just learned how to make `XMLHttpRequests` using Angulars built-in `Http` service. This is the most common approach for 
-  server communication. It doesn't work in all scenarios though.
+  We just learned how to make `XMLHttpRequests` using Angulars built-in `Http` service. 
+  This is the most common approach for server communication. 
+  It doesn't work in all scenarios.
 
-  For security reasons web browser do not permit to make `XHR` calls if the origin of the remote server is different from the one the web page runs in.
-  The origin is defined as the combination of URI scheme, hostname and port number. The policy that prevents such `XHR` requests is called [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy) accordingly.
+  For security reasons, web browsers block `XHR` calls to a remote server whose origin is different from the origin of the web page.
+  The *origin* is the combination of URI scheme, hostname and port number. 
+  This is called the [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy).
 
 .l-sub-section
   :marked
-    That's not entirely true. Modern browsers do allow `XHR` requests against foreign origins if the server sends the appropriate [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) headers.
-    In such cases there's nothing specific to do for the client unless we want our `XHR` request to include credentials (e.g Cookies) which we then have to explicitly enable for the request.
+    Modern browsers do allow `XHR` requests to servers from a different origin if the server supports the 
+    [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) protocol.
+    If the server requires user credentials, we'll enable them in the [request headers](#headers).
 
 :marked
-  But let's not go too deep into the rabbit hole of `JSONP`. If you like to learn how this technique works under the cover, you may like to read up on this [answer](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about/2067584#2067584) on StackOverflow.
-  For now, let's focus on how we can use `JSONP` in Angular.
-
+  Some servers do not support CORS but do support an older, read-only alternative called [JSONP](https://en.wikipedia.org/wiki/JSONP).
+  Wikipedia is one such server.
+.l-sub-section
+  :marked
+    This [StackOverflow answer](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about/2067584#2067584) covers many details of JSONP.
+:marked
   ### Search wikipedia
   
   Wikipedia offers a `JSONP` search api. Let's build a simple search that shows suggestions from wikipedia as we type in a text box.
 figure.image-display
   img(src='/resources/images/devguide/server-communication/wiki-1.gif' alt="Wikipedia search app (v.1)" width="250")
 :marked
-  Angular provides us with a `Jsonp` services which has the same API surface as the `Http` service with the only difference that it restricts us to use `GET` requests only. This is
-  because the nature of `JSONP` does not allow any other kind of requests. In order to use the `Jsonp` service we have to specify the `JSONP_PROVIDERS`.
+  The Angular `Jsonp` service both extends the `Http` service for JSONP and restricts us to `GET` requests. 
+  All other HTTP methods throw an error because JSONP is a read-only facility. 
 
-  Again, we'll make sure to do the server communication in a dedicated service that we call `WikipediaService`.
+  As always, we wrap our interaction with an Angular data access client service inside a dedicated service, here called `WikipediaService`.
 
 +makeExample('server-communication/ts/app/wiki/wikipedia.service.ts',null,'app/wiki/wikipedia.service.ts')
-
 :marked
-  We use the `URLSearchParams` helper to define a `params` object with the key/value pairs that define the wikipedia query.
-  The keys are `search`, `action`, and `format`.
-  The value of the `search` key is the user-supplied search term that we'll lookup in wikipedia.
+  The constructor expects Angular to inject its `jsonp` service. 
+  We register that service with `JSONP_PROVIDERS` in the  [component below](#wikicomponent) that calls our `WikipediaService`.
+
+<a id="query-parameters"></a>
+<a id="search-parameters"></a>
+:marked
+  ### Search parameters
+  The [Wikipedia 'opensearch' API](https://www.mediawiki.org/wiki/API:Opensearch)
+  expects four parameters (key/value pairs) to arrive in the request URL's query string.
+  The keys are `search`, `action`, `format`, and `callback`.
+  The value of the `search` key is the user-supplied search term to find in Wikipedia.
+  The other three are the fixed values "opensearch", "json", and "JSONP_CALLBACK" respectively.
+.l-sub-section
+  :marked
+    The `JSONP` technique requires that we pass a callback function name to the server in the query string: `callback=JSONP_CALLBACK`.
+    The server uses that name to build a JavaScript wrapper function in its response which Angular ultimately calls to extract the data.
+    All of this happens under the hood.
+:marked
+  If we're looking for articles with the word "Angular", we could construct the query string by hand and call `jsonp` like this:
++makeExample('server-communication/ts/app/wiki/wikipedia.service.1.ts','query-string')(format='.')
+:marked
+  In more parameterized examples we might prefer to build the query string with the Angular `URLSearchParams` helper as shown here:
++makeExample('server-communication/ts/app/wiki/wikipedia.service.ts','search-parameters','app/wiki/wikipedia.service.ts (search parameters)')(format=".")
+:marked
+  This time we call `jsonp` with *two* arguments: the `wikiUrl` and an options object whose `search` property is the `params` object.
++makeExample('server-communication/ts/app/wiki/wikipedia.service.ts','call-jsonp','app/wiki/wikipedia.service.ts (call jsonp)')(format=".")
+:marked
+  `Jsonp` flattens the `params` object into the same query string we saw earlier before putting the request on the wire.
+    
+<a id="wikicomponent"></a>
+:marked
+  ### The WikiComponent
   
-  We call `Jsonp` with two arguments: the `wikiUrl` and an options object with a `search` property whose value is the `params` object.
-  `Jsonp` flattens the `params` object into a query string such as
-code-example.
-  &search=foo&action=opensearch&format=json`
-:marked
-  and appends it to the `wikiUrl`. Notice that the `wikiUrl` contains `callback=JSONP_CALLBACK`. The nature of `JSONP` requires that 
-  we pass a unique function name to the server so that the server can pick up that name in the response. Many JSONP APIs pass this function name
-  through an URL parameter called they call `callback`. But that's more common sense than a strict rule. Since Angular doesn't assume a fixed name
-  for that parameter it requires *us* to put it in the URL and asign the placeholder `JSONP_CALLBACK` to it. Angular will make sure to replace
-  the placeholder with a unique function name for each request for us.
-
-  Now that we have the service ready to query the Wikipedia API, let's look at the actual component that should accept the user input
-  and shows the search results.
+  Now that we have a service that can query the Wikipedia API, 
+  we turn to the component that takes user input and displays search results.
   
 +makeExample('server-communication/ts/app/wiki/wiki.component.ts', null, 'app/wiki/wiki.component.ts')
 :marked
-  There shouldn't be much of a surprise here. Our component defines an `<input>` and calls a `search(term)` method for each `keyup` event.
-  The `search(term)` method delegates to our `WikipediaService` which returns an `Observable<Array<string>>` to us. Instead of subscribing to it
-  manually we use the [async pipe](pipes.html#async-pipe) in the `ngFor` to let the view subscribe to the Observable directly.
+  The `providers` array in the component metadata specifies the Angular `JSONP_PROVIDERS` collection that supports the `Jsonp` service.
+  We register that collection at the component level to make `Jsonp` injectable in the `WikipediaService`.
 
+  The component presents an `<input>` element *search box* to gather search terms from the user. 
+  and calls a `search(term)` method after each `keyup` event.
+  
+  The `search(term)` method delegates to our `WikipediaService` which returns an observable array of string results (`Observable<string[]`). 
+  Instead of subscribing to the observable inside the component as we did in the `HeroListComponent`, 
+  we forward the observable result to the template (via `items`) where the [async pipe](pipes.html#async-pipe)
+  in the `ngFor` handles the subscription.
 .l-sub-section
   :marked
-    As a rule of thumb we can use the [async pipe](pipes.html#async-pipe) whenever we don't need to interact with the unwrapped payload from the `Observable`/`Promise`
-    other than from the view directly. In our previous example we couldn't use it since we needed to keep a reference to the bare array of heros so that we can push
-    new objects into the array as we create new heros. 
+    We often use the [async pipe](pipes.html#async-pipe) in read-only components where the component has no need to interact with the data.
+    We couldn't us the pipe in the `HeroListComponent` because the "add hero" feature pushes newly created heroes into the list.
 
 :marked
-  There are a bunch of things in our wikipedia demo that we could do better. This is a perfect opportunity to show off some nifty
-  `Observable` tricks that can make server communication much simpler and more fun.
-  
-  <a id="more-observables"></a>
-  ### More fun with Observables
+  ## Our wasteful app
 
-  If you ever wrote a search-as-you-type control yourself before, you are probably aware of some typical corner cases that arise with this task.
-  
-  ### 1. Don't hit the search endpoint on every key stroke
-  
-  Treat the search endpoint as if you pay for it on a per-request basis. No matter if it's your own hardware or not. We shouldn't be hammering
-  the search enpoint more often than needed. 
-  What we want is to hit the search endpoint as soon as the user *stops typing* instead of after every keystroke.
-  
+  Our wikipedia search makes too many calls to the server. 
+  It is inefficient and potentially expensive on mobile devices with limited data plans.
+   
+  ### 1. Wait for the user to stop typing
+  At the moment we call the server after every key stroke.
+  The app should only make requests when the user *stops typing* .
   Here's how it *should* work &mdash; and *will* work  &mdash;  when we're done refactoring:
 figure.image-display
   img(src='/resources/images/devguide/server-communication/wiki-2.gif' alt="Wikipedia search app (v.2)" width="250")
 :marked
-  ### 2. Don't hit the search endpoint for the same term again
+  ### 2. Search when the search term changes
   
-  Consider you type *foo*, stop, type another *o*, hit return and stop back at *foo*. That should be just one request with the term *foo*
-  and not two even if we technically stopped twice after we had *foo*  in the search box.
+  Suppose the user enters the work *angular* in the search box and pauses for a while. 
+  The application issues a search request for *Angular*.
+  
+  Then the user backspaces over the last three letters, *lar*, and immediately re-types *lar* before pausing once more.
+  The search term is still "angular". The app shouldn't make another request.
   
   ### 3. Cope with out-of-order responses
 
-  When we have multiple requests in-flight at the same time we must account for cases where they come back in unexpected order. Consider we first typed
-  *computer*, stop, a request goes out, we type *car*, stop, a request goes out but then the request that carries the results for *computer* comes back
-  after the request that carries the results for *car*. If we don't deal with such cases properly we can get a buggy application that shows
-  results for *computer* even if the search box reads *car*.
-
-  Now that we identified the problems that need to be solved, let's make a couple of trivial changes to our code to fix them in a *functional reactive* way. Here is the
-  entire example with all changes. 
+  The user enters *angular*, pauses, clears the search box, and enters *http*. 
+  The application issues two search requests, one for *angular* and one for *http*. 
   
-  There are no changes for our `WikipediaService` so we can skip that one. We'll go over each change to briefly describe what 
-  it does.
-
-+makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', null, 'app/wiki/wiki-form.component.ts')
-
-:marked
-  The first thing we need to do to unveil the full magic of a observable-based solution is to get an `Observable<string>` for our `<input>` control.
-  The best way to do that is to change `<input #term (keyup)="search(term.value)"/>` into `<input [ng-form-control]="inputs"/>` and to create an `inputs` `Control` accordingly.
-
-+makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', 'control')
-
-:marked
-  We now have an `Observable<string>` at `this.inputs.valueChanges`. We can simply use the `debounceTime(ms)` and `distinctUntilChanged()` operators to fix the first two problems. We basically get a new `Observable<string>` that emits
-  new values exactly the way we want them to be emitted.
-
-+makeExample('server-communication/ts/app/wiki/wiki-form.component.ts', 'distinctdebounce')(format=".")
-:marked
-  With the previous change we tamed the input but we still need to deal with the out-of-order cases. At this point we have an `Observable<string>` and a
-  `search(term)` method on the `WikipediaService` that returns an `Observable<Array<string>>`. What we want is an `Observable<Array<string>>` that
-  carries the results of the *last* term that was emitted from the `Observable<string>`.
+  Which response will arrive first? We can't be sure. 
+  A load balancer could dispatch the requests to two different servers with different response times.
+  The results from the first *angular* request might arrive after the later *http* results.
+  The user will be confused if we display the *angular* results to the *http* query.
   
-  If we would just map our current `Observable<string>` like `.map(term => wikipediaService.search(term))` we would transform it into an `Observable<Observable<Array<string>>`
-  which isn't quite what we want. Enter [`switchMap`](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md) to the rescue. Basically `switchMap` flattens from an `Observable<Observable<T>` into an `Observable<T>` by
-  emitting values only from the most recent `Observable<T>` that was produced from the outer `Observable`.
+  When there are multiple requests in-flight, the app should present the responses
+  in the original request order. That won't happen if *angular* results arrive last.
+
+  <a id="more-observables"></a>
+  ## More fun with Observables
+  We can address these problems and improve our app with the help of some nifty observable operators. 
+   
+  We could make our changes to the `WikipediaService`. 
+  But we sense that our concerns are driven by the user experience so we update the component class instead.
+
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', null, 'app/wiki/wiki-smart.component.ts')
+:marked
+  We made no changes to the template or metadata, confining them all to the component class.
   
-  This may sound a lot like black magic for people unfamiliar with Observables but as soon as the coin sinks in it's starting to make a whole world of difficult programming tasks appear much simpler.
+  The first step turns the user's search box entries into the *subject* of an observable.
+  We import the `Subject` class from the RxJS observable library:
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')
+:marked
+  After every keystroke we pump the search box value into the private `_searchTermStream` subject, creating a stream of search term strings.
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
+:marked
+  Earlier, we passed each search term directly to the service and bound the template to the service results.
+  Now we listen to the *stream of terms*, manipulating the stream before it reaches the `WikipediaService`.
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable')(format='.')
+:marked
+  We wait for the user to stop typing for at least 300 milliseconds 
+  ([debounce](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
+  Only changed search values make it through to the service 
+  ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
+
+  The `WikipediaService` returns a separate observable of strings (`Observable<string[]>`) for each request.
+  We could have multiple requests "in flight", all awaiting the server's reply,
+  which means multiple *observables-of-strings* could arrive at any moment in any order.
+  
+  We rely on [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
+  (formerly known as `flatMapLatest`) to re-arrange these observables in their original-request order. 
+  
+  The `switchmap` operator ensures that the component's `items` property is always set to the truly latest `WikipediaService` observable.
+  Consequently, the displayed list of search results stays in sync with the user's sequence of search terms.
 
 <a id="in-mem-web-api"></a>
 .l-main-section

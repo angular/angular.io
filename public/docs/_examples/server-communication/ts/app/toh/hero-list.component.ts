@@ -48,7 +48,6 @@ export class HeroListComponent implements OnInit {
                      .subscribe(
                        hero  => this.heroes.push(hero),
                        error =>  this.errorMessage = <any>error);
-
   }
   // #enddocregion addHero
   // #enddocregion methods

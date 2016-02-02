@@ -47,7 +47,6 @@ export class HeroListComponent implements OnInit {
                      .then(
                        hero  => this.heroes.push(hero),
                        error =>  this.errorMessage = <any>error);
-
   }
   // #enddocregion methods
 }
