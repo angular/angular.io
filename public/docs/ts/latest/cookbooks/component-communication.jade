@@ -1,0 +1,257 @@
+include ../../../../_includes/_util-fns
+
+<a id="top"></a>
+:marked
+  This cookbook contains recipes for common component communication scenarios
+  in which two or more components share information.
+
+//
+  .l-sub-section
+    :marked
+      For an in-depth look at each fundamental concepts in component communication, we can find detailed description and
+      samples in the [Component Communication]() document.
+
+<a id="toc"></a>
+:marked
+  ## Table of contents
+  
+  [Pass data from parent to child with input binding](#parent-to-child)
+
+  [Intercept input property changes with a setter](#parent-to-child-setter)
+
+  [Intercept input property changes with *ngOnChanges*](#parent-to-child-on-changes)
+
+  [Parent listens for child event](#child-to-parent)
+  
+  [Parent calls a *ViewChild*](#parent-to-view-child)
+
+  [Parent and children communicate via a service](#bidirectional-service)
+
+:marked
+  **See the [live example](/resources/live-examples/cb-component-communication/ts/plnkr.html)**.
+
+.l-main-section
+<a id="parent-to-child"></a>
+:marked
+  ## Pass data from parent to child with input binding
+  
+  `HeroChildComponent` has two ***input properties***, 
+  typically adorned with [@Input decorations](docs/ts/latest/guide/template-syntax.html#inputs-outputs).
+  
++makeExample('cb-component-communication/ts/app/hero-child.component.ts')
+:marked
+  The second `@Input` aliases the child component property name `masterName` as `'master'`.
+  
+  The `HeroParentComponent` nests the child `HeroChildComponent` inside an `*ngFor` repeater, 
+  binding its `master` string property to the child's `master` alias
+  and each iteration's `hero` instance to the child's `hero` property.
+
++makeExample('cb-component-communication/ts/app/hero-parent.component.ts')
+:marked
+  The running application displays three heroes:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/parent-to-child.png" alt="Parent-to-child")
+  
+:marked
+  ### Test it
+  
+  E2E test that all children were instantiated and displayed as expected:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="parent-to-child-setter"></a>
+:marked
+  ## Intercept input property changes with a setter
+
+  Use an input property setter to intercept and act upon a value from the parent.
+  
+  The setter of the `name` input property in the child `NameChildComponent` 
+  trims the whitespace from a name and replaces an empty value with default text. 
+  
++makeExample('cb-component-communication/ts/app/name-child.component.ts')
+
+:marked
+  Here's the `NameParentComponent` demonstrating name variations including a name with all spaces:
+
++makeExample('cb-component-communication/ts/app/name-parent.component.ts')
+
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/setter.png" alt="Parent-to-child-setter")
+  
+:marked
+  ### Test it
+
+  E2E tests of input property setter with empty and non-empty names:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child-setter')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="parent-to-child-on-changes"></a>
+:marked
+  ## Intercept input property changes with *ngOnChanges*
+
+  Detect and act upon changes to input property values with the `ngOnChanges` method of the `OnChanges` lifecycle hook interface.
+.l-sub-section
+  :marked
+    May prefer this approach to the property setter when watching multiple, interacting input properties.
+    
+    Learn about `ngOnChanges` in the [LifeCycle Hooks](../guide/lifecycle-hooks.html) chapter.
+:marked
+  This `VersionChildComponent` detects changes to the `major` and `minor` input properties and composes a log message reporting these changes:
+  
++makeExample('cb-component-communication/ts/app/version-child.component.ts')
+
+:marked
+  The `VersionParentComponent` supplies the `minor` and `major` values and binds buttons to methods that change them.
+  
++makeExample('cb-component-communication/ts/app/version-parent.component.ts')
+
+:marked
+  Here's the output of a button-pushing sequence:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/parent-to-child-on-changes.gif" alt="Parent-to-child-onchanges")
+  
+:marked
+  ### Test it
+  
+  Test that ***both*** input properties are set initially and that button clicks trigger 
+  the expected `ngOnChanges` calls and values:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child-onchanges')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="child-to-parent"></a>
+:marked
+  ## Parent listens for child event
+
+  The child component exposes an `EventEmitter` property with which it `emits`events when something happens. 
+  The parent binds to that event property and reacts to those events.
+  
+  The child's `EventEmitter` property is an ***output property***, 
+    typically adorned with an [@Output decoration](docs/ts/latest/guide/template-syntax.html#inputs-outputs)
+    as seen in this `VoterComponent`:
+  
++makeExample('cb-component-communication/ts/app/voter.component.ts')
+
+:marked
+  Clicking a button triggers emission of a `true` or `false` (the boolean *payload*).
+  
+  The parent `VoteTakerComponent` binds an event handler (`onVoted`) that responds to the child event
+  payload (`$event`) and updates a counter.
+  
++makeExample('cb-component-communication/ts/app/votetaker.component.ts')
+
+:marked
+  The framework passes the event argument &mdash; represented by `$event` &mdash; to the handler method, 
+  and the method processes it:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/child-to-parent.gif" alt="Child-to-parent")
+  
+:marked
+  ### Test it
+  
+  Test that clicking the *Agree* and *Disagree* buttons update the appropriate counters:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'child-to-parent')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="parent-to-view-child"></a>
+:marked
+  ## Parent calls a *ViewChild*
+  A parent can call a child component once it has been located by a property adorned with a `@ViewChild` decorator property.
+  
+  This `CountdownTimerComponent` keeps counting down to zero and launching rockets.
+  It has `start` and `stop` methods that control the countdown.
++makeExample('cb-component-communication/ts/app/countdown-timer.component.ts')
+:marked
+  The parent `CountdownParentComponent` cannot bind to the child's `start` and `stop` methods.
+  But it can obtain a reference to the child component by applying a `@ViewChild` decorator 
+  to a receiver property (`timerComponent`) after giving that decorator the type of component to find.
+  Once it has that reference, it can access *any property or method* of the child component.
+ 
+  Here it wires its own buttons to the child's start` and `stop`.
+
++makeExample('cb-component-communication/ts/app/countdown-parent.component.ts')
+:marked
+
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/countdown-timer-anim.gif" alt="countdown timer")
+:marked
+  ### Test it
+  
+  Test that clicking the *Stop* button pauses the countdown timer:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-view-child')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="bidirectional-service"></a>
+:marked
+  ## Parent and children communicate via a service
+
+  A parent component and its children share a service whose interface enables bi-directional communication
+  *within the family*.
+
+  The scope of the service instance is the parent component and its children. 
+  Components outside this component subtree have no access to the service or their communications.
+  
+  This `MissionService` connects the `MissionControlComponent` to multiple `AstronautComponent` children.
+
++makeExample('cb-component-communication/ts/app/mission.service.ts')
+:marked
+  The `MissionControlComponent` both provides the instance of the service that it shares with its children
+  (through the `providers` metadata array) and injects that instance into itself through its constructor:
+  
++makeExample('cb-component-communication/ts/app/missioncontrol.component.ts')
+
+:marked
+  The `AstronoutComponent` also injects the service in its constructor.
+  Each `AstronoutComponent` is a child of the `MissionControlComponent` and therefore receives its parent's service instance:
+  
++makeExample('cb-component-communication/ts/app/astronaut.component.ts')
+
+.l-sub-section
+  :marked
+    Notice that we capture the `subscription` and unsubscribe when the `AstronautComponent` is destroyed.
+    This is a memory-leak guard step. There is no actual risk in this app because the
+    lifetime of a `AstronautComponent` is the same as the lifetime of the app itself.
+    That *would not* always be true in a more complex application.
+    
+    We do not add this guard to the `MissionControlComponent` because, as the parent,
+    it controls the lifetime of the `MissionService`.
+:marked
+  The *History* log demonstrates that messages travel in both directions between
+  the parent `MissionControlComponent` and the `AstronoutComponent` children,
+  facilitated by the service:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/bidirectional-service.gif" alt="bidirectional-service")
+  
+:marked
+  ### Test it
+  
+  Tests click buttons of both the parent `MissionControlComponent` and the `AstronoutComponent` children
+  and verify that the *History* meets expectations:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'bidirectional-service')
+
+:marked
+  [Back to top](#top)
