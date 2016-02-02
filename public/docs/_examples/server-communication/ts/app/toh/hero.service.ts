@@ -18,11 +18,14 @@ export class HeroService {
   // #docregion methods
   // #docregion error-handling
   getHeroes () {
-    // #docregion http-get
+    // #docregion http-get, http-get-v1
     return this.http.get(this._heroesUrl)
                     .map(res => <Hero[]> res.json().data)
+                    // #enddocregion v1, http-get-v1, error-handling
+                    .do(data => console.log(data)) // eyeball results in the console
+                    // #docregion v1, http-get-v1, error-handling
                     .catch(this.handleError);
-    // #enddocregion http-get
+    // #enddocregion http-get, http-get-v1
   }
   // #enddocregion error-handling
   // #enddocregion v1
