@@ -491,17 +491,32 @@ figure.image-display
 +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', null, 'app/wiki/wiki-smart.component.ts')
 :marked
   We made no changes to the template or metadata, confining them all to the component class.
+  Let's review those changes.
   
-  The first step turns the user's search box entries into the *subject* of an observable.
-  We import the `Subject` class from the RxJS observable library:
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')
+  ### Create the search term Observable
+  
+  We import the `Observer` symbol from the RxJS observable library to get the type information:
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-observer')
 :marked
-  After every keystroke we pump the search box value into the private `_searchTermStream` subject, creating a stream of search term strings.
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
+  The first real step turns the user's search box entries into an observable stream of search terms.
+  We create a private `Observable` called `_searchTermStream`, driven by a *subscribe* function that
+  feeds user search terms to the observable.
+  
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-create')(format='.')
 :marked
+  The *subscribe* function sets the component's `search` method to a function that updates
+  the observable's `observer` with search terms.
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subscribe-fn')(format='.')
+:marked
+  The search box `keyup` events are still bound to this `search` method in the template.
+  After every keystroke the binding pumps the search box value into the  `_searchTermStream` observable, 
+  creating a stream of search term strings.
+
+  ### Listen for search terms
+  
   Earlier, we passed each search term directly to the service and bound the template to the service results.
   Now we listen to the *stream of terms*, manipulating the stream before it reaches the `WikipediaService`.
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable')(format='.')
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-operators')(format='.')
 :marked
   We wait for the user to stop typing for at least 300 milliseconds 
   ([debounce](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
@@ -509,14 +524,15 @@ figure.image-display
   ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
 
   The `WikipediaService` returns a separate observable of strings (`Observable<string[]>`) for each request.
-  We could have multiple requests "in flight", all awaiting the server's reply,
+  We could have multiple requests *in flight*, all awaiting the server's reply,
   which means multiple *observables-of-strings* could arrive at any moment in any order.
   
-  We rely on [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
-  (formerly known as `flatMapLatest`) to re-arrange these observables in their original-request order. 
-  
-  The `switchmap` operator ensures that the component's `items` property is always set to the truly latest `WikipediaService` observable.
-  Consequently, the displayed list of search results stays in sync with the user's sequence of search terms.
+  The [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
+  (formerly known as `flatMapLatest`) returns a new observable that combines these `WikipediaService` observables, 
+  re-arranges them in their original request order,
+  and delivers to subscribers only the most recent search results. 
+
+  The displayed list of search results stays in sync with the user's sequence of search terms.
 
 <a id="in-mem-web-api"></a>
 .l-main-section

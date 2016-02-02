@@ -2,6 +2,7 @@
 import {Component}        from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {Observable}       from 'rxjs/Observable';
+
 import {WikipediaService} from './wikipedia.service';
 
 @Component({
