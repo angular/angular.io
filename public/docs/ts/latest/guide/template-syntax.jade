@@ -37,7 +37,7 @@ include ../../../../_includes/_util-fns
 +makeExample('template-syntax/ts/app/app.component.html', 'my-first-app')(format=".")
 // #docregion html-2
 :marked
-  Almost all HTML syntax is valid template syntax. The `<script>` element is a notable exception; it is forbidden, eliminating the risk of JavaScript injection attacks. (In practice, `<script>` is simply ignored.)
+  Almost all HTML syntax is valid template syntax. The `<script>` element is a notable exception; it is forbidden, eliminating the risk of script injection attacks. (In practice, `<script>` is simply ignored.)
 
   Some legal HTML doesn’t make much sense in a template. The `<html>`, `<body>`, and `<base>` elements have no useful role in our repertoire. Pretty much everything else is fair game.
 
@@ -87,7 +87,7 @@ include ../../../../_includes/_util-fns
   But first, let's take a closer look at template expressions and statements.
 // #enddocregion interpolation-5
 
-// #docregion template-expressions
+// #docregion template-expressions-1
 <a id="template-expressions"></a>
 .l-main-section
 :marked
@@ -99,20 +99,28 @@ include ../../../../_includes/_util-fns
   We put a template expression within the interpolation braces when we wrote `{{1 + 1}}`.
   We’ll see template expressions again in the [property binding](#property-binding) section,
   appearing in quotes to the right of the `=` symbol as in `[property]="expression"`.
+// #enddocregion template-expressions-1
 
+// #docregion template-expressions-2
+:marked
   We write template expressions in a language that looks like JavaScript.
   Many JavaScript expressions are legal template expressions, but not all.
   JavaScript expressions that have or promote side effects are prohibited,
   including:
+
   * assignments (`=`, `+=`, `-=`)
   * the `new` operator
   * chaining expressions with `;` or `,`
   * increment and decrement operators (`++` and `--`)
 
   Other notable differences from JavaScript syntax include:
+
   * no support for the bitwise operators `|` and `&`
   * new [template expression operators](#expression-operators), such as `|` and `?.`
+// #enddocregion template-expressions-2
 
+// #docregion template-expressions-context
+:marked
   <a id="expression-context"></a>
   ### Expression context
 
@@ -133,7 +141,10 @@ include ../../../../_includes/_util-fns
 
   The expression context can include objects other than the component.
   A [local template variable](#local-vars) is one such alternative context object.
+// #enddocregion template-expressions-context
 
+// #docregion template-expressions-guidelines
+:marked
   <a id="no-side-effects"></a>
   ### Expression guidelines
   Template expressions can make or break an application.
@@ -144,7 +155,7 @@ include ../../../../_includes/_util-fns
   * [Simplicity](#simplicity)
   * [Idempotence](#idempotence)
 
-  The only exceptions to these guidelines are specific circumstances that you thoroughly understand.
+  The only exceptions to these guidelines should be in specific circumstances that you thoroughly understand.
 
   #### No visible side effects
 
@@ -174,13 +185,13 @@ include ../../../../_includes/_util-fns
   In Angular terms, an idempotent expression always returns *exactly the same thing* until
   one of its dependent values changes.
 
-  Dependent values should not change during a single turn of the JavaScript virtual machine.
+  Dependent values should not change during a single turn of the event loop.
   If an idempotent expression returns a string or a number, it returns the same string or number
   when called twice in a row. If the expression returns an object (including a `Date` or `Array`),
   it returns the same object *reference* when called twice in a row.
-// #enddocregion template-expressions
+// #enddocregion template-expressions-guidelines
 
-// #docregion template-statements
+// #docregion template-statements-1
 <a id="template-statements"></a>
 .l-main-section
 :marked
@@ -199,7 +210,9 @@ include ../../../../_includes/_util-fns
 .l-sub-section
   :marked
     Responding to events is the other side of Angular's "unidirectional data flow".
-    We're free to change anything, anywhere, during this turn of the JavaScript virtual machine.
+    We're free to change anything, anywhere, during this turn of the event loop.
+// #enddocregion template-statements-1
+// #docregion template-statements-2
 :marked
   Like template expressions, template *statements* use a language that looks like JavaScript.
   The template statement parser is different than the template expression parser and
@@ -211,8 +224,10 @@ include ../../../../_includes/_util-fns
   * operator assignment, such as `+=` and `-=`
   * the bitwise operators `|` and `&`
   * the [template expression operators](#expression-operators)
+// #enddocregion template-statements-2
 
-
+// #docregion template-statements-3
+:marked
   ### Statement context
 
   As with expressions, statements cannot refer to anything in the global namespace.
@@ -235,7 +250,7 @@ include ../../../../_includes/_util-fns
 
   Now that we have a feel for template expressions and statements,
   we’re ready to learn about the varieties of data binding syntax beyond interpolation.
-// #enddocregion template-statements
+// #enddocregion template-statements-3
 
 // #docregion binding-syntax-1
 .l-main-section
@@ -365,7 +380,7 @@ table
 
     The `disabled` attribute is another peculiar example. A button's `disabled` *property* is
     `false` by default so the button is enabled.
-    When we add the `disabled` *attribute*, it's presence alone initializes the  button's `disabled` *property* to `true`
+    When we add the `disabled` *attribute*, its presence alone initializes the  button's `disabled` *property* to `true`
     so the button is disabled.
 
     Adding and removing the `disabled` *attribute* disables and enables the button. The value of the *attribute* is irrelevant,
@@ -374,7 +389,7 @@ table
     Setting the button's `disabled` *property*  (say, with an Angular binding) disables or enables the button.
     The value of the *property* matters.
 
-    **The HTML attribute and the DOM property are not the same thing even when they have the same name.**
+    **The HTML attribute and the DOM property are not the same thing, even when they have the same name.**
 // #enddocregion binding-syntax-attribute-vs-property
 
 // #docregion binding-syntax-5
@@ -1494,10 +1509,14 @@ figure.image-display
 
 code-example(format="" language="html").
   The null hero's name is {{nullHero.firstName}}
+// #enddocregion expression-operators-elvis-3
+// #docregion expression-operators-elvis-4
 :marked
   JavaScript throws a null reference error, and so does Angular:
 code-example(format="" language="html").
   TypeError: Cannot read property 'firstName' of null in [null]
+// #enddocregion expression-operators-elvis-4
+// #docregion expression-operators-elvis-5
 :marked
   Worse, the *entire view disappears*.
 
@@ -1515,28 +1534,30 @@ code-example(format="" language="html").
   Unfortunately, our app crashes when the `currentHero` is null.
 
   We could code around that problem with [NgIf](#ngIf).
-// #enddocregion expression-operators-elvis-3
+// #enddocregion expression-operators-elvis-5
 +makeExample('template-syntax/ts/app/app.component.html', 'elvis-4')(format=".")
-// #docregion expression-operators-elvis-4
+// #docregion expression-operators-elvis-6
 :marked
   Or we could try to chain parts of the property path with `&&`, knowing that the expression bails out
   when it encounters the first null.
-// #enddocregion expression-operators-elvis-4
+// #enddocregion expression-operators-elvis-6
 +makeExample('template-syntax/ts/app/app.component.html', 'elvis-5')(format=".")
-// #docregion expression-operators-elvis-5
+// #docregion expression-operators-elvis-7
 :marked
   These approaches have merit but can be cumbersome, especially if the property path is long.
   Imagine guarding against a null somewhere in a long property path such as `a.b.c.d`.
-
+// #enddocregion expression-operators-elvis-7
+// #docregion expression-operators-elvis-8
+:marked
   The Angular Elvis operator (`?.`) is a more fluent and convenient way to guard against nulls in property paths.
   The expression bails out when it hits the first null value.
   The display is blank, but the app keeps rolling without errors.
-// #enddocregion expression-operators-elvis-5
+// #enddocregion expression-operators-elvis-8
 +makeExample('template-syntax/ts/app/app.component.html', 'elvis-6')(format=".")
-// #docregion expression-operators-elvis-6
+// #docregion expression-operators-elvis-9
 :marked
   It works perfectly with long property paths such as `a?.b?.c?.d`.
-// #enddocregion expression-operators-elvis-6
+// #enddocregion expression-operators-elvis-9
 
 // #docregion summary
 .l-main-section
