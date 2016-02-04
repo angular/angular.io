@@ -2,9 +2,9 @@
 import {Component}        from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {Observable}       from 'rxjs/Observable';
-// #docregion import-observer
-import {Observer}         from 'rxjs/Observer';
-// #enddocregion import-observer
+// #docregion import-subject
+import {Subject}          from 'rxjs/Subject';
+// #enddocregion import-subject
 
 import {WikipediaService} from './wikipedia.service';
 
@@ -26,16 +26,11 @@ export class WikiSmartComponent {
 
   constructor (private _wikipediaService: WikipediaService) { }
 
-  search: (value: string) => void;
+  // #docregion subject
+  private _searchTermStream = new Subject<string>();
 
-  // #docregion observable-create
-  private _searchTermStream: Observable<string> =
-    Observable.create(
-      // #docregion subscribe-fn
-      (observer:Observer<string>) => this.search = (term) => observer.next(term)
-      // #enddocregion subscribe-fn
-    );
-  // #enddocregion observable-create
+  search(term:string) { this._searchTermStream.next(term); }
+  // #enddocregion subject
 
   // #docregion observable-operators
   items:Observable<string[]> = this._searchTermStream

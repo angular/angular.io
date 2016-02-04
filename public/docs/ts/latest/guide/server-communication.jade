@@ -1,12 +1,24 @@
 
 include ../../../../_includes/_util-fns
 :marked
-  Most applications read from or write to a remote server via HTTP or JSONP. 
-  The Angular 2 http client supports both as we learn in this chapter covering:
+  [HTTP](https://tools.ietf.org/html/rfc2616) is the primary protocol for browser/server communication.
+.l-sub-section
+  :marked
+    The [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol is another important communication technology;
+    we won't cover it in this chapter.
+:marked
+  Modern browsers support two HTTP-based APIs: 
+  [XMLHttpRequest (XHR)](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) and 
+  [JSONP](https://en.wikipedia.org/wiki/JSONP). A few browsers also support
+  [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). 
+  
+  The Angular HTTP client library simplifies application programming of the **XHR** and **JSONP** APIs
+  as we'll learn in this chapter covering:
   
   [Http client sample overview](#http-client)<br>
   [Fetch data with http.get](#fetch-data)<br>
-  [Enable RxJS Operators](#enable-rxjs-operators)<br>
+  [RxJS Observable of HTTP Responses](#rxjs)<br>
+  [Enabling RxJS Operators](#enable-rxjs-operators)<br>
   [Extract JSON data with RxJS map](#map)<br>
   [Error handling](#error-handling)<br>
   [Log results to console](#do)<br>
@@ -18,26 +30,18 @@ include ../../../../_includes/_util-fns
   [Debounce search term input](#more-observables)<br>
   [Appendix: the in-memory web api service](#in-mem-web-api)<br>
   
-  
-  Try the [live example](/resources/live-examples/server-communication/ts/plnkr.html).
+  We illustrate these topics with code that you can 
+  [run live in a browser](/resources/live-examples/server-communication/ts/plnkr.html).
+
+
 .l-main-section
 :marked
-  ## The Basics
-
-  When we look at the broad task of connecting multiple devices to talk to each other, there really are plenty of different options.
-  If we zoom in a little and restrict us to only look at the options that allow a web application that runs in a browser to communicate with
-  a backend we are basically left with communication via the [`HTTP`](https://tools.ietf.org/html/rfc2616) or [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol.
-  
-  For web apps to communicate via `HTTP` there are basically two different techniques which are `XMLHttpRequest (XHR)` and `JSONP`. 
-  They are quite different from each other both in purpose and implementation.
-  Angular comes with its own built-in abstractions that allow us to exploit both techniques in a nicely well integrated way.
-
-  ## Http Client
+  ## The *Http* Client Demo
   
   We use the Angular `Http` client to communicate via `XMLHttpRequest (XHR)`.
   
-  We'll illustrate with a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
-  This one gets some heroes from the server, displays them in a list, lets us add new heroes, and save them to the server.
+  We'll demonstrate with a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
+  This version gets some heroes from the server, displays them in a list, lets us add new heroes, and save them to the server.
   
   It works like this.
 figure.image-display
@@ -99,7 +103,7 @@ figure.image-display
     Components are easier to test and debug when their constructors are simple and all real work 
     (especially calling a remote server) is handled in a separate method.
 :marked
-  The service `get` and `addHero` methods return an `Observable` to which we `subscribe`, 
+  The service `get` and `addHero` methods return an `Observable` of HTTP Responses to which we `subscribe`, 
   specifying the actions to take if a method succeeds or fails. 
   We'll get to observables and subscription shortly.
   
@@ -129,22 +133,32 @@ figure.image-display
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get-v1', 'app/toh/hero.service.ts (http.get)')(format=".")
 :marked
   We pass the resource URL to `get` and it calls the server which returns
-  data from the `heroes.json` file.  
-  
+  data from the `heroes.json` file.
+
+  <a id="rxjs"></a>
   The return value may surprise us. Many of us would expect a 
   [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
   We'd expect to chain a call to `then()` and extract the heroes.
   Instead we're calling a `map()` method. 
   Clearly this is not a promise.
-  
-  ### RxJS Observables
-  The `http.get` method returns an **Observable** from the [RxJS library](https://github.com/ReactiveX/RxJS).
-.l-sub-section
+
+  In fact, the `http.get` method returns an **Observable** of HTTP Responses (`Observable<Response>`) from the RxJS library
+  and `map` is one of the RxJS *operators*.
+.callout.is-important
+  header HTTP GET Delayed 
   :marked
-    We cover the rudiments of RxJS in the [Observables](observables.html) chapter. 
+    The `http.get` does **not send the request just yet!** This observable is
+    [*cold*](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/creating.md#cold-vs-hot-observables)
+    which means the request won't go out until something *subscribes* to the observable.
+    That *something* is the [HeroListComponent](#subscribe).
+    
+.l-main-section
 :marked
-  RxJS is a 3rd party library endorsed by Angular. 
-  All of our documenations samples have installed the RxJS npm package and loaded the script in `index.html`
+  ### RxJS Library
+  [RxJS](https://github.com/ReactiveX/RxJS) ("Reactive Extensions") is a 3rd party library, endorsed by Angular,
+  that implements the [*asynchronous observable*](https://www.youtube.com/watch?v=UHI0AzD_WfY "Rob Wormald on observables") pattern.
+   
+  All of our Developer Guide samples have installed the RxJS npm package and loaded the RxJS script in `index.html`
   because observables are used widely in Angular applications.
 +makeExample('server-communication/ts/index.html', 'rxjs', 'index.html')(format=".")
 :marked
@@ -193,7 +207,7 @@ figure.image-display
     This is conventional web api behavior, driven by security concerns.
 :marked
   ### Do not return the response object
-  Our `getHeroes()` could have returned returned the `Observable<Response>`.
+  Our `getHeroes()` could have returned the `Observable<Response>`.
   
   Bad idea! The point of a data service is to hide the server interaction details from consumers.
   The component that calls the `HeroService` wants heroes. 
@@ -221,7 +235,11 @@ figure.image-display
 
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'error-handling', 'app/toh/hero.service.ts')(format=".")
 
+<a id="subscribe"></a>
+<a id="hero-list-component"></a>
+.l-main-section
 :marked
+  ## Subscribe in the *HeroListComponent*
   Back in the `HeroListComponent`, where we called `heroService.get`, 
   we supply the `subscribe` function with a second function to handle the error message.
   It sets an `errorMessage` variable which we've bound conditionally in the template.
@@ -312,8 +330,8 @@ code-example(format="." language="javascript").
 :marked
   ## Fall back to Promises
   
-  Although the Angular `http` client API returns an `Observable` we can turn it into a 
-  [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) if we prefer.
+  Although the Angular `http` client API returns an `Observable<Response>` we can turn it into a 
+  [Promise<Response>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) if we prefer.
   It's easy to do and a promise-based version looks much like the observable-based version in simple cases.
 .l-sub-section
   :marked
@@ -351,7 +369,7 @@ code-example(format="." language="javascript").
     
     The promise-based `then` returns another promise. We can keep chaining more `then` and `catch` calls, getting a new promise each time.
     
-    The `subscribe` method returns a `Subscription`. A `Subscription` is not another observable. 
+    The `subscribe` method returns a `Subscription`. A `Subscription` is not another `Observable`. 
     It's the end of the line for observables. We can't call `map` on it or call `subscribe` again.
     The `Subscription` object has a different purpose, signified by its primary method, `unsubscribe`.
     
@@ -493,25 +511,19 @@ figure.image-display
   We made no changes to the template or metadata, confining them all to the component class.
   Let's review those changes.
   
-  ### Create the search term Observable
+  ### Create a stream of search terms
   
-  We import the `Observer` symbol from the RxJS observable library to get the type information:
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-observer')
-:marked
-  The first real step turns the user's search box entries into an observable stream of search terms.
-  We create a private `Observable` called `_searchTermStream`, driven by a *subscribe* function that
-  feeds user search terms to the observable.
+  We're binding to the search box `keyup` event and calling the component's `search` method after each keystroke.
   
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-create')(format='.')
+  We turn these events into an observable stream of search terms using a `Subject` 
+  which we import from the RxJS observable library:
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')
 :marked
-  The *subscribe* function sets the component's `search` method to a function that updates
-  the observable's `observer` with search terms.
-+makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subscribe-fn')(format='.')
+  Each search term is a string, so we create a new `Subject` of type `string` called `_searchTermStream`.
+  After every keystroke, the `search` method adds the the search box value to that stream
+  via the subject's `next` method.
++makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
 :marked
-  The search box `keyup` events are still bound to this `search` method in the template.
-  After every keystroke the binding pumps the search box value into the  `_searchTermStream` observable, 
-  creating a stream of search term strings.
-
   ### Listen for search terms
   
   Earlier, we passed each search term directly to the service and bound the template to the service results.
@@ -523,7 +535,7 @@ figure.image-display
   Only changed search values make it through to the service 
   ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
 
-  The `WikipediaService` returns a separate observable of strings (`Observable<string[]>`) for each request.
+  The `WikipediaService` returns a separate observable of string arrays (`Observable<string[]>`) for each request.
   We could have multiple requests *in flight*, all awaiting the server's reply,
   which means multiple *observables-of-strings* could arrive at any moment in any order.
   
