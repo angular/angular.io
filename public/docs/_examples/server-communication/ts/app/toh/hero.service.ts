@@ -25,7 +25,7 @@ export class HeroService {
   getHeroes () {
     // #docregion http-get, http-get-v1
     return this.http.get(this._heroesUrl)
-                    .map(res => <Hero[]> res.json().data)
+                    .map(res => <Hero[]> res.json())
                     // #enddocregion v1, http-get-v1, error-handling
                     .do(data => console.log(data)) // eyeball results in the console
                     // #docregion v1, http-get-v1, error-handling
@@ -45,7 +45,7 @@ export class HeroService {
 
     return this.http.post(this._heroesUrl, body, options)
     //#enddocregion headers
-                    .map(res =>  <Hero> res.json().data)
+                    .map(res =>  <Hero> res.json())
                     .catch(this.handleError)
   }
   // #enddocregion addhero
