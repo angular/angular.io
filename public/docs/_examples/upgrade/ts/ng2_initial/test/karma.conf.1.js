@@ -24,11 +24,11 @@ module.exports = function(config){
       'node_modules/angular2/bundles/http.dev.js',
       // #enddocregion ng2-http
       'test/karma_test_shim.js',
-      {pattern: 'app/js/**/*.js', included: false, watched: true},
-      {pattern: 'test/unit/**/*.js', included: false, watched: true},
       // #docregion ng2-testing
-      'node_modules/angular2/bundles/testing.dev.js'
+      'node_modules/angular2/bundles/testing.dev.js',
       // #enddocregion ng2-testing
+      {pattern: 'app/js/**/*.js', included: false, watched: true},
+      {pattern: 'test/unit/**/*.js', included: false, watched: true}
     // #docregion ng2
     ],
     // #enddocregion ng2

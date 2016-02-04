@@ -2,7 +2,7 @@
 import {describe, beforeEachProviders, it, inject, expect} from 'angular2/testing';
 import {CheckmarkPipe} from '../../app/js/core/CheckmarkPipe';
 
-describe('CheckmarkPipe', function() {
+describe('CheckmarkPipe', () => {
 
   beforeEachProviders(() => [CheckmarkPipe]);
 

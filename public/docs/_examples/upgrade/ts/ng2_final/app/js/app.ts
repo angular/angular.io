@@ -26,7 +26,7 @@ import {
 @RouteConfig([
   {path:'/phones', as: 'Phones', component: PhoneList},
   {path:'/phones/:phoneId', as: 'Phone', component: PhoneDetail},
-  {path:'/', redirectTo: ['/phones']}
+  {path:'/', redirectTo: ['Phones']}
 ])
 @Component({
   selector: 'pc-app',

@@ -29,7 +29,7 @@ class MockPhones extends Phones {
   }
 }
 
-describe('PhoneDetail', function(){
+describe('PhoneDetail', () => {
 
   beforeEachProviders(() => [
     provide(Phones, {useClass: MockPhones}),
@@ -42,7 +42,7 @@ describe('PhoneDetail', function(){
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
 
-      expect(compiled.querySelector('.h1')).toHaveText(xyzPhoneData().name);
+      expect(compiled.querySelector('h1')).toHaveText(xyzPhoneData().name);
     });
   }));
 

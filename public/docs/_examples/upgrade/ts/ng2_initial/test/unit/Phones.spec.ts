@@ -3,7 +3,7 @@ import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
 import {HTTP_PROVIDERS} from 'angular2/http';
 import {Phones} from '../../app/js/core/Phones';
 
-describe('Phones', function() {
+describe('Phones', () => {
 
   // load providers
   beforeEachProviders(() => [Phones, HTTP_PROVIDERS]);
