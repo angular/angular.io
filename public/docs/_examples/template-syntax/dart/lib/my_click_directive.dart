@@ -26,7 +26,8 @@ class MyClickDirective {
 // #enddocregion my-click-output-2
     selector: '[myClick2]',
 // #docregion my-click-output-2
-    outputs: const ['clicks:myClick'])
+    // ...
+    outputs: const ['clicks:myClick']) // propertyName:alias
 // #enddocregion my-click-output-2
 class MyClickDirective2 {
   final EventEmitter clicks = new EventEmitter<String>();

@@ -11,6 +11,7 @@ var nextHeroDetailId = 1;
 // #enddocregion input-output-2
     selector: 'hero-detail',
 // #docregion input-output-2
+    // ...
     inputs: const ['hero'],
     outputs: const ['deleted'],
 // #enddocregion input-output-2
@@ -31,6 +32,7 @@ class HeroDetailComponent {
 
   // #docregion deleted
   final EventEmitter deleted = new EventEmitter<Hero>();
+  // #enddocregion deleted
 
   HeroDetailComponent() {
     deleted.listen((Hero _) {
@@ -38,6 +40,7 @@ class HeroDetailComponent {
     });
   }
 
+  // #docregion deleted
   onDelete() {
     deleted.emit(hero);
   }

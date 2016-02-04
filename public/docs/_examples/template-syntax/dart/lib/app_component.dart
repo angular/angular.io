@@ -23,7 +23,11 @@ class AppComponent {
   String heroName;
   String help;
   String actionName = 'Go for it';
-  String badCurly = 'bad curly'; // XXX: This isn't working.
+//  String badCurly = 'special'; // XXX: This isn't working.
+//  String badCurly = 'bad, curly'; // XXX: This isn't working.
+//  String badCurly = 'bad curly'; // XXX: This isn't working.
+  String badCurly = 'bad'; // XXX: This isn't working.
+//  List<String> badCurly = ['bad', 'curly']; // XXX: This isn't working.
   String title = 'Template Syntax';
   String toeChoice;
   int val = 2;
@@ -52,17 +56,21 @@ class AppComponent {
   // Public Domain terms of use http://www.clker.com/disclaimer.html
   final String villainImageUrl = 'assets/images/villain.png';
 
+  // #docregion setClasses
   Map classes = {
-    'saveable': false, // true
-    'modified': false, // false
-    'special': false // true
+    'saveable': false,
+    'modified': false,
+    'special': false
   };
+  // #enddocregion setClasses
 
+  // #docregion setStyles
   Map styles = {
     'font-style': 'normal',
     'font-weight': 'normal',
     'font-size': 'smaller'
   };
+  // #enddocregion setStyles
 
   Map styles2 = {
     'fontStyle': 'normal',
@@ -98,7 +106,7 @@ class AppComponent {
     return false;
   }
 
-  void onHeroDeleted(Hero hero) => alerter('Deleted hero: ${hero?.firstName}');
+  void onHeroDeleted([Hero hero]) => alerter('Deleted hero: ${hero?.firstName}');
 
   void onSubmit(NgForm form) {
     var evtMsg = form.valid
@@ -118,9 +126,9 @@ class AppComponent {
 
   // #docregion setClasses
   Map setClasses() {
-    classes['saveable'] = canSave;
-    classes['modified'] = !isUnchanged;
-    classes['special'] = isSpecial;
+    classes['saveable'] = canSave;      // true
+    classes['modified'] = !isUnchanged; // false
+    classes['special'] = isSpecial;     // true
 
     return classes;
   }
@@ -128,9 +136,9 @@ class AppComponent {
 
   // #docregion setStyles
   Map setStyles() {
-    styles['font-style'] = canSave ? 'italic' : 'normal';
-    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal';
-    styles['font-size'] = isSpecial ? '24px' : '8px';
+    styles['font-style'] = canSave ? 'italic' : 'normal';     // italic
+    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal'; // normal
+    styles['font-size'] = isSpecial ? '24px' : '8px';         // 24px
     return styles;
   }
   // #enddocregion setStyles
