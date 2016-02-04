@@ -1,12 +1,11 @@
 // #docregion
 import {Observable} from 'rxjs';
-import {describe, beforeEach, it} from 'angular2/testing';
 import '../../app/js/phone_list/phone_list.module';
 import {Phones} from '../../app/js/core/Phones';
 
 import {FromObservable} from 'rxjs/observable/from';
 
-describe('PhoneListCtrl', function(){
+describe('PhoneListCtrl', () => {
   var scope, ctrl, $httpBackend;
 
   beforeEach(angular.mock.module('phonecat.list'));

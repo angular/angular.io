@@ -3,7 +3,7 @@ import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
 
 import OrderByPipe from '../../app/js/phone_list/OrderByPipe';
 
-describe('OrderByPipe', function() {
+describe('OrderByPipe', () => {
 
   let input:any[] = [
     {name: 'Nexus S', snippet: 'The Nexus S Phone', images: []},

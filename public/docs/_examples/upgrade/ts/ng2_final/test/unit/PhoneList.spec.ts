@@ -22,7 +22,7 @@ class MockPhones extends Phones {
   }
 }
 
-describe('PhoneList', function(){
+describe('PhoneList', () => {
 
   beforeEachProviders(() => [
     provide(Phones, {useClass: MockPhones}),
@@ -33,7 +33,6 @@ describe('PhoneList', function(){
   it('should create "phones" model with 2 phones fetched from xhr',
       injectAsync([TestComponentBuilder], (tcb) => {
     return tcb.createAsync(PhoneList).then((fixture) => {
-      fixture.detectChanges();
       fixture.detectChanges();
 
       let compiled = fixture.debugElement.nativeElement;

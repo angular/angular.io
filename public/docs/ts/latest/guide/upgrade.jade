@@ -1237,15 +1237,6 @@ figure
   
 +makeExample('upgrade/ts/ng2_initial/test/karma.conf.1.js', 'ng2', 'test/karma.conf.js', {otl: /(.*\.\.\/node\_modules\/angular2.*)/})
 
-.alert.is-important
-  :marked
-    After installing Angular 2, the TypeScript compiler will complain
-    about a clash in the global `$` variable: The jQuery typings used
-    by the Angular 1 typings introduce one, and the Protractor typings
-    used by Angular 2 introduce another. This will be resolved in a 
-    later release. See [issue #5459](https://github.com/angular/angular/issues/5459)
-    for some workarounds.
-
 :marked
   ## Bootstrapping A Hybrid 1+2 PhoneCat
 
@@ -1271,14 +1262,17 @@ figure
   ```
   rm -r typings/jasmine
   ```
-  Also remove the  reference to those type definitions from
-  `test/test_helper.ts`.
   
-  The same also goes for Protractor: Angular 2 comes with the types of the
-  Protractor APIs, so it's safe to remove the `declare var` line from
-  `scenarios.ts`.
+  We can replace the reference to those type definitions in
+  `test/test_helper.ts` with the ones that come with Angular 2. Let's also
+  add a reference to the Protractor typings while we're at it:
   
++makeExample('upgrade/ts/ng2_initial/test/test_helper.ts', null, 'test/test_helper.ts')
+
 :marked
+  It is now safe to remove the `declare var` line from `scenarios.ts` - the
+  Protractor APIs are now fully typed!
+
   To boostrap a hybrid application, we first need to initialize an `UpgradeAdapter`,
   which [provides the glue](#upgrading-with-the-upgrade-adapter) that joins the two
   versions of the framework together. Let's import the `UpgradeAdapter` class into
@@ -1464,8 +1458,8 @@ figure
 +makeExample('upgrade/ts/ng2_initial/test/karma.conf.1.js', 'ng2-testing')
 
 :marked
-  Then we'll update the Karma test shim. It should load the Angular 2
-  browser adapter before getting to the spec files:
+  Then we'll update the Karma test shim. It'll make some of Angular 2 core
+  providers available before starting to load any of the spec files:
   
 +makeExample('upgrade/ts/ng2_initial/test/karma_test_shim.js', null, 'test/karma_test_shim.js')
 
@@ -1667,6 +1661,11 @@ figure
   exercises the component as a whole, which includes the template.
   
 +makeExample('upgrade/ts/ng2_components/test/karma.conf.1.js', 'html', 'test/karma.conf.js')
+
+.alert.is-important
+  :marked
+    There is [a fixed but as of yet not released issue](https://github.com/angular/angular/pull/5996)
+    with the async pipe that may currently cause some problems with these tests.
 
 :marked
   Now we can start looking at our other controller, which is the one for
@@ -1986,7 +1985,9 @@ table
   * `app/js/core/upgrade_adapter.ts`
   * `app/js/phone_detail/phone_detail.module.ts`
   * `app/js/phone_list/phone_list.module.ts`
-  * `test/test_helper.ts`
+
+  From `test/test_helper.ts` you can remove the reference to Angular 1 typings. The
+  only ones still needed are the ones for Jasmine and Protractor.
 
   Finally, from `index.html` and `karma.conf.js`, remove all references to
   Angular 1 scripts as well as jQuery. When you're done, this is what `index.html`

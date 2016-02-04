@@ -1,12 +1,11 @@
 // #docregion
 import {Observable} from 'rxjs';
-import {describe, beforeEach, it} from 'angular2/testing';
 import '../../app/js/phone_detail/phone_detail.module';
 import {Phones} from '../../app/js/core/Phones';
 
 import {FromObservable} from 'rxjs/observable/from';
 
-describe('PhoneDetailCtrl', function(){
+describe('PhoneDetailCtrl', () => {
   var scope, phones, $controller,
       xyzPhoneData = function() {
         return {

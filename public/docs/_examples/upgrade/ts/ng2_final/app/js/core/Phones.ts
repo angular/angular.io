@@ -7,8 +7,8 @@ import 'rxjs/add/operator/map';
 // #docregion phone-interface
 export interface Phone {
   name: string;
-  snippet: string;
-  images: string[];
+  snippet?: string;
+  images?: string[];
 }
 // #enddocregion phone-interface
 
