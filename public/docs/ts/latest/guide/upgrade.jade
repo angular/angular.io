@@ -840,28 +840,38 @@ figure
   of NPM. We'll install all new dependencies using NPM, and will eventually be
   able to remove Bower from the project.
 
-  Let's begin by installing the SystemJS and TypeScript packages to the project:
-  ```
+  Let's begin by installing the SystemJS and TypeScript packages to the project.
+  While we're at it, let's also install the
+  [Typings type definition manager](https://github.com/typings/typings).
+  It will allow us to install type definitions for libraries that don't come with
+  prepackaged types.
+
+code-example(format="").
   npm i systemjs --save
-  npm i typescript --save-dev
-  ```
-  
-  The Angular 1 framework doesn't come with built-in TypeScript type definitions.
-  This means that if we want to have type checks for the calls we make to Angular 1
-  APIs, we should install its type definitions separately.
-  For that we'll use the [tsd TypeScript definition manager](http://definitelytyped.org/tsd/).
-  Let's make sure we have it globally installed:
-  ```
-  npm i -g tsd
-  ```
-  
-  We can then use tsd to install the type definitions for Angular 1 and the Jasmine
+  npm i typescript typings --save-dev
+
+:marked
+  Let's also add run scripts for the `tsc` TypeScript compiler and the `typings`
+  tool to `package.json`:
+
++makeJson('upgrade/ts/typescript-conversion/package.1.json', {paths: 'scripts'}, 'package.json', {otl: /(\"tsc.*|\"typings.*)/g})
+
+
+:marked
+  We can now use Typings to install the type definitions for Angular 1 and the Jasmine
   unit test framework. This will add a `typings` directory to the project and install
-  a number of `.d.ts` files under it:
-  ```
-  tsd install angular angular-route angular-resource angular-mocks jasmine
-  ```
+  a number of `.d.ts` files under it. It will also create a `typings.json` file to the
+  project, which contains metadata about the type definitions we've installed:
   
+code-example(format="").
+  npm run typings install jquery -- --save --ambient
+  npm run typings install angular -- --save --ambient
+  npm run typings install angular-route -- --save --ambient
+  npm run typings install angular-resource -- --save --ambient
+  npm run typings install angular-mocks -- --save --ambient
+  npm run typings install jasmine -- --save --ambient
+
+:marked
   In `index.html`, let's now enable SystemJS. Add a `<script>` tag that loads
   the SystemJS library and a second `<script>` tag that initializes it. These
   will *replace* the various `<script>` tags we had earlier for loading the
@@ -886,20 +896,15 @@ figure
   bundled into SystemJS modules. In other words, our compiler target is something
   SystemJS can load and all major browsers are able to run.
   
-  Also add a `tsc` run script to `package.json`. We'll use it to start the TypeScript
-  compiler:
-
-+makeJson('upgrade/ts/typescript-conversion/package.1.json', {paths: 'scripts'}, 'package.json', {otl: /(\"tsc.*)/})
-
-:marked
   We can now launch the TypeScript compiler from the command line. It will watch
   our `.ts` source files and compile them to JavaScript on the fly. Those compiled
   `.js` files are then loaded into the browser by SystemJS. This is a process we'll
   want to have continuously running in the background as we go along.
-  ```
+
+code-example(format="").
   npm run tsc
-  ```
-    
+
+:marked
   The next thing we'll do is convert our JavaScript files to TypeScript and define
   their imports and exports. Each file should now explicitly export the things
   it wants to expose, and import the things it needs from other files. This is a
@@ -912,18 +917,9 @@ figure
   our existing code. Instead we'll introduce type annotations and other new
   features gradually over time.
   
-  Let's begin by adding references to the Angular 1.x `.d.ts` typing files to the
-  main application file. Rename `app.module.js` to `app.module.ts` and add the following on top
-  of the file:
-    
-+makeExample('upgrade/ts/typescript-conversion/app/js/app.module.ts', 'typings', 'app/js/app.module.ts')
-
-:marked
-  The TypeScript compiler will now know what we mean when we reference
-  Angular 1 APIs. It should already at this point be able to compile the
-  `app.module.ts` file successfully.
-  
-  Let's then go through the rest of our source files and convert them.
+  Let's begin by renaming `app.module.js` to `app.module.ts`. The TypeScript
+  compiler should be able to compile it successfully right away. This means we can
+  move right along and go through the rest of our source files and convert them.
   We'll rename each one to a `.ts` file, and add the imports and exports it needs.
   
   Beginning from the checkmark filter, here are the converted contents:
@@ -1011,12 +1007,10 @@ figure
   support our new module organization.
   
 :marked
-  ## Preparing Unit and E2E Tests 
+  ## Preparing Tests
   
   Our project has both E2E Protractor tests and some Karma unit tests in it.
-  Both of those are going to need a bit of work.
-  
-  Of these two, E2E tests are a lot easier to convert. By definition, 
+  Of these two, E2E tests can be dealt with much quicker: By definition,
   E2E tests access our application from the *outside* by interacting with 
   the various UI elements the app puts on the screen. E2E tests aren't really that
   concerned with the internal structure of the application components. That
@@ -1024,35 +1018,13 @@ figure
   test suite should keep passing just as it was before. We haven't changed
   how the app behaves from the user's point of view.
   
-  What we *can* do is convert our E2E test code to TypeScript, like we've
-  done with the production code. To do this, you can just rename the
-  `scenarios.js` file to `scenarios.ts`. After that, you'll want to declare
-  the global Protractor variables used in the file, so that the TypeScript
-  compiler knows we're accessing them on purpose:
+  For unit tests, on the other hand, we'll do a bit of conversion work.
+  What we'll do is convert our existing unit tests to TypeScript and have them
+  use `import`s to load in the code they need.
   
-+makeExample('upgrade/ts/typescript-conversion/test/e2e/scenarios.ts', 'declares', 'test/e2e/scenarios.ts')
-
-:marked
-  Once we add Angular 2 to the project, we'll be able to add more type safety
-  to this file, because Angular 2 ships with the type definitions of the
-  Protractor framework as well.
-   
-  That pretty much takes care of E2E tests for now. For unit tests we're going
-  to do a bit more. What we'll do is convert our existing unit tests to TypeScript
-  as well as have them use `import`s to load in the code they need. We'll also need
-  to tweak our Karma configuration so that it'll let SystemJS load the application
-  files.
-  
-  But first we should have some additional type definitions loaded, so that the TypeScript
-  compiler can understand the Jasmine and ngMock APIs we're using in unit tests. 
-  Add a file called `test_helper.ts` to the test directory and add a reference
-  to the Jasmine and mock type definitions we already installed earlier:
-  
-+makeExample('upgrade/ts/typescript-conversion/test/test_helper.ts', null, 'test/test_helper.ts')
-
-:marked
-  For Karma's SystemJS support we'll use a shim file that will tweak the way
-  files get loaded, so that it happens through SystemJS:
+  We'll also need to tweak our Karma configuration so that it'll let SystemJS load
+  the application files. For this we'll use a shim file that will tweak the way
+  files get loaded:
   
 +makeExample('upgrade/ts/typescript-conversion/test/karma_test_shim.js', null, 'test/karma_test_shim.js')
 
@@ -1098,7 +1070,7 @@ figure
   isn't happy about compiling them at the moment. This is because we're using
   the custom Jasmine matcher `toEqualData` in both of them. Because this is something
   we define ourselves, it isn't included in the Jasmine type definitions that we
-  installed using `tsd`.
+  installed using Typings.
   
   We can add our own little type definition file for that extension, which extends
   the `jasmine.Matchers` interface and adds our custom matcher to it. This will
@@ -1136,7 +1108,7 @@ figure
 .l-sub-section
   :marked
     The [Angular 1.x type definitions](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/angularjs)
-    we installed from TSD are not officially maintained by the Angular team,
+    we installed with Typings are not officially maintained by the Angular team,
     but are quite comprehensive. Though we're not going to do it in this
     tutorial, it is possible to make an Angular 1.x application fully
     type-annotated with the help of these definitions.
@@ -1213,14 +1185,14 @@ figure
   
 :marked
   Let's install Angular 2 into the project. Add the Angular 2 dependencies
-  to `package.json` as described in the [package.json appendix of the
-  Quickstart](../quickstart.html#package-json).
+  to `package.json` and `typings.json` as described in the [Quickstart](../quickstart.html).
   Then run:
+
+code-example(format="").
+  npm install
+  npm run typings install
   
-  ```
-  npm i
-  ```
-  
+:marked
   We can then load Angular 2 into the application by adding some `<script>`
   tags to `index.html`. They should go before the `<script>` tag that has the
   `System.config()` invocation:
@@ -1247,32 +1219,14 @@ figure
   At this point we need to do add the Angular 2 type definitions
   into `app.ts`, so that the TypeScript compiler knows what we're talking about
   when we use Angular 2 APIs. Unlike with Angular 1, we don't need to install
-  or refer to these type definitions in our source code, because Angular 2
-  comes with them included. What we do need to do is set the TypeScript
-  compiler's `moduleResolution` option to `node`, so that it knows to look
-  for these definitions from the `angular2` NPM package.
+  these type definitions with Typings because Angular 2 comes with them included.
+  What we do need to do is set the TypeScript compiler's `moduleResolution` option
+  to `node`, so that it knows to look for these definitions from the `angular2` NPM
+  package.
   
 +makeJson('upgrade/ts/ng2_initial/tsconfig.1.json', null, 'tsconfig.json', {otl: /(\"moduleResolution.*)/})
 
 :marked
-  Angular 2 bundles the Jasmine type definitions we need in tests, which means
-  that the Jasmine type definitions we installed with `tsd` are now redundant.
-  We might as well remove them so that there's no confusion about which ones
-  we're using.
-  ```
-  rm -r typings/jasmine
-  ```
-  
-  We can replace the reference to those type definitions in
-  `test/test_helper.ts` with the ones that come with Angular 2. Let's also
-  add a reference to the Protractor typings while we're at it:
-  
-+makeExample('upgrade/ts/ng2_initial/test/test_helper.ts', null, 'test/test_helper.ts')
-
-:marked
-  It is now safe to remove the `declare var` line from `scenarios.ts` - the
-  Protractor APIs are now fully typed!
-
   To boostrap a hybrid application, we first need to initialize an `UpgradeAdapter`,
   which [provides the glue](#upgrading-with-the-upgrade-adapter) that joins the two
   versions of the framework together. Let's import the `UpgradeAdapter` class into
@@ -1770,7 +1724,7 @@ figure
   as we are making changes, since we're not really changing the user-visible
   behavior of the application. Now that we've migrated some components and
   their templates, however, there are a few changes we need to make. Apply
-  the following replacements to `scenarios.ts`:
+  the following replacements to `scenarios.js`:
   
 table
   tr
@@ -1947,12 +1901,12 @@ table
   that use WebDriver's generic URL APIs instead. The first of these is
   the redirection spec:
   
-+makeExample('upgrade/ts/ng2_final/test/e2e/scenarios.ts', 'redirect')
++makeExample('upgrade/ts/ng2_final/test/e2e/scenarios.js', 'redirect')
 
 :marked
   And the second is the phone links spec:
   
-+makeExample('upgrade/ts/ng2_final/test/e2e/scenarios.ts', 'links')
++makeExample('upgrade/ts/ng2_final/test/e2e/scenarios.js', 'links')
 
 :marked
   Now our E2E test suite is passing too, and we're ready to remove
@@ -1968,8 +1922,8 @@ table
   First, rename `app.module.ts` to `app.ts`. It will no longer be setting up
   an Angular 1 module, so it doesn't really make sense to call it a module.
   Then remove all references to the `UpgradeAdapter` from `app.ts`. Also remove
-  the Angular 1 bootstrap code, type definitions, and the imports of the `core`,
-  `phoneList`, and `phoneDetail` modules. Instead import the `PhoneList` and `PhoneDetail`
+  the Angular 1 bootstrap code and the imports of the `core`, `phoneList`, and
+  `phoneDetail` modules. Instead import the `PhoneList` and `PhoneDetail`
   components directly - they are needed in the route configuration.
   
   When you're done, this is what `app.ts` should look like:
@@ -1986,9 +1940,17 @@ table
   * `app/js/phone_detail/phone_detail.module.ts`
   * `app/js/phone_list/phone_list.module.ts`
 
-  From `test/test_helper.ts` you can remove the reference to Angular 1 typings. The
-  only ones still needed are the ones for Jasmine and Protractor.
+  The external typings for Angular 1 may be uninstalled as well. The only ones
+  we still need are for Jasmine.
 
+code-example(format="").
+  npm run typings uninstall jquery -- --save --ambient
+  npm run typings uninstall angular -- --save --ambient
+  npm run typings uninstall angular-route -- --save --ambient
+  npm run typings uninstall angular-resource -- --save --ambient
+  npm run typings uninstall angular-mocks -- --save --ambient
+
+:marked
   Finally, from `index.html` and `karma.conf.js`, remove all references to
   Angular 1 scripts as well as jQuery. When you're done, this is what `index.html`
   should look like:
