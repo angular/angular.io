@@ -1,7 +1,3 @@
-/// <reference path="../../typings/angularjs/angular.d.ts" />
-/// <reference path="../../typings/angularjs/angular-resource.d.ts" />
-/// <reference path="../../typings/angularjs/angular-route.d.ts" />
-
 // #docregion adapter-import
 import {UpgradeAdapter} from 'angular2/upgrade';
 // #enddocregion adapter-import

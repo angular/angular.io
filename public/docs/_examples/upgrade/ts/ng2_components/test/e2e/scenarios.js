@@ -1,9 +1,6 @@
 'use strict';
 
 /* http://docs.angularjs.org/guide/dev_guide.e2e-testing */
-// #docregion declares
-declare var browser:any, element:any, by:any;
-// #enddocregion declares
 
 describe('PhoneCat App', function() {
 
@@ -21,10 +18,9 @@ describe('PhoneCat App', function() {
       browser.get('app/index.html#/phones');
     });
 
-
     it('should filter the phone list as a user types into the search box', function() {
-      var phoneList = element.all(by.repeater('phone in vm.phones'));
-      var query = element(by.model('vm.query'));
+      var phoneList = element.all(by.css('.phones li'));
+      var query = element(by.css('input'));
 
       expect(phoneList.count()).toBe(20);
 
@@ -32,15 +28,19 @@ describe('PhoneCat App', function() {
       expect(phoneList.count()).toBe(1);
 
       query.clear();
-      query.sendKeys('motorola');
+      // https://github.com/angular/protractor/issues/2019
+      var str = 'motorola';
+      for (var i = 0; i < str.length; i++) {
+        query.sendKeys(str.charAt(i));
+      }
+
       expect(phoneList.count()).toBe(8);
     });
 
 
     it('should be possible to control phone order via the drop down select box', function() {
-
-      var phoneNameColumn = element.all(by.repeater('phone in vm.phones').column('phone.name'));
-      var query = element(by.model('vm.query'));
+      var phoneNameColumn = element.all(by.css('.phones .name'));
+      var query = element(by.css('input'));
 
       function getNames() {
         return phoneNameColumn.map(function(elm) {
@@ -48,14 +48,19 @@ describe('PhoneCat App', function() {
         });
       }
 
-      query.sendKeys('tablet'); //let's narrow the dataset to make the test assertions shorter
+      //let's narrow the dataset to make the test assertions shorter
+      // https://github.com/angular/protractor/issues/2019
+      var str = 'tablet';
+      for (var i = 0; i < str.length; i++) {
+        query.sendKeys(str.charAt(i));
+      }
 
       expect(getNames()).toEqual([
         "Motorola XOOM\u2122 with Wi-Fi",
         "MOTOROLA XOOM\u2122"
       ]);
 
-      element(by.model('vm.orderProp')).element(by.css('option[value="name"]')).click();
+      element(by.css('select')).element(by.css('option[value="name"]')).click();
 
       expect(getNames()).toEqual([
         "MOTOROLA XOOM\u2122",
@@ -65,8 +70,12 @@ describe('PhoneCat App', function() {
 
 
     it('should render phone specific links', function() {
-      var query = element(by.model('vm.query'));
-      query.sendKeys('nexus');
+      var query = element(by.css('input'));
+      // https://github.com/angular/protractor/issues/2019
+      var str = 'nexus';
+      for (var i = 0; i < str.length; i++) {
+        query.sendKeys(str.charAt(i));
+      }
       element.all(by.css('.phones li a')).first().click();
       browser.getLocationAbsUrl().then(function(url) {
         expect(url).toEqual('/phones/nexus-s');
@@ -83,7 +92,7 @@ describe('PhoneCat App', function() {
 
 
     it('should display nexus-s page', function() {
-      expect(element(by.binding('vm.phone.name')).getText()).toBe('Nexus S');
+      expect(element(by.css('h1')).getText()).toBe('Nexus S');
     });
 
 
@@ -93,10 +102,10 @@ describe('PhoneCat App', function() {
 
 
     it('should swap main image if a thumbnail image is clicked on', function() {
-      element(by.css('.phone-thumbs li:nth-child(3) img')).click();
+      element(by.css('.phone-thumbs li:nth-of-type(3) img')).click();
       expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.2.jpg/);
 
-      element(by.css('.phone-thumbs li:nth-child(1) img')).click();
+      element(by.css('.phone-thumbs li:nth-of-type(1) img')).click();
       expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.0.jpg/);
     });
   });
