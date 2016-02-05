@@ -1,9 +1,4 @@
 // #docregion pre-bootstrap
-// #docregion typings
-/// <reference path="../../typings/angularjs/angular.d.ts" />
-/// <reference path="../../typings/angularjs/angular-resource.d.ts" />
-/// <reference path="../../typings/angularjs/angular-route.d.ts" />
-// #enddocregion
 
 import core from './core/core.module';
 import phoneList from './phone_list/phone_list.module';
