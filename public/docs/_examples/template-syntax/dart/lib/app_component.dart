@@ -28,9 +28,6 @@ class AppComponent {
 //  String badCurly = 'bad curly'; // XXX: This isn't working.
   String badCurly = 'bad'; // XXX: This isn't working.
 //  List<String> badCurly = ['bad', 'curly']; // XXX: This isn't working.
-  String title = 'Template Syntax';
-  String toeChoice;
-  int val = 2;
   bool canSave = true;
   bool isActive = false;
   bool isSpecial = true;
@@ -143,6 +140,8 @@ class AppComponent {
   }
   // #enddocregion setStyles
 
+  String title = 'Template Syntax';
+  String toeChoice;
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
@@ -153,4 +152,51 @@ class AppComponent {
       }
     }
   }
+
+  // #docregion trackByHeroes
+  int trackByHeroes(int index, Hero hero) { return hero.id; }
+  // #enddocregion trackByHeroes
+
+  // #docregion trackById
+  int trackById(int index, Map item): string { return item['id']; }
+  // #enddocregion trackById
+
+  int val = 2;
+
+
+  //////// Detect effects of NgForTrackBy ///////////////
+  int heroesNoTrackByChangeCount = 0;
+  int heroesWithTrackByChangeCount = 0;
+  /*
+   // Convert to Dart
+  @ViewChildren('noTrackBy') childrenNoTrackBy:QueryList<ElementRef>;
+  @ViewChildren('withTrackBy') childrenWithTrackBy:QueryList<ElementRef>;
+
+  private _oldNoTrackBy:HTMLElement[];
+  private _oldWithTrackBy:HTMLElement[];
+
+  private _detectNgForTrackByEffects() {
+    this._oldNoTrackBy   = toArray(this.childrenNoTrackBy);
+    this._oldWithTrackBy = toArray(this.childrenWithTrackBy);
+
+    this.childrenNoTrackBy.changes.subscribe((changes:any) => {
+      let newNoTrackBy = toArray(changes);
+      let isSame = this._oldNoTrackBy.every((v:any, i:number) => v === newNoTrackBy[i]);
+      if (!isSame) {
+        this._oldNoTrackBy = newNoTrackBy;
+        this.heroesNoTrackByChangeCount++;
+      }
+    })
+
+    this.childrenWithTrackBy.changes.subscribe((changes:any) => {
+      let newWithTrackBy = toArray(changes);
+      let isSame = this._oldWithTrackBy.every((v:any, i:number) => v === newWithTrackBy[i]);
+      if (!isSame) {
+        this._oldWithTrackBy = newWithTrackBy;
+        this.heroesWithTrackByChangeCount++;
+      }
+    })
+  }
+  */
+  ///////////////////
 }

@@ -6,9 +6,14 @@ export class Hero {
     public lastName?:string,
     public birthdate?:Date,
     public url?:string,
-    public rate:number = 100) {
-      this.id = Hero.nextId++;
+    public rate:number = 100,
+    id?:number) {
+      this.id = id != null ? id : Hero.nextId++;
     }
+
+  static clone({firstName, lastName, birthdate, url, rate, id} : Hero){
+    return new Hero (firstName, lastName, birthdate, url, rate, id );
+  }
 
   get fullName() {return `${this.firstName} ${this.lastName}`;}
 

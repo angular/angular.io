@@ -18,6 +18,11 @@ include ../../../../_includes/_util-fns
   * [Event binding](#event-binding)
   * [Two-way data binding with `NgModel`](#ngModel)
   * [Built-in directives](#directives)
+    * [NgClass](#ngClass)
+    * [NgStyle](#ngStyle)
+    * [NgIf](#ngIf)
+    * [NgSwitch](#ngSwitch)
+    * [NgFor](#ngFor)
   * [* and &lt;template>](#star-template)
   * [Local template variables](#local-vars)
   * [Input and output properties](#inputs-outputs)
@@ -1078,18 +1083,35 @@ figure.image-display
 +makeExample('template-syntax/ts/app/app.component.html', 'NgSwitch')(format=".")
 // #docregion directives-ngSwitch-2
 :marked
-  We bind the parent `NgSwitch` directive to an expression returning a *switch value*.  The value is a string in this example, but it can be a value of any type.
+  We bind the parent `NgSwitch` directive to an expression returning a *switch value*.
+  The value is a string in this example, but it can be a value of any type.
 
-  The parent `NgSwitch` directive controls a set of child`<template>` elements. Each `<template>` wraps a candidate subtree. A template is either pegged to a “match value” expression or marked as the default template.
+  In this example, the parent `NgSwitch` directive controls a set of child `<span>` elements. 
+  A `<span>` is either pegged to a *match value* expression or marked as the default.
 
-  **At any particular moment, at most one of these templates is in the DOM.**
+  **At any particular moment, at most one of these *spans* is in the DOM.**
 
-  If the template’s *match value* equals the switch value, Angular adds the template’s subtree to the DOM. If no template is a match and there is a default template, Angular adds the default template’s subtree to the DOM. Angular removes and destroys the subtrees of all other templates.
-
+  If the *span*’s *match value* equals the switch value, Angular adds the `<span>` to the DOM. 
+  If none of the *spans* is a match, Angular adds the default *span* to the DOM. 
+  Angular removes and destroys all other *spans*.
+.l-sub-section
+  :marked
+    We could substitute any element for the *span* in this example. 
+    That element could be a `<div>` with a vast subtree of its own elements.
+    Only the matching `<div>` and its subtree would appear in the DOM;
+    the others would be removed.
+:marked
   Three collaborating directives are at work here:
   1. `ngSwitch`: bound to an expression that returns the switch value
   1. `ngSwitchWhen`: bound to an expression returning a match value
-  1. `ngSwitchDefault`: a marker attribute on the default template
+  1. `ngSwitchDefault`: a marker attribute on the default element
+  
+.alert.is-critical
+  :marked
+    **Do *not*** put the asterisk (`*`) in front of `ngSwitch`. Use the property binding instead.
+    
+    **Do** put the asterisk (`*`) in front of `ngSwitchWhen` and `ngSwitchDefault`.
+    For more information, see [\* and &lt;template>](#star-template).
 // #enddocregion directives-ngSwitch-2
 
 // #docregion directives-ngFor-1
@@ -1155,56 +1177,90 @@ figure.image-display
 
   The next example captures the index in a variable named `i`, using it to stamp out rows like "1 - Hercules Son of Zeus".
 // #enddocregion directives-ngFor-6
-
 +makeExample('template-syntax/ts/app/app.component.html', 'NgFor-3')(format=".")
 // #docregion directives-ngFor-7
 .l-sub-section
   :marked
-    Learn about other special values such as `last`, `even`, and `odd` in the [NgFor API reference](/docs/ts/latest/api/common/NgFor-directive.html).
+    Learn about other special *index-like* values such as `last`, `even`, and `odd` in the [NgFor API reference](/docs/ts/latest/api/common/NgFor-directive.html).
 // #enddocregion directives-ngFor-7
+
+// #docregion directives-ngForTrackBy-1
+:marked
+  #### NgForTrackBy
+  The `ngFor` directive has the potential to perform poorly, especially with large lists.
+  A small change to one item, an item removed, or an item added can trigger a cascade of DOM manipulations.
+  
+  For example, we could refresh the list of heroes by re-querying the server. 
+  The refreshed list probably contains most, if not all, of the previously displayed heroes.
+  
+  *We* know this because the `id` of each hero hasn't changed.
+  But Angular sees only a fresh list of new object references. 
+  It has no choice but to tear down the old list, discard those DOM elements, and re-build a new list with new DOM elements.
+ 
+  Angular can avoid this churn if we give it a *tracking* function that tells it what we know:
+  that two objects with the same `hero.id` are the same *hero*. Here is such a function:
+// #enddocregion directives-ngForTrackBy-1
++makeExample('template-syntax/ts/app/app.component.ts', 'trackByHeroes')(format=".")
+// #docregion directives-ngForTrackBy-2
+:marked
+  Now set the `NgForTrackBy` directive to that *tracking* function. 
+  Angular offers a variety of equivalent syntax choices including these two:
+// #enddocregion directives-ngForTrackBy-2
++makeExample('template-syntax/ts/app/app.component.html', 'NgForTrackBy-2')(format=".")
+// #docregion directives-ngForTrackBy-3
+:marked
+  The *tracking* function doesn't eliminate all DOM changes.
+  Angular may have to update the DOM element if the same-hero *properties* have changed. 
+  But if the properties haven't changed &mdash; and most of the time they will not have changed &mdash;
+  Angular can leave those DOM elements alone. The list UI will be smoother and more responsive.
+  
+  Here is an illustration of the `NgForTrackBy` effect.
+figure.image-display
+  img(src='/resources/images/devguide/template-syntax/ng-for-track-by-anim.gif' alt="NgForTrackBy")  
+// #enddocregion directives-ngForTrackBy-3
 
 // #docregion star-template
 <a name="star-template"></a>
 <a name="structural-directive"></a>
 .l-main-section
 :marked
-  ## * and &lt;template>
-  When we reviewed the `NgFor` and `NgIf` built-in directives, we called out an oddity of the syntax: the asterisk (`*`) that appears before the directive name.
+  ## * and &lt;template&gt;
+  When we reviewed the `NgFor`, `NgIf`, and `NgSwitch` built-in directives, we called out an oddity of the syntax: the asterisk (`*`) that appears before the directive names.
 
   The `*` is a bit of syntactic sugar that makes it easier to read and write directives that modify HTML layout
   with the help of templates.
   `NgFor`, `NgIf`, and `NgSwitch` all add and remove element subtrees that are wrapped in `<template>` tags.
-
-  With the [NgSwitch](#ngSwitch) directive we always write the `<template>` tags explicitly.
-  There isn’t much choice; we define a different template for each switch choice
-  and let the directive render the template that matches the switch value.
-
-  [NgFor](#ngFor) and [NgIf](#ngIf), on the other hand, each need only one template:
-  the *template-to-repeat* and the *template-to-include*, respectively.
-
-  The `*` prefix syntax is a convenient way to skip the `<template>` wrapper tags and
-  focus directly on the HTML element to repeat or include.
-  Angular sees the `*` and expands the HTML into the `<template>` tags for us.
+  
+  We didn't see the `<template>` tags because the `*` prefix syntax allowed us to skip those tags and
+  focus directly on the HTML element that we are including, excluding, or repeating.
+  
+  In this section we go under the hood and see how 
+  Angular strips away the `*` and expands the HTML into the `<template>` tags for us.
 // #enddocregion star-template
 
 // #docregion star-template-ngIf-1
 :marked
   ### Expanding `*ngIf`
-  We can do that expansion ourselves if we wish. Here's some code with `*ngIf`:
+  We can do what Angular does ourselves and expand the `*` prefix syntax to template syntax. Here's some code with `*ngIf`:
 // #enddocregion star-template-ngIf-1
 +makeExample('template-syntax/ts/app/app.component.html', 'Template-1')(format=".")
+// #docregion star-template-ngIf-2a
+:marked
+  The `currentHero` is referenced twice, first as the true/false condition for `NgIf` and 
+  again as the actual hero passed into the `HeroDetailComponent`.
+  
+  The first expansion step transports the `ngIf` (without the `*` prefix) and its contents 
+  into an expression assigned to a `template` directive. 
+// #enddocregion star-template-ngIf-2a
++makeExample('template-syntax/ts/app/app.component.html', 'Template-2a')(format=".")
 // #docregion star-template-ngIf-2
 :marked
-  Here's the equivalent with `<template>` and `ngIf`:
+  The next (and final) step unfolds the HTML into a `<template>` tag and `[ngIf]` [property binding](#property-binding):
 // #enddocregion star-template-ngIf-2
 +makeExample('template-syntax/ts/app/app.component.html', 'Template-2')(format=".")
 // #docregion star-template-ngIf-3
 :marked
-  Notice that the `*` is gone and we have a [property binding](#property-binding) to the `ngIf`
-  directive, applied in this case to the `<template>` rather than
-  the application’s `hero-detail` component.
-
-  The `[hero]="currentHero"` binding remains on the child `<hero-detail>`
+  Notice that the `[hero]="currentHero"` binding remains on the child `<hero-detail>`
   element inside the template.
 // #enddocregion star-template-ngIf-3
 
@@ -1219,26 +1275,48 @@ figure.image-display
     … even when there is no `currentHero`!
 // #enddocregion star-template-ngIf-4
 
+// #docregion star-template-ngSwitch-1
+:marked
+  ### Expanding `*ngSwitch`
+  A similar transformation applies to `*ngSwitch`. We can de-sugar the syntax ourselves. 
+  Here's an example, first with `*ngSwitchWhen` and `*ngSwitchDefault` and then again with `<template>` tags:
+// #enddocregion star-template-ngSwitch-1  
++makeExample('template-syntax/ts/app/app.component.html', 'NgSwitch-expanded')
+// #docregion star-template-ngSwitch-2
+:marked
+  The `*ngSwitchWhen` and `*ngSwitchDefault` expand in exactly the same manner as `*ngIf`,
+  wrapping their former elements in `<template>` tags.
+  
+  Now we can see why the `ngSwitch` itself is not prefixed with an asterisk (*). 
+  It does not define content. It's job is to control a collection of templates.
+  
+  In this case, it governs two sets of `NgSwitchWhen` and `NgSwitchDefault` directives.
+  We should expect it to display the values of the selected template twice,
+  once for the (*) prefixed version and once for the expanded template version.
+  That's exactly what we see in this example:
+figure.image-display
+    img(src='/resources/images/devguide/template-syntax/ng-switch-anim.gif' alt="NgSwitch")
+// #enddocregion star-template-ngSwitch-2
 // #docregion star-template-ngFor-1
 :marked
   ### Expanding `*ngFor`
-  A similar transformation applies to `*ngFor`. We can de-sugar the syntax ourselves. First, here's an example with `*ngFor`:
+  The `*ngFor` undergoes a similar transformation. We begin with an `*ngFor` example:
 // #enddocregion star-template-ngFor-1
-+makeExample('template-syntax/ts/app/app.component.html', 'NgFor-2')(format=".")
++makeExample('template-syntax/ts/app/app.component.html', 'Template-3a')(format=".")
 // #docregion star-template-ngFor-2
 :marked
-  Here's the same example, slightly expanded:
+  Here's the same example after transporting the `ngFor` to the `template` directive:
 // #enddocregion star-template-ngFor-2
 +makeExample('template-syntax/ts/app/app.component.html', 'Template-3')(format=".")
 // #docregion star-template-ngFor-3
 :marked
-  And here it is, expanded further:
+  And here it is expanded further into a `<template>` tag wrapping the original `<hero-detail>` element:
 // #enddocregion star-template-ngFor-3
 +makeExample('template-syntax/ts/app/app.component.html', 'Template-4')(format=".")
 // #docregion star-template-ngFor-4
 :marked
   The `NgFor` code is a bit more complex than `NgIf` because a repeater has more moving parts to configure.
-  In this case, we have to remember the `NgForOf` directive that identifies the list.
+  In this case, we have to remember to create and assign the `NgForOf` directive that identifies the list and the `NgForTrackBy` directive.
   Using the `*ngFor` syntax is much easier than writing out this expanded HTML ourselves.
 // #enddocregion star-template-ngFor-4
 
