@@ -1,328 +1,359 @@
 include ../../../../_includes/_util-fns
 
+<a id="top"></a>
 :marked
-  <a id="top"></a>
   In this chapter, we can find useful recipes for component communication scenarios.
   
 .l-sub-section
   :marked
     For an in-depth look at each fundamental concepts in component communication, we can find detailed description and
     samples in the [Component Communication]() document.
-.l-main.section
+
+.l-main-section
+<a id="toc"></a>
 :marked
   ## Table of contents
   
-  [Pass information from a parent to its children](#parent-to-child)
+  [Pass data from parent to child with input binding](#parent-to-child)
 
-  [Validate the information passed from a parent to its children](#parent-to-child-setter)
+  [Intercept input property changes with a setter](#parent-to-child-setter)
 
-  [Intercept input property changes with `ngOnChanges`](#parent-to-child-on-changes)
+  [Intercept input property changes with *ngOnChanges*](#parent-to-child-on-changes)
 
-  [Pass information from a child to its parent](#child-to-parent)
+  [Parent listens for child event](#child-to-parent)
+  
+  [Parent calls *ViewChild*](#parent-to-view-child)
 
-  [Establish bidirectional communication among parent and children with a service](#bidirectional-service)
+  [Parent and children communicate via a service](#bidirectional-service)
 
+// THESE TWO ARE TOO COMPLICATED AND DON'T PASS TESTS
   [Establish communication between unrelated components](#unrelated-service)
 
   [Obtain the content children of a parent component](#content-children)
-
-  <a id="parent-to-child"></a>
-  ## Pass information from a parent to its children
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
-  
-  We can use input property binding to pass a value or an object from a parent component to a child or children.
-  
-  To begin, we create a child component that has two properties decorated with the `Input` annotation:
-  
-+makeExample('cb_component-communication/ts/app/hero.component.ts')
-
 :marked
-  We nest `HeroComponent` into `MasterComponent`, and set up input property bindings: we bind the `master` property of
-  `MasterComponent` to the `master-name` input property of `HeroComponent`, and the current iteration (`hero`) of `ngFor`
-  to the `name` input porperty:
+  **See the [live example](/resources/live-examples/cb-component-communication/ts/plnkr.html)**.
 
-+makeExample('cb_component-communication/ts/app/master.component.ts')
-
+.l-main-section
+<a id="parent-to-child"></a>
 :marked
-  When the application runs, it displays the parent component with its three children:
+  ## Pass data from parent to child with input binding
+  
+  `HeroChildComponent` has two ***input properties***, 
+  typically adorned with [@Input decorations](docs/ts/latest/guide/template-syntax.html#inputs-outputs).
+  
++makeExample('cb-component-communication/ts/app/hero-child.component.ts')
+:marked
+  The second `@Input` aliases the child component property name `masterName` as `'master'`.
+  
+  The `HeroParentComponent` nests the child `HeroChildComponent` inside an `*ngFor` repeater, 
+  binding its `master` string property to the child's `master` alias
+  and each iteration's `hero` instance to the child's `hero` property.
+
++makeExample('cb-component-communication/ts/app/hero-parent.component.ts')
+:marked
+  The running application displays three heroes:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_parent-to-child.png" alt="Parent-to-child")
+  img(src="/resources/images/cookbooks/component-communication/parent-to-child.png" alt="Parent-to-child")
   
 :marked
-  ### How do we test it?
+  ### Test it
   
-  The following sample tests if all children has been instantiated and their input properties are
-  properly set throgh the bindings:
+  E2E test that all children were instantiated and displayed as expected:
   
-+makeExample('cb_component-communication/e2e-spec.js', 'parent-to-child')
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child')
 
 :marked
   [Back to top](#top)
-  
-  <a id="parent-to-child-setter"></a>
-  ## Validate the information passed from a parent to its children
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
 
-  We can create an input property in the child component with a setter that allows us to check the validity of the
-  information passed from the parent to the child.
+.l-main-section
+<a id="parent-to-child-setter"></a>
+:marked
+  ## Intercept input property changes with a setter
+
+  Use an input property setter to intercept and act upon a value from the parent.
   
-  The `Hero2Component` provides a setter for its `name` property, which does not allow to set `name` to an empty value 
-  (undefined, null, or whitespace-only):
+  The setter of the `name` input property in the child `NameChildComponent` 
+  trims the whitespace from a name and replaces an empty value with default text. 
   
-+makeExample('cb_component-communication/ts/app/hero2.component.ts')
++makeExample('cb-component-communication/ts/app/name-child.component.ts')
 
 :marked
-  We nest `Hero2Component` into `Master2Component`, and set up input property bindings. We deliberately set the name
-  of the second hero to spaces so that it will fail the validity check of the `name` setter :
+  Here's the `NameParentComponent` demonstrating name variations including a name with all spaces:
 
-+makeExample('cb_component-communication/ts/app/master2.component.ts')
++makeExample('cb-component-communication/ts/app/name-parent.component.ts')
 
-:marked
-  When the app runs, the `name` setter does not allow applying the whitespace-only value on the second `Hero2Component`
-  instance, thus it displays the default value:
-  
 figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_parent-to-child-setter.png" alt="Parent-to-child-setter")
+  img(src="/resources/images/cookbooks/component-communication/setter.png" alt="Parent-to-child-setter")
   
 :marked
-  ### How do we test it?
+  ### Test it
 
-  The following sample test cases check the input property setter with valid and invalid values:
+  E2E tests of input property setter with empty and non-empty names:
   
-+makeExample('cb_component-communication/e2e-spec.js', 'parent-to-child-setter')
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child-setter')
 
 :marked
   [Back to top](#top)
-  
-  <a id="parent-to-child-on-changes"></a>
-  ## Intercept input property changes with `ngOnChanges`
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
 
-  We can use the `OnChanges` lifecycle hook and define the `ngOnChanges` lifecycle hook method that is called every time when the 
-  framework detects a change in an input or output property's value.
-  
-  In this component definition, we can see that `VersionComponent` defines the `ngOnChanges` method to collect property
-  value changes:
-  
-+makeExample('cb_component-communication/ts/app/version.component.ts')
+.l-main-section
+<a id="parent-to-child-on-changes"></a>
+:marked
+  ## Intercept input property changes with *ngOnChanges*
 
+  Detect and act upon changes to input property values with the `ngOnChanges` method of the `OnChanges` lifecycle hook interface.
 .l-sub-section
   :marked
-    We can find more details about `ngOnChanges` in the [LifeCycle Hooks](../guide/lifecycle-hooks.html) document, and in the
-    [`SimpleChange`](../api/core/SimpleChange-class.html) class API documentation.
-.l-main.section
+    May prefer this approach to the property setter when watching multiple, interacting input properties.
+    
+    Learn about `ngOnChanges` in the [LifeCycle Hooks](../guide/lifecycle-hooks.html) chapter.
 :marked
-  The `RepositoryComponent` embeds `VersionComponent`, and provides methods to change the `minor` and `major` input properties &mdash; 
-  the `newMajor()` method may change both &mdash; when we click the buttons.
+  This `VersionChildComponent` detects changes to the `major` and `minor` input properties and composes a log message reporting these changes:
   
-+makeExample('cb_component-communication/ts/app/repository.component.ts')
++makeExample('cb-component-communication/ts/app/version-child.component.ts')
 
 :marked
-  When we run the app, we can observe that Angular change detection invokes `ngOnChanges`:
+  The `VersionParentComponent` supplies the `minor` and `major` values and binds buttons to methods that change them.
+  
++makeExample('cb-component-communication/ts/app/version-parent.component.ts')
+
+:marked
+  Here's the output of a button-pushing sequence:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_parent-to-child-on-changes.png" alt="Parent-to-child-onchanges")
+  img(src="/resources/images/cookbooks/component-communication/parent-to-child-on-changes.png" alt="Parent-to-child-onchanges")
   
 :marked
-  ### Ho do we test it?
+  ### Test it
   
-  We check if input properties are set initially (and it triggers `ngOnChanges` once), and
-  clicking **New minor version** and **New major version** buttons trigger `ngOnChanges`:
+  Test that ***both*** input properties are set initially and that button clicks trigger 
+  the expected `ngOnChanges` calls and values:
   
-+makeExample('cb_component-communication/e2e-spec.js', 'parent-to-child-onchanges')
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-child-onchanges')
 
 :marked
   [Back to top](#top)
-  
-  <a id="child-to-parent"></a>
-  ## Pass information from a child to its parent
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
 
-  Angular provides event emitting for child-to-parent communication. In the parent component, we create an output 
-  property with a type of `EventEmitter`, and use this property's `emit()` method to trigger the event.
+.l-main-section
+<a id="child-to-parent"></a>
+:marked
+  ## Parent listens for child event
+
+  The child component exposes an `EventEmitter` property with which it `emits`events when something happens. 
+  The parent binds to that event property and reacts to those events.
   
-  We create a child component (`SeatComponent`) that has such a property decorated with the `Output` annotation:
+  The child's `EventEmitter` property is an ***output property***, 
+    typically adorned with an [@Output decoration](docs/ts/latest/guide/template-syntax.html#inputs-outputs)
+    as seen in this `VoterComponent`:
   
-+makeExample('cb_component-communication/ts/app/seat.component.ts')
++makeExample('cb-component-communication/ts/app/voter.component.ts')
 
 :marked
-  Every time we click any button in the template definition, an event is emitted with an argument that has
-  a type of `Vote`. The parent `VoteTaker` attaches its own event handler method, `seatVotes`, which is invoked 
-  by the framework every time the event is emitted:
+  Clicking a button triggers emission of a `true` or `false` (the boolean *payload*).
   
-+makeExample('cb_component-communication/ts/app/votetaker.component.ts')
+  The parent `VoteTakerComponent` binds an event handler (`onVoted`) that responds to the child event
+  payload (`$event`) and updates a counter.
+  
++makeExample('cb-component-communication/ts/app/votetaker.component.ts')
 
 :marked
   The framework passes the event argument &mdash; represented by `$event` &mdash; to the handler method, 
   and the method processes it:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_child-to-parent.png" alt="Child-to-parent")
+  img(src="/resources/images/cookbooks/component-communication/child-to-parent.png" alt="Child-to-parent")
   
 :marked
-  ### Ho do we test it?
+  ### Test it
   
-  We check that clicking the **Agree** and **Disagree** buttons lead to emitting the `onVoted` event:
+  Test that clicking the *Agree* and *Disagree* buttons update the appropriate counters:
   
-+makeExample('cb_component-communication/e2e-spec.js', 'child-to-parent')
++makeExample('cb-component-communication/e2e-spec.js', 'child-to-parent')
 
 :marked
   [Back to top](#top)
-  
-  <a id="bidirectional-service"></a>
-  ## Establish bidirectional communication among parent and children with a service
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
 
-  To allow bi-directional communication among a parent component and its children, we can use intermediary
-  service objects, too. In this recipe, all parties communicate directly with this service. They invoke service 
-  methods to send messages to other parties and subscribe to service events to receive messages.
+.l-main-section
+<a id="parent-to-view-child"></a>
+:marked
+  ## Parent calls *ViewChild*
+  A parent can call a child component once it has been located by a property adorned with a `@ViewChild` decorator property.
   
+  This `CountdownTimerComponent` keeps counting down to zero and launching rockets.
+  It has `start` and `stop` methods that control the countdown.
++makeExample('cb-component-communication/ts/app/countdown-timer.component.ts')
+:marked
+  The parent `CountdownParentComponent` cannot bind to the child's `start` and `stop` methods.
+  But it can obtain a reference to the child component by applying a `@ViewChild` decorator 
+  to a receiver property (`timerComponent`) after giving that decorator the type of component to find.
+  Once it has that reference, it can access *any property or method* of the child component.
+ 
+  Here it wires its own buttons to the child's start` and `stop`.
+
++makeExample('cb-component-communication/ts/app/countdown-parent.component.ts')
+:marked
+
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/countdown-timer-anim.gif" alt="countdown timer")
+:marked
+  ### Test it
+  
+  Test that clicking the *Stop* button pauses the countdown timer:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'parent-to-view-child')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="bidirectional-service"></a>
+:marked
+  ## Parent and children communicate via a service
+
+  A parent component and its children share a service whose interface enables bi-directional communication.
+
+  The scope of the service instance is the parent component and its children. 
+  Components outside this component subtree have no access to the service or their communications.
+  
+  This `MissionService` connects the `MissionControlComponent` to multiple `AstronautComponent` children.
+
++makeExample('cb-component-communication/ts/app/mission.service.ts')
 .l-sub-section
   :marked
-    Beside calling methods, we can communicate with the service through setting properties, too.
-.l-main.section
+    The user of `EventEmitter` is a temporariy expedient. We should implement with `Observable.Subject` instead.
 :marked
-  The framework's hierarchical dependency injection feature (see [Hierarchical Injectors](../guide/hierarchical-dependency-injection.html)
-  in Developer Guides) ensures that, by default, the same service instance will be passed to the parent
-  component and to its children.
+  The `MissionControlComponent` both provides the instance of the service that it shares with its children
+  (through the `providers` metadata array) and injects that instance into itself through its constructor:
   
-  Let's create a service that provides communication between Mission Control and astronauts:
-  
-+makeExample('cb_component-communication/ts/app/mission.service.ts')
++makeExample('cb-component-communication/ts/app/missioncontrol.component.ts')
 
 :marked
-  We inject `MissionService` into `MissionControlComponent` through the constructor. According to the `providers`
-  property of the `Component` annotation, the framework injects a new instance of `MissionService` 
-  when creating a `MissionControlComponent`:
+  The `AstronoutComponent` also injects the service in its constructor.
+  Each `AstronoutComponent` is a child of the `MissionControlComponent` and therefore receives its parent's service instance:
   
-+makeExample('cb_component-communication/ts/app/missioncontrol.component.ts')
++makeExample('cb-component-communication/ts/app/astronaut.component.ts')
 
 :marked
-  As `AstronoutComponent` is a child of `MissionControlComponent`, each `AstronoutComponent` is injected with 
-  the very same `MissionService` instance that has been injected into the parent `MissionControlComponent`:
-  
-+makeExample('cb_component-communication/ts/app/astronaut.component.ts')
-
-:marked
-  When we run the app, we can check in the history that both parent-to-child and child-to-parent messages
-  are sent and received through the service:
+  The *History* log demonstrates that messages travel in both directions between
+  the parent `MissionControlComponent` and the `AstronoutComponent` children,
+  facilitated by the service:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_bidirectional-service.png" alt="bidirectional-service")
+  img(src="/resources/images/cookbooks/component-communication/bidirectional-service.png" alt="bidirectional-service")
   
 :marked
-  ### How do we test it?
+  ### Test it
   
-  We check that clicking the buttons of the app trigger the appropriate communication through the service:
+  Tests click buttons of both the parent `MissionControlComponent` and the `AstronoutComponent` children
+  and verify that the *History* meets expectations:
   
-+makeExample('cb_component-communication/e2e-spec.js', 'bidirectional-service')
++makeExample('cb-component-communication/e2e-spec.js', 'bidirectional-service')
 
 :marked
   [Back to top](#top)
+
+
+
+
   
+// BELOW HERE IS TOO COMPLICATED AND DOESN'T PASS TESTS !
+  .l-main-section
   <a id="unrelated-service"></a>
-  ## Establish communication between unrelated components
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
-
-  We can create services with properties and methods providing communication facilities, and inject the same 
-  service instance into the communicating components. The sending party invokes service methods &mdash; or sets properties
-  on the service instance &mdash;, the listening party subscribes to events representing messages.
-  
-  To begin, let's create a `MessageBus` component that simply relays any incoming messages to listening parties so that those
-  can process the messages they are interested in. We also create and export an instance of `MessageBus` to serve as 
-  the singleton instance to be injected into the communicating components:
-  
-+makeExample('cb_component-communication/ts/app/messagebus.service.ts')
-
-:marked
-  We create three communicating parties, _Telemetry Group_, _Trajectory Group_ and _Message Center_ that are totally unrelated
-  to each other. They are independent groups within Command Center:
-  
-+makeExample('cb_component-communication/ts/app/commandcenter-template.html')
-
-:marked
-  For the sake of simplicity, all of these parties are represented by the same component type, `MissionGroup`.
-  Each of them carries out actions, and listens to messages they are interested in. To ensure  they can communicate 
-  with each other, we pass the `controlMessageBus` instance to all `MissionGroup` instance &mdash; using 
-  the `provide()` method:
-  
-+makeExample('cb_component-communication/ts/app/missiongroup.component.ts')
-
-:marked
-  When we run the sample, we can see that messages are relayed among the components:
-
-figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_bidirectional-service.png" alt="bidirectional-service")
-  
-:marked
-  ### Ho do we test it?
-  
-  We check that clicking the mission group action buttons of the app trigger the appropriate communication through the service:
-  
-+makeExample('cb_component-communication/e2e-spec.js', 'unrelated-components')
-
-:marked
-  [Back to top](#top)
-  
-  <a id="content-children"></a>
-  ## Obtain the content children of a parent component
-  
-  [Live Example](/resources/live-examples/cb_component-communication/ts/plnkr.html)
-
-  A parent component may have content children &mdash; components between its opening and closing tag. We can observe such
-  a component in this template, `sequence-viewer`, which has a number of embedded `sequence-item` elements as its content:
-  
-+makeExample('cb_component-communication/ts/app/sequence-template.html')
-
-:marked
-  In the template of the component that implements `sequence-viewer`, we cannot reference directly its content.
-  For this purpose, we can use the `ContentChildren` annotation. As the definition of `SequenceViewer` shows, we decorate 
-  the `items` property (it has a type of `QueryList<SequenceItem>`) with `ContentChildren`:
-  
-+makeExample('cb_component-communication/ts/app/sequenceviewer.component.ts')
-
-:marked
-  The `ContentChildren` annotation ensures that Angular automatically refreshes `items` whenever it detects that the
-  the specified content of the parent changes. With defining the `ngAfterContentInit` lifecycle hook method, we can
-  catch the event when `items` has been set. `Querylist` provides a `changes` property that we can use to subscribe
-  to content changes.
-
-.l-sub-section
   :marked
-    The API documentation of [ContentChildren](../api/core/ContentChildren-var.html) and 
-    [QueryList](../api/core/QueryList-class.html) provide more details about these types.
-.l-main.section
-:marked
-  The definition of `SequenceViewer` helps us understand the dinstinction between _content children_ and _view children_.
-  Here, `SequenceViewer` can change its view children. When we click the **Limit to last 5 items** button, 
-  the view displays only the last 5 sequence element. However, the content of `SequenceViewer` (the `sequence-item`
-  elements between the opening and closing `sequence-viewer` tags) does not change after clicking the button.
-  
-  The content of `SequenceViewer` is managed by the `Sequence` component:
-  
-+makeExample('cb_component-communication/ts/app/sequence.component.ts')
+    ## Establish communication between unrelated components
 
-:marked
-  When we run this app, we can see that after clicking the **Limit to last 5 items** button, the `SequenceViewer`
-  has 20 content children, but only 5 view children:
-  
-figure.image-display
-  img(src="/resources/images/cookbooks/compcomm_contentchildren.png" alt="contentchildren")
-  
-:marked
-  ### Ho do we test it?
-  
-  We test that generating a few new sequence items works as expected, just like the **Show All** and
-  **Limit to last 5 items** buttons.
-  
-+makeExample('cb_component-communication/e2e-spec.js', 'contentchildren')
+    We can create services with properties and methods providing communication facilities, and inject the same 
+    service instance into the communicating components. The sending party invokes service methods &mdash; or sets properties
+    on the service instance &mdash;, the listening party subscribes to events representing messages.
+    
+    To begin, let's create a `MessageBus` component that simply relays any incoming messages to listening parties so that those
+    can process the messages they are interested in. We also create and export an instance of `MessageBus` to serve as 
+    the singleton instance to be injected into the communicating components:
+    
+  +makeExample('cb-component-communication/ts/app/messagebus.service.ts')
 
-:marked
-  [Back to top](#top)
+  :marked
+    We create three communicating parties, _Telemetry Group_, _Trajectory Group_ and _Message Center_ that are totally unrelated
+    to each other. They are independent groups within Command Center:
+    
+  +makeExample('cb-component-communication/ts/app/commandcenter-template.html')
+
+  :marked
+    For the sake of simplicity, all of these parties are represented by the same component type, `MissionGroup`.
+    Each of them carries out actions, and listens to messages they are interested in. To ensure  they can communicate 
+    with each other, we pass the `controlMessageBus` instance to all `MissionGroup` instance &mdash; using 
+    the `provide()` method:
+    
+  +makeExample('cb-component-communication/ts/app/missiongroup.component.ts')
+
+  :marked
+    When we run the sample, we can see that messages are relayed among the components:
+
+  figure.image-display
+    img(src="/resources/images/cookbooks/component-communication/bidirectional-service.png" alt="bidirectional-service")
+    
+  :marked
+    ### Test it
+    
+    We check that clicking the mission group action buttons of the app trigger the appropriate communication through the service:
+    
+  +makeExample('cb-component-communication/e2e-spec.js', 'unrelated-components')
+
+  :marked
+    [Back to top](#top)
+
+  .l-main-section
+  <a id="content-children"></a>
+  :marked
+    ## Obtain the content children of a parent component
+
+    A parent component may have content children &mdash; components between its opening and closing tag. We can observe such
+    a component in this template, `sequence-viewer`, which has a number of embedded `sequence-item` elements as its content:
+    
+  +makeExample('cb-component-communication/ts/app/sequence.component.html')
+
+  :marked
+    In the template of the `SequenceViewerComponent`, we cannot reference directly its content.
+    For this purpose, we can use the `ContentChildren` annotation. As the definition of `SequenceViewerComponent` shows, we decorate 
+    the `items` property (it has a type of `QueryList<SequenceItemComponent>`) with `ContentChildren`:
+    
+  +makeExample('cb-component-communication/ts/app/sequence-viewer.component.ts')
+
+  :marked
+    The `ContentChildren` annotation ensures that Angular automatically refreshes `items` whenever it detects that the
+    the specified content of the parent changes. With defining the `ngAfterContentInit` lifecycle hook method, we can
+    catch the event when `items` has been set. `Querylist` provides a `changes` property that we can use to subscribe
+    to content changes.
+
+  .l-sub-section
+    :marked
+      The API documentation of [ContentChildren](../api/core/ContentChildren-var.html) and 
+      [QueryList](../api/core/QueryList-class.html) provide more details about these types.
+
+  :marked
+    The definition of `SequenceViewer` helps us understand the dinstinction between _content children_ and _view children_.
+    Here, `SequenceViewer` can change its view children. When we click the **Limit to last 5 items** button, 
+    the view displays only the last 5 sequence element. However, the content of `SequenceViewer` (the `sequence-item`
+    elements between the opening and closing `sequence-viewer` tags) does not change after clicking the button.
+    
+    The content of `SequenceViewer` is managed by the `Sequence` component:
+    
+  +makeExample('cb-component-communication/ts/app/sequence.component.ts')
+
+  :marked
+    When we run this app, we can see that after clicking the **Limit to last 5 items** button, the `SequenceViewer`
+    has 20 content children, but only 5 view children:
+    
+  figure.image-display
+    img(src="/resources/images/cookbooks/component-communication/contentchildren.png" alt="contentchildren")
+    
+  :marked
+    ### Test it
+    
+    We test that generating a few new sequence items works as expected, just like the **Show All** and
+    **Limit to last 5 items** buttons.
+    
+  +makeExample('cb-component-communication/e2e-spec.js', 'contentchildren')
+
+  :marked
+    [Back to top](#top)
