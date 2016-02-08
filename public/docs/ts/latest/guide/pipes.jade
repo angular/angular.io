@@ -16,6 +16,8 @@ include ../../../../_includes/_util-fns
   In fact, we'd like to apply them in our HTML templates as we do styles.
 
   Welcome, Angular pipes, the simple display-value transformations that we can declare in our HTML!
+  
+  [Live Example](/resources/live-examples/pipes/ts/plnkr.html).
 
 .l-main-section
 :marked
@@ -23,25 +25,16 @@ include ../../../../_includes/_util-fns
 
   A pipe takes in data as input and transforms it to a desired output.
   We'll illustrate by transforming a component's birthday property into
-  a human-friendly date.
-
-  Here's a complete mini-app with a `DatePipe`:
-  <!--
-    All date samples are in my plunker
-    http://plnkr.co/edit/RDlOma?p=preview
-  -->
-
-+makeExample('pipes/ts/src/app/app.ts', 'hero-birthday')
+  a human-friendly date:
++makeExample('pipes/ts/app/hero-birthday1.component.ts', null, 'app/hero-birthday1.component.ts')
 
 :marked
-  Focus on the component's template to see how we applied the built-in `DatePipe`
-  while binding the `birthday` property.
-+makeExample('pipes/ts/src/app/app.html', 'hero-birthday-template')(format=".")
-
+  Focus on the component's template. 
++makeExample('pipes/ts/app/app.component.html', 'hero-birthday-template')(format=".")
 :marked
-  Angular [template syntax](./template-syntax.html#pipe) includes a pipe operator ( | ) which we're
-  using to flow the birthday value on the left through to the `Date` pipe function on the right.
-  All pipes work this way.
+  Inside the interpolation expression we flow the component's `birthday` value through the
+  [pipe operator](./template-syntax.html#pipe) ( | ) to the [Date pipe](../api/common/DatePipe-class.html) 
+  function on the right. All pipes work this way.
 
 .l-main-section
 :marked
@@ -62,25 +55,26 @@ include ../../../../_includes/_util-fns
   We add parameters to a pipe by following the pipe name with a colon ( : ) and then the parameter value
   (e.g., `currency:'EUR'`). If our pipe accepts multiple parameters, we separate the values with colons (e.g. `slice:1:5`)
 
-  We'll modify our birthday example to give the date pipe a format parameter.
-  The formatted date should display as **<span style="font-family:courier">04/15/88</span>**.
+  We'll modify our birthday template to give the date pipe a format parameter.
+  After formatting the hero's April 15th birthday should display as **<span style="font-family:courier">04/15/88</span>**.
 
-+makeExample('pipes/ts/src/app/app.html', 'format-birthday')(format=".")
++makeExample('pipes/ts/app/app.component.html', 'format-birthday')(format=".")
 
 :marked
   The parameter value can be any valid
   [template expression](./template-expression.html#template-expressions)
-  such as a string literal or a component property.
-
-  Let's revise our example to bind the pipe's format parameter
-  to the component's `format` property.
-+makeExample('pipes/ts/src/app/hero-birthday.2.ts', 'hero-birthday2')
-
+  such as a string literal or a component property. 
+  In other words, we can control the format through a binding the same way we control the birthday value through a binding.
+  
+  Let's write a second component that *binds* the pipe's format parameter
+  to the component's `format` property. Here's the template for that component:
++makeExample('pipes/ts/app/hero-birthday2.component.ts', 'template', 'app/hero-birthday2.component.ts (template)')(format=".")
 :marked
   We also added a button to the template and bound its click event to the component's `toggleFormat` method.
   That method toggles the component's `format` property between a short form
   ('shortDate') and a longer form ('fullDate').
-
++makeExample('pipes/ts/app/hero-birthday2.component.ts', 'class', 'app/hero-birthday2.component.ts (class)')
+:marked
   As we click the button, the displayed date alternates between
   "**<span style="font-family:courier">04/15/1988</span>**" and
   "**<span style="font-family:courier">Friday, April 15, 1988</span>**".
@@ -88,6 +82,7 @@ include ../../../../_includes/_util-fns
 figure.image-display
     img(src='/resources/images/devguide/pipes/date-format-toggle-anim.gif' alt="Date Format Toggle")
 :marked
+
 .l-sub-section
   :marked
     Learn more about the `DatePipes` format options in the [API Docs](../api/core/DatePipe-class.html).
@@ -98,7 +93,7 @@ figure.image-display
   so we can display the birthday in uppercase. The following birthday displays as
   **<span style="font-family:courier">APR 15, 1988</span>**
 
-+makeExample('pipes/ts/src/app/app.html', 'chained-birthday')
++makeExample('pipes/ts/app/app.component.html', 'chained-birthday')(format=".")
 
 :marked
   If we pass a parameter to a filter, we have to add parentheses
@@ -106,10 +101,14 @@ figure.image-display
   The following example displays
   **<span style="font-family:courier">FRIDAY, APRIL 15, 1988</span>**
 
-+makeExample('pipes/ts/src/app/app.html', 'chained-parameter-birthday')
++makeExample('pipes/ts/app/app.component.html', 'chained-parameter-birthday')(format=".")
 
 .l-sub-section
-  p Future improvements in the template compiler may eliminate the need for parentheses.
+  :marked
+    We can add parentheses to alter the evaluation order or 
+    to provide extra clarity:
+  +makeExample('pipes/ts/app/app.component.html', 'chained-parameter-birthday-parens')(format=".")
+:marked
 
 .l-main-section
 :marked
@@ -117,43 +116,47 @@ figure.image-display
 
   We can write our own custom pipes.
 
-  Let's make a custom pipe named `ExponentialStrengthPipe`
-  that can boost a hero's powers.
+  Here's a custom pipe named `ExponentialStrengthPipe` that can boost a hero's powers:
 
-  Create a new file, `exponential-strength-pipe.ts`, and enter the following:
-  <!--
-    The exponential pipe samples are in my plunker
-    http://plnkr.co/edit/8Nnnwf?p=preview
-  -->
-+makeExample('pipes/ts/src/app/exponential-strength-pipe.ts')
-
++makeExample('pipes/ts/app/exponential-strength.pipe.ts', null, 'app/exponential-strength.pipe.ts')
 :marked
-  This pipe definition reveals several few key points
-  * We import the `Pipe` decorator from the Angular library (while getting the usual symbols)
-  * A pipe is a class
-  * We decorate the class with the `@Pipe` decorator function.
-  * The `@Pipe` decorator takes an object with a name property whose value is the
-     pipe name that we'll use within a template expression. It must be a valid JavaScript identier.
-     Our pipe's name is `exponenentialStrength`.
-  * The pipe class implements a `transform` method
-  * `transform` takes a value and an optional array of strings.
-     The value can be of any type but the arguments array must be an array of strings.
-  * There will be one item in the array for each parameter passed to the pipe
-  * `transform` returns a modified value that Angular converts to a string.
+  This pipe definition reveals several key points
+  
+  * A pipe is a class decorated with pipe metadata.
+  
+  * The pipe class implements the `PipeTransform` interface's `transform` method that
+  takes an input value and an optional array of parameter strings and returns the transformed value.
 
-  Now let's create a component to demonstrate our pipe.
-+makeExample('pipes/ts/src/app/power-booster.ts')
+  * There will be one item in the parameter array for each parameter passed to the pipe
+  
+  * We tell Angular that this is a pipe by applying the
+  `@Pipe` decorator which we import from the core Angular library.
+  
+  * The `@Pipe` decorator takes an object with a name property whose value is the
+     pipe name that we'll use within a template expression. It must be a valid JavaScript identifier.
+     Our pipe's name is `exponentialStrength`.
+
+.l-sub-section
+  :marked
+    ### The *PipeTransform* Interface
+
+    The `transform` method is essential to a pipe. 
+    The `PipeTransform` interface defines that method and guides both tooling and the compiler.
+    It is optional; Angular looks for and executes the `transform` method regardless.
+    
+:marked
+  Now we need a component to demonstrate our pipe.
++makeExample('pipes/ts/app/power-booster.component.ts',null,'app/power-booster.component.ts')
 figure.image-display
     img(src='/resources/images/devguide/pipes/power-booster.png' alt="Power Booster")
 
 :marked
   Two things to note:
-  1. We use the pipe in the template expression exactly as we described in the pipe's comments.
-  We pass the value to transform from the left and give our pipe an exponent parameter of `10`.
+  1. We use our custom pipe the same way we use the built-in pipes.
 
   1. We must list our pipe in the @Component decorator's `pipes` array.
 
-.callout.is-critical
+.callout.is-helpful
   header Remember the pipes array!
   :marked
     Angular reports an error if we neglect to list our custom pipe.
@@ -161,18 +164,18 @@ figure.image-display
     Angular built-in pipes are pre-registered.
     Custom pipes must be registered manually.
 :marked
-  If we are inclined to try this in a live-coding tool (such a [plunker](http://plnkr.co/)),
+  If we try the [live code](/resources/live-examples/pipes/ts/plnkr.html) example,
   we can probe its behavior by changing the value and the optional exponent in the template.
 
   ## Power Boost Calculator (extra-credit)
   It's not much fun updating the template to test our custom pipe.
   We could upgrade the example to a "Power Boost Calculator" that combines
-  our pipe and two-way data binding with `ng-model`.
+  our pipe and two-way data binding with `ngModel`.
 
-+makeExample('pipes/ts/src/app/power-boost-calculator.ts')
++makeExample('pipes/ts/app/power-boost-calculator.component.ts', null, '/app/power-boost-calculator.component.ts')
 
 figure.image-display
-    img(src='/resources/images/devguide/pipes/power-boost-calculator.png' alt="Power Boost Calculator")
+    img(src='/resources/images/devguide/pipes/power-boost-calculator-anim.gif' alt="Power Boost Calculator")
 :marked
 
 .l-main-section
@@ -190,6 +193,7 @@ figure.image-display
   Pipes that retrieve or request data should be used cautiously, since working with network data tends to introduce error conditions that are better handled in JavaScript than in a template.
   We can mitigate this risk by creating a custom pipe for a particular backend and bake-in the essential error-handling.
 
+  <a id="async-pipe"></a>
   ## The stateful `AsyncPipe`
   The Angular Async pipe is a remarkable example of a stateful pipe.
   The Async pipe can receive a Promise or Observable as input
@@ -198,13 +202,13 @@ figure.image-display
   It is stateful because the pipe maintains a subscription to the input and its returned values depend on that subscription.
 
   In the next example, we bind a simple promise to a view with the async pipe.
-+makeExample('pipes/ts/src/app/app.ts', 'async-message')
++makeExample('pipes/ts/app/hero-async-message.component.ts', null, 'app/hero-async-message.component.ts')
 
 :marked
   The Async pipe saves boilerplate in the component code.
   The component doesn't have to subscribe to the async data source,
   it doesn't extract the resolved values and expose them for binding,
-  and (in the case of Obsevable stream sources like `EventEmitter`)
+  and (in the case of Observable stream sources like `EventEmitter`)
   the component doesn't have to unsubscribe when it is destroyed
   (a potent source of memory leaks).
 
@@ -217,21 +221,36 @@ figure.image-display
 
   Here's how we'll decorate our new stateful `FetchJsonPipe` that
   makes an HTTP `fetch` request and (eventually) displays the data in the server's response:
-+makeExample('pipes/ts/src/app/fetch-json-pipe.ts', 'pipe-metadata')
++makeExample('pipes/ts/app/fetch-json.pipe.ts', 'pipe-metadata','app/fetch-json.pipe.ts (metadata)')
 :marked
   Immediately below we have the finished pipe. Its input value is an url to an endpoint that returns a JSON file.
   The pipe makes a one-time async request to the server and eventually receives the JSON response.
-+makeExample('pipes/ts/src/app/fetch-json-pipe.ts')
++makeExample('pipes/ts/app/fetch-json.pipe.ts', null, 'app/fetch-json.pipe.ts')
 :marked
-  Next we use this pipe in two template bindings where we
-  1. display hero names in an `ng-for` repeater
-  1. chain the fetched results to the built-in `JsonPipe` that renders
-  the data in JSON format
-
-+makeExample('pipes/ts/src/app/hero-list-component.ts')
-
+  Next we demonstrate this pipe in a test component whose template defines two bindings
++makeExample('pipes/ts/app/hero-list.component.ts', 'template', 'app/hero-list.component.ts (template)')
+:marked
+  The component renders like this:
 figure.image-display
     img(src='/resources/images/devguide/pipes/hero-list.png' alt="Hero List")
+:marked
+  The first binding is straight forward. An `ngFor` repeater displays the hero names fetched from a json source file.
+  We're piping the literal file name, "heroes.json", through to the custom `fetch` pipe.
+
+  ### JsonPipe
+  The second binding uses more pipe chaining.
+  We take the same fetched results and display the raw hero data in JSON format 
+  by piping to the built-in `JsonPipe`.
+  
+.callout.is-helpful
+  header Debugging with the json pipe
+  :marked
+    The [JsonPipe](https://angular.io/docs/ts/latest/api/common/JsonPipe-class.html) 
+    is an easy way to diagnosis a mysteriously failing data binding.
+:marked
+  Here's the complete component implementation:
++makeExample('pipes/ts/app/hero-list.component.ts', null, 'app/hero-list.component.ts')
+:marked
 
 .l-main-section
 :marked

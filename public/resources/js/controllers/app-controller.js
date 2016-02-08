@@ -1,39 +1,10 @@
 /*
- * Apllication Controller
+ * Application Controller
  *
  */
 
-angularIO.directive('bold', function ($timeout) {
-  return {
-    scope: { bold: '=bold' },
-    link:  postLink
-  };
-  function postLink (scope, element) {
-    var bold = typeof scope.bold === 'string'
-        ? [ scope.bold ]
-        : scope.bold;
-    $timeout(function () {
-      var html = element.html();
-      angular.forEach(bold, function (bold) {
-        html = html.replace(new RegExp(bold.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'g'), '<b>$&</b>');
-      });
-      html = html.replace(/\n/g, '<br>');
-      html = html.replace(/ /g, '&nbsp;');
-      element.html(html);
-    });
-  }
-});
-
 angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', function ($mdDialog, $timeout, $http, $sce) {
   var vm = this;
-
-  $http.get('/resources/js/app-data.json').then(function(response) {
-    vm.apiList = response.data;
-  });
-
-  $http.get('/resources/js/cheatsheet.json').then(function(response) {
-    vm.cheatsheet = response.data;
-  });
 
   vm.showDocsNav = false;
   vm.showMainNav = false;
@@ -54,23 +25,13 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     vm.showMenu = !vm.showMenu;
   };
 
-  vm.setType = function (type) {
-    if (type === vm.apiType) vm.apiType = '';
-    else vm.apiType = type;
-  };
-
-  vm.apiSections = [
-    { name: 'angular2/core', title: 'Core' },
-    { name: 'angular2/http', title: 'HTTP' },
-    { name: 'angular2/lifecycle_hooks', title: 'Lifecycle Hooks' },
-    { name: 'angular2/router', title: 'Router' },
-    { name: 'angular2/test', title: 'Test' }
-  ];
-  vm.apiType     = '';
-  vm.apiFilter   = '';
-
-  vm.getSafeHtml = function(html) {
-    return $sce.trustAsHtml(html);
+  vm.openFeedback = function() {
+    var configuration = {
+      'productId': '410509',
+      'authuser': '1',
+      'bucket': 'angulario'
+    };
+    userfeedback.api.startFeedback(configuration);
   };
 
   /*

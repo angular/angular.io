@@ -180,6 +180,12 @@ function getCommentInfo(extension) {
         plasterPattern: '# {tag} '
       };
       break;
+    case 'jade':
+      commentInfo = {
+        prefix: '//',
+        plasterPattern: '// {tag} '
+      };
+      break;
     default:
       return null;
   }

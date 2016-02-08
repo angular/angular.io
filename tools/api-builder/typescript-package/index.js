@@ -22,6 +22,7 @@ module.exports = new Package('typescript-parsing', [basePackage])
     'function',
     'var',
     'const',
+    'let',
     'enum',
     'type-alias'
   ];

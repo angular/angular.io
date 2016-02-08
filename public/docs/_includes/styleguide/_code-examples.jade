@@ -9,484 +9,479 @@ include ../../../_includes/_util-fns
     p Below are some examples of how you can add/customize code examples in a page.
 
   .showcase-content
-    .l-sub-section
+    :marked
+      ### Including a code example from the `_examples` folder
 
-      :marked
-        ### Including a code example from the `_examples` folder
+      One of the design goals for this documention was that any code samples that appear within the documentation be 'testable'.
+      In practice this means that a set of standalone testable examples exist somewhere in the same repository as the rest
+      of the documentation. These examples will each typically consist of a collection of html, javascript and css files.
 
-        One of the design goals for this documention was that any code samples that appear within the documentation be 'testable'.
-        In practice this means that a set of standalone testable examples exist somewhere in the same repository as the rest
-        of the documentation. These examples will each typically consist of a collection of html, javascript and css files.
+      Clearly there also needs to be some mechanism for including fragments of these files into the jade/harp generated
+      html. By convention all of the 'testable' examples within this repository should be created within the `docs/_examples` folder.
 
-        Clearly there also needs to be some mechanism for including fragments of these files into the jade/harp generated
-        html. By convention all of the 'testable' examples within this repository should be created within the `docs/_examples` folder.
+      To include an example from somewhere in the `doc/_examples` folder you can use the `makeExample` mixin.
+      This mixin along with the `makeTabs` mixin both require that the 'included' file be marked
+      up with special comment markers. This markup will be described a bit later.
 
-        To include an example from somewhere in the `doc/_examples` folder you can use the `makeExample` mixin.
-        This mixin along with the `makeTabs` mixin both require that the 'included' file be marked
-        up with special comment markers. This markup will be described a bit later.
+      In addition there are several custom gulp tasks that must be run before any of the edits described below will actually appear
+      in the generated documentation.  These gulp tasks are documented elsewhere.
 
-        In addition there are several custom gulp tasks that must be run before any of the edits described below will actually appear
-        in the generated documentation.  These gulp tasks are documented elsewhere.
+      In order to use the `makeExample` or `makeTabs` mixins each page that references the mixins must include the '_utilFns.jade'
+      file on the current page.  This is usually accomplished simply by adding a path to this file at the top of any
+      page that needs either of these mixins.
 
-        In order to use the `makeExample` or `makeTabs` mixins each page that references the mixins must include the '_utilFns.jade'
-        file on the current page.  This is usually accomplished simply by adding a path to this file at the top of any
-        page that needs either of these mixins.
+    code-example(language="js").
+      include ../../../../_includes/_util-fns
 
-      code-example(language="js").
-        include ../../../../_includes/_util-fns
+    :marked
+      The syntax for the `makeExample` mixin is:
 
-      :marked
-        The syntax for the `makeExample` mixin is:
+      #### +makeExample(filePath, region, title, stylePattern)
+        - *filePath:* path to the example file under the '_examples' folder
+        - *region:* (optional or null) region from the example file to display
+        - *title:* (optional or null) title displayed above the included text.
+        - *stylePattern:* (optional or null) allows additional styling via regular expression ( described later).
 
-        #### +makeExample(filePath, region, title, stylePattern)
-          - *filePath:* path to the example file under the '_examples' folder
-          - *region:* (optional or null) region from the example file to display
-          - *title:* (optional or null) title displayed above the included text.
-          - *stylePattern:* (optional or null) allows additional styling via regular expression ( described later).
+      #### Example:
 
-        #### Example:
-
-      code-example(format="linenums" language="js").
-        +makeExample('styleguide/js/index.html', null, 'index.html')
-
-      :marked
-        This will read the *_examples/styleguide/js/index.html* file and include it
-        with the heading 'index.html'. Note that the file will be properly escaped and
-        color coded according to the extension on the file ( html in this case).
-
+    code-example(format="linenums" language="js").
       +makeExample('styleguide/js/index.html', null, 'index.html')
 
-      :marked
-        The second parameter with a value of 'null' will be described later in this document.
+    :marked
+      This will read the *_examples/styleguide/js/index.html* file and include it
+      with the heading 'index.html'. Note that the file will be properly escaped and
+      color coded according to the extension on the file ( html in this case).
 
-        There is a similar `makeTabs` mixin that provides the same service but for multiple examples
-        within a tabbed interface.
+    +makeExample('styleguide/js/index.html', null, 'index.html')
 
-        #### +makeTabs(filePaths, regions, titles, stylePatterns)
-          - *filePaths:* a comma delimited string of filePaths to example files under the '_examples' folder
-          - *regions:* (optional or null) region from the example file to display
-          - *titles:* (optional or null) a comma delimited string of titles corresponding to each of the filePaths above.
-          - *stylePatterns:* (optional or null) allows additional styling via regular expression( described later).
+    :marked
+      The second parameter with a value of 'null' will be described later in this document.
 
-        #### Example:
+      There is a similar `makeTabs` mixin that provides the same service but for multiple examples
+      within a tabbed interface.
 
-      code-example(format="linenums" language="js").
-        +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test')
+      #### +makeTabs(filePaths, regions, titles, stylePatterns)
+        - *filePaths:* a comma delimited string of filePaths to example files under the '_examples' folder
+        - *regions:* (optional or null) region from the example file to display
+        - *titles:* (optional or null) a comma delimited string of titles corresponding to each of the filePaths above.
+        - *stylePatterns:* (optional or null) allows additional styling via regular expression( described later).
 
-      :marked
-        This will create two tabs, each with its own title and appropriately color coded.
+      #### Example:
 
+    code-example(format="linenums" language="js").
       +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test')
 
-    .l-sub-section
-      :marked
-        ### Marking up an example file for use by the `makeExample` and `makeTabs` mixins
+    :marked
+      This will create two tabs, each with its own title and appropriately color coded.
 
-        At a minimum, marking up an example file simply consists of adding a single comment line to the top of the file
-        containing the string `#docregion`.  Following this a second string that is the 'name' of the region is also allowed
-        but not required.  A file may have any number of `#docregion` comments with the only requirement being that the names
-        of each region within a single file be unique.  This also means that there can only be one *blank* docregion.
+    +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test')
 
-        #### Example of a simple #docregion
 
-      code-example(format="linenums" language="js").
-        // #docregion
-        describe("Jasmine sample test", function() {
-                  it("1+1 should be 2", function() {
-            var result = 1 + 1;
-            expect(result).toBe(2);
-          });
+    :marked
+      ### Marking up an example file for use by the `makeExample` and `makeTabs` mixins
+
+      At a minimum, marking up an example file simply consists of adding a single comment line to the top of the file
+      containing the string `#docregion`.  Following this a second string that is the 'name' of the region is also allowed
+      but not required.  A file may have any number of `#docregion` comments with the only requirement being that the names
+      of each region within a single file be unique.  This also means that there can only be one *blank* docregion.
+
+      #### Example of a simple #docregion
+
+    code-example(format="linenums" language="js").
+      // #docregion
+      describe("Jasmine sample test", function() {
+                it("1+1 should be 2", function() {
+          var result = 1 + 1;
+          expect(result).toBe(2);
         });
+      });
 
-      :marked
-        If a file only has a single `#docregion` then the entire file AFTER the `#docregion` comment is available for inclusion
-        via mixin.  Portions of the file can be indicated by surrounding an area of the file with
-        `#docregion` and an `#enddocregion` tags. These regions, each with its own name, may be nested to any level and any regions that are not 'ended' explicitly
-        are assumed to be ended automatically at the bottom of the file. Regions may either be ended/closed by name or if the name is left blank then the most recent
-        unclosed docregion defined earlier will be closed. Any individual region within the file is accessible
-        to the `makeExample` and `makeTabs` mixins.
+    :marked
+      If a file only has a single `#docregion` then the entire file AFTER the `#docregion` comment is available for inclusion
+      via mixin.  Portions of the file can be indicated by surrounding an area of the file with
+      `#docregion` and an `#enddocregion` tags. These regions, each with its own name, may be nested to any level and any regions that are not 'ended' explicitly
+      are assumed to be ended automatically at the bottom of the file. Regions may either be ended/closed by name or if the name is left blank then the most recent
+      unclosed docregion defined earlier will be closed. Any individual region within the file is accessible
+      to the `makeExample` and `makeTabs` mixins.
 
-        #### Example of a nested #docregion
+      #### Example of a nested #docregion
 
-      code-example(format="linenums" language="js" escape="html").
-        (function() {
-        // #docregion
-        // #docregion class-w-annotations
-        var AppComponent = ng
-            // #docregion component
-            .Component({
-              selector: 'my-app'
-            })
-            // #enddocregion component
-            // #docregion view
-            .View({
-              template: '<h1 id="output">My First Angular 2 App</h1>'
-            })
-            // #enddocregion view
-            // #docregion class
-            .Class({
-              constructor: function () { }
-            });
-            // #enddocregion
-        // #enddocregion
+    code-example(format="linenums" language="js" escape="html").
+      (function() {
+      // #docregion
+      // #docregion class-w-annotations
+      var AppComponent = ng
+          // #docregion component
+          .Component({
+            selector: 'my-app'
+          })
+          // #enddocregion component
+          // #docregion view
+          .View({
+            template: '<h1 id="output">My First Angular 2 App</h1>'
+          })
+          // #enddocregion view
+          // #docregion class
+          .Class({
+            constructor: function () { }
+          });
+          // #enddocregion
+      // #enddocregion
 
-      :marked
-        Multiple `#docregion` tags may be defined on a single line as shown below.  In addition, anytime a file contains multiple
-        `#docregion` tags with the same name they will automatically be combined. Each of the individually tagged sections of the combined document
-        will be separated from one another by a comment consisting of '. . .'.  This default separator, known
-        as 'plaster' can be overriden anywhere within the affected file via a `#docplaster` comment as shown below.  This example creates
-        a separator that consists of `/* more code here */` in the output file.
+    :marked
+      Multiple `#docregion` tags may be defined on a single line as shown below.  In addition, anytime a file contains multiple
+      `#docregion` tags with the same name they will automatically be combined. Each of the individually tagged sections of the combined document
+      will be separated from one another by a comment consisting of '. . .'.  This default separator, known
+      as 'plaster' can be overriden anywhere within the affected file via a `#docplaster` comment as shown below.  This example creates
+      a separator that consists of `/* more code here */` in the output file.
 
-      code-example(format="linenums" language="js" escape="html").
-        // #docplaster more code here
+    code-example(format="linenums" language="js" escape="html").
+      // #docplaster more code here
 
-        // #docregion import,twoparts
-        import {Component, View, bootstrap} from 'angular2/angular2';
-        // #enddocregion twoparts,  import
-        @Component({
-        selector: 'my-app'
-        })
-        @View({
-        template: '<h1 id="output">My first Angular 2 App</h1>'
-        })
-        class AppComponent {
-        }
+      // #docregion import,twoparts
+      import {Component, View, bootstrap} from 'angular2/angular2';
+      // #enddocregion twoparts,  import
+      @Component({
+      selector: 'my-app'
+      })
+      @View({
+      template: '<h1 id="output">My first Angular 2 App</h1>'
+      })
+      class AppComponent {
+      }
 
-        // #docregion bootstrap, twoparts
-        bootstrap(AppComponent);
-        // #enddocregion twoparts
-        doSomethingInteresting();
-        // #enddocregion
+      // #docregion bootstrap, twoparts
+      bootstrap(AppComponent);
+      // #enddocregion twoparts
+      doSomethingInteresting();
+      // #enddocregion
 
-      :marked
-          HTML files can also contain #docregion comments:
+    :marked
+        HTML files can also contain #docregion comments:
 
-      code-example(format="linenums" language="html" escape="html").
-        <!-- #docregion -->
-        ...
-        <script src="https://code.angularjs.org/2.0.0-alpha.34/angular2.sfx.dev.js"></script>
-        <script src="app.js"></script>
-        ...
+    code-example(format="linenums" language="html" escape="html").
+      <!-- #docregion -->
+      ...
+      <script src="https://code.angularjs.org/2.0.0-alpha.34/angular2.sfx.dev.js"></script>
+      <script src="app.js"></script>
+      ...
 
-      :marked
-        as can CSS files:
+    :marked
+      as can CSS files:
 
-      code-example(format="linenums" language="css").
-        /* #docregion bar */
-        .center-global {
-          max-width: 1020px;
-          margin: 0 auto;
-        }
+    code-example(format="linenums" language="css").
+      /* #docregion bar */
+      .center-global {
+        max-width: 1020px;
+        margin: 0 auto;
+      }
 
-    .l-sub-section
-      :marked
-        ### Including a named #docregion via the makeExample or makeTabs mixins.
 
-        In order to include just a portion of an example file that has been marked up with a 'named' `#docregion`
-        you will pass the name of the desired region as the 2nd parameter to the makeExample call.
+    :marked
+      ### Including a named #docregion via the makeExample or makeTabs mixins.
 
-        #### Example
-      code-example(format="linenums" language="js").
-        +makeExample('styleguide/js/app.js', 'class-w-annotations', "Extracted region")
+      In order to include just a portion of an example file that has been marked up with a 'named' `#docregion`
+      you will pass the name of the desired region as the 2nd parameter to the makeExample call.
 
-      :marked
-        is a request to include just the `class-w-annotations` region from the `app.js` file in the `_examples/styleguide`
-        folder and results in the following:
-
+      #### Example
+    code-example(format="linenums" language="js").
       +makeExample('styleguide/js/app.js', 'class-w-annotations', "Extracted region")
 
-    .l-sub-section
-      :marked
-        ### Additional styling
+    :marked
+      is a request to include just the `class-w-annotations` region from the `app.js` file in the `_examples/styleguide`
+      folder and results in the following:
 
-        In some cases you may want to add additional styling to an external file after it had been included in the documentation.
-        This styling is accomplished via the `stylePattern` and `stylePatterns` parameters in the `makeExample` and `makeTabs`
-        mixins. A `stylePattern` is actually just a javascript object where the keys are the names of styles to be applied to
-        some portion of the included text as defined by a regular expression ( or expressions).  These regular expressions are the
-        value of each key. Each regular expression MUST specify at least a single capture group; the contents of the capture
-        group being what the style will actually apply to, not the entire regular expression.  The idea here is that you may
-        need to include a contextual match in a regular expression but only want your styling to be applied to a subset
-        of the entire regular expression.
+    +makeExample('styleguide/js/app.js', 'class-w-annotations', "Extracted region")
 
-        Current there are only three types of highlight styles available: Outlined (otl), Pink (pnk), and Black (blk), however the
-        mechanism described above will work with any style defined on the page.
 
-        #### Example
-      code-example(format="linenums" language="js" escape="none").
-        +makeExample('styleguide/js/index.html', null, 'index.html', {pnk: /script (src=.*&ampquot;)/g})
+    :marked
+      ### Additional styling
 
-      :marked
-        Which will mark all of the quoted contents of each `script` tag within the index.html file in pink.
+      In some cases you may want to add additional styling to an external file after it had been included in the documentation.
+      This styling is accomplished via the `stylePattern` and `stylePatterns` parameters in the `makeExample` and `makeTabs`
+      mixins. A `stylePattern` is actually just a javascript object where the keys are the names of styles to be applied to
+      some portion of the included text as defined by a regular expression ( or expressions).  These regular expressions are the
+      value of each key. Each regular expression MUST specify at least a single capture group; the contents of the capture
+      group being what the style will actually apply to, not the entire regular expression.  The idea here is that you may
+      need to include a contextual match in a regular expression but only want your styling to be applied to a subset
+      of the entire regular expression.
 
-      .alert.is-important.
-        Note that expression replacement occurs AFTER the fragment has been included and html escaped.
-        This means that your regular expression must use escaped html text; i.e. the '&ampquot' in the regex above.
+      Current there are only three types of highlight styles available: Outlined (otl), Pink (pnk), and Black (blk), however the
+      mechanism described above will work with any style defined on the page.
 
-      +makeExample('styleguide/js/index.html', null, 'index.html', {pnk: /script (src=.*&quot;)/g})
+      #### Example
+    code-example(format="linenums" language="js" escape="none").
+      +makeExample('styleguide/js/index.html', null, 'index.html', {pnk: /script (src=.*&ampquot;)/g})
 
-      :marked
-        A more complicated example might be:
+    :marked
+      Which will mark all of the quoted contents of each `script` tag within the index.html file in pink.
 
-      code-example(format="linenums" language="js").
-        - var stylePattern = { pnk: /script (src=.*&ampquot;)/g, otl: /(\S*my-app.*$)/m };
-        +makeExample('styleguide/js/index.html', null, 'index.html', stylePattern )
+    .alert.is-important.
+      Note that expression replacement occurs AFTER the fragment has been included and html escaped.
+      This means that your regular expression must use escaped html text; i.e. the '&ampquot' in the regex above.
 
-      :marked
-        Which applies multiple styles and uses an intermediate javascript object as opposed to a literal.
+    +makeExample('styleguide/js/index.html', null, 'index.html', {pnk: /script (src=.*&quot;)/g})
 
-      - var stylePattern = { pnk: /script (src=.*&quot;)/g, otl: /(\S*my-app.*$)/m };
+    :marked
+      A more complicated example might be:
+
+    code-example(format="linenums" language="js").
+      - var stylePattern = { pnk: /script (src=.*&ampquot;)/g, otl: /(\S*my-app.*$)/m };
       +makeExample('styleguide/js/index.html', null, 'index.html', stylePattern )
 
-      :marked
-        `makeTabs` support for `stylePatterns` is slightly different from the `makeExample` mixin in that you can also
-        pass in an array of stylePattern objects where each is paired with its corresponding 'tab'. If only a single stylePattern
-        object is passed in then it is assumed to apply to all of the tabs.
+    :marked
+      Which applies multiple styles and uses an intermediate javascript object as opposed to a literal.
 
-      code-example(format="linenums" language="js").
-        -var stylePatterns = [{ pnk: /script (src=.*&ampquot;)/g }, {pnk: /(result)/ }];
-        +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test', stylePatterns)
+    - var stylePattern = { pnk: /script (src=.*&quot;)/g, otl: /(\S*my-app.*$)/m };
+    +makeExample('styleguide/js/index.html', null, 'index.html', stylePattern )
 
-      -var stylePatterns = [{ pnk: /script (src=.*&quot;)/g }, {pnk: /(result)/ }];
+    :marked
+      `makeTabs` support for `stylePatterns` is slightly different from the `makeExample` mixin in that you can also
+      pass in an array of stylePattern objects where each is paired with its corresponding 'tab'. If only a single stylePattern
+      object is passed in then it is assumed to apply to all of the tabs.
+
+    code-example(format="linenums" language="js").
+      -var stylePatterns = [{ pnk: /script (src=.*&ampquot;)/g }, {pnk: /(result)/ }];
       +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test', stylePatterns)
 
-    .l-sub-section
-      :marked
-        ### Including a JSON file or just parts of one
+    -var stylePatterns = [{ pnk: /script (src=.*&quot;)/g }, {pnk: /(result)/ }];
+    +makeTabs('styleguide/js/index.html, styleguide/js/spec.js', null, 'index.html,unit test', stylePatterns)
 
-        To include an '.json' file from somewhere in the `doc\_examples` folder you can use the `makeJson` mixin. The `makeExample`
-        and `makeTabs` mixins cannot be used for this purpose because there is no standard 'comment' marker in a json file.
 
-        The `makeJson` mixin does however provide a similar capability to selectively pick which portions of the '.json' file
-        to display.
+    :marked
+      ### Including a JSON file or just parts of one
 
-        The syntax for the `makeJson` mixin is:
+      To include an '.json' file from somewhere in the `doc\_examples` folder you can use the `makeJson` mixin. The `makeExample`
+      and `makeTabs` mixins cannot be used for this purpose because there is no standard 'comment' marker in a json file.
 
-        #### +makeJson(filePath, jsonConfig, title, stylePattern)
-           - *filePath:* path to the example file under the '_examples' folder
-           - *jsonConfig:* (optional) an object that defines which portions of the .json file to select for display.
-              - *rootPath:* (optional default=null) a json property path at which the 'paths' parameter below should start.
-              - *paths:* a comma delimited list of property paths for those elements to be selected.
-              - *space:* (optional default="  " [2 spaces]) a String or Number object that's used to insert white space into the output JSON
-           - *title:* (optional) title displayed above the included text.
-           - *stylePattern:* (optional) allows additional styling via regular expression ( described above).
+      The `makeJson` mixin does however provide a similar capability to selectively pick which portions of the '.json' file
+      to display.
 
-        #### Example:
+      The syntax for the `makeJson` mixin is:
 
-      code-example(format="linenums" language="js").
-        +makeJson('styleguide/package.json', null, "Entire package.json file")
+      #### +makeJson(filePath, jsonConfig, title, stylePattern)
+         - *filePath:* path to the example file under the '_examples' folder
+         - *jsonConfig:* (optional) an object that defines which portions of the .json file to select for display.
+            - *rootPath:* (optional default=null) a json property path at which the 'paths' parameter below should start.
+            - *paths:* a comma delimited list of property paths for those elements to be selected.
+            - *space:* (optional default="  " [2 spaces]) a String or Number object that's used to insert white space into the output JSON
+         - *title:* (optional) title displayed above the included text.
+         - *stylePattern:* (optional) allows additional styling via regular expression ( described above).
 
-      +makeJson('styleguide/package.json', null, "Entire package.json file")
+      #### Example:
 
-      :marked
-        A subset of the '.json' file can also be selected.
+    code-example(format="" language="js").
+      +makeJson('styleguide/package.1.json', null, "Entire package.json file")
 
-      code-example(format="linenums" language="js").
-        +makeJson('styleguide/package.json', { paths: 'version, scripts.tsc, scripts.start '}, "Selected parts of the package.json file"  )
+    +makeJson('styleguide/package.1.json', null, "Entire package.json file")
 
-      +makeJson('styleguide/package.json', { paths: 'version, scripts.tsc, scripts.start '}, "Selected parts of the package.json file"  )
+    :marked
+      A subset of the '.json' file can also be selected.
 
-      :marked
-        Styling selected portions of the json is also supported.
+    code-example(format="" language="js").
+      +makeJson('styleguide/package.1.json', { paths: 'version, scripts.tsc, scripts.start '}, "Selected parts of the package.json file"  )
 
-      code-example(format="linenums" language="js").
-        +makeJson('styleguide/package.json', {paths: 'dependencies'}, "package.json dependencies", { pnk: [/(\S*traceur.*)/, /(\Sangular2.*)/, /(\Ssystem.*)/ ]})
+    +makeJson('styleguide/package.1.json', { paths: 'version, scripts.tsc, scripts.start '}, "Selected parts of the package.json file"  )
 
-      +makeJson('styleguide/package.json', {paths: 'dependencies'}, "package.json dependencies", { pnk: [/(\S*traceur.*)/, /(\Sangular2.*)/, /(\Ssystem.*)/ ]})
+    :marked
+      Styling selected portions of the json is also supported.
 
-      :marked
-        As well as styling across multiple lines.
+    code-example(format="" language="js").
+      +makeJson('styleguide/package.1.json', {paths: 'dependencies'}, "package.json dependencies", { pnk: [/(\S*traceur.*)/, /(\Sangular2.*)/, /(\Ssystem.*)/ ]})
 
-      code-example(format="linenums" language="js").
-        -  var styles = { pnk: /(^.*dependencies[\s\S]*  \})/gm };
-        +makeJson('styleguide/package.json', {paths: 'name, version, dependencies '}, "Foo", styles )
+    +makeJson('styleguide/package.1.json', {paths: 'dependencies'}, "package.json dependencies", { pnk: [/(\S*traceur.*)/, /(\Sangular2.*)/, /(\Ssystem.*)/ ]})
 
+    :marked
+      As well as styling across multiple lines.
+
+    code-example(format="" language="js").
       -  var styles = { pnk: /(^.*dependencies[\s\S]*  \})/gm };
-      +makeJson('styleguide/package.json', {paths: 'name, version, dependencies '}, "Foo", styles )
+      +makeJson('styleguide/package.1.json', {paths: 'name, version, dependencies '}, "Foo", styles )
 
-    .l-sub-section
-      :marked
-        ### Inline code and code examples provided directly i.e. not from an example file.
+    -  var styles = { pnk: /(^.*dependencies[\s\S]*  \})/gm };
+    +makeJson('styleguide/package.1.json', {paths: 'name, version, dependencies '}, "Foo", styles )
 
-        The `makeExample` and `makeTabs` mixins are both both built on top of a custom jade 'style'; `code-example`.
-        In those cases where you want to include code directly inline i.e. not from some external file; you can use
-        this style.
-        This style has several named attributes
+    :marked
+      ### Inline code and code examples provided directly i.e. not from an example file.
 
-        #### code-example attributes
-          - *name:* Name displayed in Tab (required for tabs)
-          - *language:* javascript, html, etc.
-          - *escape:* html (escapes html, woot!)
-          - *format:* linenums (or linenums:4 specify starting line)
+      The `makeExample` and `makeTabs` mixins are both both built on top of a custom jade 'style'; `code-example`.
+      In those cases where you want to include code directly inline i.e. not from some external file; you can use
+      this style.
+      This style has several named attributes
 
-        #### Example
+      #### code-example attributes
+        - *name:* Name displayed in Tab (required for tabs)
+        - *language:* javascript, html, etc.
+        - *escape:* html (escapes html, woot!)
+        - *format:* linenums (or linenums:4 specify starting line)
 
-      code-example(format="linenums" language="html").
-        code-example(format="linenums" language="javascript").
-          //SOME CODE
+      #### Example
 
-    .l-sub-section
-      h3 Specify starting line number
+    code-example(format="linenums" language="html").
+      code-example(format="linenums" language="javascript").
+        //SOME CODE
 
-      code-example(language="javascript" format="linenums:4").
-        code-example(language="html" format="linenums:4").
-          var title = "This starts on line four";
 
-    .l-sub-section
-      h3 Specify a language
+    h3 Specify starting line number
 
-      p.
-        Prettify makes a best effort to guess the language but
-        works best with C-like and HTML-like languages. For
-        others, there are special language handlers that are
-        chosen based on language hints. Add a class that matches
-        your desired language (example below uses <strong>.lang-html</strong>)
+    code-example(language="javascript" format="linenums:4").
+      code-example(language="html" format="linenums:4").
+        var title = "This starts on line four";
 
-      code-example(language="html" format="linenums").
-        &lt;h1&gt;Title&lt;/h1&gt;
-        &lt;p&gt;This is some copy...&lt;/p&gt;
 
-    .l-sub-section
-      h3 Code Highlighting
-      p.
-        There are three types of highlights available
-        <strong>Outlined</strong>, <strong>Pink</strong>, and
-        <strong>Black</strong>. You can see examples below and
-        the class names needed for each type.
+    h3 Specify a language
 
-      code-example(format="linenums").
-        // Pink Background Version
-        // class="pnk"
-        var elephants = "The <span class='pnk'>pink</span> elephants were marching...";
+    p.
+      Prettify makes a best effort to guess the language but
+      works best with C-like and HTML-like languages. For
+      others, there are special language handlers that are
+      chosen based on language hints. Add a class that matches
+      your desired language (example below uses <strong>.lang-html</strong>)
 
-        // Black Background Version
-        // class="blk"
-        var night = "The night was pitch <span class='blk'>black</span>.";
+    code-example(language="html" format="linenums").
+      &lt;h1&gt;Title&lt;/h1&gt;
+      &lt;p&gt;This is some copy...&lt;/p&gt;
 
-        // Outlined Version
-        // class="otl"
-        var match = "The <span class='otl'>bird</span> ate <span class='otl'>bird</span> seed near the <span class='otl'>bird</span> bath ";
 
-    .l-sub-section
-      h3 Code Tabs
-      p.
-        Code Tabs are a great way to show different languages and versions
-        of a particular piece of code. When using these tabs make sure the
-        <strong>content is always related</strong>.
+    h3 Code Highlighting
+    p.
+      There are three types of highlights available
+      <strong>Outlined</strong>, <strong>Pink</strong>, and
+      <strong>Black</strong>. You can see examples below and
+      the class names needed for each type.
 
+    code-example(format="linenums").
+      // Pink Background Version
+      // class="pnk"
+      var elephants = "The <span class='pnk'>pink</span> elephants were marching...";
+
+      // Black Background Version
+      // class="blk"
+      var night = "The night was pitch <span class='blk'>black</span>.";
+
+      // Outlined Version
+      // class="otl"
+      var match = "The <span class='otl'>bird</span> ate <span class='otl'>bird</span> seed near the <span class='otl'>bird</span> bath ";
+
+    h3 Code Tabs
+    p.
+      Code Tabs are a great way to show different languages and versions
+      of a particular piece of code. When using these tabs make sure the
+      <strong>content is always related</strong>.
+
+    code-tabs
+      code-pane(language="javascript" format="linenums" name="ES5").
+        // ES5
+        var hello = 'blah';
+
+      code-pane(language="javascript" format="linenums" name="TypeScript").
+        // TypeScript
+        var hello = 'blah';
+
+    p To create code tabs simply use the directives below
+    code-example(format="linenums").
       code-tabs
-        code-pane(language="javascript" format="linenums" name="ES5").
-          // ES5
-          var hello = 'blah';
+        code-pane(format="linenums" name="Tab 1").
+          // TAB 1 CONTENT
+        code-pane(format="linenums" name="Tab 2").
+          // TAB 2 CONTENT
 
-        code-pane(language="javascript" format="linenums" name="TypeScript").
-          // TypeScript
-          var hello = 'blah';
+    :marked
+      ### Combining makeExample, makeTabs mixins with code-example style attributes
+      As mentioned above the `makeExample` and `makeTabs` mixins are built on top of the `code-example` style. By default
+      the mixins automatically determine a language based on the example file's extensions and always include line numbers.
 
-      p To create code tabs simply use the directives below
-      code-example(format="linenums").
-        code-tabs
-          code-pane(format="linenums" name="Tab 1").
-            // TAB 1 CONTENT
-          code-pane(format="linenums" name="Tab 2").
-            // TAB 2 CONTENT
+      You can override this behavior by including code-example attributes within parentheses after the mixin parameters.
 
-    .l-sub-section
-      :marked
-        ### Combining makeExample, makeTabs mixins with code-example style attributes
-        As mentioned above the `makeExample` and `makeTabs` mixins are built on top of the `code-example` style. By default
-        the mixins automatically determine a language based on the example file's extensions and always include line numbers.
+      #### Example
 
-        You can override this behavior by including code-example attributes within parentheses after the mixin parameters.
-
-        #### Example
-
-      code-example().
-        +makeExample('styleguide/js/app.js', "class-w-annotations")(format="linenums:15")
-
-      :marked
-        Starts the numbering of the example at line 15.
-
+    code-example().
       +makeExample('styleguide/js/app.js', "class-w-annotations")(format="linenums:15")
 
-      :marked
-        Or to suppress line numbering completely you can use
+    :marked
+      Starts the numbering of the example at line 15.
 
-      code-example().
-        +makeExample('styleguide/js/app.js', 'class-w-annotations')(format=".")
+    +makeExample('styleguide/js/app.js', "class-w-annotations")(format="linenums:15")
 
+    :marked
+      Or to suppress line numbering completely you can use
+
+    code-example().
       +makeExample('styleguide/js/app.js', 'class-w-annotations')(format=".")
 
-    .l-sub-section
-      :marked
-        ### Code examples in angular/angular source code
+    +makeExample('styleguide/js/app.js', 'class-w-annotations')(format=".")
 
-        References to embedded example code in the angular/angular source make use of the same mixins as defined above, but with a slightly different
-        syntax. Inline tags in source code comments like {@example ...} and {@exampleTabs ...} actually generate 'makeExample' and 'makeTabs' mixins
-        calls in the documentation. The order of 'arguments' in the inline tags is also the same as that of the mixins defined above.  However, optional
-        parameters can also be specified via name (optionally prefixed with a '-'), as will be shown by example below. Parameters that include spaces should
-        be enclosed in either single or double quotes. This syntax is intended to mirror standard command line argument patterns.
 
-      .alert.is-important.
-        The '@example' and '@exampleTabs' inline tags MUST always appear at the beginning of a line.
+    :marked
+      ### Code examples in angular/angular source code
 
-        Example files referenced by inline tags are all assumed to be in the 'modules/angular2' folder in the angular/angular repo.
+      References to embedded example code in the angular/angular source make use of the same mixins as defined above, but with a slightly different
+      syntax. Inline tags in source code comments like {@example ...} and {@exampleTabs ...} actually generate 'makeExample' and 'makeTabs' mixins
+      calls in the documentation. The order of 'arguments' in the inline tags is also the same as that of the mixins defined above.  However, optional
+      parameters can also be specified via name (optionally prefixed with a '-'), as will be shown by example below. Parameters that include spaces should
+      be enclosed in either single or double quotes. This syntax is intended to mirror standard command line argument patterns.
 
-      :marked
-        #### @example inline tag parameters
-           - *filePath:* path to the example file under the '_examples' folder
-           - *region:* (optional or null) region from the example file to display
-           - *title:* (optional or null) title displayed above the included text.
-           - *stylePattern:* (optional or null) allows additional styling via regular expression ( described later).
+    .alert.is-important.
+      The '@example' and '@exampleTabs' inline tags MUST always appear at the beginning of a line.
 
-        #### Examples
+      Example files referenced by inline tags are all assumed to be in the 'modules/angular2' folder in the angular/angular repo.
 
-      code-example(format="linenums" language="js").
-        /**
-         * An example with no region
-         * {@example core/directives/ng_if_spec.ts -title='Whole other component' }
-         *
-         * An example with a region and a title both specified by name
-         * {@example core/directives/ng_if_spec.ts region='ng-if' title='Partial' }
-         *
-         * Another example with a region and a title with only the title specified explicitly.
-         * {@example core/directives/ng_if_spec.ts foo title='Foo' }
-        **/
+    :marked
+      #### @example inline tag parameters
+         - *filePath:* path to the example file under the '_examples' folder
+         - *region:* (optional or null) region from the example file to display
+         - *title:* (optional or null) title displayed above the included text.
+         - *stylePattern:* (optional or null) allows additional styling via regular expression ( described later).
 
-      :marked
-        #### @exampleTabs inline tag parameters
-           - *filePaths:* a comma delimited string of filePaths to example files under the '_examples' folder
-           - *regions:* (optional or null) region from the example file to display
-           - *titles:* (optional or null) a comma delimited string of titles corresponding to each of the filePaths above.
-           - *stylePatterns:* (optional or null) allows additional styling via regular expression( described later).
+      #### Examples
 
-        #### Examples
+    code-example(format="linenums" language="js").
+      /**
+       * An example with no region
+       * {@example core/directives/ng_if_spec.ts -title='Whole other component' }
+       *
+       * An example with a region and a title both specified by name
+       * {@example core/directives/ng_if_spec.ts region='ng-if' title='Partial' }
+       *
+       * Another example with a region and a title with only the title specified explicitly.
+       * {@example core/directives/ng_if_spec.ts foo title='Foo' }
+      **/
 
-      code-example(format="linenums" language="js").
-        /**
-         * An example with multiple tabs each with its own region and title.
-         * {@exampleTabs core/directives/test1_spec.ts,core/directives/test2_spec.ts regions='aaa,bbb,' -titles='Test 1,Test 2' }
-         *
-        **/
+    :marked
+      #### @exampleTabs inline tag parameters
+         - *filePaths:* a comma delimited string of filePaths to example files under the '_examples' folder
+         - *regions:* (optional or null) region from the example file to display
+         - *titles:* (optional or null) a comma delimited string of titles corresponding to each of the filePaths above.
+         - *stylePatterns:* (optional or null) allows additional styling via regular expression( described later).
 
-      .l-sub-section
-        :marked
-          ### Cross references to Developer guide pages in angular/angular source comments.
+      #### Examples
 
-          The '{@linkDevGuide ... }' inline tag is intended to be used to create links from api documentation to dev guide
-          documentation.
+    code-example(format="linenums" language="js").
+      /**
+       * An example with multiple tabs each with its own region and title.
+       * {@exampleTabs core/directives/test1_spec.ts,core/directives/test2_spec.ts regions='aaa,bbb,' -titles='Test 1,Test 2' }
+       *
+      **/
 
-          #### @linkDevGuide inline tag parameters
-             - *filePath:* a filePath that points to a jade page in the DevGuide without the .jade extension ( under public/docs ).
-             - *title:* The title of link. If the title is omitted an attempt will be made to determine the title of the jade page
-               being pointed to. If not found the then title will simply be the link.
-          #### Examples
 
-        code-example(format="linenums" language="js").
-          /**
-           * An link to the Developer guide example with a link title
-           * This can appear anywhere in a comment line: {@linkDevGuide /js/latest/guide/gettingStarted 'Getting Started' }
-           * and the same link can also be expressed with an explicit 'title' param
-           * {@linkDevGuide /js/latest/guide/gettingStarted title='Getting Started' }
-           * Or... an attempt will be made to infer the title if it is omitted.
-           * {@linkDevGuide /js/latest/guide/gettingStarted }
-          **/
+    :marked
+      ### Cross references to Developer guide pages in angular/angular source comments.
+
+      The '{@linkDevGuide ... }' inline tag is intended to be used to create links from api documentation to dev guide
+      documentation.
+
+      #### @linkDevGuide inline tag parameters
+         - *filePath:* a filePath that points to a jade page in the DevGuide without the .jade extension ( under public/docs ).
+         - *title:* The title of link. If the title is omitted an attempt will be made to determine the title of the jade page
+           being pointed to. If not found the then title will simply be the link.
+      #### Examples
+
+    code-example(format="linenums" language="js").
+      /**
+       * An link to the Developer guide example with a link title
+       * This can appear anywhere in a comment line: {@linkDevGuide /js/latest/guide/gettingStarted 'Getting Started' }
+       * and the same link can also be expressed with an explicit 'title' param
+       * {@linkDevGuide /js/latest/guide/gettingStarted title='Getting Started' }
+       * Or... an attempt will be made to infer the title if it is omitted.
+       * {@linkDevGuide /js/latest/guide/gettingStarted }
+      **/

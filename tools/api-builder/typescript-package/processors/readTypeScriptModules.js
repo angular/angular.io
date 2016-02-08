@@ -132,8 +132,12 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
               if (a.name < b.name) return -1;
               return 0;
             });
+            exportDoc.statics.sort(function(a, b) {
+              if (a.name > b.name) return 1;
+              if (a.name < b.name) return -1;
+              return 0;
+            });
           }
-
         });
       });
     }
@@ -202,6 +206,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
 
     var exportDoc = {
       docType: getExportDocType(exportSymbol),
+      exportSymbol: exportSymbol,
       name: name,
       id: moduleDoc.id + '/' + name,
       typeParams: typeParamString,
@@ -214,7 +219,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
       location: getLocation(exportSymbol)
     };
 
-    if (exportDoc.docType === 'var' || exportDoc.docType === 'const') {
+    if (exportDoc.docType === 'var' || exportDoc.docType === 'const' || exportDoc.docType === 'let') {
       exportDoc.symbolTypeName = exportSymbol.valueDeclaration.type &&
                                  exportSymbol.valueDeclaration.type.typeName &&
                                  exportSymbol.valueDeclaration.type.typeName.text;

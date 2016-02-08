@@ -1,73 +1,43 @@
-// Karma configuration
-// Generated on Mon Aug 10 2015 11:36:40 GMT-0700 (Pacific Daylight Time)
-
 module.exports = function(config) {
   config.set({
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
     basePath: '',
 
-
-    // frameworks to use
-    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine'],
 
-
-    // list of files / patterns to load in the browser
     files: [
-      { pattern: 'https://code.angularjs.org/2.0.0-alpha.34/angular2.sfx.dev.js', watched: false },
-      { pattern: 'https://github.jspm.io/jmcriffey/bower-traceur-runtime@0.0.87/traceur-runtime.js', watched: false },
-      { pattern: 'https://jspm.io/system@0.16.js', watched: false },
-       '**/spec.js',
-       '**/*.spec.js',
-       '**/js/*.js',
-      { pattern: '**/ts/*.js', included: false },
+      // paths loaded by Karma
+      {pattern: 'node_modules/systemjs/dist/system.src.js', included: true, watched: true},
+      {pattern: 'node_modules/angular2/bundles/angular2.js', included: true, watched: true},
+      {pattern: 'node_modules/angular2/bundles/testing.js', included: true, watched: true},
+      {pattern: 'karma-test-shim.js', included: true, watched: true},
+      {pattern: 'app/test/*.js', included: true, watched: true},
+
+      // paths loaded via module imports
+      {pattern: 'app/**/*.js', included: false, watched: true},
+
+      // paths loaded via Angular's component compiler
+      // (these paths need to be rewritten, see proxies section)
+      {pattern: 'app/**/*.html', included: false, watched: true},
+      {pattern: 'app/**/*.css', included: false, watched: true},
+
+      // paths to support debugging with source maps in dev tools
+      {pattern: 'app/**/*.ts', included: false, watched: false},
+      {pattern: 'app/**/*.js.map', included: false, watched: false}
     ],
 
-
-    // list of files to exclude
-    exclude: [
-      '**/e2e-spec.js',
-      '**/*.e2e-spec.js'
-    ],
-
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
+    // proxied base paths
+    proxies: {
+      // required for component assests fetched by Angular's compiler
+      "/app/": "/base/app/"
     },
 
-
-    // test results reporter to use
-    // possible values: 'dots', 'progress'
-    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress'],
-
-
-    // web server port
-    port: 9876,
-
-
-    // enable / disable colors in the output (reporters and logs)
+    port: 9877,
     colors: true,
-
-
-    // level of logging
-    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
     logLevel: config.LOG_INFO,
-
-
-    // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
-
-
-    // start these browsers
-    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['Chrome'],
-
-
-    // Continuous Integration mode
-    // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: true
   })
 }

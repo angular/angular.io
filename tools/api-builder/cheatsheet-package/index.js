@@ -1,6 +1,6 @@
 var Package = require('dgeni').Package;
 
-module.exports = new Package('cheatsheet', [require('../content-package')])
+module.exports = new Package('cheatsheet', [require('../content-package'), require('../target-package')])
 
 .factory(require('./services/cheatsheetItemParser'))
 .processor(require('./processors/createCheatsheetDoc'))

@@ -22,6 +22,16 @@ describe('readTypeScriptModules', function() {
       var exportedDoc = docs[1];
       expect(exportedDoc.originalModule).toEqual('privateModule');
     });
+
+    it('should include exported abstract classes', function() {
+      processor.sourceFiles = [ 'publicModule.ts' ];
+      var docs = [];
+      processor.$process(docs);
+
+      var exportedDoc = docs[2];
+      expect(exportedDoc.name).toEqual('AbstractClass');
+    });
+
   });
 
 

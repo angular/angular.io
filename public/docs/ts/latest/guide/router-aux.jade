@@ -1,0 +1,185 @@
+//
+  TODO: REVIVE AUX ROUTE MATERIAL WHEN THAT FEATURE WORKS AS EXPECTED
+  
+  PLEASE DO NOT CREATE ISSUES OR PULL REQUESTS FOR THIS PAGE
+  
+  <a id="chat-feature"></a>
+  .l-main-section
+  :marked
+    ## Milestone #4: Auxiliary Routes
+    Auxiliary routes are routes that can be activated independently of the current
+    route. They are entirely optional, depending on your app needs.
+    
+    For example, your application may have a modal that appears and this could
+    be an auxiliary route. The modal may have its own navigation needs, such as a slideshow
+    and that auxiliary route is able to manage the navigation stack independently of the
+    primary routes.
+    
+    In our sample application, we also want to have a chat feature that allows people 
+    the ability to have a live agent assist them. The chat window will have first an 
+    initial route that contains a prompt to ask the visitor if they'd like to chat with
+    an agent. Once they initiate a chat, they go to a new route for the chat experience.
+    
+  .alert.is-critical Make diagram of chat routes
+    
+  :marked
+    In this auxiliary chat experience, it overlays the current screen and persists.
+    If you navigate from the Heros to Crisis Center, the chat auxiliary route remains
+    active and in view. 
+    
+    Therefore the auxiliary routing is truly independent of the other
+    routing. In most respects, an auxiliary route behaves the same outside of it is rendered
+    in its own outlet and modifies the url differently.
+    
+    We'll look at how to setup an auxiliary route and considerations for when to use them.
+    
+    ### Auxiliary Route Outlet
+    In order to get an auxiliary route, it needs a place to be rendered. So far the app has
+    a single `RouterOutet` that the rest of our routes are rendered into. Auxiliary routes need to
+    have their own `RouterOutlet`, and that is done by giving it a name attribute. Open the 
+    `app.component.ts` file and let's add the new outlet to the template.
+  .alert.is-critical Should remove app.component.4.ts based example (next) when we know what's what
+  +_makeExample('router/ts/app/app.component.4.ts', 'chat-outlet', 'app/app.component.ts')
+  .alert.is-critical Should be able to project from app.component.ts like this
+  +_makeExample('router/ts/app/app.component.ts', 'template', 'app/app.component.ts (excerpt)')
+  :marked
+    The name of the outlet must be unique to the component. You could reuse the name across
+    different components, so you don't have to worry about collisions.
+    
+    Here we give it a name of "chat", which will be used by the router when we setup our 
+    route configs. The app component needs to know about this Auxiliary route, so we
+    import the `ChatComponent`, add a new ROUTE_NAME (`chat`),
+    and add a new 'Chat' route to the `ROUTES` in  `app.routes.ts` (just below the redirect) .
+  +_makeExample('router/ts/app/routes.ts', null, 'app/routes.ts')
+  :marked
+    Look again at the 'Chat' route
+  +_makeExample('router/ts/app/routes.ts','chat-route')
+  :marked
+    You can see the route definition is nearly the same, except instead of `path` there is
+    an `aux`. The `aux` property makes this an Auxiliary route.
+    
+    @TODO Explain how a named outlet is paired with an aux route.
+    
+    The chat component defines its own routes just like the other components, even though
+    it is an Auxiliary route.
+    
+  +_makeExample('router/ts/app/chat/routes.ts', null, 'app/chat/routes.ts')  
+  :marked
+    Even though this is an Auxiliary route, you notice there is no difference in how we've 
+    configured the route config for the primary chat component. The chat component also has 
+    the `RouterOutlet` Directive in the template so the child components render inside of
+    the chat window.
+    
+    In the chat components, we can use `RouterLink` to reference routes just the same as 
+    a normal route. Since this is inside of an Auxiliary route, these relative links will
+    resolve within the chat component and not change the primary route (the Crisis Center or 
+    Heros pages).
+    
+  +_makeExample('router/ts/app/chat/chat-init.component.ts', 'chat-links')  
+  
+  :marked
+    When the chat component opens, it first initializes this template to ask the user if 
+    they'd like to chat or not. If they agree, it takes them to the chat window where they
+    begin to send messages to the 'live' agent.
+    
+    The behavior of the chat components may be interesting, but have no additional insights
+    for routing, except for the ability to deactivate an active Auxiliary route.
+    
+    ### Exiting an Auxiliary Route
+    
+    @TODO Figure out how to close/deactivate an aux route
+  
+    ### Auxiliary Route URLs
+    
+    Auxiliary Routes do modify the url using parens, like so.
+  code-example(format=".", language="bash").
+    localhost:3002/crisis-center(chat)/2(details)
+  :marked
+    This would be the url on a page where the user was viewing an item in the Crisis Center,
+    in this case the "Dragon Burning Cities" crisis, and the `(chat)` Auxiliary Route would
+    active and on the details child route.
+    
+    ### Multiple Auxiliary Routes
+    
+    There is no limit to how many Auxiliary Routes you have defined or active. There is probably
+    a practical limit where too much appears on the screen for a user, but you can have as many
+    Auxiliary Routes as you have named `RouteOutlet`s.
+  
+  :marked
+    ### Auxiliary Route Summary
+    
+    * Auxiliary routes are normal routes that are rendered outside of the primary `RouterOutlet`
+    * They must use a named `RouterOutlet` to render.
+    * Can be activated as long as the parent component is active.
+    * Links inside of child components are resolved against the aux parent component.
+    * Auxiliary routes are deactivated by @TODO?
+    * Routes are indicated in the url using parens.
+    * Multiple aux routes can be active at once.
+    
+  ### Chat
+  The "Chat" feature area within the `chat` folder looks like this:
+  ```
+  app/
+    chat/
+    ├── chat-detail.component.ts
+    ├── chat-init.component.ts
+    ├── chat.component.ts
+    ├── chat.service.ts
+    └── routes.ts
+  ```
+  +_makeTabs(
+    `router/ts/app/chat/chat.component.ts,
+    router/ts/app/chat/routes.ts,      
+    router/ts/app/chat/chat-init.component.ts,   
+    router/ts/app/chat/chat-detail.component.ts,
+    router/ts/app/chat/chat.service.ts
+    `,
+    null, 
+    `chat.component.ts,
+    chat/routes.ts,
+    chat-init.component.ts,
+    chat-detail.component.ts,
+    chat.service.ts,            
+    `)
+    
+    
+  The following are styles extracted from `styles.css`
+  that only belong if/when we add chat back
+  ```
+  /* chat styles */
+  .chat {
+    position: fixed;
+    bottom: 0;
+    right: 20px;
+    border: 1px solid #1171a3;
+    width: 400px;
+    height: 300px;
+  }
+  .chat h2 {
+    background: #1171a3;
+    color: #fff;
+    margin: 0;
+    padding: 8px;
+  }
+  .chat .close {
+    float: right;
+    display: block;
+    padding: 0 10px;
+    cursor: pointer;
+  }
+  .chat .chat-content {
+    padding: 10px;
+  }
+  .chat .chat-messages {
+    height: 190px;
+    overflow-y: scroll;
+  }
+  .chat .chat-input {
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+  }
+  .chat .chat-input input {
+    width: 370px;
+    padding: 3px;
+  }
+  ```

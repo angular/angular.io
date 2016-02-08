@@ -3,7 +3,7 @@
 {% extends 'layout/base.template.html' -%}
 
 {% block body %}
-include ../../_util-fns
+include {$ relativePath(doc.path, '_util-fns') $}
 
 h2(class="{$ doc.docType $} export")
   pre.prettyprint
@@ -53,9 +53,29 @@ p.location-badge.
       {% endif -%}
 {% endif %}
 
+{% if doc.statics.length -%}
+.l-main-section
+  h2 Static Members
+{%- for member in doc.statics %}{% if not member.internal %}
+  .l-sub-section
+    h3#{$ member.name | toId $}
+      pre.prettyprint
+        code.
+          {$ member.name $}{$ paramList(member.parameters) | indent(8, false) | trim $}{$ returnType(member.returnType) $}
+
+    :marked
+      {%- if member.notYetDocumented %}
+        *Not Yet Documented*
+      {% else %}
+{$ member.description | indentForMarkdown(6) | replace('## Example', '') | replace('# Example', '') | trimBlankLines $}
+      {% endif %}
+{% endif %}{% endfor %}
+{%- endif -%}
+
+
 {% if doc.members.length -%}
 .l-main-section
-  h2 Members
+  h2 Instance Members
 {%- for member in doc.members %}{% if not member.internal %}
   .l-sub-section
     h3#{$ member.name | toId $}

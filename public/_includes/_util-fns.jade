@@ -1,9 +1,14 @@
 //- Mixins and associated functions
 
+mixin includeShared(filePath, region)
+  - var newPath = translatePath(filePath, region);
+  !=partial(newPath)
+
 mixin makeExample(filePath, region, title, stylePatterns)
   - var language = attributes.language || getExtn(filePath);
-  - var format = attributes.format || "linenums";
   - var frag = getFrag(filePath, region);
+  - var defaultFormat = frag.split('\n').length > 2 ? "linenums" : "";
+  - var format = attributes.format || defaultFormat;
   if (title)
     .example-title #{title}
   code-example(language="#{language}" format="#{format}")
@@ -43,6 +48,27 @@ mixin makeJson( filePath, jsonConfig, title, stylePatterns)
 
 
 //---------------------------------------------------------------------------------------------------------
+- var translatePath = function(filePath, region) {
+-   filePath = filePath.trim();
+-   var regionPad = (region && region.length) ? '-' + region.toString() : '';
+-   var matches = /{(.*)}.*/.exec(filePath);
+-   if (matches) {
+-     var topLevelDir = matches[1];
+-     var currentPath = current.path;
+-     var subPaths = currentPath.slice(2);
+-     subPaths[subPaths.length - 1] = "_." + subPaths[subPaths.length - 1];
+-     var newPath = getPathToDocs() + topLevelDir + '/' + subPaths.join("/");
+-     var result = newPath + regionPad + ".jade";
+-   } else {
+-     var extn = getExtn(filePath);
+-     var baseFileName = getBaseFileName(filePath);
+-     var noExtnFileName = baseFileName.substr(0,baseFileName.length - (extn.length + 1));
+-     var folder = getFolder(filePath);
+-     var result = folder + "/_." + noExtnFileName + regionPad + "." + extn;
+-   }
+-   return result
+- }
+
 
 - var EMPTY_STRINGS = [ '','','','','','',''];
 
@@ -143,6 +169,16 @@ mixin makeJson( filePath, jsonConfig, title, stylePatterns)
 - var getExtn = function(fileName) {
 -   var ix = fileName.lastIndexOf('.');
 -   return ix > 0 ? fileName.substr(ix+1) : "";
+- }
+
+- var getBaseFileName = function(fileName) {
+-   var ix = fileName.lastIndexOf('/');
+-   return ix > 0 ? fileName.substr(ix+1) : "";
+- }
+
+- var getFolder = function(fileName) {
+-   var ix = fileName.lastIndexOf('/');
+-   return ix > 0 ? fileName.substr(0, ix) : "";
 - }
 
 - var getPathToDocs = function() {
