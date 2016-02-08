@@ -2,13 +2,14 @@ library pipe_examples.chained_pipes;
 
 import 'package:angular2/angular2.dart';
 
-@Component(selector: 'chained-pipes')
-@View(
+@Component(
+    selector: 'chained-pipes',
     template: '''
 <p>
   The chained hero's birthday is
   {{ birthday | date | uppercase}}
 </p>
+<p>
 The chained hero's birthday is
   {{ birthday | date:'fullDate' }}
 </p>

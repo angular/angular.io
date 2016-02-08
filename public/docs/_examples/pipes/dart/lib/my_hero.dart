@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:angular2/angular2.dart';
 
-@Component(selector: 'my-hero')
-@View(
+@Component(
+    selector: 'my-hero',
     template: '''
 <p>Message: {{delayedMessage | async}}</p>
 ''')

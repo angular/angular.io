@@ -2,12 +2,12 @@ library pipe_examples.hero_birthday;
 
 import 'package:angular2/angular2.dart';
 
-@Component(selector: 'hero-birthday')
-@View(
+@Component(
+    selector: 'hero-birthday',
     template: '''
-<p>The hero's birthday is {{ birthday | date:format }}</p>
-<button (click)="toggleFormat()">Toggle Format</button>
-''')
+      <p>The hero's birthday is {{ birthday | date:format }}</p>
+      <button (click)="toggleFormat()">Toggle Format</button>
+    ''')
 class HeroBirthday {
   DateTime birthday = new DateTime(1988, 4, 15); // April 15, 1988
   String format = 'shortDate';
