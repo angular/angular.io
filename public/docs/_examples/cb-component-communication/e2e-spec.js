@@ -189,7 +189,7 @@ describe('Component Communication Cookbook Tests', function () {
       testConfirmMission(3, 3, 'Haise');
     });
 
-    it('should confirm the mission by Lovell', function () {
+    it('should confirm the mission by Swigert', function () {
       testConfirmMission(2, 4, 'Swigert');
     });
 
@@ -210,90 +210,27 @@ describe('Component Communication Cookbook Tests', function () {
   describe('Communication between unrelated components', function() {
     // #docregion unrelated-components
     // ...
-    // THESE TESTS ARE WRONG
-    it('should process "Get temperature"', function () {
-      testAction(0, 0, 0, 1);
+    it('should send a message to MessageBoard', function() {
+      testMessageSent([24.5]);
     });
-
-    it('should process "Get speed"', function () {
-      testAction(1, 1, 0, 2);
+    
+    it('should send another message to MessageBoard', function() {
+      testMessageSent([24.5, 32.8]);
     });
-
-    it('should process "Get acceleration"', function () {
-      testAction(2, 1, 1, 3);
-    });
-
-    it('should process "Increase speed"', function () {
-      testAction(3, 2, 1, 4);
-    });
-
-    it('should process "Get inclination"', function () {
-      testAction(4, 2, 1, 5);
-    });
-
-    it('should process "Check acceleration"', function () {
-      testAction(5, 2, 2, 6);
-    });
-
-    function testAction(buttonIndex, telemetryCount, trajectoryCount, messageCenterCount) {
-      var commandCenter = element(by.tagName('command-center'));
-      var actionButton = commandCenter.all(by.tagName('button')).get(buttonIndex);
-      actionButton.click().then(function () {
-        var missionGroups = commandCenter.all(by.tagName('mission-group'));
-        var telemetryLog = missionGroups.get(0).all(by.tagName('li'));
-        var trajectoryLog = missionGroups.get(1).all(by.tagName('li'));
-        var messageCenterLog = missionGroups.get(1).all(by.tagName('li'));
-        expect(telemetryLog.count()).toBe(telemetryCount);
-        expect(trajectoryLog.count()).toBe(trajectoryCount);
-        expect(messageCenterLog.count()).toBe(messageCenterCount);
-      });
-    }
     // ...
+    
+    function testMessageSent(tempData) {
+      var sendDataButton = element(by.tagName('telemetry'))
+        .element(by.tagName('button'));
+      var messages = element(by.tagName('message-board'))
+        .all(by.tagName('li'));
+      sendDataButton.click().then(function() {
+        expect(messages.count()).toBe(tempData.length);
+        for (var i = 0; i < tempData.length; i++) {
+          expect(messages.get(i).getText()).toBe('Temperature: ' + tempData[i]);
+        }
+      })
+    }
     // #enddocregion unrelated-components
   });
-
-  describe('Communication between unrelated components', function() {
-    // #docregion contentchildren
-    // ...
-    // THESE TESTS ARE WRONG
-    var _predefinedItems = 2;
-    var _newItems = 15;
-
-    it('should generate the next 15 sequence items', function () {
-      var fiboComp = element(by.tagName('my-sequence'));
-      var generateButton = fiboComp.all(by.tagName('button')).get(0);
-      generateNextItem(_newItems);
-
-      function generateNextItem(count) {
-        console.log(count);
-        if (count <= 0) return;
-        generateButton.click().then(function() {
-          var items = fiboComp.all(by.tagName('li'));
-          expect(items.count()).toBe(count + _predefinedItems);
-          generateNextItem(count - 1);
-        })
-      }
-    })
-
-    it('should display the last 5 items only', function () {
-      var fiboComp = element(by.tagName('my-sequence'));
-      var last5Button = fiboComp.all(by.tagName('button')).get(2);
-      last5Button.click().then(function() {
-        var items = fiboComp.all(by.tagName('li'));
-        expect(items.count()).toBe(5);
-      })
-    })
-
-    it('should display all items', function () {
-      var fiboComp = element(by.tagName('my-sequence'));
-      var showAllButton = fiboComp.all(by.tagName('button')).get(1);
-      showAllButton.click().then(function() {
-        var items = fiboComp.all(by.tagName('li'));
-        expect(items.count()).toBe(_predefinedItems +_newItems);
-      })
-    })
-    // ...
-    // #enddocregion contentchildren
-  });
-
 });

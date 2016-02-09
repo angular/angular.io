@@ -26,9 +26,9 @@ include ../../../../_includes/_util-fns
 
   [Parent and children communicate via a service](#bidirectional-service)
 
-// THESE TWO ARE TOO COMPLICATED AND DON'T PASS TESTS
-  [Establish communication between unrelated components](#unrelated-service)
+  [Unrelated components communicate via a service](#unrelated-service)
 
+// THIS IS TOO COMPLICATED AND DOESN'T PASS TESTS
   [Obtain the content children of a parent component](#content-children)
 :marked
   **See the [live example](/resources/live-examples/cb-component-communication/ts/plnkr.html)**.
@@ -121,7 +121,7 @@ figure.image-display
   Here's the output of a button-pushing sequence:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/component-communication/parent-to-child-on-changes.png" alt="Parent-to-child-onchanges")
+  img(src="/resources/images/cookbooks/component-communication/parent-to-child-on-changes.gif" alt="Parent-to-child-onchanges")
   
 :marked
   ### Test it
@@ -161,7 +161,7 @@ figure.image-display
   and the method processes it:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/component-communication/child-to-parent.png" alt="Child-to-parent")
+  img(src="/resources/images/cookbooks/component-communication/child-to-parent.gif" alt="Child-to-parent")
   
 :marked
   ### Test it
@@ -239,7 +239,7 @@ figure.image-display
   facilitated by the service:
   
 figure.image-display
-  img(src="/resources/images/cookbooks/component-communication/bidirectional-service.png" alt="bidirectional-service")
+  img(src="/resources/images/cookbooks/component-communication/bidirectional-service.gif" alt="bidirectional-service")
   
 :marked
   ### Test it
@@ -252,108 +252,51 @@ figure.image-display
 :marked
   [Back to top](#top)
 
-
-
-
-  
-// BELOW HERE IS TOO COMPLICATED AND DOESN'T PASS TESTS !
-  .l-main-section
+.l-main-section
   <a id="unrelated-service"></a>
+:marked
+  ## Unrelated components communicate via a service
+
+  To provide communication channel among unrelated components, we can create services, and inject the same 
+  service instance into the communicating components. The sending party invokes service methods &mdash; or sets properties
+  on the service instance &mdash;, the listening party subscribes to events representing messages.
+  
+  The `MessageBus` component simply relays incoming messages to listening parties. We also create and export an 
+  instance of `MessageBus` to facilitate the communication:
+  
++makeExample('cb-component-communication/ts/app/message-bus.service.ts')
+:marked 
+.l-sub-section
   :marked
-    ## Establish communication between unrelated components
+    The user of `EventEmitter` is a temporariy expedient. We should implement with `Observable.Subject` instead.
+:marked
+  This recipe demonstrates two communicating parties. `TelemetryComponent` sends messages via `MessageBus`:
+    
++makeExample('cb-component-communication/ts/app/telemetry.component.ts')
 
-    We can create services with properties and methods providing communication facilities, and inject the same 
-    service instance into the communicating components. The sending party invokes service methods &mdash; or sets properties
-    on the service instance &mdash;, the listening party subscribes to events representing messages.
+:marked
+  `MessageBoardComponent` listens to messages relayed by `MessageBus`, and displays them:
     
-    To begin, let's create a `MessageBus` component that simply relays any incoming messages to listening parties so that those
-    can process the messages they are interested in. We also create and export an instance of `MessageBus` to serve as 
-    the singleton instance to be injected into the communicating components:
++makeExample('cb-component-communication/ts/app/message-board.component.ts')
+:marked
+  To ensure the communication, we provide the same instance of `MessageBus` (`controlMessageBus`) for both parties:
     
-  +makeExample('cb-component-communication/ts/app/messagebus.service.ts')
++makeExample('cb-component-communication/ts/app/telemetry.component.ts', 'providers')
 
-  :marked
-    We create three communicating parties, _Telemetry Group_, _Trajectory Group_ and _Message Center_ that are totally unrelated
-    to each other. They are independent groups within Command Center:
-    
-  +makeExample('cb-component-communication/ts/app/commandcenter-template.html')
+:marked
+  The entries of *Message Board* demonstrate that messages between the unrelated components
+  &mdash; from `TelemetryComponent` to `MessageBoard` &mdash;, are conveyed by the service::
 
-  :marked
-    For the sake of simplicity, all of these parties are represented by the same component type, `MissionGroup`.
-    Each of them carries out actions, and listens to messages they are interested in. To ensure  they can communicate 
-    with each other, we pass the `controlMessageBus` instance to all `MissionGroup` instance &mdash; using 
-    the `provide()` method:
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/unrelated-service.gif" alt="unrelated-service")
     
-  +makeExample('cb-component-communication/ts/app/missiongroup.component.ts')
+:marked
+  ### Test it
+  
+  Tests click the **Send temperature data** button several times, and verify that *Message Board* entries
+  meet expectations:
+    
++makeExample('cb-component-communication/e2e-spec.js', 'unrelated-components')
 
-  :marked
-    When we run the sample, we can see that messages are relayed among the components:
-
-  figure.image-display
-    img(src="/resources/images/cookbooks/component-communication/bidirectional-service.png" alt="bidirectional-service")
-    
-  :marked
-    ### Test it
-    
-    We check that clicking the mission group action buttons of the app trigger the appropriate communication through the service:
-    
-  +makeExample('cb-component-communication/e2e-spec.js', 'unrelated-components')
-
-  :marked
-    [Back to top](#top)
-
-  .l-main-section
-  <a id="content-children"></a>
-  :marked
-    ## Obtain the content children of a parent component
-
-    A parent component may have content children &mdash; components between its opening and closing tag. We can observe such
-    a component in this template, `sequence-viewer`, which has a number of embedded `sequence-item` elements as its content:
-    
-  +makeExample('cb-component-communication/ts/app/sequence.component.html')
-
-  :marked
-    In the template of the `SequenceViewerComponent`, we cannot reference directly its content.
-    For this purpose, we can use the `ContentChildren` annotation. As the definition of `SequenceViewerComponent` shows, we decorate 
-    the `items` property (it has a type of `QueryList<SequenceItemComponent>`) with `ContentChildren`:
-    
-  +makeExample('cb-component-communication/ts/app/sequence-viewer.component.ts')
-
-  :marked
-    The `ContentChildren` annotation ensures that Angular automatically refreshes `items` whenever it detects that the
-    the specified content of the parent changes. With defining the `ngAfterContentInit` lifecycle hook method, we can
-    catch the event when `items` has been set. `Querylist` provides a `changes` property that we can use to subscribe
-    to content changes.
-
-  .l-sub-section
-    :marked
-      The API documentation of [ContentChildren](../api/core/ContentChildren-var.html) and 
-      [QueryList](../api/core/QueryList-class.html) provide more details about these types.
-
-  :marked
-    The definition of `SequenceViewer` helps us understand the dinstinction between _content children_ and _view children_.
-    Here, `SequenceViewer` can change its view children. When we click the **Limit to last 5 items** button, 
-    the view displays only the last 5 sequence element. However, the content of `SequenceViewer` (the `sequence-item`
-    elements between the opening and closing `sequence-viewer` tags) does not change after clicking the button.
-    
-    The content of `SequenceViewer` is managed by the `Sequence` component:
-    
-  +makeExample('cb-component-communication/ts/app/sequence.component.ts')
-
-  :marked
-    When we run this app, we can see that after clicking the **Limit to last 5 items** button, the `SequenceViewer`
-    has 20 content children, but only 5 view children:
-    
-  figure.image-display
-    img(src="/resources/images/cookbooks/component-communication/contentchildren.png" alt="contentchildren")
-    
-  :marked
-    ### Test it
-    
-    We test that generating a few new sequence items works as expected, just like the **Show All** and
-    **Limit to last 5 items** buttons.
-    
-  +makeExample('cb-component-communication/e2e-spec.js', 'contentchildren')
-
-  :marked
-    [Back to top](#top)
+:marked
+  [Back to top](#top)
