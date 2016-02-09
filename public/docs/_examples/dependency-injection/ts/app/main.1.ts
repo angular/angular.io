@@ -3,6 +3,6 @@ import {AppComponent} from './app.component';
 import {HeroService}  from './heroes/hero.service';
 
 //#docregion bootstrap
-// Injecting services in bootstrap works but is discouraged
-bootstrap(AppComponent, [HeroService]);
+bootstrap(AppComponent,
+         [HeroService]); // DISCOURAGED (but works)
 //#enddocregion bootstrap
