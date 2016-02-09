@@ -10,7 +10,7 @@ import 'heroes/hero.dart';
     selector: "my-tests",
     template: '''
     <h2>Tests</h2>
-    <p id="tests">Tests {{results.pass}}: {{results.message}}</p>
+    <p id="tests">Tests {{results['pass']}}: {{results['message']}}</p>
   ''')
 class TestComponent {
   var results = runTests();
@@ -32,7 +32,7 @@ runTests() {
   var mockService = new HeroServiceMock();
   it("should have heroes when HeroListComponent created", () {
     var hlc = new HeroListComponent(mockService);
-    expect(hlc.heroes.length).toEqual(expectedHeroes.length);
+    expect(hlc.heroes.length)['toEqual'](expectedHeroes.length);
   });
   return testResults;
 }

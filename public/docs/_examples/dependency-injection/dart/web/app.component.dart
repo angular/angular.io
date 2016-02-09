@@ -14,8 +14,6 @@ import "injector.component.dart";
 import "test.component.dart";
 import "providers.component.dart";
 
-Provider _provideAppConfigUseValueConfig() => provide(APP_CONFIG, useValue: CONFIG);
-
 @Component(
     selector: "my-app",
     template: '''
@@ -42,7 +40,7 @@ Provider _provideAppConfigUseValueConfig() => provide(APP_CONFIG, useValue: CONF
     providers: const [
       Logger,
       UserService,
-      _provideAppConfigUseValueConfig
+      const Provider(Config, useValue: CONFIG)
     ]
 // #enddocregion providers
 )
@@ -50,11 +48,11 @@ class AppComponent {
   UserService _userService;
   String title;
   //#docregion ctor
-  AppComponent(@Inject(APP_CONFIG) Config config, this._userService) {
+  AppComponent(Config config, this._userService) {
     title = config.title;
   }
   // #enddocregion ctor
-  get isAuthorized {
+  bool get isAuthorized {
     return user.isAuthorized;
   }
 
@@ -62,13 +60,13 @@ class AppComponent {
     _userService.getNewUser();
   }
 
-  get user {
+  User get user {
     return _userService.user;
   }
 
-  get userInfo {
-    return '''Current user, ${ this . user . name}, is ''' +
-        '''${ this . isAuthorized ? "" : "not"} authorized. ''';
+  String get userInfo {
+    return '''Current user, ${user.name}, is ''' +
+        '''${ isAuthorized ? "" : "not"} authorized. ''';
   }
 }
 // #enddocregion

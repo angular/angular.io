@@ -5,6 +5,6 @@ import "heroes/hero.service.dart";
 
 main() {
 // Injecting services in bootstrap works but is discouraged
-  bootstrap(AppComponent, [ HeroService]);
+  bootstrap(AppComponent, [HeroService]);
 //#enddocregion bootstrap
 }

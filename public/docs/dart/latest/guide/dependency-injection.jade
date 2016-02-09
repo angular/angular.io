@@ -477,11 +477,11 @@ code-example(format).
   [Provider](/docs/ts/latest/api/core/Provider-class.html) class.
 +makeExample('dependency-injection/dart/web/providers.component.dart','providers-2')
 :marked
-  Until issue https://github.com/dart-lang/sdk/issues/4596 get resolved, we should use the
+  Until issue https://github.com/dart-lang/sdk/issues/4596 get resolved, we cannot use the
   [provide](../api/core/provide-function.html) function in next way:
 +makeExample('dependency-injection/dart/web/providers.component.dart','providers-3')
 :marked
-  this is less friendly than using the `Provider` constructor.
+  we should always use the `Provider` constructor.
 :marked
   In both approaches &mdash; `Provider` class and `provide` function &mdash;
   we supply two arguments.
@@ -541,6 +541,9 @@ code-example(format).
 :marked
   Then we register a provider with this object playing the logger role via the `useValue` option.
 +makeExample('dependency-injection/dart/web/providers.component.dart','providers-7')(format=".")
+.l-sub-section
+  :marked
+    In dart annotations parameters should be constants.
 
 <a id="factory-provider"></a>
 :marked
@@ -637,30 +640,13 @@ app/heroes/heroes.component (v.2)`)
   Applications often define configuration objects with lots of small facts like the title of the application or the address of a web api endpoint.
   These configuration objects aren't always instances of a class. They tend to be object hashes like this one:
 
-+makeExample('dependency-injection/dart/web/app.config.dart','config','app/app-config.dart')(format='.')
++makeExample('dependency-injection/dart/web/app.config.dart','config-hash','app/app-config.dart')(format='.')
 :marked
   We'd like to make this `config` object available for injection.
   We know we can register an object with a [Value Provider](#value-provider).
   But what do we use for the token?
   We don't have a class to serve as a token. There is no `Config` class.
 
-// begin Dart only
-<a id="interface"></a>
-:marked
-  ### Interfaces aren't valid tokens
-
-  The `CONFIG` constant has an interface, `Config`. Unfortunately, we
-  cannot use an interface as a token:
-+makeExample('dependency-injection/dart/web/providers.component.dart','providers-9a-interface')(format=".")
-+makeExample('dependency-injection/dart/web/providers.component.dart','provider-9a-ctor-interface')(format=".")
-:marked
-  That seems strange if we're used to dependency injection in strongly-typed languages where
-  an interface is the preferred dependency lookup key.
-
-  It's not Angular's fault. An interface is a Dart design-time artifact. JavaScript doesn't have interfaces.
-  The Dart interface disappears from the generated JavaScript.
-  There is no interface type information left for Angular to find at runtime.
-// end Dart only
 <a id="string-token"></a>
 :marked
   ### String tokens
@@ -673,11 +659,11 @@ app/heroes/heroes.component (v.2)`)
 :marked
 
 // begin Dart only
-.l-sub-section
-  :marked
-    Although it plays no role in dependency injection,
-    the `Config` interface supports strongly-typing of the configuration object within the class.
-:marked
+//.l-sub-section
+//  :marked
+//    Although it plays no role in dependency injection,
+//    the `Config` interface supports strongly-typing of the configuration object within the class.
+//:marked
 // end Dart only
 
 <a id="opaque-token"></a>
@@ -689,9 +675,30 @@ app/heroes/heroes.component (v.2)`)
   The definition looks like this:
 +makeExample('dependency-injection/dart/web/app.config.dart','token')(format='.')
 :marked
-  Substitute `APP_CONFIG` for the magic string in provider registration and constructor:
+  Substitute the string `"app.config"` for `APP_CONFIG` in provider registration:
 +makeExample('dependency-injection/dart/web/providers.component.dart','providers-9b')(format=".")
+:marked
+  and in the constructor also:
 +makeExample('dependency-injection/dart/web/providers.component.dart','provider-9b-ctor')(format=".")
+//begin Dart only
+<a id="interface"></a>
+:marked
+  ### Abstract Classes are valid tokens
+
+  The `CONFIG` constant is created using `ConfigImpl` which implements the abstract class `Config`.
++makeExample('dependency-injection/dart/web/app.config.dart','config','app/app-config.dart')(format='.')
+:marked
+  So that we can use it as token:
+
++makeExample('dependency-injection/dart/web/providers.component.dart','providers-9a-interface')(format=".")
++makeExample('dependency-injection/dart/web/providers.component.dart','provider-9a-ctor-interface')(format=".")
+:marked
+  That is similar to strongly-typed languages where an interface is the preferred dependency lookup key.
+
+  This is becuase in Dart an abstract class is the most similar to an interface with the difference that they are not
+  design-time artifact. Althought JavaScript doesn't have interfaces, Dart abstract classes don't disappear from the
+  generated JavaScript.
+// end Dart only
 :marked
   Here's how we provide and inject the configuration object in our top-level `AppComponent`.
 +makeExample('dependency-injection/dart/web/app.component.dart','providers', 'app/app.component.dart (providers)')(format=".")

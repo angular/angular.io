@@ -12,7 +12,7 @@ class UserService {
   // initial user is Bob
   User user;
   // swaps users
-  getNewUser() {
+  User getNewUser() {
     return user =
         identical(user, _bob) ? _alice : _bob;
   }

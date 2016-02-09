@@ -16,7 +16,7 @@ import "logger.service.dart";
   <div id="hero">{{hero.name}}</div>
   <div id="rodent">{{rodent}}</div>
   ''',
-    providers: const [Car, Engine, Tires, heroServiceProvider, Logger])
+    providers: const [Car, Engine, Tires, const Provider(HeroService, useFactory: heroServiceFactory), Logger])
 class InjectorComponent {
   Injector _injector;
   InjectorComponent(this._injector) {

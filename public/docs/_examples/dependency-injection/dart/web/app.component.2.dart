@@ -8,8 +8,6 @@ import "package:angular2/core.dart";
 import "app.config.dart";
 import "logger.service.dart";
 
-_provideAppConfigUseValueConfig() => provide("app.config", useValue: CONFIG);
-
 // #enddocregion imports
 @Component(
     selector: "my-app",
@@ -25,7 +23,7 @@ _provideAppConfigUseValueConfig() => provide("app.config", useValue: CONFIG);
     providers: const [
       Logger,
       // #docregion provider-config
-      _provideAppConfigUseValueConfig
+      const Provider("app.config", useValue: CONFIG)
     ])
 class AppComponent {
   String title;

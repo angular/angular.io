@@ -15,8 +15,8 @@ class HeroService {
 
   getHeroes() {
     var auth = _isAuthorized ? "authorized " : "unauthorized";
-    _logger.log('''Getting heroes for ${ auth} user.''');
-    return HEROES.where((hero) => _isAuthorized || !hero.isSecret);
+    _logger.log('''Getting heroes for ${auth} user.''');
+    return HEROES.where((hero) => _isAuthorized || !hero.isSecret).toList();
   }
 // #enddocregion internals
 }
