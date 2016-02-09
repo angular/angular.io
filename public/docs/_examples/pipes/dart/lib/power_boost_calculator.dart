@@ -1,21 +1,21 @@
-library pipe_examples.power_boost_calculator;
-
 import 'package:angular2/angular2.dart';
-import 'package:pipe_examples/exponential_strength_pipe.dart';
 
-@Component(selector: 'power-boost-calculator')
-@View(
+import 'exponential_strength_pipe.dart';
+
+@Component(
+    selector: 'power-boost-calculator',
     template: '''
 <h2>Power Boost Calculator</h2>
-<div>Normal power: <input [(ng-model)]="power"></div>
-<div>Boost factor: <input [(ng-model)]="factor"></div>
+<div>Normal power: <input [(ngModel)]="power" /></div>
+<div>Boost factor: <input [(ngModel)]="factor" /></div>
 <p>
   Super Hero Power: {{power | exponentialStrength: factor}}
 </p>
 ''',
     pipes: const [ExponentialStrengthPipe],
-    directives: const [FORM_DIRECTIVES])
+    directives: const [COMMON_DIRECTIVES])
 class PowerBoostCalculator {
-  int power = 5;
-  int factor = 1;
+  // XXX: These should be ints, but that causes exceptions in checked mode.
+  String power = '5';
+  String factor = '1';
 }
