@@ -1,7 +1,5 @@
-library pipe_examples.power_boost_calculator;
-
 import 'package:angular2/angular2.dart';
-import 'package:pipe_examples/exponential_strength_pipe.dart';
+import 'exponential_strength_pipe.dart';
 
 @Component(
     selector: 'power-boost-calculator',

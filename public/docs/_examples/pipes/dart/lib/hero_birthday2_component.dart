@@ -1,5 +1,3 @@
-library pipe_examples.hero_birthday;
-
 import 'package:angular2/angular2.dart';
 
 @Component(
@@ -10,12 +8,12 @@ import 'package:angular2/angular2.dart';
     ''')
 class HeroBirthday {
   DateTime birthday = new DateTime(1988, 4, 15); // April 15, 1988
-  String format = 'shortDate';
-  String nextFormat = 'fullDate';
 
-  toggleFormat() {
-    var next = this.format;
-    format = this.nextFormat;
-    nextFormat = next;
+  bool toggle = true;
+
+  get format => toggle ? 'shortDate' : 'fullDate';
+
+  void toggleFormat() {
+    toggle = !toggle;
   }
 }
