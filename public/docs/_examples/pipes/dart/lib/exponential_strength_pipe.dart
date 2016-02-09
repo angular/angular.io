@@ -1,5 +1,3 @@
-library pipes_examples.exponential_strength_pipe;
-
 import 'dart:math' as math;
 
 import 'package:angular2/angular2.dart';
@@ -17,7 +15,7 @@ import 'package:angular2/angular2.dart';
 
 @Pipe(name: 'exponentialStrength')
 @Injectable()
-class ExponentialStrengthPipe {
+class ExponentialStrengthPipe extends PipeTransform {
   transform(dynamic value, [List<dynamic> args]) {
     var v = int.parse(value.toString(), onError: (source) => 0);
     var p = args.isEmpty
