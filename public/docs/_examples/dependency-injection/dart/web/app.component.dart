@@ -56,7 +56,7 @@ class AppComponent {
     return user.isAuthorized;
   }
 
-  nextUser() {
+  void nextUser() {
     _userService.getNewUser();
   }
 

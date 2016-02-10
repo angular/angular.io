@@ -1,13 +1,13 @@
 // Simulate a simple test
 
 // Reader should look to the testing chapter for the real thing
-import "package:angular2/core.dart";
-import "heroes/hero.service.dart";
-import "heroes/hero-list.component.dart";
+import 'package:angular2/core.dart';
+import 'heroes/hero.service.dart';
+import 'heroes/hero-list.component.dart';
 import 'heroes/hero.dart';
 
 @Component(
-    selector: "my-tests",
+    selector: 'my-tests',
     template: '''
     <h2>Tests</h2>
     <p id="tests">Tests {{results['pass']}}: {{results['message']}}</p>
@@ -19,8 +19,8 @@ class TestComponent {
 /////////////////////////////////////
 //#docregion spec
 var expectedHeroes = [
-  {"name": "A"},
-  {"name": "B"}
+  {'name': 'A'},
+  {'name': 'B'}
 ];
 
 class HeroServiceMock implements HeroService {
@@ -30,7 +30,7 @@ class HeroServiceMock implements HeroService {
 
 runTests() {
   var mockService = new HeroServiceMock();
-  it("should have heroes when HeroListComponent created", () {
+  it('should have heroes when HeroListComponent created', () {
     var hlc = new HeroListComponent(mockService);
     expect(hlc.heroes.length)['toEqual'](expectedHeroes.length);
   });
@@ -45,13 +45,13 @@ String testName;
 dynamic testResults;
 expect(dynamic actual) {
   return {
-    "toEqual": (dynamic expected) {
+    'toEqual': (dynamic expected) {
       testResults = identical(actual, expected)
-          ? {"pass": "passed", "message": '''${ testName}'''}
+          ? {'pass': 'passed', 'message': '${ testName}'}
           : {
-              "pass": "failed",
-              "message":
-                  '''${ testName}; expected ${ actual} to equal ${ expected}.'''
+              'pass': 'failed',
+              'message':
+                  '${ testName}; expected ${ actual} to equal ${ expected}.'
             };
     }
   };

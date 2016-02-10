@@ -90,7 +90,7 @@ class EvenBetterLogger {
   EvenBetterLogger(this._userService);
 
   log(String message) {
-    message = '''Message to ${ _userService.user.name}: ${ message}.''';
+    message = 'Message to ${ _userService.user.name}: ${ message}.';
     print(message);
     logs.add(message);
   }
