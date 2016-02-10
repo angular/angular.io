@@ -12,7 +12,7 @@ import "user_service.dart";
 // #enddocregion imports
 import "injector_component.dart";
 import "test_component.dart";
-import "providers.component.dart";
+import "providers_component.dart";
 
 @Component(
     selector: "my-app",
