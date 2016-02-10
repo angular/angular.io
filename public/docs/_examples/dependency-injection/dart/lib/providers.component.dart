@@ -3,11 +3,11 @@
 //#docplaster
 import "package:angular2/core.dart"
    ;
-import "app.config.dart";
+import "app_config.dart";
 import "heroes";
 import "heroes";
-import "logger.service.dart";
-import "user.service.dart";
+import "logger_service.dart";
+import "user_service.dart";
 
 // #docregion import-optional
 import "package:angular2/core.dart" show Optional;

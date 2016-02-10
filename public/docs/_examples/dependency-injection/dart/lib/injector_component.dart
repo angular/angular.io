@@ -5,7 +5,7 @@ import "package:angular2/core.dart";
 import "car";
 import "heroes";
 import "heroes";
-import "logger.service.dart";
+import "logger_service.dart";
 
 //#docregion injector
 @Component(

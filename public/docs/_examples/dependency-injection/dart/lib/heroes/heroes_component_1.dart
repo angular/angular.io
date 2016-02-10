@@ -2,9 +2,9 @@
 // #docregion
 // #docregion v1
 import "package:angular2/core.dart";
-import "hero-list.component.dart";
+import "hero_list_component.dart";
 // #enddocregion v1
-import "hero.service.dart";
+import "hero_service.dart";
 
 // #docregion v1
 @Component(

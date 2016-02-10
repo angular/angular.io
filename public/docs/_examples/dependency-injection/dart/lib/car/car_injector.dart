@@ -3,7 +3,7 @@
 //#docregion
 import "package:angular2/core.dart";
 import "car.dart";
-import "../logger.service.dart";
+import "../logger_service.dart";
 
 //#docregion injector
 useInjector() {

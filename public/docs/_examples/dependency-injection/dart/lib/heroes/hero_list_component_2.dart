@@ -1,7 +1,7 @@
 // #docregion
 import "package:angular2/core.dart";
 import "hero.dart";
-import "mock-heroes.dart";
+import "hero_service.dart";
 
 @Component(
     selector: "hero-list",
@@ -11,5 +11,9 @@ import "mock-heroes.dart";
   </div>
   ''')
 class HeroListComponent {
-  var heroes = HEROES;
+  List<Hero> heroes;
+  //#docregion ctor
+  HeroListComponent(HeroService heroService) {
+    heroes = heroService.getHeroes();
+  }
 }

@@ -6,12 +6,12 @@
 import "package:angular2/core.dart";
 import "car";
 import "heroes";
-import "app.config.dart";
-import "logger.service.dart";
-import "user.service.dart";
+import "app_config.dart";
+import "logger_service.dart";
+import "user_service.dart";
 // #enddocregion imports
-import "injector.component.dart";
-import "test.component.dart";
+import "injector_component.dart";
+import "test_component.dart";
 import "providers.component.dart";
 
 @Component(

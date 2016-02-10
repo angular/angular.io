@@ -5,8 +5,8 @@ import "package:angular2/core.dart";
 import "car";
 import "heroes";
 import "package:angular2/core.dart";
-import "app.config.dart";
-import "logger.service.dart";
+import "app_config.dart";
+import "logger_service.dart";
 
 // #enddocregion imports
 @Component(

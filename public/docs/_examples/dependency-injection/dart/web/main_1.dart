@@ -1,6 +1,6 @@
 import "package:angular2/platform/browser.dart";
-import "../lib/app.component.dart";
-import "../lib/heroes/hero.service.dart";
+import "../lib/app_component.dart";
+import "../lib/heroes/hero_service.dart";
 //#docregion bootstrap
 
 main() {
