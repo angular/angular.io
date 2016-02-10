@@ -4,8 +4,8 @@
 
 // #docregion imports
 import "package:angular2/core.dart";
-import "car/car.component.dart";
-import "heroes/heroes.component.dart";
+import "car";
+import "heroes";
 import "app.config.dart";
 import "logger.service.dart";
 import "user.service.dart";

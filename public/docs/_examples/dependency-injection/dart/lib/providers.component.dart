@@ -4,8 +4,8 @@
 import "package:angular2/core.dart"
    ;
 import "app.config.dart";
-import "heroes/hero.service.dart";
-import "heroes/hero.service.provider.dart";
+import "heroes";
+import "heroes";
 import "logger.service.dart";
 import "user.service.dart";
 
