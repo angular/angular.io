@@ -4,8 +4,8 @@
 import "package:angular2/core.dart"
    ;
 import "app_config.dart";
-import "heroes";
-import "heroes";
+import 'heroes/hero_service_provider.dart';
+import 'heroes/hero_service.dart';
 import "logger_service.dart";
 import "user_service.dart";
 
@@ -81,7 +81,7 @@ class ProviderComponent4 {
 //////////////////////////////////////////
 
 // #docregion EvenBetterLogger
-@Injectable ()
+@Injectable()
 class EvenBetterLogger {
   UserService _userService;
 
@@ -220,7 +220,7 @@ class ProviderComponent8 {
 const [const Provider("app.config", useValue: CONFIG_HASH)]
 //#enddocregion providers-9a
 )
-class ProviderComponent9a {
+class ProviderComponent9a implements OnInit {
   Config _config;
 
   String log;
@@ -256,7 +256,7 @@ class ProviderComponent9a {
 // #docregion providers-9b
     const [const Provider(APP_CONFIG, useValue: CONFIG_HASH)])
 // #enddocregion providers-9b
-class ProviderComponent9b {
+class ProviderComponent9b implements OnInit {
   Config _config;
 
   String log;
@@ -293,7 +293,7 @@ class ProviderComponent10a {
 }
 // Optional logger
 @Component (selector: "provider-10b", template: "{{log}}")
-class ProviderComponent10b {
+class ProviderComponent10b implements OnInit {
   Logger _logger;
 
   // #docregion provider-10-ctor

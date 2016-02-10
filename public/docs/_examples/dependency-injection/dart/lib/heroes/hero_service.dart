@@ -13,7 +13,7 @@ class HeroService {
 
   HeroService(this._logger, this._isAuthorized);
 
-  getHeroes() {
+  List<Hero> getHeroes() {
     var auth = _isAuthorized ? 'authorized' : 'unauthorized';
     _logger.log('Getting heroes for ${auth} user.');
     return HEROES.where((hero) => _isAuthorized || !hero.isSecret).toList();

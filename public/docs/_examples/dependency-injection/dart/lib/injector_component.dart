@@ -2,9 +2,9 @@
 
 //#docregion
 import "package:angular2/core.dart";
-import "car";
-import "heroes";
-import "heroes";
+import "car/car.dart";
+import "heroes/hero_service.dart";
+import "heroes/hero_service_provider.dart";
 import "logger_service.dart";
 
 //#docregion injector

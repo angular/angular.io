@@ -1,7 +1,7 @@
 // #docregion
 import "package:angular2/core.dart";
-import "hero-list.component.dart";
-import "hero.service.provider.dart";
+import "hero_list_component.dart";
+import "hero_service_provider.dart";
 
 @Component(
     selector: "my-heroes",

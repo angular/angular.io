@@ -2,8 +2,8 @@
 
 // #docregion
 import "package:angular2/core.dart";
-import "car";
-import "heroes";
+import "car/car_component.dart";
+import "heroes/heroes_component_1.dart";
 
 @Component(
     selector: "my-app",

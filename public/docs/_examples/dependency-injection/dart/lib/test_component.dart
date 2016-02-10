@@ -2,9 +2,8 @@
 
 // Reader should look to the testing chapter for the real thing
 import 'package:angular2/core.dart';
-import 'heroes';
-import 'heroes';
-import 'heroes';
+import 'heroes/hero_service.dart';
+import 'heroes/hero_list_component.dart';
 
 @Component(
     selector: 'my-tests',

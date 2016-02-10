@@ -11,5 +11,5 @@ import "mock_heroes.dart";
   </div>
   ''')
 class HeroListComponent {
-  var heroes = HEROES;
+  List<Hero> heroes = HEROES;
 }
