@@ -51,6 +51,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     'angular2/platform/browser.ts',
     'angular2/router.ts',
     'angular2/router/testing.ts',
+    'angular2/upgrade.ts',
     'angular2/testing.ts'
   ];
   readTypeScriptModules.hidePrivateMembers = true;
