@@ -56,14 +56,37 @@ figure.image-display
 :marked
   ## Development Environment
   
-  We'll need a place to stand (the application project folder), some libraries, 
-  some TypeScript configuration and the TypeScript-aware editor of your choice.
+  We'll need a place to stand (the application project folder),
+  some TypeScript configuration, and some libraries for development and runtime.
 
   ### Create a new project folder
   
 code-example(format="").
   mkdir angular2-quickstart
   cd    angular2-quickstart
+:marked
+  ### Configure TypeScript
+
+  We must guide the TypeScript compiler with very specific settings.
+  
+  Add a **tsconfig.json** file to the project folder and copy/paste the following:
++makeJson('quickstart/ts/tsconfig.1.json', null, 'tsconfig.json')(format=".")
+.l-sub-section
+  :marked
+   We explore the `tsconfig.json` in an [appendix below](#tsconfig)
+:marked
+  ### TypeScript Typings
+
+  Many JavaScript libraries extend the JavaScript environment with features and syntax
+  that the TypeScript compiler doesn't recognize natively. We teach it about these capabilities with
+  [TypeScript type definition files](http://www.typescriptlang.org/Handbook#writing-dts-files)
+  &mdash; *d.ts files* &mdash; which we identify in a `typings.json` file.
+  
+  Add a **typings.json** file to the project folder and copy/paste the following:
++makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
+.l-sub-section
+  :marked
+   We go a little deeper into *typings* in an [appendix below](#typings)
 :marked
   ### Add the libraries we need
   
@@ -91,16 +114,6 @@ code-example(format="").
   :marked
     Scary <span style="color:red; font-weight: bold">error messages in red</span> may appear **during** install. 
     Ignore them. The install will succeed. See the [appendix below](#npm-errors) for more information.
-:marked
-  ### Configure TypeScript
-
-  We must guide the TypeScript compiler with very specific settings.
-  
-  Add a **tsconfig.json** file to the project folder and copy/paste the following:
-+makeJson('quickstart/ts/tsconfig.1.json', null, 'tsconfig.json')(format=".")
-.l-sub-section
-  :marked
-   We explore the `tsconfig.json` in an [appendix below](#tsconfig)
 :marked
   **We're all set.** Let's write some code.
 
@@ -210,8 +223,6 @@ code-example(format="").
   We import both. Then we call `bootstrap`, passing in the **root component type**, 
   `AppComponent`.
 
-  The `<reference>` tag tells TypeScript how to find the typings for browser shims used by Angular.
-
 .l-sub-section
   :marked
     Learn why we import `bootstrap` from `angular2/platform/browser`
@@ -295,14 +306,16 @@ figure.image-display
 .filetree
   .file angular2-quickstart
   .children
-    .file node_modules
     .file app
     .children
       .file app.component.ts
       .file main.ts
+    .file node_modules ...
+    .file typings ...
     .file index.html
     .file package.json
     .file tsconfig.json
+    .file typings.json
 :marked
   And here are the files:
 +makeTabs(`
@@ -310,9 +323,10 @@ figure.image-display
     quickstart/ts/app/main.ts,
     quickstart/ts/index.html,
     quickstart/ts/package.1.json,
-    quickstart/ts/tsconfig.1.json
+    quickstart/ts/tsconfig.1.json,
+    quickstart/ts/typings.1.json
   `,null,
-  `app/app.component.ts, app/main.ts, index.html,package.json, tsconfig.json`)
+  `app/app.component.ts, app/main.ts, index.html,package.json, tsconfig.json, typings.json`)
 :marked
 
 .l-main-section
@@ -349,7 +363,7 @@ figure.image-display
 <a id="libraries"></a>
 .l-main-section
 :marked
-  ### Appendix: Libraries
+  ## Appendix: Libraries
   We loaded the following scripts
 +makeExample('quickstart/ts/index.html', 'libraries', 'index.html')(format=".")
 :marked
@@ -382,7 +396,7 @@ figure.image-display
 .l-main-section
 :marked
   <a id="package-json"></a>
-  ### Appendix: package.json
+  ## Appendix: package.json
 
   [npm](https://docs.npmjs.com/) is a popular package manager and Angular application developers rely on it
   to acquire and manage the libraries their apps require.
@@ -425,7 +439,7 @@ code-example(format="").
 .l-main-section
 :marked
   <a id="npm-errors"></a>
-  ### Appendix: Npm errors and warnings
+  ## Appendix: Npm errors and warnings
   
   All is well if there are no console messages starting with `npm ERR!` *at the end* of **npm install**. 
   There might be a few `npm WARN` messages along the way &mdash; and that is perfectly fine.
@@ -441,7 +455,7 @@ code-example(format="").
 .l-main-section
 :marked
   <a id="tsconfig"></a>
-  ### Appendix: TypeScript configuration
+  ## Appendix: TypeScript configuration
   We added a TypeScript configuration file (`tsconfig.json`) to our project to
   guide the compiler as it generates JavaScript files.
   Get details about `tsconfig.json` from the official
@@ -478,10 +492,99 @@ code-example(format="").
   "suppressImplicitAnyIndexErrors":true
   ```
 
+
+<a id="typings"></a>
+.l-main-section
+:marked
+  ## Appendix: TypeScript Typings
+  Many libraries such as jQuery, the Jasmine testing library, and Angular itself,
+  add material to the JavaScript environment that the TypeScript compiler doesn't recognize.
+  When the compiler doesn't recognize something, it throws an error. 
+  
+  We use [TypeScript type definition files](http://www.typescriptlang.org/Handbook#writing-dts-files)
+  &mdash; *d.ts files* &mdash; to tell the compiler about the libraries we load.
+  
+  TypeScript-aware editors leverage these same definition files to display type information about library features.
+  
+  Many libraries include their definition files in their npm packages where both the TypeScript compiler and editors
+  can find them. Angular is one such library. 
+  Peek into the `node_modules/angular2/` folder to see several `...d.ts` files that describe parts of Angular.
+  
+  **We do nothing to get *typings* files for library packages with bundled *d.ts* files.**
+  
+  Sadly, many libraries &mdash; jQuery, Jasmine, and Lodash among them &mdash; do *not* include `d.ts` files in their npm packages.
+  Fortunately, either their authors or community contributors have created separate *d.ts* files for these libraries and 
+  published them in well-known locations.
+  The *typings* tool can find and fetch these files for us.
+  
+  We installed the [typings](https://github.com/typings/typings/blob/master/README.md) tool 
+  with npm (find it in the `package.json`) and added an npm script
+  to run that tool automatically after *npm* installation completes.
++makeJson('quickstart/ts/package.1.json', {paths: 'scripts.postinstall'}, 'tsconfig.json (postinstall)')(format=".")
+:marked
+  This *typings* tool command installs the *d.ts* files that we identified in `typings.json`:
++makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
+:marked
+  We identified only one *typings* file in this QuickStart, the *d.ts* file for 
+  [es6-shim](https://github.com/paulmillr/es6-shim/blob/master/README.md) that brings ES2015/ES6
+  capabilities to our ES5 browsers. 
+  QuickStart itself doesn't need this shim but many of the documentation samples do
+  and most of us would be disappointed if typical ES2015 features didn't work out-of-the-box.
+
+  We can also run the *typings* tool ourselves. The following command lists the locally installed typings files.
+code-example(format="").
+  npm run typings list
+:marked
+    The following command installs the typings file for the Jasmine test library and updates the `typings.config` 
+    so we that we get it automatically the next time.
+code-example(format="").
+  npm run typings install -- jasmine --ambient --save
+.l-sub-section
+  :marked
+    Learn about the features of the *typings* tool at its [site on github](https://github.com/typings/typings/blob/master/README.md).
+:marked
+  #### Typing file collisions
+  
+  The TypeScript compiler does not tolerate redefinition of a type. For example, it throws an error if it's given two definitions for
+  the `Promise` type.
+  
+  Double definitions are common. In fact, the `typings` tool deliberately creates
+  duplicate sets of typings (for reasons best explained elsewhere). 
+  Look in the project structure for the *typings folder* where we should find something like:
+.filetree
+  .file typings
+  .children
+    .file browser
+    .children
+      .file ambient
+        .children
+          .file es6-shim
+          .children
+            .file es6-shim.d.ts
+  .children
+    .file main
+    .children
+      .file ambient
+        .children
+          .file es6-shim
+          .children
+            .file es6-shim.d.ts          
+  .children
+     .file browser.d.ts
+     .file main.d.ts
+:marked
+  The `es6-shim` typings are duplicated and the `browser.d.ts` and `main.d.ts` have overlapping content.
+  
+  We must tell the compiler to ignore one or the other. 
+  We removed the `main` set from consideration in the `exclude` section of our `tsconfig.json` file:
++makeJson('quickstart/ts/tsconfig.1.json', {paths: 'exclude'}, 'tsconfig.json (exclude)')(format=".")
+:marked
+
+
 .l-main-section
 :marked
   <a id="systemjs"></a>
-  ### Appendix: SystemJS Configuration
+  ## Appendix: SystemJS Configuration
   
   The QuickStart uses [SystemJS](https://github.com/systemjs/systemjs) to load application
   and library modules. 
@@ -544,9 +647,9 @@ code-example(format="").
 .l-main-section
 :marked
   <a id="main"></a>
-  ### Appendix: ***main.ts***
+  ## Appendix: **main.ts**
 
-  #### Bootstrapping is platform-specific
+  ### Bootstrapping is platform-specific
   We import the `bootstrap` function from `angular2/platform/browser`,
   not `angular2/core`. There's a good reason.
   
@@ -564,7 +667,7 @@ code-example(format="").
 
   These targets require a different kind of bootstrap function that we'd import from a different library.
  
-  #### Why do we create a separate ***main.ts*** file?
+  ### Why do we create a separate ***main.ts*** file?
   
   The *main.ts* file is tiny. This is just a QuickStart.
   We could have folded its few lines into the `app.component` file
@@ -577,14 +680,14 @@ code-example(format="").
   1. Separation of concerns
   1. We learned about import and export
   
-  #### It's easy
+  ### It's easy
   Sure it's an extra step and an extra file. How hard is that in the scheme of things?
   
   We'll see that a separate `main.ts` is beneficial for *most* apps 
   even if it isn't critical for the QuickStart.
   Let's develop good habits now while the cost is low.
   
-  #### Testability
+  ### Testability
   We should be thinking about testability from the beginning
   even if we know we'll never test the QuickStart. 
   
@@ -597,21 +700,21 @@ code-example(format="").
   Relocating the `bootstrap` function to `main.ts` eliminates this spurious error
   and leaves us with a clean component module file.
   
-  #### Reusability
+  ### Reusability
   We refactor, rename, and relocate files as our application evolves.
   We can't do any of those things while the file calls `bootstrap`.
   We can't move it. 
   We can't reuse the component in another application. 
   We can't pre-render the component on the server for better performance.
   
-  #### Separation of concerns
+  ### Separation of concerns
   A component's responsibility is to present and manage a view.
   
   Launching the application has nothing to do with view management.
   That's a separate concern. The friction we're encountering in testing and reuse
   stems from this unnecessary mix of responsibilities.
   
-  #### Import/Export
+  ### Import/Export
   
   While writing a separate `main.ts` file we learned an essential Angular skill:
   how to export from one module and import into another. 

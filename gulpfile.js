@@ -66,7 +66,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'karma.conf.js', 'karma-test-shim.js' ];
+var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'typings.json', 'karma.conf.js', 'karma-test-shim.js' ];
 
 // --filter may be passed in to filter/select _example app subdir names
 // i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
@@ -232,6 +232,14 @@ gulp.task('add-example-boilerplate', function() {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
+  
+  realPath = path.join(EXAMPLES_PATH, '/typings');
+  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
+  typingsPaths.forEach(function(linkPath) {
+    gutil.log("symlinking " + linkPath + ' -> ' + realPath)    
+    fsUtils.addSymlink(realPath, linkPath);
+  });
+  
   copyExampleBoilerplate();
 });
 
@@ -257,6 +265,12 @@ gulp.task('remove-example-boilerplate', function() {
   nodeModulesPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
+  
+  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
+  typingsPaths.forEach(function(linkPath) {
+    fsUtils.removeSymlink(linkPath);
+  });  
+  
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   return deleteFiles(_exampleBoilerplateFiles, examplePaths).then(function() {
     var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
@@ -503,6 +517,13 @@ function getE2eSpecPaths(basePath) {
 function getNodeModulesPaths(basePath) {
   var paths = getExamplePaths(basePath).map(function(examplePath) {
     return path.join(examplePath, "/node_modules");
+  });
+  return paths;
+}
+
+function getTypingsPaths(basePath) {
+  var paths = getExamplePaths(basePath).map(function(examplePath) {
+    return path.join(examplePath, "/typings");
   });
   return paths;
 }
