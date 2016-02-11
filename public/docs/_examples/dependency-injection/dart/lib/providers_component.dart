@@ -1,8 +1,7 @@
 // Examples of provider arrays
 
 //#docplaster
-import "package:angular2/core.dart"
-   ;
+import "package:angular2/core.dart";
 import "app_config.dart";
 import 'heroes/hero_service_provider.dart';
 import 'heroes/hero_service.dart';
@@ -16,7 +15,7 @@ import "package:angular2/core.dart" show Optional;
 const template = "{{log}}";
 
 //////////////////////////////////////////
-@Component (selector: "provider-1", template: "{{log}}", providers:
+@Component(selector: "provider-1", template: "{{log}}", providers:
 //#docregion providers-1
 const [Logger]
 //#enddocregion providers-1
@@ -29,8 +28,9 @@ class ProviderComponent1 {
     log = logger.logs[0];
   }
 }
+
 //////////////////////////////////////////
-@Component (selector: "provider-2", template: "{{log}}", providers:
+@Component(selector: "provider-2", template: "{{log}}", providers:
 //#docregion providers-2
 const [const Provider(Logger, useClass: Logger)]
 //#enddocregion providers-2
@@ -45,7 +45,8 @@ class ProviderComponent2 {
 }
 
 //////////////////////////////////////////
-@Component (selector: "provider-3",
+@Component(
+    selector: "provider-3",
     template: "{{log}}",
     providers: const [const Provider(Logger, useClass: Logger)]
 /*
@@ -62,10 +63,11 @@ class ProviderComponent3 {
     log = logger.logs[0];
   }
 }
+
 //////////////////////////////////////////
 class BetterLogger extends Logger {}
 
-@Component (selector: "provider-4", template: "{{log}}", providers:
+@Component(selector: "provider-4", template: "{{log}}", providers:
 //#docregion providers-4
 const [const Provider(Logger, useClass: BetterLogger)]
 //#enddocregion providers-4
@@ -82,10 +84,10 @@ class ProviderComponent4 {
 
 // #docregion EvenBetterLogger
 @Injectable()
-class EvenBetterLogger {
+class EvenBetterLogger implements Logger {
   UserService _userService;
 
-  List <String> logs = [];
+  List<String> logs = [];
 
   EvenBetterLogger(this._userService);
 
@@ -97,7 +99,7 @@ class EvenBetterLogger {
 }
 
 // #enddocregion EvenBetterLogger
-@Component (selector: "provider-5", template: "{{log}}", providers:
+@Component(selector: "provider-5", template: "{{log}}", providers:
 //#docregion providers-5
 const [UserService, const Provider(Logger, useClass: EvenBetterLogger)]
 //#enddocregion providers-5
@@ -110,22 +112,25 @@ class ProviderComponent5 {
     log = logger.logs[0];
   }
 }
+
 //////////////////////////////////////////
-class NewLogger extends Logger {}
+class NewLogger extends Logger implements OldLogger {}
 
 class OldLogger {
-  List <String> logs = [];
+  List<String> logs = [];
 
   log(String message) {
     throw new Exception("Should not call the old logger!");
   }
 }
 
-@Component (selector: "provider-6a", template: "{{log}}", providers:
+@Component(selector: "provider-6a", template: "{{log}}", providers:
 //#docregion providers-6a
-const [NewLogger,
+const [
+  NewLogger,
 // Not aliased! Creates two instances of `NewLogger`
-const Provider(OldLogger, useClass: NewLogger)]
+  const Provider(OldLogger, useClass: NewLogger)
+]
 //#enddocregion providers-6a
 )
 class ProviderComponent6a {
@@ -143,14 +148,14 @@ class ProviderComponent6a {
   }
 }
 
-@Component (selector: "provider-6b", template: "{{log}}", providers:
+@Component(selector: "provider-6b", template: "{{log}}", providers:
 //#docregion providers-6b
-const [NewLogger,
+const [
+  NewLogger,
 // Alias OldLogger w/ reference to NewLogger
-const Provider(OldLogger, useExisting: NewLogger)
+  const Provider(OldLogger, useExisting: NewLogger)
 //#enddocregion providers-6b
-]
-)
+])
 class ProviderComponent6b {
   String log;
 
@@ -168,7 +173,6 @@ class ProviderComponent6b {
 
 // An object in the shape of the logger service
 class SilentLogger /*implements Logger*/ {
-
   const SilentLogger({this.logs});
 
   final List<String> logs;
@@ -177,29 +181,38 @@ class SilentLogger /*implements Logger*/ {
 }
 
 const silentLogger = const SilentLogger(
-  logs: const ["Silent logger says \"Shhhhh!\". Provided via \"useValue\""]
-);
+    logs: const ["Silent logger says \"Shhhhh!\". Provided via \"useValue\""]);
 // #enddocregion silent-logger
 
-@Component (selector: "provider-7", template: "{{log}}", providers:
+@Component(selector: "provider-7", template: "{{log}}", providers:
 //#docregion providers-7
-const [const Provider(Logger, useValue: silentLogger)])
+const [const Provider(SilentLogger, useValue: silentLogger)]
 //#enddocregion providers-7
+/*
+//#docregion providers-7-unchecked
+const [const Provider(Logger, useValue: silentLogger)]
+//#enddocregion providers-7-unchecked
+ */
+)
 class ProviderComponent7 {
   String log;
 
-  ProviderComponent7(Logger logger) {
+  ProviderComponent7(SilentLogger logger) {
     logger.log("Hello from logger provided with useValue");
     log = logger.logs[0];
   }
 }
+
 /////////////////
-@Component (selector: "provider-8",
-    template: "{{log}}",
-    providers: const [const Provider(HeroService, useFactory: heroServiceFactory), Logger, UserService])
+@Component(selector: "provider-8", template: "{{log}}", providers: const [
+  const Provider(HeroService, useFactory: heroServiceFactory),
+  Logger,
+  UserService
+])
 class ProviderComponent8 {
   // #docregion provider-8-ctor
   ProviderComponent8(HeroService heroService);
+
   // #enddocregion provider-8-ctor
 
   // must be true else this component would have blown up at runtime
@@ -207,7 +220,7 @@ class ProviderComponent8 {
 }
 
 /////////////////
-@Component (selector: "provider-9a", template: "{{log}}", providers:
+@Component(selector: "provider-9a", template: "{{log}}", providers:
 /*
     // #docregion providers-9a-interface
     // WOKRKS! Can use abstract class as provider token
@@ -238,10 +251,7 @@ class ProviderComponent9a implements OnInit {
 
   // @Inject(token) to inject the dependency
   ProviderComponent9a(@Inject("app.config") Map config) {
-    _config = new ConfigImpl(
-        apiEndpoint: config['apiEndpoint'],
-        title: config['title']
-    );
+    _config = new ConfigImpl(apiEndpoint: config['apiEndpoint'], title: config['title']);
   }
 
   // #enddocregion provider-9a-ctor
@@ -250,24 +260,20 @@ class ProviderComponent9a implements OnInit {
   }
 }
 
-@Component (selector: "provider-9b",
-    template: "{{log}}",
-    providers:
+@Component(selector: "provider-9b", template: "{{log}}", providers:
 // #docregion providers-9b
-    const [const Provider(APP_CONFIG, useValue: CONFIG_HASH)])
-// #enddocregion providers-9b
-class ProviderComponent9b implements OnInit {
+const [const Provider(APP_CONFIG, useValue: CONFIG_HASH)]) // #enddocregion providers-9b
+class ProviderComponent9b
+    implements OnInit {
   Config _config;
 
   String log;
 
   // #docregion provider-9b-ctor
   ProviderComponent9b(@Inject(APP_CONFIG) Map config) {
-    _config = new ConfigImpl(
-        apiEndpoint: config['apiEndpoint'],
-        title: config['title']
-    );
+    _config = new ConfigImpl(apiEndpoint: config['apiEndpoint'], title: config['title']);
   }
+
   // #enddocregion provider-9b-ctor
   ngOnInit() {
     log = "APP_CONFIG Application title is " + _config.title;
@@ -276,12 +282,10 @@ class ProviderComponent9b implements OnInit {
 //////////////////////////////////////////
 
 // Normal required logger
-@Component (
-    selector: "provider-10a",
-    template: "{{log}}",
-    //#docregion providers-logger
+@Component(selector: "provider-10a", template: "{{log}}",
+//#docregion providers-logger
     providers: const [Logger]
-    //#enddocregion providers-logger
+//#enddocregion providers-logger
 )
 class ProviderComponent10a {
   String log;
@@ -291,8 +295,9 @@ class ProviderComponent10a {
     log = logger.logs[0];
   }
 }
+
 // Optional logger
-@Component (selector: "provider-10b", template: "{{log}}")
+@Component(selector: "provider-10b", template: "{{log}}")
 class ProviderComponent10b implements OnInit {
   Logger _logger;
 
@@ -317,8 +322,10 @@ class ProviderComponent10b implements OnInit {
     log = _logger.logs[0];
   }
 }
+
 /////////////////
-@Component (selector: "my-providers",
+@Component(
+    selector: "my-providers",
     template: '''
   <h2>Provider variations</h2>
   <div id="p1"><provider-1></provider-1></div>

@@ -4,7 +4,7 @@
 import "car.dart";
 
 ///////// example 1 ////////////
-simpleCar() {
+Car simpleCar() {
   //#docregion car-ctor-instantiation
 
   // Simple car with 4 cylinders and Flintstone tires.
@@ -17,12 +17,13 @@ simpleCar() {
 
 //#docregion car-ctor-instantiation-with-param
 class Engine2 implements Engine {
-  num cylinders;
-  Engine2(this.cylinders) {}
+  int cylinders;
+
+  Engine2(this.cylinders);
 }
 
 //#enddocregion car-ctor-instantiation-with-param
-superCar() {
+Car superCar() {
   //#docregion car-ctor-instantiation-with-param
 
   // Super car with 12 cylinders and Flintstone tires.
@@ -36,15 +37,15 @@ superCar() {
 
 //#docregion car-ctor-instantiation-with-mocks
 class MockEngine extends Engine {
-  var cylinders = 8;
+  int cylinders = 8;
 }
 
 class MockTires extends Tires {
-  var make = "YokoGoodStone";
+  String make = "YokoGoodStone";
 }
 
 //#enddocregion car-ctor-instantiation-with-mocks
-testCar() {
+Car testCar() {
   //#docregion car-ctor-instantiation-with-mocks
 
   // Test car with 8 cylinders and YokoGoodStone tires.

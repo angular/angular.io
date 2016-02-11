@@ -21,8 +21,8 @@ class AppComponent {
 /*
 //#docregion ctor-di-fail
 // FAIL! Injectable `config` is not a class!
-constructor(heroService: HeroService, config: config) {
-  this.title = config.title;
+AppComponent(HeroService heroService, Map config) {
+  title = config['title'];
 }
 //#enddocregion ctor-di-fail
 */

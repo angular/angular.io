@@ -1,4 +1,5 @@
 // #docregion
+
 import "package:angular2/core.dart";
 import "car.dart";
 import "car_no_di.dart" as carNoDi;
@@ -23,10 +24,10 @@ class CarComponent {
   Car car;
 
   CarComponent(this.car) {}
-  var factoryCar = (new CarFactory()).createCar();
-  var injectorCar = useInjector();
-  var noDiCar = new carNoDi.Car();
-  var simpleCar = carCreations.simpleCar();
-  var superCar = carCreations.superCar();
-  var testCar = carCreations.testCar();
+  Car factoryCar = (new CarFactory()).createCar();
+  Car injectorCar = useInjector();
+  carNoDi.Car noDiCar = new carNoDi.Car();
+  Car simpleCar = carCreations.simpleCar();
+  Car superCar = carCreations.superCar();
+  Car testCar = carCreations.testCar();
 }

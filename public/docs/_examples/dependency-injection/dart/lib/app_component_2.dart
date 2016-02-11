@@ -26,6 +26,7 @@ import "logger_service.dart";
     ])
 class AppComponent {
   String title;
+
   // #docregion ctor
   AppComponent(@Inject("app.config") Config config) {
     title = config.title;

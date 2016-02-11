@@ -6,7 +6,7 @@ import "car.dart";
 import "../logger_service.dart";
 
 //#docregion injector
-useInjector() {
+Car useInjector() {
   Injector injector;
   //#enddocregion injector
 

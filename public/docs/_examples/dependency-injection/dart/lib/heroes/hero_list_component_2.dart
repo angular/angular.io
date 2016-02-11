@@ -1,4 +1,5 @@
 // #docregion
+
 import "package:angular2/core.dart";
 import "hero.dart";
 import "hero_service.dart";
@@ -12,8 +13,8 @@ import "hero_service.dart";
   ''')
 class HeroListComponent {
   List<Hero> heroes;
-  //#docregion ctor
-  HeroListComponent(HeroService heroService) {
-    heroes = heroService.getHeroes();
-  }
+
+//#docregion ctor
+  HeroListComponent(HeroService heroService) : heroes = heroService.getHeroes();
+//#enddocregion ctor
 }

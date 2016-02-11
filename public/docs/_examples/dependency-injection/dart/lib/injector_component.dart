@@ -6,6 +6,7 @@ import "car/car.dart";
 import "heroes/hero_service.dart";
 import "heroes/hero_service_provider.dart";
 import "logger_service.dart";
+import 'package:dependency_injection/heroes/hero.dart';
 
 //#docregion injector
 @Component(
@@ -16,22 +17,33 @@ import "logger_service.dart";
   <div id="hero">{{hero.name}}</div>
   <div id="rodent">{{rodent}}</div>
   ''',
-    providers: const [Car, Engine, Tires, const Provider(HeroService, useFactory: heroServiceFactory), Logger])
+    providers: const [
+      Car,
+      Engine,
+      Tires,
+      const Provider(HeroService, useFactory: heroServiceFactory),
+      Logger
+    ])
 class InjectorComponent {
   Injector _injector;
+
   InjectorComponent(this._injector) {
     car = _injector.get(Car);
     heroService = _injector.get(HeroService);
     hero = heroService.getHeroes()[0];
   }
+
   Car car;
+
   //#docregion get-hero-service
   HeroService heroService;
+
   //#enddocregion get-hero-service
-  var hero;
-  get rodent {
+  Hero hero;
+
+  String get rodent {
     var rous = _injector.getOptional(ROUS);
-    if (rous) {
+    if (rous != null) {
       throw new Exception("Aaaargh!");
     }
     return "R.O.U.S.'s? I don't think they exist!";

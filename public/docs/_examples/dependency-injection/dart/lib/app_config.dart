@@ -15,22 +15,15 @@ abstract class Config {
 }
 
 class ConfigImpl implements Config {
-
   final String apiEndpoint;
   final String title;
 
   const ConfigImpl({this.apiEndpoint, this.title});
 }
 
-const CONFIG = const ConfigImpl(
-  apiEndpoint: "api.heroes.com",
-  title: "Dependency Injection"
-);
+const CONFIG = const ConfigImpl(apiEndpoint: "api.heroes.com", title: "Dependency Injection");
 //#enddocregion config
 
 //#docregion config-hash
-const CONFIG_HASH = const {
-  "apiEndpoint": "api.heroes.com",
-  "title": "Dependency Injection"
-};
+const CONFIG_HASH = const {"apiEndpoint": "api.heroes.com", "title": "Dependency Injection"};
 //#enddocregion config-hash

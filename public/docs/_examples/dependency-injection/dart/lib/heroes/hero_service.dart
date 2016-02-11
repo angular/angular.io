@@ -1,4 +1,5 @@
 // #docregion
+
 import "package:angular2/core.dart";
 import "hero.dart";
 import "mock_heroes.dart";
@@ -6,7 +7,6 @@ import "../logger_service.dart";
 
 @Injectable()
 class HeroService {
-  String _user;
   // #docregion internals
   Logger _logger;
   bool _isAuthorized;

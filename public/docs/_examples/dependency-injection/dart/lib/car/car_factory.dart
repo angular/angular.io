@@ -1,14 +1,15 @@
 // #docregion
+
 import "car.dart";
 
 class CarFactory {
-  createCar() {
+  Car createCar() {
     var car = new Car(createEngine(), createTires());
     car.description = "Factory";
     return car;
   }
 
-  createEngine() => new Engine();
+  Engine createEngine() => new Engine();
 
-  createTires() => new Tires();
+  Tires createTires() => new Tires();
 }
