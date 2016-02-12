@@ -1,12 +1,12 @@
 // Early versions
 
 // #docregion
-import "package:angular2/core.dart";
-import "car/car_component.dart";
-import "heroes/heroes_component_1.dart";
+import 'package:angular2/core.dart';
+import 'car/car_component.dart';
+import 'heroes/heroes_component_1.dart';
 
 @Component(
-    selector: "my-app",
+    selector: 'my-app',
     template: '''
     <h1>{{title}}</h1>
     <my-car></my-car>
@@ -14,7 +14,7 @@ import "heroes/heroes_component_1.dart";
   ''',
     directives: const [CarComponent, HeroesComponent])
 class AppComponent {
-  var title = "Dependency Injection";
+  var title = 'Dependency Injection';
 }
 // #enddocregion
 

@@ -1,11 +1,11 @@
 // #docregion
 
-import "package:angular2/core.dart";
-import "hero.dart";
-import "mock_heroes.dart";
+import 'package:angular2/core.dart';
+import 'hero.dart';
+import 'mock_heroes.dart';
 
 @Component(
-    selector: "hero-list",
+    selector: 'hero-list',
     template: '''
   <div *ngFor="#hero of heroes">
     {{hero.id}} - {{hero.name}}

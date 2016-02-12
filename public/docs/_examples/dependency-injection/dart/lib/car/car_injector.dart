@@ -1,9 +1,9 @@
 // #docplaster
 
 //#docregion
-import "package:angular2/core.dart";
-import "car.dart";
-import "../logger_service.dart";
+import 'package:angular2/core.dart';
+import 'car.dart';
+import '../logger_service.dart';
 
 //#docregion injector
 Car useInjector() {
@@ -26,9 +26,9 @@ Car useInjector() {
   //#enddocregion injector-call
 
   //#enddocregion injector-create-and-call
-  car.description = "Injector";
+  car.description = 'Injector';
   var logger = injector.get(Logger);
-  logger.log("Injector car.drive() said: " + car.drive());
+  logger.log('Injector car.drive() said: ' + car.drive());
   return car;
 }
 //#enddocregion injector

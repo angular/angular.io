@@ -20,7 +20,7 @@ class Car {
   //#docregion car-ctor
   Engine engine;
   Tires tires;
-  String description = "DI";
+  String description = 'DI';
 
   Car(this.engine, this.tires);
 

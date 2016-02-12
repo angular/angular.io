@@ -3,19 +3,19 @@
 // #docregion
 
 // #docregion imports
-import "package:angular2/core.dart";
-import "car/car_component.dart";
-import "heroes/heroes_component.dart";
-import "app_config.dart";
-import "logger_service.dart";
-import "user_service.dart";
+import 'package:angular2/core.dart';
+import 'car/car_component.dart';
+import 'heroes/heroes_component.dart';
+import 'app_config.dart';
+import 'logger_service.dart';
+import 'user_service.dart';
 
 // #enddocregion imports
-import "injector_component.dart";
-import "providers_component.dart";
+import 'injector_component.dart';
+import 'providers_component.dart';
 
 @Component(
-    selector: "my-app",
+    selector: 'my-app',
     template: '''
     <h1>{{title}}</h1>
     <my-car></my-car>
@@ -57,7 +57,7 @@ class AppComponent {
   }
 
   String get userInfo {
-    return '''Current user, ${user.name}, is ''' + '''${ isAuthorized ? "" : "not"} authorized. ''';
+    return 'Current user, ${user.name}, is ${isAuthorized ? "" : "not"} authorized. ';
   }
 }
 // #enddocregion

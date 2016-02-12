@@ -1,7 +1,7 @@
 // Examples with car and engine variations
 
 // #docplaster
-import "car.dart";
+import 'car.dart';
 
 ///////// example 1 ////////////
 Car simpleCar() {
@@ -10,7 +10,7 @@ Car simpleCar() {
   // Simple car with 4 cylinders and Flintstone tires.
   var car = new Car(new Engine(), new Tires());
   //#enddocregion car-ctor-instantiation
-  car.description = "Simple";
+  car.description = 'Simple';
   return car;
 }
 ///////// example 2 ////////////
@@ -30,7 +30,7 @@ Car superCar() {
   var bigCylinders = 12;
   var car = new Car(new Engine2(bigCylinders), new Tires());
   //#enddocregion car-ctor-instantiation-with-param
-  car.description = "Super";
+  car.description = 'Super';
   return car;
 }
 /////////// example 3 //////////
@@ -41,7 +41,7 @@ class MockEngine extends Engine {
 }
 
 class MockTires extends Tires {
-  String make = "YokoGoodStone";
+  String make = 'YokoGoodStone';
 }
 
 //#enddocregion car-ctor-instantiation-with-mocks
@@ -51,6 +51,6 @@ Car testCar() {
   // Test car with 8 cylinders and YokoGoodStone tires.
   var car = new Car(new MockEngine(), new MockTires());
   //#enddocregion car-ctor-instantiation-with-mocks
-  car.description = "Test";
+  car.description = 'Test';
   return car;
 }

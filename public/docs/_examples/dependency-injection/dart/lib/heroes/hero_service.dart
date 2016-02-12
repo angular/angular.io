@@ -1,9 +1,9 @@
 // #docregion
 
-import "package:angular2/core.dart";
-import "hero.dart";
-import "mock_heroes.dart";
-import "../logger_service.dart";
+import 'package:angular2/core.dart';
+import 'hero.dart';
+import 'mock_heroes.dart';
+import '../logger_service.dart';
 
 @Injectable()
 class HeroService {

@@ -1,6 +1,6 @@
 // #docregion
 
-import "package:angular2/core.dart";
+import 'package:angular2/core.dart';
 
 @Injectable()
 class UserService {
@@ -9,8 +9,8 @@ class UserService {
   }
 
   // Todo: get the user; don't 'new' it.
-  User _alice = new User("Alice", true);
-  User _bob = new User("Bob", false);
+  User _alice = new User('Alice', true);
+  User _bob = new User('Bob', false);
 
   // initial user is Bob
   User user;

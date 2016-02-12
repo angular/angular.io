@@ -1,14 +1,14 @@
 // #docregion
 
-import "package:angular2/core.dart";
-import "car.dart";
-import "car_no_di.dart" as carNoDi;
-import "car_factory.dart";
-import "car_creations.dart" as carCreations;
-import "car_injector.dart";
+import 'package:angular2/core.dart';
+import 'car.dart';
+import 'car_no_di.dart' as carNoDi;
+import 'car_factory.dart';
+import 'car_creations.dart' as carCreations;
+import 'car_injector.dart';
 
 @Component(
-    selector: "my-car",
+    selector: 'my-car',
     template: '''
   <h2>Cars</h2>
   <div id="di">{{car.drive()}}</div>

@@ -1,9 +1,9 @@
 //#docregion
 
 // #docregion token
-import "package:angular2/core.dart";
+import 'package:angular2/core.dart';
 
-const APP_CONFIG = const OpaqueToken("app.config");
+const APP_CONFIG = const OpaqueToken('app.config');
 // #enddocregion token
 
 //#docregion config
@@ -21,9 +21,9 @@ class ConfigImpl implements Config {
   const ConfigImpl({this.apiEndpoint, this.title});
 }
 
-const CONFIG = const ConfigImpl(apiEndpoint: "api.heroes.com", title: "Dependency Injection");
+const CONFIG = const ConfigImpl(apiEndpoint: 'api.heroes.com', title: 'Dependency Injection');
 //#enddocregion config
 
 //#docregion config-hash
-const CONFIG_HASH = const {"apiEndpoint": "api.heroes.com", "title": "Dependency Injection"};
+const CONFIG_HASH = const {'apiEndpoint': 'api.heroes.com', 'title': 'Dependency Injection'};
 //#enddocregion config-hash

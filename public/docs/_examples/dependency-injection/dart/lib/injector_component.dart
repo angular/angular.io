@@ -1,16 +1,16 @@
 // #docplaster
 
 //#docregion
-import "package:angular2/core.dart";
-import "car/car.dart";
-import "heroes/hero_service.dart";
-import "heroes/hero_service_provider.dart";
-import "logger_service.dart";
+import 'package:angular2/core.dart';
+import 'car/car.dart';
+import 'heroes/hero_service.dart';
+import 'heroes/hero_service_provider.dart';
+import 'logger_service.dart';
 import 'package:dependency_injection/heroes/hero.dart';
 
 //#docregion injector
 @Component(
-    selector: "my-injectors",
+    selector: 'my-injectors',
     template: '''
   <h2>Other Injections</h2>
   <div id="car"> {{car.drive()}}</div>
@@ -44,7 +44,7 @@ class InjectorComponent {
   String get rodent {
     var rous = _injector.getOptional(ROUS);
     if (rous != null) {
-      throw new Exception("Aaaargh!");
+      throw new Exception('Aaaargh!');
     }
     return "R.O.U.S.'s? I don't think they exist!";
   }

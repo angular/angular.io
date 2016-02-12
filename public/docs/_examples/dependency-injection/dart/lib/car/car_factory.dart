@@ -1,11 +1,11 @@
 // #docregion
 
-import "car.dart";
+import 'car.dart';
 
 class CarFactory {
   Car createCar() {
     var car = new Car(createEngine(), createTires());
-    car.description = "Factory";
+    car.description = 'Factory';
     return car;
   }
 
