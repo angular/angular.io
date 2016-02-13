@@ -1,7 +1,5 @@
-// Simulate a simple test
-
-// Reader should look to the testing chapter for the real thing
-@TestOn('browser')
+// A simple test
+// More details will be in the testing chapter.
 import 'package:angular2/angular2.dart';
 import 'package:dependency_injection/heroes/hero.dart';
 import 'package:dependency_injection/heroes/hero_list_component.dart';
