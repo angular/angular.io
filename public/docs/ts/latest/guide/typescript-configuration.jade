@@ -1,0 +1,151 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  TypeScript is a primary language for Angular application development.
+  
+  TypeScript is a dialect of JavaScript with design-time support for type-safety and tooling.
+  
+  Browsers can't execute TypeScript directly. It has to be "transpiled" into JavaScript with the *tsc* compiler
+  and that effort requires some configuration.
+  
+  This chapter covers some aspects of TypeScript configuration and the TypeScript environment
+  that are important to Angular developers.
+
+a(id="tsconfig")
+.l-main-section
+:marked
+  ## *tsconfig.json*
+  We typically add a TypeScript configuration file (`tsconfig.json`) to our project to
+  guide the compiler as it generates JavaScript files.
+.l-sub-section
+  :marked
+    Get details about `tsconfig.json` from the official
+    [TypeScript wiki](https://github.com/Microsoft/TypeScript/wiki/tsconfig.json).
+:marked
+  We created the following `tsconfig.json` for the [QuickStart](../quickstart.html):
++makeJson('quickstart/ts/tsconfig.1.json', null, 'tsconfig.json')(format=".")
+:marked
+  The options and flags in this file are essential for Angular 2 applications.
+  
+  <a id="noImplicitAny"></a>
+  ### *noImplicitAny* and *suppressImplicitAnyIndexErrors*
+
+  TypeScript developers disagree about whether the `noImplicitAny` flag should be `true` or `false`.
+  There is no correct answer and we can change the flag later.
+  But our choice now can make a difference in larger projects so it merits discussion.
+
+  When the `noImplicitAny` flag is `false` (the default),
+  the compiler silently defaults the type of a variable to `any` if it cannot infer
+  the type based on how the variable is used. That's what we mean by *implicit `any`*.
+
+  We initialized the `noImplicitAny` flag to `false` in the QuickStart 
+  to make learning TypeScript development easier.
+  
+  When the `noImplicitAny` flag is `true` and the TypeScript compiler cannot infer
+  the type, it still generates the JavaScript files. But it also **reports an error**.
+  Many seasoned developers prefer this stricter setting because type checking catches more
+  unintentional errors at compile time.
+  
+  We can set a variable's type to `any` even when the `noImplicitAny` flag is `true`.
+  We do so when that seems like the best choice for the situation, 
+  deliberately and explicitly, after giving the matter some thought.
+
+  If we set the `noImplicitAny` flag to `true`, we may get *implicit index errors* as well.
+  Most developers feel that *this particular error* is more annoying than helpful.
+  We can suppress them with the following additional flag.
+code-example(format=".").
+  "suppressImplicitAnyIndexErrors":true
+
+
+a(id="typings")
+.l-main-section
+:marked
+  ## TypeScript Typings
+  Many JavaScript libraries such as jQuery, the Jasmine testing library, and Angular itself,
+  extend the JavaScript environment with features and syntax
+  that the TypeScript compiler doesn't recognize natively.
+  When the compiler doesn't recognize something, it throws an error. 
+  
+  We use [TypeScript type definition files](http://www.typescriptlang.org/Handbook#writing-dts-files)
+  &mdash; *d.ts files* &mdash; to tell the compiler about the libraries we load.
+  
+  TypeScript-aware editors leverage these same definition files to display type information about library features.
+  
+  Many libraries include their definition files in their npm packages where both the TypeScript compiler and editors
+  can find them. Angular is one such library. 
+  Peek into the `node_modules/angular2/` folder of any Angular application to see several `...d.ts` files that describe parts of Angular.
+  
+  **We do nothing to get *typings* files for library packages with bundled *d.ts* files.**
+  
+  ### Manual typings
+  Sadly, many libraries &mdash; jQuery, Jasmine, and Lodash among them &mdash; do *not* include `d.ts` files in their npm packages.
+  Fortunately, either their authors or community contributors have created separate *d.ts* files for these libraries and 
+  published them in well-known locations.
+  The *typings* tool can find and fetch these files for us.
+  
+  We installed the [typings](https://github.com/typings/typings/blob/master/README.md) tool 
+  with npm (it's listed among the *devDependencies* in the `package.json`) and added an npm script
+  to run that tool automatically after *npm* installation completes.
++makeJson('quickstart/ts/package.1.json', {paths: 'scripts.postinstall'}, 'tsconfig.json (postinstall)')(format=".")
+:marked
+  This *typings* tool command installs the *d.ts* files that we identify in a `typings.json` file 
+  such as this one from the [QuickStart](../quickstart.html):
++makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
+:marked
+  We identified only one *typings* file in the QuickStart, the *d.ts* file for 
+  [es6-shim](https://github.com/paulmillr/es6-shim/blob/master/README.md) that brings ES2015/ES6
+  capabilities to our ES5 browsers. 
+  QuickStart itself doesn't need this shim but many of the documentation samples do
+  and most of us would be disappointed if typical ES2015 features didn't work out-of-the-box.
+
+  We can also run the *typings* tool ourselves. The following command lists the locally installed typings files.
+code-example(format="").
+  npm run typings -- list
+:marked
+    The following command installs the typings file for the Jasmine test library and updates the `typings.config` 
+    so we that we get it automatically the next time.
+code-example(format="").
+  npm run typings -- install jasmine --ambient --save
+.l-sub-section
+  :marked
+    The [&ndash;&ndash; option](https://docs.npmjs.com/cli/run-script) is important; 
+    it tells npm to pass all arguments to the right of `--` to the *typings* command.
+    
+    Learn about the features of the *typings* tool at its [site on github](https://github.com/typings/typings/blob/master/README.md).
+:marked
+  #### Typing file collisions
+  
+  The TypeScript compiler does not tolerate redefinition of a type. For example, it throws an error if it's given two definitions for
+  the `Promise` type.
+  
+  Double definitions are common. In fact, the `typings` tool deliberately creates
+  duplicate sets of typings (for reasons best explained elsewhere). 
+  Look in the project structure for the *typings folder* where we should find something like:
+.filetree
+  .file typings
+  .children
+    .file browser
+    .children
+      .file ambient
+        .children
+          .file es6-shim
+          .children
+            .file es6-shim.d.ts
+  .children
+    .file main
+    .children
+      .file ambient
+        .children
+          .file es6-shim
+          .children
+            .file es6-shim.d.ts          
+  .children
+     .file browser.d.ts
+     .file main.d.ts
+:marked
+  The `es6-shim` typings are duplicated and the `browser.d.ts` and `main.d.ts` have overlapping content.
+  
+  We must tell the compiler to ignore one or the other. 
+  We removed the `main` set from consideration in the `exclude` section of our `tsconfig.json` file:
++makeJson('quickstart/ts/tsconfig.1.json', {paths: 'exclude'}, 'tsconfig.json (exclude)')(format=".")
+:marked
