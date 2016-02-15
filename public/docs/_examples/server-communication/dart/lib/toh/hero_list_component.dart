@@ -1,4 +1,5 @@
 // #docregion
+import 'dart:async';
 import 'package:angular2/angular2.dart';
 import 'hero.dart';
 import 'hero_service.dart';
@@ -7,19 +8,19 @@ import 'hero_service.dart';
     selector: 'hero-list',
 // #docregion template
     template: '''
-  <h3>Heroes:</h3>
-  <ul>
-    <li *ngFor="#hero of heroes">
-      {{ hero.name }}
-    </li>
-  </ul>
-  New Hero:
-  <input #newHero />
-  <button (click)="addHero(newHero.value); newHero.value=''">
-    Add Hero
-  </button>
-  <div class="error" *ngIf="hasErrorMessage">{{errorMessage}}</div>
-  ''',
+      <h3>Heroes:</h3>
+      <ul>
+        <li *ngFor="#hero of heroes">
+          {{hero.name}}
+        </li>
+      </ul>
+      New Hero:
+      <input #newHero />
+      <button (click)="addHero(newHero.value); newHero.value=''">
+        Add Hero
+      </button>
+      <div class="error" *ngIf="hasErrorMessage">{{errorMessage}}</div>
+    ''',
 // #enddocregion template
     styles: const ['.error {color:red;}'])
 // #docregion component
@@ -32,18 +33,25 @@ class HeroListComponent implements OnInit {
 
   bool get hasErrorMessage => errorMessage != null;
 
-  ngOnInit() => getHeroes();
+  Future ngOnInit() => getHeroes();
 
   // #docregion methods
-  getHeroes() async {
-    // todo: handle error
-    heroes = await _heroService.getHeroes();
+  Future getHeroes() async {
+    try {
+      heroes = await _heroService.getHeroes();
+    } catch (e) {
+      errorMessage = e.toString();
+    }
   }
 
-  addHero(String name) {
+  Future addHero(String name) async {
     name = name.trim();
     if (name.isEmpty) return;
-    _heroService.addHero(name).then(heroes.add);
+    try {
+      heroes.add(await _heroService.addHero(name));
+    } catch (e) {
+      errorMessage = e.toString();
+    }
   }
   // #enddocregion methods
 }

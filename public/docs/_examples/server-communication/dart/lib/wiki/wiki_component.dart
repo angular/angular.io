@@ -6,12 +6,12 @@ import 'dart:async';
 @Component(
     selector: 'my-wiki',
     template: '''
-    <h1>Wikipedia Demo</h1>
-    <p><i>Fetches after each keystroke</i></p>
-    <input #term (keyup)="search(term.value)"/>
-    <ul>
-      <li *ngFor="#item of items">{{item}}</li>
-    </ul>
+      <h1>Wikipedia Demo</h1>
+      <p><i>Fetches after each keystroke</i></p>
+      <input #term (keyup)="search(term.value)"/>
+      <ul>
+        <li *ngFor="#item of items">{{item}}</li>
+      </ul>
     ''',
     providers: const [WikipediaService])
 class WikiComponent {
@@ -20,7 +20,7 @@ class WikiComponent {
 
   WikiComponent(this._wikipediaService);
 
-  search(String term) async {
+  Future search(String term) async {
     items = await this._wikipediaService.search(term);
   }
 }

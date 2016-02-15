@@ -1,9 +1,9 @@
 // #docplaster
 
 // #docregion
-import 'package:angular2/angular2.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:angular2/angular2.dart';
 // #enddocregion v1
 // #docregion import-request-options
 import 'package:http/browser_client.dart';
@@ -22,15 +22,11 @@ class HeroService {
 // #docregion methods
   Future<List<Hero>> getHeroes() async {
     final response = await _http.get(_heroesUrl);
-    Map data = JSON.decode(response.body);
-    List<Hero> heroes = _toHeroes(data['data']);
+    final heroes = JSON
+        .decode(response.body)['data']
+        .map((value) => new Hero.fromJson(value))
+        .toList();
     print(JSON.encode(heroes)); // eyeball results in the console
-    return heroes;
-  }
-
-  List<Hero> _toHeroes(List data) {
-    List heroes = [];
-    data.forEach((item) => heroes.add(new Hero.fromJson(item)));
     return heroes;
   }
 

@@ -6,13 +6,13 @@ import 'package:stream_transformers/stream_transformers.dart';
 @Component(
     selector: 'my-wiki-smart',
     template: '''
-    <h1>Smarter Wikipedia Demo</h1>
-    <p><i>Fetches when typing stops</i></p>
+      <h1>Smarter Wikipedia Demo</h1>
+      <p><i>Fetches when typing stops</i></p>
 
-    <input #term (keyup)="search(term.value)"/>
-    <ul>
-      <li *ngFor="#item of items">{{item}}</li>
-    </ul>
+      <input #term (keyup)="search(term.value)"/>
+      <ul>
+        <li *ngFor="#item of items">{{item}}</li>
+      </ul>
     ''',
     providers: const [WikipediaService])
 class WikiSmartComponent {

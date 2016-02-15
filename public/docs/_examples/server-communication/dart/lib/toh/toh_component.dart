@@ -6,8 +6,8 @@ import 'hero_list_component.dart';
     selector: 'my-toh',
 // #docregion template
     template: '''
-    <h1>Tour of Heroes</h1>
-    <hero-list></hero-list>
+      <h1>Tour of Heroes</h1>
+      <hero-list></hero-list>
     ''',
 // #enddocregion template
     providers: const [HeroService],
