@@ -15,7 +15,8 @@ module.exports = function renderAsJadeProcessor() {
         var regionSuffix =  (doc.regionName && doc.regionName.length) ? "-" + doc.regionName.trim() : "";
         var origName = fileInfo.baseName + "." + fileInfo.extension;
 
-        var newName = "_." + fileInfo.baseName + regionSuffix +  "." + fileInfo.extension;
+        //var newName = "_." + fileInfo.baseName + regionSuffix +  "." + fileInfo.extension;
+        var newName = "./_fragments/" + fileInfo.baseName + regionSuffix +  "." + fileInfo.extension;
         doc.outputPath = fileInfo.filePath.replace(origName, newName);
         return doc;
       })
