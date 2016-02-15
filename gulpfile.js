@@ -413,8 +413,14 @@ gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade'], 
 });
 
 gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
-  var cleanPath = path.join(DOCS_PATH, '**/_.*.jade')
-  return delPromise([ cleanPath]);
+  // oldCleanPath is only needed to cleanup any jade fragments still sitting in the old location
+  var oldCleanPath = path.join(DOCS_PATH, '**/_.*.jade');
+  // jade fragments now all go into _fragments subdirs under their source.
+  var newCleanPath = path.join(DOCS_PATH, '**/_fragments/*.jade');
+  // Much slower 8-9x then using globby first ... ???
+  // return delPromise([ newCleanPath, oldCleanPath]);
+  var files = globby.sync( [newCleanPath, oldCleanPath]);
+  return delPromise(files);
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
