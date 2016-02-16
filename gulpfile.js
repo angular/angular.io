@@ -657,7 +657,7 @@ function devGuideSharedJadeWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_.*.jade']});
+  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/guide/_fragments/**']});
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide jade file changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
