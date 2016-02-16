@@ -1,0 +1,447 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  <a id="top"></a>
+  In this chapter, we can find useful recipes for dependency injection scenarios.
+
+.l-sub-section
+  :marked
+    For an in-depth look at each fundamental concepts, we can find detailed description and
+    samples in the [Dependency Injection](../guide/dependency-injection.html) and 
+    [Hierarchical Injectors](../guide/hierarchical-dependency-injection.html) documents.
+.l-main.section
+<a id="toc"></a>
+:marked
+  ## Table of contents
+  
+  [Inject a service into a component](#singleton)
+
+  [Inject a service into another service](#service)
+
+  [Inject service instances into the children of a component](#children)
+  
+  [Use an optional dependency](#optional-dependency)
+  
+  [Inject a non-class dependency with a string token](#non-class-dependency)
+
+  [Inject a non-class dependency with an *OpaqueToken*](#opaque-token)
+
+  [Use a value provider](#value-provider)
+
+  [Provide a new or alternative implementation of a service](#new-implementation)
+  
+  [Use a service factory provider](#factory)
+  
+  **See the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)**.
+
+.l-main-section
+<a id="singleton"></a>
+:marked
+  ## Inject a service into a component
+  
+  `DrawService` is a simple service component that can draw a polygon:
+  
++makeExample('cb-dependency-injection/ts/app/draw.service.ts')
+  
+.l-sub-section
+  :marked
+    Angular DI framework needs service metadata. TypeScript only generates metadata for classes that have a decorator,
+    thus we apply the `@Injectable()` decorator to `DrawService`.
+:marked
+  `TriangleComponent` obtains an instance of `DrawService` through contsructor injection.
+  
++makeExample('cb-dependency-injection/ts/app/triangle.component.ts')
+  
+:marked
+  We use the `providers` property of the `@Component` annotation to declare that we want to get an instance of
+  `DrawService` injected into `TriangleComponent`. Angular takes care of instantiating the service, 
+  and injecting it into the constructor:
+  
++makeExample('cb-dependency-injection/ts/app/triangle.component.ts', 'providers')
+  
+:marked
+  The running application displays the "drawing instructions" returned by `DrawService`:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/singleton.png" alt="Inject-service")
+
+:marked
+  ### Test it
+  
+  A single E2E test case demonstrates that the service is instantiated, injected and invoked as expected:
+
++makeExample('cb-dependency-injection/e2e-spec.js', 'singleton')
+  
+:marked
+  [Back to top](#top)
+
+
+.l-main-section
+<a id="service"></a>
+:marked
+  ## Inject a service into another service
+  
+  Services can be injected into other services, too. `DrawWithPenService` is a service that depends on another service, 
+  `PenService`, to draw a shape:
+
++makeExample('cb-dependency-injection/ts/app/draw-with-pen.service.ts')
+  
+:marked
+  `PenService` manages the pen to be used when drawing a shape:
+  
++makeExample('cb-dependency-injection/ts/app/pen.service.ts')
+  
+:marked
+  `SquareComponent` "displays" a yellow square &mdash; with `DrawWithPenService` injected through the constructor:
+  
++makeExample('cb-dependency-injection/ts/app/square.component.ts')
+
+:marked
+  We use the `providers` property of the `@Component` decorator to pass both `DrawWithPenService` and its
+  deopendency, `PenService` to the injector of `SquareComponent` so that the DI framework can resolve all dependencies
+  when creating `SquareComponent`.
+  
+  The running application displays the drawing steps &mdash; including the color of the pen:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/service.png" alt="Inject-service")
+
+:marked
+  ### Test it
+  
+  We test that both services are instantiated, injected and utilized as expected:
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'service')
+  
+:marked
+  [Back to top](#top)
+
+
+.l-main-section
+<a id="children"></a>
+:marked
+  ## Inject service instances into the children of a component
+  
+  Angular DI supports [Hierarchical Injectors](../guide/hierarchical-dependency-injection.html). When a service is
+  to be resolved in a child component, and it is not found in the injector of the child, the framework keeps looking up 
+  in the injectors of parent components up to the root of the component hiearchy.
+  
+  This recipe demonstrates this mechanism with `RectangleComponent` that uses two services, `RectangleDrawService`
+  and `BorderDrawService`, respectively:
+  
++makeExample('cb-dependency-injection/ts/app/rectangle.component.ts')
+  
+:marked
+  Both service types have an `instanceIndex` property for demonstration purposes, and `RectangleComponent` displays
+  this property value. Here is the definition of `BorderDrawService`:
+  
++makeExample('cb-dependency-injection/ts/app/border-draw.service.ts')
+  
+:marked
+.l-sub-section
+  :marked
+    `RectangleDrawService` follows the same structure as `BorderDrawService`, se we omit its source code listing 
+    for the sake of brevity.
+:marked
+  `CanvasComponent` is a parent that nests three `RectagleComponent` instances:
+  
++makeExample('cb-dependency-injection/ts/app/canvas.component.ts')
+  
+:marked
+  We've configured the injectors so that `CanvasComponent` provides `RectangleDrawService`, and `RectangleComponent`
+  provides `BorderDrawService`.
+  
+  The running application demonstrates that each `RectangleComponent` uses its own `BorderDrawInstance` 
+  (instance indexes are different), while they share the same `RectangleDrawService`:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/children.png" alt="services-in-children")
+
+:marked
+  ### Test it
+  
+  Test that each `RectangleComponent` uses its own `BorderDrawService`, and they share a singleton
+  `RectangleDrawService`.
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'children')
+  
+:marked
+  [Back to top](#top)
+
+
+.l-main-section
+<a id="optional-dependency"></a>
+:marked
+  ## Use an optional dependency
+  
+  Our components &mdash; and services &mdash; can mark injected services optional, meaning that a component can
+  carry out its task without the particular service, providing its own default implementation or workaround.
+  When an optional service cannot be resolved by the DI framework (not found after traversing the chain of injectors),
+  a `null` value is injected into the constructor for the corresponding argument.
+  
+  `DrawService` is a simple service component that can draw a polygon:
+  
++makeExample('cb-dependency-injection/ts/app/draw.service.ts')
+
+:marked
+  We intend to inject this service into two components. `TriangleComponent` sets up the injector with the `providers`
+  property so that the DI framework will inject a `DrawService` instance into the constructor:
+  
++makeExample('cb-dependency-injection/ts/app/triangle.component.ts')
+  
+:marked
+  In contrast to `TriangleComponent`, `LineComponent` marks `DrawService` as optional &mdash; with `@Optional()`
+  decorating the single constructor parameter. Neither `LineComponent` nor any of its parent provide a 
+  resolution for `DrawService`:
+
++makeExample('cb-dependency-injection/ts/app/line.component.ts')
+  
+:marked
+  In the body of the constructor, we can observe that it checks whether a `DrawService` instance was injected. If
+  no service instance is passed to the constructor, it provides a workaround to mimic the behavior of `DrawService`.
+  
+  In the running application, we can discover this "fake" behavior:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/optional.png" alt="Optional-service")
+
+:marked
+  ### Test it
+  
+  Tests check whether the non-injected optional service is replaced with its internal implementation.
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'optional')
+  
+:marked
+  [Back to top](#top)
+
+
+.l-main-section
+<a id="non-class-dependency"></a>
+:marked
+  ## Inject a non-class dependency with a string token
+  
+  Dependencies can be not only classes but simple values, functions or objects.
+  In this case, we cannot use class names when configuring the injector &mdash; the `providers` property of the 
+  `@Component()` decoration &mdash; as we do not have classes. Instead, we can use string tokens 
+  &mdash; as we do in this recipe &mdash; or `OpaqueToken` 
+  (see the [Inject a non-class dependency with an *OpaqueToken*](#opaque-token) recipe).
+  
+  `MessageWrapperComponent` uses two string configuration values, `prefix` and `suffix` to wrap a string. These
+  values are injected through the constructor:
+  
++makeExample('cb-dependency-injection/ts/app/message-wrapper.component.ts')
+
+:marked
+  Because `prefix` and `suffix` cannot be tied to a specific service type &mdash; they are values and not classes &mdash; 
+  we use string tokens, `wrapper.prefix` and `wrapper.suffix`, respectively, as hash values to allow the injector to
+  resolve dependencies.
+  
+  The `MessageEncoderComponent` uses these string tokens to provide the values for the dependencies:
+
++makeExample('cb-dependency-injection/ts/app/message-encoder.component.ts')
+
+:marked
+  The running application demonstrates that these dependencies are resolved as expected:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/non-class-dependency.png" alt="Non-class-dependency")
+
+:marked
+  ### Test it
+
+  This test checks whether a wrapped message uses the specified prefix and suffix values:
+
++makeExample('cb-dependency-injection/e2e-spec.js', 'non-class-dependency')
+
+:marked
+  [Back to top](#top)
+
+
+.l-main-section
+<a id="opaque-token"></a>
+:marked
+  ## Inject a non-class dependency with an *OpaqueToken*
+  
+  Dependencies can be not only classes but simple values, functions or objects.
+  In this case, we cannot use class names when configuring the injector &mdash; the `providers` property of the 
+  `@Component()` decoration &mdash; as we do not have classes. Instead, we can use string tokens (see the
+  [Inject a non-class dependency with a string token](#non-class-dependency) recipe) or *OpaqueToken* &mdash;
+  as we do in this recipe.
+  
+.l-sub-section
+  :marked
+    When we use string tokens, those may collide with other developers' magic strings, or fail because of
+    typos. `OpaqueToken` is safer, as potential collisions or typos may raise error messages during compile time
+    and not only at run time.
+.l-main.section
+:marked
+  `EllipseComponent` is a simple class that draws an ellipse in the page. The aspect ratio of between height
+  and width of the ellipse is injected into the component. Instead of using a magic string token for the
+  aspect ratio's configuration value, we use the `ELLIPSE_RATIO` variable that is an `OpaqueToken` 
+  with the value of `ellipse.ratio`:
+  
++makeExample('cb-dependency-injection/ts/app/ellipse.component.ts')
+
+:marked
+  The `EllipseCanvasComponent` utilizes `ELLIPSE_RATIO` as the token of the provider to pass the 
+  configuration value of `0.75`:
+
++makeExample('cb-dependency-injection/ts/app/ellipse-canvas.component.ts')
+
+:marked
+  The running app shows that the displayed ellipses have the expected aspect ratio between their heights and widths:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/opaque-token.png" alt="opaque-token")
+
+:marked
+  The test checks if ellipses have the expected dimensions.
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'opaque-token')
+
+:marked
+  [Back to top](#top)
+
+
+
+.l-main-section
+<a id="value-provider"></a>
+:marked
+  ## Use a value provider
+  
+  Instead of asking the DI framework to create a service from a class, we can provide a ready-made object.
+  `CircleComponent` uses a service, `CircleApi` to display instructions to draw a particular circle object:
+  
++makeExample('cb-dependency-injection/ts/app/circle.component.ts')
+
+:marked
+  The original version of `CircleApi` generates instructions that drive a plotter device:
+  
++makeExample('cb-dependency-injection/ts/app/circle-api.service.ts')
+
+:marked
+  We create an application that examines several shapes, and we want to add a simple plug-in instead of the
+  plotter device. In this app, we create an object that is compatible with the shape of `CicleApi`, and
+  configures the provider to use this object instead of creating a `CircleApi` instance:
+  
++makeExample('cb-dependency-injection/ts/app/paint.component.ts')
+
+:marked
+  The running app demonstrates that it injects this object into `CircleComponent` to "draw" a circle:
+
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/value-provider.png" alt="value-provider")
+
+:marked
+  ### Test it
+  
+  The test checks that the provided value is passed to `CircleComponent` instead of an instance of `CircleApi`:
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'value-provider')
+
+:marked
+  [Back to top](#top)
+
+
+
+.l-main-section
+<a id="new-implementation"></a>
+:marked
+  ## Provide a new or alternative implementation of a service
+  
+  Occasionally, we need to provide a new &mdash; or alternative &mdash; implementation of an existing service.
+  
+  We have an application that utilizes `CryptoService` to encode messages:
+  
++makeExample('cb-dependency-injection/ts/app/crypto.service.ts')
+
+:marked
+  We're not satisified with this service, because it does not ensure such a strong description as its new
+  version, `Crypto2Service`:
+  
++makeExample('cb-dependency-injection/ts/app/crypto2.service.ts')
+
+:marked
+  We used a vast number of components with `CryptoService` as a dependency, and we want to change several of
+  them to the new version. We can tell the injector to use our new implementation instead of the old one.
+  `EnigmaComponent` demonstrates that we can apply the `useClass` configuration property to set up the
+  injector this way:
+  
++makeExample('cb-dependency-injection/ts/app/enigma.component.ts')
+
+:marked
+  The encoded message in the running application shows the the DI framework injected a `Crypto2Service`
+  instance into `EnigmaComponent`:
+
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/new-implementation.png" alt="new-implementation")
+
+:marked
+  ### Test it
+
+  The test checks that the new service instance is injected instead of the old one:
+  
++makeExample('cb-dependency-injection/e2e-spec.js', 'alternative')
+
+:marked
+  [Back to top](#top)
+
+.l-main-section
+<a id="factory"></a>
+:marked
+  ## Use a service factory provider
+  
+  Occasionaly we need to create a dependent service instance dynamically, based on values that may change in the application.
+  In such scenarios, we can use a factory provider.
+  
+  `ThemedDrawService` utilizes the profile information of the currently logged in user to decide wether the "red" 
+  or "green" theme should be used to draw shapes in the page:
+  
++makeExample('cb-dependency-injection/ts/app/themed-draw.service.ts', 'service')
+
+:marked
+  `ThemedRectangleComponent` uses the injected `ThemedDrawService` to draw a rectangle:
+
++makeExample('cb-dependency-injection/ts/app/themed-rectangle.component.ts')
+
+:marked
+  The app's main component, `ThemedAppComponent`, allows users log in and log out. For demonstration purposes, the app
+  provides two buttons to represent two users with different themes:
+  
++makeExample('cb-dependency-injection/ts/app/themed-app-template.html')
+
+:marked
+  As the `ngIf` directive in the last line of the sample indicates, the `themed-rectangle` element is displayed only when
+  a user is logged in. We want to set up dependency injection so that every time a new user logs in, a new instance of
+  `ThemedDrawService` is instantiated, as it ensures that the rectanle will be displayed according the user's theme settings.
+  
+  To achive this, we create a factory function &mdash; it knows how to create a new service instance &mdash;, 
+  and a provider that can be passed to the injector:
+  
++makeExample('cb-dependency-injection/ts/app/themed-draw.service.ts', 'factory')
+
+:marked
+  We take care to use the very same provider in the declaration of `ThemedRectangleComponent`:
+  
++makeExample('cb-dependency-injection/ts/app/themed-rectangle.component.ts', 'providers')
+
+:marked
+  Every time a new user logs in, a new instance of `ThemedRectangle` is instantiated &mdash; due to `ngIf` in the
+  `themed-rectangle` tag. According to `themedDrawProvider`, the DI framework invokes the factory function to inject 
+  a new `ThemedDrawService` instance into `ThemedRectangle`.
+  
+  The running application demonstrates this:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/factory.gif" alt="factory")
+
+:marked
+  ### Test it
+  We test that the login buttons create a `ThemedRectangleComponent` with the style accoding to the current user's
+  theme.
+
++makeExample('cb-dependency-injection/e2e-spec.js', 'factory')
+
+:marked
+  [Back to top](#top)
