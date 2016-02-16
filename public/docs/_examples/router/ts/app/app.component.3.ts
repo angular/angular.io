@@ -27,7 +27,7 @@ import {HeroService}           from './heroes/hero.service';
   */
   /* Crisis Center link when CC lacks a default
   // #docregion cc-anchor-no-default
-  <a [routerLink]="['CrisisCenter', 'CrisisCenter']">Crisis Center</a>
+  <a [routerLink]="['CrisisCenter', 'CrisisList']">Crisis Center</a>
   // #enddocregion cc-anchor-no-default
   */
   /* Crisis Center Detail link
@@ -39,7 +39,7 @@ import {HeroService}           from './heroes/hero.service';
   template: `
     <h1 class="title">Component Router</h1>
     <nav>
-      <a [routerLink]="['CrisisCenter', 'CrisisCenter']">Crisis Center</a>
+      <a [routerLink]="['CrisisCenter', 'CrisisList']">Crisis Center</a>
       <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
       <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:2}]">Dragon Crisis</a>
     </nav>

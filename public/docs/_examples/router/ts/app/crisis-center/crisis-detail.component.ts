@@ -75,7 +75,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     // so that the CrisisListComponent can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
-    this._router.navigate(['CrisisCenter',  {id: crisisId, foo: 'foo'} ]);
+    this._router.navigate(['CrisisList', {id: crisisId, foo: 'foo'} ]);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

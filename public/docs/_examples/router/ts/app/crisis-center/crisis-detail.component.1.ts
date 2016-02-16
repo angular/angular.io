@@ -82,8 +82,8 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
   // #docregion gotoCrises
   gotoCrises() {
-    // Like <a [routerLink]="['CrisisCenter']">Crisis Center</a
-    this._router.navigate(['CrisisCenter']);
+    // Like <a [routerLink]="['CrisisList']">Crisis Center</a
+    this._router.navigate(['CrisisList']);
   }
   // #enddocregion gotoCrises
 // #docregion routerCanDeactivate, cancel-save
