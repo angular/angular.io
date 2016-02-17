@@ -84,11 +84,11 @@ figure.image-display
   
   Below the button is an optional error message.
    
-  ### The `HeroListComponent` class
+  ### The *HeroListComponent* class
   We [inject](dependency-injection.html) the `HeroService` into the constructor.
   That's the instance of the `HeroService` that we provided in the parent shell `TohComponent`.
 
-  Notice that the component **does not talk to the server directly!**. 
+  Notice that the component **does not talk to the server directly!** 
   The component doesn't know or care how we get the data. 
   Those details it delegates to the `heroService` class (which we'll get to in a moment).
   This is a golden rule: *always delegate data access to a supporting service class*.
@@ -132,9 +132,15 @@ figure.image-display
   Look closely at how we call `http.get`
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get-v1', 'app/toh/hero.service.ts (http.get)')(format=".")
 :marked
-  We pass the resource URL to `get` and it calls the server which returns
-  data from the `heroes.json` file.
-
+  We pass the resource URL to `get` and it calls the server which should return heroes.
+.l-sub-section
+  :marked
+    It *will* return heroes once we've set up the [in-memory web api](in-mem-web-api)
+    described in the appendix below.
+    
+    Alternatively, we can (temporarily) target a JSON file by changing the endpoint URL:
+  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint-json')(format=".")
+:marked
   <a id="rxjs"></a>
   The return value may surprise us. Many of us would expect a 
   [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
@@ -199,13 +205,17 @@ figure.image-display
     The Angular HTTP client follows the ES2015 specification for the
     [response object](https://fetch.spec.whatwg.org/#response-class) returned by the `Fetch` function.
     That spec defines a `json()` method that parses the response body into a JavaScript object.
-
-    We must also know the shape of the data returned by the server API.
+.l-sub-section
+  :marked
     We shouldn't expect `json()` to return the heroes array directly.
     The server we're calling always wraps JSON results in an object with a `data`
     property. We have to unwrap it to get the heroes.
     This is conventional web api behavior, driven by 
     [security concerns](https://www.owasp.org/index.php/OWASP_AJAX_Security_Guidelines#Always_return_JSON_with_an_Object_on_the_outside).
+.alert.is-important
+  :marked
+     Make no assumptions about the server API. 
+     Not all servers return an object with a `data` property.
 :marked
   ### Do not return the response object
   Our `getHeroes()` could have returned the `Observable<Response>`.
@@ -230,7 +240,7 @@ figure.image-display
   In this simple app we provide rudimentary error handling in both the service and the component.
   
   We use the Observable `catch` operator on the service level.
-  It takes an error handling function with the failed `Response` object as the argument.  
+  It takes an error handling function with the failed `Response` object as the argument.
   Our service handler, `errorHandler`, logs the response to the console, 
   transforms the error into a user-friendly message, and returns the message in a new, failed observable via `Observable.throw`.
 
@@ -249,9 +259,7 @@ figure.image-display
   
 .l-sub-section
   :marked
-    Try messing with the value of the api endpoint in the `HeroService` and watch it fail
-  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint', 'app/toh/hero.service.ts (endpoint)')
-  
+    Want to see it fail? Reset the api endpoint in the `HeroService` to a bad value. Remember to restore it!
 <a id="do"></a>
 <a id="console-log"></a>
 :marked
@@ -317,10 +325,10 @@ code-example(format="." language="javascript").
 :marked
   ### JSON results
   As with `get`, we extract the data from the response with `json()` and unwrap the hero via the `data` property.
-.l-sub-section
+.alert.is-important
   :marked
-    *Reminder*: we must know the shape of the data returned by the server. 
-    The sample web api returns the new hero wrapped in an object with a `data` property.
+    Know the shape of the data returned by the server. 
+    *This* web api returns the new hero wrapped in an object with a `data` property.
     A different api might just return the hero in which case we'd omit the `data` de-reference.
 :marked
   Back in the `HeroListComponent`, we see that *its* `addHero` method subscribes to the observable returned by the *service's* `addHero` method.
@@ -337,7 +345,7 @@ code-example(format="." language="javascript").
 .l-sub-section
   :marked
     While promises may be more familiar, observables have many advantages. 
-    Don't rush to promises until you've observables a chance.
+    Don't rush to promises until you give observables a chance.
 :marked
   Let's rewrite the `HeroService` using promises , highlighting just the parts that are different.
 +makeTabs(
@@ -521,7 +529,7 @@ figure.image-display
 +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')
 :marked
   Each search term is a string, so we create a new `Subject` of type `string` called `_searchTermStream`.
-  After every keystroke, the `search` method adds the the search box value to that stream
+  After every keystroke, the `search` method adds the search box value to that stream
   via the subject's `next` method.
 +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
 :marked
@@ -560,36 +568,48 @@ figure.image-display
     to mitigate the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk)
     posed by top-level JSON arrays. 
 :marked
-  Our sample saves data. We can't save to a JSON file. We'll need a server ... or a server simulation.
-  This sample uses an in-memory web api simulator that we first installed with `npm`:
-code-example.
+  We'd set the endpoint to the JSON file like this:
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint-json')(format=".")
+:marked
+  The *get heroes* scenario would work.
+  But we want to *save* data too. We can't save changes to a JSON file. We need a web api server.
+  
+  We didn't want the hassle of setting up and maintaining a real server for this chapter.
+  So we turned to an *in-memory web api simulator* instead. 
+  You too can use it in your own development while waiting for a real server to arrive.
+  
+  First, install it with `npm`:
+code-example(language="bash").
   npm install a2-in-memory-web-api --save
 :marked
-  and then loaded it in our html below the angular script:
+  Then load the script in the `index.html` below angular:
 +makeExample('server-communication/ts/index.html', 'in-mem-web-api', 'index.html')(format=".")
 :marked
-  The in-memory web api gets its data from a class with a `createDb()` method that returns
+  The *in-memory web api* gets its data from a class with a `createDb()` method that returns
   a "database" object whose keys are collection names ("heroes") 
   and whose values are arrays of objects in those collections.
   
   Here's the class we created for this sample by copy-and-pasting the JSON data:
 +makeExample('server-communication/ts/app/hero-data.ts', null, 'app/hero-data.ts')(format=".")
 :marked
-  Finally, we tell Angular to direct its http requests to the in-memory web api service rather
-  than to a remote server.
+  We update the `HeroService` endpoint to the location of the web api data.
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint')(format=".")
+:marked
+  Finally, we tell Angular itself to direct its http requests to the *in-memory web api* rather
+  than externally to a remote server.
   
-  This redirection is easy in Angular because `http` delegates the client/server communication tasks
+  This redirection is easy because Angular's `http` delegates the client/server communication tasks
   to a helper service called the `XHRBackend`. 
   
-  To enable our server simulation, we replace the `XHRBackend` service with 
-  the in-memory web api *backend* using standard Angular provider registration
-  in the `TohComponent`. We supply the hero data to the in-memory web api in the same way at the same time.
+  To enable our server simulation, we replace the default `XHRBackend` service with 
+  the *in-memory web api service* using standard Angular provider registration
+  in the `TohComponent`. We initialize the *in-memory web api* with mock hero data at the same time.
   
   Here are the pertinent details, excerpted from `TohComponent`, starting with the imports:
 +makeExample('server-communication/ts/app/toh/toh.component.ts', 'in-mem-web-api-imports', 'toh.component.ts (web api imports)')(format=".")
 :marked
-  Then add these two provider definitions to the component's `providers` array in metadata:
-+makeExample('server-communication/ts/app/toh/toh.component.ts', 'in-mem-web-api-providers', 'toh.component.ts (web api providers')(format=".")
+  Then we add the following two provider definitions to the `providers` array in component metadata:
++makeExample('server-communication/ts/app/toh/toh.component.ts', 'in-mem-web-api-providers', 'toh.component.ts (web api providers)')(format=".")
 :marked
   See the full source code in the [live example](/resources/live-examples/server-communication/ts/plnkr.html).
   

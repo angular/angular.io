@@ -15,9 +15,19 @@ import {Observable}     from 'rxjs/Observable';
 @Injectable()
 export class HeroService {
   constructor (private http: Http) {}
+// #enddocregion
+// #enddocregion v1
+
+  /*
+  // #docregion endpoint-json
+  private _heroesUrl = 'app/heroes.json'; // URL to JSON file
+  // #enddocregion endpoint-json
+  */
+// #docregion
+// #docregion v1
 
   // #docregion endpoint
-  private _heroesUrl = 'app/heroes';
+  private _heroesUrl = 'app/heroes';  // URL to web api
   // #enddocregion endpoint
 
   // #docregion methods

@@ -11,7 +11,8 @@ import {Hero}           from './hero';
 export class HeroService {
   constructor (private http: Http) {}
 
-  private _heroesUrl = 'app/heroes';
+  // URL to web api
+  private _heroesUrl = 'app/heroes.json';
 
   // #docregion methods
   getHeroes () {
