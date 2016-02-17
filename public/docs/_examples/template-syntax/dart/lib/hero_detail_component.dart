@@ -13,15 +13,20 @@ var nextHeroDetailId = 1;
 // #docregion input-output-2
     // ...
     inputs: const ['hero'],
-    outputs: const ['deleted'],
+    outputs: const ['deleteRequest'],
 // #enddocregion input-output-2
+    styles:['button { margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
+// #docregion template-1
     template: '''
-  <div>
-    <span [style.text-decoration]="lineThrough" >{{hero?.fullName}}</span>
-    <img src="{{heroImageUrl}}" style="height:24px">
-    <a (click)="onDelete()">delete</a>
-  </div>
+      <div>
+        <img src="{{heroImageUrl}}">
+        <span [style.text-decoration]="lineThrough">
+          {{prefix}} {{hero?.fullName}}
+        </span>
+        <button (click)="delete()">Delete</button>
+      </div>
 '''
+// #enddocregion template-1
 // #docregion input-output-2
     )
 // #enddocregion input-output-2
@@ -29,29 +34,26 @@ class HeroDetailComponent {
   Hero hero = new Hero('Zzzzzzzz'); // default sleeping hero
   String heroImageUrl = 'assets/images/hero.png';
   String lineThrough = ''; // PENDING: use null instead?
+  @Input() String prefix = '';
 
-  // #docregion deleted
-  final EventEmitter deleted = new EventEmitter<Hero>();
-  // #enddocregion deleted
+  // #docregion deleteRequest
+  // This component make a request but it can't actually delete a hero.
+  final EventEmitter deleteRequest = new EventEmitter<Hero>();
 
-  HeroDetailComponent() {
-    deleted.listen((Hero _) {
-      lineThrough = (lineThrough == '') ? 'line-through' : '';
-    });
+  delete() {
+    deleteRequest.emit(hero);
+    // #enddocregion deleteRequest
+    lineThrough = (lineThrough == '') ? 'line-through' : '';
+    // #docregion deleteRequest
   }
-
-  // #docregion deleted
-  onDelete() {
-    deleted.emit(hero);
-  }
-  // #enddocregion deleted
+  // #enddocregion deleteRequest
 }
 
 @Component(
     selector: 'big-hero-detail',
     /*
   inputs: ['hero'],
-  outputs: ['deleted'],
+  outputs: ['deleteRequest'],
   */
     template: '''
   <div style="border: 1px solid black; padding:3px">
@@ -63,18 +65,18 @@ class HeroDetailComponent {
     <div>Web: <a href="{{hero?.url}}" target="_blank">{{hero?.url}}</a></div>
     <div>Rate/hr: {{hero?.rate | currency:'EUR'}}</div>
     <br clear="all">
-    <button (click)="onDelete()">Delete</button>
+    <button (click)="delete()">Delete</button>
   </div>
 ''')
 class BigHeroDetailComponent extends HeroDetailComponent {
   // #docregion input-output-1
   @Input() Hero hero;
-  @Output() final EventEmitter deleted = new EventEmitter<Hero>();
+  @Output() final EventEmitter deleteRequest = new EventEmitter<Hero>();
   // #enddocregion input-output-1
 
   String heroImageUrl = 'assets/images/hero.png';
 
-  onDelete() {
-    deleted.emit(hero);
+  delete() {
+    deleteRequest.emit(hero);
   }
 }

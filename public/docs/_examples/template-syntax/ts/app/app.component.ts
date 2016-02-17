@@ -38,6 +38,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   actionName = 'Go for it';
   alert = alerter;
   badCurly = 'bad curly';
+  classes = 'special';
+
   callFax(value:string)   {this.alert(`Faxing ${value} ...`)}
   callPhone(value:string) {this.alert(`Calling ${value} ...`)}
   canSave =  true;
@@ -48,6 +50,10 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   currentHero = Hero.MockHeroes[0];
 
+  deleteHero(hero:Hero){
+    this.alert('Deleted hero: '+ (hero && hero.firstName))
+  }
+  
   // DevMode memoization fields
   private _priorClasses:{};
   private _priorStyles:{};
@@ -86,10 +92,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   onClickMe(event:KeyboardEvent){
     let evtMsg = event ? ' Event target class is '+ (<HTMLElement>event.target).className  : '';
     this.alert('Click me.'+evtMsg)
-  }
-
-  onHeroDeleted(hero:Hero){
-    this.alert('Deleted hero: '+ (hero && hero.firstName))
   }
 
   onSave(event:KeyboardEvent){

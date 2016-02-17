@@ -28,6 +28,7 @@ class AppComponent {
 //  String badCurly = 'bad curly'; // XXX: This isn't working.
   String badCurly = 'bad'; // XXX: This isn't working.
 //  List<String> badCurly = ['bad', 'curly']; // XXX: This isn't working.
+  String classes = 'special';
   bool canSave = true;
   bool isActive = false;
   bool isSpecial = true;
@@ -96,14 +97,14 @@ class AppComponent {
     alerter('Click me. $evtMsg');
   }
 
+  void deleteHero([Hero hero]) => alerter('Deleted hero: ${hero?.firstName}');
+
   bool onSave([MouseEvent event = null]) {
     var evtMsg =
         event != null ? ' Event target is ${event.target.innerHtml}.' : '';
     alerter('Saved. $evtMsg');
     return false;
   }
-
-  void onHeroDeleted([Hero hero]) => alerter('Deleted hero: ${hero?.firstName}');
 
   void onSubmit(NgForm form) {
     var evtMsg = form.valid

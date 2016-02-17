@@ -11,41 +11,42 @@ let nextHeroDetailId = 1;
   selector: 'hero-detail',
   // #docregion input-output-2
   inputs: ['hero'],
-  outputs: ['deleted'],
+  outputs: ['deleteRequest'],
   // #enddocregion input-output-2
+  styles:['button { margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
+  // #docregion template-1
   template: `
   <div>
-    <span [style.text-decoration]="lineThrough" >{{hero?.fullName}}</span>
-    <img src="{{heroImageUrl}}" style="height:24px">
-    <a (click)="onDelete()">delete</a>
-  </div>`,
-    styles:['a { cursor: pointer; cursor: hand; }']
+    <img src="{{heroImageUrl}}">
+    <span [style.text-decoration]="lineThrough">
+      {{prefix}} {{hero?.fullName}}
+    </span>
+    <button (click)="delete()">Delete</button>
+  </div>`
+  // #enddocregion template-1
 // #docregion input-output-2
 })
 // #enddocregion input-output-2
 export class HeroDetailComponent {
-  constructor() {
-    // Toggle the line-through style so we see something happen
-    // even if no one attaches to the `deleted` event.
-    // Subscribing in ctor rather than the more obvious thing of doing it in
-    // OnDelete because don't want this mess to distract the chapter reader.
-    this.deleted.subscribe(() => {
-      this.lineThrough = this.lineThrough ? '' : 'line-through';
-    })
+
+// #docregion deleteRequest
+  // This component make a request but it can't actually delete a hero.
+  deleteRequest = new EventEmitter<Hero>();
+
+  delete() {
+    this.deleteRequest.emit(this.hero);
+    // #enddocregion deleteRequest
+    this.lineThrough = this.lineThrough ? '' : 'line-through';
+    // #docregion deleteRequest
   }
-  
-// #docregion deleted
-  deleted = new EventEmitter<Hero>();
-  onDelete() {
-    this.deleted.emit(this.hero);
-  }
-// #enddocregion
-  
+// #enddocregion deleteRequest
+
   hero: Hero = new Hero('','Zzzzzzzz'); // default sleeping hero
   // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
   // Public Domain terms of use: http://www.wpclipart.com/terms.html
   heroImageUrl = 'images/hero.png';
-  lineThrough = '';  
+  lineThrough = '';
+  @Input() prefix = '';
 }
 
 @Component({
@@ -60,7 +61,7 @@ export class HeroDetailComponent {
     <div>Web: <a href="{{hero?.url}}" target="_blank">{{hero?.url}}</a></div>
     <div>Rate/hr: {{hero?.rate | currency:'EUR'}}</div>
     <br clear="all">
-    <button (click)="onDelete()">Delete</button>
+    <button (click)="delete()">Delete</button>
   </div>
   `
 })
@@ -68,10 +69,10 @@ export class BigHeroDetailComponent extends HeroDetailComponent {
 
   // #docregion input-output-1
   @Input()  hero: Hero;
-  @Output() deleted = new EventEmitter<Hero>();
+  @Output() deleteRequest = new EventEmitter<Hero>();
   // #enddocregion input-output-1
 
-  onDelete() {
-    this.deleted.emit(this.hero);
+  delete() {
+    this.deleteRequest.emit(this.hero);
   }
 }
