@@ -5,6 +5,7 @@ var path = require('canonical-path');
 var del = require('del');
 var _ = require('lodash');
 var argv = require('yargs').argv;
+var env = require('gulp-env');
 var Q = require("q");
 // delPromise is a 'promise' version of del
 var delPromise =  Q.denodeify(del);
@@ -394,6 +395,14 @@ gulp.task('test-api-builder', function (cb) {
 
 
 // Internal tasks
+gulp.task('set-prod-env', function () {
+  // Supposedly running in production makes harp faster
+  // and less likely to drown in node_modules.
+  env({
+    vars: { NODE_ENV: "production" }
+  });
+  gutil.log("NODE_ENV: " + process.env.NODE_ENV);
+});
 
 // used to test just harpCompile without a build step
 gulp.task('_harp-compile', function() {
@@ -447,11 +456,19 @@ gulp.task('_zip-examples', function() {
 // Helper functions
 
 function harpCompile() {
+  // Supposedly running in production makes harp faster
+  // and less likely to drown in node_modules.
+  env({
+    vars: { NODE_ENV: "production" }
+  });
+  gutil.log("NODE_ENV: " + process.env.NODE_ENV);
+  
   var deferred = Q.defer();
   gutil.log('running harp compile...');
   showHideExampleNodeModules('hide');
   var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', './www' ]);
   spawnInfo.promise.then(function(x) {
+    gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
     if (x !== 0) {
       deferred.reject(x)
@@ -459,6 +476,7 @@ function harpCompile() {
       deferred.resolve(x);
     }
   }).catch(function(e) {
+    gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
     deferred.reject(e);
   });
@@ -560,7 +578,12 @@ function getFilenames(basePath, filename, includeBase) {
 }
 
 function watchAndSync(options, cb) {
-
+  // Supposedly running in production makes harp faster
+  // and less likely to drown in node_modules.
+  env({
+    vars: { NODE_ENV: "production" }
+  });
+  
   execCommands(['npm run harp -- server .'], {}, cb);
 
   var browserSync = require('browser-sync').create();
@@ -847,6 +870,8 @@ function execCommands(cmds, options, cb) {
   options.shouldLog = options.shouldLog == null ? true : options.shouldLog;
   if (!cmds || cmds.length == 0) cb(null, null, null);
   var exec = require('child_process').exec;  // just to make it more portable.
+  gutil.log("NODE_ENV: " + process.env.NODE_ENV);
+  
   exec(cmds[0], options, function(err, stdout, stderr) {
     if (err == null) {
       if (options.shouldLog) {
