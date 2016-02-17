@@ -172,8 +172,10 @@ include ../../../../_includes/_util-fns
   The view should be stable throughout a single rendering pass.
 
   #### Quick execution
-  Angular executes template expressions more often than we might think.
+  Angular executes template expressions more often than we think.
+  They can be called after every keypress or mouse move.
   Expressions should finish quickly or the user experience may drag, especially on slower devices.
+  Consider caching values computed from other values when the computation is expensive.
 
   #### Simplicity
   Although it's possible to write quite complex template expressions, we really shouldn't.
@@ -565,40 +567,57 @@ table
 :marked
   If the name fails to match a property of a known directive or element, Angular reports an “unknown directive” error.
 
-  ### Template expressions in property binding
+  ### Avoid side effects
   As we've already discussed, evaluation of a template expression should have no visible side effects. The expression language itself does its part to keep us safe. We can’t assign a value to anything in a property binding expression nor use the increment and decorator operators.
 
   Of course, our expression might invoke a property or method that has side effects. Angular has no way of knowing that or stopping us.
 
   The expression could call something like `getFoo()`. Only we know what `getFoo()` does.
   If `getFoo()` changes something and we happen to be binding to that something, we risk an unpleasant experience. Angular may or may not display the changed value. Angular may detect the change and throw a warning error. Our general advice: stick to data properties and to methods that return values and do no more.
+  
+  ### Return the proper type
+  The template expression should evaluate to the type of value expected by the target property. 
+  Return a string if the target property expects a string. 
+  Return a number if the target property expects a number.
+  Return an object if the target property expects an object.
 
-  The template expression should evaluate to a value of the type expected by the target property. Most native element properties expect a string. For example, the image `src` should be set to a string that's an URL for the resource providing the image. On the other hand, the `disabled` property of a button expects a Boolean value, so an expression that's assigned to `disabled` should evaluate to `true` or `false`.
-
-  The `hero` property of the `HeroDetail` component expects a `Hero` object, which is exactly what we’re sending in the property binding:
+  The `hero` property of the `HeroDetail` component expects a `Hero` object, which is exactly what we’re sending in the property binding: 
 // #enddocregion property-binding-10
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-4')(format=".")
 // #docregion property-binding-11
 :marked
-  This is good news.
-  If `hero` were an attribute, we could not set it to a `Hero` object.
+  ### Remember the brackets
+  The brackets tell Angular to evaluate the template expression. 
+  If we forget the brackets, Angular treats the string as a constant and *initializes the target property* with that string.
+  It does *not* evaluate the string!
+
+  Don't make the following mistake:
 // #enddocregion property-binding-11
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-6')(format=".")
 // #docregion property-binding-12
+a(id="one-time-initialization")
 :marked
-  We can't set an attribute to an object. We can only set it to a string.
-  Internally, the attribute may be able to convert that string to an object before setting the like-named element property.
-  That’s good to know but not helpful to us when we're trying to pass a significant data object
-  from one component element to another.
-  The power of property binding is its ability to bypass the attribute and
-  set the element property directly with a value of the appropriate type.
+  ### One-time string initialization
+  We *should omit the brackets* when
+  * the target property accepts a string value
+  * the string is a fixed value that we can bake into the template
+  * this initial value never changes
+  
+  We routinely initialize attributes this way in standard HTML and it works
+  just as well for directive and component property initialization.
+  In the following example, we initialize the `prefix` property of the `HeroDetailComponent` to a fixed string, 
+  not a template expression. Angular sets it and forgets it. 
+// #enddocregion property-binding-12
++makeExample('template-syntax/ts/app/app.component.html', 'property-binding-7')(format=".")
+// #docregion property-binding-13
+:marked
+  The `[hero]` binding, on the other hand, remains a live binding to the component's `currentHero` property.
 
   ### Property binding or interpolation?
   We often have a choice between interpolation and property binding. The following binding pairs do the same thing:
-// #enddocregion property-binding-12
-
+// #enddocregion property-binding-13
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-vs-interpolation')(format=".")
-// #docregion property-binding-13
+// #docregion property-binding-14
 :marked
   Interpolation is a convenient alternative for property binding in many cases.
   In fact, Angular  translates those interpolations into the corresponding property bindings
@@ -608,7 +627,7 @@ table
   We lean toward readability, which tends to favor interpolation.
   We suggest establishing coding style rules for the organization and choosing the form that
   both conforms to the rules and feels most natural for the task at hand.
-// #enddocregion property-binding-13
+// #enddocregion property-binding-14
 
 // #docregion other-bindings-1
 .l-main-section
@@ -754,7 +773,7 @@ code-example(format="", language="html").
 // #docregion event-binding-2
 :marked
   ### Target event
-  A **name between enclosing parentheses** &mdash; for example, `(keyup)` &mdash;
+  A **name between enclosing parentheses** &mdash; for example, `(click)` &mdash;
   identifies the target event. In the following example, the target is the button’s click event.
 // #enddocregion event-binding-2
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
@@ -812,29 +831,36 @@ code-example(format="", language="html").
   The directive calls `EventEmitter.emit(payload)` to fire an event, passing in a message payload that can be anything.
   Parent directives listen for the event by binding to this property and accessing the payload through the `$event` object.
 
-  Consider a `HeroDetailComponent` that produces `deleted` events with an `EventEmitter`.
+  Consider a `HeroDetailComponent` that presents hero information and responds to user actions.
+  Although the `HeroDetailComponent` has a delete button it doesn't know how to delete the hero itself. 
+  The best it can do is raise an event reporting the user's delete request. 
+  
+  Here are the pertinent excerpts from that `HeroDetailComponent`:
 // #enddocregion event-binding-6
 +makeExample('template-syntax/ts/app/hero-detail.component.ts',
-'deleted', 'HeroDetailComponent.ts (excerpt)')(format=".")
+'template-1', 'HeroDetailComponent.ts (template)')(format=".")
++makeExample('template-syntax/ts/app/hero-detail.component.ts',
+'deleteRequest', 'HeroDetailComponent.ts (delete logic)')(format=".")
 
 // #docregion event-binding-7
 :marked
-  When the user clicks a button, the component invokes the `onDelete()` method, which emits a `Hero` object.
-  The `HeroDetailComponent` doesn't know how to delete a hero. Its job is to present information and
-  respond to user actions.
-
-  Now imagine a parent component that binds to the `HeroDetailComponent`'s `deleted` event.
+  The component defines a `deleteRequest` property that returns an `EventEmitter`.
+  When the user clicks *delete*, the component invokes the `delete()` method 
+  which tells the `EventEmitter` to emit a `Hero` object.
+  
+  Now imagine a hosting parent component that binds to the `HeroDetailComponent`'s `deleteRequest` event.
 // #enddocregion event-binding-7
 
 +makeExample('template-syntax/ts/app/app.component.html',
 'event-binding-to-component')(format=".")
 // #docregion event-binding-8
 :marked
-  When the `deleted` event fires, Angular calls the parent component's `onHeroDeleted` method,
+  When the `deleteRequest` event fires, Angular calls the parent component's `deleteHero` method,
   passing the *hero-to-delete* (emitted by `HeroDetail`) in the `$event` variable.
 
-  The `onHeroDeleted` method has a side effect: It deletes a hero.
-  Side effects are not just OK, they are expected.
+  ### Template statements have side effects
+  The `deleteHero` method has a side effect: It deletes a hero.
+  Template statement side effects are not just OK, they are expected.
 
   Deleting the hero updates the model, perhaps triggering other changes
   including queries and saves to a remote server.
@@ -1452,9 +1478,9 @@ figure.image-display
 +makeExample('template-syntax/ts/app/app.component.html', 'io-2')(format=".")
 // #docregion inputs-outputs-3
 :marked
-  Both `HeroDetailComponent.hero` and `HeroDetailComponent.deleted` are on the **left side** of binding declarations.
+  Both `HeroDetailComponent.hero` and `HeroDetailComponent.deleteRequest` are on the **left side** of binding declarations.
   `HeroDetailComponent.hero` is inside brackets; it is the target of a property binding.
-  `HeroDetailComponent.deleted` is inside parentheses; it is the target of an event binding.
+  `HeroDetailComponent.deleteRequest` is inside parentheses; it is the target of an event binding.
 
   ### Declaring input and output properties
   Target properties must be explicitly marked as inputs or outputs.
@@ -1488,7 +1514,7 @@ figure.image-display
   `HeroDetailComponent.hero` is an **input** property from the perspective of `HeroDetailComponent`
   because data flows *into* that property from a template binding expression.
 
-  `HeroDetailComponent.deleted` is an **output** property from the perspective of `HeroDetailComponent`
+  `HeroDetailComponent.deleteRequest` is an **output** property from the perspective of `HeroDetailComponent`
   because events stream *out* of that property and toward the handler in a template binding statement.
 // #enddocregion inputs-outputs-4
 
