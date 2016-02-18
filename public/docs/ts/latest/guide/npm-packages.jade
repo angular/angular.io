@@ -1,0 +1,189 @@
+include ../../../../_includes/_util-fns
+
+:marked
+  Angular applications and Angular itself depend upon features and functionality provided by a variety of third-party packages
+  maintained and installed with the Node Package Manager (<a href="https://docs.npmjs.com/" target="_blank">npm</a>).
+.l-sub-section
+  :marked
+    Don't have npm?
+    <a href="https://docs.npmjs.com/getting-started/installing-node" target="_blank" title="Installing Node.js and updating npm">Get it now</a>
+    because we're going to use it now and repeatedly throughout this documentation.
+:marked
+  The Angular team recommends the starter-set of packages specified in the `dependencies` and `devDependencies`
+  sections of the QuickStart
+  <a href="https://docs.npmjs.com/files/package.json" target="_blank">package.json</a> file:
++makeJson('quickstart/ts/package.1.json',{ paths: 'dependencies, devDependencies'}, 'package.json (dependencies)')(format=".") 
+:marked
+  There are other possible package choices. 
+  We're recommending this particular set that we know work well together. 
+  
+  In this chapter we explain what each package does and why we include it.
+  Feel free to make substitutions later to suit your tastes and experience.
+  
+.l-main-section
+:marked
+  ## *dependencies* and *devDependencies*
+  The `package.json` distinguishes between two sets of packages, 
+  [dependencies](#dependencies) and [devDependencies](#dev-dependencies).
+  
+  The packages listed under *dependencies* are essential to *running* the application. 
+  The *devDependencies* are only necessary to *develop* the application. 
+  They can be excluded from production installations as in this example:
+code-example(format="." language="bash").
+  npm install my-application --production
+  
+a(id="dependencies")
+.l-main-section
+:marked
+  ## *dependencies*
+  There are two package categories in the `dependencies` section of the application `package.json`:
+  
+  * ***Features*** - Feature packages provide our application with framework and utility capabilites.
+  
+  * ***Polyfills*** - Polyfills plug gaps in the browser's JavaScript implementation.
+
+.l-main-section
+:marked
+  ### Feature Packages
+  
+  ***angular2*** - The framework we know and love; the reason we're all here.
+  
+  ***[system.js](https://github.com/systemjs/systemjs)*** -  A dynamic module loader compatible with the 
+  [ES2015 module](http://www.2ality.com/2014/09/es6-modules-final.html) specification.
+  There are other viable choices including the well-regarded [webpack](https://webpack.github.io/).
+  SystemJS happens to be the one we use in the documentation samples. It works.
+  
+  Our applications are likely to require additional packages that provide
+  HTML controls, themes, data access, and various utilities.
+  
+
+a(id="polyfills")
+.l-main-section
+:marked
+  ### Polyfill Packages
+  
+  Angular requires certain [polyfills](https://en.wikipedia.org/wiki/Polyfill) in the application environment.
+  We install these polyfills with very specific npm packages that Angular lists in the *peerDependencies* section of its `package.json`.
+  
+  We must list these packages in the `dependencies` section of our own `package.json`.
+  
+.l-sub-section
+  :marked
+    See "[Why peerDependencies?](#why-peer-dependencies)" below for background on this requirement.
+:marked
+  ***es6-promise*** - Angular applications require ES2015 promise support.
+  Although some browsers provide a native implementation of ES2015 promises many do not.
+  We still need this library even for the browsers that do support promises 
+  in order to integrate with the current version of *zone.js* (see below).
+  This integration dependency goes away in the next version of *zone.js* 
+  The need for *es6-promise* should disappear entirely once promises are implemented by all supported ever-green browsers.
+  
+  ***es6-shim*** - monkey patches the global context (window) with essential features of ES2016 (ES6).
+   Developers may substitute an alternative polyfill that provides the same core APIs. 
+   This dependency should go away once these APIs are implemented by all supported ever-green browsers.
+  
+  ***reflect-metadata*** - a dependency shared between Angular and the ***TypeScript compiler***. 
+  Developers should be able to update a TypeScript package without upgrading Angular, 
+  which is why this is a dependency of the application and not a dependency of Angular.
+  
+  ***rxjs*** - a polyfill for the [Observables specification](https://github.com/zenparsing/es-observable) currently before the 
+  [TC39](http://www.ecma-international.org/memento/TC39.htm) committee that determines standards for the JavaScript language.
+  Developers should be able to pick a preferred version of *rxjs* (within a compatible version range) 
+  without waiting for Angular updates.
+  
+  ***zone.js*** - a polyfill for the [Zone specification](https://gist.github.com/mhevery/63fdcdf7c65886051d55) currently before the 
+  [TC39](http://www.ecma-international.org/memento/TC39.htm) committee that determines standards for the JavaScript language.
+  Developers should be able to pick a preferred version of *zone.js* to use (within a compatible version range) 
+  without waiting for Angular updates.
+
+a(id="dev-dependencies")
+.l-main-section
+:marked
+  ## *devDependencies*
+  The packages listed in the *devDependencies* section of the `package.json` help us develop the application.
+  They do not have to be deployed with the production application although there is rarely harm in doing so.
+
+  ***[concurrently](https://www.npmjs.com/package/concurrently)*** - 
+  a utility to run multiple *npm* commands concurrently on OS/X, Windows, and Linux operating systems.
+  
+  ***[lite-server](https://www.npmjs.com/package/lite-server)*** - 
+  a light-weight, static file server, written and maintained by [John Papa](http://johnpapa.net/) 
+  with excellent support for Angular apps that use routing.
+  
+  ***[typescript](https://www.npmjs.com/package/typescript)*** - 
+  the TypeScript language server including the *tsc* TypeScript compiler.
+  
+  ***[typings](https://www.npmjs.com/package/typings)*** - a manager for TypeScript definition files.
+  Learn more about it in the [TypeScript Configuration](typescript-configuration.html#typings) chapter.
+  
+  This section likely grows as we add more tools, testing, and build support. 
+  The QuickStart set is sufficient for developing the documentation sample applications.
+
+.l-main-section
+a(id="why-peer-dependencies")
+:marked
+  ## Why *peerDependencies*?
+  
+  We don't have a *peerDependencies* section in the QuickStart `package.json`. 
+  But Angular itself has a *peerDependencies* section in 
+  [*its* package.json](https://github.com/angular/angular/blob/master/modules/angular2/package.json) 
+  and that has important consequences for our application. 
+  
+  It explains why we load the [polyfill](#polyfills) *dependency* packages in the QuickStart `package.json`,
+  and why we'll need those packages in our own applications.
+  
+  Let's briefly explain what [peer dependencies](https://nodejs.org/en/blog/npm/peer-dependencies/) are about.
+  
+  As we know, packages depend on other packages. For example, our application depends upon the Angular package.
+  
+  Two packages, 'A' and 'B', could depend on the same third package 'C'. 
+  'A' and 'B' might both list 'C' among their *dependencies*.
+  
+  What if 'A' and 'B' depend on different versions of 'C' ('C1' and 'C2'). The npm package system supports that! 
+  It installs 'C1' in the `node_modules` folder for 'A' and 'C2' in the `node_modules` folder for 'B'.
+  Now 'A' and 'B' have their own copies of 'C' and they run without interferring. This is great.
+  
+  But there is a problem. Package 'A' may require the presence of 'C1' without actually calling upon it directly.
+  'A' may only work if *everyone is using 'C1'*. It falls down if any part of the application relies on 'C2'.
+  
+  The solution is for 'A' to declare that 'C1' is a *peer dependency*.
+  
+  The difference between a `dependency` and a `peerDependency` is roughly this:
+  
+  >A **dependency** says, "I need this thing directly available to *me*."
+  >
+  >A **peerDependency** says, "if you want to use me, you need this thing available to *you*."
+   
+  Angular finds itself in this situation. 
+  Accordingly, the Angular `package.json` specifies several *peer dependency* packages, 
+  each pinned to a particular version of a third-party package.
+
+  ### We must install Angular's *peerDependencies* ourselves
+  
+  When *npm* installs packages listed in *our* `dependencies` section,
+  it also installs the packages listed within *their* packages `dependencies` sections.
+  The process is recursive.
+  
+  But as of version 3, *npm* does *not* install packages listed in *peerDependencies* sections.
+  
+  That means when our application installs Angular, ***npm* will not automatically install
+  the packages listed in Angular's *peerDependencies* section**.
+  
+  Fortunately, *npm* warns us (a) when any *peer dependencies* are missing or (b)
+  when the application or any its other dependencies
+  installs a different version of a *peer dependency*. 
+  
+  These warnings are a critical guard against accidental failures due to version mismatches.
+  They leave us in control of package and version resolution.
+  
+  It is our responsibility to list all *peer dependency* packages **among our own *devDependencies***.
+  
+.l-sub-section
+  :marked
+    #### The future of *peerDependencies*
+    
+    The Angular polyfill dependencies should be just a suggestion or a hint to developers so that they know what Angular expects.
+    They should not be hard requirements as they are today. We don't have a way to make them optional today.
+    
+    There is a npm feature request for "optional peerDependencies" which would allow us to model this relationship better. 
+    Once implemented, Angular will switch from *peerDependencies* to *optionalPeerDependencies* for all polyfills.
