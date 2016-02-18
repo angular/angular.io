@@ -79,6 +79,11 @@ var _rxData = [
   },
   {
     pattern: 'script',
+    from: 'node_modules/angular2/es6/dev/src/testing/shims_for_IE.js',
+    to: 'https://npmcdn.com/angular2@2.0.0-beta.7/es6/dev/src/testing/shims_for_IE.js'
+  },
+  {
+    pattern: 'script',
     from: 'node_modules/es6-shim/es6-shim.min.js',
     to: 'https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.33.3/es6-shim.min.js'
   },
