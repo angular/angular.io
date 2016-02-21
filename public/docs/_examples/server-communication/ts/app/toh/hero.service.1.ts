@@ -34,7 +34,7 @@ export class HeroService {
   }
 
   private handleError (error: any) {
-    // in a real world app, we may send the server to some remote logging infrastructure
+    // in a real world app, we may send the error to some remote logging infrastructure
     // instead of just logging it to the console
     console.error(error);
     return Promise.reject(error.message || error.json().error || 'Server error');
