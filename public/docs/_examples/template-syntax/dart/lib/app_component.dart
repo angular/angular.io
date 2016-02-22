@@ -33,11 +33,7 @@ class AppComponent implements OnInit, AfterViewInit {
   String heroName;
   String help;
   String actionName = 'Go for it';
-//  String badCurly = 'special'; // XXX: This isn't working.
-//  String badCurly = 'bad, curly'; // XXX: This isn't working.
-//  String badCurly = 'bad curly'; // XXX: This isn't working.
-  String badCurly = 'bad'; // XXX: This isn't working.
-//  List<String> badCurly = ['bad', 'curly']; // XXX: This isn't working.
+  String badCurly = 'bad curly';
   String classes = 'special';
   bool canSave = true;
   bool isActive = false;
