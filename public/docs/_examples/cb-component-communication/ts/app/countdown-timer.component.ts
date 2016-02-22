@@ -1,18 +1,29 @@
 // #docregion
-import {Component, EventEmitter, OnInit, Output} from 'angular2/core';
+import {Component, OnInit, OnDestroy} from 'angular2/core';
 
 @Component({
   selector:'countdown-timer',
   template: '<p>{{message}}</p>'
 })
-export class CountdownTimerComponent implements OnInit {
+export class CountdownTimerComponent implements OnInit, OnDestroy {
 
   intervalId = 0;
   message = '';
   seconds = 11;
 
+  clearTimer() {clearInterval(this.intervalId);}
+  
+  ngOnInit()    { this.start(); }
+  ngOnDestroy() { this.clearTimer(); }
+  
+  start() { this._countDown(); }
+  stop()  {
+    this.clearTimer();
+    this.message = `Holding at T-${this.seconds} seconds`;
+  }
+    
   private _countDown() {
-    clearInterval(this.intervalId);
+    this.clearTimer();
     this.intervalId = setInterval(()=>{
       this.seconds -= 1;
       if (this.seconds == 0) {
@@ -22,12 +33,5 @@ export class CountdownTimerComponent implements OnInit {
         this.message = `T-${this.seconds} seconds and counting`;
       }
     }, 1000);
-  }
-
-  ngOnInit() { this.start(); }
-  start() { this._countDown(); }
-  stop() {
-    clearInterval(this.intervalId);
-    this.message = `Holding at T-${this.seconds} seconds`;
   }
 }
