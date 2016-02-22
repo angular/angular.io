@@ -10,7 +10,7 @@ describe('Server Communication', function () {
     var _newHeroName = 'Mr. IQ';
     var _heroCountAfterAdd = 5;
     
-    it('should display ' + _initialHeroCount + 'heroes after init', function () {
+    it('should display ' + _initialHeroCount + ' heroes after init', function () {
       var myTohComp = element(by.tagName('my-toh'));
       expect(myTohComp).toBeDefined('<my-toh> must exist');
       var heroListComp = myTohComp.element(by.tagName('hero-list'));
@@ -51,9 +51,6 @@ describe('Server Communication', function () {
   
   describe('Wikipedia Demo e2e tests', function () {
     
-    // The test may fail if we do not get answer from Wikipedia in such a long timeout
-    var _timeoutAfterKeystroke = 1000;
-    
     it('should initialize the demo with empty result list', function () {
       var myWikiComp = element(by.tagName('my-wiki'));
       expect(myWikiComp).toBeDefined('<my-wiki> must exist');
@@ -61,15 +58,6 @@ describe('Server Communication', function () {
       expect(resultList.count()).toBe(0, 'result list must be empty');
     });
     
-    /*
-      It is not easy to make distinction between the "Wikipedia Demo" and "Smarter Wikipedia Demo"
-      with E2E tests. We use a little hack: when running "Wikipedia Demo", as soon as we send a new
-      key to the search field, the result is immediately deleted, unlike when running "Smarter Wikipedia
-      Demo", where the previous search result is not deleted due to 'distinctUntilChanged()'.
-      
-      With the 'testForRefreshedResult()' method we check that the result list is immediately deleted after
-      sending a key to the search field, but contains more than 0 items when the search is completed.
-    */
     describe('Fetches after each keystroke', function () {
       it('should fetch results after "B"', function(done) {
         testForRefreshedResult('B', done);
@@ -86,25 +74,14 @@ describe('Server Communication', function () {
       it('should fetch results after "Basic"', function(done) {
         testForRefreshedResult('ic', done);
       });
-});
+    });
     
     function testForRefreshedResult(keyPressed, done) {
-      var myWikiComp = element(by.tagName('my-wiki'));
-      expect(myWikiComp).toBeDefined('<my-wiki> must exist');
-      var searchBox = myWikiComp.element(by.tagName('input'));
-      expect(searchBox).toBeDefined('<input> for search must exist');
-      searchBox.sendKeys(keyPressed).then(function () {
-        var resultList = myWikiComp.all(by.tagName('li'));
-        setTimeout(function() {
-          expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty');
-          done();
-        }, _timeoutAfterKeystroke);
-      });
+      testForResult('my-wiki', keyPressed, false, done)
     }
   });
   
   describe('Smarter Wikipedia Demo e2e tests', function () {
-    var _searchTimeOut = 1000;
 
     it('should initialize the demo with empty result list', function () {
       var myWikiSmartComp = element(by.tagName('my-wiki-smart'));
@@ -113,18 +90,6 @@ describe('Server Communication', function () {
       expect(resultList.count()).toBe(0, 'result list must be empty');
     });
 
-    /*
-      It is not easy to make distinction between the "Wikipedia Demo" and "Smarter Wikipedia Demo"
-      with E2E tests. We use a little hack: when running "Wikipedia Demo", as soon as we send a new
-      key to the search field, the result is immediately deleted, unlike when running "Smarter Wikipedia
-      Demo", where the previous search result is not deleted due to 'distinctUntilChanged()'.
-      
-      With the 'testForNewResult()' method we check that the result list contains more than 0 items 
-      when the search is completed.
-
-      With the 'testForStaleResult()' method we check that the result list contains items right after
-      sending a key to the search field, and contains more than 0 items when the search is completed.
-    */
     it('should fetch results after "Java"', function(done) {
       testForNewResult('Java', done);
     });
@@ -140,34 +105,37 @@ describe('Server Communication', function () {
     it('should fetch results after "JavaScript"', function(done) {
       testForStaleResult('ript', done);
     });
+
     
     function testForNewResult(keyPressed, done) {
-      var myWikiSmartComp = element(by.tagName('my-wiki-smart'));
-      expect(myWikiSmartComp).toBeDefined('<my-wiki-smart> must exist');
-      var searchBox = myWikiSmartComp.element(by.tagName('input'));
-      expect(searchBox).toBeDefined('<input> for search must exist');
-      searchBox.sendKeys(keyPressed).then(function () {
-        setTimeout(function() {
-          var resultList = myWikiSmartComp.all(by.tagName('li'));
-          expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty after search');
-          done();
-        }, _searchTimeOut);
-      });
+      testForResult('my-wiki-smart', keyPressed, false, done)
     }
 
     function testForStaleResult(keyPressed, done) {
-      var myWikiSmartComp = element(by.tagName('my-wiki-smart'));
-      expect(myWikiSmartComp).toBeDefined('<my-wiki-smart> must exist');
-      var searchBox = myWikiSmartComp.element(by.tagName('input'));
-      expect(searchBox).toBeDefined('<input> for search must exist');
-      searchBox.sendKeys(keyPressed).then(function () {
-        var resultList = myWikiSmartComp.all(by.tagName('li'));
-        expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty before search');
-        setTimeout(function() {
-          expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty after search');
-          done();
-        }, _searchTimeOut);
-      });
+      testForResult('my-wiki-smart', keyPressed, true, done)      
     }
+
   });
+  
+  function testForResult(componentTagName, keyPressed, hasListBeforeSearch, done) {
+    var searchWait = 1000; // Wait for wikipedia but not so long that tests timeout
+    var wikiComponent = element(by.tagName(componentTagName));
+    expect(wikiComponent).toBeDefined('<' + componentTagName + '> must exist');
+    var searchBox = wikiComponent.element(by.tagName('input'));
+    expect(searchBox).toBeDefined('<input> for search must exist');
+    
+    searchBox.sendKeys(keyPressed).then(function () {
+      var resultList = wikiComponent.all(by.tagName('li'));
+      
+      if (hasListBeforeSearch) {
+        expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty before search');
+      }
+
+      setTimeout(function() {
+        expect(resultList.count()).toBeGreaterThan(0, 'result list should not be empty after search');
+        done();
+      }, searchWait);
+    });
+  }
+  
 });
