@@ -5,7 +5,6 @@ import {VersionParentComponent} from './version-parent.component';
 import {VoteTakerComponent} from './votetaker.component';
 import {CountdownParentComponent} from './countdown-parent.component';
 import {MissionControlComponent} from './missioncontrol.component';
-import {CommandCenterComponent} from './command-center.component';
 
 @Component({
   selector: 'app',
@@ -16,8 +15,7 @@ import {CommandCenterComponent} from './command-center.component';
     VersionParentComponent,
     VoteTakerComponent,
     CountdownParentComponent,
-    MissionControlComponent,
-    CommandCenterComponent
+    MissionControlComponent
   ]
 })
 export class AppComponent { }

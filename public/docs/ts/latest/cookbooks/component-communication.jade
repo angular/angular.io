@@ -2,14 +2,15 @@ include ../../../../_includes/_util-fns
 
 <a id="top"></a>
 :marked
-  In this chapter, we can find useful recipes for component communication scenarios.
-  
-.l-sub-section
-  :marked
-    For an in-depth look at each fundamental concepts in component communication, we can find detailed description and
-    samples in the [Component Communication]() document.
+  This cookbook contains recipes for common component communication scenarios
+  in which two or more components share information.
 
-.l-main-section
+//
+  .l-sub-section
+    :marked
+      For an in-depth look at each fundamental concepts in component communication, we can find detailed description and
+      samples in the [Component Communication]() document.
+
 <a id="toc"></a>
 :marked
   ## Table of contents
@@ -22,14 +23,10 @@ include ../../../../_includes/_util-fns
 
   [Parent listens for child event](#child-to-parent)
   
-  [Parent calls *ViewChild*](#parent-to-view-child)
+  [Parent calls a *ViewChild*](#parent-to-view-child)
 
   [Parent and children communicate via a service](#bidirectional-service)
 
-  [Unrelated components communicate via a service](#unrelated-service)
-
-// THIS IS TOO COMPLICATED AND DOESN'T PASS TESTS
-  [Obtain the content children of a parent component](#content-children)
 :marked
   **See the [live example](/resources/live-examples/cb-component-communication/ts/plnkr.html)**.
 
@@ -176,7 +173,7 @@ figure.image-display
 .l-main-section
 <a id="parent-to-view-child"></a>
 :marked
-  ## Parent calls *ViewChild*
+  ## Parent calls a *ViewChild*
   A parent can call a child component once it has been located by a property adorned with a `@ViewChild` decorator property.
   
   This `CountdownTimerComponent` keeps counting down to zero and launching rockets.
@@ -210,7 +207,8 @@ figure.image-display
 :marked
   ## Parent and children communicate via a service
 
-  A parent component and its children share a service whose interface enables bi-directional communication.
+  A parent component and its children share a service whose interface enables bi-directional communication
+  *within the family*.
 
   The scope of the service instance is the parent component and its children. 
   Components outside this component subtree have no access to the service or their communications.
@@ -218,9 +216,6 @@ figure.image-display
   This `MissionService` connects the `MissionControlComponent` to multiple `AstronautComponent` children.
 
 +makeExample('cb-component-communication/ts/app/mission.service.ts')
-.l-sub-section
-  :marked
-    The user of `EventEmitter` is a temporariy expedient. We should implement with `Observable.Subject` instead.
 :marked
   The `MissionControlComponent` both provides the instance of the service that it shares with its children
   (through the `providers` metadata array) and injects that instance into itself through its constructor:
@@ -233,6 +228,15 @@ figure.image-display
   
 +makeExample('cb-component-communication/ts/app/astronaut.component.ts')
 
+.l-sub-section
+  :marked
+    Notice that we capture the `subscription` and unsubscribe when the `AstronautComponent` is destroyed.
+    This is a memory-leak guard step. There is no actual risk in this app because the
+    lifetime of a `AstronautComponent` is the same as the lifetime of the app itself.
+    That *would not* always be true in a more complex application.
+    
+    We do not add this guard to the `MissionControlComponent` because, as the parent,
+    it controls the lifetime of the `MissionService`.
 :marked
   The *History* log demonstrates that messages travel in both directions between
   the parent `MissionControlComponent` and the `AstronoutComponent` children,
@@ -248,55 +252,6 @@ figure.image-display
   and verify that the *History* meets expectations:
   
 +makeExample('cb-component-communication/e2e-spec.js', 'bidirectional-service')
-
-:marked
-  [Back to top](#top)
-
-.l-main-section
-  <a id="unrelated-service"></a>
-:marked
-  ## Unrelated components communicate via a service
-
-  To provide communication channel among unrelated components, we can create services, and inject the same 
-  service instance into the communicating components. The sending party invokes service methods &mdash; or sets properties
-  on the service instance &mdash;, the listening party subscribes to events representing messages.
-  
-  The `MessageBus` component simply relays incoming messages to listening parties. We also create and export an 
-  instance of `MessageBus` to facilitate the communication:
-  
-+makeExample('cb-component-communication/ts/app/message-bus.service.ts')
-:marked 
-.l-sub-section
-  :marked
-    The user of `EventEmitter` is a temporariy expedient. We should implement with `Observable.Subject` instead.
-:marked
-  This recipe demonstrates two communicating parties. `TelemetryComponent` sends messages via `MessageBus`:
-    
-+makeExample('cb-component-communication/ts/app/telemetry.component.ts')
-
-:marked
-  `MessageBoardComponent` listens to messages relayed by `MessageBus`, and displays them:
-    
-+makeExample('cb-component-communication/ts/app/message-board.component.ts')
-:marked
-  To ensure the communication, we provide the same instance of `MessageBus` (`controlMessageBus`) for both parties:
-    
-+makeExample('cb-component-communication/ts/app/telemetry.component.ts', 'providers')
-
-:marked
-  The entries of *Message Board* demonstrate that messages between the unrelated components
-  &mdash; from `TelemetryComponent` to `MessageBoard` &mdash;, are conveyed by the service::
-
-figure.image-display
-  img(src="/resources/images/cookbooks/component-communication/unrelated-service.gif" alt="unrelated-service")
-    
-:marked
-  ### Test it
-  
-  Tests click the **Send temperature data** button several times, and verify that *Message Board* entries
-  meet expectations:
-    
-+makeExample('cb-component-communication/e2e-spec.js', 'unrelated-components')
 
 :marked
   [Back to top](#top)

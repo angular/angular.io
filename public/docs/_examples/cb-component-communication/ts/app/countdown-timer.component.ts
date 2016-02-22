@@ -7,11 +7,12 @@ import {Component, EventEmitter, OnInit, Output} from 'angular2/core';
 })
 export class CountdownTimerComponent implements OnInit {
 
-  intervalId: any;
-  message:string;
+  intervalId = 0;
+  message = '';
   seconds = 11;
 
   private _countDown() {
+    clearInterval(this.intervalId);
     this.intervalId = setInterval(()=>{
       this.seconds -= 1;
       if (this.seconds == 0) {

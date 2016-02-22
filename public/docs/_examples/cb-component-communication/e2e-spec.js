@@ -177,7 +177,7 @@ describe('Component Communication Cookbook Tests', function () {
       announceButton.click().then(function () {
         var history = missionControl.all(by.tagName('li'));
         expect(history.count()).toBe(1);
-        expect(history.get(0).getText()).toBe('Mission announced');
+        expect(history.get(0).getText()).toMatch(/Mission.* announced/);
       });
     });
 
@@ -207,30 +207,4 @@ describe('Component Communication Cookbook Tests', function () {
     // #enddocregion bidirectional-service
   });
 
-  describe('Communication between unrelated components', function() {
-    // #docregion unrelated-components
-    // ...
-    it('should send a message to MessageBoard', function() {
-      testMessageSent([24.5]);
-    });
-    
-    it('should send another message to MessageBoard', function() {
-      testMessageSent([24.5, 32.8]);
-    });
-    // ...
-    
-    function testMessageSent(tempData) {
-      var sendDataButton = element(by.tagName('telemetry'))
-        .element(by.tagName('button'));
-      var messages = element(by.tagName('message-board'))
-        .all(by.tagName('li'));
-      sendDataButton.click().then(function() {
-        expect(messages.count()).toBe(tempData.length);
-        for (var i = 0; i < tempData.length; i++) {
-          expect(messages.get(i).getText()).toBe('Temperature: ' + tempData[i]);
-        }
-      })
-    }
-    // #enddocregion unrelated-components
-  });
 });

@@ -1,28 +1,31 @@
 // #docregion
-import {Component, Input} from 'angular2/core';
+import {Component, Input, OnDestroy} from 'angular2/core';
 import {MissionService} from './mission.service';
+import {Subscription}   from 'rxjs/Subscription';
 
 @Component({
   selector: 'my-astronaut',
   template: `
     <p>
-      {{name}}: <strong>{{mission}}</strong>
-      <button (click)="confirm()"
+      {{astronaut}}: <strong>{{mission}}</strong>
+      <button
+        (click)="confirm()"
         [disabled]="!announced || confirmed">
         Confirm
       </button>
     </p>
   `
 })
-export class AstronautComponent {
-  @Input() name: string;
+export class AstronautComponent implements OnDestroy{
+  @Input() astronaut: string;
   mission = "<no mission announced>";
   confirmed = false;
   announced = false;
+  subscription:Subscription;
 
-  constructor(public missionService: MissionService) {
-    missionService.onMissionAnnounced.subscribe(
-      (mission:string) => {
+  constructor(private missionService: MissionService) {
+    this.subscription = missionService.missionAnnounced$.subscribe(
+      mission => {
         this.mission = mission;
         this.announced = true;
         this.confirmed = false;
@@ -31,7 +34,12 @@ export class AstronautComponent {
 
   confirm() {
     this.confirmed = true;
-    this.missionService.onMissionConfirmed.emit(this.name);
+    this.missionService.confirmMission(this.astronaut);
+  }
+
+  ngOnDestroy(){
+    // prevent memory leak when component destroyed
+    this.subscription.unsubscribe();
   }
 }
 // #enddocregion

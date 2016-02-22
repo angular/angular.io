@@ -1,23 +1,25 @@
 // #docregion
-import {Injectable, EventEmitter} from 'angular2/core'
+import {Injectable} from 'angular2/core'
+import {Subject}    from 'rxjs/Subject';
 
 @Injectable()
 export class MissionService {
-  lastMission: string;
-  confirmations: string[];
-  
-  onMissionAnnounced = new EventEmitter<string>();
-  onMissionConfirmed = new EventEmitter<string>();
-  
+
+  // Observable string sources
+  private _missionAnnouncedSource = new Subject<string>();
+  private _missionConfirmedSource = new Subject<string>();
+
+  // Observable string streams
+  missionAnnounced$ = this._missionAnnouncedSource.asObservable();
+  missionConfirmed$ = this._missionConfirmedSource.asObservable();
+
+  // Service message commands
   announceMission(mission: string) {
-    this.lastMission = mission;
-    this.confirmations = [];
-    this.onMissionAnnounced.emit(mission)
+    this._missionAnnouncedSource.next(mission)
   }
-  
+
   confirmMission(astronaut: string) {
-    this.confirmations.push(astronaut);
-    this.onMissionConfirmed.emit(astronaut);
+    this._missionConfirmedSource.next(astronaut);
   }
 }
 // #enddocregion

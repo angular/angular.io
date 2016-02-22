@@ -1,17 +1,15 @@
 // #docregion
-import {Component} from 'angular2/core';
+import {Component}          from 'angular2/core';
 import {AstronautComponent} from './astronaut.component';
-import {MissionService} from './mission.service';
+import {MissionService}     from './mission.service';
 
 @Component({
   selector: 'mission-control',
   template: `
     <h2>Mission Control</h2>
-    <button (click)="announce('Fly to the moon!')">
-      Announce mission
-    </button>
+    <button (click)="announce()">Announce mission</button>
     <my-astronaut *ngFor="#astronaut of astronauts"
-      [name]="astronaut">
+      [astronaut]="astronaut">
     </my-astronaut>
     <h2>History</h2>
     <ul>
@@ -24,17 +22,23 @@ import {MissionService} from './mission.service';
 export class MissionControlComponent {
   astronauts = ['Lovell', 'Swigert', 'Haise']
   history: string[] = [];
+  missions = ['Fly to the moon!',
+              'Fly to mars!',
+              'Fly to Vegas!'];
+  nextMission = 0;
 
-  constructor(public missionService: MissionService) {
-    missionService.onMissionConfirmed.subscribe(
-      (astronaut: string) => {
+  constructor(private missionService: MissionService) {
+    missionService.missionConfirmed$.subscribe(
+      astronaut => {
         this.history.push(`${astronaut} confirmed the mission`);
       })
   }
 
-  announce(mission: string) {
+  announce() {
+    let mission = this.missions[this.nextMission++];
     this.missionService.announceMission(mission);
-    this.history.push('Mission announced');
+    this.history.push(`Mission "${mission}" announced`);
+    if (this.nextMission >= this.missions.length) { this.nextMission = 0; }
   }
 }
 // #enddocregion
