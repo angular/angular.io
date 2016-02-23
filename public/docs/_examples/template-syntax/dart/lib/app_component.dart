@@ -8,7 +8,7 @@ import 'hero.dart';
 import 'hero_detail_component.dart';
 import 'my_click_directive.dart';
 
-enum Color { Red, Green, Blue }
+enum Color { red, green, blue }
 
 @Component(
     selector: 'my-app',
@@ -19,7 +19,17 @@ enum Color { Red, Green, Blue }
       MyClickDirective,
       MyClickDirective2
     ])
-class AppComponent {
+class AppComponent implements OnInit, AfterViewInit {
+  @override
+  void ngOnInit() {
+    refreshHeroes();
+  }
+
+  @override
+  void ngAfterViewInit() {
+    _detectNgForTrackByEffects();
+  }
+
   String heroName;
   String help;
   String actionName = 'Go for it';
@@ -34,10 +44,19 @@ class AppComponent {
   bool isSpecial = true;
   bool isUnchanged = true;
   bool isSelected = false;
-  Color color = Color.Red;
-  List<Hero> heroes = Hero.MockHeroes;
-  Hero selectedHero = Hero.MockHeroes[0];
-  Hero currentHero = Hero.MockHeroes[0];
+  Color color = Color.red;
+
+  List<Hero> heroes;
+  Hero currentHero;
+
+  // #docregion refresh-heroes
+  /// Updates [this.heroes] with fresh set of cloned heroes.
+  void refreshHeroes() {
+    heroes = mockHeroes.map((hero) => hero.clone()).toList();
+    currentHero = heroes[0];
+  }
+  // #enddocregion refresh-heroes
+
   final Hero nullHero = null;
   Map product = {'name': 'frimfram', 'price': 42};
   FormElement form;
@@ -54,33 +73,20 @@ class AppComponent {
   // Public Domain terms of use http://www.clker.com/disclaimer.html
   final String villainImageUrl = 'assets/images/villain.png';
 
-  // #docregion setClasses
-  Map classes = {
-    'saveable': false,
-    'modified': false,
-    'special': false
-  };
-  // #enddocregion setClasses
+  void alerter(String msg) {
+    window.alert(msg);
+  }
 
-  // #docregion setStyles
-  Map styles = {
-    'font-style': 'normal',
-    'font-weight': 'normal',
-    'font-size': 'smaller'
-  };
-  // #enddocregion setStyles
+  void callFax(String value) {
+    alerter('Faxing $value ...');
+  }
 
-  Map styles2 = {
-    'fontStyle': 'normal',
-    'fontWeight': 'normal',
-    'fontSize': 'smaller'
-  };
+  void callPhone(String value) {
+    alerter('Calling $value ...');
+  }
 
-  void alerter(String msg) => window.alert(msg);
-  void callFax(String value) => alerter('Faxing $value ...');
-  void callPhone(String value) => alerter('Calling $value ...');
   void colorToggle() {
-    color = (color == Color.Red) ? Color.Blue : Color.Red;
+    color = (color == Color.red) ? Color.blue : Color.red;
   }
 
   int getVal() => val;
@@ -97,7 +103,9 @@ class AppComponent {
     alerter('Click me. $evtMsg');
   }
 
-  void deleteHero([Hero hero]) => alerter('Deleted hero: ${hero?.firstName}');
+  void deleteHero([Hero hero]) {
+    alerter('Deleted hero: ${hero?.firstName}');
+  }
 
   bool onSave([MouseEvent event = null]) {
     var evtMsg =
@@ -122,22 +130,31 @@ class AppComponent {
     return JSON.encode(showStyles);
   }
 
+  Map<String, bool> _previousClasses = {};
   // #docregion setClasses
-  Map setClasses() {
-    classes['saveable'] = canSave;      // true
-    classes['modified'] = !isUnchanged; // false
-    classes['special'] = isSpecial;     // true
-
+  Map<String, bool> setClasses() {
+    final classes = {
+      'saveable': canSave, // true
+      'modified': !isUnchanged, // false
+      'special': isSpecial // true
+    };
+    // #docregion setClasses
+    // compensate for DevMode (sigh)
+    if (JSON.encode(_previousClasses) ==
+        JSON.encode(classes)) return _previousClasses;
+    _previousClasses = classes;
+    // #enddocregion setClasses
     return classes;
   }
   // #enddocregion setClasses
 
   // #docregion setStyles
   Map setStyles() {
-    styles['font-style'] = canSave ? 'italic' : 'normal';     // italic
-    styles['font-weight'] = !isUnchanged ? 'bold' : 'normal'; // normal
-    styles['font-size'] = isSpecial ? '24px' : '8px';         // 24px
-    return styles;
+    return {
+      'font-style': canSave ? 'italic' : 'normal', // italic
+      'font-weight': !isUnchanged ? 'bold' : 'normal', // normal
+      'font-size': isSpecial ? '24px' : '8px' // 24px
+    };
   }
   // #enddocregion setStyles
 
@@ -146,58 +163,72 @@ class AppComponent {
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
-      var choice = choices[i];
+      var choice = choices[i] as CheckboxInputElement;
       if (choice.checked) {
         toeChoice = choice.value;
         return toeChoice;
       }
     }
+
+    return null;
   }
 
   // #docregion trackByHeroes
-  int trackByHeroes(int index, Hero hero) { return hero.id; }
+  int trackByHeroes(int index, Hero hero) => hero.id;
   // #enddocregion trackByHeroes
 
   // #docregion trackById
-  int trackById(int index, Map item): string { return item['id']; }
+  int trackById(int index, dynamic item) => item.id;
   // #enddocregion trackById
 
   int val = 2;
 
-
   //////// Detect effects of NgForTrackBy ///////////////
   int heroesNoTrackByChangeCount = 0;
   int heroesWithTrackByChangeCount = 0;
-  /*
-   // Convert to Dart
-  @ViewChildren('noTrackBy') childrenNoTrackBy:QueryList<ElementRef>;
-  @ViewChildren('withTrackBy') childrenWithTrackBy:QueryList<ElementRef>;
 
-  private _oldNoTrackBy:HTMLElement[];
-  private _oldWithTrackBy:HTMLElement[];
+  @ViewChildren('noTrackBy') QueryList<ElementRef> childrenNoTrackBy;
+  @ViewChildren('withTrackBy') QueryList<ElementRef> childrenWithTrackBy;
 
-  private _detectNgForTrackByEffects() {
-    this._oldNoTrackBy   = toArray(this.childrenNoTrackBy);
-    this._oldWithTrackBy = toArray(this.childrenWithTrackBy);
+  void _detectNgForTrackByEffects() {
+    /// Converts [viewChildren] to a list of [Element].
+    List<Element> _extractChildren(QueryList<ElementRef> viewChildren) =>
+        viewChildren.toList()[0].nativeElement.children.toList() as List<Element>;
 
-    this.childrenNoTrackBy.changes.subscribe((changes:any) => {
-      let newNoTrackBy = toArray(changes);
-      let isSame = this._oldNoTrackBy.every((v:any, i:number) => v === newNoTrackBy[i]);
-      if (!isSame) {
-        this._oldNoTrackBy = newNoTrackBy;
-        this.heroesNoTrackByChangeCount++;
-      }
-    })
+    {
+      // Updates 'without TrackBy' statistics.
+      List<Element> _oldNoTrackBy = _extractChildren(this.childrenNoTrackBy);
 
-    this.childrenWithTrackBy.changes.subscribe((changes:any) => {
-      let newWithTrackBy = toArray(changes);
-      let isSame = this._oldWithTrackBy.every((v:any, i:number) => v === newWithTrackBy[i]);
-      if (!isSame) {
-        this._oldWithTrackBy = newWithTrackBy;
-        this.heroesWithTrackByChangeCount++;
-      }
-    })
+      this.childrenNoTrackBy.changes.listen((Iterable<ElementRef> changes) {
+        final newNoTrackBy = _extractChildren(changes);
+        final isSame = newNoTrackBy.fold(true, (bool isSame, Element elt) {
+          return isSame && _oldNoTrackBy.contains(elt);
+        });
+
+        if (!isSame) {
+          _oldNoTrackBy = newNoTrackBy;
+          this.heroesNoTrackByChangeCount++;
+        }
+      });
+    }
+
+    {
+      // Updates 'with TrackBy' statistics.
+      List<Element> _oldWithTrackBy =
+          _extractChildren(this.childrenWithTrackBy);
+
+      this.childrenWithTrackBy.changes.listen((Iterable<ElementRef> changes) {
+        final newWithTrackBy = _extractChildren(changes);
+        final isSame = newWithTrackBy.fold(true, (bool isSame, Element elt) {
+          return isSame && _oldWithTrackBy.contains(elt);
+        });
+
+        if (!isSame) {
+          _oldWithTrackBy = newWithTrackBy;
+          this.heroesWithTrackByChangeCount++;
+        }
+      });
+    }
   }
-  */
   ///////////////////
 }
