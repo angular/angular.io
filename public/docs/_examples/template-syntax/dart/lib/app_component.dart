@@ -130,13 +130,21 @@ class AppComponent implements OnInit, AfterViewInit {
     return JSON.encode(showStyles);
   }
 
+  Map _previousClasses = {};
   // #docregion setClasses
   Map setClasses() {
-    return {
+    final classes = {
       'saveable': canSave, // true
       'modified': !isUnchanged, // false
       'special': isSpecial // true
     };
+    // #docregion setClasses
+    // compensate for DevMode (sigh)
+    if (JSON.encode(_previousClasses) ==
+        JSON.encode(classes)) return _previousClasses;
+    _previousClasses = classes;
+    // #enddocregion setClasses
+    return classes;
   }
   // #enddocregion setClasses
 
@@ -184,13 +192,12 @@ class AppComponent implements OnInit, AfterViewInit {
 
   void _detectNgForTrackByEffects() {
     /// Converts [viewChildren] to a list of [HtmlElement].
-    List<HtmlElement> _extractChildren(QueryList<ElementRef> viewChildren) =>
+    List<Element> _extractChildren(QueryList<ElementRef> viewChildren) =>
         viewChildren.toList()[0].nativeElement.children.toList();
 
     {
       // Updates 'without TrackBy' statistics.
-      List<HtmlElement> _oldNoTrackBy =
-          _extractChildren(this.childrenNoTrackBy);
+      List<Element> _oldNoTrackBy = _extractChildren(this.childrenNoTrackBy);
 
       this.childrenNoTrackBy.changes.listen((QueryList<ElementRef> changes) {
         final newNoTrackBy = _extractChildren(changes);
@@ -207,7 +214,7 @@ class AppComponent implements OnInit, AfterViewInit {
 
     {
       // Updates 'with TrackBy' statistics.
-      List<HtmlElement> _oldWithTrackBy =
+      List<Element> _oldWithTrackBy =
           _extractChildren(this.childrenWithTrackBy);
 
       this.childrenWithTrackBy.changes.listen((QueryList<ElementRef> changes) {
