@@ -25,7 +25,7 @@ import 'hero_service.dart';
     styles: const ['.error {color:red;}'])
 // #docregion component
 class HeroListComponent implements OnInit {
-  HeroService _heroService;
+  final HeroService _heroService;
   String errorMessage;
   List<Hero> heroes;
 

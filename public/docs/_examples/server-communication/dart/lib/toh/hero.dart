@@ -1,14 +1,14 @@
 // #docregion
 class Hero {
-  int id;
-  String name;
+  final int id;
+  final String name;
 
   Hero(this.id, this.name);
 
-  Hero.fromJson(Map hero) {
+  factory Hero.fromJson(Map hero) {
     final _id = hero['id'];
-    id = _id is int ? _id : int.parse(_id);
-    name = hero['name'];
+    final id = _id is int ? _id : int.parse(_id);
+    return new Hero(id,hero['name']);
   }
 
   Map toJson() => {'id': id, 'name': name};

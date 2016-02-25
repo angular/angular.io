@@ -1,8 +1,9 @@
 // #docplaster
 
 // #docregion
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:angular2/angular2.dart';
 // #enddocregion v1
 // #docregion import-request-options
@@ -13,8 +14,7 @@ import 'hero.dart';
 
 @Injectable()
 class HeroService {
-  String _heroesUrl = 'app/heroes';
-
+  final String _heroesUrl = 'app/heroes';
   BrowserClient _http;
 
   HeroService(this._http);
@@ -31,8 +31,8 @@ class HeroService {
   }
 
   Future<Hero> addHero(String name) async {
-    Map headers = {'content-type': 'application/json'};
-    String body = JSON.encode({'name': name});
+    final headers = {'content-type': 'application/json'};
+    final body = JSON.encode({'name': name});
     final response = await _http.post(_heroesUrl, headers: headers, body: body);
     return new Hero.fromJson(JSON.decode(response.body));
   }

@@ -1,7 +1,7 @@
 // #docregion
+import 'dart:async';
 import 'package:angular2/angular2.dart';
 import 'wikipedia_service.dart';
-import 'dart:async';
 
 @Component(
     selector: 'my-wiki',
@@ -15,8 +15,8 @@ import 'dart:async';
     ''',
     providers: const [WikipediaService])
 class WikiComponent {
-  WikipediaService _wikipediaService;
-  List items;
+  final WikipediaService _wikipediaService;
+  List items = [];
 
   WikiComponent(this._wikipediaService);
 

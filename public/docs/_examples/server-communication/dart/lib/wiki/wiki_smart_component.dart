@@ -1,7 +1,8 @@
 // #docregion
 import 'package:angular2/angular2.dart';
-import 'wikipedia_service.dart';
 import 'package:stream_transformers/stream_transformers.dart';
+
+import 'wikipedia_service.dart';
 
 @Component(
     selector: 'my-wiki-smart',
@@ -17,7 +18,7 @@ import 'package:stream_transformers/stream_transformers.dart';
     providers: const [WikipediaService])
 class WikiSmartComponent {
   final WikipediaService _wikipediaService;
-  List items;
+  List items = [];
 
   WikiSmartComponent(this._wikipediaService) {
     _searchTermStream
@@ -30,7 +31,7 @@ class WikiSmartComponent {
     });
   }
 
-  EventEmitter _searchTermStream = new EventEmitter();
+  final EventEmitter _searchTermStream = new EventEmitter();
 
   void search(String term) => _searchTermStream.add(term);
 }
