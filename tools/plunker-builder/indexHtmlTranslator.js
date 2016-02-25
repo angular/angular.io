@@ -34,7 +34,8 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   ['https://code.angularjs.org/tools/system.js', 'https://code.angularjs.org/tools/typescript.js']
+    //to:   ['https://code.angularjs.org/tools/system.js', 'https://code.angularjs.org/tools/typescript.js']
+    to:   ['https://code.angularjs.org/tools/system.js', 'https://npmcdn.com/typescript@1.8.2/lib/typescript.js']
   },
   {
     pattern: 'script',
