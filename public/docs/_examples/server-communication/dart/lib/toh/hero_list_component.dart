@@ -27,7 +27,7 @@ import 'hero_service.dart';
 class HeroListComponent implements OnInit {
   final HeroService _heroService;
   String errorMessage;
-  List<Hero> heroes;
+  List<Hero> heroes = [];
 
   HeroListComponent(this._heroService);
 
