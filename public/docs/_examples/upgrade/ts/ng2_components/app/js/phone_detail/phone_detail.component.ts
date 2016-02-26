@@ -1,9 +1,12 @@
 // #docregion
 // #docregion top
 import {Component, Inject} from 'angular2/core';
-import {RouteParams} from 'angular2/router';
-import {Phones, Phone} from '../core/Phones';
-import {CheckmarkPipe} from '../core/CheckmarkPipe';
+import {Phones, Phone} from '../core/phones.service';
+import {CheckmarkPipe} from '../core/checkmark.pipe';
+
+interface PhoneRouteParams {
+  phoneId: string
+}
 
 @Component({
   selector: 'pc-phone-detail',
@@ -14,9 +17,9 @@ class PhoneDetail {
 // #enddocregion top
   phone:Phone = undefined;
   mainImageUrl:string;
-  constructor(params:RouteParams,
+  constructor(@Inject('$routeParams') $routeParams:PhoneRouteParams,
               phones:Phones) {
-    phones.get(params.get('phoneId'))
+    phones.get($routeParams.phoneId)
       .subscribe(phone => {
         this.phone = phone;
         this.mainImageUrl = phone.images[0];

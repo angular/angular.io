@@ -1,8 +1,8 @@
 // #docregion
 import {provide} from 'angular2/core';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {Observable} from 'rxjs';
-import {FromObservable} from 'rxjs/observable/from';
+import {Observable} from 'rxjs/Rx';
+import 'rxjs/add/observable/fromArray';
 
 import {
   describe,
@@ -12,12 +12,12 @@ import {
   expect,
   TestComponentBuilder
 } from 'angular2/testing';
-import PhoneList from '../../app/js/phone_list/PhoneList';
-import {Phones, Phone} from '../../app/js/core/Phones';
+import PhoneList from '../../app/js/phone_list/phone_list.component';
+import {Phones, Phone} from '../../app/js/core/phones.service';
 
 class MockPhones extends Phones {
   query():Observable<Phone[]> {
-    return FromObservable.create([
+    return Observable.fromArray([
       [{name: 'Nexus S'}, {name: 'Motorola DROID'}]
     ])
   }
@@ -39,8 +39,8 @@ describe('PhoneList', () => {
       let compiled = fixture.debugElement.nativeElement;
 
       expect(compiled.querySelectorAll('.phone-listing').length).toBe(2);
-      expect(compiled.querySelector('.phone-listing:nth-child(1)')).toHaveText('Nexus S');
-      expect(compiled.querySelector('.phone-listing:nth-child(2)')).toHaveText('Motorola DROID');
+      expect(compiled.querySelector('.phone-listing:nth-child(1)').textContent).toContain('Nexus S');
+      expect(compiled.querySelector('.phone-listing:nth-child(2)').textContent).toContain('Motorola DROID');
     });
   }));
 

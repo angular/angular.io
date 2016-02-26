@@ -1,6 +1,6 @@
 // #docregion
 import {describe, beforeEachProviders, it, inject, expect} from 'angular2/testing';
-import {CheckmarkPipe} from '../../app/js/core/CheckmarkPipe';
+import {CheckmarkPipe} from '../../app/js/core/checkmark.pipe';
 
 describe('CheckmarkPipe', () => {
 

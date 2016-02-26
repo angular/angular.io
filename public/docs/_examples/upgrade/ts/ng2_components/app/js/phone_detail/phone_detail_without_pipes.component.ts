@@ -1,8 +1,6 @@
 // #docregion
-// #docregion top
 import {Component, Inject} from 'angular2/core';
-import {Phones, Phone} from '../core/Phones';
-import {CheckmarkPipe} from '../core/CheckmarkPipe';
+import {Phones, Phone} from '../core/phones.service';
 
 interface PhoneRouteParams {
   phoneId: string
@@ -10,11 +8,9 @@ interface PhoneRouteParams {
 
 @Component({
   selector: 'pc-phone-detail',
-  templateUrl: 'js/phone_detail/phone_detail.html',
-  pipes: [CheckmarkPipe]
+  templateUrl: 'js/phone_detail/phone_detail.html'
 })
 class PhoneDetail {
-// #enddocregion top
   phone:Phone = undefined;
   mainImageUrl:string;
   constructor(@Inject('$routeParams') $routeParams:PhoneRouteParams,

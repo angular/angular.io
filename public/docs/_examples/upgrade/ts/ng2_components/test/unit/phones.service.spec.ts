@@ -1,9 +1,9 @@
 // #docregion
 import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {Phones} from '../../app/js/core/Phones';
+import {Phones} from '../../app/js/core/phones.service';
 
-describe('Phones', () => {
+describe('Phones', function() {
 
   // load providers
   beforeEachProviders(() => [Phones, HTTP_PROVIDERS]);

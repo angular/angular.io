@@ -1,5 +1,5 @@
 // #docregion
-import {Phones, Phone} from '../core/Phones';
+import {Phones, Phone} from '../core/phones.service';
 
 interface PhoneRouteParams {
   phoneId: string

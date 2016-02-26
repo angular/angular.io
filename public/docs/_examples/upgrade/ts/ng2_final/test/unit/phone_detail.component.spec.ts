@@ -3,8 +3,8 @@ import {provide} from 'angular2/core';
 import {RouteParams} from 'angular2/router';
 // #enddocregion routeparams
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {Observable} from 'rxjs';
-import {FromObservable} from 'rxjs/observable/from';
+import {Observable} from 'rxjs/Rx';
+import 'rxjs/add/observable/fromArray';
 
 import {
   describe,
@@ -14,8 +14,8 @@ import {
   expect,
   TestComponentBuilder
 } from 'angular2/testing';
-import PhoneDetail from '../../app/js/phone_detail/PhoneDetail';
-import {Phones, Phone} from '../../app/js/core/Phones';
+import PhoneDetail from '../../app/js/phone_detail/phone_detail.component';
+import {Phones, Phone} from '../../app/js/core/phones.service';
 
 function xyzPhoneData():Phone {
   return {
@@ -27,7 +27,7 @@ function xyzPhoneData():Phone {
 
 class MockPhones extends Phones {
   get(id):Observable<Phone> {
-    return FromObservable.create([xyzPhoneData()]);
+    return Observable.fromArray([xyzPhoneData()]);
   }
 }
 

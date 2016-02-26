@@ -1,7 +1,7 @@
 // #docregion full
 import {Injectable} from 'angular2/core';
 import {Http, Response} from 'angular2/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 
 // #docregion phone-interface

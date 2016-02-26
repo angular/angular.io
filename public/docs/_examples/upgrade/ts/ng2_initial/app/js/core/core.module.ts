@@ -1,5 +1,5 @@
 // #docregion
-import {Phones} from './Phones';
+import {Phones} from './phones.service';
 import checkmarkFilter from './checkmark.filter';
 import upgradeAdapter from './upgrade_adapter';
 

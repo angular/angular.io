@@ -1,9 +1,9 @@
 // #docregion
 import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
 
-import OrderByPipe from '../../app/js/phone_list/OrderByPipe';
+import OrderByPipe from '../../app/js/phone_list/order_by.pipe';
 
-describe('OrderByPipe', function() {
+describe('OrderByPipe', () => {
 
   let input:any[] = [
     {name: 'Nexus S', snippet: 'The Nexus S Phone', images: []},

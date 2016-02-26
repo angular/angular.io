@@ -1,15 +1,11 @@
-// #docregion full
 // #docregion top
 import {Component} from 'angular2/core';
 import {Observable} from 'rxjs';
-import {Phones, Phone} from '../core/Phones';
-import PhoneFilterPipe from './PhoneFilterPipe';
-import OrderByPipe from './OrderByPipe';
+import {Phones, Phone} from '../core/phones.service';
 
 @Component({
   selector: 'pc-phone-list',
-  templateUrl: 'js/phone_list/phone_list.html',
-  pipes: [PhoneFilterPipe, OrderByPipe],
+  templateUrl: 'js/phone_list/phone_list.html'
 })
 class PhoneList {
 // #enddocregion top

@@ -1,5 +1,5 @@
 // #docregion
-import PhoneList from './PhoneList';
+import PhoneList from './phone_list.component';
 import upgradeAdapter from '../core/upgrade_adapter';
 
 export default angular.module('phonecat.list', [

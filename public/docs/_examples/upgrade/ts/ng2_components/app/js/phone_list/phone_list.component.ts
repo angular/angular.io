@@ -1,17 +1,15 @@
 // #docregion full
 // #docregion top
 import {Component} from 'angular2/core';
-import {RouterLink} from 'angular2/router';
 import {Observable} from 'rxjs';
-import {Phones, Phone} from '../core/Phones';
-import PhoneFilterPipe from './PhoneFilterPipe';
-import OrderByPipe from './OrderByPipe';
+import {Phones, Phone} from '../core/phones.service';
+import PhoneFilterPipe from './phone_filter.pipe';
+import OrderByPipe from './order_by.pipe';
 
 @Component({
   selector: 'pc-phone-list',
   templateUrl: 'js/phone_list/phone_list.html',
   pipes: [PhoneFilterPipe, OrderByPipe],
-  directives: [RouterLink]
 })
 class PhoneList {
 // #enddocregion top
