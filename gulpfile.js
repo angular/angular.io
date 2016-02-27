@@ -67,7 +67,16 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
 });
 
-var _exampleBoilerplateFiles = ['package.json', 'tsconfig.json', 'typings.json', 'karma.conf.js', 'karma-test-shim.js' ];
+var _exampleBoilerplateFiles = [
+  'karma.conf.js', 
+  'karma-test-shim.js', 
+  'package.json', 
+  'styles.css', 
+  'tsconfig.json', 
+  'typings.json' 
+ ];
+
+var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
 // --filter may be passed in to filter/select _example app subdir names
 // i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
@@ -241,24 +250,35 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
   
-  copyExampleBoilerplate();
+  return copyExampleBoilerplate();
 });
 
 // copies boilerplate files to locations
 // where an example app is found
+// also copies certain web files (e.g., styles.css) to ~/_examples/**/dart/**/web
 // also copies protractor.config.js file
 function copyExampleBoilerplate() {
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  // copies protractor.config.js from _examples dir to each subdir that
-  // contains a e2e-spec file.
-  return copyFiles(sourceFiles, examplePaths).then(function() {
-    var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
-    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-    return copyFiles(sourceFiles, e2eSpecPaths);
+  
+  var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
+    return path.join(EXAMPLES_PATH, fn);
   });
+  var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
+
+  return copyFiles(sourceFiles, examplePaths)
+    .then(function() {
+      return copyFiles(dartWebSourceFiles, dartExampleWebPaths);
+    })
+    // copy protractor.config.js from _examples dir to each subdir that
+    // contains a e2e-spec file.
+    .then(function() {
+      var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
+      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+      return copyFiles(sourceFiles, e2eSpecPaths);
+    });
 }
 
 gulp.task('remove-example-boilerplate', function() {
@@ -273,10 +293,16 @@ gulp.task('remove-example-boilerplate', function() {
   });  
   
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  return deleteFiles(_exampleBoilerplateFiles, examplePaths).then(function() {
-    var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-    return deleteFiles(['protractor.config.js'], e2eSpecPaths);
-  })
+  var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
+  
+  return deleteFiles(_exampleBoilerplateFiles, examplePaths)
+    .then(function() {
+      return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
+    })
+    .then(function() {
+      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
+      return deleteFiles(['protractor.config.js'], e2eSpecPaths);
+    })
 });
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
@@ -300,7 +326,9 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   watchAndSync({localFiles: true}, cb);
 });
 
-gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
+gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers']);
+// Stop zipping examples Feb 28, 2016
+//gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
 
@@ -317,7 +345,10 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
 });
 
 gulp.task('build-plunkers', function() {
-  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
+  return copyExampleBoilerplate()  
+    .then(function() {
+      return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
+    });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -555,6 +586,11 @@ function getTypingsPaths(basePath) {
 function getExamplePaths(basePath, includeBase) {
   // includeBase defaults to false
   return getPaths(basePath, "example-config.json", includeBase)
+}
+
+function getDartExampleWebPaths(basePath) {
+  var paths = globby.sync([path.join(basePath,"**/dart/**/web")])
+  return paths;
 }
 
 function getPaths(basePath, filename, includeBase) {

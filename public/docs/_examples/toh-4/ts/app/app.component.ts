@@ -40,16 +40,17 @@ import {HeroService} from './hero.service';
       left: 0;
       background-color: #EEE;
       margin: .5em;
-      padding: .3em 0em;
+      padding: .3em 0;
       height: 1.6em;
       border-radius: 4px;
     }
     .heroes li.selected:hover {
+      background-color: #BBD8DC !important;
       color: white;
     }
     .heroes li:hover {
       color: #607D8B;
-      background-color: #EEE;
+      background-color: #DDD;
       left: .1em;
     }
     .heroes .text {
@@ -60,7 +61,7 @@ import {HeroService} from './hero.service';
       display: inline-block;
       font-size: small;
       color: white;
-      padding: 0.8em 0.7em 0em 0.7em;
+      padding: 0.8em 0.7em 0 0.7em;
       background-color: #607D8B;
       line-height: 1em;
       position: relative;
@@ -68,7 +69,7 @@ import {HeroService} from './hero.service';
       top: -4px;
       height: 1.8em;
       margin-right: .8em;
-      border-radius: 4px 0px 0px 4px;
+      border-radius: 4px 0 0 4px;
     }
   `],
   directives: [HeroDetailComponent],

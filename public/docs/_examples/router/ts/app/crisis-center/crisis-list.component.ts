@@ -7,7 +7,7 @@ import {Router, RouteParams} from 'angular2/router';
 
 @Component({
   template: `
-    <ul>
+    <ul class="items">
       <li *ngFor="#crisis of crises"
         [class.selected]="isSelected(crisis)"
         (click)="onSelect(crisis)">

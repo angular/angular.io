@@ -12,7 +12,7 @@ import {Router, RouteParams} from 'angular2/router';
   // #docregion template
   template: `
     <h2>HEROES</h2>
-    <ul>
+    <ul class="items">
       <li *ngFor="#hero of heroes"
         [class.selected]="isSelected(hero)"
         (click)="onSelect(hero)">
