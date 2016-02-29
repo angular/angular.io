@@ -1,347 +1,224 @@
+include ../../../../_includes/_util-fns
+
+<!-- http://plnkr.co/edit/8mNT1g -->
+
+:marked
+  ## Displaying Component Properties
+
+  We typically display data in Angular by binding controls in an HTML template
+  to properties of an Angular Component.
+
+  In this chapter, we'll create a component with a list of heroes. Each hero has a name.
+  We'll display the list of hero names and
+  conditionally show a selected hero in a detail area below the list.
+  Our UI looks like this:
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/final.png" alt="Final UI")
+
+<a id="interpolation"></a>
 .l-main-section
+:marked
+  ## Showing component properties with interpolation
+  The easiest way to display a component property
+  is to bind the property name through interpolation.
+  With interpolation, we put the property name in the view template, enclosed in double curly braces: <code>{&zwnj;{myHero}}</code> .
 
-  h2#section-displaying-controller-properties Displaying controller properties
+  Let's build a small illustrative example together.
 
+  Create a new project folder (`displaying-data`) and follow the steps in the [QuickStart](../quickstart.html).
 
-  p.
-    Let's walk through how we'd display a property, a list of properties, and then conditionally show content
-    based on state. We'll end up with a UI that looks like this:
+  Then modify the `app.js` file by changing the templateUrl and the body of the component.
+  When we're done, it should look like this:
 
-  figure.image-display
-    img(src='/resources/images/examples/displaying-data-example1.png' alt="Example of Todo App")
++makeExample('displaying-data/js/src/app/app.1.js')
 
-.callout.is-helpful
-  header Typescript vs ES5
-  p.
-    Although we work through the examples in TypeScript, you can also use
-    regular ES5. Click the ES5 link in any code box to see the ES5 JavaScript
-    version. Note that in ES5, you'd want to name your files <code>.js</code> rather than
-    <code>.ts</code>.
+:marked
+  We added two properties to the formerly empty component: `title` and `myHero`. Now we need to create the template
+  that is referenced by the templateUrl.
+
+  Create a new file called `app.html` and add the contents below. 
+  Our template displays the two component properties using the double curly brace interpolation.
+
++makeExample('displaying-data/js/src/app/app.1.html')
+
+:marked
+  Angular automatically pulls the value of the `title` and `myHero` properties from the component and
+  inserts those values into the browser. Angular will update the display
+  when these properties change.
+.l-sub-section
+  :marked
+    More precisely, the re-display occurs after some kind of asynchronous event related to
+    the view such as a keystroke, a timer completion, or an asynch `XHR` response.
+    We don't have those in this sample.
+    But then the properties aren't changing on their own either. For the moment we must operate on faith.
+:marked
+  Notice that we haven't created an instance of the `AppComponent` component.
+  Angular is creating an instance for us. How?
+
+  Notice the CSS `selector` in the `Component` method that specifies an element named "my-app".
+  Remember back in QuickStart that we added the `<my-app>` element to the body of our `index.html`
++makeExample('displaying-data/js/src/index.html', 'my-app')
+
+:marked
+  When we bootstrap with the `AppComponent` component (see the bottom of `app.js`), Angular looks for a `<my-app>`
+  in the `index.html`, finds it, instantiates an instance of `AppComponent`, and renders it
+  inside the `<my-app>` tag.
+
+  ## Template inline or template file?
+
+  We can store our component's template in one of two places.
+  We can define it "inline" using the template property as a string.
+  Or as we do here, we can define the template in a separate HTML file and link to it in
+  the component metadata using the `Component` method's `templateUrl` property.
+
+  We're using the external HTML style because it is difficult to write clean HTML in JavaScript inline.
+  The choice between them is a matter of taste, circumstances, and organization policy.
+
+  In either style, The template data bindings have the same access to the component's properties.
+
+<a id="ngFor"></a>
+.l-main-section
+:marked
+  ## Showing an array property with NgFor
+
+  We want to display a list of heroes. We begin by adding a mock heroes name array to the component,
+  just above `myHero` and redefine `myHero` to be the first name in the array.
++makeExample('displaying-data/js/src/app/app.2.js', 'mock-heroes')
+
+:marked
+  Now we use the Angular `NgFor` "repeater" Directive in the template to display
+  each item in the `heroes` list.
+
++makeExample('displaying-data/js/src/app/app.2.html')
+
+:marked
+  Our presentation is the familiar HTML unordered list with `<ul>` and `<li>` tags. Let's focus on the `<li>` tag.
++makeExample('displaying-data/js/src/app/app.2.html', 'li-repeater')
+
+:marked
+  We added a somewhat mysterious `*ngFor` to the `<li>` element.
+  That's the Angular "repeater" directive.
+  It's presence on the `<li>` tag marks that `<li>` element (and its children) as the "repeater template".
+
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in front of `*ngFor`. It is an essential part of the syntax.
+    Learn more about this and `NgFor` in the [Template Syntax](./template-syntax.html#ngFor) chapter.
+
+:marked
+  Notice the `#hero` in the `NgFor` double-quoted instruction.
+  The `#hero` is a "[template local variable](./template-syntax.html#local-vars")"  *declaration*.
+  The (#) prefix declares a local variable name named `hero`.
+
+  Angular will duplicate the `<li>` for each item in the list, setting the `hero` variable
+  to the item (the hero) in the current iteration. Angular uses that variable as the
+  context for the interpolation in the double curly braces.
+
+.l-sub-section
+  :marked
+    We happened to give `NgFor` an array to display.
+    In fact, `NgFor` can repeat items for any [iterable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols)
+    object.
+
+:marked
+  The `NgFor` directive is always available, and does not need to be directly registered into the component.
+  This is how the resulting list should appear.
+
+figure.image-display
+  img(src="/resources/images/devguide/displaying-data/hero-names-list.png" alt="After ngfor")
 
 .l-main-section
-    h2#section-create-an-entry-point Create an entry point
+:marked
+  ## Creating a class for the data
 
-    p Open your favorite editor and create a <code>show-properties.html</code> file with the content:
+  We are defining our data directly inside our component.
+  That's fine for a demo but certainly isn't a best practice. It's not even a good practice.
+  We won't do anything about that in this chapter.
 
-    code-example(language="html" escape="html").
-      <display></display>
+  At the moment, we're binding to an array of strings. We do that occasionally in real applications but
+  most of the time we're displaying objects, potentially instances of classes.
 
-    p
-     | The <code>&lt;display&gt;</code> component here acts as the site where you'll insert your application.
-     | We'll assume a structure like this for the rest of the examples here and just focus on the parts that
-     | are different.
+  Let's turn our array of hero names into an array of `Hero` objects. For that we'll need a `Hero' class.
 
-.l-main-section
-    h2#section-showing-properties-with-interpolation Showing properties with interpolation
-    p.text-body
-     | The simple method for binding text into templates is through interpolation where you put the name of a property
-     | inside <strong>{{ }}</strong>.
+  Create a new file called `hero.js` and add the following short snippet to it. You should also include a reference
+  to it in the index.html so it will get loaded into the application.
++makeExample('displaying-data/js/src/app/hero.js')
 
-    p To see this working, create another file, <code>show-properties.ts</code>, and add the following:
-
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        // TypeScript
-        import {Component, View, bootstrap} from 'angular2/angular2';
-
-        @Component({
-          selector: 'display'
-        })
-        @View({
-          template: `
-           &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-          `
-        })
-        class DisplayComponent {
-          myName: string;
-
-          constructor() {
-            this.myName = "Alice";
-          }
-        }
-      code-pane(language="javascript" name="ES5" format="linenums").
-        // ES5
-        function DisplayComponent() {
-          this.myName = "Alice";
-        }
-        DisplayComponent.annotations = [
-          new angular.ComponentAnnotation({
-            selector: "display"
-          }),
-          new angular.ViewAnnotation({
-            template:
-               '&lt;p&gt;My name: {{ myName }}&lt;/p&gt;'
-          })
-        ];
-
-
-    p.
-     You've just defined a component that encompasses a view and controller for the app. The view
-     defines a template:
-
-    code-example(language="html" escape="html").
-      <p>My name: {{ myName }}</p>
-
-    p.
-     Angular will automatically pull the value of <code>myName</code> and insert it into the browser and
-     update it whenever it changes without work on your part.
-
-    p.
-     One thing to notice here is that though you've written your <code>DisplayComponent</code> class, you haven't
-     called new to create one anywhere.  By associating your class with elements named 'display' in
-     the DOM, Angular knows to automatically call new on <code>DisplayComponent</code> and bind its properties to
-     that part of the template.
-
-    p.
-     When you're building templates, data bindings like these have access to the same scope of
-     properties as your controller class does.  Here, your class is the <code>DisplayComponent</code> that has
-     just one property, myName.
-
-    .callout.is-helpful
-      header Note
-      p.
-        While you've used <code>template:</code> to specify an inline view, for larger templates you'd
-        want to move them to a separate file and load them with <code>templateUrl:</code> instead.
+:marked
+  We've defined a constructor function, which is the closest thing to a class in ES5.
+  When a "new" instance of the object is created, it accepts two arguments, `id` and `name`, and assigns them as properties.
 
 .l-main-section
-    h2#Create-an-array Create an array property and use NgFor on the view
-    p Moving up from a single property, create an array to display as a list.
+:marked
+  ## Use the Hero class
+  Let's redefine the heroes property in our component to return an array of these Heroes
+  and also set the `myHero` property with the first of these mock heroes.
++makeExample('displaying-data/js/src/app/app.3.js', 'heroes')
 
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        //Typescript
-        class DisplayComponent {
-          myName: string;
-          <span class='otl'>names: Array&lt;string&gt;;</span>
+:marked
+  We'll have to update the template.
+  At the moment it displays the entire hero object which used to be a string value.
+  Let's fix that so we interpolate the `hero.name` property
++makeExample('displaying-data/js/src/app/app.3.html')
 
-          constructor() {
-            this.myName = "Alice";
-            <span class='otl'>this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];</span>
-          }
-        }
+:marked
+  Our display looks the same but we know how much better it is under the hood.
 
-      code-pane(language="javascript" name="Javascript (ES5)" format="linenums").
-        //ES5
-        function DisplayComponent() {
-          this.myName = "Alice";
-          <span class='otl'>this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];</span>
-        }
-    p.
-        You can then use this array in your template with the <code>NgFor</code> directive to create copies of DOM elements
-        with one for each item in the array.
-
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        //Typescript
-        template: `
-          &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-          &lt;p&gt;Friends:&lt;/p&gt;
-          &lt;ul&gt;
-             &lt;li *ng-for=&quot;#name of names&quot;&gt;
-                {{ name }}
-             &lt;/li&gt;
-          &lt;/ul&gt;
-        `,
-      code-pane(language="javascript" name="ES5" format="linenums").
-        //ES5
-        template:
-          &#39;&lt;p&gt;My name: {{ myName }}&lt;/p&gt;&#39; +
-          &#39;&lt;p&gt;Friends:&lt;/p&gt;&#39; +
-          &#39;&lt;ul&gt;&#39; +
-          &#39;&lt;li *ng-for=&quot;#name of names&quot;&gt;&#39; +
-          &#39;{{ name }}&#39; +
-          &#39;&lt;/li&gt;&#39; +
-          &#39;&lt;/ul&gt;&#39;,
-
-    p.
-        To make this work, you'll also need to add the <code>NgFor</code> directive used by the template so
-        that Angular knows to include it:
-
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        //Typescript
-        import {Component, View, bootstrap, NgFor} from 'angular2/angular2';
-        @View({
-          ...
-          directives: [NgFor]
-        })
-
-
-      code-pane(language="javascript" name="ES5" format="linenums").
-        //ES5
-        DisplayComponent.annotations = [
-          ...
-          new angular.ViewAnnotation({
-            ...
-            directives: [angular.NgFor]
-          })
-        ];
-
-    p Reload and you've got your list of friends!
-    p.
-        Angular will mirror changes you make to this list over in the DOM. Add a new item and it appears in your
-        list. Delete one and Angular deletes the &lt;li&gt;. Reorder items and Angular makes the corresponding reorder of
-        the DOM list.
-    p Let's look at the few lines that do the work again:
-    code-example(language="html" format="linenums").
-      //HTML
-      &lt;li *ng-for=&quot;#name of names&quot;&gt;
-         {{ name }}
-      &lt;/li&gt;
-    p The way to read this is:
-    ul
-        li.
-            <code>*ng-for</code> : create a DOM element for each item in an
-            <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols">iterable</a>
-             like an array
-        li <code>#name</code> : refer to individual values of the iterable as 'name'
-        li <code>of names</code> : the iterable to use is called 'names' in the current controller
-    p Using this syntax, you can build UI lists from any iterable object.
+<a id="ngIf"></a>
 .l-main-section
-    h2#Create-a-class Create a class for the array property and inject into component
+:marked
+  ## Conditional display with NgIf
 
-    p.
-        Before we get too much further, we should mention that putting our model (array) directly in our controller isn't
-        proper form.  We should separate the concerns by having another class serve the role of model and inject it into
-        the controller.
+  Sometimes the app should display a view or a portion of a view only under prescribed circumstances.
 
-    p Make a <code>FriendsService</code> class to provide the model with the list of friends.
+  In our example, we'd like to display a message if we have a large number of heroes ... say more than 3.
 
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        class FriendsService {
-          names: Array&lt;string&gt;;
-          constructor() {
-            this.names = ["Alice", "Aarav", "Martín", "Shannon", "Ariana", "Kai"];
-          }
-        }
+  The Angular `NgIf` directive will insert or remove an element based on a truthy/falsey condition.
+  We can see it in action by adding the following paragraph at the bottom of the template:
++makeExample('displaying-data/js/src/app/app.final.html', 'message')
+.alert.is-important
+  :marked
+    Don't forget the leading asterisk (\*) in front of `*ngIf`. It is an essential part of the syntax.
+    Learn more about this and `NgIf` in the [Template Syntax](./template-syntax.html#ngIf) chapter.
 
-      code-pane(language="javascript" name="ES5" format="linenums").
-        function FriendsService() {
-          this.names = ["Aarav", "Martín", "Shannon", "Ariana", "Kai"];
-        }
+:marked
+  The [template expression](./template-syntax.html#template-expressions) inside the double quotes
+  looks much like JavaScript and it is much like JavaScript.
+  When the component's list of heroes has more than 3 items, Angular adds the paragraph to the DOM and the message appears.
+  If there were 3 or fewer items, Angular omits the paragraph and there is no message.
 
-    p.
-        Now replace the current list of friends in DisplayComponent by including the FriendsService in the injectables list,
-        then including the service in the constructor, and finally setting the list of
-        names in DisplayComponent to the names provided by the service you passed in.
+.alert.is-helpful
+  :marked
+    Angular isn't showing and hiding the message. It is adding and removing the paragraph element from the DOM.
+    That hardly matters here. It would matter a great deal from a performance perspective if
+    we were conditionally including or excluding a big chunk of HTML with many data bindings.
 
-    .callout.is-helpful
-        header ES5 Note
-        p.
-            The dependency injection syntax here is using the low-level API and is...well...not very nice.  We're
-            working on sugaring the syntax to match the way it works in Angular 1.  Expect this to change soon.
+:marked
+  As with the `NgFor`, the `NgIf` directive is already available for the component to use without registering it.
 
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        @Component({
-          ...
-          <span class='otl'>appInjector: [FriendsService]</span>
-        })
-        class DisplayComponent {
-          myName: string;
-          names: Array&lt;string&gt;;
-          constructor(<span class='otl'>friendsService: FriendsService</span>) {
-            this.myName = 'Alice';
-            <span class='otl'>this.names = friendsService.names;</span>
-          }
-        }
+  Try it out. We have four items in the array so the message should appear.
+  Delete one of the elements from the array, refresh the browser, and the message should no longer appear.
 
-
-      code-pane(language="javascript" name="ES5" format="linenums").
-        //ES5
-        function DisplayComponent(<span class='otl'>friends</span>) {
-          this.myName = "Alice";
-          this.names = <span class='otl'>friends.names</span>;
-        }
-        DisplayComponent.annotations = [
-          new angular.ComponentAnnotation({
-            selector: "display",
-            <span class='otl'>appInjector: [FriendsService]</span>
-          }),
-          new angular.ViewAnnotation({
-            template: '{{ myName }} &lt;ul&gt; &lt;li *for="#name of names"&gt;{{ name }}&lt;/li&gt; &lt;/ul&gt;',
-            directives: [angular.NgFor]
-          })
-        ];
-        <span class='otl'>DisplayComponent.parameters = [[FriendsService]];</span>
-        document.addEventListener("DOMContentLoaded", function() {
-          angular.bootstrap(DisplayComponent);
-        });
 .l-main-section
-    h2#Conditionally-displaying-data-with-NgIf Conditionally displaying data with NgIf
-    p.
-        Lastly, before we move on, let's handle showing parts of our UI conditionally with <code>NgIf</code>.  The
-        <code>NgIf</code> directive adds or removes elements from the DOM based on the expression you provide.
-    p See it in action by adding a paragraph at the end of your template
-    pre.prettyprint.lang-html
-        code.
-            &lt;p *ng-if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;
-    p You'll also need to add the <code>NgIf</code> directive so Angular knows to include it.
+:marked
+  ## Summary
+  Now we know how to
+  - use **interpolation** with the double curly braces to display a component property,
+  - use **`NgFor`** to display a list of items,
+  - use a constructor function to shape the model data for our component and display properties of that model,
+  - use **`NgIf`** to conditionally display a chunk of HTML based on a boolean expression.
 
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        //Typescript
-        import {Component, View, bootstrap, NgFor, NgIf} from 'angular2/angular2';
-        ...
-          directives: [NgFor, NgIf]
-      code-pane(language="javascript" name="ES5" format="linenums").
-        //ES5
-        directives: [angular.NgFor, angular.NgIf]
-    p.
-        As there are currently 6 items in the list, you'll see the message congratulating you on your many friends.
-        Remove three items from the list, reload your browser, and see that the message no longer displays.
+  Our final code:
 
-    code-tabs
-      code-pane(language="javascript" name="TypeScript" format="linenums").
-        //TypeScript
-        import {Component, View, bootstrap, NgFor, NgIf} from 'angular2/angular2';
-        ...
-        @View({
-          <span class='otl'>template</span>: `
-            &lt;p&gt;My name: {{ myName }}&lt;/p&gt;
-            &lt;p&gt;Friends:&lt;/p&gt;
-            &lt;ul&gt;
-              &lt;li *ng-for=&quot;#name of names&quot;&gt;
-                {{ name }}
-              &lt;/li&gt;
-            &lt;/ul&gt;
-            &lt;p *ng-if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;
-          `,
-          directives: [NgFor, NgIf]
-        })
-        class DisplayComponent {
-          ...
-        }
++makeTabs('displaying-data/js/src/app/app.final.js, '+
+           'displaying-data/js/src/app/hero.js, ' +
+           'displaying-data/js/src/app/app.final.html',
+           'final,',
+           'app/app.js, app/hero.js, app/app.html')
 
-        class FriendsService {
-          names: Array&lt;string&gt;;
-          constructor() {
-            <span class='otl'>this.names = ["Aarav", "Martín", "Shannon"];</span>
-          }
-        }
-      code-pane(language="javascript" name="ES5" format="linenums").
-        //ES5
-        function DisplayComponent(friends) {
-          this.myName = "Alice";
-          this.names = friends.names;
-        }
-        DisplayComponent.annotations = [
-          ...
-          new angular.ViewAnnotation({
-            <span class='otl'>template</span>: '
-              &#39;&lt;p&gt;My name: {{ myName }}&lt;/p&gt;&#39; +
-              &#39;&lt;p&gt;Friends:&lt;/p&gt;&#39; +
-              &#39;&lt;ul&gt;&#39; +
-              &#39;&lt;li *ng-for=&quot;#name of names&quot;&gt;&#39; +
-              &#39;{{ name }}&#39; +
-              &#39;&lt;/li&gt;&#39; +
-              &#39;&lt;/ul&gt;&#39; +
-              &#39;&lt;p *ng-if=&quot;names.length &gt; 3&quot;&gt;You have many friends!&lt;/p&gt;&#39;',
-            directives: [angular.NgFor, angular.NgIf]
-          })
-        ];
-
-        function FriendsService () {
-          <span class='otl'>this.names = ["Aarav", "Martín", "Shannon"];</span>
-        }
+.l-main-section
+:marked
+  ## Next Steps
+  In addition to displaying data, most applications need to respond to user input.
+  Learn about that in the [User Input](./user-input.html) chapter.
