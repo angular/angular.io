@@ -14,7 +14,9 @@ import {RouteParams, Router} from 'angular2/router';
       <label>Name: </label>
       <input [(ngModel)]="hero.name" placeholder="name"/>
     </div>
-    <button (click)="gotoHeroes()">Back</button>
+    <p>
+      <button (click)="gotoHeroes()">Back</button>
+    </p>
   </div>
   `,
 })

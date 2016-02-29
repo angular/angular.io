@@ -21,8 +21,10 @@ import {DialogService} from '../dialog.service';
       <label>Name: </label>
       <input [(ngModel)]="editName" placeholder="name"/>
     </div>
-    <button (click)="save()">Save</button>
-    <button (click)="cancel()">Cancel</button>
+    <p>
+      <button (click)="save()">Save</button>
+      <button (click)="cancel()">Cancel</button>
+    </p>
   </div>
   `,
   // #enddocregion template

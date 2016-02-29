@@ -31,17 +31,17 @@ import {HeroService}           from './heroes/hero.service';
   // #enddocregion cc-anchor-no-default
   */
   /* Crisis Center Detail link
-  // #docregion princess-anchor
-  <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
-  // #enddocregion princess-anchor
+  // #docregion Dragon-anchor
+  <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Dragon Crisis</a>
+  // #enddocregion Dragon-anchor
   */
 // #docregion template
   template: `
     <h1 class="title">Component Router</h1>
     <nav>
       <a [routerLink]="['CrisisCenter', 'CrisisList']">Crisis Center</a>
-      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Princess Crisis</a>
-      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:2}]">Dragon Crisis</a>
+      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Dragon Crisis</a>
+      <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:2}]">Shark Crisis</a>
     </nav>
     <router-outlet></router-outlet>
   `,

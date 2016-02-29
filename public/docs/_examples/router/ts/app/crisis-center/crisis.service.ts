@@ -31,10 +31,10 @@ export class CrisisService {
 }
 
 var crises = [
-  new Crisis(1, 'Princess Held Captive'),
-  new Crisis(2, 'Dragon Burning Cities'),
+  new Crisis(1, 'Dragon Burning Cities'),
+  new Crisis(2, 'Sky Rains Great White Sharks'),  
   new Crisis(3, 'Giant Asteroid Heading For Earth'),
-  new Crisis(4, 'Release Deadline Looms')
+  new Crisis(4, 'Procrastinators Meeting Delayed Again'),
 ];
 
 var crisesPromise = Promise.resolve(crises);
