@@ -8,7 +8,7 @@ import 'hero.dart';
 import 'hero_detail_component.dart';
 import 'my_click_directive.dart';
 
-enum Color { Red, Green, Blue }
+enum Color { red, green, blue }
 
 @Component(
     selector: 'my-app',
@@ -21,12 +21,12 @@ enum Color { Red, Green, Blue }
     ])
 class AppComponent implements OnInit, AfterViewInit {
   @override
-  ngOnInit() {
+  void ngOnInit() {
     refreshHeroes();
   }
 
   @override
-  ngAfterViewInit() {
+  void ngAfterViewInit() {
     _detectNgForTrackByEffects();
   }
 
@@ -44,14 +44,14 @@ class AppComponent implements OnInit, AfterViewInit {
   bool isSpecial = true;
   bool isUnchanged = true;
   bool isSelected = false;
-  Color color = Color.Red;
+  Color color = Color.red;
 
   List<Hero> heroes;
   Hero currentHero;
 
   // #docregion refresh-heroes
   /// Updates [this.heroes] with fresh set of cloned heroes.
-  refreshHeroes() {
+  void refreshHeroes() {
     heroes = mockHeroes.map((hero) => hero.clone()).toList();
     currentHero = heroes[0];
   }
@@ -86,7 +86,7 @@ class AppComponent implements OnInit, AfterViewInit {
   }
 
   void colorToggle() {
-    color = (color == Color.Red) ? Color.Blue : Color.Red;
+    color = (color == Color.red) ? Color.blue : Color.red;
   }
 
   int getVal() => val;
@@ -130,9 +130,9 @@ class AppComponent implements OnInit, AfterViewInit {
     return JSON.encode(showStyles);
   }
 
-  Map _previousClasses = {};
+  Map<String, bool> _previousClasses = {};
   // #docregion setClasses
-  Map setClasses() {
+  Map<String, bool> setClasses() {
     final classes = {
       'saveable': canSave, // true
       'modified': !isUnchanged, // false
@@ -163,7 +163,7 @@ class AppComponent implements OnInit, AfterViewInit {
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
-      var choice = choices[i];
+      var choice = choices[i] as CheckboxInputElement;
       if (choice.checked) {
         toeChoice = choice.value;
         return toeChoice;
@@ -191,17 +191,17 @@ class AppComponent implements OnInit, AfterViewInit {
   @ViewChildren('withTrackBy') QueryList<ElementRef> childrenWithTrackBy;
 
   void _detectNgForTrackByEffects() {
-    /// Converts [viewChildren] to a list of [HtmlElement].
+    /// Converts [viewChildren] to a list of [Element].
     List<Element> _extractChildren(QueryList<ElementRef> viewChildren) =>
-        viewChildren.toList()[0].nativeElement.children.toList();
+        viewChildren.toList()[0].nativeElement.children.toList() as List<Element>;
 
     {
       // Updates 'without TrackBy' statistics.
       List<Element> _oldNoTrackBy = _extractChildren(this.childrenNoTrackBy);
 
-      this.childrenNoTrackBy.changes.listen((QueryList<ElementRef> changes) {
+      this.childrenNoTrackBy.changes.listen((Iterable<ElementRef> changes) {
         final newNoTrackBy = _extractChildren(changes);
-        final isSame = newNoTrackBy.fold(true, (isSame, HtmlElement elt) {
+        final isSame = newNoTrackBy.fold(true, (bool isSame, Element elt) {
           return isSame && _oldNoTrackBy.contains(elt);
         });
 
@@ -217,9 +217,9 @@ class AppComponent implements OnInit, AfterViewInit {
       List<Element> _oldWithTrackBy =
           _extractChildren(this.childrenWithTrackBy);
 
-      this.childrenWithTrackBy.changes.listen((QueryList<ElementRef> changes) {
+      this.childrenWithTrackBy.changes.listen((Iterable<ElementRef> changes) {
         final newWithTrackBy = _extractChildren(changes);
-        final isSame = newWithTrackBy.fold(true, (isSame, HtmlElement elt) {
+        final isSame = newWithTrackBy.fold(true, (bool isSame, Element elt) {
           return isSame && _oldWithTrackBy.contains(elt);
         });
 

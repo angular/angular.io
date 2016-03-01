@@ -39,9 +39,9 @@ class HeroDetailComponent {
 
   // #docregion deleteRequest
   // This component make a request but it can't actually delete a hero.
-  final EventEmitter deleteRequest = new EventEmitter<Hero>();
+  final deleteRequest = new EventEmitter<Hero>();
 
-  delete() {
+  void delete() {
     deleteRequest.emit(hero);
     // #enddocregion deleteRequest
     lineThrough = (lineThrough == '') ? 'line-through' : '';
@@ -71,12 +71,12 @@ class HeroDetailComponent {
 class BigHeroDetailComponent extends HeroDetailComponent {
   // #docregion input-output-1
   @Input() Hero hero;
-  @Output() final EventEmitter deleteRequest = new EventEmitter<Hero>();
+  @Output() final deleteRequest = new EventEmitter<Hero>();
   // #enddocregion input-output-1
 
-  String heroImageUrl = 'assets/images/hero.png';
+  String get heroImageUrl => 'assets/images/hero.png';
 
-  delete() {
+  @override void delete() {
     deleteRequest.emit(hero);
   }
 }

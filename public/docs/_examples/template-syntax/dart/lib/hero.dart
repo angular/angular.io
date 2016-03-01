@@ -21,7 +21,7 @@ class Hero {
   Hero clone() => new Hero(firstName,
       lastName: lastName, birthdate: birthdate, url: url, rate: rate, id: id);
 
-  String toString() => '$fullName (rate: $rate)';
+  @override String toString() => '$fullName (rate: $rate)';
 }
 
 final List<Hero> mockHeroes = [
