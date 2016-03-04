@@ -1,7 +1,7 @@
 // #docregion pt2
 import {Component} from 'angular2/core';
 
-interface Hero {
+export class Hero {
   id: number;
   name: string;
 }
@@ -37,7 +37,7 @@ interface Hero {
       margin: 0 0 2em 0;
       list-style-type: none;
       padding: 0;
-      width: 10em;
+      width: 15em;
     }
     .heroes li {
       cursor: pointer;

@@ -1,35 +1,57 @@
-import {Component, Directive, EventEmitter , ElementRef} from 'angular2/core';
+// #docplaster
+// #docregion
+// #docregion v2
+// #docregion import-oninit
+import { Component, OnInit } from 'angular2/core';
+// #enddocregion import-oninit
+// #docregion import-route-params
+import {RouteParams} from 'angular2/router';
+// #enddocregion import-route-params
 
-import {Hero} from './hero';
-import {InitCapsPipe} from './init-caps-pipe';
+import { Hero } from './hero';
+// #docregion import-hero-service
+import { HeroService } from './hero.service';
+// #enddocregion import-hero-service
 
-@Directive({selector: 'button'})
-class DecoratorDirective {
-  constructor(el: ElementRef){
-    console.log(el)
-  }
-}
+// #docregion extract-template
 @Component({
   selector: 'my-hero-detail',
+  // #docregion template-url
   templateUrl: 'app/hero-detail.component.html',
-  inputs: ['hero', 'userName'], // inputs
-  outputs: ['delete'], // outputs
-  directives: [DecoratorDirective],
+  // #enddocregion template-url
+// #enddocregion v2
   styleUrls: ['app/hero-detail.component.css'],
-  pipes: [InitCapsPipe]
+  inputs: ['hero']
+// #docregion v2
 })
-export class HeroDetailComponent {
-
+// #enddocregion extract-template
+// #docregion implement
+export class HeroDetailComponent implements OnInit {
+// #enddocregion implement
   hero: Hero;
 
-  delete = new EventEmitter();
-
-  onDelete() { this.delete.next(this.hero) }
-
-  onUpdate() {
-    if (this.hero) {
-      this.hero.name += 'x';
-    }
+// #docregion ctor
+  constructor(
+    private _heroService: HeroService,
+    private _routeParams: RouteParams) {
   }
-  userName: string;
+// #enddocregion ctor
+
+// #docregion ng-oninit
+  ngOnInit() {
+    // #docregion get-id
+    let id = +this._routeParams.get('id');
+    // #enddocregion get-id
+    this._heroService.getHero(id)
+      .then(hero => this.hero = hero);
+  }
+// #enddocregion ng-oninit
+
+// #docregion go-back
+  goBack() {
+    window.history.back();
+  }
+// #enddocregion go-back
 }
+// #enddocregion v2
+// #enddocregion

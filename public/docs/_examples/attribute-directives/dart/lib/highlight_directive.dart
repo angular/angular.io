@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion full
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 @Directive(selector: '[my-highlight]', host: const {
   '(mouseenter)': 'onMouseEnter()',

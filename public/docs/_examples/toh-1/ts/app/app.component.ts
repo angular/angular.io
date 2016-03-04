@@ -1,12 +1,12 @@
 // #docregion pt1
 import {Component} from 'angular2/core';
 
-// #docregion hero-interface-1
-interface Hero {
+// #docregion hero-class-1
+export class Hero {
   id: number;
   name: string;
 }
-// #enddocregion hero-interface-1
+// #enddocregion hero-class-1
 
 @Component({
   selector: 'my-app',
@@ -21,8 +21,8 @@ interface Hero {
     `
 })
 export class AppComponent {
-  public title = 'Tour of Heroes';
-  public hero: Hero = {
+  title = 'Tour of Heroes';
+  hero: Hero = {
     id: 1,
     name: 'Windstorm'
   };

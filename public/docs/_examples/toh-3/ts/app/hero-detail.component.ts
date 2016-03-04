@@ -1,7 +1,8 @@
 // #docplaster
 // #docregion
 // #docregion v1
-import {Component} from 'angular2/core';
+import {Component, Input} from 'angular2/core';
+
 // #enddocregion v1
 // #docregion hero-import
 import {Hero} from './hero';
@@ -10,7 +11,7 @@ import {Hero} from './hero';
 // #docregion v1
 @Component({
   selector: 'my-hero-detail',
-// #enddocregion v1
+// #enddocregion v1  
   // #docregion template
   template: `
     <div *ngIf="hero">
@@ -21,18 +22,18 @@ import {Hero} from './hero';
         <input [(ngModel)]="hero.name" placeholder="name"/>
       </div>
     </div>
-  `,
+  `
   // #enddocregion template
-  // #docregion inputs
-  inputs: ['hero']
-  // #enddocregion inputs
-// #docregion v1
+// #docregion v1  
 })
 export class HeroDetailComponent {
 // #enddocregion v1
-// #docregion hero
+// #docregion hero-input
+  @Input() 
+// #docregion hero  
   hero: Hero;
-// #enddocregion hero
+// #enddocregion hero  
+// #enddocregion hero-input
 // #docregion v1
 }
 // #enddocregion v1

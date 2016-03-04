@@ -32,7 +32,7 @@ import {HeroService} from './hero.service';
       margin: 0 0 2em 0;
       list-style-type: none;
       padding: 0;
-      width: 10em;
+      width: 15em;
     }
     .heroes li {
       cursor: pointer;

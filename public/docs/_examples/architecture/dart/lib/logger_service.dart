@@ -1,7 +1,7 @@
 // #docregion
 import 'dart:html';
 
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 /// A service for logging messages of various types.
 ///

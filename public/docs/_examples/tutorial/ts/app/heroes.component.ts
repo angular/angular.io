@@ -11,8 +11,8 @@ import {Hero} from './hero';
   directives: [HeroDetailComponent]
 })
 export class HeroesComponent implements OnInit {
-  public heroes: Hero[];
-  public selectedHero: Hero;
+  heroes: Hero[];
+  selectedHero: Hero;
 
   constructor(private _heroService: HeroService, private _router: Router) { }
 

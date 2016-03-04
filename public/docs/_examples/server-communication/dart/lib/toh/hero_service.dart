@@ -4,7 +4,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 // #enddocregion v1
 // #docregion import-request-options
 import 'package:http/browser_client.dart';

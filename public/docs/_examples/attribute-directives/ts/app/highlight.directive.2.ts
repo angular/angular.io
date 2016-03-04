@@ -12,8 +12,10 @@ import {Directive, ElementRef, Input} from 'angular2/core';
 })
 
 export class HighlightDirective {
+  
   // #docregion ctor
-  constructor(private el: ElementRef) { }
+  private _el:HTMLElement;
+  constructor(el: ElementRef) { this._el = el.nativeElement; }
   // #enddocregion ctor
 
   // #docregion mouse-methods
@@ -21,7 +23,7 @@ export class HighlightDirective {
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color: string) {
-    this.el.nativeElement.style.backgroundColor = color;
+    this._el.style.backgroundColor = color;
   }
   // #enddocregion mouse-methods
 

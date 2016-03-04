@@ -2,21 +2,21 @@
 
 //#docregion
 import 'package:angular2/core.dart';
+
 import 'car/car.dart';
+import 'heroes/hero.dart';
 import 'heroes/hero_service.dart';
 import 'heroes/hero_service_provider.dart';
 import 'logger_service.dart';
-import 'package:dependency_injection/heroes/hero.dart';
 
 //#docregion injector
 @Component(
     selector: 'my-injectors',
     template: '''
-  <h2>Other Injections</h2>
-  <div id="car"> {{car.drive()}}</div>
-  <div id="hero">{{hero.name}}</div>
-  <div id="rodent">{{rodent}}</div>
-  ''',
+      <h2>Other Injections</h2>
+      <div id="car">{{car.drive()}}</div>
+      <div id="hero">{{hero.name}}</div>
+      <div id="rodent">{{rodent}}</div>''',
     providers: const [
       Car,
       Engine,
@@ -25,20 +25,9 @@ import 'package:dependency_injection/heroes/hero.dart';
       Logger
     ])
 class InjectorComponent {
-  Injector _injector;
-
-  InjectorComponent(this._injector) {
-    car = _injector.get(Car);
-    heroService = _injector.get(HeroService);
-    hero = heroService.getHeroes()[0];
-  }
-
+  final Injector _injector;
   Car car;
-
-  //#docregion get-hero-service
   HeroService heroService;
-
-  //#enddocregion get-hero-service
   Hero hero;
 
   String get rodent {
@@ -47,6 +36,14 @@ class InjectorComponent {
       throw new Exception('Aaaargh!');
     }
     return "R.O.U.S.'s? I don't think they exist!";
+  }
+
+  InjectorComponent(this._injector) {
+    car = _injector.get(Car);
+    //#docregion get-hero-service
+    heroService = _injector.get(HeroService);
+    //#enddocregion get-hero-service
+    hero = heroService.getHeroes()[0];
   }
 }
 //#enddocregion injector
