@@ -1,12 +1,13 @@
 // #docplaster
 
 //#docregion
-import 'package:angular2/core.dart';
+import 'package:angular2/angular2.dart';
+
 import 'car/car.dart';
+import 'heroes/hero.dart';
 import 'heroes/hero_service.dart';
 import 'heroes/hero_service_provider.dart';
 import 'logger_service.dart';
-import 'package:dependency_injection/heroes/hero.dart';
 
 //#docregion injector
 @Component(
@@ -34,10 +35,8 @@ class InjectorComponent {
   }
 
   Car car;
-
   //#docregion get-hero-service
   HeroService heroService;
-
   //#enddocregion get-hero-service
   Hero hero;
 

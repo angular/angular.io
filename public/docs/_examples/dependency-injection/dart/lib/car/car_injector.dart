@@ -1,9 +1,9 @@
 // #docplaster
-
 //#docregion
-import 'package:angular2/core.dart';
-import 'car.dart';
+import 'package:angular2/angular2.dart';
+
 import '../logger_service.dart';
+import 'car.dart';
 
 //#docregion injector
 Car useInjector() {

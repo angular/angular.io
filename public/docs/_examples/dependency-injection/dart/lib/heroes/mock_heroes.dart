@@ -1,5 +1,4 @@
 // #docregion
-
 import 'hero.dart';
 
 List<Hero> HEROES = [

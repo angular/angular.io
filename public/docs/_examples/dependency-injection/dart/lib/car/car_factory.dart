@@ -1,5 +1,4 @@
 // #docregion
-
 import 'car.dart';
 
 class CarFactory {
@@ -10,6 +9,5 @@ class CarFactory {
   }
 
   Engine createEngine() => new Engine();
-
   Tires createTires() => new Tires();
 }
