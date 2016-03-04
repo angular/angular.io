@@ -1,11 +1,11 @@
 // #docregion
+import 'package:angular2/angular2.dart';
 
-import 'package:angular2/core.dart';
 import 'car.dart';
-import 'car_no_di.dart' as carNoDi;
-import 'car_factory.dart';
 import 'car_creations.dart' as carCreations;
+import 'car_factory.dart';
 import 'car_injector.dart';
+import 'car_no_di.dart' as carNoDi;
 
 @Component(
     selector: 'my-car',

@@ -1,12 +1,9 @@
 // Examples with car and engine variations
-
-// #docplaster
 import 'car.dart';
 
 ///////// example 1 ////////////
 Car simpleCar() {
   //#docregion car-ctor-instantiation
-
   // Simple car with 4 cylinders and Flintstone tires.
   var car = new Car(new Engine(), new Tires());
   //#enddocregion car-ctor-instantiation
@@ -21,11 +18,10 @@ class Engine2 implements Engine {
 
   Engine2(this.cylinders);
 }
-
 //#enddocregion car-ctor-instantiation-with-param
+
 Car superCar() {
   //#docregion car-ctor-instantiation-with-param
-
   // Super car with 12 cylinders and Flintstone tires.
   var bigCylinders = 12;
   var car = new Car(new Engine2(bigCylinders), new Tires());
@@ -43,11 +39,9 @@ class MockEngine extends Engine {
 class MockTires extends Tires {
   String make = 'YokoGoodStone';
 }
-
 //#enddocregion car-ctor-instantiation-with-mocks
 Car testCar() {
   //#docregion car-ctor-instantiation-with-mocks
-
   // Test car with 8 cylinders and YokoGoodStone tires.
   var car = new Car(new MockEngine(), new MockTires());
   //#enddocregion car-ctor-instantiation-with-mocks

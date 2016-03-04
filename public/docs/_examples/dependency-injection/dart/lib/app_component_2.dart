@@ -1,13 +1,14 @@
 // #docregion
 
 // #docregion imports
-import 'package:angular2/core.dart';
+import 'package:angular2/angular2.dart';
+
+import 'app_config.dart';
 import 'car/car_component.dart';
 import 'heroes/heroes_component_1.dart';
-import 'app_config.dart';
 import 'logger_service.dart';
-
 // #enddocregion imports
+
 @Component(
     selector: 'my-app',
     template: '''

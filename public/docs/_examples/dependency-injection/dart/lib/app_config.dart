@@ -1,7 +1,6 @@
-//#docregion
-
+// #docregion
 // #docregion token
-import 'package:angular2/core.dart';
+import 'package:angular2/angular2.dart';
 
 const APP_CONFIG = const OpaqueToken('app.config');
 // #enddocregion token

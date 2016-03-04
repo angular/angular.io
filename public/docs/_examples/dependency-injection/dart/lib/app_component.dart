@@ -1,15 +1,14 @@
 // #docplaster
-
 // #docregion
-
 // #docregion imports
-import 'package:angular2/core.dart';
+import 'package:angular2/angular2.dart';
+
+import 'app_config.dart';
 import 'car/car_component.dart';
 import 'heroes/heroes_component.dart';
-import 'app_config.dart';
 import 'logger_service.dart';
 import 'user_service.dart';
-
+//PENDING: check whether we intend to hide injector_component.dart & providers_component.dart; if so, change docregion name?
 // #enddocregion imports
 import 'injector_component.dart';
 import 'providers_component.dart';
@@ -29,9 +28,18 @@ import 'providers_component.dart';
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
   ''',
-    directives: const [CarComponent, HeroesComponent, InjectorComponent, ProvidersComponent],
+    directives: const [
+      CarComponent,
+      HeroesComponent,
+      InjectorComponent,
+      ProvidersComponent
+    ],
 // #docregion providers
-    providers: const [Logger, UserService, const Provider(Config, useValue: CONFIG)]
+    providers: const [
+      Logger,
+      UserService,
+      const Provider(Config, useValue: CONFIG)
+    ]
 // #enddocregion providers
     )
 class AppComponent {
@@ -57,7 +65,8 @@ class AppComponent {
   }
 
   String get userInfo {
-    return 'Current user, ${user.name}, is ${isAuthorized ? "" : "not"} authorized. ';
+    return 'Current user, ${user.name}, is'
+        '${isAuthorized ? "" : " not"} authorized. ';
   }
 }
 // #enddocregion
