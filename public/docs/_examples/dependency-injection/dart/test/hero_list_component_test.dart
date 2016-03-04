@@ -1,6 +1,6 @@
 // A simple test
 // More details will be in the testing chapter.
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 import 'package:dependency_injection/heroes/hero.dart';
 import 'package:dependency_injection/heroes/hero_list_component.dart';
 import 'package:dependency_injection/heroes/hero_service.dart';

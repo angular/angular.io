@@ -13,10 +13,10 @@ class Car {
     engine = new Engine();
     tires = new Tires();
   }
-
   //#enddocregion car-ctor
 
   // Method using the engine and tires
-  drive() => '$description car with ${engine.cylinders} cylinders and ${tires.make} tires.';
+  String drive() => '$description car with '
+      '${engine.cylinders} cylinders and ${tires.make} tires.';
 }
 //#enddocregion car
