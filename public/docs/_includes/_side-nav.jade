@@ -1,16 +1,89 @@
-- var lang = current.path[1]
+// Include this file ONLY when current.path[2] is defined
+- var tracks = function(src, selector) {
+-    var base = '/docs/' + current.path[1] + '/' + current.path[2] + '/';
+-    var secondaryPath = public.docs[current.path[1]][current.path[2]]
+-    var data = src ? secondaryPath[src] && secondaryPath[src]._data : secondaryPath._data;
+-    if (!data) return [];
+
+-    var track = [];
+-    var selector = selector || function() { return true; };
+-    var prefix = base + (src ? src + '/' : '');
+-    for (prop in data) {
+-      var item = data[prop];
+-      item[0] = prop;
+-      if (prop[0] !== '_' && !item.hide && selector(item)) {
+-        var file = prop !== 'index' ? prop + '.html' : ''
+-        item.file = file;
+-        item.href = prefix + file;
+-        item.navTitle = item.navTitle || item.title;
+-        item.tooltip = item.description || item.intro || '';
+-        track.push(item);
+-      }
+-    }
+-    return track;
+-  }
+  
+- var tutorial = tracks('tutorial');
+- var cookbook = tracks('cookbook');
+- var basics = tracks('guide', function(item) { return item.basics; });
+- var guide  = tracks('guide', function(item) { return !item.basics; });
+- var qs = tracks('', function(item) { return item[0] === 'quickstart'; })[0] || {};
+- var reference  = tracks('', function(item) { return item.reference; });
+- var resources  = tracks('', function(item) { return item.resources; });
 
 nav.side-nav.l-pinned-left.l-layer-4.l-offset-nav
-
   // SEARCH BAR
   header.side-nav-search.st-input-wrapper
     form.st-input-inner
       label(for="search-io" class="is-hidden") Search Docs
       input(type="search" id="search-io" placeholder="SEARCH DOCS...")
     button(class="mobile-trigger button" aria-label="View Docs Menu" ng-click="appCtrl.toggleDocsMenu($event)" md-button) Docs <span class="icon icon-arrow-drop-down"></span>
-
+    
   div(class="side-nav-secondary" ng-class="appCtrl.showDocsNav ? 'is-visible' : ''")
-    != partial("../" + lang + "/latest/_nav")
+    .nav-blocks
+      .nav-title Tutorial
+      .nav-primary-link
+        a(href="#{qs.href}" title="#{qs.tooltip}") #{qs.navTitle}
+      .nav-sub-title Case Study: Tour of Heroes
+      .nav-ordered-lists
+        ol
+          each item in tutorial
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+
+    .nav-blocks
+      .nav-title Basics
+      .nav-ordered-lists
+        ol
+          each item in basics
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}    
+
+    .nav-blocks
+      .nav-title Developer Guide
+      .nav-unordered-lists
+        ul
+          each item in guide
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+
+    .nav-blocks
+      .nav-title Cookbook
+      .nav-unordered-lists
+        ul
+          each item in cookbook
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+
+    .nav-blocks
+      .nav-title Reference
+      .nav-unordered-lists
+        ul
+          each item in reference
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+    
+    .nav-blocks
+      .nav-title Resources
+      .nav-unordered-lists
+        ul
+          each item in resources
+            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
 
 
 script.
@@ -20,11 +93,9 @@ script.
     if (!leftNav) {return;}
     var links = leftNav.getElementsByTagName('a');
     var path = location.toString();
-    // remove trailing '/'
-    if (path[path.length-1] === '/') {path = path.slice(0, path.length-1);}
-    // remove trailing '/index.html' (11 chars) for matching purposes.
-    if (path.lastIndexOf('/index.html') === path.length-11) {
-      path = path.slice(0, -11);
+    // remove trailing 'index.html' (10 chars) for matching purposes.
+    if (path.lastIndexOf('index.html') === path.length-10) {
+      path = path.slice(0, -10);
     }
     for (var i=0; i < links.length; i++){
       // assumes fresh page each time so no need to clear class
@@ -33,8 +104,9 @@ script.
         parent.classList.add('is-selected');
 
         if(parent.offsetTop > window.innerHeight && parent.scrollIntoView){
-          parent.scrollIntoView(false);    
-         // parent.scrollTop();
+          sideNav = document.getElementsByClassName('side-nav')[0];          
+          sideNav.scrollTop = parent.offsetTop - (window.innerHeight/2);
+          //alert("offsetTop: " + parent.offsetTop + " side-nav top is " + sideNav.scrollTop);          
         }
         break;
       }
