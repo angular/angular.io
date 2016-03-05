@@ -1,35 +1,42 @@
 // Include this file ONLY when current.path[2] is defined
-- var tracks = function(src, selector) {
--    var base = '/docs/' + current.path[1] + '/' + current.path[2] + '/';
+- var base = '/docs/' + current.path[1] + '/' + current.path[2] + '/';
+- var dir = current.path[4] ? current.path[3] + '/' : '';
+- var cur = current.path[4] || current.path[3];
+- cur = cur === 'index' ? '' : cur + '.html';
+- cur = base + dir + cur; 
+
+- var sections = function(dir, selector) {
 -    var secondaryPath = public.docs[current.path[1]][current.path[2]]
--    var data = src ? secondaryPath[src] && secondaryPath[src]._data : secondaryPath._data;
+-    var data = dir ? secondaryPath[dir] && secondaryPath[dir]._data : secondaryPath._data;
 -    if (!data) return [];
 
--    var track = [];
+-    var section = [];
 -    var selector = selector || function() { return true; };
--    var prefix = base + (src ? src + '/' : '');
+-    var prefix = base + (dir ? dir + '/' : '');
 -    for (prop in data) {
 -      var item = data[prop];
--      item[0] = prop;
+-      item.slug = prop;
 -      if (prop[0] !== '_' && !item.hide && selector(item)) {
--        var file = prop !== 'index' ? prop + '.html' : ''
+-        var file = prop === 'index' ? '' : prop + '.html';
+-        var href = prefix + file;
+-        item.class = cur === href ? 'is-selected' : '';
 -        item.file = file;
--        item.href = prefix + file;
+-        item.href = href;
 -        item.navTitle = item.navTitle || item.title;
 -        item.tooltip = item.description || item.intro || '';
--        track.push(item);
+-        section.push(item);
 -      }
 -    }
--    return track;
+-    return section;
 -  }
   
-- var tutorial = tracks('tutorial');
-- var cookbook = tracks('cookbook');
-- var basics = tracks('guide', function(item) { return item.basics; });
-- var guide  = tracks('guide', function(item) { return !item.basics; });
-- var qs = tracks('', function(item) { return item[0] === 'quickstart'; })[0] || {};
-- var reference  = tracks('', function(item) { return item.reference; });
-- var resources  = tracks('', function(item) { return item.resources; });
+- var tutorial = sections('tutorial');
+- var cookbook = sections('cookbook');
+- var basics = sections('guide', function(item) { return item.basics; });
+- var guide  = sections('guide', function(item) { return !item.basics; });
+- var qs = sections('', function(item) { return item.slug === 'quickstart'; })[0] || {};
+- var reference  = sections('', function(item) { return item.reference; });
+- var resources  = sections('', function(item) { return item.resources; });
 
 nav.side-nav.l-pinned-left.l-layer-4.l-offset-nav
   // SEARCH BAR
@@ -38,77 +45,61 @@ nav.side-nav.l-pinned-left.l-layer-4.l-offset-nav
       label(for="search-io" class="is-hidden") Search Docs
       input(type="search" id="search-io" placeholder="SEARCH DOCS...")
     button(class="mobile-trigger button" aria-label="View Docs Menu" ng-click="appCtrl.toggleDocsMenu($event)" md-button) Docs <span class="icon icon-arrow-drop-down"></span>
-    
+
   div(class="side-nav-secondary" ng-class="appCtrl.showDocsNav ? 'is-visible' : ''")
     .nav-blocks
       .nav-title Tutorial
-      .nav-primary-link
+      .nav-primary-link(class="#{qs.class}")
         a(href="#{qs.href}" title="#{qs.tooltip}") #{qs.navTitle}
       .nav-sub-title Case Study: Tour of Heroes
       .nav-ordered-lists
         ol
           each item in tutorial
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
 
     .nav-blocks
       .nav-title Basics
       .nav-ordered-lists
         ol
           each item in basics
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}    
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}    
 
     .nav-blocks
       .nav-title Developer Guide
       .nav-unordered-lists
         ul
           each item in guide
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
 
     .nav-blocks
       .nav-title Cookbook
       .nav-unordered-lists
         ul
           each item in cookbook
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
 
     .nav-blocks
       .nav-title Reference
       .nav-unordered-lists
         ul
           each item in reference
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
     
     .nav-blocks
       .nav-title Resources
       .nav-unordered-lists
         ul
           each item in resources
-            li: a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
+            li(class="#{item.class}"): a(href="#{item.href}" title="#{item.tooltip}") #{item.navTitle}
 
 
 script.
   // Could put in appCtrl but only needed here and clear here
-  (function highlightSelectedLink() {
-    var leftNav = document.getElementsByClassName('side-nav-secondary')[0];
-    if (!leftNav) {return;}
-    var links = leftNav.getElementsByTagName('a');
-    var path = location.toString();
-    // remove trailing 'index.html' (10 chars) for matching purposes.
-    if (path.lastIndexOf('index.html') === path.length-10) {
-      path = path.slice(0, -10);
-    }
-    for (var i=0; i < links.length; i++){
-      // assumes fresh page each time so no need to clear class
-      if (path === links[i].href) {
-        var parent = links[i].parentElement;
-        parent.classList.add('is-selected');
-
-        if(parent.offsetTop > window.innerHeight && parent.scrollIntoView){
-          sideNav = document.getElementsByClassName('side-nav')[0];          
-          sideNav.scrollTop = parent.offsetTop - (window.innerHeight/2);
-          //alert("offsetTop: " + parent.offsetTop + " side-nav top is " + sideNav.scrollTop);          
-        }
-        break;
-      }
-    }
+  (function scrollToSelectedLink() {
+    var sideNav = document.getElementsByClassName('side-nav')[0];    
+    var link = sideNav.getElementsByClassName('is-selected')[0];
+    if(link && link.offsetTop > window.innerHeight){
+      sideNav.scrollTop = link.offsetTop - (window.innerHeight/2);
+      //alert("offsetTop: " + link.offsetTop + " side-nav top is " + sideNav.scrollTop);          
+    }    
   })()
