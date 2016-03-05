@@ -5,7 +5,7 @@ import {QuestionModel} from './question-model';
 
 @Component({
   selector:'dynamic-form',
-  templateUrl:'./src/dynamic-form.html',
+  templateUrl:'./app/dynamic-form.component.html',
   providers: [FormBuilder]
 })
 

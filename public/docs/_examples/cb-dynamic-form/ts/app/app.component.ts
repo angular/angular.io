@@ -1,7 +1,7 @@
 // #docregion
 import {Component} from 'angular2/core'
 
-import {DynamicForm} from './dynamic-form'
+import {DynamicForm} from './dynamic-form.component'
 import {TextboxQuestion} from './textbox-question'
 import {DropdownQuestion} from './dropdown-question'
 
