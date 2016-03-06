@@ -1,11 +1,11 @@
 // #docregion
-import {Validators} from 'angular2/common';
+import {Validators, ControlGroup} from 'angular2/common';
 
 export class QuestionModel {
 
   questions = [];
 
-  toGroup() {
+  toGroup() : ControlGroup {
     let group = {};
 
     this.questions.forEach((question) => {
