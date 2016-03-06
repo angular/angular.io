@@ -11,7 +11,13 @@ import {QuestionModel} from './question-model';
 
 export class DynamicForm implements OnInit{
 
-  @Input() questions = [];
+  model = new QuestionModel();
+
+  @Input()
+  set questions(questions){
+    this.model.questions = questions;
+  }
+
   form : ControlGroup;
   fb: FormBuilder;
   payLoad = null;
@@ -21,11 +27,7 @@ export class DynamicForm implements OnInit{
   }
 
   ngOnInit(){
-    let group = {};
-
-    let questionModel = new QuestionModel(this.questions);
-
-    this.form = this.fb.group(questionModel.toGroup());
+    this.form = this.fb.group(this.model.toGroup());
   }
 
   onSubmit() {
