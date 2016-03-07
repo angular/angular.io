@@ -15,6 +15,7 @@ class HeroListComponent {
   List<Hero> heroes;
 
 //#docregion ctor-signature
-  HeroListComponent(HeroService heroService) : heroes = heroService.getHeroes();
+  HeroListComponent(HeroService heroService)
+      : heroes = heroService.getHeroes();
 //#enddocregion ctor-signature
 }
