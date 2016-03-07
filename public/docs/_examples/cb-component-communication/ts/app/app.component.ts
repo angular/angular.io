@@ -3,7 +3,8 @@ import {HeroParentComponent} from './hero-parent.component';
 import {NameParentComponent} from './name-parent.component';
 import {VersionParentComponent} from './version-parent.component';
 import {VoteTakerComponent} from './votetaker.component';
-import {CountdownParentComponent} from './countdown-parent.component';
+import {CountdownLocalVarParentComponent,
+        CountdownViewChildParentComponent} from './countdown-parent.component';
 import {MissionControlComponent} from './missioncontrol.component';
 
 @Component({
@@ -14,7 +15,8 @@ import {MissionControlComponent} from './missioncontrol.component';
     NameParentComponent,
     VersionParentComponent,
     VoteTakerComponent,
-    CountdownParentComponent,
+    CountdownLocalVarParentComponent,
+    CountdownViewChildParentComponent,
     MissionControlComponent
   ]
 })

@@ -11,7 +11,7 @@ import {MissionService}     from './mission.service';
     <my-astronaut *ngFor="#astronaut of astronauts"
       [astronaut]="astronaut">
     </my-astronaut>
-    <h2>History</h2>
+    <h3>History</h3>
     <ul>
       <li *ngFor="#event of history">{{event}}</li>
     </ul>

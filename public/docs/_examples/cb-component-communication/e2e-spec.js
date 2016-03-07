@@ -149,24 +149,39 @@ describe('Component Communication Cookbook Tests', function () {
     // ...
     // #enddocregion child-to-parent
   });
-
+  
+  describe('Parent calls child via local var', function() {
+    countDownTimerTests('countdown-parent-lv')
+  });    
+  
   describe('Parent calls ViewChild', function() {
-    // #docregion parent-to-view-child
+    countDownTimerTests('countdown-parent-vc')
+  });
+ 
+  function countDownTimerTests(parentTag) {
+    // #docregion countdown-timer-tests    
     // ...
+    it('timer and parent seconds should match', function () {
+      var parent = element(by.tagName(parentTag));
+      var message = parent.element(by.tagName('countdown-timer')).getText();
+      browser.sleep(10); // give `seconds` a chance to catchup with `message`
+      var seconds = parent.element(by.className('seconds')).getText();
+      expect(message).toContain(seconds);
+    });
+
     it('should stop the countdown', function () {
-      var stopButton = element
-        .all(by.tagName('countdown-parent')).get(0)
-        .all(by.tagName('button')).get(1);
+      var parent = element(by.tagName(parentTag));
+      var stopButton = parent.all(by.tagName('button')).get(1);
 
       stopButton.click().then(function() {
-        var message = element(by.tagName('countdown-timer'))
-                     .element(by.tagName('p')).getText();
+        var message = parent.element(by.tagName('countdown-timer')).getText();
         expect(message).toContain('Holding');
       });
     });
     // ...
-    // #enddocregion parent-to-view-child
-  });
+    // #enddocregion countdown-timer-tests    
+  }
+
 
   describe('Parent and children communicate via a service', function() {
     // #docregion bidirectional-service

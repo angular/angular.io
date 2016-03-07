@@ -23,6 +23,8 @@ include ../_util-fns
 
   [Parent listens for child event](#child-to-parent)
   
+  [Parent interacts with child via a *local variable*](#parent-to-child-local-var)
+  
   [Parent calls a *ViewChild*](#parent-to-view-child)
 
   [Parent and children communicate via a service](#bidirectional-service)
@@ -170,38 +172,112 @@ figure.image-display
 :marked
   [Back to top](#top)
 
+parent-to-child-local-var
+.l-main-section
+<a id="parent-to-child-local-var"></a>
+:marked
+  ## Parent interacts with child via *local variable*
+  
+  A parent component cannot use data binding to read child properties
+  or invoke child methods. We can do both 
+  by creating a template local variable for the child element
+  and then reference that variable *within the parent template*
+  as seen in the following example.
+
+  <a id="countdown-timer-example"></a>
+  We have a child `CountdownTimerComponent` that repeatedly counts down to zero and launches a rocket.
+  It has `start` and `stop` methods that control the clock and it displays a
+  countdown status message in its own template.
++makeExample('cb-component-communication/ts/app/countdown-timer.component.ts')
+:marked
+  Let's see the `CountdownLocalVarParentComponent` that hosts the timer component.
+  
++makeExample('cb-component-communication/ts/app/countdown-parent.component.ts', 'lv')
+:marked
+  The parent component cannot data bind to the child's 
+  `start` and `stop` methods nor to its `seconds` property.
+  
+  We can place a local variable (`#timer`) on the tag (`<countdown-timer>`) representing the child component.
+  That gives us a reference to the child component itself and the ability to access
+  *any of its properties or methods* from within the parent template.
+ 
+  In this example, we wire parent buttons to the child's `start` and `stop` and
+  use interpolation to display the child's `seconds` property.
+  
+  Here we see the parent and child working together.
+
+figure.image-display
+  img(src="/resources/images/cookbooks/component-communication/countdown-timer-anim.gif" alt="countdown timer")
+
+a(id="countdown-tests")
+:marked
+  ### Test it
+  
+  Test that the seconds displayed in the parent template
+  match the seconds displayed in the child's status message.
+  Test also that clicking the *Stop* button pauses the countdown timer:
+  
++makeExample('cb-component-communication/e2e-spec.js', 'countdown-timer-tests')
+
+:marked
+  [Back to top](#top)
+  
 .l-main-section
 <a id="parent-to-view-child"></a>
 :marked
   ## Parent calls a *ViewChild*
-  A parent can call a child component once it has been located by a property adorned with a `@ViewChild` decorator property.
   
-  This `CountdownTimerComponent` keeps counting down to zero and launching rockets.
-  It has `start` and `stop` methods that control the countdown.
-+makeExample('cb-component-communication/ts/app/countdown-timer.component.ts')
+  The *local variable* approach is simple and easy. But it is limited because 
+  the parent-child wiring must be done entirely within the parent template.
+  The parent component *itself* has no access to the child.
+  
+  We can't use the *local variable* technique if an instance of the parent component *class*
+  must read or write child component values or must call child component methods.
+  
+  When the parent component *class* requires that kind of access, 
+  we ***inject*** the child component into the parent as a *ViewChild*.
+  
+  We'll illustrate this technique with the same [Countdown Timer](#countdown-timer-example) example. 
+  We won't change its appearance or behavior. 
+  The child [CountdownTimerComponent](#countdown-timer-example) is the same as well.
+.l-sub-section
+  :marked
+    We are switching from the *local variable* to the *ViewChild* technique
+    solely for the purpose of demonstration.
 :marked
-  The parent `CountdownParentComponent` cannot bind to the child's `start` and `stop` methods.
-  But it can obtain a reference to the child component by applying a `@ViewChild` decorator 
-  to a receiver property (`timerComponent`) after giving that decorator the type of component to find.
-  Once it has that reference, it can access *any property or method* of the child component.
- 
-  Here it wires its own buttons to the child's start` and `stop`.
+  Here is the parent, `CountdownViewChildParentComponent`:
++makeExample('cb-component-communication/ts/app/countdown-parent.component.ts', 'vc')
+:marked
+  It takes a bit more work to get the child view into the parent component classs.
+   
+  We import references to the `ViewChild` decorator and the `AfterViewInit` lifecycle hook.
+  
+  We inject the child `CountdownTimerComponent` into the private `_timerComponent` property
+  via the `@ViewChild` property decoration.
+  
+  The `#timer` local variable is gone from the component metadata. 
+  Instead we bind the buttons to the parent component's own `start` and `stop` methods and
+  present the ticking seconds in an interpolation around the parent component's `seconds` method.
+  
+  These methods access the injected timer component directly.
+  
+  The `ngAfterViewInit` lifecycle hook is an important wrinkle.
+  The timer component isn't available until *after* Angular displays the parent view.
+  So we display `0` seconds initially.
+  
+  Then Angular calls the `ngAfterViewInit` lifecycle hook at which time it is *too late*
+  to update the parent view's display of the countdown seconds.
+  Angular's unidirectional data flow rule prevents us from updating the parent view's
+  in the same cycle. We have to *wait one turn* before we can display the seconds.
+  
+  We use `setTimeout` to wait one tick and then revise the `seconds` method so 
+  that it takes future values from the timer component.
 
-+makeExample('cb-component-communication/ts/app/countdown-parent.component.ts')
-:marked
-
-figure.image-display
-  img(src="/resources/images/cookbooks/component-communication/countdown-timer-anim.gif" alt="countdown timer")
-:marked
   ### Test it
-  
-  Test that clicking the *Stop* button pauses the countdown timer:
-  
-+makeExample('cb-component-communication/e2e-spec.js', 'parent-to-view-child')
-
+  Use [the same countdown timer tests](#countdown-tests) as before.
 :marked
   [Back to top](#top)
-
+  
 .l-main-section
 <a id="bidirectional-service"></a>
 :marked
