@@ -10,7 +10,9 @@ import { HeroService } from './hero.service';
 
 @Component({
   selector: 'my-dashboard',
+  // #docregion template-url
   templateUrl: 'app/dashboard.component.html',
+  // #enddocregion template-url
   // #docregion css
   styleUrls: ['app/dashboard.component.css']
   // #enddocregion css
