@@ -6,8 +6,8 @@ import 'package:angular2/angular2.dart';
 import 'hero_list_component.dart';
 // #enddocregion v1
 import 'hero_service.dart';
-
 // #docregion v1
+
 @Component(
     selector: 'my-heroes',
     template: '''
