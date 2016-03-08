@@ -39,8 +39,7 @@ class ProviderComponent2 {
   String log;
 
   ProviderComponent2(Logger logger) {
-    logger.log(
-        'Hello from logger provided with Provider class and useClass');
+    logger.log('Hello from logger provided with Provider class and useClass');
     log = logger.logs[0];
   }
 }
@@ -75,8 +74,7 @@ class ProviderComponent4 {
   String log;
 
   ProviderComponent4(Logger logger) {
-    logger
-        .log('Hello from logger provided with useClass:BetterLogger');
+    logger.log('Hello from logger provided with useClass:BetterLogger');
     log = logger.logs[0];
   }
 }
@@ -100,10 +98,7 @@ class EvenBetterLogger implements Logger {
 // #enddocregion EvenBetterLogger
 @Component(selector: 'provider-5', template: '{{log}}', providers:
 //#docregion providers-5
-        const [
-  UserService,
-  const Provider(Logger, useClass: EvenBetterLogger)
-]
+        const [UserService, const Provider(Logger, useClass: EvenBetterLogger)]
 //#enddocregion providers-5
     )
 class ProviderComponent5 {
@@ -139,8 +134,7 @@ class ProviderComponent6a {
 
   ProviderComponent6a(NewLogger newLogger, OldLogger oldLogger) {
     if (identical(newLogger, oldLogger)) {
-      throw new Exception(
-          'expected the two loggers to be different instances');
+      throw new Exception('expected the two loggers to be different instances');
     }
     oldLogger.log('Hello OldLogger (but we want NewLogger)');
     // The newLogger wasn't called so no logs[]
@@ -165,8 +159,7 @@ class ProviderComponent6b {
 
   ProviderComponent6b(NewLogger newLogger, OldLogger oldLogger) {
     if (!identical(newLogger, oldLogger)) {
-      throw new Exception(
-          'expected the two loggers to be the same instance');
+      throw new Exception('expected the two loggers to be the same instance');
     }
     oldLogger.log('Hello from NewLogger (via aliased OldLogger)');
     log = newLogger.logs[0];
@@ -175,17 +168,16 @@ class ProviderComponent6b {
 
 // #docregion silent-logger
 // An object in the shape of the logger service
-class SilentLogger /*implements Logger*/ {
-  const SilentLogger({this.logs});
+class SilentLogger {
+  final List<String> logs = const [
+    'Silent logger says "Shhhhh!". Provided via "useValue"'];
 
-  final List<String> logs;
+  const SilentLogger();
 
-  log(String message) {}
+  void log(String msg) {}
 }
 
-const silentLogger = const SilentLogger(logs: const [
-  'Silent logger says "Shhhhh!". Provided via "useValue"'
-]);
+const silentLogger = const SilentLogger();
 // #enddocregion silent-logger
 
 @Component(selector: 'provider-7', template: '{{log}}', providers:
@@ -207,14 +199,11 @@ class ProviderComponent7 {
   }
 }
 
-@Component(
-    selector: 'provider-8',
-    template: '{{log}}',
-    providers: const [
-      const Provider(HeroService, useFactory: heroServiceFactory),
-      Logger,
-      UserService
-    ])
+@Component(selector: 'provider-8', template: '{{log}}', providers: const [
+  const Provider(HeroService, useFactory: heroServiceFactory),
+  Logger,
+  UserService
+])
 class ProviderComponent8 {
   // #docregion provider-8-ctor
   ProviderComponent8(HeroService heroService);
@@ -267,9 +256,7 @@ class ProviderComponent9a implements OnInit {
 
 @Component(selector: 'provider-9b', template: '{{log}}', providers:
 // #docregion providers-9b
-    const [
-  const Provider(APP_CONFIG, useValue: CONFIG_HASH)
-])
+    const [const Provider(APP_CONFIG, useValue: CONFIG_HASH)])
 // #enddocregion providers-9b
 class ProviderComponent9b implements OnInit {
   Config _config;
@@ -303,6 +290,13 @@ class ProviderComponent10a {
   }
 }
 
+class DoNothingLogger extends Logger {
+  log(String msg) {
+    logs.add(msg);
+  }
+  List<String> logs;
+}
+
 // Optional logger
 @Component(selector: 'provider-10b', template: '{{log}}')
 class ProviderComponent10b implements OnInit {
@@ -318,12 +312,11 @@ class ProviderComponent10b implements OnInit {
     // #docregion provider-10-logger
     // No logger? Make one!
     if (_logger == null) {
-      _logger = new Logger();
+      _logger = new DoNothingLogger();
       // #enddocregion provider-10-logger
-      _logger.log('Optional logger was not available.');
+      _logger.log('Nothing to see here.');
     } else {
       _logger.log('Hello from the injected logger.');
-      log = _logger.logs[0];
     }
     log = _logger.logs[0];
   }
