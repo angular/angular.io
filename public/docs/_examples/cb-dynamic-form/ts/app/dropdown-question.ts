@@ -3,7 +3,7 @@ import {QuestionBase} from './question-base';
 
 export class DropdownQuestion extends QuestionBase<string>{
 
-  options = [];
+  options:Array<Object> = [];
 
   constructor(){
     super();

@@ -18,7 +18,7 @@ import {DropdownQuestion} from './dropdown-question'
 })
 export class App {
 
-  questions = [];
+  questions:Array<any> = [];
 
   constructor(){
     let ddQuestion = new DropdownQuestion();

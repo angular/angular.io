@@ -3,9 +3,9 @@ import {Validators, ControlGroup} from 'angular2/common';
 
 export class QuestionModel {
 
-  questions = [];
+  questions:Array<any> = [];
 
-  toGroup() : ControlGroup {
+  toGroup() {
     let group = {};
 
     this.questions.forEach((question) => {

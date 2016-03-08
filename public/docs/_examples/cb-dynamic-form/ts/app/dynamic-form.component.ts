@@ -14,13 +14,13 @@ export class DynamicForm implements OnInit{
   model = new QuestionModel();
 
   @Input()
-  set questions(questions){
+  set questions(questions:Array<any>){
     this.model.questions = questions;
   }
 
   form : ControlGroup;
   fb: FormBuilder;
-  payLoad = null;
+  payLoad = '';
 
   constructor(fb: FormBuilder) {
     this.fb = fb;
