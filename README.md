@@ -6,10 +6,10 @@ Angular 2, Angular 1, Angular Material, and AngularFire.
 
 ## Issues
 
-Please file **Developer Guide, Cookbook, and code sample issues *only*** in this 
+Please file **Developer Guide, Cookbook, and code sample issues _only_** in this 
 [Angular.io](https://github.com/angular/angular.io/issues) github repo.
 
-**Angular API issues, feature requests, defect reports, and technical questions** concerning Angular itself
+**Angular API issues, cheatsheet corrections, feature requests, defect reports, and technical questions** concerning Angular itself
 belong in the [**angular source code**](https://github.com/angular/angular/issues) github repo.
 We can't handle those topics here and will ask you to re-post them on the angular repo.
 
