@@ -41,7 +41,7 @@ We strongly recommend running one of the gulp `serve-and-sync` commands [describ
 while editing content so you can see the effect of your changes *as you type*.
 
 The documentation relies on specific styles and mixins. 
-Learn about those in the [documentation styleguide](https:/angular.io/docs/ts/latest/styleguide.html).
+Learn about those in the [documentation styleguide](https://angular.io/docs/ts/latest/styleguide.html).
 
 The jade documentation files are language-specific directories under either `public/docs/`.
 For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
