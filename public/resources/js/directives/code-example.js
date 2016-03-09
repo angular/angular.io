@@ -28,10 +28,3 @@ angularIO.directive('codeExample', function() {
     }
   };
 });
-
-        // '<div style="position: relative">' +
-        //   '<copy-button style="position: absolute; top: 10px; right: 0px; z-index: 1000" ></copy-button>' +
-        //   '<pre class="' + classes + '">' +
-        //     '<code ng-non-bindable>' + html + '</code>' +
-        //   '</pre>' +
-        // '</div>';
