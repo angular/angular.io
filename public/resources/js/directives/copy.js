@@ -24,8 +24,8 @@ angularIO.directive('copyContainer', function() {
     restrict: 'E',
     transclude: true,
     template:
-      '<div style="position: relative">' +
-        '<copy-button style="position: absolute; top: 10px; right: 0px; z-index: 1" ></copy-button>' +
+      '<div style="position: relative; overflow: auto;">' +
+        '<copy-button style="position: absolute; top: 18px; right: 0px; z-index: 1" ></copy-button>' +
         '<ng-transclude></ng-transclude>' +
       '</div>'
   };
