@@ -10,7 +10,7 @@ angularIO.directive('apiList', function () {
       '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
       '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)" class="{{apiType.cssClass}}">{{apiType.title}}</dd>' +
       '  </dl>' +
-      '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" class="api-filter">' +
+      '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 400, \'blur\': 0}}" class="api-filter">' +
       '</div>' +
       '<article class="l-content-small grid-fluid docs-content">' +
       '  <div ng-repeat="section in $ctrl.filteredSections" ng-cloak="ng-cloak">' +
