@@ -17,17 +17,17 @@ include ../_util-fns
 
   We will build a simple form from scratch, one step at a time. Along the way we'll learn
 
-  - How to build an Angular form with a component and template
+  - to build an Angular form with a component and template
 
-  - The `ngModel` two-way data binding syntax for reading and writing values to input controls
+  - two-way data binding with `[(ngModel)]` syntax for reading and writing values to input controls
 
-  - The `ngControl` directive to track the change state and validity of form controls
+  - using `ngControl` to track the change state and validity of form controls
 
-  - The special CSS classes that `ngControl` adds to form controls and how we can use them to provide strong visual feedback
+  - the special CSS classes that `ngControl` adds to form controls and how we can use them to provide strong visual feedback
 
-  - How to display validation errors to users and enable/disable form controls
+  - displaying validation errors to users and enable/disable form controls
 
-  - How to share information across controls with template local variables
+  - sharing information among controls with template local variables
   
   [Live Example](/resources/live-examples/forms/ts/plnkr.html)
 .l-main-section
@@ -75,7 +75,7 @@ figure.image-display
   1. Create the `Hero` model class
   1. Create the component that controls the form
   1. Create a template with the initial form layout
-  1. Add the **ngModel** directive to each form input control
+  1. Bind data properties to each form input control with the `ngModel` two-way data binding syntax
   1. Add the **ngControl** directive to each form input control
   1. Add custom CSS to provide visual feedback
   1. Show and hide validation error messages
@@ -240,7 +240,7 @@ ol
 <a id="ngModel"></a>
 .l-main-section
 :marked
-  ## Two-way data binding with ***ngModel**
+  ## Two-way data binding with **ngModel**
   Running the app right now would be disappointing.
 
 figure.image-display
@@ -255,7 +255,7 @@ figure.image-display
   Now we need to display, listen, and extract at the same time.
 
   We could use those techniques again in our form.
-  Instead we'll introduce something new, the `NgModel` directive, that
+  Instead we'll introduce something new, the `[(ngModel)]` syntax, that
   makes binding our form to the model super-easy.
 
   Find the `<input>` tag for the "Name" and update it like this
@@ -349,41 +349,43 @@ figure.image-display
   ## Track change-state and validity with **ngControl**
 
   A form isn't just about data binding. We'd also like to know the state of the controls on our form.
-  The `NgControl` directive keeps track of control state for us.
 
-.callout.is-helpful
-  header NgControl requires Form
-  :marked
-    The `NgControl` is one of a family of `NgForm` directives that can only be applied to
-    a control within a `<form`> tag.
-:marked
-  Our application can ask an `NgControl` if the user touched the control,
+  By setting `ngControl` we create a directive that can tell if the user touched the control,
   if the value changed, or if the value became invalid.
 
-  `NgControl` doesn't just track state; it updates the control with special
+  This directive doesn't just track state; it updates the control with special
   Angular CSS classes from the set we listed above.
   We can leverage those class names to change the appearance of the
   control and make messages appear or disappear.
 
   We'll explore those effects soon. Right now
-  we should **add `ngControl`to all three form controls**,
+  we should **add `ngControl` to all three form controls**,
   starting with the *Name* input box
 +makeExample('forms/ts/app/hero-form.component.html', 'ngControl-1', 'app/hero-form.component.html (excerpt)')(format=".")
 :marked
-  Be sure to assign a unique name to each `ngControl` directive.
+  We set this particular `ngControl` to "name" which makes sense for our app. Any unique value will do.
 
 .l-sub-section
   :marked
-    Angular registers controls under their `ngControl` names
-    with the `NgForm`.
-    We didn't add the `NgForm` directive explicitly but it's here
-    and we'll talk about it [later in this chapter](#ngForm).
+    Internally Angular creates `Controls` and registers them under their `ngControl` names
+    with an `NgForm` directive that Angular attached to the `<form>` tag.
+    We'll talk about `NgForm` [later in the chapter](#ngForm).
+
+    The `ngControl` *attribute* in our template actually maps to the 
+    [NgControlName](../api/common/NgControlName-directive.html) directive.
+    There is also a `NgControl` *abstract* directive which is *not the same thing*.
+    We often ignore this technical distinction and refer to `NgControlName` more conveniently (albeit incorrectly) as the *NgControl* directive.
+    
+    While we're under the hood, we might as well note that the `ngModel` in the 
+    two-way binding syntax is now a property of the the `NgControlName` directive. 
+    The `NgModel` directive is no longer involved. We only need one directive to manage the DOM element
+    and there is no practical difference in the way either directive handles data binding.     
 
 .l-main-section
 :marked
   ## Add Custom CSS for Visual Feedback
 
-  `NgControl` doesn't just track state. 
+  The *NgControl* directive doesn't just track state. 
   It updates the control with three classes that reflect the state.
   
 table
@@ -468,13 +470,19 @@ figure.image-display
   'name-with-error-msg', 
   'app/hero-form.component.html (excerpt)')(format=".")
 :marked
-  When we added the `ngControl` directive, we bound it to the the model's `name` property.
-  
-  Here we initialize a template local variable (`name`) with the value "ngForm" (`#name="ngForm"`).
-  Angular recognizes that syntax and re-sets the `name` local template variable to the
-  `ngControl` directive instance.
-  In other words, the `name` local template variable becomes a handle on the `ngControl` object
-  for this input box.
+  We need a template local variable to access the input box's Angular control from within the template.
+  Here we created a variable called `name` and gave it the value "ngForm".
+.l-sub-section
+  :marked
+    Why "ngForm"? 
+    A directive's [exportAs](/docs/ts/latest/api/core/DirectiveMetadata-class.html#!#exportAs) property 
+    tells Angular how to link local variable to the directive.
+    We set `name` to `ngForm` because the `NgControlName` directive's `exportAs` property happens to be "ngForm".
+    
+    This seems unintuitive at first until we realize that *all* control directives in the 
+    Angular form family &mdash including `NgForm`, `NgModel`, `NgControlName` and `NgControlGroup` &mdash; *exportAs* "ngForm"
+    and we only ever apply *one* of these directives to an element tag.
+    Consistency rules!
 
   Now we can control visibility of the "name" error message by binding properties of the `name` control to the message `<div>` element's `hidden` property.
 +makeExample('forms/ts/app/hero-form.component.html', 
@@ -492,21 +500,7 @@ figure.image-display
   Some folks find that behavior disconcerting. They only want to see the message when the user makes an invalid change.
   Hiding the message while the control is "pristine" achieves that goal.
   We'll see the significance of this choice when we [add a new hero](#new-hero) to the form.
-<a id="ngForm"></a>
-.l-sub-section
-  :marked
-    ### The NgForm directive
-    We just set a template local variable with the value of an `NgForm` directive. 
-    Why did that work? We didn't add the **[`NgForm`](../api/core/NgForm-class.html) directive** explicitly.
-    
-    Angular added it surreptiously, wrapping it around the `<form>` element
 
-    The `NgForm` directive  supplements the `form` element with additional features.
-    It collects `Controls` (elements identified by an `ngControl` directive)
-    and monitors their properties including their validity.
-    It also has its own `valid` property which is true only if every contained
-    control is valid.
-:marked
   The Hero *Alter Ego* is optional so we can leave that be.
 
   Hero *Power* selection is required.
@@ -582,9 +576,22 @@ figure.image-display
   We slipped in something extra there at the end!  We defined a
   template local variable, **`#heroForm`**, and initialized it with the value, "ngForm".
 
-  The variable `heroForm` is now a handle to the `NgForm` directive that we [discussed earlier](#ngForm)
-  This time `heroForm` remains a reference to the form as a whole.
+  The variable `heroForm` is now a reference to the `NgForm` directive that governs the form as a whole.
+<a id="ngForm"></a>
+.l-sub-section
+  :marked
+    ### The NgForm directive
+    What `NgForm` directive? We didn't add an [NgForm](../api/core/NgForm-class.html) directive!
+    
+    Angular did. Angular creates and attaches an `NgForm` directive to the `<form>` tag automatically.
 
+    The `NgForm` directive  supplements the `form` element with additional features.
+    It holds the controls we created for the elements with `ngControl` attributes
+    and monitors their properties including their validity.
+    It also has its own `valid` property which is true only *if every contained
+    control* is valid.
+    
+:marked
   Later in the template we bind the button's `disabled` property to the form's over-all validity via
   the `heroForm` variable. Here's that bit of markup:
 +makeExample('forms/ts/app/hero-form.component.html', 'submit-button')
@@ -658,8 +665,8 @@ figure.image-display
   - A form component class with a `Component` decorator.
   - The `ngSubmit` directive for handling the form submission.
   - Template local variables such as `#heroForm`, `#name`, `#alter-ego` and `#power`.
-  - The `ngModel` directive for two-way data binding.
-  - The `ngControl` for validation and form element change tracking.
+  - The `[(ngModel)]` syntax for two-way data binding.
+  - The `ngControlName` directive for validation and form element change tracking.
   - The local variable’s `valid` property on input controls to check if a control is valid and show/hide error messages.
   - Controlling the submit button's enabled state by binding to `NgForm` validity.
   - Custom CSS classes that provide visual feedback to users about invalid controls.
