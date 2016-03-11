@@ -7,10 +7,9 @@ import 'hero_service.dart';
 @Component(
     selector: 'hero-list',
     template: '''
-  <div *ngFor="#hero of heroes">
-    {{hero.id}} - {{hero.name}}
-  </div>
-  ''')
+      <div *ngFor="#hero of heroes">
+        {{hero.id}} - {{hero.name}}
+      </div>''')
 class HeroListComponent {
   List<Hero> heroes;
 

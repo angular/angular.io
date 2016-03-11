@@ -1,21 +1,20 @@
 // #docregion
 import 'package:angular2/angular2.dart';
+
 import 'hero.dart';
 import 'hero_service.dart';
 
 @Component(
     selector: 'hero-list',
     template: '''
-  <div *ngFor="#hero of heroes">
-    {{hero.id}} - {{hero.name}}
-    ({{hero.isSecret ? \'secret\' : \'public\'}})
-  </div>
-  ''')
+      <div *ngFor="#hero of heroes">
+        {{hero.id}} - {{hero.name}}
+        ({{hero.isSecret ? \'secret\' : \'public\'}})
+      </div>''')
 class HeroListComponent {
   List<Hero> heroes;
 
 //#docregion ctor-signature
-  HeroListComponent(HeroService heroService)
-      : heroes = heroService.getHeroes();
+  HeroListComponent(HeroService heroService) : heroes = heroService.getHeroes();
 //#enddocregion ctor-signature
 }

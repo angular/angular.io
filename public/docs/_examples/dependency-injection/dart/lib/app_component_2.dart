@@ -12,10 +12,9 @@ import 'logger_service.dart';
 @Component(
     selector: 'my-app',
     template: '''
-    <h1>{{title}}</h1>
-    <my-car></my-car>
-    <my-heroes></my-heroes>
-  ''',
+      <h1>{{title}}</h1>
+      <my-car></my-car>
+      <my-heroes></my-heroes>''',
     directives: const [
       CarComponent,
       HeroesComponent

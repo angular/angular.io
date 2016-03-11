@@ -10,15 +10,14 @@ import 'car_no_di.dart' as carNoDi;
 @Component(
     selector: 'my-car',
     template: '''
-  <h2>Cars</h2>
-  <div id="di">{{car.drive()}}</div>
-  <div id="nodi">{{noDiCar.drive()}}</div>
-  <div id="injector">{{injectorCar.drive()}}</div>
-  <div id="factory">{{factoryCar.drive()}}</div>
-  <div id="simple">{{simpleCar.drive()}}</div>
-  <div id="super">{{superCar.drive()}}</div>
-  <div id="test">{{testCar.drive()}}</div>
-  ''',
+      <h2>Cars</h2>
+      <div id="di">{{car.drive()}}</div>
+      <div id="nodi">{{noDiCar.drive()}}</div>
+      <div id="injector">{{injectorCar.drive()}}</div>
+      <div id="factory">{{factoryCar.drive()}}</div>
+      <div id="simple">{{simpleCar.drive()}}</div>
+      <div id="super">{{superCar.drive()}}</div>
+      <div id="test">{{testCar.drive()}}</div>''',
     providers: const [Car, Engine, Tires])
 class CarComponent {
   Car car;

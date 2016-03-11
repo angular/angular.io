@@ -7,9 +7,9 @@ import 'hero_service_provider.dart';
 @Component(
     selector: 'my-heroes',
     template: '''
-  <h2>Heroes</h2>
-  <hero-list></hero-list>
-  ''',
+      <h2>Heroes</h2>
+      <hero-list></hero-list>
+      ''',
     providers: const [heroServiceProvider],
     directives: const [HeroListComponent])
 class HeroesComponent {}
