@@ -16,18 +16,17 @@ import 'providers_component.dart';
 @Component(
     selector: 'my-app',
     template: '''
-    <h1>{{title}}</h1>
-    <my-car></my-car>
-    <my-injectors></my-injectors>
-    <my-tests></my-tests>
-    <h2>User</h2>
-    <p id="user">
-      {{userInfo}}
-      <button (click)=\'nextUser()\'>Next User</button>
-    <p>
-    <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
-    <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
-  ''',
+      <h1>{{title}}</h1>
+      <my-car></my-car>
+      <my-injectors></my-injectors>
+      <my-tests></my-tests>
+      <h2>User</h2>
+      <p id="user">
+        {{userInfo}}
+        <button (click)=\'nextUser()\'>Next User</button>
+      <p>
+      <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
+      <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>''',
     directives: const [
       CarComponent,
       HeroesComponent,
@@ -41,7 +40,7 @@ import 'providers_component.dart';
       const Provider(Config, useValue: CONFIG)
     ]
 // #enddocregion providers
-    )
+)
 class AppComponent {
   UserService _userService;
   String title;

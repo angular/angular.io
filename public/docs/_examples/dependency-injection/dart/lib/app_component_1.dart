@@ -9,10 +9,9 @@ import 'heroes/heroes_component_1.dart';
 @Component(
     selector: 'my-app',
     template: '''
-    <h1>{{title}}</h1>
-    <my-car></my-car>
-    <my-heroes></my-heroes>
-  ''',
+      <h1>{{title}}</h1>
+      <my-car></my-car>
+      <my-heroes></my-heroes>''',
     directives: const [CarComponent, HeroesComponent])
 class AppComponent {
   var title = 'Dependency Injection';

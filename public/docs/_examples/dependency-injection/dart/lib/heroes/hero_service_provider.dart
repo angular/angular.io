@@ -1,9 +1,9 @@
 // #docregion
 import 'package:angular2/angular2.dart';
 
-import 'hero_service.dart';
 import '../logger_service.dart';
 import '../user_service.dart';
+import 'hero_service.dart';
 
 // #docregion factory
 heroServiceFactory(Logger logger, UserService userService) =>
