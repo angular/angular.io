@@ -23,6 +23,7 @@ var globby = require("globby");
 // Ugh... replacement needed to kill processes on any OS
 // - because childProcess.kill does not work properly on windows
 var treeKill = require("tree-kill");
+var blc = require("broken-link-checker");
 
 // TODO:
 //  1. Think about using runSequence
@@ -424,6 +425,13 @@ gulp.task('test-api-builder', function (cb) {
   execCommands(['npm run test-api-builder'], {}, cb);
 });
 
+// Usage:
+//   angular.io:  gulp link-checker
+//   local site:  gulp link-checker --url=http://localhost:3000
+gulp.task('link-checker', function(done) {
+  return linkChecker();
+});
+
 
 // Internal tasks
 gulp.task('set-prod-env', function () {
@@ -512,6 +520,80 @@ function harpCompile() {
     deferred.reject(e);
   });
   return deferred.promise;
+}
+
+function linkChecker(options) {
+  var deferred = Q.defer();   
+  var options = options || {};
+  
+  var blcOptions = options.blcOptions || {};
+  var customData = options.customData || {};
+  
+  var excludeBad; // don't bother reporting bad links matching this RegExp
+  if (argv.excludeBad) {
+    excludeBad = new RegExp(argv.excludeBad);
+  } else {
+    excludeBad = options.excludeBad === undefined ? /docs\/dart\/latest\/api/ : '';
+  }
+  
+  var previousPage; 
+  var siteUrl = argv.url || options.url || 'https://angular.io/';
+
+  // See https://github.com/stevenvachon/broken-link-checker#blcsitecheckeroptions-handlers
+  var handlers = {
+    robots: function(robots, customData){},
+    html: function(tree, robots, response, pageUrl, customData){
+      //gutil.log('Scanning ' + pageUrl);docs/ts/latest/api/core/
+    },
+    junk: function(result, customData){},
+    
+    // Analyze links
+    link: function(result, customData){
+      if (!result.broken) { return; }
+      if (excludeBad && excludeBad.test(result.url.resolved)) { return; }
+      
+      var currentPage = result.base.resolved
+      if (previousPage !== currentPage) {
+        previousPage = currentPage;
+        fs.appendFileSync(outputFile, '\n' + currentPage);
+        gutil.log('broken: ' + currentPage);
+      }
+      var msg = '\n  [' + result.html.location.line + ', ' + result.brokenReason + '] ' + result.url.resolved;
+      fs.appendFileSync(outputFile, msg);
+      //gutil.log(msg);
+      //gutil.log(result);
+    },
+    
+    page: function(error, pageUrl, customData){},
+    site: function(error, siteUrl, customData){},
+    
+    end: function(){
+      var stopTime = new Date().getTime();
+      var elapsed = 'Elapsed link-checking time: ' + ((stopTime - startTime)/1000) + ' seconds';
+      gutil.log(elapsed);
+      fs.appendFileSync(outputFile, '\n'+elapsed);
+      gutil.log('Output in file: ' + outputFile);
+      deferred.resolve(true);
+    }
+  };
+ 
+  // create an output file with header.
+  var outputFile = path.join(process.cwd(), 'link-checker-results.txt');
+  var header = 'Link checker results for: ' + siteUrl +
+               '\nStarted: ' + (new Date()).toLocaleString() + 
+               '\nSkipping bad links matching regex: ' +excludeBad.toString() + '\n\n';
+  gutil.log(header);
+  fs.writeFileSync(outputFile, header);
+ 
+  var siteChecker = new blc.SiteChecker(blcOptions, handlers);
+  var startTime = new Date().getTime();
+   
+  try {    
+    siteChecker.enqueue(siteUrl, customData);
+  } catch (err) {
+    deferred.reject(err);
+  }  
+  return deferred.promise;  
 }
 
 // harp has issues with node_modules under the public dir
