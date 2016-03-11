@@ -73,17 +73,16 @@ include ../_util-fns
   'dependency-injection/ts/app/car/car.ts, dependency-injection/ts/app/car/car-no-di.ts',
   'car-ctor, car-ctor',
   'app/car/car.ts (excerpt with DI), app/car/car.ts (excerpt without DI)')(format=".")
-// #docregion why-3
+// #docregion why-3-1
 :marked
   See what happened? We moved the definition of the dependencies to the constructor.
   Our `Car` class no longer creates an engine or tires.
   It just consumes them.
-// #enddocregion why-3
-// #docregion why-3-1
+// #enddocregion why-3-1
+// TypeScript only
 .l-sub-section
   :marked
     We also leverage TypeScript's constructor syntax for declaring parameters and properties simultaneously.
-// #enddocregion why-3-1
 // #docregion why-3-2
 :marked
   Now we create a car by passing the engine and tires to the constructor.
@@ -315,7 +314,7 @@ include ../_util-fns
 
   +makeExample('dependency-injection/ts/app/heroes/hero-list.component.2.ts', 'ctor')(format=".")
 
-  // #docregion di-prepare-for-injection-2
+  // TypeScript only
   :marked
     We're writing in TypeScript and have followed the parameter name with a type annotation, `:HeroService`.
     The class is also decorated with the `@Component` decorator (scroll up to confirm that fact).
@@ -326,7 +325,6 @@ include ../_util-fns
 
     That's how the Angular injector knows to inject an instance of the `HeroService` when it
     creates a new `HeroListComponent`.
-// #enddocregion di-prepare-for-injection-2
 // #docregion di-create-injector-implicitly-1
 :marked
   <a id="di-metadata"></a>
@@ -395,19 +393,29 @@ include ../_util-fns
   The constructor now asks for an injected instance of a `Logger` and stores it in a private property called `_logger`.
   We call that property within our `getHeroes` method when anyone asks for heroes.
 // #enddocregion di-service-service-2
-// #docregion di-injectable
+// #docregion di-injectable-1
+- var lang = current.path[1]
+- var decoration = lang == 'dart' ? 'annotation' : 'decoration'
 :marked
   <a id="injectable"></a>
   ### Why @Injectable?
-  Notice the `@Injectable()` decoration above the service class.
+  Notice the `@Injectable()` #{decoration} above the service class.
   We haven't seen `@Injectable()` before.
   As it happens, we could have added it to our first version of `HeroService`.
   We didn't bother because we didn't need it then.
 
   We need it now... now that our service has an injected dependency.
   We need it because Angular requires constructor parameter metadata in order to inject a `Logger`.
+// #enddocregion di-injectable-1
+// TypeScript only?
+:marked
   As [we mentioned earlier](#di-metadata), **TypeScript only generates metadata for classes that have a decorator.**
 
+// #docregion di-injectable-2
+- var lang = current.path[1]
+- var a_decorator = lang == 'dart' ? 'an annotation' : 'a decorator'
+- var decorated = lang == 'dart' ? 'annotated' : 'decorated'
+- var any_decorator = lang == 'dart' ? '' : 'TypeScript generates metadata for any class with a decorator, and any decorator will do.'
 .callout.is-helpful
   header Always add @Injectable()
   :marked
@@ -415,19 +423,19 @@ include ../_util-fns
     and, therefore, do not technically require it. Here's why:
   ul(style="font-size:inherit")
     li <b>Future proofing:</b> No need to remember <code>@Injectable</code> when we add a dependency later.
-    li <b>Consistency:</b> All services follow the same rules, and we don't have to wonder why a decorator is missing.
+    li <b>Consistency:</b> All services follow the same rules, and we don't have to wonder why #{a_decorator} is missing.
 .l-sub-section
   :marked
     The `HeroesComponent` has an injected dependency too. Why don't we add `@Injectable()` to the `HeroesComponent`?
 
-    We *can* add it if we really want to. It isn't necessary because the `HeroesComponent` is already decorated with `@Component`.
-    TypeScript generates metadata for *any* class with a decorator, and *any* decorator will do.
+    We *can* add it if we really want to. It isn't necessary because
+    the `HeroesComponent` is already #{decorated} with `@Component`. #{any_decorator}
 
 .alert.is-critical
   :marked
-    **Always include the parentheses!** Always call `@Injectable()`.
+    **Always include the parentheses!** Always use `@Injectable()`.
     Our application will fail mysteriously if we forget the parentheses.
-// #enddocregion di-injectable
+// #enddocregion di-injectable-2
 // #docregion logger-service-1
 .l-main-section
 :marked
@@ -440,12 +448,12 @@ include ../_util-fns
 // #enddocregion logger-service-1
 +makeExample(
   'dependency-injection/ts/app/logger.service.ts',null, 'app/logger.service')
-// #docregion logger-service-2
+
+// Copied into Dart, due to different directory structure
 :marked
   We're likely to need the same logger service everywhere in our application,
   so we put it at the root level of the application in the `app/` folder, and
   we register it in the `providers` array of the metadata for our application root component, `AppComponent`.
-// #enddocregion logger-service-2
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-logger', 'app/app.component.ts (excerpt)')
 // #docregion logger-service-3
 :marked
@@ -468,13 +476,19 @@ code-example(format, language="html").
 
   Our `HeroService` currently requires a `Logger`. What if we could get by without a logger?
   We'd use it if we had it, ignore it if we didn't. We can do that.
-
-  First import the `@Optional()` decorator.
 // #enddocregion logger-service-4
-+makeExample('dependency-injection/ts/app/providers.component.ts','import-optional')(format='.')
-// #docregion logger-service-5
+
+// TypeScript only?
 :marked
-  Then rewrite the constructor with `@Optional()` decorator preceding the private `_logger` parameter.
+  First import the `@Optional()` decorator.
++makeExample('dependency-injection/ts/app/providers.component.ts','import-optional')(format='.')
+
+// #docregion logger-service-5
+- var lang = current.path[1]
+- var rewrite = lang == 'dart' ? 'Just rewrite' : 'Then rewrite'
+- var decorator = lang == 'dart' ? 'annotation' : 'decorator'
+:marked
+  #{rewrite} the constructor with the `@Optional()` #{decorator} preceding the private `_logger` parameter.
   That tells the injector that `_logger` is optional.
 // #enddocregion logger-service-5
 +makeExample('dependency-injection/ts/app/providers.component.ts','provider-10-ctor')(format='.')
@@ -532,10 +546,15 @@ code-example(format, language="html").
 // #docregion providers-provide-1
 :marked
   <a id="provide"></a>
-  ### The *provide* function
-
-  We wrote the `providers` array like this:
 // #enddocregion providers-provide-1
+
+// Don't mention provide function in Dart
+:marked
+  ### The *Provider* class and *provide* function
+// #docregion providers-provide-1-1
+:marked
+  We wrote the `providers` array like this:
+// #enddocregion providers-provide-1-1
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-1')
 // #docregion providers-provide-2
 :marked
@@ -544,22 +563,26 @@ code-example(format, language="html").
 // #enddocregion providers-provide-2
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-2')
 // #docregion providers-provide-3
+// Skip for Dart, where the provide() function won't pass type checking.
 :marked
   The [provide](/docs/ts/latest/api/core/provide-function.html) function is the more common, friendlier way to create a `Provider`:
 // #enddocregion providers-provide-3
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-3')
-// #docregion providers-provide-4
+// #docregion providers-provide-4-1
+// Modified for Dart.
 :marked
   In both approaches &mdash; `Provider` class and `provide` function &mdash;
   we supply two arguments.
-
+// #enddocregion providers-provide-4-1
+// #docregion providers-provide-4-2
+:marked
   The first is the [token](#token) that serves as the key for both locating a dependency value
   and registering the provider.
 
   The second is a provider definition object,
   which we can think of as a *recipe* for creating the dependency value.
   There are many ways to create dependency values... and many ways to write a recipe.
-// #enddocregion providers-provide-4
+// #enddocregion providers-provide-4-2
 // #docregion providers-alternative-1
 :marked
   <a id="class-provider"></a>
@@ -768,9 +791,11 @@ code-example(format, language="html").
 // #enddocregion tokens-string-1
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-9a')(format=".")
 // #docregion tokens-string-2
+- var lang = current.path[1]
+- var decorated = lang == 'dart' ? 'annotated' : 'decorated'
 :marked
   Now we inject the configuration object into any constructor that needs it, with
-  the help of an `@Inject` decorator that tells Angular how to find the configuration dependency value.
+  the help of an `@Inject` #{decorator} that tells Angular how to find the configuration dependency value.
 // #enddocregion tokens-string-2
 +makeExample('dependency-injection/ts/app/providers.component.ts','provider-9a-ctor')(format=".")
 
