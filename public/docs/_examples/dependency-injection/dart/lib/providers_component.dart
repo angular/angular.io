@@ -312,7 +312,7 @@ class ProviderComponent10b implements OnInit {
     if (_logger == null) {
       _logger = new DoNothingLogger();
       // #enddocregion provider-10-logger
-      _logger.log('Nothing to see here.');
+      _logger.log('Optional logger was not available.');
     } else {
       _logger.log('Hello from the injected logger.');
     }
