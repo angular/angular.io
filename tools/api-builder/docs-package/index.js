@@ -13,6 +13,7 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 // Register the processors
 .processor(require('./processors/convertPrivateClassesToInterfaces'))
 .processor(require('./processors/extractDirectiveClasses'))
+.processor(require('./processors/extractPublicApiDecorator'))
 .processor(require('./processors/generateNavigationDoc'))
 .processor(require('./processors/extractTitleFromGuides'))
 .processor(require('./processors/createOverviewDump'))
