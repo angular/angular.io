@@ -85,7 +85,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/es6-shim/es6-shim.min.js',
-    to: 'https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.33.3/es6-shim.min.js'
+    to: 'https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.0/es6-shim.min.js'
   },
   {
     pattern: 'script',
