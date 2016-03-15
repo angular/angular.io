@@ -26,7 +26,7 @@ template:`
   <div><label>id: </label>{{hero.id}}</div>
   <div>
     <label>name: </label>
-    <div><input value="{{hero.name}}" placeholder="name"></div>
+    <input value="{{hero.name}}" placeholder="name">
   </div>
   `
 // #enddocregion editing-Hero
