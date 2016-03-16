@@ -25,7 +25,7 @@ import 'logger_service.dart';
       Logger
     ])
 class InjectorComponent {
-  Injector _injector;
+  final Injector _injector;
   Car car;
   HeroService heroService;
   Hero hero;

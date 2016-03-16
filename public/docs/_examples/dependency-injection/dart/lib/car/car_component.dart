@@ -20,9 +20,9 @@ import 'car_no_di.dart' as carNoDi;
       <div id="test">{{testCar.drive()}}</div>''',
     providers: const [Car, Engine, Tires])
 class CarComponent {
-  Car car;
+  final Car car;
 
-  CarComponent(this.car) {}
+  CarComponent(this.car);
   Car factoryCar = (new CarFactory()).createCar();
   Car injectorCar = useInjector();
   carNoDi.Car noDiCar = new carNoDi.Car();

@@ -78,12 +78,12 @@ class ProviderComponent4 {
 // #docregion EvenBetterLogger
 @Injectable()
 class EvenBetterLogger implements Logger {
-  UserService _userService;
+  final UserService _userService;
   List<String> logs = [];
 
   EvenBetterLogger(this._userService);
 
-  log(String message) {
+  void log(String message) {
     var msg = 'Message to ${_userService.user.name}: $message.';
     print(msg);
     logs.add(msg);
@@ -113,7 +113,7 @@ class NewLogger extends Logger implements OldLogger {}
 class OldLogger {
   List<String> logs = [];
 
-  log(String message) {
+  void log(String message) {
     throw new Exception('Should not call the old logger!');
   }
 }
@@ -295,36 +295,47 @@ class ProviderComponent10a {
   }
 }
 
-// Optional logger
+// Optional logger, can be null
 @Component(selector: 'provider-10b', template: '{{log}}')
-class ProviderComponent10b implements OnInit {
-  Logger _logger;
-
+class ProviderComponent10b {
   // #docregion provider-10-ctor
+  final Logger _logger;
   String log;
 
-  ProviderComponent10b(@Optional() this._logger);
-
+  ProviderComponent10b(@Optional() Logger this._logger) {
+    // . . .
   // #enddocregion provider-10-ctor
-  ngOnInit() {
-    // #docregion provider-10-logger
-    // No logger? Make one!
-    if (_logger == null) {
-      _logger = new DoNothingLogger();
-      // #enddocregion provider-10-logger
-      _logger.log('Optional logger was not available.');
-    } else {
-      _logger.log('Hello from the injected logger.');
-    }
-    log = _logger.logs[0];
+    _logger == null ? log = 'No logger exists' : log = _logger.logs[0];
+  // #docregion provider-10-ctor
   }
+  // #enddocregion provider-10-ctor
+}
+
+// Optional logger, non null
+@Component(selector: 'provider-10c', template: '{{log}}')
+class ProviderComponent10c {
+  // #docregion provider-10-logger
+  final Logger _logger;
+  String log;
+
+  ProviderComponent10c(@Optional() Logger logger) :
+        _logger = logger ?? new DoNothingLogger() {
+    // . . .
+    // #enddocregion provider-10-logger
+    logger == null
+        ? _logger.log('Optional logger was not available.')
+        : _logger.log('Hello from the injected logger.');
+    log = _logger.logs[0];
+    // #docregion provider-10-logger
+  }
+// #enddocregion provider-10-logger
 }
 
 // #docregion provider-10-logger
 // . . .
 class DoNothingLogger extends Logger {
   List<String> logs = [];
-  log(String msg) => logs.add(msg);
+  void log(String msg) => logs.add(msg);
 }
 // #enddocregion provider-10-logger
 
@@ -344,7 +355,8 @@ class DoNothingLogger extends Logger {
       <div id="p9a"><provider-9a></provider-9a></div>
       <div id="p9b"><provider-9b></provider-9b></div>
       <div id="p10a"><provider-10a></provider-10a></div>
-      <div id="p10b"><provider-10b></provider-10b></div>''',
+      <div id="p10b"><provider-10b></provider-10b></div>
+      <div id="p10c"><provider-10c></provider-10c></div>''',
     directives: const [
       ProviderComponent1,
       ProviderComponent2,
@@ -358,6 +370,7 @@ class DoNothingLogger extends Logger {
       ProviderComponent9a,
       ProviderComponent9b,
       ProviderComponent10a,
-      ProviderComponent10b
+      ProviderComponent10b,
+      ProviderComponent10c
     ])
 class ProvidersComponent {}

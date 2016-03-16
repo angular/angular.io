@@ -8,8 +8,8 @@ import 'mock_heroes.dart';
 @Injectable()
 class HeroService {
   // #docregion internals
-  Logger _logger;
-  bool _isAuthorized;
+  final Logger _logger;
+  final bool _isAuthorized;
 
   HeroService(this._logger, this._isAuthorized);
 

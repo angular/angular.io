@@ -3,7 +3,7 @@ import 'package:angular2/angular2.dart';
 
 // #docregion engine
 class Engine {
-  int cylinders = 4;
+  final int cylinders = 4;
 }
 // #enddocregion engine
 
@@ -17,8 +17,8 @@ class Tires {
 @Injectable()
 class Car {
   //#docregion car-ctor
-  Engine engine;
-  Tires tires;
+  final Engine engine;
+  final Tires tires;
   String description = 'DI';
 
   Car(this.engine, this.tires);

@@ -42,7 +42,7 @@ import 'providers_component.dart';
 // #enddocregion providers
 )
 class AppComponent {
-  UserService _userService;
+  final UserService _userService;
   String title;
 
   //#docregion ctor

@@ -14,7 +14,7 @@ Car simpleCar() {
 
 //#docregion car-ctor-instantiation-with-param
 class Engine2 implements Engine {
-  int cylinders;
+  final int cylinders;
 
   Engine2(this.cylinders);
 }
@@ -33,7 +33,7 @@ Car superCar() {
 
 //#docregion car-ctor-instantiation-with-mocks
 class MockEngine extends Engine {
-  int cylinders = 8;
+  final int cylinders = 8;
 }
 
 class MockTires extends Tires {
