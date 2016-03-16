@@ -879,50 +879,62 @@ code-example(format="").
 
 .l-main-section
 :marked
-  ### Handling Unsaved Changes
+  <a id="lifecycle-hooks"></a>
+  ## Router Lifecycle Hooks
+
+  Angular components have [lifecycle hooks](lifecycle-hooks.html). For example, Angular calls the hook methods of the
+  [OnInit](../api/core/OnInit-interface.html) and [OnDestroy](../api/core/OnDestroy-interface.html)
+  interfaces when it creates and destroys components.
+
+  The router also has hooks for *its* lifecycle such as
+  [CanActivate](../api/router/CanActivate-var.html), [OnActivate](../api/router/OnActivate-interface.html), and 
+  [CanDeactivate](../api/router/CanDeactivate-interface.html).
+  These three hooks can change the way the router navigates *to* a component or *away* from a component.
+  
+  The router lifecycle hooks *supplement* the component lifecycle hooks.
+  We still need the component hooks but the router hooks do what the component hooks cannot.
+  For example, the component hooks can't stop component creation or destruction.
+  They can't pause view navigation to wait for an asynchronous process to finish because they are synchronous.
+
+  A *router* hook can permit or prevent a navigation. 
+  If the hook returns `true`, the navigation proceeds; if it returns `false`, the
+  router cancels the navigation and stays on the current view.
+  A hook can also tell the router to navigate to a *different* component.
+  
+  Router hook methods can act synchronously by returning a boolean value directly or
+  act asynchronously by returning a promise that resolves to a boolean.
+  
+  Let's look at `CanDeactivate`, one of the most important router hooks.
+.l-sub-section
+  :marked
+    We'll examine other router hooks in a future update to this chapter.
+    
+:marked
+  ### *CanDeactivate*: handling unsaved changes
+  
   Back in the "Heroes" workflow, the app accepts every change to a hero immediately without hesitation or validation.
+  
   In the real world, we might have to accumulate the users changes.
   We might have to validate across fields. We might have to validate on the server.
   We might have to hold changes in a pending state until the user confirms them *as a group* or
   cancels and reverts all changes.
 
   What do we do about unapproved, unsaved changes when the user navigates away?
-  We'd like to pause and let the user decide what to do. Perhaps we'll cancel the
-  navigation, stay put, and make more changes.
-
-  We need the router's cooperation to pull this off. We need router lifecycle hooks.
-
-  <a id="lifecycle-hooks"></a>
-  ### Router Lifecycle Hooks
-  Angular components have [lifecycle hooks](lifecycle-hooks.html). For example, Angular calls the hook methods of the
-  [OnInit](../api/core/OnInit-interface.html) and [OnDestroy](../api/core/OnDestroy-interface.html)
-  interfaces when it creates and destroys components.
-
-  The router calls similar hook methods,
-  [routerCanActivate](../api/router/CanActivate-var.html) and [routerCanDeactivate](../api/router/CanDeactivate-interface.html),
-  before it navigates *to* a component or *away* from a component.
-
-  If a *`can...`* method returns `true`, the navigation proceeds. If it returns `false`, the
-  router cancels the navigation and stays on the current view.
-
-  The router lifecycle hooks *supplement* the component lifecycle hooks.
-  We still need the component hooks but the router hooks do what the component hooks cannot.
+  We can't just leave and risk losing the user's changes; that would be a terrible experience.
   
-  For example, the component hooks can't stop component creation or destruction.
-  Because they are synchronous, they can't pause view navigation to wait for an asynchronous process to finish.
-
-  Imagine we have unsaved changes. The user starts to navigate away.
-  We shouldn't lose the user's changes; that would be a terrible experience. So we try to save those changes to the server.
+  We'd like to pause and let the user decide what to do. 
+  If the user cancels, we'll stay put and allow more changes.
+  If the user approves, the app can save. 
   
-  If the save fails for any reason (perhaps the data are ruled invalid), what do we do?
-
-  If we let the user move to the next screen, we have lost the context of the error.
+  We still might delay navigation until the save succeeds.
+  If we let the user move to the next screen immediately and 
+  the save failed (perhaps the data are ruled invalid), we would have lost the context of the error.
+  
   We can't block while waiting for the server &mdash; that's not possible in a browser.
-
   We need to stop the navigation while we wait, asynchronously, for the server
   to return with its answer.
-
-  The router hook methods can pause asynchronously, return promises, and cancel navigation if necessary.
+  
+  We need the `CanDeactivate` hook.
 
   ### Cancel and Save
 
