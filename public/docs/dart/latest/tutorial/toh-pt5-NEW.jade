@@ -1,0 +1,699 @@
+include ../_util-fns
+
+:marked
+    # Routing Around the App
+    We received new requirements for our Tour of Heroes application:
+    * add a *Dashboard* view.
+    * navigate between the *Heroes* and *Dashboard* views.
+    * clicking on a hero in either view navigates to a detail view of the selected hero.
+    * clicking a *deep link* in an email opens the detail view for a particular hero;
+
+    When we’re done, users will be able to navigate the app like this:
+figure.image-display
+    img(src='/resources/images/devguide/toh/nav-diagram.png' alt="View navigations")
+:marked
+    We'll add Angular’s *Component Router* to our app to satisfy these requirements.
+.l-sub-section
+    :marked
+        The [Routing and Navigation](../guide/router.html) chapter covers the router in more detail
+        than we will in this tour.
+:marked
+    [Run the live example](/resources/live-examples/toh-5/ts/plnkr.html).
+.l-sub-section
+    img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
+    :marked
+        To see the URL changes in the browser address bar,
+        pop out the preview window by clicking the blue 'X' button in the upper right corner:
+
+.l-main-section
+:marked
+    ## Where We Left Off
+    Before we continue with our Tour of Heroes, let’s verify that we have the following structure after adding our hero service
+    and hero detail component. If not, we’ll need to go back and follow the previous chapters.
+
+.filetree
+    .file angular2-tour-of-heroes
+    .children
+        .file lib
+        .children
+            .file app_component.dart
+            .file hero.dart
+            .file hero_detail_component.dart
+            .file hero_service.dart
+            .file mock_heroes.dart
+        .file web
+        .children
+            .file index.html
+            .file main.dart
+            .file styles.css
+        .file pubspec.yaml
+:marked
+    ### Run the app
+    Open a terminal/console window and enter the following command to
+    start the server:
+
+code-example(format="." language="bash").
+    pub serve
+
+:marked
+    The application runs by default on `localhost:8080`.
+
+    ## Action plan
+    Here's our plan
+
+    * turn `AppComponent` into an application shell that only handles navigation.
+    * relocate the *Heroes* concerns within the current `AppComponent` to a separate `HeroesComponent`
+    * add routing
+    * create a new `DashboardComponent`
+    * tie the *Dashboard* into the navigation structure.
+
+.l-sub-section
+    :marked
+        *Routing* is another name for *navigation*. The *router* is the mechanism for navigating from view to view.
+
+.l-main-section
+:marked
+    ## Splitting the *AppComponent*
+
+    Our current app loads `AppComponent` and immediately displays the list of heroes.
+
+    Our revised app should present a shell with a choice of views (*Dashboard* and *Heroes*) and then default to one of them.
+
+    The `AppComponent` should only handle navigation.
+    Let's move the display of *Heroes* out of `AppComponent` and into its own `HeroesComponent`.
+
+    ### *HeroesComponent*
+    `AppComponent` is already dedicated to *Heroes*.
+    Instead of moving anything out of `AppComponent`, we'll just rename it `HeroesComponent`
+    and create a new `AppComponent` shell separately.
+
+    The steps are:
+    * rename `app_component.dart` file to `heroes_component.dart`.
+    * rename the `AppComponent` class to `HeroesComponent`.
+    * rename the selector `my-app` to `my-heroes`.
+
+:marked
++makeExample('toh-5/dart/lib/heroes_component.dart', 'heroes-component-renaming', 'lib/heroes_component.dart (renaming)')(format=".")
+
+:marked
+    ## Create *AppComponent*
+    The new `AppComponent` will be the application shell.
+    It will have some navigation links at the top and a display area below for the pages we navigate to.
+
+    The initial steps are:
+
+    * create a new file named `app_component.dart`.
+    * define an `AppComponent` class.
+    * expose an application `title` property.
+    * add the `@Component` metadata decorator above the class with a `my-app` selector.
+    * add a template with `<h1>` tags surrounding a binding to the `title` property.
+    * add the `<my-heroes>` tags to the template so we still see the heroes.
+    * add the `HeroesComponent` to the `directives` array so Angular recognizes the `<my-heroes>` tags.
+    * add the `HeroService` to the `providers` array because we'll need it in every other view.
+    * add the supporting `import` statements.
+
+    Our first draft looks like this:
++makeExample('toh-5/dart/lib/app_component_1.dart', null, 'lib/app_component.dart (v1)')
+:marked
+.callout.is-critical
+    header Remove <i>HeroService</i> from the <i>HeroesComponent</i> providers
+    :marked
+        Go back to the `HeroesComponent` and **remove the `HeroService`** from its `providers` array.
+        We are *promoting* this service from the `HeroesComponent` to the `AppComponent`.
+        We ***do not want two copies*** of this service at two different levels of our app.
+:marked
+    The app still runs and still displays heroes.
+    Our refactoring of `AppComponent` into a new `AppComponent` and a `HeroesComponent` worked!
+    We have done no harm.
+
+:marked
+    ## Add Routing
+
+    We're ready to take the next step.
+    Instead of displaying heroes automatically, we'd like to show them *after* the user clicks a button.
+    In other words, we'd like to navigate to the list of heroes.
+
+    We'll need the Angular *Component Router*.
+
+    ### Include the Router Library
+    Not all apps need routing which is why the Angular *Component Router* is in a separate, optional module library.
+
+//    Our Tour of Heroes needs routing,
+//    so we load the library in the `index.html` in a script tag immediately *after* the angular script itself.
+//+makeExample('toh-5/dart/web/index.html', 'router', 'index.html (router)')(format=".")
+:marked
+    While we're in `index.html`, we add `<base href="/">` at the top of the `<head>` section.
++makeExample('toh-5/dart/web/index.html', 'base-href', 'index.html (base href)')(format=".")
+.callout.is-important
+    header base href is essential
+    :marked
+        See the *base href* section of the [Router](../guide/router.html#!#base-href) chapter to learn why this matters.
+:marked
+    ### Make the router available.
+    The *Component Router* is a service. Like any service, we have to import it and make it
+    available to the application by adding it to the `providers` array.
+
+    The Angular router is a combination of multiple services (`ROUTER_PROVIDERS`), multiple directives (`ROUTER_DIRECTIVES`),
+    and a configuration decorator (`RouteConfig`). We'll import them all together:
++makeExample('toh-5/dart/lib/app_component_2.dart', 'import-router', 'app_component.dart (router imports)')(format=".")
+:marked
+    Next we update the `directives` and `providers` metadata arrays to *include* the router assets.
++makeExample('toh-5/dart/lib/app_component_2.dart', 'directives-and-providers', 'app_component.dart (directives and providers)')(format=".")
+:marked
+    Notice that we also removed the `HeroesComponent` from the `directives` array.
+    `AppComponent` no longer shows heroes; that will be the router's job.
+    We'll soon remove `<my-heroes>` from the template too.
+
+    ### Add and configure the router
+
+    The `AppComponent` doesn't have a router yet. We'll use the `@RouteConfig` decorator to simultaneously
+    (a) assign a router to the component and (b) configure that router with *routes*.
+
+    *Routes* tell the router  which views to display when a user clicks a link or
+    pastes a URL into the browser address bar.
+
+    Let's define our first route, a route to the `HeroesComponent`.
++makeExample('toh-5/dart/lib/app_component_2.dart', 'route-config', 'app_component.dart (RouteConfig for heroes)')(format=".")
+:marked
+    `@RouteConfig` takes an array of *Route* definitions.
+    We have only one route definition at the moment but rest assured, we'll add more.
+
+    This *route definition* has three parts:
+    * **path**: the router matches this route's path to the URL in the browser address bar (`/heroes`).
+
+    * **name**: the official name of the route; it *must* begin with a capital letter to avoid confusion with the *path* (`Heroes`).
+
+    * **component**: the component that the router should create when navigating to this route (`HeroesComponent`).
+
+.l-sub-section
+    :marked
+        Learn more about defining routes with @RouteConfig in the [Routing](../guide/router.html) chapter.
+:marked
+    ### Router Outlet
+
+    If we paste the path, `/heroes`, into the browser address bar,
+    the router should match it to the `'Heroes'` route and display the `HeroesComponent`.
+    But where?
+
+    We have to ***tell it where*** by adding `<router-outlet>` marker tags to the bottom of the template.
+    `RouterOutlet` is one of the `ROUTER_DIRECTIVES`.
+    The router displays each component immediately below the `<router-outlet>` as we navigate through the application.
+
+    ### Router Links
+    We don't really expect users to paste a route URL into the address bar.
+    We add an anchor tag to the template which, when clicked, triggers navigation to the `HeroesComponent`.
+
+    The revised template looks like this:
++makeExample('toh-5/dart/lib/app_component_2.dart', 'template', 'app_component.dart (template for Heroes)')(format=".")
+:marked
+    Notice the `[routerLink]` binding in the anchor tag.
+    We bind the `RouterLink` directive (another of the `ROUTER_DIRECTIVES`) to an array
+    that tells the router where to navigate when the user clicks the link.
+
+    We define a *routing instruction* with a *link parameters array*.
+    The array only has one element in our little sample, the quoted ***name* of the route** to follow.
+    Looking back at the route configuration, we confirm that `'Heroes'` is the name of the route to the `HeroesComponent`.
+.l-sub-section
+    :marked
+        Learn about the *link parameters array* in the [Routing](../guide/router.html#link-parameters-array) chapter.
+:marked
+    Refresh the browser.  We see only the app title. We don't see the heroes list.
+.l-sub-section
+    :marked
+        The browser's address bar shows `/`.
+        The route path to `HeroesComponent` is `/heroes`, not `/`.
+        We don't have a route that matches the path `/`, so there is nothing to show.
+        That's something we'll want to fix.
+:marked
+    We click the "Heroes" navigation link, the browser bar updates to `/heroes`,
+    and now we see the list of heroes. We are navigating at last!
+
+    At this stage, our `AppComponent` looks like this.
++makeExample('toh-5/dart/lib/app_component_2.dart',null, 'lib/app_component.dart (v2)')
+:marked
+    The  *AppComponent* is now attached to a router and displaying routed views.
+    For this reason and to distinguish it from other kinds of components,
+    we call this type of component a *Router Component*.
+
+
+:marked
+    ## Add a *Dashboard*
+    Routing only makes sense when we have multiple views. We need another view.
+
+    Create a placeholder `DashboardComponent` that gives us something to navigate to and from.
++makeExample('toh-5/dart/lib/dashboard_component_1.dart',null, 'lib/dashboard_component.dart (v1)')(format=".")
+:marked
+    We’ll come back and make it more useful later.
+
+    ### Configure the dashboard route
+    Go back to `app_component.dart` and teach it to navigate to the dashboard.
+
+    Import the `DashboardComponent` so we can reference it in the dashboard route definition.
+
+    Add the following `'Dashboard'` route definition to the `@RouteConfig` array of definitions.
++makeExample('toh-5/dart/lib/app_component.dart','dashboard-route', 'app_component.dart (Dashboard Route)')(format=".")
+.l-sub-section
+    :marked
+        **useAsDefault**
+
+        We want the app to show the dashboard when it starts and
+        we want to see a nice URL in the browser address bar that says `/dashboard`.
+        Remember that the browser launches with `/` in the address bar.
+        We don't have a route for that path and we'd rather not create one.
+
+        Fortunately we can add the `useAsDefault: true` property to the *route definition* and the
+        router will display the dashboard when the browser URL doesn't match an existing route.
+:marked
+    Finally, add a dashboard navigation link to the template, just above the *Heroes* link.
+
++makeExample('toh-5/dart/lib/app_component.dart','template', 'app_component.dart (template)')(format=".")
+.l-sub-section
+    :marked
+        We nestled the two links within `<nav>` tags.
+        They don't do anything yet but they'll be convenient when we style the links a little later in the chapter.
+:marked
+    Refresh the browser. The app displays the dashboard and
+    we can navigate between the dashboard and the heroes.
+
+    ## Dashboard Top Heroes
+    Let’s spice up the dashboard by displaying the top four heroes at a glance.
+
+    Replace the `template` metadata with a `templateUrl` property that points to a new
+    template file.
+
++makeExample('toh-5/dart/lib/dashboard_component.dart', 'template-url', 'lib/dashboard_component.dart (templateUrl)')(format=".")
+.l-sub-section
+    :marked
+        We specify the path _all the way back to the application root_. Angular doesn't support module-relative paths.
+:marked
+    Create that file with these contents:
++makeExample('toh-5/dart/lib/dashboard_component.html', null, 'dashboard_component.html')(format=".")
+:marked
+    We use `*ngFor` once again to iterate over a list of heroes and display their names.
+    We added extra `<div>` elements to help with styling later in this chapter.
+
+    There's a `(click)` binding to a `gotoDetail` method we haven't written yet and
+    we're displaying a list of heroes that we don't have.
+    We have work to do, starting with those heroes.
+
+    ### Share the *HeroService*
+
+    We'd like to re-use the `HeroService` to populate the component's `heroes` array.
+
+    Recall earlier in the chapter that we removed the `HeroService` from the `providers` array of the `HeroesComponent`
+    and added it to the `providers` array of the top level `AppComponent`.
+
+    That move created a singleton `HeroService` instance, available to *all* components of the application.
+    We'll inject and use it here in the `DashboardComponent` .
+
+    ### Get heroes
+    Open the `dashboard_component.dart` and add the requisite `import` statements.
++makeExample('toh-5/dart/lib/dashboard_component_2.dart','imports', 'lib/dashboard_component.dart (imports)')(format=".")
+:marked
+    We need `OnInit` interface because we'll initialize the heroes in the `ngOnInit` method as we've done before.
+    We need the `Hero` and `HeroService` symbols in order to reference those types.
+
+    Now implement the `DashboardComponent` class like this:
++makeExample('toh-5/dart/lib/dashboard_component_2.dart','component', 'lib/dashboard_component.dart (class)')
+:marked
+    We saw this kind of logic before in the `HeroesComponent`.
+    * create a `heroes` array property
+    * inject the `HeroService` in the constructor and hold it in a private `_heroService` field.
+    * call the service to get heroes inside the Angular `ngOnInit` lifecycle hook.
+
+    The noteworthy differences: we cherry-pick four heroes (2nd, 3rd, 4th, and 5th) with *slice*
+    and stub the `gotoDetail` method until we're ready to implement it.
+
+    Refresh the browser and see four heroes in the new dashboard.
+
+.l-main-section
+:marked
+    ## Navigate to Hero Details
+
+    Although we display the details of a selected hero at the bottom of the `HeroesComponent`,
+    we don't yet *navigate* to the `HeroDetailComponent` in the three ways specified in our requirements:
+    1. from the *Dashboard* to a selected hero.
+    1. from the *Heroes* list to a selected hero.
+    1. from a "deep link" URL pasted into the browser address bar.
+
+    Adding a `'HeroDetail'` route seem an obvious place to start.
+
+    ### Routing to a hero detail
+
+    We'll add a route to the `HeroDetailComponent`  in the `AppComponent` where our other routes are configured.
+
+    The new route is a bit unusual in that we must tell the `HeroDetailComponent` *which hero to show*.
+    We didn't have to tell the `HeroesComponent` or the `DashboardComponent` anything.
+
+    At the moment the parent `HeroesComponent` sets the component's `hero` property to a hero object with a binding like this.
+code-example(format='').
+    &lt;my-hero-detail [hero]="selectedHero">&lt;/my-hero-detail>
+:marked
+    That clearly won't work in any of our routing scenarios.
+    Certainly not the last one; we can't embed an entire hero object in the URL! Nor would we want to.
+
+    ### Parameterized route
+    We *can* add the hero's `id` to the URL. When routing to the hero whose `id` is 11, we could expect to see an URL such as this:
+code-example(format='').
+    /detail/11
+:marked
+    The `/detail/` part of that URL is constant. The trailing numeric `id` part changes from hero to hero.
+    We need to represent that variable part of the route with a *parameter* (or *token*) that stands for the hero's `id`.
+
+    ### Configure a Route with a Parameter
+
+    Here's the *route definition* we'll use.
++makeExample('toh-5/dart/lib/app_component.dart','hero-detail-route', 'lib/app_component.dart (Route to HeroDetailComponent)')(format=".")
+:marked
+    The colon (:) in the path indicates that `:id` is a placeholder to be filled with a specific hero `id`
+    when navigating to the `HeroDetailComponent`.
+.l-sub-section
+    :marked
+        Of course we have to import the `HeroDetailComponent` before we create this route:
+    +makeExample('toh-5/dart/lib/app_component.dart','hero-detail-import')(format=".")
+:marked
+    We're finished with the `AppComponent`.
+
+    We won't add a `'Hero Detail'` link to the template because users
+    don't click a navigation *link* to view a particular hero.
+    They click a *hero* whether that hero is displayed on the dashboard or in the heroes list.
+
+    We'll get to those *hero* clicks later in the chapter.
+    There's no point in working on them until the `HeroDetailComponent`
+    is ready to be navigated *to*.
+
+    That will require an `HeroDetailComponent` overhaul.
+
+.l-main-section
+:marked
+    ## Revise the *HeroDetailComponent*
+
+    Before we rewrite the `HeroDetailComponent`, let's remember what it looks like now:
+
+    **[TODO: Add example, once it exists.]**
+
+// makeExample('toh-4/dart/lib/hero_detail_component.dart', null, 'lib/hero_detail_component.dart (current)')
+:marked
+    The template won't change. We'll display a hero the same way. The big changes are driven by how we get the hero.
+
+    We will no longer receive the hero in a parent component property binding.
+    The new `HeroDetailComponent` should take the `id` parameter from the router's `RouteParams` service
+    and use the `HeroService` to fetch the hero with that `id` from storage.
+
+    We need an import statement to reference the `RouteParams`.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'import-route-params')(format=".")
+:marked
+    We import the `HeroService`so we can fetch a hero`.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'import-hero-service')(format=".")
+:marked
+    We import the `OnInit` interface because we'll call the `HeroService` inside the `ngOnInit` component lifecycle hook.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'import-oninit')(format=".")
+:marked
+    We inject the both the `RouteParams` service and the `HeroService` into the constructor as we've done before,
+    making private variables for both:
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'ctor', 'lib/hero_detail_component.dart (constructor)')(format=".")
+:marked
+    Inside the `ngOnInit` lifecycle hook, extract the `id` parameter value from the `RouteParams` service
+    and use the `HeroService` to fetch the hero with that `id`.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'ng-oninit', 'lib/hero_detail_component.dart (ngOnInit)')(format=".")
+:marked
+    Notice how we extract the `id` by calling the `RouteParams.get` method.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'get-id')(format=".")
+:marked
+    The hero `id` is a number. Route parameters are *always strings*.
+    So we convert the route parameter value to a number with the `int.parse` static method.
+
+    ### Add *HeroService.getHero*
+    The problem with this bit of code is that `HeroService` doesn't have a `getHero` method!
+    We better fix that quickly before someone notices that we broke the app.
+
+    Open `HeroService` and add the `getHero` method. It's trivial given that we're still faking data access:
++makeExample('toh-5/dart/lib/hero_service.dart', 'get-hero', 'lib/hero_service.dart (getHero)')(format=".")
+:marked
+    Return to the `HeroDetailComponent` to clean up loose ends.
+
+    ### Find our way back
+
+    We can navigate *to* the `HeroDetailComponent` in several ways.
+    How do we navigate somewhere else when we're done?
+
+    The user could click one of the two links in the `AppComponent`. Or click the browser's back button.
+    We'll add a third option, a `goBack` method that navigates backward one step in the browser's history stack
+
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'go-back', 'lib/hero_detail_component.dart (goBack)')(format=".")
+.l-sub-section
+    :marked
+        Going back too far could take us out of the application.
+        That's acceptable in a demo. We'd guard against it in a real application,
+        perhaps with the [*routerCanDeactivate* hook](/docs/ts/latest/api/router/CanDeactivate-interface.html).
+:marked
+    Then we wire this method with an event binding to a *Back* button that we add to the bottom of the component template.
++makeExample('toh-5/dart/lib/hero_detail_component.html', 'back-button')(format=".")
+:marked
+    Modifing the template to add this button spurs us to take one more incremental improvement and migrate the template to its own file
+    called `hero_detail_component.html`
++makeExample('toh-5/dart/lib/hero_detail_component.html', '', 'lib/hero_detail_component.html')(format=".")
+:marked
+    We update the component metadata with a `templateUrl` pointing to the template file that we just created.
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'template-url', 'lib/hero_detail_component.dart (templateUrl)')(format=".")
+:marked
+    Here's the (nearly) finished `HeroDetailComponent`:
++makeExample('toh-5/dart/lib/hero_detail_component.dart', 'v2', 'lib/hero_detail_component.dart (latest)')(format=".")
+:marked
+
+
+.l-main-section
+:marked
+    ## Select a *Dashboard* Hero
+    When a user selects a hero in the dashboard, the app should navigate to the `HeroDetailComponent` to view and edit the selected hero..
+
+    In the dashboard template we bound each hero's click event to the `gotoDetail` method, passing along the selected `hero` entity.
++makeExample('toh-5/dart/lib/dashboard_component.html','click', 'lib/dashboard_component.html (click binding)')(format=".")
+:marked
+    We stubbed the `gotoDetail` method when we rewrote the `DashboardComponent`.
+    Now we give it a real implementation.
++makeExample('toh-5/dart/lib/dashboard_component.dart','goto-detail', 'lib/dashboard_component.dart (gotoDetail)')(format=".")
+:marked
+    The `gotoDetail` method navigates in two steps:
+    1. set a route *link parameters array*
+    1. pass the array to the router's navigate method.
+
+    We wrote *link parameters arrays* in the `AppComponent` for the navigation links.
+    Those arrays had only one element, the name of the destination route.
+
+    This array has two elements, the ***name*** of the destination route and a ***route parameter object***
+    with an `id` field set to the value of the selected hero's `id`.
+
+    The two array items align with the ***name*** and ***:id*** token in the parameterized `HeroDetail` route configuration we added to `AppComponent` earlier in the chapter.
++makeExample('toh-5/dart/lib/app_component.dart','hero-detail-route', 'lib/app_component.dart (hero detail route)')(format=".")
+:marked
+    The `DashboardComponent` doesn't have the router yet. We obtain it in the usual way:
+    `import` the `router` reference and inject it in the constructor (along with the `HeroService`):
+
++makeExample('toh-5/dart/lib/dashboard_component.dart','import-router', 'lib/dashboard_component.dart (excerpts)')(format=".")
++makeExample('toh-5/dart/lib/dashboard_component.dart','ctor')(format=".")
+:marked
+    Refresh the browser and select a hero from the dashboard; the app should navigate directly to that hero’s details.
+
+.l-main-section
+:marked
+    ## Select a Hero in the *HeroesComponent*
+    We'll do something similar in the `HeroesComponent`.
+
+    That component's current template exhibits a "master/detail" style with the list of heroes
+    at the top and details of the selected hero below.
+
+    **[TODO: Add example, once it exists.]**
+
+// makeExample('toh-4/dart/lib/app_component.dart','template', 'lib/heroes_component.dart (current template)')(format=".")
+
+:marked
+    Delete the last line of the template with the `<my-hero-detail>` tags.
+
+    We'll no longer show the full `HeroDetailComponent` here.
+    We're going to display the hero detail on its own page and route to it as we did in the dashboard.
+
+    But we'll throw in a small twist for variety.
+    When the user selects a hero from the list, we *won't* go to the detail page.
+    We'll show a *mini-detail* on *this* page instead and make the user click a button to navigate to the *full detail *page.
+
+    ### Add the *mini-detail*
+    Add the following HTML fragment at the bottom of the template where the `<my-hero-detail>` used to be:
++makeExample('toh-5/dart/lib/heroes_component.html','mini-detail')(format=".")
+:marked
+    After clicking a hero, the user should see something like this below the hero list:
+
+figure.image-display
+    img(src='/resources/images/devguide/toh/mini-hero-detail.png' alt="Mini Hero Detail" height="70")
+:marked
+    ### Format with the *UpperCasePipe*
+
+    Notice that the hero's name is displayed in CAPITAL LETTERS. That's the effect of the `UpperCasePipe`
+    that we slipped into the interpolation binding. Look for it right after the pipe operator, ( | ).
++makeExample('toh-5/dart/lib/heroes_component.html','pipe')(format=".")
+:marked
+    Pipes are a good way to format strings, currency amounts, dates and other display data.
+    Angular ships with several pipes and we can write our own.
+.l-sub-section
+    :marked
+        Learn about pipes in the [Pipes](../guide/pipes.html) chapter.
+:marked
+    ### Move content out of the component file
+    We are not done. We still have to update the component class to support navigation to the
+    `HeroDetailComponent` when the user clicks the *View Details* button.
+
+    This component file is really big. Most of it is either template or CSS styles.
+    It's difficult to find the component logic amidst the noise of HTML and CSS.
+
+    Let's migrate the template and the styles to their own files before we make any more changes:
+    1. *Cut-and-paste* the template contents into a new `heroes_component.html` file.
+    1. *Cut-and-paste* the styles contents into a new `heroes_component.css` file.
+    1. *Set* the component metadata's `templateUrl` and `styleUrls` properties to refer to both files.
+
+    The revised component data looks like this:
++makeExample('toh-5/dart/lib/heroes_component.dart', 'metadata', 'lib/heroes_component.dart (revised metadata)')(format=".")
+:marked
+    Now we can see what's going on as we update the component class along the same lines as the dashboard:
+    1. Import the `router`
+    1. Inject the `router` in the constructor (along with the `HeroService`)
+    1. Implement the `gotoDetail` method by calling the `router.navigate` method
+    with a two-part 'HeroDetail' *link parameters array*.
+
+    Here's the revised component class:
++makeExample('toh-5/dart/lib/heroes_component.dart', 'class', 'lib/heroes_component.dart (class)')
+:marked
+    Refresh the browser and start clicking.
+    We can navigate around the app, from the dashboard to hero details and back,
+    for heroes list to the mini-detail to the hero details and back to the heroes again.
+    We can jump back and forth between the dashboard and the heroes.
+
+    We've met all of the navigational requirements that propelled this chapter.
+
+.l-main-section
+:marked
+    ## Styling the App
+    The app is functional but pretty ugly.
+    Our creative designer team provided some CSS files to make it look better.
+
+    ### A Dashboard with Style
+    The designers think we should display the dashboard heroes in a row of rectangles.
+    They've given us ~60 lines of CSS for this purpose including some simple media queries for responsive design.
+
+    If we paste these ~60 lines into the component `styles` metadata,
+    they'll completely obscure the component logic.
+    Let's not do that. It's easier to edit CSS in a separate `*.css` file anyway.
+
+    Add a `dashboard_component.css` file to the `app` folder and reference
+    that file in the component metadata's `styleUrls` array property like this:
++makeExample('toh-5/dart/lib/dashboard_component.dart', 'css', 'lib/dashboard_component.dart (styleUrls)')(format=".")
+:marked
+.l-sub-section
+    :marked
+        The `styleUrls` property is an array of style file names (with paths).
+        We could list multiple style files from different locations if we needed them.
+        As with `templateUrl`, we must specify the path _all the way back to the application root_.
+:marked
+    ### Stylish Hero Details
+    The designers also gave us CSS styles specifically for the `HeroDetailComponent`.
+
+    Add a `hero_detail_component.css` to the `app` folder and refer to that file inside
+    the `styleUrls` array as we did for `DashboardComponent`.
+
+    Here's the content for the aforementioned component CSS files.
++makeTabs(
+`toh-5/dart/lib/hero_detail_component.css,
+toh-5/dart/lib/dashboard_component.css`,
+null,
+`lib/hero_detail_component.css,
+lib/dashboard_component.css`)
+:marked
+    ### Style the Navigation Links
+    The designers gave us CSS to make the navigation links in our `AppComponent` look more like selectable buttons.
+    We cooperated by surrounding those links in `<nav>` tags.
+
+    Add a `app_component.css` file to the `app` folder with the following content.
++makeExample('toh-5/dart/lib/app_component.css', 'css', 'lib/app_component.css (Navigation Styles)')
+.l-sub-section
+    :marked
+        **The *router-link-active* class**
+
+        The Angular Router adds the `router-link-active` class to the HTML navigation element
+        whose route matches the active route. All we have to do is define the style for it. Sweet!
+:marked
+    Set the `AppComponent`’s `styleUrls` property to this CSS file.
++makeExample('toh-5/dart/lib/app_component.dart','style-urls', 'lib/app_component.dart (styleUrls)')(format=".")
+:marked
+    ### Global application styles
+    When we add styles to a component, we're keeping everything a component needs
+    &mdash; HTML, the CSS, the code &mdash; together in one convenient place.
+    It's pretty easy to package it all up and re-use the component somewhere else.
+
+    We can also create styles at the *application level* outside of any component.
+
+    Our designers provided some basic styles to apply to elements across the entire app.
+    Add the following to a new file named `styles.css` in the root folder.
++makeExample('toh-5/ts/styles.1.css', '', 'styles.css (App Styles)')(format=".")
+
+:marked
+    Reference this stylesheet within the `index.html` in the traditional manner.
++makeExample('toh-5/ts/index.html','css', 'index.html (link ref)')(format=".")
+:marked
+    Look at the app now. Our dashboard, heroes, and navigation links are styling!
+
+figure.image-display
+    img(src='/resources/images/devguide/toh/dashboard-top-heroes.png' alt="View navigations")
+
+.l-main-section
+:marked
+    ## Application structure and code
+
+    Review the sample source code [in the live example for this chapter](/resources/live-examples/toh-5/ts/plnkr.html).
+    Verify that we have the following structure:
+
+.filetree
+    .file angular2-tour-of-heroes
+    .children
+        .file lib
+        .children
+            .file app_component.dart
+            .file app_component.css
+            .file dashboard_component.css
+            .file dashboard_component.html
+            .file dashboard_component.dart
+            .file hero.dart
+            .file hero_detail_component.css
+            .file hero_detail_component.html
+            .file hero_detail_component.dart
+            .file hero_service.dart
+            .file heroes_component.css
+            .file heroes_component.html
+            .file heroes_component.dart
+            .file main.dart
+            .file mock_heroes.dart
+        .file web
+        .children
+            .file main.dart
+            .file index.html
+            .file styles.css
+        .file pubspec.yaml
+:marked
+
+.l-main-section
+:marked
+    ## Recap
+
+    ### The Road Behind
+    We travelled a great distance in this chapter
+    - We added the Angular *Component Router* to navigate among different components.
+    - We learned how to create router links to represent navigation menu items
+    - We used router parameters to navigate to the details of user selected hero
+    - We shared the `HeroService` among multiple components
+    - We moved HTML and CSS out of the component file and into their own files.
+    - We added the `uppercase` pipe to format data
+
+    ### The Road Ahead
+    We have much of the foundation we need to build an application.
+    We're still missing a key piece: remote data access.
+
+    In a forthcoming tutorial chapter,
+    we’ll replace our mock data with data retrieved from a server using http.
