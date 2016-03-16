@@ -4,9 +4,8 @@ import 'car.dart';
 // BAD pattern!
 class CarFactory {
   Car createCar() {
-    var car = new Car(createEngine(), createTires());
-    car.description = 'Factory';
-    return car;
+    return new Car(createEngine(), createTires())
+      ..description = 'Factory';
   }
 
   Engine createEngine() => new Engine();

@@ -25,11 +25,10 @@ import 'logger_service.dart';
       const Provider('app.config', useValue: CONFIG)
     ])
 class AppComponent {
-  String title;
+  final String title;
 
   // #docregion ctor
-  AppComponent(@Inject('app.config') Config config) {
-    title = config.title;
-  }
+  AppComponent(@Inject('app.config') Config config)
+      : title = config.title;
+  // #enddocregion
 }
-// #enddocregion

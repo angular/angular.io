@@ -14,7 +14,7 @@ import 'heroes/heroes_component_1.dart';
       <my-heroes></my-heroes>''',
     directives: const [CarComponent, HeroesComponent])
 class AppComponent {
-  var title = 'Dependency Injection';
+  final String title = 'Dependency Injection';
 }
 // #enddocregion
 

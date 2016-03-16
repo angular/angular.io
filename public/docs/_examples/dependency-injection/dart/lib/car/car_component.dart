@@ -23,6 +23,7 @@ class CarComponent {
   final Car car;
 
   CarComponent(this.car);
+
   Car factoryCar = (new CarFactory()).createCar();
   Car injectorCar = useInjector();
   carNoDi.Car noDiCar = new carNoDi.Car();

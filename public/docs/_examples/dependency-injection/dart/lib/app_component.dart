@@ -43,14 +43,12 @@ import 'providers_component.dart';
 )
 class AppComponent {
   final UserService _userService;
-  String title;
+  final String title;
 
   //#docregion ctor
-  AppComponent(Config config, this._userService) {
-    title = config.title;
-  }
-
+  AppComponent(Config config, this._userService) : title = config.title;
   // #enddocregion ctor
+
   bool get isAuthorized {
     return user.isAuthorized;
   }
@@ -64,6 +62,6 @@ class AppComponent {
   }
 
   String get userInfo => 'Current user, ${user.name}, is'
-        '${isAuthorized ? "" : " not"} authorized. ';
+      '${isAuthorized ? "" : " not"} authorized. ';
 }
 // #enddocregion
