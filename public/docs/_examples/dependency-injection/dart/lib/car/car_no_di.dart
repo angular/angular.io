@@ -16,7 +16,7 @@ class Car {
   //#enddocregion car-ctor
 
   // Method using the engine and tires
-  drive() => '$description car with '
+  String drive() => '$description car with '
       '${engine.cylinders} cylinders and ${tires.make} tires.';
 }
 //#enddocregion car

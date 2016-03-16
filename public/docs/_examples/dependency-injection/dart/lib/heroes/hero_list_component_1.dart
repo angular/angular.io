@@ -11,5 +11,5 @@ import 'mock_heroes.dart';
         {{hero.id}} - {{hero.name}}
       </div>''')
 class HeroListComponent {
-  List<Hero> heroes = HEROES;
+  final List<Hero> heroes = HEROES;
 }

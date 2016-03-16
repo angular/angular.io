@@ -251,7 +251,7 @@ class ProviderComponent9a implements OnInit {
   // #enddocregion provider-9a-ctor
 
   ngOnInit() {
-    log = '\'app.config\' Application title is ' + _config.title;
+    log = '"app.config" Application title is ${_config.title}';
   }
 }
 

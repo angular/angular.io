@@ -23,7 +23,7 @@ import 'providers_component.dart';
       <h2>User</h2>
       <p id="user">
         {{userInfo}}
-        <button (click)=\'nextUser()\'>Next User</button>
+        <button (click)="nextUser()">Next User</button>
       <p>
       <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
       <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>''',
@@ -63,9 +63,7 @@ class AppComponent {
     return _userService.user;
   }
 
-  String get userInfo {
-    return 'Current user, ${user.name}, is'
+  String get userInfo => 'Current user, ${user.name}, is'
         '${isAuthorized ? "" : " not"} authorized. ';
-  }
 }
 // #enddocregion

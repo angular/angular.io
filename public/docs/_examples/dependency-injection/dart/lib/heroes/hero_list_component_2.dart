@@ -11,7 +11,7 @@ import 'hero_service.dart';
         {{hero.id}} - {{hero.name}}
       </div>''')
 class HeroListComponent {
-  List<Hero> heroes;
+  final List<Hero> heroes;
 
 //#docregion ctor
   HeroListComponent(HeroService heroService)

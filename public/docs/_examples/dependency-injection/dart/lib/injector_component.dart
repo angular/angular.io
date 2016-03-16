@@ -14,7 +14,7 @@ import 'logger_service.dart';
     selector: 'my-injectors',
     template: '''
       <h2>Other Injections</h2>
-      <div id="car"> {{car.drive()}}</div>
+      <div id="car">{{car.drive()}}</div>
       <div id="hero">{{hero.name}}</div>
       <div id="rodent">{{rodent}}</div>''',
     providers: const [

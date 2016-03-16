@@ -9,10 +9,10 @@ import 'hero_service.dart';
     template: '''
       <div *ngFor="#hero of heroes">
         {{hero.id}} - {{hero.name}}
-        ({{hero.isSecret ? \'secret\' : \'public\'}})
+        ({{hero.isSecret ? 'secret' : 'public'}})
       </div>''')
 class HeroListComponent {
-  List<Hero> heroes;
+  final List<Hero> heroes;
 
 //#docregion ctor-signature
   HeroListComponent(HeroService heroService) : heroes = heroService.getHeroes();
