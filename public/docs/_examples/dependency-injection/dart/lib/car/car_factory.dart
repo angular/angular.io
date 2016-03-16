@@ -1,7 +1,7 @@
 // #docregion
-
 import 'car.dart';
 
+// BAD pattern!
 class CarFactory {
   Car createCar() {
     var car = new Car(createEngine(), createTires());
@@ -10,6 +10,5 @@ class CarFactory {
   }
 
   Engine createEngine() => new Engine();
-
   Tires createTires() => new Tires();
 }

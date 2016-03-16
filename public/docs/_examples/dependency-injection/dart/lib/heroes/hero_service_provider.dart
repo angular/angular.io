@@ -1,9 +1,9 @@
 // #docregion
+import 'package:angular2/angular2.dart';
 
-import 'package:angular2/core.dart';
-import 'hero_service.dart';
 import '../logger_service.dart';
 import '../user_service.dart';
+import 'hero_service.dart';
 
 // #docregion factory
 heroServiceFactory(Logger logger, UserService userService) =>
@@ -11,6 +11,7 @@ heroServiceFactory(Logger logger, UserService userService) =>
 // #enddocregion factory
 
 // #docregion provider
-const heroServiceProvider =
-    const Provider(HeroService, useFactory: heroServiceFactory, deps: const [Logger, UserService]);
+const heroServiceProvider = const Provider(HeroService,
+    useFactory: heroServiceFactory,
+    deps: const [Logger, UserService]);
 // #enddocregion provider

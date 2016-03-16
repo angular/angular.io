@@ -1,9 +1,9 @@
 // #docregion
+import 'package:angular2/angular2.dart';
 
-import 'package:angular2/core.dart';
+import '../logger_service.dart';
 import 'hero.dart';
 import 'mock_heroes.dart';
-import '../logger_service.dart';
 
 @Injectable()
 class HeroService {
@@ -15,7 +15,7 @@ class HeroService {
 
   List<Hero> getHeroes() {
     var auth = _isAuthorized ? 'authorized' : 'unauthorized';
-    _logger.log('Getting heroes for ${auth} user.');
+    _logger.log('Getting heroes for $auth user.');
     return HEROES.where((hero) => _isAuthorized || !hero.isSecret).toList();
   }
 // #enddocregion internals

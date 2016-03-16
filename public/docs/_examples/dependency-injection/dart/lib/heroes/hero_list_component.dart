@@ -1,17 +1,16 @@
 // #docregion
+import 'package:angular2/angular2.dart';
 
-import 'package:angular2/core.dart';
 import 'hero.dart';
 import 'hero_service.dart';
 
 @Component(
     selector: 'hero-list',
     template: '''
-  <div *ngFor="#hero of heroes">
-    {{hero.id}} - {{hero.name}}
-    ({{hero.isSecret ? \'secret\' : \'public\'}})
-  </div>
-  ''')
+      <div *ngFor="#hero of heroes">
+        {{hero.id}} - {{hero.name}}
+        ({{hero.isSecret ? \'secret\' : \'public\'}})
+      </div>''')
 class HeroListComponent {
   List<Hero> heroes;
 
