@@ -149,7 +149,7 @@ class ProviderComponent6a {
     template: '{{log}}',
     providers:
         //#docregion providers-6b
-        // Alias OldLogger w/ reference to NewLogger
+        // Alias OldLogger with reference to NewLogger
         const [NewLogger, const Provider(OldLogger, useExisting: NewLogger)]
        //#enddocregion providers-6b
 )
