@@ -26,24 +26,10 @@ include ../_util-fns
   Locate the `src` folder that contains the application `index.html`
 
   Create a new, sibling HTML file, ** `unit-tests.html` ** and copy over the same basic material from the  `unit-tests.html` in the [Jasmine 101](./jasmine-testing-101.html) chapter.
+  
++makeExample('testing/ts/unit-tests-2.html', 'test-runner-base', 'unit-tests.html')
 
-  ```
-  <html>
-  <head>
-    <title>1st Jasmine Tests</title>
-    <link rel="stylesheet" href="../node_modules/jasmine-core/lib/jasmine-core/jasmine.css">
-
-    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
-    <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
-    <script src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
-  </head>
-
-  <body>
-  </body>
-
-  </html>
-  ```
-
+:marked
   We're picking up right where we left off. All we've done is change the title.
 
 .l-main-section
@@ -74,58 +60,16 @@ pre.prettyprint.lang-bash
 :marked
   ## First app tests
 
-  Believe it or not … we could start testing *some* of our app right away. For example, we can test the `Hero` class:
-  ```
-  let nextId = 30;
-
-  export class Hero {
-    constructor(
-      public id?: number,
-      public name?: string,
-      public power?: string,
-      public alterEgo?: string
-    ) {
-      this.id = id || nextId++;
-    }
-
-    clone() { return Hero.clone(this); }
-
-    static clone = (h:any) => new Hero(h.id, h.name, h.alterEgo, h.power);
-
-    static setNextId = (next:number) => nextId = next;
-  }
-  ```
-
-  Let's add a couple of simple tests in the `<body>` element.
-
-  First, we'll load the JavaScript file that defines the `Hero` class.
-
-code-example(format="" language="html").
-  &lt;!-- load the application's Hero definition -->
-  &lt;script src="app/hero.js">&lt;/script>
+  We can start testing *some* of our app right away. For example, we can test the `Hero` class:
   
++makeExample('testing/ts/app/hero.ts')  
+
 :marked
-  Next, we'll add an inline script element with the `Hero`tests themselves
+  Let's add a couple of simple tests in a new file.
 
-  ```
-  <script>
-    // Demo only!
-    describe('Hero', function() {
++makeExample('testing/ts/app/hero.spec.ts', 'base-hero-spec')  
 
-      it('has name given in the constructor', function() {
-        var hero = new Hero(1, 'Super Cat');
-        expect(hero.name).toEqual('Super Cat');
-      });
-
-      it('has the id given in the constructor', function() {
-        var hero = new Hero(1, 'Super Cat');
-        expect(hero.id).toEqual(1);
-      });
-
-    });
-  </script>
-  ```
-
+:marked
   That's the basic Jasmine we learned back in "Jasmine 101".
 
   Notice that we surrounded our tests with ** `describe('Hero')` **.
@@ -133,32 +77,8 @@ code-example(format="" language="html").
   **By convention, our test always begin with a `describe` that identifies the application part under test.**
 
   The description should be sufficient to identify the tested application part and its source file. Almost any convention will do as long as you and your team follow it consistently and are never confused.
-
-.l-main-section
-:marked
-  ## Run the tests
-
-  Open one terminal window and run the watching compiler command: `npm run tsc`
-
-  Open another terminal window and run live-server: `npm test`
-
-  The browser should launch and display the two passing tests:
-
-figure.image-display
-  img(src='/resources/images/devguide/first-app-tests/passed-2-specs-0-failures.png' style="width:400px;" alt="Two passing tests")
-
-
-.l-main-section
-:marked
-  ## Critique
-
-  Is this `Hero` class even worth testing? It's essentially a property bag with almost no logic.  Maybe we should have tested the cloning feature. Maybe we should have tested id generation. We didn't bother because there wasn't much to learn by doing that.
-
-  It's more important to take note of the `//Demo only` comment in the `unit-tests.html`.
-
-  ** We'll never write real tests in the HTML this way**. It's nice that we can write *some* of our application tests directly in the HTML. But dumping all of our tests into HTML is not sustainable and even if we didn't mind that approach, we could only test a tiny fraction of our app this way.
-
-  We need to relocate these tests to a separate file.  Let's do that next.
+  
+  But we haven't saved this test yet.
 
 .l-main-section
 :marked
@@ -191,40 +111,23 @@ figure.image-display
 .alert.is-important  All of our unit test files follow this .spec naming pattern.
 
 :marked
-  Move the tests we just wrote in`unit-tests.html` to `hero.spec.ts` and convert them from JavaScript into TypeScript:
+  Save the tests we just made in `hero.spec.ts`:
 
-  ```
-  import {Hero} from './hero';
++makeExample('testing/ts/app/hero.spec.ts', 'base-hero-spec')  
 
-  describe('Hero', () => {
-
-    it('has name given in the constructor', () => {
-      let hero = new Hero(1, 'Super Cat');
-      expect(hero.name).toEqual('Super Cat');
-    });
-
-    it('has id given in the constructor', () => {
-      let hero = new Hero(1, 'Super Cat');
-      expect(hero.id).toEqual(1);
-    });
-  })
-
-  ```
-
+:marked
   ### Import the part we're testing
 
-  During our conversion to TypeScript, we added an `import {Hero} from './hero' ` statement.
+  We have an `import {Hero} from './hero' ` statement.
 
   If we forgot this import, a TypeScript-aware editor would warn us, with a squiggly red underline, that it can't find the definition of the `Hero` class.
-
-  TypeScript doesn't know what a `Hero` is. It doesn't know about the script tag back in the `unit-tests.html` that loads the `hero.js` file.
 
   ### Update unit-tests.html
 
   Next we update the `unit-tests.html` with a reference to our new `hero.spec.ts` file. Delete the inline test code.  The revised pertinent HTML looks like this:
-code-example(format="" language="html").
-    &lt;script src="app/hero.js">&lt;/script>
-    &lt;script src="app/hero.spec.js">&lt;/script>
+  
++makeExample('testing/ts/unit-tests-2.html', 'load-hero-and-spec')(format=".")
+
 :marked
   ### Run and Fail
 
@@ -239,7 +142,7 @@ figure.image-display
   Open the browser's Developer Tools (F12, Ctrl-Shift-i). There's an error:
 
 code-example(format="" language="html").
-  Uncaught ReferenceError: exports is not defined
+  Uncaught ReferenceError: System is not defined
 
 .l-main-section
 :marked
@@ -250,7 +153,7 @@ code-example(format="" language="html").
   It wasn't a problem until we tried to `import` the `Hero` class in our tests.
 
   Our test environment lacks support for module loading.
-  Apparently we  can't simply load our application and test scripts like we do with 3rd party JavaScript libraries.
+  Apparently we can't simply load our application and test scripts like we do with 3rd party JavaScript libraries.
 
   We are committed to module loading in our application.
   Our app will call `import`.  Our tests must do so too.
@@ -265,33 +168,9 @@ code-example(format="" language="html").
   These steps are all clearly visible, in exactly that order, in the following lines that
   replace the `<body>` contents in `unit-tests.html`:
 
-  ```
-  <body>
-    <!-- #1. add the system.js library -->
-    <script src="../node_modules/systemjs/dist/system.src.js"></script>
++makeExample('testing/ts/unit-tests-3.html', 'systemjs')(format=".")
 
-    <script>
-      // #2. Configure SystemJS to use the .js extension
-      //     for imports from the app folder
-      System.config({
-        packages: {
-          'app': {defaultExtension: 'js'}
-        }
-      });
-
-      // #3. Import the spec file explicitly
-      System.import('app/hero.spec')
-
-        // #4. wait for all imports to load ...
-        //     then re-execute `window.onload` which
-        //     triggers the Jasmine test-runner start
-        //     or explain what went wrong
-        .then(window.onload)
-        .catch(console.error.bind(console));
-    </script>
-  </body>
-  ```
-
+:marked
   Look in the browser window. Our tests pass once again.
 
 figure.image-display
