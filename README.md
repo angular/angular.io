@@ -32,7 +32,10 @@ The two cloned repo directories must be sibling.
 
 1. cd into root directory `Angular.io/`
 
-1. install local packages by running `npm install`
+1. install the *all-docs* local packages by running `npm install`
+> If running node v.5+, you probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
+
+1. See [below](#code-sample-development) for code sample development preparation.
 
 ## Content Development
 All documentation content is written in Jade which has [its own syntax](http://jade-lang.com/reference/).
@@ -79,9 +82,9 @@ take the following extra steps to prepare the environment:
 
 1. install the canonical node packages for all samples by running `npm install`
 
-1. cd back up to `Angular.io` root.
+1. cd back up to `Angular.io` root: `cd ../../..`
 
-1. run `gulp add-example-boilerplate` (elevate to admin on windows) 
+1. run `gulp add-example-boilerplate` (elevate to admin on Windows) 
 to copy canonical files to the sample directories and create symlinks there for node_modules and typings. 
 
 Now cd into any particular sample's language directory (e.g., `public/docs/_examples/quickstart/ts`) and try:
