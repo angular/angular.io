@@ -10,13 +10,13 @@ angularIO.directive('apiList', function () {
       '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
       '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)" class="{{apiType.cssClass}}">{{apiType.title}}</dd>' +
       '  </dl>' +
-      '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 400, \'blur\': 0}}" class="api-filter">' +
+      '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 350, \'blur\': 0}}" class="api-filter">' +
       '</div>' +
       '<article class="l-content-small grid-fluid docs-content">' +
-      '  <div ng-repeat="section in $ctrl.filteredSections" ng-cloak="ng-cloak">' +
+      '  <div ng-repeat="section in $ctrl.groupedSections" ng-if="$ctrl.isFiltered(section)" ng-cloak="ng-cloak">' +
       '    <h3>{{ section.title }}</h3>' +
       '    <ul class="api-list">' +
-      '      <li ng-repeat="item in section.items" class="api-item">' +
+      '      <li ng-repeat="item in section.items" ng-show="item.show" class="api-item">' +
       '        <a ng-href="{{ item.path }}"><span class="symbol {{ item.docType }}"></span>{{ item.title }}</a>' +
       '      </li>' +
       '    </ul>' +
@@ -38,15 +38,36 @@ angularIO.directive('apiList', function () {
 
       $ctrl.apiFilter = getApiFilterFromLocation();
       $ctrl.apiType = getApiTypeFromLocation();
-      $ctrl.filteredSections = [];
+      $ctrl.groupedSections = [];
 
       $ctrl.setType = function (type) {
         if (type === $ctrl.apiType) $ctrl.apiType = null;
         else $ctrl.apiType = type;
       };
 
+      $ctrl.isFiltered = function(section) {
+        var apiFilter = ($ctrl.apiFilter || '').toLowerCase();
+        var matchesModule = $ctrl.apiFilter === '' || $ctrl.apiFilter === null || section.title.toLowerCase().indexOf($ctrl.apiFilter.toLowerCase()) !== -1;
+        var isVisible = false;
+
+        section.items.forEach(function(item) {
+          var matchesDocType = !$ctrl.apiType || $ctrl.apiType.matches.indexOf(item.docType) !== -1;
+          var matchesTitle = !apiFilter || item.title.toLowerCase().indexOf(apiFilter) !== -1;
+          item.show = matchesDocType && (matchesTitle || matchesModule);
+
+          if (item.show) {
+            isVisible = true;
+          }
+        });
+
+        return isVisible;
+      };
+
       $http.get($attrs.src).then(function(response) {
         $ctrl.sections = response.data;
+        $ctrl.groupedSections = Object.keys($ctrl.sections).map(function(title) {
+          return { title: title, items: $ctrl.sections[title] };
+        });
       });
 
       $scope.$watchGroup(
@@ -56,19 +77,6 @@ angularIO.directive('apiList', function () {
 
           $location.search(API_FILTER_KEY, apiFilter || null);
           $location.search(API_TYPE_KEY, $ctrl.apiType && $ctrl.apiType.title || null);
-
-          $ctrl.filteredSections.length = 0;
-          angular.forEach($ctrl.sections, function(section, title) {
-            var matchesModule = $ctrl.apiFilter === '' || $ctrl.apiFilter === null || title.toLowerCase().indexOf($ctrl.apiFilter.toLowerCase()) !== -1;
-            var filteredItems = section.filter(function(item) {
-              var matchesDocType = !$ctrl.apiType || $ctrl.apiType.matches.indexOf(item.docType) !== -1;
-              var matchesTitle = !apiFilter || item.title.toLowerCase().indexOf(apiFilter) !== -1;
-              return matchesDocType && (matchesTitle || matchesModule);
-            });
-            if (filteredItems.length) {
-              $ctrl.filteredSections.push({ title: title, items: filteredItems });
-            }
-          });
         }
       );
 
@@ -81,7 +89,7 @@ angularIO.directive('apiList', function () {
         if (!apiFilter) {
           return null;
         } else if (!$ctrl.apiFilter || $ctrl.apiFilter.title != apiFilter) {
-          for(var i = 0, ii = $ctrl.apiTypes.length; i < ii; i++) {
+          for (var i = 0, ii = $ctrl.apiTypes.length; i < ii; i++) {
             if ($ctrl.apiTypes[i].title == apiFilter) {
               return $ctrl.apiTypes[i];
             }
