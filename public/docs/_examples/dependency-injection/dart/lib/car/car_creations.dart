@@ -1,3 +1,4 @@
+// #docplaster
 // Examples with car and engine variations
 import 'car.dart';
 
@@ -18,6 +19,8 @@ class Engine2 implements Engine {
 
   Engine2(this.cylinders);
 }
+
+// Later, where the car is created...
 //#enddocregion car-ctor-instantiation-with-param
 
 Car superCar() {
@@ -39,6 +42,8 @@ class MockEngine extends Engine {
 class MockTires extends Tires {
   String make = 'YokoGoodStone';
 }
+
+// Later, where the car is created for testing...
 //#enddocregion car-ctor-instantiation-with-mocks
 Car testCar() {
   //#docregion car-ctor-instantiation-with-mocks
