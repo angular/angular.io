@@ -12,7 +12,7 @@ class Highlight {
 // #enddocregion full
   /*
 // #docregion highlight
-  @Input() myHighlight: string;
+  @Input() String myHighlight;
 // #enddocregion highlight
   */
 // #docregion full
