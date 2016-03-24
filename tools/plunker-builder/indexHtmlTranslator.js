@@ -40,47 +40,47 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-all.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/angular2-all.umd.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/angular2-all.umd.dev.js'
   },  
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-polyfills.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/angular2-polyfills.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/angular2-polyfills.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/Rx.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/Rx.js'
   },  
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/Rx.umd.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/Rx.umd.js'
   },  
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.11/testing.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.12/testing.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/es6/dev/src/testing/shims_for_IE.js',
-    to: 'https://npmcdn.com/angular2@2.0.0-beta.11/es6/dev/src/testing/shims_for_IE.js'
+    to: 'https://npmcdn.com/angular2@2.0.0-beta.12/es6/dev/src/testing/shims_for_IE.js'
   },
   {
     pattern: 'script',
