@@ -1,26 +1,45 @@
 include ../_util-fns
 
 :marked
-  We’ll test an Angular pipe in this chapter
+  We’ll test an Angular pipe in this chapter.
 
   An Angular pipe is a declarative way in HTML to transform some input into some displayable output.
+  
+  We don't have a pipe though, since in Tour of Heroes we didn't create any pipes. It uses a pipe though, the `uppercase` pipe that comes with Angular 2.
+  
+  We can make our own `my-uppercase` pipe that does exactly the same as the `uppercase` pipe and test that.
+  
+  Since we're getting ready to write some code we want to test, let's take this opportunity to talk just a little bit about [Test Driven Development](https://en.wikipedia.org/wiki/Test-driven_development). There's a lot written about this topic so we don't want to have an exhaustive description here, but rather a practical application.
+  
+  We already know *exactly* what we want the `uppercase` pipe to do. We could say our ...expectations... of it are very well defined.
+  
+  We always use expectations our expectations to guide development, but sometimes it's hard to see the forest for the trees when we're right in the middle of coding. This is especially evident in larger tasks.
+  
+  So one thing we can do is put those expectations down as cold hard test code. We were going to test things manually anyway, so doing it *before* we have even one line of code isn't going to hurt. 
+  
+  Worst thing that can happen is have that test fail, but on the way to fixing it we'll end up creating our pipe. So in a sense, the failing test will *tell you what it wants* to pass.
+  
+  We're just putting down expectations, nothing more. If we were to put them down on paper, they would look like this:
 
-  We’ll look at our app’s custom `InitCapsPipe` that converts a string of words into a string of capitalized words.
-
-  We use it our `hero-detail.component.html` template to turn a hero name like “eeny weenie” into “Eeny Weenie”
-
-+makeExample('testing/ts/app/hero-detail.component.html', 'pipe-usage')
-
-:marked
-  The code for `InitCapsPipe` in `init-caps-pipe.ts` is quite brief:
-
-+makeExample('testing/ts/app/init-caps-pipe.ts')
+  ```  
+    MyUppercasePipe
+      transforms "abc" to "ABC"
+      transforms "abc def" to "ABC DEF"
+      leaves "ABC DEF" unchanged
+  ```  
+   
+  All we need to know to put down our expectations as code is how a pipe class looks like from the outside. From the [pipe developer guide](pipes#custom-pipes) we know that a pipe implements a `transform` method. 
+  
+  Putting it down as Jasmine expectations, they would look something like this:
+  
++makeExample('testing/ts/app/my-uppercase.pipe.spec.ts', 'expectations')  
 
 :marked
   In this chapter we will:
-  - add the Angular 2 library to our test harness
-  - test this custom Angular pipe class
+  - create a test before creating a class
   - load multiple test files in our test harness, using system.js
+  - add the Angular 2 library to our test harness
+  - watch the new test fail, and fix it
 
 .callout.is-helpful
   header Prior Knowledge
@@ -32,52 +51,15 @@ include ../_util-fns
     such as <code>npm</code>, <code>gulp</code>, and <code>live-server</code>.
 
 :marked
-  ## Add the Angular library
-  Looking back at `unit-tests.html` we realize that we have not loaded the Angular library.
-  Yet we were able to load and test the application’s `Hero` class.
-
-  **We were lucky!**  The `Hero` class has no dependence on Angular.
-  If it had depended on Angular, we’d still be staring at the Jasmine “big-time fail” screen:
-
-figure.image-display
-  img(src='/resources/images/devguide/testing-an-angular-pipe/big-time-fail-screen.png'
-      style="width:400px;" alt="Jasmine's' big time fail screen")
-
-:marked
-  If we then opened the browser’s Developer Tools (F12, Ctrl-Shift-I) and looked
-  in the console window, we would see that SystemJS
-  tried to load Angular and couldn't find it.
-
-code-example(format="" language="html" escape="html").
-  GET http://127.0.0.1:8080/src/angular2/core 404 (Not Found)
-
-:marked
-  We are writing an Angular application afterall and
-  we were going to need Angular sooner or later. That time has come.
-
-  The `InitCapsPipe` depends on Angular as is clear in the first few lines:
-  
-+makeExample('testing/ts/app/init-caps-pipe.ts', 'depends-on-angular')(format=".")
-
-:marked
-  **Open** `unit-tests.html`
-
-  **Find** the `src="../node_modules/systemjs/dist/system.src.js"></script>`
-
-  **Replace** Step #1  with these two scripts:
-
-+makeExample('testing/ts/unit-tests-4.html', 'import-angular')(format=".")
-
-:marked
   ## Add another spec file
 
-  **Create** an `init-caps-pipe.spec.ts` next to `init-caps-pipes.ts` in `src/app`
+  **Create** a `my-uppercase.pipe.spec.ts` in `app/`.
 
   **Stop and restart the TypeScript compiler** to ensure we compile the new file.
 
-  **Add** the following lines of rather obvious Jasmine test code
+  **Add** the following lines of rather obvious Jasmine test code.
   
-+makeExample('testing/ts/app/init-caps-pipe.spec.ts', 'base-pipe-spec')
++makeExample('testing/ts/app/my-uppercase.pipe.spec.ts', 'base-pipe-spec', 'app/my-uppercase.pipe.spec.ts')
   
 :marked
   Note that each test is short (one line in our case).
@@ -95,7 +77,7 @@ code-example(format="" language="html" escape="html").
 
   Open `unit-tests.html`. Find `System.import('app/hero.spec')`.
 
-  Hmm. We can’t just add `System.import('app/init-caps-pipe.spec')`.
+  Hmm. We can’t just add `System.import('app/my-uppercase.pipe.spec')`.
 
   The first `System.import` returns a promise as does this second import.
   We can’t run any of the Jasmine tests until **both imports are finished**.
@@ -106,18 +88,108 @@ code-example(format="" language="html" escape="html").
 +makeExample('testing/ts/unit-tests-4.html', 'promise-all')(format=".")
 
 :marked
-  Try it. The browser should refresh and show
-
-figure.image-display
-  img(src='/resources/images/devguide/testing-an-angular-pipe/5-specs-0-failures.png'
-  style="width:400px;" alt="import promises 5 specs, 0 failures")
-
-:marked
   We have a pattern for adding new tests.
 
   In future, when we add a new spec, we add another `System.import('app/some.spec')` to
   the array argument passed to `Promise.all`.
+  
+  Try it. The browser should refresh and show the following in the console:
 
+code-example(format="" language="html" escape="html").
+  GET http://localhost:8080/app/my-uppercase.pipe.js 404 (Not Found)
+
+:marked
+  Our test failed, as expected. We're importing something that doesn't exist and our test fails saying that. All is going according to plan.
+  
+:marked
+  ## The pipe, if you please
+  
+  The test is asking for a pipe, and we shall deliver. 
+  
+  **Create** a `my-uppercase.pipe.ts` in `app/`.
+  
+  **Stop and restart the TypeScript compiler** to ensure we compile the new file.
+  
+  **Add** a basic pipe that doesn't do anything. We know how to make strings uppercase, but we since we're letting the test take the lead let's wait for it to tell us what's next. Maybe it'll surprise us.
+  
++makeExample('testing/ts/app/my-uppercase.pipe.1.ts', null, 'app/my-uppercase.pipe.ts')
+
+:marked
+  Reload our test page and...
+  
+code-example(format="" language="html" escape="html").
+  GET http://localhost:8080/angular2/core 404 (Not Found)
+
+:marked
+  ## The Angular library, if you please
+  Looking back at `unit-tests.html` we realize that we have not loaded the Angular library.
+  Yet we were able to load and test the application’s `Hero` interface.
+
+  **We were lucky!**  The `Hero` interface has no dependence on Angular.
+  If it had depended on Angular, we’d still be staring at the Jasmine “big-time fail” screen:
+
+figure.image-display
+  img(src='/resources/images/devguide/testing-an-angular-pipe/big-time-fail-screen.png' 
+      alt="Jasmine's' big time fail screen")
+
+:marked
+  We are writing an Angular application after all and
+  we were going to need Angular sooner or later. That time has come.
+
+  `MyUppercasePipe` depends on Angular as is clear in the first few lines:
+  
++makeExample('testing/ts/app/my-uppercase.pipe.ts', 'depends-on-angular')(format=".")
+
+:marked
+  **Open** `unit-tests.html`
+
+  **Find** the `<!-- #1. add the system.js library -->` comment.
+
+  **Replace** the scripts tags beneath it with the all the needed angular scripts:
+
++makeExample('testing/ts/unit-tests-5.html', 'import-angular')(format=".")
+
+:marked
+  We should now be ready to see our 3 expectations fail when reloading our test page.
+  
+figure.image-display
+  img(src='/resources/images/devguide/testing-an-angular-pipe/two-failures.png' alt="2 failed tests")
+    
+:marked
+  ## Uppercase, if you please
+  
+  The first two tests that passed were our old `hero` interface tests, so it makes sense that those passed. Of our three new expectations, one still passed though.
+  
+  ```  
+    MyUppercasePipe
+      transforms "abc" to "ABC"
+      transforms "abc def" to "ABC DEF"
+      leaves "ABC DEF" unchanged
+  ```  
+  
+  Ah but of course! Our simple pipe doesn't transform the input at all, and the third test expected
+  input to not be changed.
+  
+  All we have to do now is actually transform text to uppercase in our pipe.
+  
++makeExample('testing/ts/app/my-uppercase.pipe.ts', 'uppercase')(format=".")
+
+:marked
+  Are we done now?
+  
+figure.image-display
+  img(src='/resources/images/devguide/testing-an-angular-pipe/zero-failures.png' alt="0 failed tests")
+    
+:marked
+  The glorious green is back with us again!
+  
+  We tried a bit of test driven development and it seems to have guided us to success.
+  
+  But it's not always feasible. For instance, sometimes we need to write tests for existing functionality, like what we're about to do with the rest of Tour of Heroes. 
+  
+  If we are writing new code though, writing tests might just be what we need to help us track our progress and keep the end result in sight at all times.
+
+:marked
   ## What’s Next?
 
   Now we can test parts of our application that we *load* asynchronously with system.js.

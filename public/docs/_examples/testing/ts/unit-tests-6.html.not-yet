@@ -9,37 +9,35 @@
   <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
   <script src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
   <script src="../node_modules/jasmine-core/lib/jasmine-core/boot.js"></script>
-
-  <script src="../node_modules/systemjs/dist/system.src.js"></script>
-  <script src="../node_modules/angular2/bundles/angular2.dev.js"></script>
-
-  <script src="../node_modules/angular2/bundles/testing.js"></script>
-  <script src="../node_modules/zone.js/dist/jasmine-patch.js"></script>
 </head>
 
 <body>
+  <!-- #1. add the system.js and angular libraries -->
+  <script src="../node_modules/systemjs/dist/system.src.js"></script>
+  <script src="../node_modules/angular2/bundles/angular2.dev.js"></script>
+
   <script>
-    (function() {
-        jasmine.DEFAULT_TIMEOUT_INTERVAL = 100;
+    // #2. Configure systemjs to use the .js extension
+    //     for imports from the app folder
+    System.config({
+      packages: {
+        'app': {defaultExtension: 'js'}
+      }
+    });
 
-        System.config({
-          packages: {
-            'app': {defaultExtension: 'js'},
-            'test-helpers': {defaultExtension: 'js'}
-           }
-        });
+    // #3. Import the spec files explicitly
+    Promise.all([
+      System.import('app/hero.spec'),
+      System.import('app/init-caps-pipe.spec'),
+      System.import('app/hero.service.no-ng.1.spec')
+    ])
 
-        var imports = [
-          'app/hero.spec',
-          'app/init-caps-pipe.spec',
-          'app/hero.service.no-ng.spec',
-          'app/hero.service.ng.spec',
-        ].map(function(spec) {return System.import(spec);});
-
-        Promise.all(imports)
-          .then(window.onload) // re-execute Jasmine's buildup
-          .catch(console.error.bind(console));
-      })();
+      // #4. wait for all imports to load ...
+      //     then re-execute `window.onload` which
+      //     triggers the Jasmine test-runner start
+      //     or explain what went wrong.
+      .then(window.onload)
+      .catch(console.error.bind(console));
   </script>
 </body>
 
