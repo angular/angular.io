@@ -1,33 +1,28 @@
-//import {Injectable} from 'angular2/angular2'; // Don't get it from Angular
-import {Injectable} from './decorators'; // Use the app's version
-import {Hero} from './hero';
-import {BackendService} from './backend.service';
+// #docplaster
+// #docregion
+import { Hero } from './hero';
+import { HEROES } from './mock-heroes';
+import { Injectable } from 'angular2/core';
 
 @Injectable()
 export class HeroService {
+  getHeroes() {
+    return Promise.resolve(HEROES);
+  }
 
-	heroes: Hero[] = []; // cache of heroes
+  // See the "Take it slow" appendix
+  getHeroesSlowly() {
+    return new Promise<Hero[]>(resolve =>
+      setTimeout(()=>resolve(HEROES), 2000) // 2 seconds
+    );
+  }
 
-	constructor(protected _backend: BackendService) { }
-
-	refresh() : Promise<Hero[]> { // refresh heroes w/ latest from the server
-		this.heroes.length = 0;
-		return <Promise<Hero[]>> this._backend.fetchAllHeroesAsync()
-			.then(heroes => {
-				this.heroes.push(...heroes);
-				return this.heroes;
-			})
-			.catch(e => this._fetchFailed(e));
-	}
-
-	protected _fetchFailed(error:any) {
-		console.error(error);
-		return Promise.reject(error);
-	}
+  //#docregion get-hero
+  getHero(id: number) {
+    return Promise.resolve(HEROES).then(
+      heroes => heroes.filter(hero => hero.id === id)[0]
+    );
+  }
+  //#enddocregion get-hero
 }
-
-// FOR DOCUMENTATION ONLY. NOT USED
-interface IHeroService {
-	heroes : Hero[];
-	refresh() : Promise<Hero[]>;
-}
+// #enddocregion
