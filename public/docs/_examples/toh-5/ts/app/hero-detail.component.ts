@@ -2,10 +2,10 @@
 // #docregion
 // #docregion v2
 // #docregion import-oninit
-import { Component, OnInit } from 'angular2/core';
+import { Component, Input, OnInit } from 'angular2/core';
 // #enddocregion import-oninit
 // #docregion import-route-params
-import {RouteParams} from 'angular2/router';
+import { RouteParams } from 'angular2/router';
 // #enddocregion import-route-params
 
 import { Hero } from './hero';
@@ -20,15 +20,14 @@ import { HeroService } from './hero.service';
   templateUrl: 'app/hero-detail.component.html',
   // #enddocregion template-url
 // #enddocregion v2
-  styleUrls: ['app/hero-detail.component.css'],
-  inputs: ['hero']
+  styleUrls: ['app/hero-detail.component.css']
 // #docregion v2
 })
 // #enddocregion extract-template
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
 // #enddocregion implement
-  hero: Hero;
+  @Input() hero: Hero;
 
 // #docregion ctor
   constructor(

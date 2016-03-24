@@ -26,5 +26,5 @@ import {HeroService} from './hero.service';
   {path: '/detail/:id', name: 'HeroDetail', component: HeroDetailComponent}
 ])
 export class AppComponent {
-  public title = 'Tour of Heroes';
+  title = 'Tour of Heroes';
 }
