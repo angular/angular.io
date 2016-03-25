@@ -1,4 +1,4 @@
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 import 'package:http_in_memory_web_api/http_in_memory_web_api.dart';
 import 'package:http/browser_client.dart';
 import 'package:server_communication/hero_data.dart';

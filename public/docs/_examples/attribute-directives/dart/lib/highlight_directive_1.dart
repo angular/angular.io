@@ -1,7 +1,7 @@
 // #docregion
 library attribute_directives.highlight_directive;
 
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 @Directive(selector: '[my-highlight]')
 class Highlight {

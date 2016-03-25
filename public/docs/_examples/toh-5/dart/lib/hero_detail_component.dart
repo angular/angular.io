@@ -4,7 +4,7 @@
 import 'dart:html';
 
 // #docregion import-oninit
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 // #enddocregion import-oninit
 // #docregion import-route-params
 import 'package:angular2/router.dart';

@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'heavy_loader_component.dart';
 import 'unless_directive.dart';
