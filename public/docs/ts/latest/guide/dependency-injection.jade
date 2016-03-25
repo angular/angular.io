@@ -416,7 +416,7 @@ include ../_util-fns
     We recommend adding `@Injectable()` to every service class, even those that don't have dependencies
     and, therefore, do not technically require it. Here's why:
   ul(style="font-size:inherit")
-    li <b>Future proofing:</b> No need to remember <code>@Injectable</code> when we add a dependency later.
+    li <b>Future proofing:</b> No need to remember <code>@Injectable()</code> when we add a dependency later.
     li <b>Consistency:</b> All services follow the same rules, and we don't have to wonder why #{a_decorator} is missing.
 .l-sub-section
   :marked
@@ -635,15 +635,18 @@ code-example(format, language="html").
 <a id="value-provider"></a>
 :marked
   ### Value providers
-
-  Sometimes it's easier to provide a ready-made object rather than ask the injector to create it from a class.
 // #enddocregion providers-value-1
-+makeExample('dependency-injection/ts/app/providers.component.ts','silent-logger')(format=".")
+
 // #docregion providers-value-2
+:marked
+  Sometimes it's easier to provide a ready-made object rather than ask the injector to create it from a class.
++makeExample('dependency-injection/ts/app/providers.component.ts','silent-logger')(format=".")
+// #enddocregion providers-value-2
+// #docregion providers-value-3
 :marked
   Then we register a provider with the `useValue` option,
   which makes this object play the logger role.
-// #enddocregion providers-value-2
+// #enddocregion providers-value-3
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-7')(format=".")
 
 // #docregion providers-factory-1
@@ -749,14 +752,19 @@ code-example(format, language="html").
 // #enddocregion tokens-3
 
 // #docregion tokens-non-class-deps-1
+- var lang = current.path[1]
+- var objectexamples = lang == 'dart' ? 'an object, such as a string, list, or map literal' : 'a string, a function, or an object'
+// Is function injection useful? Should we show it?
+- var hashes = lang == 'dart' ? 'They might be maps like this one:' : 'They tend to be object hashes like this one:'
 :marked
   ### Non-class dependencies
 
   What if the dependency value isn't a class?
-  Sometimes the thing we want to inject is a string, a function, or an object.
+  Sometimes the thing we want to inject is #{objectexamples}.
+
 
   Applications often define configuration objects with lots of small facts like the title of the application or the address of a web API endpoint.
-  These configuration objects aren't always instances of a class. They tend to be object hashes like this one:
+  These configuration objects aren't always instances of a class. #{hashes}
 // #enddocregion tokens-non-class-deps-1
 +makeExample('dependency-injection/ts/app/app.config.ts','config','app/app-config.ts (excerpt)')(format='.')
 
@@ -769,36 +777,42 @@ code-example(format, language="html").
 
 // Typescript only
 <a id="interface"></a>
-:marked
-  ### Interfaces aren't valid tokens
+.l-sub-section
+  :marked
+    ### TypeScript interfaces aren't valid tokens
 
-  The `CONFIG` constant has an interface, `Config`. Unfortunately, we
-  cannot use an interface as a token:
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-9a-interface')(format=".")
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-9a-ctor-interface')(format=".")
-:marked
-  That seems strange if we're used to dependency injection in strongly typed languages, where
-  an interface is the preferred dependency lookup key.
+    The `CONFIG` constant has an interface, `Config`. Unfortunately, we
+    cannot use a TypeScript interface as a token:
+  +makeExample('dependency-injection/ts/app/providers.component.ts','providers-9a-interface')(format=".")
+  +makeExample('dependency-injection/ts/app/providers.component.ts','provider-9a-ctor-interface')(format=".")
+  :marked
+    That seems strange if we're used to dependency injection in strongly typed languages, where
+    an interface is the preferred dependency lookup key.
 
-  It's not Angular's fault. An interface is a TypeScript design-time artifact. JavaScript doesn't have interfaces.
-  The TypeScript interface disappears from the generated JavaScript.
-  There is no interface type information left for Angular to find at runtime.
+    It's not Angular's fault. An interface is a TypeScript design-time artifact. JavaScript doesn't have interfaces.
+    The TypeScript interface disappears from the generated JavaScript.
+    There is no interface type information left for Angular to find at runtime.
 // end Typescript only
-// #docregion tokens-string-1
-<a id="string-token"></a>
+
+// #docregion tokens-opaque-1
+<a id="opaque-token"></a>
 :marked
-  ### String tokens
-  Fortunately, we can register any dependency provider with a string token.
-// #enddocregion tokens-string-1
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-9a')(format=".")
-// #docregion tokens-string-2
+  ### OpaqueToken
+  The solution is to define and use an [OpaqueToken](/docs/ts/latest/api/core/OpaqueToken-class.html).
+  The definition looks like this:
+// #enddocregion tokens-opaque-1
++makeExample('dependency-injection/ts/app/app.config.ts','token')(format='.')
+:marked
+  We register the dependency provider using the `OpaqueToken` object:
++makeExample('dependency-injection/ts/app/providers.component.ts','providers-9b')(format=".")
+// #docregion tokens-opaque-2
 - var lang = current.path[1]
 - var decorated = lang == 'dart' ? 'annotated' : 'decorated'
 :marked
   Now we inject the configuration object into any constructor that needs it, with
   the help of an `@Inject` #{decorator} that tells Angular how to find the configuration dependency value.
-// #enddocregion tokens-string-2
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-9a-ctor')(format=".")
+// #enddocregion tokens-opaque-2
++makeExample('dependency-injection/ts/app/providers.component.ts','provider-9b-ctor')(format=".")
 
 // begin Typescript only
 .l-sub-section
@@ -808,38 +822,12 @@ code-example(format, language="html").
 :marked
 // end typescript only
 
-// #docregion tokens-opaque-1
-<a id="opaque-token"></a>
-:marked
-  ### OpaqueToken
-  Alternatively, we could define and use an [OpaqueToken](/docs/ts/latest/api/core/OpaqueToken-class.html)
-  rather than rely on magic strings that may collide with other developers' string choices.
-
-  The definition looks like this:
-// #enddocregion tokens-opaque-1
-+makeExample('dependency-injection/ts/app/app.config.ts','token')(format='.')
-// #docregion tokens-opaque-2
-:marked
-  Substitute `APP_CONFIG` for the magic string when registering the provider and defining the constructor parameter:
-// #enddocregion tokens-opaque-2
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-9b')(format=".")
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-9b-ctor')(format=".")
 // #docregion tokens-opaque-3
 :marked
-  Here's how we provide and inject the configuration object in our top-level `AppComponent`.
+  Or we can provide and inject the configuration object in our top-level `AppComponent`.
 // #enddocregion tokens-opaque-3
 +makeExample('dependency-injection/ts/app/app.component.ts','providers', 'app/app.component.ts (providers)')(format=".")
 +makeExample('dependency-injection/ts/app/app.component.ts','ctor', 'app/app.component.ts (constructor)')(format=".")
-// #docregion tokens-opaque-4
-.l-sub-section
-  :marked
-    Angular itself uses `OpaqueToken` objects to register all of its own non-class dependencies. For example,
-    [HTTP_PROVIDERS](/docs/ts/latest/api/http/HTTP_PROVIDERS-let.html)
-    is the `OpaqueToken` associated with an array of providers for persisting data with the Angular `Http` client.
-
-    Internally, the `Provider` turns both the string and the class type into an `OpaqueToken`
-    and keys its *token-provider* map with that.
-// #enddocregion tokens-opaque-4
 
 // #docregion summary
 .l-main-section

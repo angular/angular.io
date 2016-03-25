@@ -1,7 +1,7 @@
 // Early versions
 
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'car/car_component.dart';
 import 'heroes/heroes_component_1.dart';

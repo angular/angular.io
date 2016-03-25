@@ -1,12 +1,14 @@
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
+@Injectable()
 // #docregion engine
 class Engine {
   final int cylinders = 4;
 }
 // #enddocregion engine
 
+@Injectable()
 // #docregion tires
 class Tires {
   String make = 'Flintstone';
@@ -26,6 +28,7 @@ class Car {
   // #enddocregion car-ctor
 
   // Method using the engine and tires
-  String drive() => '$description car with ${engine.cylinders} cylinders and ${tires.make} tires.';
+  String drive() => '$description car with ${engine.cylinders} cylinders'
+      ' and ${tires.make} tires.';
 }
 // #enddocregion car

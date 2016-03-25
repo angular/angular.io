@@ -1,7 +1,7 @@
 // #docregion
 
 // #docregion imports
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'app_config.dart';
 import 'car/car_component.dart';
@@ -22,13 +22,13 @@ import 'logger_service.dart';
     providers: const [
       Logger,
       // #docregion provider-config
-      const Provider('app.config', useValue: CONFIG)
+      const Provider(appConfig, useValue: config1)
     ])
 class AppComponent {
   final String title;
 
   // #docregion ctor
-  AppComponent(@Inject('app.config') Config config)
-      : title = config.title;
+  AppComponent(@Inject(appConfig) Map config)
+      : title = config['title'];
   // #enddocregion
 }

@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion imports
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'app_config.dart';
 import 'car/car_component.dart';
@@ -37,8 +37,7 @@ import 'providers_component.dart';
     providers: const [
       Logger,
       UserService,
-      const Provider(Config, useValue: CONFIG)
-    ]
+      const Provider(appConfig, useValue: config1)]
 // #enddocregion providers
 )
 class AppComponent {
@@ -46,7 +45,8 @@ class AppComponent {
   final String title;
 
   //#docregion ctor
-  AppComponent(Config config, this._userService) : title = config.title;
+  AppComponent(@Inject(appConfig) Map config, this._userService) :
+        title = config['title'];
   // #enddocregion ctor
 
   bool get isAuthorized {

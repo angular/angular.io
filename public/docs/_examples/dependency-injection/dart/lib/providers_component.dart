@@ -1,7 +1,7 @@
 // Examples of provider arrays
 
 //#docplaster
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'app_config.dart';
 import 'heroes/hero_service_provider.dart';
@@ -22,7 +22,7 @@ class ProviderComponent1 {
 
   ProviderComponent1(Logger logger) {
     logger.log('Hello from logger provided with Logger class');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
@@ -39,7 +39,7 @@ class ProviderComponent2 {
 
   ProviderComponent2(Logger logger) {
     logger.log('Hello from logger provided with Provider class and useClass');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
@@ -52,10 +52,11 @@ class ProviderComponent3 {
 
   ProviderComponent3(Logger logger) {
     logger.log('Hello from logger provided with useClass');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
+@Injectable()
 class BetterLogger extends Logger {}
 
 @Component(
@@ -71,7 +72,7 @@ class ProviderComponent4 {
 
   ProviderComponent4(Logger logger) {
     logger.log('Hello from logger provided with useClass:BetterLogger');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
@@ -79,11 +80,11 @@ class ProviderComponent4 {
 @Injectable()
 class EvenBetterLogger implements Logger {
   final UserService _userService;
-  List<String> logs = [];
+  @override List<String> logs = [];
 
   EvenBetterLogger(this._userService);
 
-  void log(String message) {
+  @override void log(String message) {
     var msg = 'Message to ${_userService.user.name}: $message.';
     print(msg);
     logs.add(msg);
@@ -104,10 +105,11 @@ class ProviderComponent5 {
 
   ProviderComponent5(Logger logger) {
     logger.log('Hello from EvenBetterlogger');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
+@Injectable()
 class NewLogger extends Logger implements OldLogger {}
 
 class OldLogger {
@@ -165,36 +167,38 @@ class ProviderComponent6b {
   }
 }
 
-// #docregion silent-logger
-// An object in the shape of the logger service
-class SilentLogger {
-  final List<String> logs = const [
-    'Silent logger says "Shhhhh!". Provided via "useValue"'
-  ];
+// #docregion configurable-logger
+const loggerPrefix = const OpaqueToken('Logger prefix');
 
-  const SilentLogger();
-  void log(String msg) {}
+@Injectable()
+class ConfigurableLogger extends Logger {
+  final String _prefix;
+
+  ConfigurableLogger(@Inject(loggerPrefix) this._prefix);
+
+  @override
+  void log(String msg) {
+    super.log('$_prefix: $msg');
+  }
 }
+// #enddocregion configurable-logger
 
-const silentLogger = const SilentLogger();
-// #enddocregion silent-logger
-
-@Component(selector: 'provider-7', template: '{{log}}', providers:
+@Component(selector: 'provider-7', template: '{{message}}', providers:
 //#docregion providers-7
-        const [const Provider(SilentLogger, useValue: silentLogger)]
+const [
+  const Provider(Logger, useClass: ConfigurableLogger),
+//#docregion providers-usevalue
+  const Provider(loggerPrefix, useValue: 'Testing')
+//#enddocregion providers-usevalue
+]
 //#enddocregion providers-7
-/*
-// You can't create a const subclass of a non-const class.
-const [const Provider(Logger, useValue: silentLogger)]
-//#enddocregion providers-7-unchecked
- */
 )
 class ProviderComponent7 {
-  String log;
+  String message;
 
-  ProviderComponent7(SilentLogger logger) {
-    logger.log('Hello from logger provided with useValue');
-    log = logger.logs[0];
+  ProviderComponent7(Logger logger) {
+    logger.log('Hello from configurable logger.');
+    message = logger.logs.last;
   }
 }
 
@@ -214,69 +218,24 @@ class ProviderComponent8 {
 }
 
 @Component(
-    selector: 'provider-9a',
+    selector: 'provider-9',
     template: '{{log}}',
-    providers:
-    // #docregion providers-9a-interface
-    // WORKS! Can use abstract class as provider token
-        const [const Provider(Config, useValue: CONFIG_HASH)]
-    // #enddocregion providers-9a-interface
-
-// #docregion providers-9a
-// Use string as provider token
-//        const [const Provider('app.config', useValue: CONFIG_HASH)]
-//#enddocregion providers-9a
-    )
-class ProviderComponent9a implements OnInit {
-  Config _config;
-
-  String log;
-
-  /*
-  // #docregion provider-9a-ctor-interface
-  // WORKS! Can inject using the abstract class as the parameter type
-  Config _config;
-
-  ProviderComponent9a(this._config);
-  // #enddocregion provider-9a-ctor-interface
-  */
-
-  // #docregion provider-9a-ctor
-  // @Inject(token) to inject the dependency
-  ProviderComponent9a(@Inject(Config) Map config) {
-//    ProviderComponent9a(@Inject('app.config') Map config) {
-    _config = new ConfigImpl(
-        apiEndpoint: config['apiEndpoint'], title: config['title']);
-  }
-  // #enddocregion provider-9a-ctor
-
-  ngOnInit() {
-    log = '"app.config" Application title is ${_config.title}';
-  }
-}
-
-@Component(
-    selector: 'provider-9b',
-    template: '{{log}}',
-    // #docregion providers-9b
-    providers: const [const Provider(APP_CONFIG, useValue: CONFIG_HASH)]
-    // . . .
-    // #enddocregion providers-9b
+// #docregion providers-9
+    providers: const [const Provider(appConfig, useValue: config1)]
+// . . .
+// #enddocregion providers-9
 )
-class ProviderComponent9b implements OnInit {
-  Config _config;
-
+class ProviderComponent9 implements OnInit {
+  final Map<String, String> _config;
   String log;
 
-  // #docregion providers-9b
-  ProviderComponent9b(@Inject(APP_CONFIG) Map config) {
-    _config = new ConfigImpl(
-        apiEndpoint: config['apiEndpoint'], title: config['title']);
-  }
+  // #docregion providers-9
+  ProviderComponent9(@Inject(appConfig) this._config);
 
-  // #enddocregion providers-9b
-  ngOnInit() {
-    log = 'APP_CONFIG Application title is ' + _config.title;
+  // #enddocregion providers-9
+  @override
+  void ngOnInit() {
+    log = 'appConfigToken Application title is ${_config["title"]}';
   }
 }
 
@@ -291,7 +250,7 @@ class ProviderComponent10a {
 
   ProviderComponent10a(Logger logger) {
     logger.log('Hello from the required logger.');
-    log = logger.logs[0];
+    log = logger.logs.last;
   }
 }
 
@@ -305,7 +264,7 @@ class ProviderComponent10b {
   ProviderComponent10b(@Optional() Logger this._logger) {
     // . . .
   // #enddocregion provider-10-ctor
-    _logger == null ? log = 'No logger exists' : log = _logger.logs[0];
+    _logger == null ? log = 'No logger exists' : log = _logger.logs.last;
   // #docregion provider-10-ctor
   }
   // #enddocregion provider-10-ctor
@@ -325,7 +284,7 @@ class ProviderComponent10c {
     logger == null
         ? _logger.log('Optional logger was not available.')
         : _logger.log('Hello from the injected logger.');
-    log = _logger.logs[0];
+    log = _logger.logs.last;
     // #docregion provider-10-logger
   }
 // #enddocregion provider-10-logger
@@ -333,9 +292,10 @@ class ProviderComponent10c {
 
 // #docregion provider-10-logger
 // . . .
+@Injectable()
 class DoNothingLogger extends Logger {
-  List<String> logs = [];
-  void log(String msg) => logs.add(msg);
+  @override List<String> logs = [];
+  @override void log(String msg) => logs.add(msg);
 }
 // #enddocregion provider-10-logger
 
@@ -352,8 +312,7 @@ class DoNothingLogger extends Logger {
       <div id="p6b"><provider-6b></provider-6b></div>
       <div id="p7"><provider-7></provider-7></div>
       <div id="p8"><provider-8></provider-8></div>
-      <div id="p9a"><provider-9a></provider-9a></div>
-      <div id="p9b"><provider-9b></provider-9b></div>
+      <div id="p8"><provider-9></provider-9></div>
       <div id="p10a"><provider-10a></provider-10a></div>
       <div id="p10b"><provider-10b></provider-10b></div>
       <div id="p10c"><provider-10c></provider-10c></div>''',
@@ -367,8 +326,7 @@ class DoNothingLogger extends Logger {
       ProviderComponent6b,
       ProviderComponent7,
       ProviderComponent8,
-      ProviderComponent9a,
-      ProviderComponent9b,
+      ProviderComponent9,
       ProviderComponent10a,
       ProviderComponent10b,
       ProviderComponent10c

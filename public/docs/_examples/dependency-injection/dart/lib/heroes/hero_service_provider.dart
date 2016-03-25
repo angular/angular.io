@@ -1,11 +1,12 @@
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import '../logger_service.dart';
 import '../user_service.dart';
 import 'hero_service.dart';
 
 // #docregion factory
+@Injectable()
 heroServiceFactory(Logger logger, UserService userService) =>
     new HeroService(logger, userService.user.isAuthorized);
 // #enddocregion factory
