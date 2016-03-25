@@ -22,13 +22,13 @@ import 'logger_service.dart';
     providers: const [
       Logger,
       // #docregion provider-config
-      const Provider(appConfig, useValue: config1)
+      const Provider(AppConfig, useValue: config1)
     ])
 class AppComponent {
   final String title;
 
   // #docregion ctor
-  AppComponent(@Inject(appConfig) Map config)
-      : title = config['title'];
+  AppComponent(AppConfig config)
+      : title = config.title;
   // #enddocregion
 }

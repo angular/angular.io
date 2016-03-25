@@ -37,7 +37,7 @@ import 'providers_component.dart';
     providers: const [
       Logger,
       UserService,
-      const Provider(appConfig, useValue: config1)]
+      const Provider(AppConfig, useValue: config1)]
 // #enddocregion providers
 )
 class AppComponent {
@@ -45,8 +45,8 @@ class AppComponent {
   final String title;
 
   //#docregion ctor
-  AppComponent(@Inject(appConfig) Map config, this._userService) :
-        title = config['title'];
+  AppComponent(AppConfig config, this._userService)
+      : title = config.title;
   // #enddocregion ctor
 
   bool get isAuthorized {

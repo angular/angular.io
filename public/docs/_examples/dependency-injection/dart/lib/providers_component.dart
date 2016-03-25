@@ -221,21 +221,21 @@ class ProviderComponent8 {
     selector: 'provider-9',
     template: '{{log}}',
 // #docregion providers-9
-    providers: const [const Provider(appConfig, useValue: config1)]
+    providers: const [const Provider(AppConfig, useValue: config1)]
 // . . .
 // #enddocregion providers-9
 )
 class ProviderComponent9 implements OnInit {
-  final Map<String, String> _config;
+  AppConfig _config;
   String log;
 
   // #docregion providers-9
-  ProviderComponent9(@Inject(appConfig) this._config);
+  ProviderComponent9(AppConfig this._config);
 
   // #enddocregion providers-9
   @override
   void ngOnInit() {
-    log = 'appConfigToken Application title is ${_config["title"]}';
+    log = 'appConfigToken Application title is ${_config.title}';
   }
 }
 

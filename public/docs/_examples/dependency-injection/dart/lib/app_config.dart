@@ -2,12 +2,14 @@
 // #docregion token
 import 'package:angular2/core.dart';
 
-const appConfig = const OpaqueToken('app.config');
-// #enddocregion token
-
 //#docregion config
-const config1 = const <String, String>{
-  'apiEndpoint': 'api.heroes.com',
-  'title': 'Dependency Injection'
-};
+@Injectable()
+class AppConfig {
+  final apiEndpoint;
+  final String title;
+
+  const AppConfig(this.apiEndpoint, this.title);
+}
+
+const config1 = const AppConfig('api.heroes.com', 'Dependency Injection');
 //#enddocregion config
