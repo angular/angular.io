@@ -2,7 +2,7 @@
 // #docregion token
 import 'package:angular2/core.dart';
 
-//#docregion config
+//#docregion const-class
 @Injectable()
 class AppConfig {
   final apiEndpoint;
@@ -10,6 +10,8 @@ class AppConfig {
 
   const AppConfig(this.apiEndpoint, this.title);
 }
+//#enddocregion const-class
 
+//#docregion const-object
 const config1 = const AppConfig('api.heroes.com', 'Dependency Injection');
-//#enddocregion config
+//#enddocregion const-object

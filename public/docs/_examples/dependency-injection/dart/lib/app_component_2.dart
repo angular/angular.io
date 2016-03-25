@@ -21,7 +21,6 @@ import 'logger_service.dart';
     ],
     providers: const [
       Logger,
-      // #docregion provider-config
       const Provider(AppConfig, useValue: config1)
     ])
 class AppComponent {
