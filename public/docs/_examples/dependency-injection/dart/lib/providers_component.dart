@@ -167,14 +167,18 @@ class ProviderComponent6b {
   }
 }
 
-// #docregion configurable-logger
+// #docregion opaque-token
 const loggerPrefix = const OpaqueToken('Logger prefix');
+// #enddocregion opaque-token
 
+// #docregion configurable-logger
 @Injectable()
 class ConfigurableLogger extends Logger {
   final String _prefix;
 
+// #docregion use-opaque-token
   ConfigurableLogger(@Inject(loggerPrefix) this._prefix);
+// #enddocregion use-opaque-token
 
   @override
   void log(String msg) {
