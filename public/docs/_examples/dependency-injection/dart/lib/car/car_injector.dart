@@ -24,8 +24,8 @@ Car useInjector() {
   //#docregion injector-call
   var car = injector.get(Car);
   //#enddocregion injector-call
-
   //#enddocregion injector-create-and-call
+
   car.description = 'Injector';
   var logger = injector.get(Logger);
   logger.log('Injector car.drive() said: ' + car.drive());

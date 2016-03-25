@@ -125,8 +125,9 @@ class OldLogger {
     template: '{{log}}',
     providers:
         //#docregion providers-6a
-        // Not aliased! Creates two instances of `NewLogger`
-        const [NewLogger, const Provider(OldLogger, useClass: NewLogger)]
+        const [NewLogger,
+            // Not aliased! Creates two instances of `NewLogger`
+            const Provider(OldLogger, useClass: NewLogger)]
         //#enddocregion providers-6a
 )
 class ProviderComponent6a {
@@ -151,8 +152,9 @@ class ProviderComponent6a {
     template: '{{log}}',
     providers:
         //#docregion providers-6b
-        // Alias OldLogger with reference to NewLogger
-        const [NewLogger, const Provider(OldLogger, useExisting: NewLogger)]
+        const [NewLogger,
+            // Alias OldLogger with reference to NewLogger
+            const Provider(OldLogger, useExisting: NewLogger)]
        //#enddocregion providers-6b
 )
 class ProviderComponent6b {
@@ -187,9 +189,9 @@ class ConfigurableLogger extends Logger {
 }
 // #enddocregion configurable-logger
 
-@Component(selector: 'provider-7', template: '{{message}}', providers:
+@Component(selector: 'provider-7', template: '{{message}}',
 //#docregion providers-7
-const [
+providers: const [
   const Provider(Logger, useClass: ConfigurableLogger),
 //#docregion providers-usevalue
   const Provider(loggerPrefix, useValue: 'Testing')
@@ -224,8 +226,9 @@ class ProviderComponent8 {
 @Component(
     selector: 'provider-9',
     template: '{{log}}',
+    providers:
 // #docregion providers-9
-providers: const [const Provider(AppConfig, useValue: config1)]
+const [const Provider(AppConfig, useValue: config1)]
 // #enddocregion providers-9
 )
 class ProviderComponent9 implements OnInit {
