@@ -905,7 +905,7 @@ code-example(format="", language="html").
   ## Two-way binding with NgModel
   When developing data entry forms, we often want to both display a data property and update that property when the user makes changes.
 
-  The `NgModel` directive serves that purpose, as in this example:
+  The `[(NgModel)]` two-way data binding syntax makes that easy. Here's an example:
 // #enddocregion ngModel-1
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
 // #docregion ngModel-2
@@ -923,7 +923,8 @@ code-example(format="", language="html").
 :marked
   There’s a story behind this construction, a story that builds on the property and event binding techniques we learned previously.
 
-  We could have achieved the same result as `NgModel` with separate bindings to
+  ### Inside [(ngModel)]
+  We could have achieved the same result with separate bindings to
   the `<input>` element's  `value` property and `input` event.
 // #enddocregion ngModel-3
 +makeExample('template-syntax/ts/app/app.component.html', 'without-NgModel')(format=".")
@@ -941,14 +942,15 @@ code-example(format="", language="html").
   :marked
     The `ngModel` input property sets the element's value property and the `ngModelChange` output property 
     listens for changes to the element's value.
-    The details are specific to each kind of element and therefore the `NgModel` directive only works for elements
-    that implement one of a few patterns such as the input box's `value` property and `change` event. 
-    We can't simply apply `[(ngModel)]` to our custom components unless we write them to conform.
+    The details are specific to each kind of element and therefore the `NgModel` directive only works for elements,
+    such as the input text box, that are supported by a [ControlValueAccessor](../api/common/ControlValueAccessor-interface.html).
+    We can't apply `[(ngModel)]` to our custom components until we write a suitable *value accessor*,
+    a technique that is out of scope for this chapter.
     
 :marked
-  That’s an improvement, but it could be better.
-
-  We shouldn't have to mention the data property twice. Angular should be able to read the component’s data property and set it
+  Separate `ngModel` bindings is an improvement. We can do better.
+  
+  We shouldn't have to mention the data property twice. Angular should be able to capture the component’s data property and set it
   with a single declaration &mdash; which it can with the `[( )]` syntax:
 // #enddocregion ngModel-5
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
@@ -962,11 +964,14 @@ code-example(format="", language="html").
     to the literal string of the template expression.
   code-example(format="." ).
     [(x)]="hero.name" &lt;==> [x]="hero.name" (xChange)="hero.name=$event"
+    
+  :marked
+    We can write a two-way binding directive of our own to exploit this behavior.
 
 :marked
   Is `[(ngModel)]` all we need? Is there ever a reason to fall back to its expanded form?
 
-  The `[( )]` syntax can only set the data-bound property when the value changes.
+  The `[( )]` syntax can only _set_ a data-bound property.
   If we need to do something more or something different, we need to write the expanded form ourselves.
 
   Let's try something silly like forcing the input value to uppercase:
