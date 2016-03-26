@@ -1,0 +1,143 @@
+include ../_util-fns
+
+:marked
+  Dependency Injection is a powerful pattern for managing code dependencies. In this cookbook we will explore many of the features of Dependency Injection (DI) in Angular.
+  
+<a id="toc"></a>
+:marked
+   ## Table of contents
+
+      [Application Wide Dependency](#app-wide-dependency)
+
+      [Nested Dependencies](#nested-dependencies)
+      
+      [DI and Inheritance](#di-inheritance)
+      
+      [Component Level Dependencies](#component-level-depdendencies)
+      
+      [Limit Dependency Lookup](#limit-dependency-lookup)
+      
+      [Customizing DI](#customizing-di)
+      
+      [Component Element](#component-element)
+
+:marked
+   **See the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)**.        
+   
+.l-main-section
+
+<a id="app-wide-dependency"></a>
+:marked
+  ## Application Wide Dependency   
+  Dependencies registered using the `bootstrap` method are global dependencies and can be injected anywhere in the application.
+  In the following example we have created `LoggerService`, a global logger used to log application events.
+  
++makeExample('cb-dependency-injection/ts/app/logger.service.ts','','logger.service.ts') 
+
++makeExample('cb-dependency-injection/ts/app/main.ts','','main.ts')     
+
+:marked
+  `LoggerService` is now registered with DI and can be injected into `AppComponent`.
+  
++makeExample('cb-dependency-injection/ts/app/app.component.ts','','app.component.ts') 
+
+<a id="di-inheritance"></a>
+:marked
+  ## DI and Inheritance
+  When inheriting a class with DI injected dependencies, all dependencies have to be injected in the sub class and passed down to the base class. Next we will show how to use DI in an inheritance chain. In our example we have created `SortedHeroes` and inherited `SortedHeroesBase` to display a sorted list of heroes.  
+
++makeExample('cb-dependency-injection/ts/app/sorted-heroes.component.ts','','sorted-heroes.component.ts') 
+
++makeExample('cb-dependency-injection/ts/app/sorted-heroes-base.ts','','sorted-heroes-base.ts') 
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/sorted-heroes.png" alt="Sorted Heroes")
+
+:marked
+  It may be surprising that we have to inject `HeroService` in `SortedHeroes` since it's really only used by `SortedHeroesBase`, but this is a key requirement of DI. If we move the responsibility of resolving `HeroService` to `SortedHeroesBase` we would lose control over our dependencies in `SortedHeroes` and negate many of the benefits of DI.  
+
+<a id="nested-dependencies"></a>
+:marked
+  ## Nested Dependencies
+  The benefits of DI become very clear when injecting dependencies with their own dependencies. 
+  Previously we injected `UserContext` in `AppComponent`. `UserContext` has dependencies on both `LoggerService` and `UserService`, but the DI framework knows how to inject these depdendencies when instantiating `UserContext`. All we have to do is put the `@Injectable` decorator on the class to indicate that there are nested dependencies. `@Injectable()` is only required in cases where we have nested dependencies, but we are adding it to all our services for consistency.
+
+  
++makeExample('cb-dependency-injection/ts/app/user-context.service.ts','','user-context.service.ts')  
+
+:marked
+  We are using UserContext to show information about the current user and the final result looks like this:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/logged-in-user.png" alt="Logged In User")
+  
+<a id="component-level-depdendencies"></a>
+:marked
+  ## Component Level Dependencies    
+  Application wide dependencies are instantiated once and all consumers share the same instance and state. However, we often need to store state at the component level. In the following example we will show how to register a service at the component level so that we can inject a different instance of the same service in each component instance. 
+  
+  We will be displaying a list of hero bios using `Heroes`.
+
++makeExample('cb-dependency-injection/ts/app/hero-bios.component.ts','','hero-bios.component.ts')
+  
+:marked
+  `Heroes` contains a list of three instances of `Bio`, a simple component for displaying the bio for a given hero.
+
++makeExample('cb-dependency-injection/ts/app/bio.component.ts','','bio.component.ts')  
+
+:marked
+  `Bio` uses `HeroService` to load the specific hero to display.
+  
++makeExample('cb-dependency-injection/ts/app/hero.service.ts','','hero.service.ts')   
+
+:marked
+  `HeroService` is caching the currently loaded hero, but each `Bio` instance needs to load a different hero. Clearly, a shared instance of `HeroService` will not work here. Instead we need to tell DI to give us a new instance of `HeroService` for each instance of `Bio` by registering `HersoService` in the `provider` array. 
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/hero-bios.png" alt="Bios")    
+
+<a id="limit-dependency-lookup"></a>
+:marked
+  ## Limit Dependency Lookup
+  As we have seen, dependencies can be registered at any level in the component hierarchy. Anytime we request a dependency, Angular DI will walk up the injector tree until the first suitable provider is found somewhere in the chain. Most of the time this is the behavior we want, but there are times when we want to limit the lookup path. Angular DI provides the `@Host` decorator to make sure the dependency is resolved based on the provider defined in the host component.  
+  
+  `@Host` can be used in tandem with `@Optional` to ensure that dependencies don't resolve unless registered by the host specifically.  
+  
+  In our previoius <a href="#component-level-depdendencies">sample</a> we displayed hero bios where each instance of `Bio` required a separate instance of `HeroService`. We will now extend this sample by defining `ContactDetails` as a child component of `Bio`. Given this dependency it is important that `ContactDetails` uses the same instance of `HeroService` as its `Bio` host. We are adding `@Host` to ensure that. 
+
++makeExample('cb-dependency-injection/ts/app/contact-details.component.ts','','contact-details.component.ts')   
+  
+<a id="customizing-di"></a>
+:marked
+  ## Customizing DI
+  In the following sample we will show how to configure Angular's DI framework and control how instances are resolved.      
+  
+  A typical use case for wanting to customize DI is mocking. Mocks can be created for unit tests, but also to work ahead on a feature while we wait for other teams to build the services our components depend on. In the following example we will be building `HeroOfTheMonth` where we customize the behavior of some of the services we introduced in previous sections.
+   
++makeExample('cb-dependency-injection/ts/app/hero-of-the-month.component.ts','','hero-of-the-month.component.ts')   
+
+:marked
+  ***useValue*** 
+  
+  We are using `useValue` to always return a specific hero whenever a `Hero` is injected.
+  
+  ***useClass***
+  
+  Previsoulsy we created `LoggerService`, but we are experimenting with a new logger, so in `HeroOfTheMonth` we want to use `useClass` to return an instance of `DateLoggerService` whenever a `LoggerService` is requested.  
+  
+  ***useFactory***
+  
+  Along side the lucky hero of the month we also want to recognize the runners-up for the month. We are injecting a `RunnersUp` object with a list of heroes who came close to winning the prestigious award. This list needs to be created based on some internal logic, so we have used `useFactory` to create a factory to create the list.
+  
++makeExample('cb-dependency-injection/ts/app/runners-up-provider.service.ts','','runners-up-provider.service.ts')   
+
++makeExample('cb-dependency-injection/ts/app/runners-up.ts','','runners-up.ts')   
+
+figure.image-display
+  img(src="/resources/images/cookbooks/dependency-injection/hero-of-month.png" alt="Hero of the month")   
+
+<a id="component-element"></a>
+:marked
+  ## Component Element
+  
+  On occasion we might need to access a component's underlying host element. Direct DOM access should generally be avoided, but looking back at our `ContactDetails` <a href="#limit-dependency-lookup">sample</a>, we are using DI to inject `ElementRef` to get access to the underlying component element.
