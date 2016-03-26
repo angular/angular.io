@@ -33,13 +33,13 @@ template:`
 
 // #docregion app-component-1
 export class AppComponent {
-  public title = 'Tour of Heroes';
-  public hero = 'Windstorm';
+  title = 'Tour of Heroes';
+  hero = 'Windstorm';
 }
 // #enddocregion app-component-1
 
 // #docregion hero-property-1
-public hero: Hero = {
+hero: Hero = {
   id: 1,
   name: 'Windstorm'
 };
