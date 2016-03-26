@@ -1,6 +1,6 @@
 // #docplaster
 import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Routes, ROUTER_DIRECTIVES} from 'angular2/router';
 
 import {CrisisCenterComponent} from './crisis-center/crisis-center.component.1';
 import {HeroListComponent}     from './heroes/hero-list.component.1';
@@ -49,7 +49,7 @@ import {HeroService}           from './heroes/hero.service';
   providers:  [DialogService, HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
-@RouteConfig([
+@Routes([
   {path: '/crisis-center/...', name: 'CrisisCenter', component: CrisisCenterComponent},
 ])
 export class AppComponent { }

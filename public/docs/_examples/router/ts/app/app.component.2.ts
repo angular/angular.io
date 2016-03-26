@@ -3,7 +3,7 @@
 
 // #docregion
 import {Component}   from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Routes, ROUTER_DIRECTIVES} from 'angular2/router';
 
 import {CrisisListComponent}   from './crisis-list.component';
 // #enddocregion
@@ -38,13 +38,13 @@ import {HeroService}           from './heroes/hero.service';
 })
 // #enddocregion
 /*
-// #docregion route-config
+// #docregion routes
 @Component({ ... })
-// #enddocregion route-config
+// #enddocregion routes
 */
 // #docregion
-// #docregion route-config
-@RouteConfig([
+// #docregion routes
+@Routes([
 // #docregion route-defs
   {path:'/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
   {path:'/heroes',        name: 'Heroes',       component: HeroListComponent},
@@ -54,5 +54,5 @@ import {HeroService}           from './heroes/hero.service';
 // #enddocregion route-defs
 ])
 export class AppComponent { }
-// #enddocregion route-config
+// #enddocregion routes
 // #enddocregion

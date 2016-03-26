@@ -1,6 +1,6 @@
 // #docregion
 import {Component}     from 'angular2/core';
-import {RouteConfig, RouterOutlet} from 'angular2/router';
+import {Routes, RouterOutlet} from 'angular2/router';
 
 import {CrisisListComponent}   from './crisis-list.component';
 import {CrisisDetailComponent} from './crisis-detail.component';
@@ -14,7 +14,7 @@ import {CrisisService}         from './crisis.service';
   directives: [RouterOutlet],
   providers:  [CrisisService]
 })
-@RouteConfig([
+@Routes([
   {path:'/',    name: 'CrisisList',   component: CrisisListComponent, useAsDefault: true},
   {path:'/:id', name: 'CrisisDetail', component: CrisisDetailComponent}
 ])
