@@ -12,6 +12,9 @@ import {Directive, ElementRef, Input} from 'angular2/core';
 
 // #docregion class-1
 export class HighlightDirective {
+  
+  private _defaultColor = 'red';
+  private _el:HTMLElement;
 // #enddocregion class-1
 // #enddocregion full
   /*
@@ -20,21 +23,21 @@ export class HighlightDirective {
 // #enddocregion highlight
   */
 // #docregion full
+
+// #docregion defaultColor
+  @Input() set defaultColor(colorName:string){
+    this._defaultColor = colorName || this._defaultColor;
+  }
+// #enddocregion defaultColor
 // #docregion class-1
+
 // #docregion color
   @Input('myHighlight') highlightColor: string;
 // #enddocregion color
 
-  private _defaultColor = 'red';
 // #enddocregion class-1
-  // #docregion defaultColor
-  @Input() set defaultColor(colorName:string){
-    this._defaultColor = colorName || this._defaultColor;
-  }
-  // #enddocregion defaultColor
 // #docregion class-1
-
-  constructor(private el: ElementRef) { }
+  constructor(el: ElementRef) { this._el = el.nativeElement; }
 
 // #docregion mouse-enter
   onMouseEnter() { this._highlight(this.highlightColor || this._defaultColor); }
@@ -42,7 +45,7 @@ export class HighlightDirective {
   onMouseLeave() { this._highlight(null); }
 
   private _highlight(color:string) {
-    this.el.nativeElement.style.backgroundColor = color;
+    this._el.style.backgroundColor = color;
   }
 }
 // #enddocregion class-1

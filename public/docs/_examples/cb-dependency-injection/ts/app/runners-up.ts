@@ -1,0 +1,25 @@
+// #docplaster
+// #docregion
+import {OpaqueToken} from 'angular2/core';
+import {Hero}        from './hero';
+import {HeroService} from './hero.service';
+
+// #docregion runners-up
+export const RUNNERS_UP = new OpaqueToken('RunnersUp');
+// #docregion runners-up
+
+// #docregion factory-synopsis
+export function runnersUpFactory(take: number) {
+  return (winner: Hero, heroService: HeroService): string => {
+    /* ... */
+// #enddocregion factory-synopsis
+    return heroService
+          .getAllHeroes()
+          .filter((hero) => hero.name !== winner.name)
+          .map(hero => hero.name)
+          .slice(0, Math.max(0, take))
+          .join(', ');
+// #docregion factory-synopsis
+  };
+};
+// #enddocregion factory-synopsis
