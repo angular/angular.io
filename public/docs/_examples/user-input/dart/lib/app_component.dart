@@ -1,5 +1,5 @@
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'click_me_component.dart';
 import 'click_me_component_2.dart';

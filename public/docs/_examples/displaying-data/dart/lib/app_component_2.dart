@@ -1,5 +1,5 @@
 // #docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 // #docregion mock-heroes
 const List<String> _heroes = const [

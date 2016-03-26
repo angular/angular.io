@@ -3,7 +3,7 @@
 // #docregion
 import 'dart:async';
 
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
 
 import 'hero.dart';
 import 'mock_heroes.dart';
