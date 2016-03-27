@@ -7,12 +7,12 @@
       'Active' +
     '</span>'
   }).Class({
-    constructor: function() { },
+    constructor: function() { },
     activate: function() {
       this.active = true;
     }
   });
-
+  
   // #docregion content
   var HeroComponent = ng.core.Component({
     selector: 'hero',

@@ -1,3 +1,4 @@
+// #docplaster
 // #docregion appimport
 (function(app) {
   // #enddocregion appimport
@@ -25,6 +26,9 @@
     bootstrap(app.HeroDIInlineComponent, [app.DataService]);
     bootstrap(app.HeroDIInjectComponent, [
       ng.core.provide('heroName', {useValue: 'Windstorm'})
+    ]);
+    bootstrap(app.HeroDIInjectComponent2, [
+      ng.core.provide('heroName', {useValue: 'Bombasto'})
     ]);
     bootstrap(app.HeroDIInjectAdditionalComponent);
     bootstrap(app.HeroIOComponent);

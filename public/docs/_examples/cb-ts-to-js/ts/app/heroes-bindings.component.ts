@@ -13,8 +13,7 @@ export class HeroesComponent {
     hClass = true
   active:boolean;
 
-  constructor() {
-  }
+  constructor() {}
 
   @HostListener('click')
   clicked() {

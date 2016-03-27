@@ -26,7 +26,6 @@ export class ConfirmComponent {
   onNotOkClick() {
     this.notOk.next(true);
   }
-
 }
 // #enddocregion
 

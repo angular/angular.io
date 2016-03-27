@@ -1,3 +1,5 @@
+// #docplaster
+// #docregion appexport
 (function(app) {
 
   // #docregion component

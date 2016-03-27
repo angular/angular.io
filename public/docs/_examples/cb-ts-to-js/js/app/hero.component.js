@@ -1,3 +1,4 @@
+// #docplaster
 // #docregion appexport
 (function(app) {
   // #enddocregion appexport
@@ -6,7 +7,9 @@
   // #docregion appexport
   // #docregion constructorproto
   function HeroComponent() {
+    this.title = "Hero Detail";
   }
+  
   // #enddocregion constructorproto
   // #enddocregion appexport
   HeroComponent.annotations = [
@@ -18,9 +21,7 @@
   ];
   // #docregion constructorproto
   HeroComponent.prototype.getName =
-    function() {
-      return 'Windstorm';
-    };
+    function() {return 'Windstorm';};
   // #enddocregion constructorproto
   // #enddocregion metadata
 

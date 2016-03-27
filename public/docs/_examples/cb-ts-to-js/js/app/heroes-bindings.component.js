@@ -17,10 +17,10 @@
       this.title = 'Tooltip content';
       this.hClass = true;
     },
-    clicked() {
+    clicked: function() {
       this.active = !this.active;
     },
-    doubleClicked(evt) {
+    doubleClicked: function(evt) {
       this.active = true;
     }
   });

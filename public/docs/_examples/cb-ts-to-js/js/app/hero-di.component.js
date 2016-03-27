@@ -1,6 +1,8 @@
 (function(app) {
 
   // #docregion
+  app.HeroDIComponent = HeroComponent;
+  
   function HeroComponent(dataService) {
     this.name = dataService.getHeroName();
   }
@@ -14,6 +16,5 @@
     })
   ];
   // #enddocregion
-  app.HeroDIComponent = HeroComponent;
 
 })(window.app = window.app || {});

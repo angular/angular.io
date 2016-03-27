@@ -1,7 +1,7 @@
+// #docplaster
 (function(app) {
   // #docregion
-  function HeroComponent() {
-  }
+  function HeroComponent() {}
   // #enddocregion
   HeroComponent.annotations = [
     new ng.core.Component({

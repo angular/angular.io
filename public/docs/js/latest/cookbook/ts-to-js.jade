@@ -16,14 +16,20 @@ include ../../../../_includes/_util-fns
 :marked
   ## Table of contents
 
-  [Importing and Exporting](#importing-and-exporting)
+  [Modularity: imports and exports](#modularity)
 
-  [Defining Classes and Class Metadata](#defining-classes-and-class-metadata)
+  [Classes and Class Metadata](#class-metadata)
+  
+  [Input and Output Metadata](#property-metadata)
+  
+  [Dependency Injection](#dependency-injection)
+  
+  [Host and Query Metadata](#other-property-metadata)
 
-  [Defining Property Metadata](#defining-property-metadata)
+  **Run and compare the live [TypeScript](/resources/live-examples/cb-ts-to-js/ts/plnkr.html) and 
+  [JavaScript](/resources/live-examples/cb-ts-to-js/js/plnkr.html) code shown in this cookbook.**
 
-  [Using Dependency Injection](#using-dependency-injection)
-
+a(id="modularity")
 .l-main-section
 :marked
   ## Importing and Exporting
@@ -82,9 +88,12 @@ table(width="100%")
         using a `<script>` tag. Each file can make things available to other
         files via the shared global `window` scope.
 
-        A recommended pattern is to introduce an application namespace
+        We often introduce an application namespace
         object (such as `"app"`) onto `window` and attach everything we need
-        to share to that namespace object. This prevents our code from
+        to share to that namespace object. 
+        We also wrap our code in an 
+        [Immediately Invoked Function Expression (IIFE)](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression).
+        These practices together prevent our code from
         polluting the global scope.
 
       +makeExample('cb-ts-to-js/js/app/hero.component.js', 'appexport')(format="." )
@@ -96,23 +105,23 @@ table(width="100%")
       +makeExample('cb-ts-to-js/js/app/main.js', 'appimport')(format="." )
 
       :marked
-        Note that with this pattern, the order of `<script>` tags on the
-        page is significant. The file that introduces a shared member must be loaded
-        before the file that uses it.
+        Note that the order of `<script>` tags on the page is significant. 
+        We must load a file that defines a shared member before
+        a file that uses that member.
 
 .alert.is-helpful
   :marked
-    It is also entirely possible to use a module loader such as Webpack or
+    Alternatively, we can use a module loader such as Webpack or
     Browserify in an Angular 2 JavaScript project. In such a project, we would
     use CommonJS modules and the `require` function to load Angular 2 framework code.
     We would then use `module.exports` and `require` to export and import application
     code.
 
 
-
+a(id="class-metadata")
 .l-main-section
 :marked
-  ## Defining Classes and Class Metadata
+  ## Classes and Class Metadata
 
 - var top="vertical-align:top"
 table(width="100%")
@@ -126,8 +135,7 @@ table(width="100%")
       :marked
         ### Classes
 
-        Most of the Angular 2 TypeScript code we write goes into 
-        TypeScript classes.
+        We put most of our Angular 2 TypeScript code into TypeScript classes.
 
       +makeExample('cb-ts-to-js/ts/app/hero.component.ts', 'class')(format="." )
 
@@ -135,8 +143,8 @@ table(width="100%")
       :marked
         ### Constructors and Prototypes
 
-        ES5 JavaScript has no classes. Instead, we can use the constructor
-        pattern, which works with Angular 2 just as well as classes do.
+        ES5 JavaScript has no classes. We use the constructor
+        pattern instead which works with Angular 2 as well as classes do.
 
       +makeExample('cb-ts-to-js/js/app/hero.component.js', 'constructorproto')(format="." )
 
@@ -146,8 +154,8 @@ table(width="100%")
         ### Metadata with Decorators
 
         Most Angular 2 classes have one or more TypeScript *decorators*
-        attached to it, to provide configuration and metadata. For example,
-        components use [`@Component`](../api/core/Component-decorator.html) decorators.
+        attached to provide configuration and metadata. For example,
+        a component must have a [`@Component`](../api/core/Component-decorator.html) decorator.
 
       +makeExample('cb-ts-to-js/ts/app/hero.component.ts', 'metadata')(format="." )
 
@@ -156,11 +164,10 @@ table(width="100%")
         ### Metadata with the Annotations Array
 
         In JavaScript, we can attach an `annotations` array to a constructor
-        to provide metadata. Each item in the array corresponds to a decorator
-        we would have in TypeScript.
+        to provide metadata. 
+        Each item in the array corresponds to a TypeScript decorator.
 
-        Each decorator is applied as a constructor function using `new`.
-        For example, here we call a `Component` constructor that corresponds
+        In the following example, we create a new instance of `Component` that corresponds
         to the [`@Component`](../api/core/Component-decorator.html) TypeScript decorator.
 
       +makeExample('cb-ts-to-js/js/app/hero.component.js', 'metadata')(format="." )
@@ -224,9 +231,10 @@ table(width="100%")
 
       +makeExample('cb-ts-to-js/js/app/hero-lifecycle.component.js')(format="." )
 
+a(id="property-metadata")
 .l-main-section
 :marked
-  ## Defining Property Metadata
+  ## Input and Output Metadata
 
 - var top="vertical-align:top"
 table(width="100%")
@@ -243,63 +251,180 @@ table(width="100%")
         In TypeScript, property decorators are often used to provide additional metadata
         for components and directives.
 
-        For inputs and outputs, we can use [`@Input`](../api/core/Input-var.html)
+        For [inputs and outputs](../guide/template-syntax.html#inputs-outputs), 
+        we use [`@Input`](../api/core/Input-var.html)
         and [`@Output`](../api/core/Output-var.html) property decorators.
-        They may optionally contain input and output names if we want them to be
-        different from the bound property names.
+        They may optionally specify input and output binding names if we want them to be
+        different from the class property names.
 
       +makeExample('cb-ts-to-js/ts/app/hero-io.component.ts')(format="." )
-  
+
+      .alert.is-helpful
+        :marked
+          In TypeScript we can also use the `inputs` and `outputs` array metadata 
+          instead of the `@Input` and `@Output` property decorators.
     td
       :marked
         ### Inputs and Outputs in Component Metadata
 
         There is no equivalent of a property decorator in ES5 JavaScript. Instead, 
-        what we can do is put all the information in the `Component` (or `Directive`)
-        metadata that we already have for the component or directive.
+        we add comparable information to the `Component` (or `Directive`) metadata.
         
-        For inputs and outputs, we can add `inputs` and `outputs` attributes. Their
-        values are arrays of input and output property names. In case we want to have
-        a different name for the component input/output and the
-        property itself, we can use the `propertyName: bindingName` syntax.
+        In this example, we add `inputs` and `outputs` array attributes
+        containing the input and output property names. 
+        If we need a binding name that is different from the
+        property itself, we use the `propertyName: bindingName` syntax.
 
       +makeExample('cb-ts-to-js/js/app/hero-io.component.js')(format="." )
 
-      .alert.is-helpful
-        :marked
-          Using `inputs` and `outputs` instead of `@Input` and `@Output` is also
-          possible in TypeScript applications.
-      
+
+.l-main-section
+:marked
+  ## Dependency Injection
+
+- var top="vertical-align:top"
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th TypeScript
+    th ES5 JavaScript
+  tr(style=top)
+    td
+      :marked
+        ### Injection by Type
+
+        Angular 2 can often use TypeScript type information to
+        determine what needs to be injected.
+
+      +makeExample('cb-ts-to-js/ts/app/hero-di.component.ts')(format="." )
+
+    td
+      :marked
+        ### Injection with Parameter Tokens
+
+        Since no type information is available in ES5 JavaScript,
+        we must identify "injectables" in some other way.
+
+        We attach a `parameters` array to the constructor function. 
+        Each array item is the dependency injection token that identifies the thing to be injected. 
+        Often the token is the constructor function for the class-like dependency.
+
+      +makeExample('cb-ts-to-js/js/app/hero-di.component.js')(format="." )
+
+      :marked
+        When using the class convenience API, we can also supply the parameter
+        tokens by wrapping the constructor in an array.
+
+      +makeExample('cb-ts-to-js/js/app/hero-di-inline.component.js')(format="." )
 
   tr(style=top)
     td
       :marked
+        ### Injection with the @Inject decorator
+
+        When the thing being injected doesn't correspond directly to a type,
+        we use the `@Inject()` decorator to supply the injection token.
+        
+        In this example, we're injecting a string identified by the "heroName" token.
+
+      +makeExample('cb-ts-to-js/ts/app/hero-di-inject.component.ts')(format="." )
+
+    td
+      :marked
+        ### Injection with plain string tokens
+
+        In JavaScript we add the token string to the injection parameters array.
+
+      +makeExample('cb-ts-to-js/js/app/hero-di-inject.component.js','parameters')(format="." )
+      
+      :marked
+        Alternatively, we can create a token with the `Inject` method and
+        add that to the constructor array in the annotations like this:
+        
+      +makeExample('cb-ts-to-js/js/app/hero-di-inject.component.js','ctor')(format="." )        
+
+  tr(style=top)
+    td
+      :marked
+        ### Additional Injection Decorators
+
+        We can attach additional decorators to constructor parameters
+        to qualify the injection behavior. We can mark
+        optional dependencies with the [`@Optional`](../api/core/Optional-var.html),
+        inject host element attributes with [`@Attribute`](../api/core/Attribute-var.html),
+        inject content child queries with [`@Query`](../api/core/Query-var.html)
+        and inject view child queries with [`@ViewQuery`](../api/core/ViewQuery-var.html)).
+
+      +makeExample('cb-ts-to-js/ts/app/hero-di-inject-additional.component.ts')(format="." )
+
+    td
+      :marked
+        ### Additional Injection Metadata with Nested Arrays 
+
+        To achieve the same effect in JavaScript, use the constructor array notation
+        in which the injection information precedes the constructor function itself.
+        
+        Use the injection support functions `Attribute`, `Host`, `Optional`, `Self`, `SkipSelf`,
+        `Query` and `ViewQuery` to qualify dependency injection behavior.
+        
+        Use a nested array to combine injection functions.
+
+      +makeExample('cb-ts-to-js/js/app/hero-di-inject-additional.component.js')(format="." )
+
+      :marked
+        We can apply other additional parameter decorators such as
+        [`@Host`](../api/core/Host-var.html) and
+        [`@SkipSelf`](../api/core/SkipSelf-var.html) in the same way -
+        by adding `new ng.core.Host()` or `ng.core.SkipSelf()` in the
+        parameters array.
+
+
+a(id="other-property-metadata")
+.l-main-section
+:marked
+  ## Host and Query Metadata
+
+- var top="vertical-align:top"
+table(width="100%")
+  col(width="50%")
+  col(width="50%") 
+  tr
+    th TypeScript
+    th ES5 JavaScript  
+  tr(style=top)
+  
+    td
+      :marked
         ### Host Decorators
 
-        There are two property decorators for interacting with the host element
-        of a component or directive: [`@HostBinding`](../api/core/HostBinding-var.html)
-        allows binding component properties to host element attributes, and
-        [`@HostListener`](../api/core/HostListener-var.html) allows calling
-        component methods when events occur on the host element.
+        We can use host property decorators to bind a host element to a component or directive.
+        The [`@HostBinding`](../api/core/HostBinding-var.html) decorator
+        binds host element properties to component data properties. 
+        The [`@HostListener`](../api/core/HostListener-var.html) decorator bimds
+        host element events to component event handlers.
         
       +makeExample('cb-ts-to-js/ts/app/heroes-bindings.component.ts')(format="." )
-
+      
+      .alert.is-helpful
+        :marked
+          In TypeScript we can also use `host` metadata 
+          instead of the `@HostBinding` and `@HostListener` property decorators.
     td
       :marked
         ### Host Metadata
         
-        Both `@HostBinding` and `@HostListener` can be replaced by adding a `host` attribute
-        to the component metadata.
+        We add a `host` attribute to the component metadata to achieve the
+        same effect as `@HostBinding` and `@HostListener`. 
         
-        The value of `host` is an object where each entry is a host binding
-        or a host listener configuration:
+        The  `host` value is an object whose properties are host property and listener bindings:
         
-        * Each key follows  regular Angular 2 binding syntax: `[property]` for host bindings
+        * Each key follows regular Angular 2 binding syntax: `[property]` for host bindings
           or `(event)` for host listeners.
-        * Each value defines which property or method of the component is referenced.
+        * Each value identifies the corresponding component property or method.
         
       +makeExample('cb-ts-to-js/js/app/heroes-bindings.component.js')(format="." )
-      
+
   tr(style=top)
     td
       :marked
@@ -322,119 +447,25 @@ table(width="100%")
         into its view from elsewhere.
         
       +makeExample('cb-ts-to-js/ts/app/heroes-queries.component.ts', 'content')(format="." )
+      
+      .alert.is-helpful
+        :marked
+          In TypeScript we can also use the `queries` metadata 
+          instead of the `@ViewChild` and `@ContentChild` property decorators.      
     td
       :marked
         ### Query Metadata
         
-        We can access a component's view children by adding a `queries` attribute to
+        We access a component's view children by adding a `queries` attribute to
         the component metadata. It should be an object where:
         
-        * Each key is the component attribute name we want
-          to bind the view children to
-        * Each value is an instance of `ViewChild` or `ViewChildren`.
+        * Each key is the name of a component property that will hold the view children
+        * Each value is an instance of either `ViewChild` or `ViewChildren`.
         
       +makeExample('cb-ts-to-js/js/app/heroes-queries.component.js', 'view')(format="." )
 
       :marked
-        We put the content child queries of the component to the same `queries` attribute
-        that is used for view child queries.
-        In this case, the values are instances of `ContentChild` or `ContentChildren`:
+        We add *content* child queries to the same `queries` attribute
+        in the same manner, using instances of `ContentChild` or `ContentChildren`:
         
       +makeExample('cb-ts-to-js/js/app/heroes-queries.component.js', 'content')(format="." )
-
-        
-
-.l-main-section
-:marked
-  ## Using Dependency Injection
-
-- var top="vertical-align:top"
-table(width="100%")
-  col(width="50%")
-  col(width="50%") 
-  tr
-    th TypeScript
-    th ES5 JavaScript
-  tr(style=top)
-    td
-      :marked
-        ### Injection by Type
-
-        In TypeScript, Angular 2 can use TypeScript type information to
-        determine what needs to be injected.
-
-      +makeExample('cb-ts-to-js/ts/app/hero-di.component.ts')(format="." )
-
-    td
-      :marked
-        ### Injection with Parameter Tokens
-
-        Since no type information is available in ES5 JavaScript, other
-        we need to supply the injection tokens in some other way.
-
-        We can supply the tokens by attaching a `parameters` attribute on a 
-        constructor function. This is an array where each item is the dependency
-        injection token of the thing that should be injected. Often it's just
-        the dependency's class (or constructor) - the same thing we would use
-        as the type annotation in TypeScript code.
-
-      +makeExample('cb-ts-to-js/js/app/hero-di.component.js')(format="." )
-
-      :marked
-        When using the class convenience API, we can also supply the parameter
-        tokens by wrapping the constructor in an array.
-
-      +makeExample('cb-ts-to-js/js/app/hero-di-inline.component.js')(format="." )
-
-  tr(style=top)
-    td
-      :marked
-        ### Injection with the @Inject decorator
-
-        If the thing being injected doesn't correspond directly to a type,
-        the `@Inject()` decorator can be used to supply the injection token.
-
-      +makeExample('cb-ts-to-js/ts/app/hero-di-inject.component.ts')(format="." )
-
-    td
-      :marked
-        ### Injection with plain tokens
-
-        In JavaScript we can supply an injection token by just putting it
-        into the injection parameters.
-
-      +makeExample('cb-ts-to-js/js/app/hero-di-inject.component.js')(format="." )
-
-  tr(style=top)
-    td
-      :marked
-        ### Additional Injection Decorators
-
-        We can also attach additional decorators on parameters
-        to provide more metadata. This includes marking
-        optional dependencies with the [`@Optional`](../api/core/Optional-var.html),
-        injecting host element attributes with [`@Attribute`](../api/core/Attribute-var.html),
-        and injecting content child queries with [`@Query`](../api/core/Query-var.html)
-        (or view child queries with [`@ViewQuery`](../api/core/ViewQuery-var.html)).
-
-      +makeExample('cb-ts-to-js/ts/app/hero-di-inject-additional.component.ts')(format="." )
-
-    td
-      :marked
-        ### Additional Injection Metadata with Nested Arrays 
-
-        In JavaScript, the constructor functions `Optional`, `Attribute`,
-        and `Query` (or `ViewQuery`) can be used to create the dependency
-        injection tokens.
-        
-        When a given injection needs more than one injection token,
-        we use a nested array that contains all the required tokens.
-
-      +makeExample('cb-ts-to-js/js/app/hero-di-inject-additional.component.js')(format="." )
-
-      :marked
-        We can apply other additional parameter decorators such as
-        [`@Host`](../api/core/Host-var.html) and
-        [`@SkipSelf`](../api/core/SkipSelf-var.html) in the same way -
-        by adding `new ng.core.Host()` or `ng.core.SkipSelf()` in the
-        parameters array.

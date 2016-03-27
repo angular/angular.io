@@ -6,9 +6,10 @@
   })
   .Class({
     constructor:
-      [app.DataService, function(service) {
-        this.name = service.getHeroName();
-      }]
+      [app.DataService, 
+       function(service) {
+         this.name = service.getHeroName();
+       }]
   });
   // #enddocregion
   app.HeroDIInlineComponent = HeroComponent;
