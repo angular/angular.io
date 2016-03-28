@@ -1,7 +1,8 @@
 // #docplaster
 // #docregion final
-import 'package:angular2/bootstrap.dart';
+import 'package:angular2/platform/browser.dart';
 // #enddocregion final
+
 //import 'package:displaying_data/app_component_1.dart' as v1;
 //import 'package:displaying_data/app_component_2.dart' as v2;
 //import 'package:displaying_data/app_component_3.dart' as v3;
