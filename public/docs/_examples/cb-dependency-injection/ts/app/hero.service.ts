@@ -1,6 +1,8 @@
 // #docregion
-import {Hero} from './hero';
+import {Hero}       from './hero';
+import {Injectable} from 'angular2/core';
 
+@Injectable()
 export class HeroService{
   
   currentHero:Hero;
