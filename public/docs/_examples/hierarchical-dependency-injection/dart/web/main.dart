@@ -1,5 +1,6 @@
 // #docregion
-import 'package:angular2/bootstrap.dart';
+import 'package:angular2/platform/browser.dart';
+
 import 'package:hierarchical_di/heroes_list_component.dart';
 import 'package:hierarchical_di/heroes_service.dart';
 
