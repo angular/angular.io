@@ -74,6 +74,7 @@ var _exampleBoilerplateFiles = [
   'package.json',
   'styles.css',
   'tsconfig.json',
+  'tslint.json',
   'typings.json'
  ];
 

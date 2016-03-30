@@ -1,47 +1,46 @@
 // #docregion
-import {Component,OnInit} from 'angular2/core';
-import {LoggerService}    from './logger.service';
-import {UserContext}      from './user-context.service';
-import {Heroes}           from './hero-bios.component';
-import {SortedHeroes}     from './sorted-heroes.component';
-import {HeroOfTheMonth}   from './hero-of-the-month.component';
+import { Component } from 'angular2/core';
+
+import { HeroBiosComponent,
+         HeroBiosAndContactsComponent} from './hero-bios.component';
+import { HeroOfTheMonthComponent }     from './hero-of-the-month.component';
+import { HeroesBaseComponent,
+         SortedHeroesComponent }       from './sorted-heroes.component';
+import { HighlightDirective }          from './highlight.directive';
+import { ParentFinderComponent }       from './parent-finder.component';
+
+const DIRECTIVES = [
+    HeroBiosComponent, HeroBiosAndContactsComponent,
+    HeroesBaseComponent, SortedHeroesComponent,
+    HeroOfTheMonthComponent,
+    HighlightDirective,
+    ParentFinderComponent
+];
+
+// #docregion import-services
+import { LoggerService }      from './logger.service';
+import { UserContextService } from './user-context.service';
+import { UserService }        from './user.service';
 
 @Component({
   selector: 'my-app',
-  directives:[Heroes,SortedHeroes,HeroOfTheMonth],
-  template: 
-  `<h1>DI Components</h1>
-  <div class="di-component">
-    <h3>Logged in user</h3>
-    <div>Name: {{_userContext.name}}</div>
-    <div>Role: {{_userContext.role}}</div>
-  </div>
-  
-  <div class="di-component">
-    <h3>Sorted Heroes</h3>
-    <sorted-heroes></sorted-heroes>
-  </div>
-  
-  <div class="di-component">
-    <h3>Hero of the month</h3>
-    <hero-of-the-month></hero-of-the-month>
-  </div>
-  
-  <div class="di-component">
-    <h3>Hero Bios</h3>
-    <hero-bios></hero-bios>
-  </div>`
+  templateUrl:'app/app.component.html',
+  directives: DIRECTIVES,
+// #docregion providers
+  providers: [LoggerService, UserContextService, UserService]
+// #enddocregion providers
 })
+export class AppComponent {
+// #enddocregion import-services
 
-export class AppComponent implements OnInit {
-  
   private userId:number = 1;
-  
-  constructor(private _logger:LoggerService, private _userContext:UserContext){
-    this._userContext.loadUser(this.userId);
+
+  // #docregion ctor
+  constructor(logger:LoggerService, public userContext:UserContextService) {
+    userContext.loadUser(this.userId);
+    logger.logInfo('AppComponent initialized');
   }
-  
-  ngOnInit(){
-    this._logger.logInfo('AppComponent initialized');
-  }
+  // #enddocregion ctor
+// #docregion import-services
 }
+// #enddocregion import-services
