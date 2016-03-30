@@ -69,12 +69,12 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
-  'karma.conf.js', 
-  'karma-test-shim.js', 
-  'package.json', 
-  'styles.css', 
-  'tsconfig.json', 
-  'typings.json' 
+  'karma.conf.js',
+  'karma-test-shim.js',
+  'package.json',
+  'styles.css',
+  'tsconfig.json',
+  'typings.json'
  ];
 
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];
@@ -153,14 +153,17 @@ function findAndRunE2eTests(filter) {
 // to the outputFile.
 function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   // start the app
-  var appRunSpawnInfo = spawnExt('npm',['run','http-server', '--', '-s' ], { cwd: appDir });
+  var appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
+  var tscRunSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
 
-  // start protractor
-  var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
-  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-  var spawnInfo = spawnExt('protractor',
-    [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
-  return spawnInfo.promise.then(function(data) {
+  return tscRunSpawnInfo.promise.then(function(data) {
+    // start protractor
+    var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
+    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+    var spawnInfo = spawnExt('protractor',
+      [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+    return spawnInfo.promise;
+  }).then(function(data) {
     // kill the app now that protractor has completed.
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
@@ -243,14 +246,14 @@ gulp.task('add-example-boilerplate', function() {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
-  
+
   realPath = path.join(EXAMPLES_PATH, '/typings');
   var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
   typingsPaths.forEach(function(linkPath) {
-    gutil.log("symlinking " + linkPath + ' -> ' + realPath)    
+    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
   });
-  
+
   return copyExampleBoilerplate();
 });
 
@@ -263,7 +266,7 @@ function copyExampleBoilerplate() {
     return path.join(EXAMPLES_PATH, fn);
   });
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
-  
+
   var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
     return path.join(EXAMPLES_PATH, fn);
   });
@@ -287,15 +290,15 @@ gulp.task('remove-example-boilerplate', function() {
   nodeModulesPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
-  
+
   var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
   typingsPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
-  });  
-  
+  });
+
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
-  
+
   return deleteFiles(_exampleBoilerplateFiles, examplePaths)
     .then(function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
@@ -346,7 +349,7 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
 });
 
 gulp.task('build-plunkers', function() {
-  return copyExampleBoilerplate()  
+  return copyExampleBoilerplate()
     .then(function() {
       return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
     });
@@ -501,7 +504,7 @@ function harpCompile() {
     vars: { NODE_ENV: "production" }
   });
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
-  
+
   var deferred = Q.defer();
   gutil.log('running harp compile...');
   showHideExampleNodeModules('hide');
@@ -523,20 +526,20 @@ function harpCompile() {
 }
 
 function linkChecker(options) {
-  var deferred = Q.defer();   
+  var deferred = Q.defer();
   var options = options || {};
-  
+
   var blcOptions = options.blcOptions || {};
   var customData = options.customData || {};
-  
+
   var excludeBad; // don't bother reporting bad links matching this RegExp
   if (argv.excludeBad) {
     excludeBad = new RegExp(argv.excludeBad);
   } else {
     excludeBad = options.excludeBad === undefined ? /docs\/dart\/latest\/api/ : '';
   }
-  
-  var previousPage; 
+
+  var previousPage;
   var siteUrl = argv.url || options.url || 'https://angular.io/';
 
   // See https://github.com/stevenvachon/broken-link-checker#blcsitecheckeroptions-handlers
@@ -546,12 +549,12 @@ function linkChecker(options) {
       //gutil.log('Scanning ' + pageUrl);docs/ts/latest/api/core/
     },
     junk: function(result, customData){},
-    
+
     // Analyze links
     link: function(result, customData){
       if (!result.broken) { return; }
       if (excludeBad && excludeBad.test(result.url.resolved)) { return; }
-      
+
       var currentPage = result.base.resolved
       if (previousPage !== currentPage) {
         previousPage = currentPage;
@@ -563,10 +566,10 @@ function linkChecker(options) {
       //gutil.log(msg);
       //gutil.log(result);
     },
-    
+
     page: function(error, pageUrl, customData){},
     site: function(error, siteUrl, customData){},
-    
+
     end: function(){
       var stopTime = new Date().getTime();
       var elapsed = 'Elapsed link-checking time: ' + ((stopTime - startTime)/1000) + ' seconds';
@@ -576,24 +579,24 @@ function linkChecker(options) {
       deferred.resolve(true);
     }
   };
- 
+
   // create an output file with header.
   var outputFile = path.join(process.cwd(), 'link-checker-results.txt');
   var header = 'Link checker results for: ' + siteUrl +
-               '\nStarted: ' + (new Date()).toLocaleString() + 
+               '\nStarted: ' + (new Date()).toLocaleString() +
                '\nSkipping bad links matching regex: ' +excludeBad.toString() + '\n\n';
   gutil.log(header);
   fs.writeFileSync(outputFile, header);
- 
+
   var siteChecker = new blc.SiteChecker(blcOptions, handlers);
   var startTime = new Date().getTime();
-   
-  try {    
+
+  try {
     siteChecker.enqueue(siteUrl, customData);
   } catch (err) {
     deferred.reject(err);
-  }  
-  return deferred.promise;  
+  }
+  return deferred.promise;
 }
 
 // harp has issues with node_modules under the public dir
@@ -701,7 +704,7 @@ function watchAndSync(options, cb) {
   env({
     vars: { NODE_ENV: "production" }
   });
-  
+
   execCommands(['npm run harp -- server .'], {}, cb);
 
   var browserSync = require('browser-sync').create();
@@ -781,7 +784,7 @@ function apiExamplesWatch(postShredAction) {
 
 function devGuideExamplesWatch(shredOptions, postShredAction) {
   var includePattern = path.join(shredOptions.examplesDir, '**/*.*');
-  // removed this version because gulp.watch has the same glob issue that dgeni has.  
+  // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
   var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_fragments/**']});
@@ -989,7 +992,7 @@ function execCommands(cmds, options, cb) {
   if (!cmds || cmds.length == 0) cb(null, null, null);
   var exec = require('child_process').exec;  // just to make it more portable.
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
-  
+
   exec(cmds[0], options, function(err, stdout, stderr) {
     if (err == null) {
       if (options.shouldLog) {
@@ -1019,4 +1022,3 @@ function checkAngularProjectPath() {
     throw new Error('API related tasks require the angular2 repo to be at ' + path.resolve(ANGULAR_PROJECT_PATH));
   }
 }
-
