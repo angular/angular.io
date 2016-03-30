@@ -1,0 +1,525 @@
+include ../_util-fns
+
+:marked
+  ## Welcome to A11y!
+
+  You are about to learn how to make your Angular&nbsp;2 application accessible for
+  as many people as possible. This is no small goal, there is a large group of people out there who find it
+  very hard or even impossible to use applications that has not been built with these concepts in mind.
+
+  We will show you that these concepts can be integrated with little to no extra effort on your part,
+  provided you take them into account right from the design phase of your application.
+
+  So page through this cookbook, apply the recipes contained herein and watch your userbase grow.
+
+  If you are seeing the terms `Web Accessibility`, `ARIA` or `a11y` for the first time, you are at the start of an
+  incredible journey. And for those who already enjoy the benefits of `Accessible Web Applications`, we will
+  show you how to apply your knowledge in the new and exciting world of Angular&nbsp;2.
+
+.l-main-section
+:marked
+  ## A11y and ARIA in a nutshell
+
+  `Accessibility` is often referred to as `a11y`. This is because we want to say as lot while we write less. And
+  as it has eleven letters, starts with an `a` and ends with a `y`, we shorten this word to `a11y`. We will
+  refer to `a11y` when we actually want to say `accessibility`.
+
+.l-sub-section
+  :marked
+    In short, `a11y` refers to creating web applications that everyone can use. Thus making it accessible to everyone.
+
+:marked
+  If you are totally new to the term you may want to have a look at what the folks at the `W3C` have to say about
+  [a11y](https://www.w3.org/WAI/intro/accessibility.php), to put the rest of the article into perspective.
+
+  But what is that other word?
+
+.l-sub-section
+  :marked
+    `ARIA`, or `Accessible Rich Internet Applications` refers to a standard set of attributes for adding accessibility 
+    information to `HTML` and `SVG`. This allows us to bring `a11y` concepts into
+    internet applications like those we are building with Angular&nbsp;2.
+
+:marked
+  You can also see what they say about [ARIA](https://www.w3.org/WAI/intro/aria) at the `W3C`. We will be right here
+  waiting for you when you come back.
+  
+.callout.is-important
+    header ARIA terminology confusion alert!
+    :marked
+      In `ARIA` we refer to the `aria-...` attributes as `ARIA States` or `ARIA Properties`. The difference between
+      the two should become clear as you progress through this cookbook. However, `ARIA Properties` are not 
+      actual `HTML` element properties but decorating attributes refering to properties. When we refer to setting an 
+      `ARIA Property` in the code you will **HAVE** to do
+      it with an Angular&nbsp;2 attribute binding. This is simply a terminology clash.
+
+.l-main-section
+:marked
+  ## Native elements vs. custom components
+
+  Angular&nbsp;2 gives you a lot of power at your fingertips to create extremely powerful components. But spare a
+  thought for the native `HTML` elements before you decide to build something new.
+
+  The makers of the browsers have spent a lot of time thinking about the very same issue that has brought
+  you to this page today and have provided you with a lot of functionality out-of-the-box when you make use of
+  native `HTML` elements.
+
+  We would like to suggest the following rule of thumb when building your applications:
+
+.l-sub-section
+  :marked
+    If there is already a native element inside `HTML` providing the function that you need, use
+    that element instead of writing your own.
+
+:marked
+  So, for example, if you want to accept user text input, use the `input` element instead of contructing something new.
+
+  This way you have to think less about things like focus management, tabindex, etc. and have more time to think about
+  your code.
+
+  But, we know this is not always possible, so this guide will also show you what you can do to make your own
+  components as accessible as possible.
+
+  So without further ado, let us see how easy it is to get big `a11y` wins in our applications!
+
+.l-main-section
+:marked
+  ## Important note on styling in this chapter
+
+.callout.is-important
+  header Angular Pages Do Not Require A Style Library
+  :marked
+    Angular makes no use of the `container`, `row`, `col-xs-12`, `checkbox`, `radio`, `form-group`, `form-control`,
+    and `btn` classes or the styles of any external library. Angular apps can use any CSS library
+    ... or none at all.
+    
+:marked
+  The `container`, `row`, `col-xs-12`, `checkbox`, `radio`, `form-group`, `form-control`, and `btn` classes
+  come from [Twitter Boostrap](http://getbootstrap.com/css/). This is a purely cosmetic addition to prettify
+  the examples so that they are as visually appealing as they are accessible.
+
+  But always remember, just because something looks good, it does not mean that it is accessible.
+
+  The good news is, here we strive to achieve both!
+  
+.l-main-section
+<a id="toc"></a>
+:marked
+  ## Table of contents
+
+  [Accessible form control labels](#form-control-labels)
+  
+  [Managing focus](#managing-focus)
+  
+  [Using keyboard shortcuts](#keyboard-shortcuts)
+
+  [Component should know its own role](#component-roles)
+
+.l-sub-section
+  :marked
+    In the example application code when we require unique element id's we will be generating `GUID's`to ensure that they are 
+    unique. You can use your own method to do this, as long as every id on a page is unique. More on this later...
+
+:marked
+  **Feel free to follow along in this [live example](/resources/live-examples/cb-a11y/ts/plnkr.html)**.
+
+.l-main-section
+<a id="form-control-labels"></a>
+:marked
+  ## Accessible form control labels
+
+  Whether you are using already existing `HTML` elements or creating your own rich custom form components, it is crucial to
+  label them. Imagine coming face-to-face with a customer details page on your favourite online store, only to
+  be faced with screen a filled with unlabelled input fields!
+
+  A nightmare right? Users will leave so fast the bouncerate counter will be able to power a small town it will be
+  spinning *THAT* fast.
+
+  We can avoid this from ever happening by simply adding a label for each field. Generally this is not our problem,
+  however the users of our website may not always be able to see or recognise these labels without assistance.
+
+  For this reason it is not only important to visually mark any form component, or as they are sometimes called,
+  `form controls`, but to do so in a way that also exposes it to assistive technologies.
+
+  We will discuss a number of ways to do this.
+
+.l-sub-section
+  :marked
+    You will see the `ng-content` tag making its appearance in some examples. This is because we are making use
+    of `Content Projection` to load content into the templates of our components.
+
+.l-sub-section
+  :marked
+    It is very important to note that a `LABEL` element can describe one and only form input element. You cannot
+    label multiple form fields with one label. We will look at ways to do this with `ARIA` later.
+
+.l-sub-section
+  :marked
+    And finally the label text position matters. For `inputs`, `textareas` and `selects`, the label text precedes
+    the element. Whilst for `checkboxes` and `radionbuttons` the text should follow the element in the flow.
+
+:marked
+  ### Implicit labelling
+  
+.l-sub-section
+  :marked
+    Use this method to label your `form controls` as far as possible. As you will see later the other methods of 
+    labelling relies on generating unique id's for your elements. And as we are often building re-usable components
+    in Angular&nbsp;2, you will need to insure that every id you create is unique on a page, no matter how often your
+    component is used! Save yourself the trouble and label implicitly.
+    
+:marked
+  Firstly we will look at the absolute easiest, quickest way to furnish our form controls with accessible labels,
+  and that is with a syntax called `implicit labelling`.
+
+  `Implicit labelling` is done like this:
+
+code-example(language="html" escape="html").
+  <label>label text
+      <input>
+  </label>
+
+:marked
+  Easy, isn't it? Of course, here the `input` element can be any native `HTML` form element.
+
+  Let us now explore how we can use `implicit labelling` to decorate the commonly used native `HTML` form elements
+  in our Angular&nbsp;2 components.
+
+:marked
+  #### Inputs and textareas
+
+  Labelling an input:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-input-implicit')
+  
+:marked
+  Labelling a textarea:
+  
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-textarea-implicit')  
+
+:marked
+  #### Checkboxes and radiobuttons
+
+.l-sub-section
+  :marked
+    Because of the many `input` fields making up a `checkbox group` or `radiobutton group`, the usual rule applies 
+    for each input but the entire group also needs labelled and this is done by using `fieldset` and `legend`.
+
+:marked
+  Labelling checkboxes:
+    
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-checkboxes-implicit')
+
+:marked
+  Labelling radiobuttons:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-radiobuttons-implicit')
+  
+:marked
+  #### Select lists
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-select-implicit')
+
+:marked
+  ### Explicit labelling
+
+  There could be a number of reasons that you prefer not to use the `implicit labelling` syntax described above. Maybe
+  you need to write the input outside the lable for positioning or styling purposes. Or maybe your elements are
+  already furnished with id's.
+
+  As an alternative, you can also use the `explicit labelling` syntax. For this syntax you are required to add an `id` to
+  the `HTML` form element. This is then connected up up via a `for / id` pairing *[The `for` attribute of the label has to
+  match the `id` of the element being labelled]* .
+
+  Remember, this is why we said that `implicit labelling` is recommended due to the extra code you may required to keep
+  the id's unique per page.
+
+  As an example, we will only look at adding an `explicit label` to a `text input`. The examples under the `implicit labelling`
+  section can then easily be adjusted to use this syntax.
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html', 'cb-a11y-form-controls-input-explicit')
+
+:marked
+  ### Hidden labels
+
+  Sometimes, the design of your page makes more sense without a visible label. Think about `search` fields. Do you have
+  to provide a visual label for each one?
+
+  The answer is no. But does that mean we get away with not labelling those fields at all?
+
+  Once again the answer is no.
+  
+  So how do we solve it?
+
+  We can either use an `explicitly labelled` input and hide the label with style, or we can use the `aria-label`, which
+  is an `ARIA Property`.
+
+.l-sub-section
+  :marked
+    We cannot hide the label using the `display` css property. Hidden fields are also hidden to assistive
+    technologies so we have to use some css magic to either position the label outside of the visible page or
+    shrinking it right down to be absolutely minute. We wont see it but screen readers will still find it and read it while
+    still linking it to the correct input via the `for / id` linkup. The following example contains such a
+    `visually hidden` style.
+    
+:marked
+  Example of a good visually hidden css style:
+  
++makeExample('cb-a11y/ts/a11y.css', 'cb-a11y-form-controls-visually-hidden-style')
+    
+:marked
+ Applying the style to a control to hide the label:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html', 'cb-a11y-form-controls-hidden-label-explicit')
+
+:marked
+  Alternatively labelling a control with `aria-label`:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-hidden-label-aria')
+
+:marked
+  This `aria-label` attribute serves the same `a11y` purpose as our `label` tags above and will tell screen readers what
+  the field is called.
+  
+.l-sub-section
+  :marked
+    So why not simply always use `aria-label`? This is because adding the `label` element not only provides the visual
+    label, but linking a `label` to a `native form control` also means that clicking on the `label` will select the 
+    `form control` itself. This touches on another area of `a11y`, as this also assists users with motor disabilites 
+    to more easily select them.  
+    
+:marked
+  Lets have a look at a quick comparison between using this method as opposed to not taking `a11y` into account at all. 
+  
+  Here is what happens if we have an `input` for filtering criteria that does not take any `a11y` into account. We will 
+  use the accessibility tools in the newest development version of `Chrome`, although you can use one of various internal
+  and external web browser tools to test accessibility. This is the information that assistive technologies will
+  use when reading our field out:
+
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/invisible-label-input-not-labelled.png" alt="Input with invisible label not labelled correctly")
+
+:marked
+  We can clearly see that the only description a user with a screen reader will get is **Enter a value**. What value? 
+  
+  Just imagine if there are more than one input on the same page with the same placeholder. Utter chaos!
+  
+  Now lets put our `a11y` info back and look at the same input again:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/invisible-label-input-labelled.png" alt="Input with invisible label labelled correctly")  
+  
+:marked
+  Immediately it is clear what this `input` field is and what the user is supposed to enter in it!
+
+:marked
+  ### Labelling custom form controls
+
+  So you have been asked to do something and try as you might you cannot construct it with native `HTML` elements
+  **OR** you need to give that legacy application an `a11y` makeover without the luxury of rewriting the
+  entire codebase.
+
+  How would you go about making these custom form controls accessible?
+
+  Fear not, there is a way! We introduce the next addition to our `ARIA` toolkit, and that is `aria-labelledby`. 
+  
+  Why do we need this? Because the native `a11y` function of the `label` element is only recognised when used with 
+  native `HTML` form control elements such as `input` and `textarea`. To label anything else, like a `div` or a 
+  `custom element` we need to create the the link using `aria-labelledby`. 
+  
+  Lets illustrate this by recreating the native `input` element with a component that makes use of `div's`.
+  
+.l-sub-section
+  :marked
+    Please note that creating an `input` out of `div's` is **NOT** recommended, but only serves as an illustration that
+    it is possible to make any form controll accessible. And as we are focussing on `a11y`, our component will also not 
+    be production ready but only
+    implement the basics of functionality to make it function as an `input` i.e. adding the machinery to make it play nice
+    with `ngModel`. This implementation would need to become
+    even larger and more complex before it can be used in an enterprise application. We hope that this illustrates
+    further why native `HTML` elements should preferably be used.
+    
+:marked
+  Our component:
+
++makeTabs('cb-a11y/ts/app/form-controls/a11y-custom-control.component.html,cb-a11y/ts/app/form-controls/a11y-custom-control.component.ts,cb-a11y/ts/app/form-controls/a11y-custom-control.component.css',
+null, 'a11y-custom-control.component.html,a11y-custom-control.component.ts, a11y-custom-control.component.css')
+
+:marked
+  This can now be used in our `HTML` as follows:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-custom-control-usage')
+
+:marked
+  Lets have a look at what is rendered out. *For clarity sake, the style attributes added by Angular&nbsp;2 for the component 
+  style have been omitted.*:
+
+code-example(language="html" escape="html" format="linenums").
+  <a11y-custom-control class="ng-pristine ng-valid ng-untouched">
+    <div class="form-group">
+      <label id="60e9545d-8c5c-4c55-f171-e266c50479e9">
+        Write in this labelled div:
+      </label>
+      <div aria-multiline="true" class="form-control edit-box" contenteditable=""
+           role="textbox" aria-labelledby="60e9545d-8c5c-4c55-f171-e266c50479e9"></div>
+    </div>
+  </a11y-custom-control>
+
+:marked
+  The first thing that we should note is the `role` attribute. This is also part of `ARIA` and we use these when we need
+  to tell assistive technologies that the semantic role of an `HTML` element has changed. The `div` element was certainly
+  never specified to be a textbox! But here we are doing just that, so our custom control needs the role of 
+  `textarea`. We will look at `ARIA Roles` in more detail later.
+  
+  Next we will look at the `aria-labelledby` attribute. As you can see, this contains the `id` of the `label` field. This
+  is how we tell screen readers to use that specific `label` element to label our input control.
+
+.l-sub-section
+  :marked
+    Aside from having to generate unique `id's`, there is one more caveat to using `aria-labelledby`. Even when using this
+    with an actual `label` element, clicking the label will **NOT** focus the input as it does when used with native 
+    `HTML` form control elements. Therefore this construct will always be slightly inferior to the native approach, as you lose the
+    accessibility gain the `label click` gives you.
+    
+:marked
+  And finally, while you were not looking we snuck in yet another `ARIA` property called `aria-multiline`. Yes folks,
+  someone who is unable to see will also need to be informed if our input accepts single or multiple lines of text. By using
+  `aria-multiline`, we are able to tell the screen reader whether it is single or multiline field.
+  
+  *That was certainly a mouthful! Aren't there ways where we can use the power of Angular&nbsp;2 but keep the 
+  built-in `a11y` wins the native `HTML` elements give us?*
+  
+  There certainly are. Let's look at one such option that uses `Content Projection`.
+  
+:marked
+  ### Labelling options with Content Projection
+  
+  One of the biggest wins in using Angular&nbsp;2 components is that they are re-usable. This means less code to write
+  and this pretty much makes everyone happy as, when it done well, it leads to a more maintainable code base and building
+  functionality quicker.
+  
+  The syntax patterns we suggested earlier in this section could, of course, work against this very strength. Duplicating 
+  all the `HTML` for each well styled and function form control is not what we are aiming for either. And neither
+  are we suggesting to throw out all the power of Angular&nbsp;2. Hey, we built it after all!
+  
+  But there are mechanisms inside Angular&nbsp;2, which allows you to use what you have just learnt in clever ways to 
+  achieve the biggest wins with accessibility of your form controls, while also benefiting from using the framework.
+  
+  As an example of what you could do, we will be looking at using `Content Projection` and `Implicit Labelling` to build
+  a component that can decorate any input:
+  
++makeTabs('cb-a11y/ts/app/form-controls/a11y-input-wrapper.component.html,cb-a11y/ts/app/form-controls/a11y-input-wrapper.component.ts,cb-a11y/ts/app/form-controls/a11y-input-wrapper.component.css',
+null, 'a11y-input-wrapper.component.html,a11y-input-wrapper.component.ts, a11y-input-wrapper.component.css')
+
+:marked
+  And how do we use this? Like this:
+
++makeExample('cb-a11y/ts/app/form-controls/a11y-form-controls.component.html','cb-a11y-form-controls-custom-control-wrapped-usage')  
+
+:marked
+  Lets quickly dive into the code.
+  
+  We used `Content Projection` with `multiple projection slots` to project our `input` and the `label` content into our component's
+  template. This way we keep direct access to and direct control of the `label` content as well as the `input`. 
+  
+  Our component gets to do all the hard work for us while we have get all the benefits of using the native `HTML input`
+  element directly!
+  
+  We did not have to implement any of the extra code of the previous component and our resultant decorated `input`
+  control is fully accessible.
+  
+  With `a11y` in Angular&nbsp;2 it truly seems that you can indeed have your cake.... and eat it!
+
+:marked
+  ### Section summary
+  
+  In this section we looked at how we can provide accessible labels for our native, as well as custom, form controls.
+  
+  We looked at `implicit labelling` versus `explicit labelling` and how `implicit labelling` can often save you 
+  a lot of extra lines of code and trouble.
+  
+  We also looked how even controls that need no label visually, needs a label for those who cannot physically see it and
+  how we can hide these labels in an accessible way.
+  
+  And finally we looked at how we can label even the most inaccessible of controls with `ARIA` and how we could use
+  what lies in our Angular&nbsp;2 toolbox in clever ways so that we could benefit from combining the raw power of 
+  Angular&nbsp;2 with the `a11y` implementations of native `HTML` elements.
+  
+  Keep reading for more on `a11y` in Angular&nbsp;2 or [go back to the table of contents](#toc)
+
+.l-main-section
+<a id="managing-focus"></a>
+:marked
+  ## Managing focus
+  
+  Often when developers think of `a11y`, it is thought of as only being for people with visual disabilities and 
+  screen readers. 
+  
+  While we are indeed doing a lot to ensure that screen readers can properly consume and read our pages, `a11y` is 
+  about much, much more. Visual disabilites make up only a group of the disabilities that hamper access to the `web`.
+  There is a vast group of people out there who find it difficult to use our websites because of `motor disabilities`.
+  
+  We need to spare a thought for those out there who would love to use our shiny new Angular&nbsp;2 application, but 
+  simply cannot use a mouse. Here we are also talking about people with limited to no use of their hands. This could be 
+  for a variety 
+  of reasons, ranging from those with no hands to those who have lost the use of their hands for a period of time due to injury. 
+  This vast group of people also rely strongly on the keyboard or other types of assistive technologies for web
+  navigation.
+  
+.l-sub-section
+  :marked
+    One of the most important aspects of `a11y` is called `keyboard accessibility`. This means that the entire website
+    **MUST** be navigable and operable through the keyboard alone.
+  
+:marked
+  So how does `keyboard accessibility` relate to `managing focus`? 
+  
+  For a user totally dependent on a screen reader or keyboard, his interaction with our site is solidly built upon 
+  where the current focus of the application lies. 
+  
+.l-sub-section
+  :marked
+    Focus can be broken down into `keyboard focus`, which refers to which area of the page will next be impacted by a 
+    keyboard action and `reading focus`, which refers to where the screen reader will next start reading from. They can
+    be the same location but it does not have to be.
+
+:marked
+  In this section we will be looking primarily at `keyboard focus`. 
+
+:marked
+  ### Outline marks the spot
+  
+  We have all seen it, the blue box that web browsers draw around the next `input` we are about to type into. 
+  This is done by the `outline` style.
+  
+  It clearly indicates where the current `keyboard focus` of the application lies. And, as it turns out, this is one
+  of the non-negotiables of `a11y`. We **HAVE** to visually indicate the current `keyboard focus` when focus lies on
+  and interactive `HTML` element or custom component. Someone navigating a website with keyboard input alone cannot do
+  so unless it is always clear where the `keyboard focus` lies.
+  
+  Unfortunately the solid blue box has not met with everyone's approval in a world filled with opacities and box-shadows.
+  Which has lead to one of the often made unforgivable sins of `a11y`.
+
+.callout.is-important
+  header Leave the focus outline intact!
+  :marked
+    Do not under any circumstances remove the focus outline for interactive elements with keyboard focus. Keep it unchanged
+    or replace with your own but **NEVER** fully remove this with the style command `outline:0`. You will instantly
+    render your site unusable for any sighted user who has to use the keyboard or related assistive technologies.
+  
+
+.l-main-section
+<a id="keyboard-shortcuts"></a>
+:marked
+  ## Using keyboard shortcuts
+
+  Content coming soon...
+
+.l-main-section
+<a id="component-roles"></a>
+:marked
+  ## Component should know its own role
+
+  Content coming soon...
+
+
