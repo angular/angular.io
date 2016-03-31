@@ -34,8 +34,8 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   };
 })
 
-.config(function(parseTagsProcessor) {
-  parseTagsProcessor.tagDefinitions.push({ name: 'internal', transforms: function() { return true; } });
+.config(function(parseTagsProcessor, getInjectables) {
+  parseTagsProcessor.tagDefinitions = parseTagsProcessor.tagDefinitions.concat(getInjectables(require('./tag-defs')));
 })
 
 .config(function(readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
@@ -139,5 +139,4 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     'IMPLEMENTS',
     'ABSTRACT'
   ];
-})
-
+});
