@@ -1,0 +1,665 @@
+include ../_util-fns
+
+:marked
+  Welcome to the Angular 2 Guide of Style
+  
+  ## Purpose
+
+  If you are looking for an opinionated style guide for syntax, conventions, and structuring Angular applications, then step right in.
+
+  The purpose of this style guide is to provide guidance on building Angular applications by showing the conventions we use and, more importantly, why we choose them.
+.l-main-section
+a(id='toc')
+:marked
+  ## Table of Contents
+
+    1. [Single Responsibility](#single-responsibility)
+    1. [Components](#components)
+    1. [Services](#services)
+    1. [Data Services](#data-services)
+    1. [Naming](#naming)
+    1. [Application Structure LIFT Principle](#application-structure-lift-principle)
+    1. [Application Structure](#application-structure)
+    1. [Appendix](#appendix)
+:marked
+  ## Single Responsibility
+
+  ### Rule of 1 
+  <a id="001"></a>
+  #### Style 001
+
+  Define 1 component per file, recommended to be less than 400 lines of code.
+
+  **Why?** One component per file promotes easier unit testing and mocking.
+
+  **Why?** One component per file makes it far easier to read, maintain, and avoid collisions with teams in source control.
+
+  **Why?** One component per file avoids hidden bugs that often arise when combining components in a file where they may share variables, create unwanted closures, or unwanted coupling with dependencies.
+  
+  The following example defines the `AppComponent`, handles the bootstrapping, and shared functions all in the same file.
+
+  The key is to make the code more reusable, easier to read, and less mistake prone.
+
++makeExample('style-guide/ts/001/app/placeholder.ts', '001-1', 'app.component.ts (component)')
+:marked
+  The same components are now separated into their own files.
+
++makeTabs(
+  'style-guide/ts/001/app/main.ts,style-guide/ts/001/app/app.component.ts,style-guide/ts/001/app/hero.service.ts,style-guide/ts/001/app/hero.model.ts', 
+  '', 
+  'app/main.ts, app/app.component.ts, app/hero.service.ts, app/hero.model.ts')  
+:marked
+  As the app grows, this rule becomes even more important.
+
+<a href="#toc">Back to top</a>
+
+:marked
+  ### Small Functions
+  <a id="002"></a>
+  #### Style 002
+
+  - Define small functions, no more than 75 LOC (less is better).
+
+  **Why?** Small functions are easier to test, especially when they do one thing and serve one purpose.
+
+  **Why?** Small functions promote reuse.
+
+  **Why?** Small functions are easier to read.
+
+  **Why?** Small functions are easier to maintain.
+
+  **Why?** Small functions help avoid hidden bugs that come with large functions that share variables with external scope, create unwanted closures, or unwanted coupling with dependencies.
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Components
+
+  ### Member Sequence
+  <a id="033"></a>
+  #### Style 033
+
+    - Place properties up top followed by methods. Private members should follow public members, alphabetized.
+
+      **Why?** Placing members in a consistent sequence makes it easy to read and helps you instantly identify which members of the component serve which purpose.
+
+    ```typescript
+    /* recommended */
+    export class ToastComponent implements OnInit {
+      // public properties
+      message: string;
+      title: string;
+      
+      // private fields
+      private _defaults = {
+        title: '',
+        message: 'May the Force be with You'
+      };
+      private _toastElement: any;
+
+      // ctor
+      constructor(private _toastService: ToastService) { }
+
+      // public methods
+      activate(message = this._defaults.message, title = this._defaults.title) {
+        this.title = title;
+        this.message = message;
+        this._show();
+      }
+
+      ngOnInit() {
+        this._toastElement = document.getElementById('toast');
+      }
+
+      // private methods
+      private _show() {
+        console.log(this.message);
+        this._toastElement.style.opacity = 1;
+        this._toastElement.style.zIndex = 9999;
+
+        window.setTimeout(() => this._hide(), 2500);
+      }
+
+      private _hide() {
+        this._toastElement.style.opacity = 0;
+        window.setTimeout(() => this._toastElement.style.zIndex = 0, 400);
+      }
+    }
+    ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Defer Logic to Services
+  <a id="035"></a>
+  #### Style 035
+
+    - Defer logic in a component by delegating to services.
+
+    - Move reusable logic to services and keep components simple and focused on their intended purpose.
+
+      **Why?** Logic may be reused by multiple components when placed within a service and exposed via a function.
+
+      **Why?** Logic in a service can more easily be isolated in a unit test, while the calling logic in the component can be easily mocked.
+
+      **Why?** Removes dependencies and hides implementation details from the component.
+
+      **Why?** Keeps the component slim, trim, and focused.
+
+  ```typescript
+  // avoid
+  export class SessionListComponent implements OnInit {
+    sessions: Session[];
+
+    constructor(private _http: Http) { }
+
+    getSessions() {
+      this.sessions = [];
+      this._http.get(sessionsUrl)
+        .map((response: Response) => <Session[]>response.json().data)
+        .catch(this._exceptionService.catchBadResponse)
+        .finally(() => this._spinnerService.hide())
+        .subscribe(sessions => this.sessions = sessions);
+    }
+    
+
+    ngOnInit() {
+      this.getSessions();
+    }
+  }
+  ```
+    
+  ```typescript
+  // recommended
+  export class SessionListComponent implements OnInit {
+    sessions: Session[];
+
+    constructor(private _sessionService: SessionService) { }
+
+    getSessions() {
+      this.sessions = [];
+      this._sessionService.getSessions()
+        .subscribe(sessions => this.sessions = sessions);
+    }
+
+    ngOnInit() {
+      this.getSessions();
+    }
+  }
+  ```
+
+<a href="#toc">Back to top</a>
+
+:marked
+  ## Services
+
+  ### Singletons
+  <a id="040"></a>
+  #### Style 040
+
+    - Services are singletons withint he same injector. They should be used for sharing data and functionality.
+
+  ```typescript
+  // service  
+  import { Injectable } from 'angular2/core';
+  import { Session } from './session';
+
+  @Injectable()
+  export class HeroService {
+    getHeroes() {
+      return this._http.get('api/sessions')
+        .map((response: Response) => <Session[]>response.json().data)
+    }
+  }
+  ```
+  
+<a href="#toc">Back to top</a>
+
+:marked
+  ### Providing a Service
+  <a id="041"></a>
+  #### Style 041
+
+    - Services should be provided to the Angular 2 injector at the top-most component where they will be shared. 
+  
+      **Why?** The Angular 2 injector is hierarchical.
+
+      **Why?** When providing the service to a top level component, that instance is shared and available to all child components of that top level component.
+  
+      **Why?** This is ideal when a service is sharing methods and has no state, or state that must be shared.
+      
+      **Why?** This is not ideal when two different components need different instances of a service. In this scenario it would be better to provide the service at the component level that needs the new and separate instance.
+      
+  ```typescript
+  /* recommended */
+
+  // app.component.ts
+  import { Component } from 'angular2/core';
+
+  import { SpeakerListComponent } from './speakers/speaker-list.component';
+  import { SpeakerService } from './common/speaker.service';
+
+  @Component({
+    selector: 'my-app',
+    template: `
+        <my-speakers></my-speakers>  
+      `,
+    directives: [SpeakerListComponent],
+    providers: [SpeakerService]
+  })
+  export class AppComponent { }
+  ```
+  
+  ```typescript
+  /* recommended */
+
+  // speaker-list.component.ts
+  import { Component, OnInit } from 'angular2/core';
+
+  import { SpeakerService } from './common/speaker.service';
+  import { Speaker } from './common/speaker';
+
+  @Component({
+    selector: 'my-speakers',
+    template: `
+        <pre>{{speakers | json}}</pre>  
+      `
+  })
+  export class SpeakerListComponent implements OnInit{
+    speakers: Speaker[] = [];
+
+    constructor(private _speakerService: SpeakerService) {}
+
+    ngOnInit() {
+      this._speakerService.getSpeakers().then(speakers => this.speakers = speakers);
+    }
+  }
+  ```
+    
+<a href="#toc">Back to top</a>
+:marked
+  ### Single Responsibility
+  <a id="042"></a>
+  #### Style 042
+
+    - Services should have a [single responsibility](https://en.wikipedia.org/wiki/Single_responsibility_principle), that is encapsulated by its context. Once a service begins to exceed that singular purpose, a new one should be created.
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Data Services
+
+  ### Separate Data Calls
+  <a id="050"></a>
+  #### Style 050
+
+    - Refactor logic for making data operations and interacting with data to a service. Make data services responsible for XHR calls, local storage, stashing in memory, or any other data operations.
+
+      **Why?** The component's responsibility is for the presentation and gathering of information for the view. It should not care how it gets the data, just that it knows who to ask for it. Separating the data services moves the logic on how to get it to the data service, and lets the component be simpler and more focused on the view.
+
+      **Why?** This makes it easier to test (mock or real) the data calls when testing a component that uses a data service.
+
+      **Why?** Data service implementation may have very specific code to handle the data repository. This may include headers, how to talk to the data, or other services such as `Http`. Separating the logic into a data service encapsulates this logic in a single place hiding the implementation from the outside consumers (perhaps a component), also making it easier to change the implementation.
+
+  ```typescript
+  // recommended
+  export class SessionListComponent implements OnInit {
+    sessions: Session[];
+    filteredSessions = this.sessions;
+
+    constructor(private _sessionService: SessionService) { }
+
+    getSessions() {
+      this.sessions = [];
+      this._sessionService.getSessions()
+        .subscribe(sessions => {
+          this.sessions = this.filteredSessions = sessions;
+        },
+        error => {
+          console.log('error occurred here');
+          console.log(error);
+        },
+        () => {
+          console.log('completed');
+        });
+    }
+
+    ngOnInit() {
+      this.getSessions();
+    }
+  }
+  ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Naming
+
+  ### Naming Guidelines
+  <a id="100"></a>
+  #### Style 100
+
+    - Use consistent names for all components following a pattern that describes the component's feature then (optionally) its type. My recommended pattern is `feature.type.js`. There are 2 names for most assets:
+      * the file name (`avengers.component.ts`)
+      * the registered component name with Angular (`Component`)
+
+      **Why?** Naming conventions help provide a consistent way to find content at a glance. Consistency within the project is vital. Consistency with a team is important. Consistency across a company provides tremendous efficiency.
+
+      **Why?** The naming conventions should simply help you find your code faster and make it easier to understand.
+
+      **Why?** Names of folders and files should clearly convey their intent. For example, `app/speakers/speaker-list.component.ts` may contain a component that manages a list of speakers. 
+      
+<a href="#toc">Back to top</a>
+:marked
+  ### File Names
+  <a id="101"></a>
+  #### Style 101
+
+    - Use consistent names for all components following a pattern that describes the component's feature then (optionally) its type. A recommended pattern is `feature.type.ts`.
+    
+    - Use conventional suffixes including `*.service.ts`, `*.component.ts`, `*.pipe.ts`. Invent other suffixes where desired for your team, but take care in having too many.
+
+    - use dashes to separate words and dots to separate the descriptive name from the type.
+
+      **Why?** Provides a consistent way to quickly identify components.
+      
+      **Why?** Provides a consistent way to quickly find components using an editor or IDE's fuzzy search techniques.
+
+      **Why?** Provides pattern matching for any automated tasks.
+
+      ```
+      // recommended
+
+      // Bootstrapping file and main entry point
+      main.ts
+      
+      // Components
+      speakers.component.ts
+      speaker-list.component.ts
+      speaker-detail.component.ts
+
+      // Services
+      logger.service.ts
+      speaker.service.ts
+      exception.service.ts
+      filter-text.service.ts
+      
+      // Models
+      session.ts
+      speaker.ts    
+      
+      // Pipes
+      ellipsis.pipe.ts
+      init-caps.pipe.ts
+      ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Test File Names
+  <a id="102"></a>
+  #### Style 102
+
+    - Name test specifications similar to the component they test with a suffix of `spec`.
+
+      **Why?** Provides a consistent way to quickly identify components.
+
+      **Why?** Provides pattern matching for [karma](http://karma-runner.github.io/) or other test runners.
+
+    ```
+    // recommended
+
+    // Components
+    speakers.component.spec.ts
+    speaker-list.component.spec.ts
+    speaker-detail.component.spec.ts
+
+    // Services
+    logger.service.spec.ts
+    speaker.service.spec.ts
+    exception.service.spec.ts
+    filter-text.service.spec.ts
+    
+    // Pipes
+    ellipsis.pipe.spec.ts
+    init-caps.pipe.spec.ts
+    ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Component Names
+  <a id="103"></a>
+  #### Style 103
+
+    - Use consistent names for all components named after their feature. Use UpperCamelCase for components' symbols. Match the name of the component to the naming of the file
+
+      **Why?** Provides a consistent way to quickly identify and reference components.
+
+      **Why?** UpperCamelCase is conventional for identifying object that can be instantiated using a constructor.
+
+    ```typescript
+    AppComponent            //app.component.ts
+    SpeakersComponent       //speakers.component.ts
+    SpeakerListComponent    //speaker-list.component.ts
+    SpeakerDetailComponent  //speaker-detail.component.ts
+    ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Suffixes
+  <a id="104"></a>
+  #### Style 104
+
+    - Append the component name with the suffix `Component`.
+
+      **Why?** The `Component` suffix is more commonly used and is more explicitly descriptive.
+
+      ```typescript
+      // recommended
+
+      // speaker-list.component.ts
+      export class SpeakerListComponent { }
+      ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Service Names
+  <a id="110"></a>
+  #### Style 110
+
+    - Use consistent names for all services named after their feature. Use UpperCamelCase for services. Suffix services with `Service` when it is not clear what they are (e.g. when they are nouns).
+
+      **Why?** Provides a consistent way to quickly identify and reference services.
+
+      **Why?** Clear service names such as `logger` do not require a suffix.
+
+      **Why?** Service names such as `Credit` are nouns and require a suffix and should be named with a suffix when it is not obvious if it is a service or something else. 
+
+      ```typescript
+      SpeakerService // speaker.service.ts
+      CreditService  // credit.service.ts
+      Logger         // logger.service.ts
+      ```
+      
+<a href="#toc">Back to top</a>
+:marked
+  ## Routing
+  Client-side routing is important for creating a navigation flow between a component tree hierarchy, and composing components that are made of many other child components.
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Component Router
+  <a id="130"></a>
+  #### Style 130
+
+    - Separate route configuration into a routing component file, also known as a component router.
+
+    - Use a `<router-outlet>` in the component router, where the routes will have their component targets display their templates.
+    
+    - Focus the logic in the component router to the routing aspects and its target components. Extract other logic to services and other components.
+    
+      **Why?** A component that handles routing is known as the component router, thus this follows the Angular 2 routing pattern.
+      
+      **Why?** A component that handles routing is known as the componenter router.
+
+      **Why?** The `<router-outlet>` indicates where the tempalte should be displayed for the target route.
+      
+      ```typescript
+      import { Component } from 'angular2/core';
+      import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+
+      import { SpeakersComponent, SpeakerService } from './+speakers';
+      import { DashboardComponent } from './+dashboard';
+      import { NavComponent } from './layout/nav.component';
+
+      @Component({
+        selector: 'my-app',
+        templateUrl: 'app/app.component.html',
+        styleUrls: ['app/app.component.css'],
+        directives: [ROUTER_DIRECTIVES, NavComponent],
+        providers: [
+          ROUTER_PROVIDERS,
+          SpeakerService
+        ]
+      })
+      @RouteConfig([
+        { path: '/dashboard', name: 'Dashboard', component: DashboardComponent, useAsDefault: true },
+        { path: '/speakers/...', name: 'Speakers', component: SpeakersComponent },
+      ])
+      export class AppComponent { }
+      ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Route Naming
+  <a id="131"></a>
+  #### Style 131
+
+    - Use the naming convention for the routes with the component name without the Component suffix.
+    
+      **Why?** This maps the route name to the component and makes it easy to identify.
+      
+      ```typescript
+      { path: '/dashboard', name: 'Dashboard', component: DashboardComponent }
+      ```    
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Application Structure LIFT Principle
+  ### LIFT
+  <a id="140"></a>
+  #### Style 140
+
+    - Structure your app such that you can `L`ocate your code quickly, `I`dentify the code at a glance, keep the `F`lattest structure you can, and `T`ry to stay DRY. The structure should follow these 4 basic guidelines, listed in order of importance.
+
+      *Why LIFT?*: Provides a consistent structure that scales well, is modular, and makes it easier to increase developer efficiency by finding code quickly. Another way to check your app structure is to ask yourself: How quickly can you open and work in all of the related files for a feature?
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Locate
+  <a id="141"></a>
+  #### Style 141
+
+    - Make locating your code intuitive, simple and fast.
+
+      **Why?** I find this to be super important for a project. If the team cannot find the files they need to work on quickly, they will not be able to work as efficiently as possible, and the structure needs to change. You may not know the file name or where its related files are, so putting them in the most intuitive locations and near each other saves a ton of time. A descriptive folder structure can help with this.
+
+      ```
+      /node_modules
+      /client
+        /app
+          /avengers
+          /blocks
+            /exception
+            /logger
+          /core
+          /dashboard
+          /data
+          /layout
+          /widgets
+        /content
+        index.html
+      package.json
+      ```
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Identify
+  <a id="142"></a>
+  #### Style 142
+
+    - When you look at a file you should instantly know what it contains and represents.
+
+      **Why?** You spend less time hunting and pecking for code, and become more efficient. If this means you want longer file names, then so be it. Be descriptive with file names and keeping the contents of the file to exactly 1 component. Avoid files with multiple controllers, multiple services, or a mixture. There are deviations of the 1 per file rule when I have a set of very small features that are all related to each other, they are still easily identifiable.
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Flat
+  <a id="143"></a>
+  #### Style 143
+
+    - Keep a flat folder structure as long as possible. When you get to 7+ files, begin considering separation.
+
+      **Why?** Nobody wants to search 7 levels of folders to find a file. Think about menus on web sites … anything deeper than 2 should take serious consideration. In a folder structure there is no hard and fast number rule, but when a folder has 7-10 files, that may be time to create subfolders. Base it on your comfort level. Use a flatter structure until there is an obvious value (to help the rest of LIFT) in creating a new folder.
+
+<a href="#toc">Back to top</a>
+:marked
+  ### T-DRY (Try to Stick to DRY)
+  <a id="144"></a>
+  #### Style 144
+
+    - Be DRY, but don't go nuts and sacrifice readability.
+
+      **Why?** Being DRY is important, but not crucial if it sacrifices the others in LIFT, which is why I call it T-DRY. I don’t want to type session-view.html for a view because, well, it’s obviously a view. If it is not obvious or by convention, then I name it.
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Application Structure
+
+  ### Overall Guidelines
+  <a id="150"></a>
+  #### Style 150
+
+    - Have a near term view of implementation and a long term vision. In other words, start small but keep in mind on where the app is heading down the road. All of the app's code goes in a root folder named `app`. All content is 1 feature per file. Each component, service, pipe is in its own file. All 3rd party vendor scripts are stored in another root folder and not in the `app` folder. I didn't write them and I don't want them cluttering my app.
+
+    **example coming soon**
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Layout
+  <a id="151"></a>
+  #### Style 151
+
+    - Place components that define the overall layout of the application in a folder named `layout`. These may include a shell view and component may act as the container for the app, navigation, menus, content areas, and other regions.
+    
+      **Why?** Organizes all layout in a single place re-used throughout the application.
+
+<a href="#toc">Back to top</a>
+:marked
+  ### Folders-by-Feature Structure
+  <a id="152"></a>
+  #### Style 152
+
+    - Create folders named for the feature they represent. When a folder grows to contain more than 7 files, start to consider creating a folder for them. Your threshold may be different, so adjust as needed.
+
+      **Why?** A developer can locate the code, identify what each file represents at a glance, the structure is flat as can be, and there is no repetitive nor redundant names.
+
+      **Why?** The LIFT guidelines are all covered.
+
+      **Why?** Helps reduce the app from becoming cluttered through organizing the content and keeping them aligned with the LIFT guidelines.
+
+      **Why?** When there are a lot of files (10+) locating them is easier with a consistent folder structures and more difficult in flat structures.
+
+    **example coming soon**
+
+<a href="#toc">Back to top</a>
+:marked
+  ## Appendix
+
+  ### File Templates and Snippets
+  Use file templates or snippets to help follow consistent styles and patterns. Here are templates and/or snippets for some of the web development editors and IDEs.
+
+  ### Visual Studio Code
+
+    - [Visual Studio Code](https://code.visualstudio.com/) snippets that follow these styles and guidelines.
+    
+      - [Snippets for VS Code](https://marketplace.visualstudio.com/items?itemName=johnpapa.Angular2)
+      
+      [![Use Extension](https://github.com/johnpapa/vscode-angular2-snippets/raw/master/images/use-extension.gif)](https://marketplace.visualstudio.com/items?itemName=johnpapa.Angular2)
+
+<a href="#toc">Back to top</a>
