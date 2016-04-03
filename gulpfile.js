@@ -309,16 +309,16 @@ gulp.task('remove-example-boilerplate', function() {
     })
 });
 
-gulp.task('serve-and-sync', ['build-docs'], function (cb) {
+gulp.task('serve-and-sync', ['build-docs','_copy_angular_resource'], function (cb) {
   // watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
   watchAndSync({devGuide: true, devGuideJade: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
 });
 
-gulp.task('serve-and-sync-api', ['build-docs'], function (cb) {
+gulp.task('serve-and-sync-api', ['build-docs','_copy_angular_resource'], function (cb) {
   watchAndSync({apiDocs: true, apiExamples: true}, cb);
 });
 
-gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers' ], function (cb) {
+gulp.task('serve-and-sync-devguide', ['build-devguide-docs', 'build-plunkers' ,'_copy_angular_resource'], function (cb) {
   watchAndSync({devGuide: true, devGuideJade: true, localFiles: true}, cb);
 });
 
@@ -326,7 +326,7 @@ gulp.task('_serve-and-sync-jade', function (cb) {
   watchAndSync({devGuideJade: true, localFiles: true}, cb);
 });
 
-gulp.task('build-and-serve', ['build-docs'], function (cb) {
+gulp.task('build-and-serve', ['build-docs','_copy_angular_resource'], function (cb) {
   watchAndSync({localFiles: true}, cb);
 });
 
@@ -492,6 +492,34 @@ gulp.task('_shred-clean-api', function(cb) {
 gulp.task('_zip-examples', function() {
   exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
   exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
+});
+
+gulp.task('_copy_angular_resource',function(){
+  var filesToCopy = ['./node_modules/angular/angular.min.js',
+  './node_modules/angular-animate/angular-animate.min.js',
+  './node_modules/angular-aria/angular-aria.min.js',
+  './node_modules/angular-material/angular-material.min.js',
+  './node_modules/angular-material/angular-material.min.css',
+  './node_modules/material-icons/css/material-icons.min.css'];
+  
+  var destPaths = ['./public/resources/js/vendor/angular.min.js',
+  './public/resources/js/vendor/angular-animate.min.js',
+  './public/resources/js/vendor/angular-aria.min.js',
+  './public/resources/js/vendor/angular-material.min.js',
+  './public/resources/css/vendor/angular-material.min.css',
+  './public/resources/css/vendor/material-icons.min.css'];
+  var copy = Q.denodeify(fsExtra.copy);
+  var copyPromises = [];
+  for(var i=0;i<filesToCopy.length;i++) {
+    copyPromises.push(copy(filesToCopy[i], destPaths[i], { clobber: true}))
+  }
+
+   Q.all(copyPromises).then(function(result){
+      console.log(result);
+   })
+   .fail(function(error){ 
+      console.log(error);
+   })
 });
 
 
