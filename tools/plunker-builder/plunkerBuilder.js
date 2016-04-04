@@ -107,14 +107,16 @@ function initConfigAndCollectFileNames(configFileName) {
     }
   });
   // var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
-  var defaultExcludes = [ 
+  var defaultExcludes = [
     '!**/typings/**',
     '!**/typings.json',
-    '!**/tsconfig.json', 
-    '!**/*plnkr.*', 
-    '!**/package.json', 
+    '!**/tsconfig.json',
+    '!**/*plnkr.*',
+    '!**/package.json',
     '!**/example-config.json',
-    '!**/*.spec.*' 
+    '!**/*.spec.*',
+    '!**/tslint.json',
+    '!**/.editorconfig'
    ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
