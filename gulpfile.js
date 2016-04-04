@@ -69,6 +69,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
+  '.editorconfig',
   'karma.conf.js',
   'karma-test-shim.js',
   'package.json',
