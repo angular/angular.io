@@ -7,15 +7,12 @@ import {HeroAppMainComponent} from './hero-app-main.component';
   selector: 'hero-app',
   template: `
     <h1>Tour of Heroes</h1>
-    <hero-app-main [hero]=hero></hero-app-main>
-  `,
-  styles: [`
-    h1 { font-weight: normal; }
-  `],
+    <hero-app-main [hero]=hero></hero-app-main>`,
+  styles: ['h1 { font-weight: normal; }'],
   directives: [HeroAppMainComponent]
 })
-export class HeroAppComponent {
 // #enddocregion
+export class HeroAppComponent {
   hero = new Hero(
     'Human Torch',
     ['Mister Fantastic', 'Invisible Woman', 'Thing']

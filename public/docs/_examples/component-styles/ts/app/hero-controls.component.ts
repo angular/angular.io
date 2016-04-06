@@ -15,10 +15,10 @@ import {Hero} from './hero';
     <button (click)="activate()">Activate</button>
   `
 })
-export class HeroControlsComponent {
 // #enddocregion inlinestyles
+export class HeroControlsComponent {
 
-  @Input() hero:Hero;
+  @Input() hero: Hero;
 
   activate() {
     this.hero.active = true;

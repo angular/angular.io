@@ -11,11 +11,9 @@ import {Hero} from './hero';
       <li *ngFor="#member of hero.team">
         {{member}}
       </li>
-    </ul>
-  `
+    </ul>`
 })
-export class HeroTeamComponent {
 // #enddocregion stylelink
-
-  @Input() hero:Hero;
+export class HeroTeamComponent {
+  @Input() hero: Hero;
 }

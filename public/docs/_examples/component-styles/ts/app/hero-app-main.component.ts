@@ -15,5 +15,5 @@ import {QuestSummaryComponent} from './quest-summary.component';
   directives: [HeroDetailsComponent, HeroControlsComponent, QuestSummaryComponent]
 })
 export class HeroAppMainComponent {
-  @Input() hero:Hero;
+  @Input() hero: Hero;
 }

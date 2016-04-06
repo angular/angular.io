@@ -5,19 +5,19 @@ include ../_util-fns
   everything we know about CSS stylesheets, selectors, rules, and media queries
   to our Angular applications directly.
   
-  On top of this, Angular comes with an ability to bundle *component styles*
-  to each of our components. Component styles are processed in a way that
-  enables a much more modular design than regular stylesheets, but there are
-  a few things we need to know about how they are loaded and applied so that
-  we can use them effectively. In this guide we'll see how.
+  On top of this, Angular has the ability to bundle *component styles*
+  with our components enabling a more modular design than regular stylesheets.
+  
+  In this chapter we how to load and apply these *component styles*.
   
   # Table Of Contents
 
   * [Using Component Styles](#using-component-styles)
-  * [Loading Styles into Components](#loading-styles-into-components)
+  * [Special selectors](#special-selectors)
+  * [Loading Styles into Components](#loading-style)
   * [Controlling View Encapsulation: Emulated, Native, and None](#controlling-view-encapsulation-native-emulated-and-none)
-  * [Appendix 1: Inspecting the generated runtime component styles](#appendix-1-inspecting-the-css-generated-in-emulated-view-encapsulation)
-  * [Appendix 2: Loading Styles with Relative URLs](#appendix-2-loading-styles-with-relative-urls)
+  * [Appendix 1: Inspecting the generated runtime component styles](#inspect-generated-css)
+  * [Appendix 2: Loading Styles with Relative URLs](#relative-urls)
   
   **[Run the live code](/resources/live-examples/component-styles/ts/plnkr.html)
     shown in this chapter.**
@@ -27,116 +27,117 @@ include ../_util-fns
   ## Using Component Styles
   
   For every Angular 2 component we write, we may define not only an HTML template,
-  but also the CSS styles that go with that template. Inside each component's CSS styles
-  we can put regular CSS code, with any selectors, rules, and media queries that we need.
+  but also the CSS styles that go with that template, 
+  specifying any selectors, rules, and media queries that we need.
 
-  One of the ways to do this is to attach a `styles` attribute in the component metadata.
-  Its values is an array of strings containing CSS code:
+  One way to do this is to set the `styles` property in the component metadata.
+  The `styles` property takes an array of strings that contain CSS code.
+  Usually we give it one string as in this example:
   
-+makeExample('component-styles/ts/app/hero-app.component.ts')
++makeExample('component-styles/ts/app/hero-app.component.ts')(format='.')
 
 :marked
   Component styles differ from traditional, global styles in a couple of ways.
   
   Firstly, the selectors we put into a component's styles *only apply withing the template
   of that component*. The `h1 { }` selector in the example above only applies to the `<h1>` tag
-  in the template of `HeroAppComponent`. If there are other `<h1>` elements elsewhere in
-  the application, their styles are not affected.
+  in the template of `HeroAppComponent`. Any `<h1>` elements elsewhere in
+  the application are unaffected.
   
-  In terms of modularity, this is a big improvement over how CSS traditionally works, for
-  several reasons:
+  This is a big improvement in modularity compared to how CSS traditionally works:
   
-  1. We can now use the CSS class names and selectors that make the most sense in the context
-     of each component. We don't need to worry about clashing with classes and selectors used
-     elsewhere in the application.
-  2. For the same reason, we can rest assured that our component's styles will *not* be
-     unintenionally changed in the future by styles defined elsewhere in the application.
-  3. We can co-locate the CSS code of each component with the TypeScript and HTML code of the component,
+  1. We can use the CSS class names and selectors that make the most sense in the context of each component. 
+     
+  1. Class names and selectors are local to the component and won't collide with 
+  classes and selectors used elsewhere in the application.
+     
+  1. Our component's styles *cannot* be changed by changes to styles elsewhere in the application.
+     
+  1. We can co-locate the CSS code of each component with the TypeScript and HTML code of the component,
      which leads to a neat and tidy project structure.
-  4. When we want to change or remove some CSS code in the future, we don't have to trawl through the
-     whole application to see where it may have been used. We just need to look at the component
-     we're in.
+     
+  1. We can change or remove component CSS code in the future without trawling through the
+     whole application to see where else it may have been used. We just look at the component we're in.
 
-  In addition to this added modularity, component styles have a few special *selectors*
-  available:
+a(id="special-selectors")
+.l-main-section
+:marked
+  ## Special selectors
   
-  ### The :host Selector
+  Component styles have a few special *selectors* from the world of 
+  <a href="https://www.w3.org/TR/css-scoping-1/" target="_blank">shadow DOM style scoping</a>.
+  
+  ### :host
 
-  If we want to target styles to the component's *host element itself* (as opposed to
-  targeting elements *inside* the component's template), we can do so with the `:host`
-  selector:
+  Use the `:host` pseudo-class selector to target styles in the element that *hosts* the component (as opposed to
+  targeting elements *inside* the component's template):
   
-+makeExample('component-styles/ts/app/hero-details.component.css', 'host')
++makeExample('component-styles/ts/app/hero-details.component.css', 'host')(format='.')
 
 :marked
-  This is actually the *only* way we can target the host element. We can not reach
+  This is the *only* way we can target the host element. We cannot reach
   it from inside the component with other selectors, because it is not part of the
   component's own template. It is in a parent component's template.
   
-  If we want to conditionally apply styles to the host element only when some condition
-  is true, we can use the *function form* of the host selector. This means including another
-  selector inside parentheses after `:host`:
+  Use the *function form* to apply host styles conditionally by 
+  including another selector inside parentheses after `:host`.
   
-+makeExample('component-styles/ts/app/hero-details.component.css', 'hostfunction')
+  In the next example we target the host element again, but only when it also has the `active` CSS class.
+  
++makeExample('component-styles/ts/app/hero-details.component.css', 'hostfunction')(format=".")
   
 :marked
-  In this example we are again targeting the host element, but only when it also has the
-  `active` CSS class present.
-  
-  ### The :host-context Selector
+  ### :host-context
   
   Sometimes it is useful to apply styles based on some condition *outside* a component's view.
   For example, there may be a CSS theme class applied to the document `<body>` element, and
   we want to change how our component looks based on that.
   
-  In these cases we can use the `:host-context()` selector. It works just like the function
-  form of `:host()`, but it checks *any ancestor* of the component host element, all the way
-  up to the document root. This selector is useful when combined with some other selector:
+  Use the `:host-context()` pseudo-class selector. It works just like the function
+  form of `:host()`. It looks for a CSS class in *any ancestor* of the component host element, all the way
+  up to the document root. It's useful when combined with another selector.
   
-+makeExample('component-styles/ts/app/hero-details.component.css', 'hostcontext')
+  In the following example, we apply a `background-color` style to all `<h2>` elements *inside* the component, only
+  if some ancestor element has the CSS class `theme-light`.
+  
++makeExample('component-styles/ts/app/hero-details.component.css', 'hostcontext')(format='.')
   
 :marked
-  In this example, we apply a style to all `<h2>` elements inside the component, but only
-  if somewhere above the component there is an ancestor element that has the CSS class
-  `theme-light`.
+  ### /deep/
   
-  ### The /deep/ Selector
+  Component styles normally apply only to the HTML in the component's own template. 
   
-  As discussed, a component's styles only apply to the view of that specific component. But
-  sometimes we want a way out of this and pierce into all the child component views as well.
-  For this purpose we have the `/deep/` selector:
-  
-+makeExample('component-styles/ts/app/hero-details.component.css', 'deep')
-
-:marked
+  We can use the `/deep/` selector to force a style down through the child component tree into all the child component views.
   The `/deep/` selector works to any depth of nested components, and it applies *both to the view
-  children and the content children* of the component. In this example, we target all `<h3>` elements
-  anywhere below this component in the DOM.
+  children and the content children* of the component. 
+  
+  In this example, we target all `<h3>` elements, from the host element down 
+  through this component to all of its child elements in the DOM: 
++makeExample('component-styles/ts/app/hero-details.component.css', 'deep')(format=".")
 
+a(id='loading-styles')
 .l-main-section
 :marked
   ## Loading Styles into Components
   
-  There are several ways we can include styles in a component: By putting them 
-  inline in the template HTML, by using `styles` or `styleUrls` metadata, or by
-  using CSS imports.
+  We have several ways to add styles to a component: 
+  * inline in the template HTML
+  * by setting `styles` or `styleUrls` metadata
+  * with CSS imports
   
-  The encapsulation rules outlined above apply to each of these loading patterns
-  equally: Component styles are component styles whichever way they happened to
-  be loaded.
+  The scoping rules outlined above apply to each of these loading patterns.
   
   ### Styles in Metadata
   
-  We can add a `styles` attribute to the `@Component` (or `@View`) decorator of a
-  component class. Its value is an array of strings, each string containing CSS
-  code.
+  We can add a `styles` array property to the `@Component` decorator.
+  Each string in the array (usually just one string) defines the css.
   
 +makeExample('component-styles/ts/app/hero-app.component.ts')
   
 :marked
   ### Template Inline Styles
   
-  We can embed styles right into a component's HTML template by putting them
+  We can embed styles directly into the HTML template by putting them
   inside `<style>` tags.
   
 +makeExample('component-styles/ts/app/hero-controls.component.ts', 'inlinestyles')
@@ -149,85 +150,89 @@ include ../_util-fns
   
 +makeExample('component-styles/ts/app/hero-details.component.ts', 'styleurls')
   
-:marked
-  Angular interprets this URL *relative to the HTML page on which the application
-  is running*. Notably, it is *not* relative to the TypeScript file where the URL
-  is defined.
-  
-.callout.is-helpful
+.callout.is-important
   :marked
-    If you want to use URLs relative to the TypeScript files, see 
-    [Appendix 2](#appendix-2-loading-styles-with-relative-urls).
+    The URL is ***relative to the application root*** which is usually the
+    location of the `index.html` web page that hosts the application. 
+    The style file URL is *not* relative to the component file.
+    That's why the example URL begins `app/`.
+    See [Appendix 2](#relative-urls) to specify a URL relative to the component file.
   
+.l-sub-section
+  :marked
     Users of module bundlers like Webpack may also use the `styles` attribute to load 
-    styles from external files at build time (e.g. `styles: [require('my.component.css')]`).
-    This is different from using `styleUrls` since the loading is handled by the module
-    bundler, not Angular. All Angular ever sees in this setup are the CSS strings as if
-    they were written write right into the TypeScript file. Refer to the module bundler's
-    documentation for information on loading CSS.
+    styles from external files at build time. They could write:
+    
+    `styles: [require('my.component.css')]`
+
+    We set the `styles` property, **not** `styleUrls` property! The module bundler is loading the CSS strings, not Angular. 
+    Angular only sees the CSS strings *after* the bundler loaded them. To Angular it is as if
+    we wrote the `styles` array by hand. 
+    Refer to the module bundler's documentation for information on loading CSS in this manner.
   
 :marked
   ### Template Link Tags
   
-  We can also embed `<link>` tags into the component's HTML template. The URLs of
-  the link tags are processed with the same rules as `styleUrls`, which is relative
-  to the HTML host page of the application.
+  We can also embed `<link>` tags into the component's HTML template. 
+  
+  As with `styleUrls`, the link tag's `href` URL is relative to the HTML host page of the application, 
+  not relative to the component file.
   
 +makeExample('component-styles/ts/app/hero-team.component.ts', 'stylelink')
   
 :marked
   ### CSS @imports
   
-  We can also import CSS files into other CSS files by using the standard CSS
+  We can also import CSS files into our CSS files by using the standard CSS
   [`@import` rule](https://developer.mozilla.org/en/docs/Web/CSS/@import).
-  Here the URL is resolved relative to the CSS file into which we are importing.
   
-+makeExample('component-styles/ts/app/hero-details.component.css', 'import')
+  In *this* case the URL is relative to the CSS file into which we are importing.
+  
++makeExample('component-styles/ts/app/hero-details.component.css', 'import', 'app/hero-details.component.css (excerpt)')
   
 .l-main-section
 :marked
   ## Controlling View Encapsulation: Native, Emulated, and None
   
-  As described above, the CSS styles of a component are *encapsulated* into its own view and do
+  As discussed above, component CSS styles are *encapsulated* into the component's own view and do
   not affect the rest of the application.
   
-  We can actually control how this encapsulation happens, and we can do that on a component per
-  component basis. This is done by setting the *view encapsulation mode* of each component. There
-  are three modes we can choose from:
+  We can control how this encapsulation happens on a *per
+  component* basis by setting the *view encapsulation mode* in the component metadata. There
+  are three modes to choose from:
   
   * `Native` view encapsulation uses the browser's native [Shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Shadow_DOM)
     implementation to attach a Shadow DOM to the component's host element, and then puts the component
     view inside that Shadow DOM. The component's styles are included within the Shadow DOM.
-  * `Emulated` view encapsulation (**this is the default**) emulates the behavior of Shadow DOM by preprocessing
-    the CSS code in a way that scopes it to the component's view. See
-    [Appendix 1](#appendix-1-inspecting-the-css-generated-in-emulated-view-encapsulation) for details.
-  * `None` means that no view encapsulation is applied to the component's view. All CSS styles
-    are applied globally, and the scoping rules discussed above do not apply. This is essentially the
-    same as adding the component's styles as a global stylesheet to the page.
     
-  `Native` view encapsulation will only work on [browsers that have native support
+  * `Emulated` view encapsulation (**the default**) emulates the behavior of Shadow DOM by preprocessing
+    (and renaming) the CSS code to effectively scope the CSS to the component's view.
+    See [Appendix 1](#inspect-generated-css) for details.
+    
+  * `None` means that Angular does no view encapsulation. 
+    Angular adds the CSS to the global styles. 
+    The scoping rules, isolations, and protections discussed earlier do not apply. 
+    This is essentially the same as pasting the component's styles into the HTML.
+    
+  Set the components encapsulation mode using the `encapsulation` property in the component metadata:
+  
++makeExample('component-styles/ts/app/quest-summary.component.ts', 'encapsulation.native')(format='.')
+:marked
+  `Native` view encapsulation only works on [browsers that have native support
   for Shadow DOM](http://caniuse.com/#feat=shadowdom). The support is still limited,
   which is why `Emulated` view encapsulation is the default mode and recommended
   in most cases.
-    
-  We can set the view encapsulation of a component by using the `encapsulation`
-  attribute in the component metadata:
-  
-+makeExample('component-styles/ts/app/quest-summary.native.component.ts', 'encapsulation')
 
-:marked
-  
-
+a(id="inspect-generated-css")
 .l-main-section
 :marked
   ## Appendix 1: Inspecting The CSS Generated in Emulated View Encapsulation
   
-  When using emulated view encapsulation, which is the default, Angular preprocesses
+  When using the default emulated view encapsulation, Angular preprocesses
   all component styles so that they approximate the standard Shadow CSS scoping rules.
-  It can be useful to understand how these styles look like at runtime.
   
-  If we inspect the DOM of a running Angular application with emulated view
-  encapsulation enabled, we can see that each DOM element has some extra attributes
+  When we inspect the DOM of a running Angular application with emulated view
+  encapsulation enabled, we see that each DOM element has some extra attributes
   attached to it:
   
 code-example(format="").
@@ -239,11 +244,12 @@ code-example(format="").
   &lt;/hero-detail>
 
 :marked
-  There are two kinds of generated attributes in use here:
-  * Every element that would be a Shadow DOM host in native encapsulation has a
+  We see two kinds of generated attributes:
+  * An element that would be a Shadow DOM host in native encapsulation has a
     generated `_nghost` attribute. This is typically the case for component host elements.
-  * Every element that comes from some component's view has a generated `_ngcontent`
-    attribute. It communicates which host's emulated Shadow DOM the element is in.
+    
+  * An element within a component's view has a `_ngcontent` attribute 
+  that identifies to which host's emulated Shadow DOM this element belongs.
   
   The exact values of these attributes are not important. They are automatically
   generated and we never refer to them in application code. But they are targeted
@@ -261,52 +267,67 @@ code-example(format="").
   }
   
 :marked
-  These are the styles we have written, but processed so that each selector is augmented
-  with `_nghost` or `_ngcontent` attribute selectors. These extra selectors are the
-  secret sauce that enables the scoping rules described in this guide. At least until
-  Shadow DOM becomes more widely supported natively.
+  These are the styles we wrote, post-processed so that each selector is augmented
+  with `_nghost` or `_ngcontent` attribute selectors. 
+  These extra selectors enable the scoping rules described in this guide.
   
+  We'll likely live with *emulated* mode until shadow DOM gains traction.
+  
+a(id="relative-urls")
 .l-main-section
 :marked
   ## Appendix 2: Loading Styles with Relative URLs
   
-  Splitting the code of each component into two or three separate files is a
-  common pattern:
+  It's common practice to split a component's code, HTML, and CSS into three separate files in the same directory:
   
-  * `my.component.ts`
-  * `my.component.html`
-  * `my.component.css`
+code-example(format='').
+  quest-summary.component.ts
+  quest-summary.component.html
+  quest-summary.component.css
+:marked
+  We include the template and CSS files by setting the `templateUrl` and `styleUrls` metadata properties respectively.
+  Because these files are co-located with the component,
+  it would be nice to refer to them by name without also having to specify a path back to the root of the application.
   
-  In this scheme we include the template to the component using `templateUrl` and
-  the styles using `styleUrls`. The files are usually all located in the same directory,
-  so it would be nice if we could just refer to the component CSS (and HTML) without having
-  to specify a path, by just assuming that it will be resolved from the same directory as
-  the TypeScript code: `styleUrls: ['my.component.css']` or `styleUrls: ['./my.component.css']`.
+  We'd *prefer* to write this:
++makeExample('component-styles/ts/app/quest-summary.component.ts', 'urls')(format='.')
+:marked
+  We can't do that by default. Angular can't find the files and throws an error:
+
+  `EXCEPTION: Failed to load quest-summary.component.html`
+
+  Why can't Angular calculate the HTML and CSS URLs from the component file's location? 
   
-  However, this is not entirely straightforward. Angular 2 applications
-  can be loaded in many ways: From individual files, from SystemJS bundles, or
-  from CommonJS bundles, just to give some examples. For this reason it is not
-  obvious at runtime what these relative path actually mean.
+  Unfortunately, that location is not readily known. 
+  Angular apps can be loaded in many ways: from individual files, from SystemJS bundles, or
+  from CommonJS bundles, to name a few. 
+  With this diversity of load strategies, it's not easy to tell at runtime where these files actually reside.
   
-  By default, Angular resolves relative paths based on the path of the HTML page
-  that is running the application. This works with any code loading scheme,
-  but is not always the most convenient approach from a developer's point of view.
+  The only location Angular can be sure of is the URL of the `index.html` home page.
+  So by default it resolves template and style paths relative to the URL of `index.html`.
+  That's why we previously wrote our CSS file URLs with an `app/` base path prefix.
   
-  In some situations there is a way to change this. Angular 2 supports adding
-  a `moduleId` attribute to the `@Component` decorator. If we can find a way to set
-  the runtime path of the component to that attribute, Angular will resolve the style URLs
-  (as well as the template URL) of the component relative to it.
+  Although this works with any code loading scheme, it is very inconvenient.
+  We move file folders around all the time during the evolution of our applications. 
+  It's no fun patching the style and template URLs when we do.
   
-  With SystemJS we can populate `moduleId` with the special `__moduleName` variable.
-  We should do this for every component in which we want to use relative paths for
-  style or template URLs.
+  ### *moduleId*
   
-+makeExample('component-styles/ts/app/quest-summary.component.ts')
+  We can change the way Angular calculates the full URL be setting the component metadata's `moduleId` property.
   
-.callout.is-helpful
+  If we knew the component file's base path, we'd set `moduleId` to that and 
+  let Angular construct the full URL from this base path plus the CSS and template file names.
+  
+  Our challenge is to calculate the base path with minimal effort. 
+  If it's too hard, we shouldn't bother; we should just write the full path to the root and move on.
+
+  Fortunately, *certain* module loaders make it easy.
+  SystemJS (starting in v.0.19.19) sets a special `__moduleName` variable to the URL of the component file.
+  Now it's trivial to set the `moduleId` to the `__moduleNam` and write module-relative paths for style and template URLs.
+  
++makeExample('component-styles/ts/app/quest-summary.component.ts','', 'app/quest-summary.component.ts')
+
+.l-sub-section
   :marked
-    With a module bundler like Webpack we would instead more likely use just `styles`
-    (not `styleUrls`) and `template` (not `templateUrl`) combined with the bundler's
-    `require` mechanism.
-    
-    
+    With a module bundler like Webpack we are more likely to set the `styles` and `template` properties with the bundler's
+    `require` mechanism rather than bother with `styleUrls` and `templateUrl`.
