@@ -23,7 +23,7 @@ export class TodoApp {
   ];
 
   get remaining() {
-    return this.todos.reduce((count: number, todo: Todo) => count + +!todo.done, 0);
+    return this.todos.reduce((count: number, todo: Todo) => todo.done ? count : ++count, 0);
   }
 
   archive(): void {
