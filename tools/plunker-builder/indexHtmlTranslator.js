@@ -40,52 +40,52 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-all.umd.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/angular2-all.umd.dev.js'
-  },             
+    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-all.umd.dev.js'
+  },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-all.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/angular2-all.umd.dev.js'
-  },  
+    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-all.umd.dev.js'
+  },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-polyfills.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/angular2-polyfills.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-polyfills.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/Rx.js'
-  },  
+    to: 'https://code.angularjs.org/2.0.0-beta.14/Rx.js'
+  },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/Rx.umd.js'
-  },  
+    to: 'https://code.angularjs.org/2.0.0-beta.14/Rx.umd.js'
+  },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.14/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.14/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.13/testing.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.14/testing.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/es6/dev/src/testing/shims_for_IE.js',
-    to: 'https://npmcdn.com/angular2@2.0.0-beta.13/es6/dev/src/testing/shims_for_IE.js'
+    to: 'https://npmcdn.com/angular2@2.0.0-beta.14/es6/dev/src/testing/shims_for_IE.js'
   },
   {
     pattern: 'script',
