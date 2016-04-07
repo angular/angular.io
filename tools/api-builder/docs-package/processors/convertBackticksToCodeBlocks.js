@@ -44,7 +44,9 @@ module.exports = function convertBackticksToCodeBlocks() {
             var replaceVal = '\n' + newPrePad + codeExamplePrefix + escapeHtml(blockContents) + '\n';
             // if nextBlock does NOT start with a '.' then we want to restart a markdown block.
             // and that block needs to be exdented from the preceding code-example content.
-            if (nextBlockStartChar != '.') {
+            // There is also a case where immediately after the backticks, an @example (aka +makeExample) is created.
+            // In this case a markdown block is not needed.
+            if (nextBlockStartChar !== '.' && nextBlockStartChar !== '+') {
               if (postPad.length >= 2) {
                 // modulo op in next line insures that pad is always a multiple of 2 ( jade whitespace).
                 postPad = postPad.substr(2 + (postPad.length % 2)); // exdent

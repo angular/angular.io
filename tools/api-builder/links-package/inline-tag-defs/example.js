@@ -32,7 +32,8 @@ module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getAp
         log.warn(createDocMessage('Invalid example (unable to locate fragment file: ' + quote(fragFileName) + ")", doc));
       }
 
-      var comma = ', '
+      var comma = ', ';
+      // the '+' character is a jade thing for mixins http://jade-lang.com/reference/mixins/
       var res = [ "+makeExample(", quote(mixinFilePath), comma, region ? quote(region) : 'null', comma, title ? quote(title) : 'null', ")" ].join('');
       return res;
     }
