@@ -23,8 +23,8 @@ import { HeroService } from './hero.service';
     </ul>
     <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
-  // #enddocregion template  
-  styles:[`
+  // #enddocregion template
+  styles: [`
     .selected {
       background-color: #CFD8DC !important;
       color: white;

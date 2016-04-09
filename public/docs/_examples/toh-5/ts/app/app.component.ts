@@ -3,12 +3,12 @@
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
-import { HeroService } from './hero.service';
 import { DashboardComponent } from './dashboard.component';
 import { HeroesComponent } from './heroes.component';
 // #docregion hero-detail-import
 import { HeroDetailComponent } from './hero-detail.component';
 // #enddocregion hero-detail-import
+import { HeroService } from './hero.service';
 
 @Component({
   selector: 'my-app',
