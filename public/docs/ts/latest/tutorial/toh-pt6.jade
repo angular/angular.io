@@ -1,0 +1,233 @@
+include ../_util-fns
+
+:marked
+  # Http
+  
+  Our application has become a huge success and our stakeholders have already expanded the vision to include integration with a hero api. 
+  
+  The current solution limits us to a fixed set of heroes, but integration with the api will allow us to load heroes dynamically from a database. We will also be able to add, edit and delete heroes. 
+  
+  In this chapter we will show how to integrate the http based api with our existing application.
+:marked
+  [Run the live example](/resources/live-examples/toh-6/ts/plnkr.html).   
+  
+.l-main-section
+:marked
+  ## Where We Left Off
+  Before we continue with our Tour of Heroes, let’s verify that we have the following structure after adding our hero service 
+  and hero detail component. If not, we’ll need to go back and follow the previous chapters.
+
+.filetree
+  .file angular2-tour-of-heroes
+  .children
+    .file app
+    .children
+      .file app.component.ts
+      .file app.component.css
+      .file dashboard.component.css
+      .file dashboard.component.html
+      .file dashboard.component.ts
+      .file hero.ts
+      .file hero-detail.component.css
+      .file hero-detail.component.html
+      .file hero-detail.component.ts
+      .file hero.service.ts
+      .file heroes.component.css
+      .file heroes.component.html
+      .file heroes.component.ts
+      .file main.ts
+      .file mock-heroes.ts
+    .file node_modules ...
+    .file typings ...      
+    .file index.html
+    .file package.json
+    .file styles.css
+    .file tsconfig.json
+    .file typings.json
+:marked
+  ### Keep the app transpiling and running
+  Open a terminal/console window and enter the following command to
+  start the TypeScript compiler, start the server, and watch for changes:
+
+code-example(format="." language="bash").
+  npm start
+
+:marked
+  The application runs and updates automatically as we continue to build the Tour of Heroes.
+
+:marked
+  ## Heroes and Http
+  
+  Let's look back at our `HeroService` implementation in the <a href="/docs/ts/latest/tutorial/toh-pt4.html">services</a> chapter. Specifically let's revisit the point we made about using promises when loading heroes. 
+  
+  Wrapping a simple constant in a promise might have seemed like overkill at the time, but we will show why this was an important first step towards moving to `Http`. 
+  
+  Let's get started by converting `getHeroes()` to use `Http`.
+  
++makeExample('toh-6/ts/app/hero.service.ts', 'get-heroes', 'hero.service.ts (getHeroes using Http)')(format=".")
+  
+:marked
+  ### Http Promise
+
+  In our previous implementation we created a promise ourselves and resolved it immediately. When using `Http` we no longer have to create the promise manually. Instead `Http` will create it for us, but we have to call `toPromise()` to get it.
+  
+  In the first `then` we convert the response to a json object by calling `res.json()`.
+  
+  Our api follows the convention of returning the result wrapped in a `data` property, but we don't want to expose this to the caller, so we flatten the response in the second `then` by returning `res.data`.   
+
+:marked
+  ### Error Handling
+  
+  At the end we are calling `catch` and passing in an error handler. This is an important step since it allows us to catch any error returned by the api. 
++makeExample('toh-6/ts/app/hero.service.ts', 'error-handler', 'hero.service.ts (Error handler)')(format=".")
+
+:marked
+  ### Promises are Promises
+  Even though we made significant internal changes to `getHeroes()`, the public signature did not change. Like before we are returning a promise, so the callers of `getHeroes()` will not need to be updated.  
+
+.l-sub-section
+  :marked
+    We want to point out that a promise is not the only way to process http calls. We will encounter other approaches such as Observables in subsequent chapters, but for the purposes of this article we are sticking to promises. 
+   
+:marked
+  ## Add, Edit, Delete
+  
+  Our stakeholders are incredibly pleased with the added flexibility from the api integration, but it doesn't stop there. Next we want to add the capability to add, edit and delete heroes.   
+  
+  In this section we will show how to implement http `post`, `put` and `delete` calls in `HeroService` to meet our new requirements. 
+
+:marked
+  ### Post
+  
+  We are using `post` to add new `Hero` objects to our database. Post requests require a little bit more setup than Get requests, but the format is as follows:
+  
++makeExample('toh-6/ts/app/hero.service.ts', 'post-hero', 'hero.service.ts (post hero)')(format=".")
+
+:marked
+  First we create a header and set the content type to `application/json`. Before posting we have to call `JSON.stringify` to convert the hero object to a string.  
+  
+  ### Put
+  
+  `Put` is used to edit a specific hero, but the structure is very similar to a `post` request. The only difference is that we have to change the url slightly by appending the id of the hero we want to edit.
+
++makeExample('toh-6/ts/app/hero.service.ts', 'put-hero', 'hero.service.ts (put hero)')(format=".")
+
+:marked
+  ### Delete
+  `delete` is used to delete heroes and the format is identical to `put` except for the function name. 
+
++makeExample('toh-6/ts/app/hero.service.ts', 'delete-hero', 'hero.service.ts (delete hero)')(format=".")
+
+:marked
+  In all three cases we add a `catch` for error handling.
+
+  After these additions our `HeroService` looks like this:
+
++makeExample('toh-6/ts/app/hero.service.ts', null, 'hero.service.ts')(format=".")
+
+:marked
+  ## Updating Components
+  
+  Loading heroes using `Http` required no changes outside of `HeroService`, but we added a few new features as well. In the following section we will update our components to use our new methods to add, edit and delete heroes.
+  
+  ### Add/Edit
+  We already have `HeroDetailComponent` for viewing details about a specific hero. Add and Edit are natural extensions of the detail view, so we are able to reuse `DetailHeroComponent` with a few tweaks. The original component was created to render existing data, but to add new data we have to initialize the `hero` property to an empty `Hero` object.
+  
++makeExample('toh-6/ts/app/hero-detail.component.ts', 'ngOnInit', 'hero-detail.component.ts (ngOnInit)')(format=".")     
+
+:marked
+  In order to differentiate between add and edit we are adding a check to see if an id is passed in the url. If the id is absent we bind `HeroDetailComponent` to an empty `Hero` object. In either case, any edits made through the UI will be bound back to the same `hero` property.
+
+  The next step is to add a save method to `HeroDetailComponent` and call the corresponding save method in `HeroesService`.
+  
++makeExample('toh-6/ts/app/hero-detail.component.ts', 'save', 'hero-detail.component.ts (save)')(format=".")  
+
+:marked
+  The same save method is used for both add end edit since `HeroService` will know when to call `post` vs `put` based on the state of the `Hero` object.
+  
+  We mentioned earlier that `save()` returns a promise, so when the promise resolves, we call `emit` to notify `HeroesComponent` that we just added or modified a hero. `HeroesComponent` is listening for this notification and will refresh the list of heroes to include our recent updates.     
+
+.l-sub-section
+  :marked
+    The `emit` "handshake" between `HeroDetailComponent` and `HeroesComponent` is an example of component to component communication. This is a topic for another day, but we have detailed information in our <a href="/docs/ts/latest/cookbook/component-communication.html#!#child-to-parent">Component Interaction Cookbook</a>  
+
+:marked
+  Here is `HeroDetailComponent` with the added save button.
+  
+figure.image-display
+  img(src='/resources/images/devguide/toh/hero-details-save-button.png' alt="Hero Details With Save Button") 
+
+:marked
+  ### Delete
+  
+  We have added the option to delete hereos from `HeroesComponent`. `HeroService` will delete the hero, but we have to filter out the deleted hero from the list to update the view.
+  
++makeExample('toh-6/ts/app/heroes.component.ts', 'delete', 'heroes.component.ts (delete)')(format=".")  
+
+:marked
+  Here is `HeroesComponent` with the delete button. 
+  
+figure.image-display
+  img(src='/resources/images/devguide/toh/heroes-list-delete-button.png' alt="Heroes List With Delete Button")  
+  
+:marked
+ ## Integration with Http
+  
+  `Http` is not part of Angular core, but exists as a separate add-on module called `angular2/http`. It ships as a separate bundle, so we have to include the bundle in `index.html`.
+  
++makeExample('toh-6/ts/index.html', 'http', 'index.html (http)')(format=".")  
+  
+:marked
+  The only other thing we have to do is import `HTTP_PROVIDERS` from `angular2/http` and register it in our root component's provider array.   
+  ### Simulating the api
+  
+  Our hero api is not deployed to production yet, but for the purposes of this chapter we have decided to integrate with an in-memory web api simulator. Configuring the simulator requires a few extra steps, but we offer detailed documentation <a href='/docs/ts/latest/guide/server-communication.html#!#in-mem-web-api'>here</a>. Keep in mind, the steps to configure the simulator are not required when integrating with a real http api.
+
+  Since we are integrating with the simulator we no longer need `mock-heroes.ts` to load heroes, so it's safe to delete it.
+
+:marked
+  ### Review the App Structure
+  Let’s verify that we have the following structure after all of our good refactoring in this chapter:
+  
+.filetree
+  .file angular2-tour-of-heroes
+  .children
+  .file app
+  .children
+    .file app.component.ts
+    .file app.component.css
+    .file dashboard.component.css
+    .file dashboard.component.html
+    .file dashboard.component.ts
+    .file hero.ts
+    .file hero-detail.component.css
+    .file hero-detail.component.html
+    .file hero-detail.component.ts
+    .file hero.service.ts
+    .file heroes.component.css
+    .file heroes.component.html
+    .file heroes.component.ts
+    .file main.ts
+    .file hero-data.ts
+  .file node_modules ...
+  .file typings ...      
+  .file index.html
+  .file package.json
+  .file styles.css
+  .file sample.css
+  .file tsconfig.json
+  .file typings.json
+    
+:marked
+
+.l-main-section
+:marked
+  ## Recap
+
+  ### The Road Behind
+  We travelled a great distance in this chapter.
+  - We add the necessary dependencies to use Http in our application.
+  - We refactored HeroService to load heroes from a database.
+  - We extended HeroService to support post, put and delete calls.
+  - We updated our components to allow adding, editing and deleting of heroes.
+  - We configured an in-memory api simulator.
