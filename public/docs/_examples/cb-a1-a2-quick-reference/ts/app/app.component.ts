@@ -1,5 +1,5 @@
 import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from "angular2/router";
+import {Routes, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from "angular2/router";
 
 import {MovieListComponent} from './movie-list.component';
 import {MovieService} from './movie.service';
@@ -14,7 +14,7 @@ import {StringSafeDatePipe} from './date.pipe';
   pipes: [StringSafeDatePipe],
   providers: [MovieService, ROUTER_PROVIDERS]
 })
-@RouteConfig([
+@Routes([
   {path: '/movies', name: 'Movies', component: MovieListComponent, useAsDefault: true}
 ])
 export class AppComponent {

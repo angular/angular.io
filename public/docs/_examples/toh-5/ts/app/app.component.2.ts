@@ -2,7 +2,7 @@
 // #docregion
 import { Component } from 'angular2/core';
 // #docregion import-router
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+import { Routes, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
 // #enddocregion import-router
 
 import { HeroService }     from './hero.service';
@@ -25,15 +25,15 @@ import { HeroesComponent } from './heroes.component';
   ]
   // #enddocregion directives-and-providers
 })
-// #docregion route-config
-@RouteConfig([
+// #docregion routes
+@Routes([
   {
     path: '/heroes',
     name: 'Heroes',
     component: HeroesComponent
   }
 ])
-// #enddocregion route-config
+// #enddocregion routes
 export class AppComponent {
   title = 'Tour of Heroes';
 }

@@ -6,7 +6,7 @@ import { HeroesComponent } from './heroes.component';
 // #enddocregion
 
 // For testing only
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+import { Routes, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
 
 // #docregion
 

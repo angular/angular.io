@@ -1,5 +1,5 @@
 import {Component}     from 'angular2/core';
-import {RouteConfig, RouterOutlet} from 'angular2/router';
+import {Routes, RouterOutlet} from 'angular2/router';
 
 import {CrisisListComponent}   from './crisis-list.component.1';
 import {CrisisDetailComponent} from './crisis-detail.component.1';
@@ -16,13 +16,13 @@ import {CrisisService}         from './crisis.service';
   providers:  [CrisisService]
 // #enddocregion providers
 })
-// #docregion route-config
-@RouteConfig([
+// #docregion routes
+@Routes([
   // #docregion default-route
   {path:'/',    name: 'CrisisList',   component: CrisisListComponent, useAsDefault: true},
   // #enddocregion default-route
   {path:'/:id', name: 'CrisisDetail', component: CrisisDetailComponent}
 ])
-// #enddocregion route-config
+// #enddocregion routes
 export class CrisisCenterComponent { }
 // #enddocregion  minus-imports
