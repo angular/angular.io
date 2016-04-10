@@ -1,68 +1,91 @@
-// Tun on full stack traces in errors to help debugging
-Error.stackTraceLimit=Infinity;
+/*global jasmine, __karma__, window*/
+(function () {
 
+// Error.stackTraceLimit = Infinity;
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 
-// // Cancel Karma's synchronous start,
-// // we will call `__karma__.start()` later, once all the specs are loaded.
-__karma__.loaded = function() {};
+// Cancel Karma's synchronous start,
+// we call `__karma__.start()` later, once all the specs are loaded.
+__karma__.loaded = function () { };
 
+// SET THE RUNTIME APPLICATION ROOT HERE
+var appRoot ='app'; // no trailing slash!
 
-System.config({
-  packages: {
-    'base/app': {
-      defaultExtension: false,
-      // removed because of issues with raw .js files not being found.
-      // format: 'register',
-      map: Object.keys(window.__karma__.files).
-            filter(onlyAppFiles).
-            reduce(function createPathRecords(pathsMapping, appPath) {
-              // creates local module name mapping to global path with karma's fingerprint in path, e.g.:
-              // './hero.service': '/base/src/app/hero.service.js?f4523daf879cfb7310ef6242682ccf10b2041b3e'
-              var moduleName = appPath.replace(/^\/base\/app\//, './').replace(/\.js$/, '');
-              pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath]
-              return pathsMapping;
-            }, {})
+// RegExp for client application base path within karma (which always starts 'base\')
+var karmaBase = '^\/base\/'; // RegEx string for base of karma folders
+var appPackage = 'base/' + appRoot; //e.g., base/app
+var appRootRe = new RegExp(karmaBase + appRoot + '\/');
+var onlyAppFilesRe = new RegExp(karmaBase + appRoot + '\/(?!.*\.spec\.js$)([a-z0-9-_\.\/]+)\.js$');
 
-      }
-    }
-});
+var moduleNames = [];
 
-// old code from angular 44
-// System.import('angular2/src/core/dom/browser_adapter').then(function(browser_adapter) {
-// new path for angular 51
-System.import('angular2/src/platform/browser/browser_adapter').then(function(browser_adapter) {
-    browser_adapter.BrowserDomAdapter.makeCurrent();
-}).then(function() {
+// Configure systemjs packages to use the .js extension for imports from the app folder
+var packages = {};
+packages[appPackage] = {
+    defaultExtension: false,
+    format: 'register',
+    map: Object.keys(window.__karma__.files)
+      .filter(onlyAppFiles)
+      // Create local module name mapping to karma file path for app files
+      // with karma's fingerprint in query string, e.g.:
+      // './hero.service': '/base/app/hero.service.js?f4523daf879cfb7310ef6242682ccf10b2041b3e'
+      .reduce(function (pathsMapping, appPath) {
+        var moduleName = appPath.replace(appRootRe, './').replace(/\.js$/, '');
+        pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath];
+        return pathsMapping;
+      }, {})
+  }
+
+System.config({ packages: packages });
+
+// Configure Angular for the browser and
+// with test versions of the platform providers
+System.import('angular2/testing')
+  .then(function (testing) {
+    return System.import('angular2/platform/testing/browser')
+      .then(function (providers) {
+        testing.setBaseTestProviders(
+          providers.TEST_BROWSER_PLATFORM_PROVIDERS,
+          providers.TEST_BROWSER_APPLICATION_PROVIDERS
+        );
+      });
+  })
+
+// Load all spec files
+// (e.g. 'base/app/hero.service.spec.js')
+.then(function () {
   return Promise.all(
-    Object.keys(window.__karma__.files) // All files served by Karma.
-    .filter(onlySpecFiles)
-    // .map(filePath2moduleName)        // Normalize paths to module names.
-    .map(function(moduleName) {
-      // loads all spec files via their global module names (e.g. 'base/src/app/hero.service.spec')
-      return System.import(moduleName);
-    }));
+    Object.keys(window.__karma__.files)
+      .filter(onlySpecFiles)
+      .map(function (moduleName) {
+        moduleNames.push(moduleName);
+        return System.import(moduleName);
+      }));
 })
-.then(function() {
-  __karma__.start();
-}, function(error) {
-  __karma__.error(error.stack || error);
-});
 
+.then(success, fail);
 
-function filePath2moduleName(filePath) {
-  return filePath.
-           replace(/^\//, '').              // remove / prefix
-           replace(/\.\w+$/, '');           // remove suffix
-}
-
+////// Helpers //////
 
 function onlyAppFiles(filePath) {
-  return /^\/base\/app\/.*\.js$/.test(filePath) && !onlySpecFiles(filePath);
+  return onlyAppFilesRe.test(filePath);
 }
-
 
 function onlySpecFiles(filePath) {
   return /\.spec\.js$/.test(filePath);
 }
+
+function success () {
+  console.log(
+    'Spec files loaded:\n  ' +
+    moduleNames.join('\n  ') +
+    '\nStarting Jasmine testrunner');
+  __karma__.start();
+}
+
+function fail(error) {
+  __karma__.error(error.stack || error);
+}
+
+})();
