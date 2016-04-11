@@ -32,7 +32,7 @@ exports.config = {
 
   // doesn't seem to work.
   // resultJsonOutputFile: "foo.json",
-  
+
   onPrepare: function() {
     //// SpecReporter
     //var SpecReporter = require('jasmine-spec-reporter');
@@ -60,6 +60,12 @@ exports.config = {
     global.describeIf = describeIf;
     global.itIf = itIf;
     global.sendKeys = sendKeys;
+
+    // Allow changing bootstrap mode to NG1 for upgrade tests
+    global.setProtractorToNg1Mode = function() {
+      browser.useAllAngular2AppRoots = false;
+      browser.rootEl = 'body';
+    };
   },
 
   jasmineNodeOpts: {
@@ -187,4 +193,3 @@ function Reporter(options) {
   }
 
 }
-
