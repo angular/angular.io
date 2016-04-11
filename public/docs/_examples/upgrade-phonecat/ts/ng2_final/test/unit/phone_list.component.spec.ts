@@ -2,7 +2,7 @@
 import {provide, ApplicationRef} from 'angular2/core';
 import {HTTP_PROVIDERS} from 'angular2/http';
 import {
-  ROUTER_PROVIDERS
+  ROUTER_PROVIDERS,
   ROUTER_PRIMARY_COMPONENT,
   LocationStrategy
 } from 'angular2/router';
