@@ -1,5 +1,6 @@
 //#docregion
-import 'package:angular2/angular2.dart';
+import 'package:angular2/core.dart';
+
 // #docregion hero-import
 import 'hero.dart';
 // #enddocregion hero-import
@@ -23,8 +24,7 @@ import 'hero_detail_component.dart';
       <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     ''',
 // #enddocregion hero-detail-template
-    styles: const [
-      '''
+    styles: const ['''
       .selected {
         background-color: #CFD8DC !important;
         color: white;
