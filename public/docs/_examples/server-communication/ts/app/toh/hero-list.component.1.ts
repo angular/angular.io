@@ -1,3 +1,4 @@
+// ToH Promise Version
 // #docregion
 import {Component, OnInit} from 'angular2/core';
 import {Hero}              from './hero';
@@ -5,22 +6,7 @@ import {HeroService}       from './hero.service.1';
 
 @Component({
   selector: 'hero-list',
-// #docregion template
-  template: `
-  <h3>Heroes:</h3>
-  <ul>
-    <li *ngFor="#hero of heroes">
-      {{ hero.name }}
-    </li>
-  </ul>
-  New Hero:
-  <input #newHero />
-  <button (click)="addHero(newHero.value); newHero.value=''">
-    Add Hero
-  </button>
-  <div class="error" *ngIf="errorMessage">{{errorMessage}}</div>
-  `,
-  // #enddocregion template
+  templateUrl: 'app/toh/hero-list.component.html',
   styles: ['.error {color:red;}']
 })
 // #docregion component
@@ -29,7 +15,7 @@ export class HeroListComponent implements OnInit {
   constructor (private _heroService: HeroService) {}
 
   errorMessage: string;
-  heroes:Hero[];
+  heroes: Hero[];
 
   ngOnInit() { this.getHeroes(); }
 
