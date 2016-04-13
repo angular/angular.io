@@ -3,15 +3,15 @@ import {Router} from "angular2/router";
 
 @Injectable()
 export class A11yHelper {
-  
+
   constructor(private _router: Router){}
-  
+
   getInternalLink(hash: string, instructionName: string): string{
     let instruction = this._router.generate([instructionName]);
     let path = '/' +  instruction.toUrlPath() + hash;
     return path;
-  }  
-  
+  }
+
   generateUniqueIdString():string {
     return (this.randomGuidSnippet() +
     this.randomGuidSnippet() + "-" +
@@ -80,6 +80,10 @@ export class A11yHelper {
         value: 'Legal reasons'
       }
     ];
+  }
+
+  getCountriesWorkedIn():Array<string>{
+    return ['The USA', 'The Netherlands', 'South Africa', 'Germany', 'The UK'];
   }
 
   toggleItemInArray(stringArray:Array<string>, item:string): void {

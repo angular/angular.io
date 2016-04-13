@@ -481,17 +481,29 @@ null, 'a11y-input-wrapper.component.html,a11y-input-wrapper.component.ts, a11y-i
   :marked
     Focus can be broken down into `keyboard focus`, which refers to which area of the page will next be impacted by a 
     keyboard action and `reading focus`, which refers to where the screen reader will next start reading from. They can
-    be the same location but it does not have to be.
+    be the same location but it does not have to be. 
 
 :marked
-  In this section we will be looking primarily at `keyboard focus`. 
-
+  In this section we will be looking primarily at `keyboard focus`.
+  
+.l-sub-section
+  :marked
+    For those using keyboard only navigation, focus is typically set one focusable element forward using `Tab`
+    or one field backward using `Shift+Tab`. Why don't you try it now. Go to your favourite online shopping site and
+    see if you can order your next product using only `Tab` and `Shift+Tab` for navigation and `Enter` to select 
+    actions. Walking a mile in the shoes of someone who cannot use a mouse can give us a lot of respect for why we
+    should be making our websites accessible.
+    
 :marked
   ### Outline marks the spot
   
   We have all seen it, the blue box that web browsers draw around the next `input` we are about to type into. 
-  This is done by the `outline` style.
+  This is provided by the `outline` style property.
   
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/standard-focus-outline.png" alt="Standard browser focus outline box")
+  
+:marked
   It clearly indicates where the current `keyboard focus` of the application lies. And, as it turns out, this is one
   of the non-negotiables of `a11y`. We **HAVE** to visually indicate the current `keyboard focus` when focus lies on
   and interactive `HTML` element or custom component. Someone navigating a website with keyboard input alone cannot do
@@ -504,10 +516,148 @@ null, 'a11y-input-wrapper.component.html,a11y-input-wrapper.component.ts, a11y-i
   header Leave the focus outline intact!
   :marked
     Do not under any circumstances remove the focus outline for interactive elements with keyboard focus. Keep it unchanged
-    or replace with your own but **NEVER** fully remove this with the style command `outline:0`. You will instantly
+    or replace with your own but **NEVER** fully remove this with the style command `outline:0` or `outline:none`. You will instantly
     render your site unusable for any sighted user who has to use the keyboard or related assistive technologies.
-  
 
+:marked
+  Should you not like the default implementation **DO** replace with with another style that shows up when the interactive
+  element recieved focus.
+  
+  You could do something like this:
+
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/custom-focus-outline.png" alt="Standard browser focus outline box")  
+
+:marked
+  This was accomplished with the following style by taking a que from `Twitter Bootstrap`:
+
++makeExample('cb-a11y/ts/a11y.css', 'cb-a11y-managing-focus-custom-outline')  
+
+:marked
+  Here we used the forbidden `outline:0`, **BUT** immediately provided another visual focus style.
+
+:marked
+  ### Focus flow
+  
+  In Angular&nbsp;2 we have power like never before to create easily re-usable components. But let us think, for a monent,
+  about the pages we put together with these components. 
+  
+  If you tried out some `keyboard navigation` in the previous section, you would have noticed that `keyboard focus` simply
+  moves from one element to the next on the page. It is up to us to think about this flow when we contruct our complete 
+  webpages. 
+  
+  Would you want to have to scroll up and down with your mouse clicking on elements in random position? No? Well we 
+  should not force this on any user. We should provide a logical flow of focus throughout every page in our application.
+  
+.l-sub-section
+  :marked
+    Unless modified though script, the normal flow of focus would proceed one focusable element up or down as they
+    appear in the `HTML DOM Tree`, regardless of visual page position. By ensuring that your `HTML` has a logigal
+    structure you ensure that all users can navigate your pages correctly. Where you visually position the elements
+    with `CSS` does not affect this order. This called the `Separation of Content and Presentation`.
+    
+:marked
+  As we saw with in the labelling section, we get a lot of standard `a11y` functionality out of the box when we use
+  the native form controls, and here it is no different. **DO NOT** modify the focus order with script unless you 
+  it is for a functional reason, e.g. focusing on an error message you need the user to be aware of. 
+  
+  Lets have a look at a basic example of separating content from presentation. We have a basic layout based on a list 
+  of countries, asking for two pieces of information per country. And it looks like this: 
+
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/focus-flow-clean.png" alt="Collection of inputs based on country list separated into columns per information type")
+
+.l-sub-section
+  :marked
+    Note how we repeated the country name in both related `input labels`. Had we instead chosen for `How many months did you work
+    there`, we would have made yet another common `a11y` mistake. **DO NOT** rely on visual context alone
+    when labelling `HTML elements`. A person with a visual disability cannot see this context so you need to tell them, 
+    through the screen reader, what the current element relates to.
+    
+:marked
+  If we were to create this layout in `HTML DOM Tree`, we could very well end up with the following flow of focus:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/focus-flow-bad.png" alt="Incorrect focus flow grouping taborder into columns")  
+
+:marked
+  Whilst this is still useable due to the simplicity of our example and choice of labelling, the flow is illogical. Generally
+  the user would want to think about one country at a time. This flow would force a user using `keyboard navigation` to 
+  think about each country twice.
+  
+  A much better focus flow would be:
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/focus-flow-good.png" alt="Correctly flowing focus by country")
+
+:marked
+  By writing our `content` with the logical flow in the `HTML`, and then formatting our visual `presentation` using
+  `CSS`, we are able create the required flow using absolutly no scripting! Here is the code:
+  
++makeExample('cb-a11y/ts/app/managing-focus/a11y-managing-focus.component.html', 'cb-a11y-managing-focus-flow')
+
+:marked
+  ### Skiplinks
+  
+  Now that we know about `keyboard focus` and how this focus flows on the page, lets zoom out a bit and look at the 
+  entire page. As a sighted person who navigates the `web` using a mouse, it is very easy to skip sections of webpages. 
+  This could be because we are returning to a website we know very well, or because we can immediately see and interact
+  with a specific section of the page.
+  
+  Now imagine being forced to focus on **EVERY** menu and **EVERY** link and **EVERY** field and... You get the picture.
+  That would be as much fun as watching the grass grow! Now what if we were to tell you that a person navigating the `web`
+  using only his keyboard often gets forced into exactly this situation?
+  
+  Having to navigate through whole sections of a page that are either not interesting or already familiar to the user, 
+  only to get to the button or link they need adds a serious barrier for some users to use our websites.
+  
+  We are able to provide quick links to subsections of our pages that are completely hidden untill focused through 
+  `keyboard navigation`. These are called `skiplinks` and they (could) look like this: 
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/a11y/skiplinks.png" alt="Correctly flowing focus by country")  
+
+:marked
+  You can, of course, provide the styling you would like but here is how we made ours.
+  
+  The links:
++makeExample('cb-a11y/ts/app/managing-focus/a11y-managing-focus.component.html','cb-a11y-managing-focus-skiplinks-links')  
+
+:marked
+  These links are created to point to internal `id's`. These links can be created using the `router`, please refer to the
+  section on `routing` in the documentation to see how to do that.
+  
+  This is then rendered our as:
+  
+code-example(language="html" escape="html" format="linenums").
+  <a href="/managing-focus#focusflow">Go directly to focus flow</a>
+
+:marked
+  If the target of this link is not an interactive element, we also need to allow it to accept focus by adding
+  `tabindex="-1"`. 
+  
+.l-sub-section
+  :marked
+    We have two settings for `tabindex` that we should use. If we use `tabindex="-1"` we are allowing an element to 
+    accept the current `keyboard focus`. However this setting tells the browser not to insert the element in the 
+    `keyboard navigation` flow. It can only accept focus via internal links or script.
+
++makeExample('cb-a11y/ts/app/managing-focus/a11y-managing-focus.component.html','cb-a11y-managing-focus-skiplinks-destination')    
+
+:marked
+  And finally we need some styling magic to make it all work by hiding the link unless it recieves focus:
+
++makeExample('cb-a11y/ts/a11y.css', 'cb-a11y-managing-focus-skiplinks-style')
+
+:marked
+  Quite easy, isn't it? And yet so powerful for a large group of users out there. And pretty obvious that so far in this
+  section we have made very little use of Angular&nbsp;2. Yes, folks, these are standard `HTML` functionality we need
+  to know about if we are to make accessible Angular&nbsp;2 applications!
+  
+  Now that we know more about how browsers handle focus and what we can do to leverage it, it is time to look at what 
+  we can do inside our custom Angular&nbsp;2 components to keep them accessible.
+  
+  
 .l-main-section
 <a id="keyboard-shortcuts"></a>
 :marked
