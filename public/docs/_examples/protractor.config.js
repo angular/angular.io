@@ -28,6 +28,7 @@ exports.config = {
   // For angular2 tests
   useAllAngular2AppRoots: true,
 
+  // Base URL for application server
   baseUrl: 'http://localhost:8080',
 
   // doesn't seem to work.
