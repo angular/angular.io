@@ -1,16 +1,25 @@
 import {Component, EventEmitter, Output} from "angular2/core";
 
+// #docregion
 @Component({
   selector: 'a11y-custom-button',
-  templateUrl: './app/managing-focus/a11y-custom-button.component.html'
+  templateUrl: './app/managing-focus/a11y-custom-button.component.html',
+  host: {
+    'role': 'button',
+    'tabindex': '0',
+    'class': 'btn btn-primary',
+    '(keydown.space)': 'onKeyDown()',
+    '(keydown.enter)': 'onKeyDown()'
+  }
 })
 export class A11yCustomButton {
 
   @Output()
-  onClick: EventEmitter<any> = new EventEmitter();
+  click:EventEmitter<any> = new EventEmitter();
 
-  onKeyDown(){
-    this.onClick.emit(null);
+  onKeyDown() {
+    this.click.emit(null);
   }
 
 }
+// #enddocregion
