@@ -4,13 +4,13 @@ import 'dart:async';
 
 import 'package:angular2/core.dart';
 
-import 'mock_heroes.dart';
 import 'hero.dart';
+import 'mock_heroes.dart';
 
 @Injectable()
 class HeroService {
   //#docregion get-heroes
-  Future<List<Hero>> getHeroes() => new Future(() => mockHeroes);
+  Future<List<Hero>> getHeroes() async => mockHeroes;
   //#enddocregion get-heroes
 
   // See the "Take it slow" appendix
