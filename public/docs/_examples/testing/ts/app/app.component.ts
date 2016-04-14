@@ -1,18 +1,20 @@
 // #docplaster
 // #docregion
 import { Component } from 'angular2/core';
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
 
-import { HeroService } from './hero.service';
-import { DashboardComponent } from './dashboard.component';
-import { HeroesComponent } from './heroes.component';
-// #docregion hero-detail-import
+// Can't test with ROUTER_DIRECTIVES yet
+// import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+
+import { RouteConfig, RouterLink,
+         RouterOutlet, ROUTER_PROVIDERS } from 'angular2/router';
+
+import { DashboardComponent }  from './dashboard.component';
+import { HeroesComponent }     from './heroes.component';
 import { HeroDetailComponent } from './hero-detail.component';
-// #enddocregion hero-detail-import
+import { HeroService }         from './hero.service';
 
 @Component({
   selector: 'my-app',
-// #docregion template
   template: `
     <h1>{{title}}</h1>
     <nav>
@@ -21,39 +23,18 @@ import { HeroDetailComponent } from './hero-detail.component';
     </nav>
     <router-outlet></router-outlet>
   `,
-// #enddocregion template
-// #docregion style-urls
   styleUrls: ['app/app.component.css'],
-// #enddocregion style-urls
-  directives: [ROUTER_DIRECTIVES],
+  directives: [RouterLink, RouterOutlet],
   providers: [
     ROUTER_PROVIDERS,
     HeroService
   ]
 })
 @RouteConfig([
-// #docregion dashboard-route
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardComponent,
-    useAsDefault: true
-  },
-// #enddocregion dashboard-route
-// #docregion hero-detail-route
-  {
-    path: '/detail/:id',
-    name: 'HeroDetail',
-    component: HeroDetailComponent
-  },
-// #enddocregion hero-detail-route
-  {
-    path: '/heroes',
-    name: 'Heroes',
-    component: HeroesComponent
-  }
+  { path: '/dashboard',  name: 'Dashboard',  component: DashboardComponent, useAsDefault: true },
+  { path: '/detail/:id', name: 'HeroDetail', component: HeroDetailComponent },
+  { path: '/heroes',    name: 'Heroes',      component: HeroesComponent }
 ])
 export class AppComponent {
   title = 'Tour of Heroes';
 }
-// #enddocregion

@@ -4,7 +4,7 @@
 import { MyUppercasePipe } from './my-uppercase.pipe';
 
 describe('MyUppercasePipe', () => {
-  let pipe : MyUppercasePipe;
+  let pipe: MyUppercasePipe;
 
   beforeEach(() => {
     pipe = new MyUppercasePipe();

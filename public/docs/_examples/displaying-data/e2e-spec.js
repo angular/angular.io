@@ -1,5 +1,4 @@
 describe('Displaying Data Tests', function () {
-
   var _title = "Tour of Heroes";
   var _defaultHero = 'Windstorm'
 
@@ -15,7 +14,12 @@ describe('Displaying Data Tests', function () {
     expect(element(by.css('h2')).getText()).toContain(_defaultHero);
   });
 
-  it('should have many heroes', function () {
+ it('should have heroes', function () {
+    var heroEls = element.all(by.css('li'));
+    expect(heroEls.count()).not.toBe(0, 'should have heroes');
+  });
+
+  it('should display "there are many heroes!"', function () {
     expect(element(by.css('ul ~ p')).getText()).toContain('There are many heroes!');
   });
 });

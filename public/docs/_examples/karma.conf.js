@@ -1,7 +1,7 @@
 module.exports = function(config) {
 
-  var appBase   = 'app/';     // transpiled app JS files
-  var appAssets ='base/app/'; // component assets fetched by Angular's compiler
+  var appBase   = 'app/';      // transpiled app JS files
+  var appAssets ='/base/app/'; // component assets fetched by Angular's compiler
 
   config.set({
     basePath: '',

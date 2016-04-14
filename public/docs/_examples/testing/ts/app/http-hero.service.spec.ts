@@ -1,19 +1,9 @@
 /* tslint:disable:no-unused-variable */
 import {
-  it,
-  iit,
-  xit,
-  describe,
-  ddescribe,
-  xdescribe,
-  expect,
-  fakeAsync,
-  tick,
-  beforeEach,
-  inject,
-  injectAsync,
-  withProviders,
-  beforeEachProviders
+  beforeEach, beforeEachProviders, withProviders,
+  describe, ddescribe, xdescribe,
+  expect, it, iit, xit,
+  inject, injectAsync, fakeAsync, TestComponentBuilder, tick
 } from 'angular2/testing';
 
 import { provide } from 'angular2/core';
@@ -23,17 +13,12 @@ import {
   MockConnection } from 'angular2/src/http/backends/mock_backend';
 
 import {
-  BaseRequestOptions,
-  ConnectionBackend,
-  Request,
-  RequestMethod,
-  RequestOptions,
-  Response,
-  ResponseOptions,
-  URLSearchParams,
-  HTTP_PROVIDERS,
-  XHRBackend,
-  Http} from 'angular2/http';
+  Http, HTTP_PROVIDERS,
+  ConnectionBackend, XHRBackend,
+  Request, RequestMethod, BaseRequestOptions, RequestOptions,
+  Response, ResponseOptions,
+  URLSearchParams
+} from 'angular2/http';
 
 // Add all operators to Observable
 import 'rxjs/Rx';
@@ -45,10 +30,10 @@ import { HeroService } from './http-hero.service';
 type HeroData = {id: string, name: string}
 
 const makeHeroData = () => [
-  { "id": "1", "name": "Windstorm" },
-  { "id": "2", "name": "Bombasto" },
-  { "id": "3", "name": "Magneta" },
-  { "id": "4", "name": "Tornado" }
+  { id: '1', name: 'Windstorm' },
+  { id: '2', name: 'Bombasto' },
+  { id: '3', name: 'Magneta' },
+  { id: '4', name: 'Tornado' }
 ];
 
 // HeroService expects response data like {data: {the-data}}

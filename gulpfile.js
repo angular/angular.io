@@ -76,7 +76,8 @@ var _exampleBoilerplateFiles = [
   'styles.css',
   'tsconfig.json',
   'tslint.json',
-  'typings.json'
+  'typings.json',
+  'wallaby.js'
  ];
 
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];

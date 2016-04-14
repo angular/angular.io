@@ -1,9 +1,14 @@
-// TO RUN THE TESTS
-//
-// The first time, run:
+// FIRST TIME ONLY- run:
 //   ./node_modules/.bin/webdriver-manager update
-// Make sure the test server is running. Then do.
-//   ./node_modules/.bin/protractor protractor.config.js
+//
+//   Try: `npm run webdriver:update`
+//
+// AND THEN EVERYTIME ...
+//   1. Compile with `tsc`
+//   2. Make sure the test server (e.g., http-server: localhost:8080) is running.
+//   3. ./node_modules/.bin/protractor protractor.config.js
+//
+//   To do all steps, try:  `npm run e2e`
 
 var fs = require('fs');
 var path = require('canonical-path');
@@ -93,16 +98,12 @@ function itIf(cond, name, func) {
   }
 }
 
-// Hack - because of bug with send keys
+// Hack - because of bug with protractor send keys
 function sendKeys(element, str) {
   return str.split('').reduce(function (promise, char) {
-    return promise.then(function () {
-      return element.sendKeys(char);
-    });
+    return promise.resolve(element.sendKeys(char));
   }, element.getAttribute('value'));
-  // better to create a resolved promise here but ... don't know how with protractor;
 }
-
 
 function Reporter(options) {
   var _defaultOutputFile = path.resolve(process.cwd(), "../../", 'protractor-results.txt');

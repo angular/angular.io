@@ -3,7 +3,7 @@
 // #docregion imports
 import {Component} from 'angular2/core';
 // #enddocregion imports
-import {Hero} from './hero'
+import {Hero} from './hero';
 
 @Component({
   selector: 'my-app',

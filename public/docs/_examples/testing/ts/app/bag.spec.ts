@@ -5,28 +5,22 @@ import {
   ChildChildComp, ChildComp, ChildWithChildComp,
   ExternalTemplateComp,
   FancyService, MockFancyService,
-  MyIfComp,
+  InputComp,
+  MyIfComp, MyIfChildComp, MyIfParentComp,
   MockChildComp, MockChildChildComp,
   ParentComp,
   TestProvidersComp, TestViewProvidersComp
-} from './public';
+} from './bag';
+
+import { DebugElement } from 'angular2/core';
+import { By }           from 'angular2/platform/browser';
 
 import {
-  it,
-  iit,
-  xit,
-  describe,
-  ddescribe,
-  xdescribe,
-  expect,
-  fakeAsync,
-  tick,
-  beforeEach,
-  inject,
-  injectAsync,
-  withProviders,
-  beforeEachProviders,
-  TestComponentBuilder
+  beforeEach, beforeEachProviders, withProviders,
+  describe, ddescribe, xdescribe,
+  expect, it, iit, xit,
+  inject, injectAsync, fakeAsync, tick,
+  ComponentFixture, TestComponentBuilder
 } from 'angular2/testing';
 
 import { provide }        from 'angular2/core';
@@ -49,13 +43,13 @@ describe('angular2 jasmine matchers', () => {
   describe('toHaveCssClass', () => {
     it('should assert that the CSS class is present', () => {
       let el = document.createElement('div');
-      el.classList.add('matias');
-      expect(el).toHaveCssClass('matias');
+      el.classList.add('bombasto');
+      expect(el).toHaveCssClass('bombasto');
     });
 
     it('should assert that the CSS class is not present', () => {
       let el = document.createElement('div');
-      el.classList.add('matias');
+      el.classList.add('bombasto');
       expect(el).not.toHaveCssClass('fatias');
     });
   });
@@ -187,10 +181,36 @@ describe('test component builder', function() {
           let comp = <ButtonComp> fixture.componentInstance;
           expect(comp.wasClicked).toEqual(false, 'wasClicked should be false at start');
 
-          let btn = fixture.debugElement.query(el => el.name === 'button');
+          let btn = fixture.debugElement.query(By.css('button'));
+          // let btn = fixture.debugElement.query(el => el.name === 'button'); // the hard way
+
           btn.triggerEventHandler('click', null);
-          // btn.nativeElement.click(); // this works too; which is "better"?
+          // btn.nativeElement.click(); // this often works too ... but not all the time!
           expect(comp.wasClicked).toEqual(true, 'wasClicked should be true after click');
+        });
+      }));
+
+  it('should support entering text in input box (ngModel)',
+      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+        let origName = 'John';
+        let newName = 'Sally';
+
+        return tcb.createAsync(InputComp).then(fixture => {
+
+          let comp = <InputComp> fixture.componentInstance;
+          expect(comp.name).toEqual(origName, `At start name should be ${origName} `);
+
+          let inputBox = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
+          fixture.detectChanges();
+          expect(inputBox.value).toEqual(origName, `At start input box value should be ${origName} `);
+
+          inputBox.value = newName;
+          expect(comp.name).toEqual(origName,
+           `Name should still be ${origName} after value change, before detectChanges`);
+
+          fixture.detectChanges();
+          expect(inputBox.value).toEqual(newName,
+          `After value change and detectChanges, name should now be ${newName} `);
         });
       }));
 
@@ -220,7 +240,7 @@ describe('test component builder', function() {
             });
       }));
 
-  it('should override component dependencies',
+  it('should override component directives',
       injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
         return tcb.overrideDirective(ParentComp, ChildComp, MockChildComp)
@@ -233,7 +253,7 @@ describe('test component builder', function() {
       }));
 
 
-  it('should override child component\'s dependencies',
+  it('should override child component\'s directives',
       injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
         return tcb.overrideDirective(ParentComp, ChildComp, ChildWithChildComp)
@@ -262,7 +282,6 @@ describe('test component builder', function() {
             });
       }));
 
-
   it('should override a viewProvider',
       injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
@@ -288,16 +307,158 @@ describe('test component builder', function() {
                   .toHaveText('from external template\n');
             });
       }), 10000);  // Long timeout because this test makes an actual XHR.
+
+    describe('(lifecycle hooks w/ MyIfParentComp)', () => {
+      let fixture: ComponentFixture;
+      let parent:  MyIfParentComp;
+      let child:   MyIfChildComp;
+
+      /**
+       * Get the MyIfChildComp from parent; fail w/ good message if cannot.
+       */
+      function getChild() {
+
+        let childDe: DebugElement; // DebugElement that should hold the MyIfChildComp
+
+        // The Hard Way: requires detailed knowledge of the parent template
+        try {
+          childDe = fixture.debugElement.children[4].children[0];
+        } catch (err) { /* we'll report the error */ }
+
+        // DebugElement.queryAll: if we wanted all of many instances:
+        childDe = fixture.debugElement
+          .queryAll(function (de) { return de.componentInstance instanceof MyIfChildComp; })[0];
+
+        // WE'LL USE THIS APPROACH !
+        // DebugElement.query: find first instance (if any)
+        childDe = fixture.debugElement
+          .query(function (de) { return de.componentInstance instanceof MyIfChildComp; });
+
+        if (childDe && childDe.componentInstance) {
+          child = childDe.componentInstance;
+        } else {
+          fail('Unable to find MyIfChildComp within MyIfParentComp');
+        }
+
+        return child;
+      }
+
+      // Create MyIfParentComp TCB and component instance before each test (async beforeEach)
+      beforeEach(injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+         return tcb.createAsync(MyIfParentComp)
+            .then(fix => {
+              fixture = fix;
+              parent = fixture.debugElement.componentInstance;
+            });
+      }));
+
+      it('should instantiate parent component', () => {
+        expect(parent).not.toBeNull('parent component should exist');
+      });
+
+      it('parent component OnInit should NOT be called before first detectChanges()', () => {
+        expect(parent.ngOnInitCalled).toEqual(false);
+      });
+
+      it('parent component OnInit should be called after first detectChanges()', () => {
+        fixture.detectChanges();
+        expect(parent.ngOnInitCalled).toEqual(true);
+      });
+
+      it('child component should exist after OnInit', () => {
+        fixture.detectChanges();
+        getChild();
+        expect(child instanceof MyIfChildComp).toEqual(true, 'should create child');
+      });
+
+      it('should have called child component\'s OnInit ', () => {
+        fixture.detectChanges();
+        getChild();
+        expect(child.ngOnInitCalled).toEqual(true);
+      });
+
+      it('child component called OnChanges once', () => {
+        fixture.detectChanges();
+        getChild();
+        expect(child.ngOnChangesCounter).toEqual(1);
+      });
+
+      it('changed parent value flows to child', () => {
+        fixture.detectChanges();
+        getChild();
+
+        parent.parentValue = 'foo';
+        fixture.detectChanges();
+
+        expect(child.ngOnChangesCounter).toEqual(2,
+          'expected 2 changes: initial value and changed value');
+        expect(child.childValue).toEqual('foo',
+          'childValue should eq changed parent value');
+      });
+
+      it('changed child value flows to parent', injectAsync([], () => {
+        fixture.detectChanges();
+        getChild();
+
+        child.childValue = 'bar';
+
+        let deferred = PromiseWrapper.completer();
+        let p = deferred.promise.then(() => {
+
+          fixture.detectChanges();
+
+          expect(child.ngOnChangesCounter).toEqual(2,
+            'expected 2 changes: initial value and changed value');
+          expect(parent.parentValue).toEqual('bar',
+            'parentValue should eq changed parent value');
+        });
+
+        // Wait one JS engine turn!
+        setTimeout(() => deferred.resolve(), 0);
+
+        return p;
+      }));
+
+/*  Will soon be able to write it like this:
+      it('changed child value flows to parent', async(() => {
+        fixture.detectChanges();
+        getChild();
+
+        child.childValue = 'bar';
+
+        // Wait one JS engine turn!
+        setTimeout(() => {
+          fixture.detectChanges();
+          expect(child.ngOnChangesCounter).toEqual(2,
+            'expected 2 changes: initial value and changed value');
+          expect(parent.parentValue).toEqual('bar',
+            'parentValue should eq changed parent value');
+          }, 0);
+      }));
+*/
+
+      it('clicking "Close Child" triggers child OnDestroy', () => {
+        fixture.detectChanges();
+        getChild();
+
+        let btn = fixture.debugElement.query(By.css('button'));
+        btn.triggerEventHandler('click', null);
+
+        fixture.detectChanges();
+        expect(child.ngOnDestroyCalled).toEqual(true);
+      });
+
+    });
 });
 
-describe('errors', () => {
+describe('inject/async testing errors', () => {
   let originalJasmineIt: any;
   let originalJasmineBeforeEach: any;
 
   let patchJasmineIt = () => {
     let deferred = PromiseWrapper.completer();
     originalJasmineIt = jasmine.getEnv().it;
-    jasmine.getEnv().it = (description: string, fn: Function) => {
+    jasmine.getEnv().it = (description: string, fn: Function): jasmine.Spec => {
       let done = () => { deferred.resolve(); };
       (<any>done).fail = (err: any) => { deferred.reject(err); };
       fn(done);
@@ -311,7 +472,7 @@ describe('errors', () => {
   let patchJasmineBeforeEach = () => {
     let deferred = PromiseWrapper.completer();
     originalJasmineBeforeEach = jasmine.getEnv().beforeEach;
-    jasmine.getEnv().beforeEach = (fn: any) => {
+    jasmine.getEnv().beforeEach = (fn: any): void => {
       let done = () => { deferred.resolve(); };
       (<any>done).fail = (err: any) => { deferred.reject(err); };
       fn(done);
@@ -455,4 +616,33 @@ describe('errors', () => {
       });
     });
   });
+});
+
+
+//////// Testing Framework Bugs? /////
+import { HeroService }  from './hero.service';
+import { Component }    from 'angular2/core';
+
+@Component({
+  selector: 'another-comp',
+  template: `AnotherProvidersComp()`,
+  providers: [FancyService] // <======= BOOM! if we comment out
+  // Failed: 'undefined' is not an object (evaluating 'dm.providers.concat')
+})
+export class AnotherProvidersComp {
+  constructor(
+    private _heroService: HeroService
+    ) {  }
+}
+
+describe('tcb.overrideProviders', () => {
+  it('Component must have at least one provider else crash',
+    injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+
+    return tcb.overrideProviders(
+          AnotherProvidersComp,
+          [provide(HeroService, {useValue: {}})]
+        )
+        .createAsync(AnotherProvidersComp);
+    }));
 });

@@ -1,6 +1,7 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
-import { Component, Injectable } from 'angular2/core';
-import { NgIf } from 'angular2/common';
+/* tslint:disable:forin */
+import { Component, EventEmitter, Injectable, Input, Output,
+         OnInit, OnChanges, OnDestroy, SimpleChange } from 'angular2/core';
 
 // Let TypeScript know about the special SystemJS __moduleName variable
 declare var __moduleName: string;
@@ -39,6 +40,13 @@ export class ButtonComp {
   clicked() { this.wasClicked = true; }
 }
 
+@Component({
+  selector: 'input-comp',
+  template: `<input [(ngModel)]="name">`
+})
+export class InputComp {
+  name = 'John';
+}
 
 @Component({
   selector: 'child-comp',
@@ -66,13 +74,11 @@ export class ParentComp { }
 
 @Component({
   selector: 'my-if-comp',
-  template: `MyIf(<span *ngIf="showMore">More</span>)`,
-  directives: [NgIf]
+  template: `MyIf(<span *ngIf="showMore">More</span>)`
 })
 export class MyIfComp {
-  showMore: boolean = false;
+  showMore = false;
 }
-
 
 @Component({
   selector: 'child-child-comp',
@@ -121,7 +127,7 @@ export class TestViewProvidersComp {
 @Component({
   moduleId: __moduleName,
   selector: 'external-template-comp',
-  templateUrl: 'public-external-template.html'
+  templateUrl: 'bag-external-template.html'
 })
 export class ExternalTemplateComp { }
 
@@ -131,3 +137,88 @@ export class ExternalTemplateComp { }
   templateUrl: 'non-existant.html'
 })
 export class BadTemplateUrl { }
+
+
+///////// MyIfChildComp ////////
+@Component({
+  selector: 'my-if-child-comp',
+
+  template: `
+    <h4>MyIfChildComp</h4>
+    <div>
+      <label>Child value: <input [(ngModel)]="childValue"> </label>
+    </div>
+    <p><i>Change log:</i></p>
+    <div *ngFor="#log of changeLog; #i=index">{{i + 1}} - {{log}}</div>`
+})
+export class MyIfChildComp implements OnInit, OnChanges, OnDestroy {
+  @Input() value = '';
+  @Output() valueChange = new EventEmitter<string>();
+
+  get childValue() { return this.value; }
+  set childValue(v: string) {
+    if (this.value === v) { return; }
+    this.value = v;
+    this.valueChange.emit(v);
+  }
+
+  changeLog: string[] = [];
+
+  ngOnInitCalled = false;
+  ngOnChangesCounter = 0;
+  ngOnDestroyCalled = false;
+
+  ngOnInit()    {
+    this.ngOnInitCalled = true;
+    this.changeLog.push('ngOnInit called');
+  }
+
+  ngOnDestroy() {
+    this.ngOnDestroyCalled = true;
+    this.changeLog.push('ngOnDestroy called');
+  }
+
+  ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
+    for (let propName in changes) {
+      this.ngOnChangesCounter += 1;
+      let prop = changes[propName];
+      let cur  = JSON.stringify(prop.currentValue);
+      let prev = JSON.stringify(prop.previousValue);
+      this.changeLog.push(`${propName}: currentValue = ${cur}, previousValue = ${prev}`);
+    }
+  }
+}
+
+///////// MyIfParentComp ////////
+
+@Component({
+  selector: 'my-if-parent-comp',
+  template: `
+    <h3>MyIfParentComp</h3>
+    <label>Parent value:
+      <input [(ngModel)]="parentValue">
+    </label>
+    <button (click)='clicked()'>{{toggleLabel}} Child</button><br>
+    <div *ngIf="showChild"
+         style="margin: 4px; padding: 4px; background-color: aliceblue;">
+      <my-if-child-comp  [(value)]="parentValue"></my-if-child-comp>
+    </div>
+  `,
+  directives: [MyIfChildComp]
+})
+export class MyIfParentComp implements OnInit {
+  ngOnInitCalled = false;
+  parentValue = 'Hello, World';
+  showChild = false;
+  toggleLabel = 'Unknown';
+
+  ngOnInit() {
+    this.ngOnInitCalled = true;
+    this.clicked();
+  }
+
+  clicked() {
+    this.showChild = !this.showChild;
+    this.toggleLabel = this.showChild ? 'Close' : 'Show';
+  }
+}
