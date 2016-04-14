@@ -35,57 +35,58 @@ var _rxData = [
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
     //to:   ['https://code.angularjs.org/tools/system.js', 'https://code.angularjs.org/tools/typescript.js']
-    to:   ['https://code.angularjs.org/tools/system.js', 'https://npmcdn.com/typescript@1.8.9/lib/typescript.js']
+    //to:   ['https://code.angularjs.org/tools/system.js', 'https://npmcdn.com/typescript@1.8.10/lib/typescript.js']
+    to:   ['https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.26/system.js', 'https://npmcdn.com/typescript@1.8.10/lib/typescript.js']
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/angular2.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-all.umd.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-all.umd.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/angular2-all.umd.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-all.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-all.umd.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/angular2-all.umd.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/angular2-polyfills.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/angular2-polyfills.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/angular2-polyfills.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/Rx.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/Rx.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.umd.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/Rx.umd.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/Rx.umd.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/router.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/router.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/router.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/http.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/http.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/http.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/bundles/testing.dev.js',
-    to: 'https://code.angularjs.org/2.0.0-beta.14/testing.dev.js'
+    to: 'https://code.angularjs.org/2.0.0-beta.15/testing.dev.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular2/es6/dev/src/testing/shims_for_IE.js',
-    to: 'https://npmcdn.com/angular2@2.0.0-beta.14/es6/dev/src/testing/shims_for_IE.js'
+    to: 'https://npmcdn.com/angular2@2.0.0-beta.15/es6/dev/src/testing/shims_for_IE.js'
   },
   {
     pattern: 'script',
@@ -95,7 +96,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system-polyfills.js',
-    to: 'https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.20/system-polyfills.js'
+    to: 'https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.26/system-polyfills.js'
   },
   {
     pattern: 'script',
