@@ -30,7 +30,7 @@ export class A11yFormControls implements OnInit {
   inputWrappedSaveModel:string = '';
   inputDivModel: string = '';
   textModel:string;
-  selectModel: string;
+  selectModel: string = 'Curiosity';
   searchModel: string;
   filterModel: string;
 
@@ -61,6 +61,10 @@ export class A11yFormControls implements OnInit {
     this.checkBoxes = this._a11yHelper.getCheckboxModel();
     this.radioButtons = this._a11yHelper.getRadiobuttonsModel();
     this.selectOptions = this._a11yHelper.getSelectOptions();
+  }
+
+  updateSelect(value: string):void{
+    this.selectModel = value;
   }
 
 }
