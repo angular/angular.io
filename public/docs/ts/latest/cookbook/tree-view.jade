@@ -1,0 +1,119 @@
+include ../_util-fns
+
+:marked
+    Our hero agency has placed heroes in positions all over the world at this point. As an easy way to keep track of heroes by region we have created a tree view. 
+    
+    In this cookbook we show how to load hero data from an external file and bind it to a recursive template in our tree view component.
+    
+<a id="toc"></a>
+:marked
+   ## Table of contents
+
+      [Load Heroes and Regions](#load-heroes-and-regions)
+      
+      [Recursive Template](#recursive-template)
+      
+      [Adding Heroes](#adding-heroes)
+      
+      [Expand/Collapse All](#expand-collapse-all)
+
+:marked
+   **See the [live example](/resources/live-examples/cb-tree-view/ts/plnkr.html)**.      
+   
+.l-main-section
+<a id="load-heroes-and-regions"></a>
+:marked
+   ## Load Heroes and Regions   
+   
+   We want to load the tree view data from an external file, so first we define a json schema to represent heroes and their regions. A sample of our schema can be found in `mock-data.json`.  
++makeExample('cb-tree-view/ts/app/mock-data.json','','app/mock-data.json')
+
+:marked
+    In `TreeNodeService` we load the file using `Http` and traverse it recursively to create an object model representing the final tree data. 
+    
+    Enabling our application to use `Http` requires some configuration, but don't worry we cover the setup in great detail <a href='/docs/ts/latest/guide/server-communication.html'>here</a>. 
++makeExample('cb-tree-view/ts/app/tree-node.service.ts', 'build-tree', 'app/tree-node.service.ts (building tree)')(format=".")     
+
+:marked
+    `_buildTreeRecursive()` in `TreeNodeService` maps the data from the file into `TreeNode` objects that we bind to the tree view.   
+
+    `TreeNode` is the view model for the nodes in the tree and adds support for operations like expand, collapse and selecting of nodes.
+           
++makeExample('cb-tree-view/ts/app/tree-node.ts','','app/tree-node.ts')
+    
+.l-main-section
+<a id="recursive-template"></a>
+:marked
+   ## Recursive Template   
+   
+   To render the tree view we have created `TreeViewComponent`.
+   
++makeTabs(
+  `cb-tree-view/ts/app/tree-view.component.ts,
+   cb-tree-view/ts/app/tree-view.component.html`
+   ,
+  null,
+  `app/tree-view.component.ts,
+   app/tree-view.component.html`
+)     
+   
+:marked
+    There is something very interesting about `TreeViewComponent`. If we look at the `directives` array we see a reference to `TreeViewComponent` itself. This might seem surprising, but is necessary since `TreeViewComponent` has a reference to itself in the template.     
+    
+    We see this self reference if we look at the template. Remember `tree-view` is the selector for our tree view, so using a `tree-view` element in the template means that the component refers to itself.
+    
+:marked
+   The final tree view looks like this.
+figure.image-display
+   img(src="/resources/images/cookbooks/tree-view/tree-view.png" alt="Tree-View")
+   
+:marked
+    In addition to displaying a hero's name under a specific region we also include their ranking. Based on ranking there is a color code for the node. High performing heroes are displayed in green, mid level performers in yellow and heroes who are struggling are displayed in red.   
+    
+    We are using `HeroNodeComponent` to display the hero nodes.
+
++makeTabs(
+  `cb-tree-view/ts/app/hero-node.component.html,
+   cb-tree-view/ts/app/hero-node.component.ts`,
+  null,
+  `app/hero-node.component.html,
+   app/hero-node.component.ts`
+)  
+    
+.l-main-section
+<a id="adding-heroes"></a>
+:marked
+   ## Adding Heroes    
+   
+   We need the ability to add new heroes to the tree. Selecting a region in the tree will open up the following add hero view.
+   
+figure.image-display
+   img(src="/resources/images/cookbooks/tree-view/add-hero.png" alt="Add Hero")   
+   
+:marked
+    We have created `AddHeroComponent` as a separate component for adding new heroes. Just type in the new hero's name and ranking and click "Add Hero".
+    
++makeTabs(
+  `cb-tree-view/ts/app/add-hero.component.html,
+   cb-tree-view/ts/app/add-hero.component.ts`,
+  null,
+  `app/add-hero.component.html,
+   app/add-hero.component.ts`
+)         
+
+:marked
+    As we can see, `AddHeroComponent` uses `TreeNodeService` to attach new nodes to the exiting set of nodes.
+    
+.l-main-section
+<a id="expand-collapse-all"></a>
+:marked
+   ## Expand/Collapse All
+   
+   Tree nodes can be expanded or collapsed individually, but out of convenience we want a way to expand or collapse all nodes in a single operation. For that we have added "expand all" and "collapse all" buttons above the tree view.   
+   
+   The `expanded` flag on `TreeNode` controls the visibility of a node, so to expand or collapse all nodes, we have to recurse over all `TreeNodes` and set the `expanded` flag accordingly.
+
++makeExample('cb-tree-view/ts/app/tree-node.service.ts', 'toggle-nodes', 'app/tree-node.service.ts (Toggle nodes)')(format=".")     
+   
+:marked
+   [Back to top](#top)      
