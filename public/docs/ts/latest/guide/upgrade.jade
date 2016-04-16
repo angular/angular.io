@@ -44,7 +44,7 @@ include ../_util-fns
   4. [PhoneCat Upgrade Tutorial](#phonecat-upgrade-tutorial)
       1. [Bootstrapping A Hybrid 1+2 PhoneCat](#bootstrapping-a-hybrid-1-2-phonecat)
       2. [Upgrading the Phone factory](#upgrading-the-phone-factory)
-      3. [Upgrading Controllers to Components](#upgrading-controllers-to-components)
+      3. [Upgrading Components](#upgrading-components)
       4. [Switching To The Angular 2 Router And Bootstrap](#switching-to-the-angular-2-router-and-bootstrap)
       5. [Saying Goodbye to Angular 1](#saying-goodbye-to-angular-1)
 
@@ -60,7 +60,7 @@ include ../_util-fns
 
   ## Following The Angular Style Guide
 
-  The [Angular Style Guide](https://github.com/johnpapa/angular-styleguide)
+  The [Angular 1 Style Guide](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#single-responsibility)
   collects patterns and practices that have been proven to result in
   cleaner and more maintainable Angular 1 applications. It contains a wealth
   of information about how to write and organize Angular code - and equally
@@ -80,7 +80,7 @@ include ../_util-fns
     states that there should be one component per file. This not only makes
     components easy to navigate and find, but will also allow us to migrate
     them between languages and frameworks one at a time. In this example application,
-    each controller, factory, and filter is in its own source file.
+    each controller, component, service, and filter is in its own source file.
   * The [Folders-by-Feature Structure](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#folders-by-feature-structure)
     and [Modularity](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#modularity)
     rules define similar principles on a higher level of abstraction: Different parts of the
@@ -740,82 +740,75 @@ figure
 
   To follow along with the tutorial, clone the
   [angular-phonecat](https://github.com/angular/angular-phonecat) repository
-  and apply the steps as we go
+  and apply the steps as we go.
   
-.alert.is-important
-  :marked
-    If you do clone this repository, note that it doesn't look like this guide
-    assumes yet. There's [a pull request](https://github.com/angular/angular-phonecat/pull/289)
-    that will change this. Meanwhile, you'll find a good starting point from
-    [this commit](https://github.com/teropa/angular-phonecat/commit/d6fb83e1c2db9d1812c7c478fdb8d92301ef0061).
-  
-:marked
-  In terms of project structure, this is where our work begins
+  In terms of project structure, this is where our work begins:
   
 .filetree
   .file angular-phonecat
   .children
     .file bower.json
+    .file karma.conf.js
     .file package.json
     .file app
     .children
-      .file js
+      .file core
       .children
-        .file core
+        .file checkmark
         .children
           .file checkmark.filter.js
-          .file core.module.js
-          .file phone.factory.js
-        .file phone_detail
+          .file checkmark.filter.spec.js
+        .file phone
         .children
-          .file phone_detail.html
-          .file phone_detail.module.js
-          .file phone_detail.controller.js
-        .file phone_list
-        .children
-          .file phone_list.html
-          .file phone_list.module.js
-          .file phone_list.controller.js
-        .file app.module.js
-      .file css
+          .file phone.module.js
+          .file phone.service.js
+          .file phone.service.spec.js
+        .file core.module.js
+      .file phone-detail
       .children
-        .file animations.css
-        .file app.css
+        .file phone-detail.component.js
+        .file phone-detail.component.spec.js
+        .file phone-detail.module.js
+        .file phone-detail.template.html
+      .file phone-list
+      .children
+        .file phone-list.component.js
+        .file phone-list.component.spec.js
+        .file phone-list.module.js
+        .file phone-list.template.html
       .file img
       .children
         .file  ...
       .file phones
       .children
         .file  ...
+      .file app.animations.js
+      .file app.config.js
+      .file app.css
+      .file app.module.js
       .file index.html
-    .file test
+    .file e2e-tests
     .children
-      .file e2e
-      .children
-        .file scenarios.js
-      .file unit
-      .children
-        .file checkmark.filter.spec.js
-        .file phone_detail.controller.spec.js
-        .file phone.factory.spec.js
-        .file phone_list.controller.spec.js
-      .file karma.conf.js
       .file protractor-conf.js
+      .file scenarios.js
 
 :marked
   This is actually a pretty good starting point. In particular, this organization
-  follows the [Angular Style Guide](https://github.com/johnpapa/angular-styleguide),
+  follows the [Angular 1 Style Guide](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md),
   which is an important [preparation step](#following-the-angular-style-guide) before
   a successful upgrade. 
   
-  * Each controller, factory, and filter is in its own source file, as per the
-    [Rule of 1](https://github.com/johnpapa/angular-styleguide#single-responsibility).
-  * The `core`, `phoneDetail`, and `phoneList` modules are each in their
+  * Each component, service, and filter is in its own source file, as per the
+    [Rule of 1](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#single-responsibility).
+  * The `core`, `phone-detail`, and `phone-list` modules are each in their
     own subdirectory. Those subdirectories contain the JavaScript code as well as
     the HTML templates that go with each particular feature. This is in line with the
-    [Folders-by-Feature Structure](https://github.com/johnpapa/angular-styleguide#style-y152)
-    and [Modularity](https://github.com/johnpapa/angular-styleguide#modularity)
+    [Folders-by-Feature Structure](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#style-y152)
+    and [Modularity](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#modularity)
     rules.
+  * Unit tests are located side-by-side with application code where they are easily
+    found, as described in the rules for 
+    [Organizing Tests](https://github.com/johnpapa/angular-styleguide/blob/master/a1/README.md#style-y197).
 
 :marked
   ## Switching to TypeScript And Module Loading
@@ -829,12 +822,6 @@ figure
   instead. We'll replace this approach with the
   [SystemJS loader](https://github.com/systemjs/systemjs).
 
-.alert.is-helpful
-  :marked
-    Angular 2 itself doesn't require either TypeScript or SystemJS.
-    There will soon be other editions of this guide that show how to
-    do the upgrade using ES5.
-    
 :marked
   We will also start to gradually phase out the Bower package manager in favor
   of NPM. We'll install all new dependencies using NPM, and will eventually be
@@ -859,9 +846,7 @@ code-example(format="").
 
 :marked
   We can now use Typings to install the type definitions for Angular 1 and the Jasmine
-  unit test framework. This will add a `typings` directory to the project and install
-  a number of `.d.ts` files under it. It will also create a `typings.json` file to the
-  project, which contains metadata about the type definitions we've installed:
+  unit test framework:
   
 code-example(format="").
   npm run typings install jquery -- --save --ambient
@@ -883,8 +868,8 @@ code-example(format="").
 +makeExample('upgrade-phonecat/ts/typescript-conversion/app/systemjs.config.js', ull, 'app/systemjs.config.js')
 
 :marked
-  This tells SystemJS that we have a module called `app.module` that
-  resides in the `js` subdirectory (relative to the `index.html` page). We then load that
+  This configuration tells SystemJS that we have a module called `app.module` that
+  resides in the same directory as the `index.html` page. We then load that
   module using `System.import`. This will load and execute the `app/app.module.js` file.
 
   We should also configure the TypeScript compiler so that it can understand our
@@ -920,74 +905,81 @@ code-example(format="").
   our existing code. Instead we'll introduce type annotations and other new
   features gradually over time.
   
-  Let's begin by renaming `app.module.js` to `app.module.ts`. The TypeScript
-  compiler should be able to compile it successfully right away. This means we can
-  move right along and go through the rest of our source files and convert them.
-  We'll rename each one to a `.ts` file, and add the imports and exports it needs.
+  So, we'll go through each of our source files and convert them as we go, by
+  renaming each one to a `.ts` file and adding the imports and exports it needs.
+  Beginning from the `Phone` service, here are the converted contents:
   
-  Beginning from the checkmark filter, here are the converted contents:
-  
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/core/checkmark.filter.ts', null, 'app/js/core/checkmark.filter.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/phone/phone.service.ts', null, 'app/core/phone/phone.service.ts')
 
 :marked
-  This file now has the filter factory function as the default export. Apart from 
+  This file now has the factory function as the default export. Apart from 
   the export, there's one other major change we've applied to the file, which
-  is that it does *not* contain the registration of the filter into an Angular
-  module. We will do that later in the `core` module's main file. 
+  is that it does *not* contain the registration of the factory into an Angular
+  module. We do that in the `core.phone` module's main file, where we also then
+  export the module itself as the default export: 
   
-  Moving to the `Phone` factory file, it now has the factory function as the default
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/phone/phone.module.ts', null, 'app/core/phone/phone.module.ts')
+
+:marked
+  This'll be a pattern we follow for all our files: Rather than registering things
+  into the Angular 1 module system in every file, we use the ES2015 module system.
+  Angular 1 module management is centralized into the `.module.ts` files, where it is
+  easier to manage. It will also be easy to eventually remove when we complete the
+  upgrade.
+  
+  Moving on to the `checkmark` filter, it now has the filter factory function as the default
   export:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/core/phone.factory.ts', null, 'app/js/core/phone.factory.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/checkmark/checkmark.filter.ts', null, 'app/core/checkmark/checkmark.filter.ts')
 
 :marked
   The `core` module's main module file will now import both the checkmark filter
-  and the Phone factory. This is where we actually register them into the Angular module.
-  We then export the module itself as this file's default export:
+  and the `core.phone` module:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/core/core.module.ts', null, 'app/js/core/core.module.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/core.module.ts', null, 'app/core/core.module.ts')
 
 :marked
-  Notice that with this organization pattern, the files that hold the application
-  components themselves - filters and factories - aren't concerned with the makeup
-  of Angular modules. That's just something we previously *had* to do because there
-  were no other good solutions. Now we use a separate file just for the purpose
-  of forming the Angular module.
+  Note that we don't have to repeat the name string of the `core.phone` Angular 1 module
+  here. Since the module exports itself, we can just refer to its `name` attribute.
+  Rather than defining module dependencies using strings, we can just use the
+  ES2015 module system.
   
   Now switching to the phone detail module, we'll make similar changes here. In the
-  controller file we export the controller function as the default export:
+  component file we export the component object as the default export:
 
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/phone_detail/phone_detail.controller.ts', null, 'app/js/phone_detail/phone_detail.controller.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-detail/phone-detail.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
 
 :marked
-  In the main module file we import the controller and register it into the Angular
+  In the main module file we import the component and register it into the Angular
   module, which itself is then exported:
 
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/phone_detail/phone_detail.module.ts', null, 'app/js/phone_detail/phone_detail.module.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-detail/phone-detail.module.ts', null, 'app/phone-detail/phone-detail.module.ts')
 
 :marked
   Then we'll repeat the same steps once more for the phone list module.
-  The controller file exports the controller function:
+  The component file exports the component object:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/phone_list/phone_list.controller.ts', null, 'app/js/phone_list/phone_list.controller.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-list/phone-list.component.ts', null, 'app/phone-list/phone-list.component.ts')
 
 :marked
-  And the main module file imports the controller and registers it:
+  The main module file then imports the component and registers it:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/phone_list/phone_list.module.ts', null, 'app/js/phone_list/phone_list.module.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-list/phone-list.module.ts', null, 'app/phone-list/phone-list.module.ts')
 
 :marked
-  Finally, we can now pull everything together in `app.module.ts`. We'll
-  import each of the three submodule files and register them as dependencies
-  of the main application module:
+  We'll also convert our application route config block so that it doesn't
+  register itself into a module. It is just exported:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/app.module.ts', 'pre-bootstrap', 'app/js/app.module.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/app.config.ts', null, 'app/app.config.ts')
 
 :marked
-  Note that we don't have to repeat the submodule name strings here. Since the
-  modules export themselves, we can just refer to the `name` attribute of each 
-  of them.
+  Finally, we can now pull everything together in `app.module.ts`. It here we'll
+  import each of the three submodule files as well as the config block. We then register
+  them into the main application module:
   
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/app.module.ts', 'pre-bootstrap', 'app/app.module.ts')
+
+:marked
   Before this converted version of the application will run, we need to change the
   way we're bootstrapping it. It is currently bootstrapped using the `ng-app` directive
   attached to the `<html>` element of the host page. This will no longer work because
@@ -996,10 +988,10 @@ code-example(format="").
   
   We should switch to a JavaScript-driven bootstrap instead. As it happens, this is
   also how Angular 2 apps are bootstrapped, so the switch brings us one step closer
-  to Angular as well. So, remove the `ng-app` attribute from `index.html`, and add
+  to Angular 2 as well. So, remove the `ng-app` attribute from `index.html`, and add
   this at the end of `app.module.ts`:
 
-+makeExample('upgrade-phonecat/ts/typescript-conversion/app/js/app.module.ts', 'bootstrap', 'app/js/app.module.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/app.module.ts', 'bootstrap', 'app/app.module.ts')
 
 :marked
   We now have a fully functional version of the application, all converted
@@ -1029,7 +1021,7 @@ code-example(format="").
   the application files. For this we'll use a shim file that will tweak the way
   files get loaded:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/karma_test_shim.js', null, 'test/karma_test_shim.js')
++makeExample('upgrade-phonecat/ts/typescript-conversion/karma_test_shim.js', null, 'karma_test_shim.js')
 
 .alert.is-important The shim is likely to be replaced by improved tooling, but is currently needed.
 
@@ -1039,48 +1031,33 @@ code-example(format="").
   We will *watch* them so that the test suite is triggered when changes occur, but we
   won't have Karma *include* them because that is now done by SystemJS and the shim.
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/karma.conf.1.js', 'files', 'test/karma.conf.js')
++makeExample('upgrade-phonecat/ts/typescript-conversion/karma.conf.1.js', 'files', 'karma.conf.js')
 
 :marked
   Now we have the infrastructure in place and can convert the test files themselves.
-  This mainly just consists for changing the file extensions of those files, and adding
+  This mainly just consists of changing the file extensions of those files, and adding
   the necessary imports to them.
   
   In the checkmark filter spec, we'll import the core module file, so that it is
   available when we load the corresponding Angular module:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/unit/checkmark.filter.spec.ts', 'top', 'test/unit/checkmark.filter.spec.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/checkmark/checkmark.filter.spec.ts', 'top', 'app/core/checkmark/checkmark.filter.spec.ts')
 
 :marked
-  We'll do the exact same thing for the phone factory spec:
+  For the phone service spec, on the other hand, we load the `core.phone` module file:
 
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/unit/phone.factory.spec.ts', 'top', 'test/unit/phone.factory.spec.ts')
-
-:marked
-  In the phone detail controller spec, on the other hand, we should import
-  the phone detail module:
-
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/unit/phone_detail.controller.spec.ts', 'top', 'test/unit/phone_detail.controller.spec.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/core/phone/phone.service.spec.ts', 'top', 'app/core/phone/phone.service.spec.ts')
 
 :marked
-  Finally, the phone list controller spec should import the phone list
+  In the phone detail component spec we should import the phone detail module:
+
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-detail/phone-detail.component.spec.ts', 'top', 'app/phone-detail/phone-detail.component.spec.ts')
+
+:marked
+  Finally, the phone list component spec should import the phone list
   module:
   
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/unit/phone_list.controller.spec.ts', 'top', 'test/unit/phone_list.controller.spec.ts')
-
-:marked
-  There's one more issue we have in our controller tests, which is that TypeScript
-  isn't happy about compiling them at the moment. This is because we're using
-  the custom Jasmine matcher `toEqualData` in both of them. Because this is something
-  we define ourselves, it isn't included in the Jasmine type definitions that we
-  installed using Typings.
-  
-  We can add our own little type definition file for that extension, which extends
-  the `jasmine.Matchers` interface and adds our custom matcher to it. This will
-  satisfy the compiler and let us use our custom matcher while retaining the nice
-  type safety features of TypeScript:
-  
-+makeExample('upgrade-phonecat/ts/typescript-conversion/test/jasmine_matchers.d.ts', null, 'test/jasmine_matchers.d.ts')
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/phone-list/phone-list.component.spec.ts', 'top', 'app/phone-list/phone-list.component.spec.ts')
 
 :marked
   And now we have a fully functional test suite for our TypeScript-enabled
@@ -1091,13 +1068,13 @@ code-example(format="").
   
   Now that we have TypeScript, we can start benefiting from some of its
   other features in addition to the imports and exports that we're already using.
-  There's a lot of value the language can provide in Angular 1 applications.
+  There's a lot of value the language can provide to Angular 1 applications.
   
   For one thing, TypeScript is a superset of ES2015. Any app that has previously
   been written in ES5 - like the PhoneCat example has - can with TypeScript
   start incorporating all of the JavaScript features that are new to ES2015.
-  These include things like `let`s and `const`s, default function parameters,
-  and destructuring assignments.
+  These include things like `let`s and `const`s, arrow functions, default function
+  parameters, and destructuring assignments.
   
   Another thing we can do is start adding *type safety* to our code, by
   adding type annotations. For instance, we can annotate the checkmark
@@ -1106,7 +1083,7 @@ code-example(format="").
   possible for the TypeScript compiler to notify us when we're trying to
   use it with incompatible types.
   
-+makeExample('upgrade-phonecat/ts/classes/app/js/core/checkmark.filter.ts', null, 'app/js/core/checkmark.filter.ts', {otl: /(:\w+)/g})
++makeExample('upgrade-phonecat/ts/classes/app/core/checkmark/checkmark.filter.ts', null, 'app/core/checkmark/checkmark.filter.ts', {otl: /(:\w+)/g})
   
 .l-sub-section
   :marked
@@ -1124,37 +1101,41 @@ code-example(format="").
   
 :marked
   Another TypeScript feature we can make use of is *classes*. In particular, we
-  can turn our controllers into classes. That way they'll be a step
+  can turn our component controllers into classes. That way they'll be a step
   closer to becoming Angular 2 component classes, which will make our life
   easier once we do the upgrade.
   
   Angular 1 expects controllers to be constructor functions. That's what
-  ES2015/TypeScript classes really are, so that means we can just register a
-  class as a controller and Angular 1 will happily use it. We also won't 
+  ES2015/TypeScript classes really are, so that means we can just plug in a
+  class as a component controller and Angular 1 will happily use it. We also won't 
   need to make any changes to our test suite as the external behavior of the
-  controllers will not change.
+  components will not change.
   
-  Here's what our new class for the phone list controller looks like.
+  Here's what our new class for the phone list component controller looks like:
   
-+makeExample('upgrade-phonecat/ts/classes/app/js/phone_list/phone_list.controller.ts', null, 'app/js/phone_list/phone_list.controller.ts')
++makeExample('upgrade-phonecat/ts/classes/app/phone-list/phone-list.component.ts', null, 'app/phone-list/phone-list.component.ts')
 
 :marked
   What was previously done in the controller function is now done in the class
-  constructor function. The class additionally declares three members: The 
-  array of phones, the name of the current sort key, and the search query. These
-  are all things we have already been attaching to the controller,
-  but that weren't explicitly declared anywhere. The last one of these isn't actually
-  used in the TypeScript code since it's only referred to in the template, but for
-  the sake of clarity we want to define all the members our controller will have.
+  constructor function. The dependency injection annotations are attached
+  to the class using a static TypeScript property `$inject`. At runtime this
+  becomes the `PhoneListController.$inject` property.
+  
+  The class additionally declares three members: The array of phones, the name of
+  the current sort key, and the search query. These are all things we have already
+  been attaching to the controller but that weren't explicitly declared anywhere.
+  The last one of these isn't actually used in the TypeScript code since it's only
+  referred to in the template, but for the sake of clarity we want to define all the
+  members our controller will have.
 
   In the Phone detail controller we'll have two members: One for the phone
   that the user is looking at and another for the URL of the currently displayed image.
   We can additionally introduce a TypeScript interface that explicitly defines
   what we expect the `$routeParams` object to contain when it is
-  passed to the controller. This interface is not exported and is just used internally
+  passed to the controller. This interface is not exported so it's just used internally
   inside this module:
   
-+makeExample('upgrade-phonecat/ts/classes/app/js/phone_detail/phone_detail.controller.ts', null, 'app/js/phone_detail/phone_detail.controller.ts')
++makeExample('upgrade-phonecat/ts/classes/app/phone-detail/phone-detail.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
   
 :marked
   This makes our controller code look a lot more like Angular 2 already. We're
@@ -1196,9 +1177,9 @@ code-example(format="").
   npm run typings install
   
 :marked
-  We should then load some Angular 2 dependencies into the application by adding
-  some `<script>` tags to `index.html`. They should go before the `<script>` tag
-  that loads `systemjs.config.js`:
+  We can then load Angular 2 dependencies into the application by adding some
+  `<script>` tags to `index.html`. They should go before the `<script>` tag that
+  loads `systemjs.config.js`. 
   
 +makeExample('upgrade-phonecat/ts/ng2_initial/app/index.html', 'ng2')
 
@@ -1210,9 +1191,10 @@ code-example(format="").
 
 :marked
   While we're at it, let's also make these files available to unit tests by
-  updating the Karma config:
+  updating the Karma config. Note that we also change Karma's base directory
+  at this point so that we can load files from `node_modules` more easily.
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/karma.conf.1.js', 'ng2', 'test/karma.conf.js')
++makeExample('upgrade-phonecat/ts/ng2_initial/karma.conf.1.js', null, 'karma.conf.js')
 
 :marked
   ## Bootstrapping A Hybrid 1+2 PhoneCat
@@ -1221,7 +1203,7 @@ code-example(format="").
   that supports both Angular 1 and Angular 2 components. Once we've done that
   we can start converting the individual pieces to Angular 2.
   
-  At this point we need to do add the Angular 2 type definitions
+  At this point we need to add the Angular 2 type definitions
   into `app.ts`, so that the TypeScript compiler knows what we're talking about
   when we use Angular 2 APIs. Unlike with Angular 1, we don't need to install
   these type definitions with Typings because Angular 2 comes with them included.
@@ -1232,17 +1214,17 @@ code-example(format="").
 +makeJson('upgrade-phonecat/ts/ng2_initial/tsconfig.1.json', null, 'tsconfig.json', {otl: /(\"moduleResolution.*)/})
 
 :marked
-  To boostrap a hybrid application, we first need to initialize an `UpgradeAdapter`,
+  To bootstrap a hybrid application, we first need to initialize an `UpgradeAdapter`,
   which [provides the glue](#upgrading-with-the-upgrade-adapter) that joins the two
   versions of the framework together. Let's import the `UpgradeAdapter` class into
   `app.module.ts`:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/app.module.ts', 'adapter-import', 'app/js/app.module.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/app.module.ts', 'adapter-import', 'app/app.module.ts')
 
 :marked
   We can then make an adapter by instantiating the class:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/upgrade_adapter.ts', 'adapter-init')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/upgrade-adapter.ts', 'adapter-init')
   
 :marked
   Now we can use that adapter to bootstrap our application as a hybrid.
@@ -1251,7 +1233,7 @@ code-example(format="").
   They are still the element that will become the root of the application,
   and the names of the root Angular 1.x modules that we want to include:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/app.module.ts', 'bootstrap')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/app.module.ts', 'bootstrap')
   
 :marked
   We are now running both Angular 1 and 2 at the same time. That's pretty
@@ -1260,15 +1242,15 @@ code-example(format="").
   
     
 :marked
-  ## Upgrading the Phone factory
+  ## Upgrading the Phone service
 
-  The first piece we'll port over to Angular 2 is the `Phone` factory, which
-  resides in `app/js/core/phones.factory.ts` and makes it possible for controllers
+  The first piece we'll port over to Angular 2 is the `Phone` service, which
+  resides in `app/core/phone/phone.service.ts` and makes it possible for components
   to load phone information from the server. Right now it's implemented with
   ngResource and we're using it for two things:
   
-  * For loading the list of all phones into the phone list controller
-  * For loading the details of a single phone into the phone detail controller.
+  * For loading the list of all phones into the phone list component
+  * For loading the details of a single phone into the phone detail component.
   
   We can replace this implementation with an Angular 2 service class, while 
   keeping our controllers in Angular 1 land. In the new version we'll just use
@@ -1278,7 +1260,7 @@ code-example(format="").
   it into our application's dependency injector. We should import the `HTTP_PROVIDERS`
   constant in `app.module.ts`:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/app.module.ts', 'http-import')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/app.module.ts', 'http-import')
 
 :marked
   In a regular Angular 2 application we would now pass `HTTP_PROVIDERS` into
@@ -1290,14 +1272,13 @@ code-example(format="").
   What we must do instead is register `HTTP_PROVIDERS` into the `UpgradeAdapter`
   separately. It has a method called `addProvider` for that purpose:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/app.module.ts', 'add-http-providers')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/app.module.ts', 'add-http-providers')
 
 :marked
-  Now we're ready to upgrade the Phones factory itself. We'll put the Angular 2
-  implementation in a new file called `phones.service.ts` in the core module. It will be a TypeScript
-  class decorated as `@Injectable`:
+  Now we're ready to upgrade the Phones service itself. We replace the ngResource-based
+  service in `phone.service.ts` with a TypeScript class decorated as `@Injectable`:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/phones.service.ts', 'class', 'app/js/core/phones.service.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.service.ts', 'class', 'app/core/phone/phone.service.ts')
 
 :marked
   The `@Injectable` decorator will attach some dependency injection metadata
@@ -1311,32 +1292,31 @@ code-example(format="").
   used in the two instance methods, one of which loads the list of all phones,
   and the other the details of a particular phone:
 
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/phones.service.ts', 'fullclass')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.service.ts', 'fullclass')
 
 :marked
-  The methods now return Observables of type `Phone` and `Phone[]`. This is
+  The methods now return Observables of type `PhoneData` and `PhoneData[]`. This is
   a type we don't have yet, so let's add a simple interface for it:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/phones.service.ts', 'phone-interface', 'app/js/core/phones.service.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.service.ts', 'phonedata-interface', 'app/core/phone/phone.service.ts')
 
 :marked
   Here's the full, final code for the service:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/phones.service.ts', 'full', 'app/js/core/phones.service.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.service.ts', null, 'app/core/phone/phone.service.ts')
 
 :marked
   Notice that we're importing the `map` operator of the RxJS `Observable` separately.
   We need to do this for all RxJS operators that we want to use, since Angular 2
   does not load all of them by default.
 
-  The new `Phones` service now has the same features that the original, ngResource based
-  service did. You can remove the old `phones.factory.ts` file. Now we just
-  need to register the new service into the application, so that our Angular 1
-  controllers will be able to use it.
+  The new `Phone` service now has the same features that the original, ngResource based
+  service did. Now we just need to register the new service into the application, so that
+  our Angular 1 components will be able to use it.
   
   `UpgradeAdapter` has a `downgradeNg2Provider` method for the purpose of making
   Angular 2 services available to Angular 1 code. The problem is that we don't have
-  our `UpgradeAdapter` available in `core.module.ts` where the `Phones` service should
+  our `upgradeAdapter` available in `phone.module.ts` where the `Phones` service should
   be registered. We only have it in `app.module.ts`. There should only be one
   `UpgradeAdapter` in an application, so we need to find a way to share our
   instance between the two code modules.
@@ -1346,175 +1326,140 @@ code-example(format="").
   so that we're using the same object everywhere. Let's put this new file
   under `core`:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/upgrade_adapter.ts', 'full', 'app/js/core/upgrade_adapter.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/upgrade-adapter.ts', null, 'app/core/upgrade-adapter.ts')
 
 :marked
   In `app.module.ts` we should now just import this adapter instead of making a separate one:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/app.module.ts', 'adapter-state-import')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/app.module.ts', 'adapter-state-import')
 
 :marked
   Also remove the line from `app.module.ts` that is instantiating `UpgradeAdapter`. It's no
   longer needed since we import the instance from elsewhere.
   
-  We'll then do the same in `core.module.ts` as well. Then we can register the `Phones` service into it.
+  We'll then do the same in `phone.module.ts` as well. Then we can register the `Phone` service into it.
   While doing that, we can remove the module's dependency to `ngResource`, which
   we're no longer using.
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/core/core.module.ts', null, 'app/js/core/core.module.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.module.ts', null, 'app/core/phone/phone.module.ts')
 
 :marked
   Note that we actually needed to do two registrations here:
   
-  1. Register `Phones` as an **Angular 2 provider** with the `addProvider`
+  1. Register `Phone` as an **Angular 2 provider** with the `addProvider`
      method. That's the same method that we used earlier for `HTTP_PROVIDERS`.
-  2. Register an **Angular 1 factory** called `phones`, which will be a *downgraded*
-     version of the `Phones` service.
+  2. Register an **Angular 1 factory** called `phone`, which will be a *downgraded*
+     version of the `Phone` Angular 2 service.
      
-  At this point we can switch our two controllers to use the new service
-  instead of the old one. We `$inject` it as the downgraded `phones` factory,
-  but it's really an instance of the `Phones` class and we can annotate its type
+  At this point we can switch our two components to use the new service
+  instead of the old one. We `$inject` it as the downgraded `phone` factory,
+  but it's really an instance of the `Phone` class and we can annotate its type
   accordingly:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/phone_detail/phone_detail.controller.ts', null, 'app/js/phone_detail/phone_detail.controller.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/phone-detail/phone-detail.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
 
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/js/phone_list/phone_list.controller.ts', null, 'app/js/phone_list/phone_list.controller.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/phone-list/phone-list.component.ts', null, 'app/phone-list/phone-list.component.ts')
 
 :marked
-  What we have here are two Angular 1 controllers using an Angular 2 service!
-  The controllers don't need to be aware of this, though the fact that the
+  What we have here are two Angular 1 components using an Angular 2 service!
+  The components don't need to be aware of this, though the fact that the
   service returns Observables and not Promises is a bit of a giveaway.
   In any case, what we've achieved is a migration of a service to Angular 2
-  without having to yet migrate the controllers that use it.
+  without having to yet migrate the components that use it.
   
 .alert.is-helpful
   :marked
     You could use the `toPromise` method of `Observable` to turn those Observables
     into Promises in the service to further reduce the amount of changes
-    needed in controller code.
+    needed in the component controllers.
   
 :marked
   To bring our test suite up to speed with the changes, we should update the Karma
   test shim. It'll make some of Angular 2 providers available before starting
   to load any of the spec files:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/karma_test_shim.js', null, 'test/karma_test_shim.js')
++makeExample('upgrade-phonecat/ts/ng2_initial/karma_test_shim.js', null, 'karma_test_shim.js')
 
 .alert.is-important The shim is likely to be replaced by improved tooling, but is needed right now.
 
 :marked
   Now, let's look at the tests for the service itself. What we used to have in 
-  `phones_factory_spec.js` was a fairly simple test that simply checks if
-  the factory exists and is available for injection. We can now do that same
-  test in Angular 2. Rename `phones.factory.spec.ts` to `phones.service.spec.ts` and
-  set the contents as follows:
+  `phone.service.spec.js` was a test that checks if the service is making a
+  call to `$http` and returning the correct value. We can now do that same
+  test in Angular 2. Set the contents of `phone.service.spec.ts` as follows:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/unit/phones.service.spec.ts', null, 'test/unit/phones.service.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/core/phone/phone.service.spec.ts', null, 'app/core/phone/phone.service.spec.ts')
 
 :marked
-  Here we first load the `Phones` provider and then test that an instance of
-  `Phones` can in fact be injected. We also need to load `HTTP_PROVIDERS` since
-  it is a dependency of `Phones`.
+  Here we use the Angular 2 Http module and its mock backend to verify that the
+  service is doing the right thing.
   
-  For the controller tests, we can first of all at this point get rid of the
-  custom `toEqualData` custom matcher. It was added because `ngResource` attaches
-  attributes to the data that we don't want to compare in tests. We're no longer
-  using `ngResource`, so we can simply use the built-in `toEqual` for comparisons.
-  This means we can remove the `test/jasmine_matchers.d.ts` file at this point.
-  
-  Now, in the phone detail controller we have been testing that the phone details
-  with the id given in the route params are fetched over HTTP and put on the
+  In the phone detail component we have been testing that the phone details
+  matching the id in the route params are fetched over HTTP and put on the
   scope. We can continue doing that, but we'll need to change the structure of the
   test a bit. Instead of using the Angular 1 mock HTTP backend, we'll just mock out
-  the `get` method of the `Phones` service, which is what the controller is now
+  the `get` method of the `Phone` service, which is what the controller is now
   using to load what it needs. As the mocked value, we're returning an Observable
   that will emit a single value - the mock phone data:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/unit/phone_detail.controller.spec.ts', null, 'test/unit/phone_detail.controller.spec.ts')
-
-.alert.is-important
-  :marked
-    We're doing a manual `Phones` instantiation because hybrid apps can't be
-    bootstrapped for unit tests at the moment, which means that Angular 2
-    dependencies can't be made available. This is likely to change.
++makeExample('upgrade-phonecat/ts/ng2_initial/app/phone-detail/phone-detail.component.spec.ts', null, 'app/phone-detail/phone-detail.component.spec.ts')
 
 :marked
   In the phone list controller we'll do something very similar: We mock out the `query`
-  method of the `Phones` service, and check that the controller makes the resulting
+  method of the `Phone` service, and check that the controller makes the resulting
   value available:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/unit/phone_list.controller.spec.ts', null, 'test/unit/phone_list.controller.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_initial/app/phone-list/phone-list.component.spec.ts', null, 'app/phone-list/phone-list.component.spec.ts')
 
 :marked
-  ## Upgrading Controllers to Components
+  ## Upgrading Components
   
-  Next, let's upgrade our Angular 1 controllers to Angular 2 components. We'll
+  Next, let's upgrade our Angular 1 components to Angular 2 components. We'll
   do it one at a time, while still keeping the application in hybrid mode.
   As we make these conversions, we'll also be defining our first Angular 2 *pipes*.
   
-  Let's look at the phone list controller first. Right now it is a TypeScript class,
-  which is paired with an HTML template by the route configuration in `app.ts`.
-  We'll be turning it into an Angular 2 component.
+  Let's look at the phone list component first. Right now it contains a TypeScript
+  controller class and a component definition object. We can morph this into
+  an Angular 2 component by just renaming the controller class and turning the
+  Angular 1 component definition object into an Angular 2 `@Component` decorator.
+  We can then also remove the static `$inject` property from the class:
   
-  Rename `phone_list.controller.ts` to `phone_list.component.ts`. Then rename the controller class
-  inside to just `PhoneList` and decorate it as a `@Component`:
-  
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list_without_pipes.component.ts', 'top', 'app/js/phone_list/phone_list.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list-without-pipes.component.ts', null, 'app/phone-list/phone-list.component.ts')
 
 :marked
   The `selector` attribute is a CSS selector that defines where on the page the component
-  should go. It will match elements by the name of `pc-phone-list`. It is a good idea
-  to always use application-specific prefixes in selectors so that they never clash with
-  built-in ones, and here we're using `pc-`, which is short for "PhoneCat".
+  should go. In Angular 1 we do matching based on component names, but in Angular 2 we
+  have these explicit selectors. This one will match elements with the name `phone-list`,
+  just like the Angular 1 version did.
   
-  The `templateUrl` defines the location of the component template. It points to our existing
-  template file
-  
-  Both of these attributes are things that were defined *externally* for the controller,
-  but for the component are things that it defines *itself*. This will affect how we use
-  the component in the router.
-  
-:marked
   We now also need to convert the template of this component into Angular 2 syntax.
-  In the search controls we need to use Angular 2 syntax for the two `ngModel`s
+  In the search controls we need to use Angular 2 syntax for the two `ngModel`s.
+  We should also no longer use the `$ctrl` prefix in expressions:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list_without_pipes.html', 'controls', 'app/js/phone_list/phone_list.html')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list-without-pipes.template.html', 'controls', 'app/phone-list/phone-list.template.html')
 
 :marked
-  In the list we need to replace the `ng-repeat` with an `*ngFor` and its
+  In the list we need to replace the `ng-repeat` with an `*ngFor` and the
   `#var of iterable` syntax, which is [described in our
   Template Syntax guide](../guide/template-syntax.html#directives).
-  
-  For the images, we can replace `ng-src` with the standard `src`, but will use a
-  property binding. Note that we're also adding a `name` CSS class for the phone name.
+  For the images, we can replace `ng-src` with a binding to the standard `src` property.
+  Note that we're also adding a `name` CSS class for the phone name.
   This is something we'll need for our Protractor tests:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list_without_pipes.html', 'list', 'app/js/phone_list/phone_list.html')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list-without-pipes.template.html', 'list', 'app/phone-list/phone-list.template.html')
 
 :marked
   In the module file we're going to plug this component into our application. Instead
-  of registering a controller, we register a `pcPhoneList` directive.
-  The directive is a downgraded version of our component, and the `UpgradeAdapter`
+  of registering a component, we register a `phoneList` *directive*.
+  The directive is a downgraded version of our Angular 2 component, and the `UpgradeAdapter`
   handles the bridging between the two:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list.module.ts', null, 'app/js/phone_list/phone_list.module.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list.module.ts', null, 'app/phone-list/phone-list.module.ts')
 
 :marked
   The `<angular.IDirectiveFactory>` type annotation here is to let the TypeScript compiler
   know that the return value of the downgrade method call will be something that can be
   used as a directive factory.
-  
-  To complete the switch, we should change our route configuration in `app.module.ts`.
-  Instead of using the controller and template, it can just instantiate our component.
-  We can do that by using a simple template that uses the directive
-  we just registered:
-
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/app.module.ts', 'list-route')
-
-:marked
-  When the application runs, the Angular 1.x directive compiler will match
-  the element in the template to the `pcPhoneList` directive, which is actually
-  an Angular 2 component!
   
   The remaining issue with the phone list is the use of filters in its
   template: It is referring to the `filter` filter and the `orderBy` filter,
@@ -1533,16 +1478,16 @@ code-example(format="").
   For filtering, we'll have a pipe called `PhoneFilterPipe`. It works like 
   the `filter` filter in Angular 1 in that it filters a collection of objects,
   matching properties within the objects. But, as opposed to `filter`,
-  this pipe is specialized to filter `Phone` objects and we can use
+  this pipe is specialized to filter `PhoneData` objects and we can use
   type annotations to make this explicit:
-  
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_filter.pipe.ts', null, 'app/js/phone_list/phone_filter.pipe.ts')
+
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-filter.pipe.ts', null, 'app/phone-list/phone-filter.pipe.ts')
 
 :marked
   Since we're adding new code, it's a good idea to add some unit tests for
   it too. Here are a few tests for `PhoneFilterPipe`:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/unit/phone_filter.pipe.spec.ts', null, 'test/unit/phone_filter.pipe.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-filter.pipe.spec.ts', null, 'app/phone-list/phone-filter.pipe.spec.ts')
 
 :marked
   For sorting, we'll use a more generic pipe, just called `OrderBy`. It
@@ -1550,24 +1495,24 @@ code-example(format="").
   an array of the same type of thing it was given. In the implementation we
   copy the input array, sort the copy, and return it.
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/order_by.pipe.ts', null, 'app/js/phone_list/order_by.pipe.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/order-by.pipe.ts', null, 'app/phone-list/order-by.pipe.ts')
 
 :marked
   Here's a unit test for `OrderByPipe` as well:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/unit/order_by.pipe.spec.ts', null, 'test/unit/order_by.pipe.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/order-by.pipe.spec.ts', null, 'app/phone-list/order-by.pipe.spec.ts')
 
 :marked
   We can now integrate these new pipes with our component. Before the pipes
   are available there, we need to declare them in the `@Component` decorator.
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list.component.ts', 'top', 'app/js/phone_list/phone_list.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list.component.ts', 'top', 'app/phone-list/phone-list.component.ts')
 
 :marked
   In the template we need to use the `phoneFilter` pipe instead of `filter`.
   No changes are needed for the `orderBy`
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list_without_async.html', 'list', 'app/js/phone_list/phone_list.html')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list-without-async.template.html', 'list', 'app/phone-list/phone-list.template.html')
 
 :marked
   Now that the phone list is an Angular 2 component, there's one more neat trick
@@ -1577,34 +1522,32 @@ code-example(format="").
   With Angular 2, we can instead just put the Observable itself on the
   component, and can skip the subscription callback:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list.component.ts', 'full', 'app/js/phone_list/phone_list.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list.component.ts', null, 'app/phone-list/phone-list.component.ts')
 
 :marked
   This is made possible by the `async` pipe, which we can apply in the template.
-  It knows how to turn an Observable to the (latest) value it has emitted:
+  It knows how to subscribe to an Observable and always evaluates to the latest
+  value it has emitted:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_list/phone_list.html', 'list', 'app/js/phone_list/phone_list.html')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list.template.html', 'list', 'app/phone-list/phone-list.template.html')
 
 :marked
   That takes care of the phone list. Here's the updated unit test file for
   that component to complete the migration:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/unit/phone_list.component.spec.ts', null, 'test/unit/phone_list.component.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-list/phone-list.component.spec.ts', null, 'app/phone-list/phone-list.component.spec.ts')
 
 :marked
   Before this test will run, we'll need to augment our Karma configuration
-  so that component HTML templates are loaded properly. We didn't need them
-  before when we were testing the controller in isolation, but our new test
-  exercises the component as a whole, which includes the template.
+  so that component HTML templates are loaded properly:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/karma.conf.1.js', 'html', 'test/karma.conf.js')
++makeExample('upgrade-phonecat/ts/ng2_components/karma.conf.1.js', 'html', 'karma.conf.js')
 
 :marked
-  Now we can start looking at our other controller, which is the one for
-  the phone details. Rename `phone_detail.controller.ts` to `phone_detail.component.ts`,
-  and set the contents as follows:
+  Now we can start looking at our other component, which is the one for
+  the phone details. Set the contents of `phone-detail.component.ts` as follows:
     
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_detail/phone_detail_without_pipes.component.ts', null, 'app/js/phone_detail/phone_detail.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-detail/phone-detail-without-pipes.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
 
 :marked
   This is pretty similar to what we did with the phone list. The one new change
@@ -1618,7 +1561,7 @@ code-example(format="").
   We explicitly need to tell the `UpgradeAdapter` to upgrade `$routeParams` so that
   it is available for injection in Angular 2. We can do it in `app.module.ts`:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/app.module.ts', 'upgrade-route-params', 'app/js/app.module.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/app.module.ts', 'upgrade-route-params', 'app/app.module.ts')
 
   
     
@@ -1626,14 +1569,14 @@ code-example(format="").
   We now also need to convert the template of this component into Angular 2 syntax.
   Here is the new template in its entirety:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_detail/phone_detail.html', null, 'app/js/phone_detail/phone_detail.html')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-detail/phone-detail.template.html', null, 'app/phone-detail/phone-detail.template.html')
 
 :marked
   There are several notable changes here:
   
-  * We've removed the `vm.` prefix from all expressions.
+  * We've removed the `$ctrl.` prefix from all expressions.
   * Just like we did in the phone list, we've replaced `ng-src` with property
-    bindings for the standard `src`.
+    bindings for the standard `src` property.
   * We're using the property binding syntax around `ng-class`. Though Angular 2
     does have [a very similar `ngClass`](../guide/template-syntax.html#directives)
     as Angular 1 does, its value is not magically evaluated as an expression.
@@ -1649,16 +1592,11 @@ code-example(format="").
     about cases where this is expected.
     
 :marked
-  In the module file we'll now register a `pcPhoneDetail` directive instead of a
-  controller. The directive is a downgraded version of the `PhoneDetail` component.
+  In the module file we'll now register a `phoneDetail` directive instead of a
+  component. The directive is a downgraded version of the `PhoneDetail` Angular 2
+  component.
     
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_detail/phone_detail.module.ts', null, 'app/js/phone_detail/phone_detail.module.ts')
-
-:marked
-  In the router configuration in `app.module.ts`, we'll switch the details route to
-  instantiate a component as well:
-
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/app.module.ts', 'detail-route')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-detail/phone-detail.module.ts', null, 'app/phone-detail/phone-detail.module.ts')
 
 :marked
   There's one additional step we need to take, which is to upgrade the
@@ -1668,34 +1606,34 @@ code-example(format="").
   While there is no upgrade method in the upgrade adapter for filters, we
   can just turn the filter function into a class that fulfills
   the contract for Angular 2 Pipes. The implementation is the same as before.
-  It just comes in a different kind of package. While changing it, also
+  It just comes in a different kind of packaging. While changing it, also
   rename the file to `checkmark.pipe.ts`:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/core/checkmark.pipe.ts', null, 'app/js/core/checkmark.pipe.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/core/checkmark/checkmark.pipe.ts', null, 'app/core/checkmark/checkmark.pipe.ts')
 
 :marked
   As we apply this change, we should also remove the registration of the filter
-  from the core module file. The module's content becomes:
+  from the core Angular 1 module file. The module's content becomes:
 
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/core/core.module.ts', null, 'app/js/core/core.module.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/core/core.module.ts', null, 'app/core/core.module.ts')
 
 :marked
   The unit test file for the filter also now becomes the unit test filter
   for the pipe. While we're still testing the same thing, we need to change
   how we set things up:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/unit/checkmark.pipe.spec.ts', null, 'test/unit/checkmark.pipe.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/core/checkmark/checkmark.pipe.spec.ts', null, 'app/core/checkmark/checkmark.pipe.spec.ts')
 
 :marked
   In the component we should now import and declare our newly created pipe:
   
-+makeExample('upgrade-phonecat/ts/ng2_components/app/js/phone_detail/phone_detail.component.ts', 'top', 'app/js/phone_detail/phone_detail.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-detail/phone-detail.component.ts', 'top', 'app/phone-detail/phone-detail.component.ts')
 
 :marked
   With the phone detail component now migrated as well, we can go and migrate
   its unit tests too.
   
-+makeExample('upgrade-phonecat/ts/ng2_components/test/unit/phone_detail.component.spec.ts', null, 'test/unit/phone_detail.component.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_components/app/phone-detail/phone-detail.component.spec.ts', null, 'app/phone-detail/phone-detail.component.spec.ts')
 
 :marked
   As we discussed earlier, Protractor tests should largely remain functional
@@ -1712,7 +1650,7 @@ table
   tr
     td
       :marked
-        `by.repeater('phone in vm.phones').column('phone.name')`
+        `by.repeater('phone in $ctrl.phones').column('phone.name')`
     td
       :marked
         `by.css('.phones .name')`
@@ -1722,7 +1660,7 @@ table
   tr
     td
       :marked
-        `by.repeater('phone in vm.phones')`
+        `by.repeater('phone in $ctrl.phones')`
     td
       :marked
         `by.css('.phones li')`
@@ -1732,7 +1670,7 @@ table
   tr
     td  
       :marked
-        `by.model('vm.query')`
+        `by.model('$ctrl.query')`
     td
       :marked
         `by.css('input')`
@@ -1742,7 +1680,7 @@ table
   tr
     td
       :marked
-        `by.model('vm.orderProp')`
+        `by.model('$ctrl.orderProp')`
     td
       :marked
         `by.css('select')`
@@ -1752,7 +1690,7 @@ table
   tr 
     td
       :marked
-        `by.binding('vm.phone.name')`
+        `by.binding('$ctrl.phone.name')`
     td
       :marked
         `by.css('h1')`
@@ -1790,17 +1728,17 @@ table
   Let's change this now and add an `AppComponent` class into a new file
   `app.component.ts`:
 
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/app.component.ts', null, 'app/js/app.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_final/app/app.component.ts', null, 'app/app.component.ts')
 
 :marked
-  This is a component that plugs in to an `<pc-app>` element on the page,
+  This is a component that plugs in to an `<phonecat-app>` element on the page,
   and has a simple template that only includes the router outlet component
   of the Angular router. This means that the component just renders the contents
   of the current route and nothing else. The `@RouteConfig` decorator defines
   the Angular 2 counterparts of our two routes. They refer directly to the
   two components.
   
-  We should put this `<pc-app>` element in the HTML so that the root component
+  We should put this `<phonecat-app>` element in the HTML so that the root component
   has something to attach to. It replaces the old Angular 1 `ng-view` directive:
   
 +makeExample('upgrade-phonecat/ts/ng2_final/app/index.html', 'body', 'app/index.html')
@@ -1812,20 +1750,20 @@ table
   object provided by the Angular 2 router. We use it to obtain the `phoneId` from
   the params:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/phone_detail/phone_detail.component.ts', null, 'app/js/phone_detail/phone_detail.component.ts')
++makeExample('upgrade-phonecat/ts/ng2_final/app/phone-detail/phone-detail.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
 
 :marked
   We should also make the corresponding change in the unit test. We provide
   an instance of the `RouteParams` class instead of the `$routeParams` object:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/test/unit/phone_detail.component.spec.ts', 'routeparams', 'test/unit/phone_detail.component.spec.ts')
++makeExample('upgrade-phonecat/ts/ng2_final/app/phone-detail/phone-detail.component.spec.ts', 'routeparams', 'app/phone-detail/phone-detail.component.spec.ts')
 
 :marked
   With that, we're ready to switch the bootstrap method of the application from that
   of the `UpgradeAdapter` to the main Angular 2 `bootstrap`. Let's import it together
-  with the router and the new app component in `app.module.ts`
+  with the router, the new app component, and everything else in `app.module.ts`
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/main.ts', 'importbootstrap')
++makeExample('upgrade-phonecat/ts/ng2_final/app/main.ts', 'importbootstrap')
 
 :marked
   We'll now use the regular Angular 2 `bootstrap` function to bootstrap the app 
@@ -1836,7 +1774,7 @@ table
   with  `upgradeAdapter.addProvider` until now, as well as the providers and
   directives of the router:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/main.ts', 'bootstrap')
++makeExample('upgrade-phonecat/ts/ng2_final/app/main.ts', 'bootstrap')
 
 :marked
   We are now running a pure Angular 2 application!
@@ -1847,18 +1785,18 @@ table
   its `routerLink` directive. We just need to refer to the route names we
   used in the `@RouteConfig`:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/phone_list/phone_list.html', 'list', 'app/js/phone_list/phone_list.html')
++makeExample('upgrade-phonecat/ts/ng2_final/app/phone-list/phone-list.template.html', 'list', 'app/phone-list/phone-list.template.html')
 
 :marked
   For this to work the directive just needs to be declared in the component:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/phone_list/phone_list.component.ts', 'top')
++makeExample('upgrade-phonecat/ts/ng2_final/app/phone-list/phone-list.component.ts', 'top')
 
 :marked
   Also, the unit tests for `PhoneList` now need to set up some router providers
   so that the `RouterLink` directive can be injected in the tests:
 
-+makeExample('upgrade-phonecat/ts/ng2_final/test/unit/phone_list.component.spec.ts', null)
++makeExample('upgrade-phonecat/ts/ng2_final/app/phone-list/phone-list.component.spec.ts')
 
 :marked
   To bring our Protractor test suite up to speed with the latest changes,
@@ -1867,7 +1805,7 @@ table
   should not be looking for one but instead find *Angular 2 apps* from
   the page. Add the following configuration option to `protractor-conf.js`:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/test/protractor-conf.js', 'ng2')
++makeExample('upgrade-phonecat/ts/ng2_final/e2e-tests/protractor-conf.js', 'ng2', 'e2e-tests/protractor-conf.js')
 
 :marked
   Also, there are a couple of Protractor API calls in our test code that
@@ -1876,12 +1814,12 @@ table
   that use WebDriver's generic URL APIs instead. The first of these is
   the redirection spec:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/test/e2e/scenarios.js', 'redirect')
++makeExample('upgrade-phonecat/ts/ng2_final/e2e-tests/scenarios.js', 'redirect', 'e2e-tests/scenarios.js')
 
 :marked
   And the second is the phone links spec:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/test/e2e/scenarios.js', 'links')
++makeExample('upgrade-phonecat/ts/ng2_final/e2e-tests/scenarios.js', 'links', 'e2e-tests/scenarios.js')
 
 :marked
   Now our E2E test suite is passing too, and we're ready to remove
@@ -1898,22 +1836,22 @@ table
   an Angular 1 module, so it doesn't really make sense to call it a module.
   Then remove all references to the `UpgradeAdapter` from `main.ts`. Also remove
   the Angular 1 bootstrap code and the imports of the `core`, `phoneList`, and
-  `phoneDetail` modules. Instead import the `PhoneList` and `PhoneDetail`
-  components directly - they are needed in the route configuration.
+  `phoneDetail` modules. 
   
   When you're done, this is what `main.ts` should look like:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/js/main.ts', null, 'app/js/main.ts')
++makeExample('upgrade-phonecat/ts/ng2_final/app/main.ts', null, 'app/main.ts')
 
 :marked
   You may also completely remove the following files. They are Angular 1
-  module configuration files and type definition files, and not required
-  in Angular 2:
+  module configuration files and not needed in Angular 2:
   
-  * `app/js/core/core.module.ts`
-  * `app/js/core/upgrade_adapter.ts`
-  * `app/js/phone_detail/phone_detail.module.ts`
-  * `app/js/phone_list/phone_list.module.ts`
+  * `app/app.config.ts`
+  * `app/core/core.module.ts`
+  * `app/core/upgrade_adapter.ts`
+  * `app/core/phone/phone.module.ts`
+  * `app/phone-detail/phone-detail.module.ts`
+  * `app/phone-list/phone-list.module.ts`
 
   The external typings for Angular 1 may be uninstalled as well. The only ones
   we still need are for Jasmine.
@@ -1927,16 +1865,16 @@ code-example(format="").
 
 :marked
   Finally, from `index.html` and `karma.conf.js`, remove all references to
-  Angular 1 scripts as well as jQuery. Instead of importing `js/app.module`
-  with SystemJS, import `js/main`. When you're done, this is what `index.html`
-  should look like:
+  Angular 1 scripts, the Angular 2 upgrade module, and jQuery. Instead of
+  importing `./app.module` with SystemJS, import `./main`. When you're done,
+  this is what `index.html` should look like:
   
 +makeExample('upgrade-phonecat/ts/ng2_final/app/index.html', null, 'app/index.html')
 
 :marked
   And this is what `karma.conf.js` should look like:
   
-+makeExample('upgrade-phonecat/ts/ng2_final/test/karma.conf.1.js', null, 'test/karma.conf.js')
++makeExample('upgrade-phonecat/ts/ng2_final/karma.conf.1.js', null, 'karma.conf.js')
 
 :marked
   That is the last we'll see of Angular 1! It has served us well but now
