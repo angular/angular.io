@@ -1,10 +1,10 @@
 import {Component, OnInit} from "angular2/core";
-import {A11yCustomButton} from "./a11y-custom-button.component";
 import {A11yHelper} from "../services/a11y-helper.service";
 import {CORE_DIRECTIVES} from "angular2/common";
-import {A11yValueHelper} from "../a11y-value-helper.component";
 import {A11yErrorDemo} from "./a11y-error-demo.component";
 import {ROUTER_DIRECTIVES} from "angular2/router";
+import {A11yCustomButton} from "../shared/a11y-custom-button.component";
+import {A11yValueHelper} from "../shared/a11y-value-helper.component";
 
 @Component({
   selector: 'a11y-managing-focus',

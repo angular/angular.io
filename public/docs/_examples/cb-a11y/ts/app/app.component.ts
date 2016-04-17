@@ -10,7 +10,6 @@ import {A11yManagingFocus} from "./managing-focus/a11y-managing-focus.component"
   templateUrl: 'app/app.component.html',
   directives:[
     ROUTER_DIRECTIVES,
-    A11yFormControls,
     A11yIndex
   ],
   providers: [

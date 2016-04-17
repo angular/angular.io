@@ -3,7 +3,7 @@ import {Component, EventEmitter, Output} from "angular2/core";
 // #docregion
 @Component({
   selector: 'a11y-custom-button',
-  templateUrl: './app/managing-focus/a11y-custom-button.component.html',
+  templateUrl: './app/shared/a11y-custom-button.component.html',
   host: {
     'role': 'button',
     'tabindex': '0',

@@ -111,9 +111,9 @@ include ../_util-fns
   
   [Managing focus](#managing-focus)
   
-  [Using keyboard shortcuts](#keyboard-shortcuts)
-
-  [Component should know its own role](#component-roles)
+  [Roles for custom component widgets](#component-roles)
+  
+  [Developer tools](#developer-tools)
 
 .l-sub-section
   :marked
@@ -342,7 +342,7 @@ figure.image-display
 :marked
   Our component:
 
-+makeTabs('cb-a11y/ts/app/form-controls/a11y-custom-control.component.html,cb-a11y/ts/app/form-controls/a11y-custom-control.component.ts,cb-a11y/ts/app/form-controls/a11y-custom-control.component.css',
++makeTabs('cb-a11y/ts/app/shared/a11y-custom-control.component.html,cb-a11y/ts/app/shared/a11y-custom-control.component.ts,cb-a11y/ts/app/shared/a11y-custom-control.component.css',
 null, 'a11y-custom-control.component.html,a11y-custom-control.component.ts, a11y-custom-control.component.css')
 
 :marked
@@ -688,12 +688,13 @@ code-example(language="html" escape="html" format="linenums").
   click like a button. 
   
   A `button` should accept focus, react to the mouse `click` event and react to the keyboard `enter` and `space` events.
-  *There is a set of rules governing this which we will explore in the next section*.
+  *There is a set of rules governing which keyboard events should ideally be implemented per widget and you can read 
+  about [Common Widget Design Patterns](https://www.w3.org/WAI/intro/accessibility.php) at the `W3C`*.
   
   When we use a `native button`, these are already implemented by the browser developer. 
   When we make our own these tasks rest with us:
   
-+makeTabs('cb-a11y/ts/app/managing-focus/a11y-custom-button.component.ts,cb-a11y/ts/app/managing-focus/a11y-custom-button.component.html',
++makeTabs('cb-a11y/ts/app/shared/a11y-custom-button.component.ts,cb-a11y/ts/app/shared/a11y-custom-button.component.html',
 null, 'a11y-custom-button.component.ts,a11y-custom-button.component.html')  
   
 :marked
@@ -785,17 +786,298 @@ null, 'a11y-error-demo.component.html,a11y-error-demo.component.ts')
   Keep reading to further explore `a11y` in Angular&nbsp;2 or [go back to the table of contents](#toc)
   
 .l-main-section
-<a id="keyboard-shortcuts"></a>
-:marked
-  ## Using keyboard shortcuts
-
-  Content coming soon...
-
-.l-main-section
 <a id="component-roles"></a>
 :marked
-  ## Component should know its own role
+  ## Roles for custom component widgets
+  
+  Angular&nbsp;2, and it predecessor, opens up web development to a large group of developers
+  who may not originally have developed websites. With the focus on the coding contructs and the raw power we get by
+  using this `Web Development Platform`, it is often easy to use `HTML` as the scaffolding of our application only and 
+  forget that in `Web Development` it should be the foundation.
+  
+  The applications we write run in the various browsers and `HTML` is the primary way of explaining to
+  the browsers what you would like them to show on screen. Even when writing script to manipulate the `DOM` we are, at the end 
+  of the day, manipulating a logical structure created from the `HTML`.
+  
+  Yes, we know that many of you already know this, but it is very important to realise that without an understanding
+  of `HTML` and how browsers go about interpreting our `markup`, it is virtually impossible to get a good understanding
+  of `a11y`.
+  
+  But, this should not be daunting. In fact, in the previous sections we have already built up a solid understanding
+  of some key concept of how good `HTML` support `a11y` and now we are about to provide you with the next weapon for your
+  `a11y` arsenal!
+  
+:marked
+  ### Roles in HTML
+
+.l-sub-section
+  :marked
+    Throughout this cookbook, we have often looked at the benefits of using native `HTML` elements as far as possible to
+    create the functionality we seek. The constant repetition of this is not the result of careless writing, no, it remains
+    such an important basis to making accessible web application that we need to once again look at it.
+
+:marked
+  Browsers have been made to interpret our `HTML` according to the specification of 
+  [HTML5 by the W3C](https://www.w3.org/TR/html5/). Within this document we will find the definition of each of the 
+  `HTML` elements we use. 
+  
+  We could say that each of the `HTML` element has a `Type` and the browsers will react according to this specific type
+  when encountering a specific element. And this is where `Roles` in `HTML` start. 
+  
+  Each element plays a specific `role` on the page, which is predefined by the developers of our browsers and based on 
+  the specification.
+
+.l-sub-section
+  :marked
+    Each browser knows what to do when it encounters an `input` or a `button`. And in the wonderful world or `a11y` this 
+    knowledge is passed through to screen readers and other assistive technologies through another set of information the 
+    browsers provide, and that is the [Accessibility Tree](https://www.w3.org/WAI/PF/aria-implementation/#intro_treetypes).
+    *In the next section we will look at ways of accessing this tree directly*.
+
+:marked
+  Angular&nbsp;2 allows us not only to extend or change the functionality of existing elements, but it also allows us
+  to create new `Custom Elements`.
+  
+  We can make a `div` act like an `input` or an `input` like `button`, for example. Or we can create a re-usable widget
+  called `my-seriously-cool-widget`, which, in itself is a collection of known `HTML` elements to provide some complex
+  function we can easily re-use. 
+  
+  The problem is, that the browsers expect these known elements to still act in the way described by the specification,
+  whilst they have no idea what our new custom elements do. This means that the `Accessibility Tree` won't be correct, 
+  and this would send our users, who depend on assistive technologies, on a wild goose chase.
+  
+  But fear not! We have all the tools we need at out fingertips to tell the browsers, and indirectly the screen reader,
+  what type of element we are creating!
+  
+:marked
+  ### ARIA Roles to the rescue
+  
+  Within the realms of `ARIA`, we are able to apply roles to elements that either tell the browser to override the
+  current `role` of a known element, or to give a familiar role to a totally new custom element.
+  
+  This way can, regardless of the `HTML` structure, provide all the information that is needed by assitive technologies!
+  
+.l-sub-section
+  :marked
+    It is important to note that applying an `ARIA Role` overrides the implicit role of native elements. Therefore, unless
+    you are changing the `role`, do not apply an `ARIA Role` to an element if the implicit role is correct.
+    
+    
+:marked
+  ### Applying an Aria Role in Angular&nbsp;2
+  
+  An element is given an `ARIA Role` by giving it a value for the `role` attribute. When doing this in our `HTML` directly,
+  it is as simple as this:
+  
+code-example(language="html" escape="html" format="linenums").
+  <h2 role="alert">I am an alert.</h2>
+  
+:marked
+  That was easy! After all the discussion at the start of the chapter you would be forgiven for expecting a very complex
+  implementation. But this is really all there is to it.
+  
+  And to see this used in an Angular&nbsp;2 template, we turn to an old friend from our `labelling` section: 
+
++makeExample('cb-a11y/ts/app/shared/a11y-custom-control.component.html')
+
+:marked
+  But, in Angular&nbsp;2, we will often need to apply this role to the custom elements we create with out components. So
+  how do we do that?
+ 
+  Well another way to refer to our new custom element, is the `Host Element` of the component. Quite simply the element
+  in our `HTML` that is hosting the implementation of our component.
+  
+  And once we again we have just what we need to manipulate our `Host Element` and that is through the `Host Property`
+  of our component definition. And yet again one of our familiar examples make a repeat appearance:
+  
++makeExample('cb-a11y/ts/app/shared/a11y-custom-button.component.ts')  
+
+:marked
+  Here we are providing a `role` attribute to the host element, with type of `button`. This is rendered into the resultant
+  `DOM` element:
+  
+code-example(language="html" escape="html" format="linenums").
+  <a11y-custom-button class="btn btn-primary" role="button" tabindex="0">
+    Do something...
+  </a11y-custom-button>
+
+:marked
+  And with this our browser, and assitive technologies, suddenly know that `a11y-custom-button` is a `button`!
+  
+  This is almost so easy that one wonders why you have not been doing this already for years. 
+  
+  OK, OK, it does a bit further than just this. But all we still need to look at is what are the `roles` that we can use.
+  
+  Lets look at the two main sections of `roles` we can use to make our applications accessible. 
+  
+:marked
+  ### ARIA Roles: The landmark roles
+  
+  The first type of role we will look at are `Landmark Roles`. There refer to `navigational landmarks` or regions of the 
+  page the user may want quick access to. Screen readers are aware of these regions and make the user aware of them thereby
+  also providing users with a visual disability a clearer picture of the page layout.
+  
+  In a way these roles are the most difficult as they refer to the overall page structure and requires us to think about 
+  how we put together all the components on a page to create the `landmarks`.
+  
+  Visit the `W3C` to read more about the [Landmark Roles](https://www.w3.org/TR/wai-aria/roles#landmark_roles):
+  
+  - application
+  - banner
+  - complementary
+  - contentinfo
+  - form
+  - main
+  - navigation
+  - search
+
+.callout.is-important
+  header Avoid role="application"
+  :marked
+    The `application` role was intended to tell assistive technologies that it should `switch mode` as it was enterring
+    a web application region. However, if your `HTML` follows the rules we have discussed so far, this role does more
+    harm than good. Use sparingly and avoid altogether unless you know when to use it and why you are using it for
+    the specific application.
+
+:marked
+  `HTML5` provides `semantic elements` that carry many of these roles. It is recommended to use these. So lets have a look
+  at a high level `HTML` layout for a page using the `HTML5 Semantic Elements`:
+
+code-example(language="html" escape="html" format="linenums").
+  <header role="banner">
+    <!--Site focussed header information.-->
+  </header>
+  <nav role="navigation">
+    <!--Main site navigation-->
+  </nav>
+  <main role="main">
+    <!--Contains the main page content-->
+    <form role="search">
+      <!--Search form-->
+    </form>
+    <form>
+      <!--Normal form-->
+    </form>
+  </main>
+  <aside role="complementary">
+    <!--Supplementary site information-->
+  </aside>
+  <footer role="contentinfo">
+    <!--Site information-->
+  </footer>
+
+.l-sub-section
+  :marked
+    *"But you just told us not to apply the `role` attribute to elements when they already imply the `role`! What gives?"*
+    Yes, this is true but here we are required to also provide the roles as well as some browsers do not properly implement 
+    the native `semantic elements`.
+    
+.l-sub-section
+  :marked
+    There is another piece of technology that reads our web pages. And that is the `search engine`. Yes, using a proper
+    document structure with `semantic elements` also helps search engines to more easily read and index your websites.
+    Talk about winning on three fronts! `Readability`, `a11y` and `Search Engine Optimization`.
+
+:marked
+  As before, by using `ARIA`, we can create the same structure using only `ARIA Roles` for cases where we are unable to 
+  use the `semantic elements`:
+  
+code-example(language="html" escape="html" format="linenums").
+  <div role="banner">
+    <!--Site focussed header information.-->
+  </div>
+  <div role="navigation">
+    <!--Main site navigation-->
+  </div>
+  <div role="main">
+    <!--Contains the main page content-->
+    <div role="search">
+      <!--Search form-->
+    </div>
+    <div role="form">
+      <!--Normal form-->
+    </div>
+  </div>
+  <div role="complementary">
+    <!--Supplementary site information-->
+  </div>
+  <div role="contentinfo">
+    <!--Site information-->
+  </div>
+
+.l-sub-section
+  :marked
+    In the previous section we looked at `Skip Links`. The `landmarks` are prime candidates as the destination for your
+    skiplinks. Another benefit of using a proper `HTML` layout to structure you page, is that it becomes more clear for
+    you as well.
+
+:marked
+  ### ARIA Roles: The widget roles
+  
+  The other section of `ARIA Roles` we will briefly look at, are the `widget roles`. These roles are of particular 
+  interest to us as Angular&nbsp;2 developers. Because we are often making widgets, it is important to provide them with
+  the appropriote role, where possible.
+  
+  Visit the `W3C` to read more about the [Widget Roles](https://www.w3.org/TR/wai-aria/roles#widget_roles):
+  
+  The following roles are for standalone widgets:
+  - alert
+  - alertdialog
+  - button
+  - checkbox
+  - dialog
+  - gridcell
+  - link
+  - log
+  - marquee
+  - menuitem
+  - menuitemcheckbox
+  - menuitemradio
+  - option
+  - progressbar
+  - radio
+  - scrollbar
+  - slider
+  - spinbutton
+  - status
+  - tab
+  - tabpanel
+  - textbox
+  - timer
+  - tooltip
+  - treeitem
+  
+  There is also a set of roles for `composite widgets`. Those are widgets that contain other widgets.
+  - combobox
+  - grid
+  - listbox
+  - menu
+  - menubar
+  - radiogroup
+  - tablist
+  - tree
+  - treegrid
+  
+  The names of these widgets are pretty self explanatory, so we will not dive into a further layout. Visit the
+  `W3C` documentation, if in doubt.
+
+:marked
+  ### Section summary
+  
+  In this section we looked at how we can tell the browser what type of `custom widget component` we are making. We also
+  saw how we can override the role of a native `HTML` element.
+  
+  We saw that Angular&nbsp;2 makes it easy for us to apply a `role` to our `custom component elements` elements using
+  the `Host Element`.
+  
+  And finally we had a look at the most interesting `ARIA Roles` roles for us as Angular&nbsp;2 developers.
+  
+  Keep reading to look at tooling for `a11y` in Angular&nbsp;2 or [go back to the table of contents](#toc)
+  
+.l-main-section
+<a id="developer-tools"></a>
+:marked
+  ## Developer tools
 
   Content coming soon...
-
 

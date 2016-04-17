@@ -2,9 +2,9 @@ import {Component, OnInit} from "angular2/core";
 import {CORE_DIRECTIVES, FORM_DIRECTIVES} from "angular2/common";
 import {A11yHelper} from "../services/a11y-helper.service";
 import {ROUTER_DIRECTIVES} from "angular2/router";
-import {A11yCustomControl} from "./a11y-custom-control.component";
 import {A11yInputWrapper} from "./a11y-input-wrapper.component";
-import {A11yValueHelper} from "../a11y-value-helper.component";
+import {A11yValueHelper} from "../shared/a11y-value-helper.component";
+import {A11yCustomControl} from "../shared/a11y-custom-control.component";
 
 @Component({
   selector: 'a11y-form-controls',

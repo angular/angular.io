@@ -14,8 +14,8 @@ const A11Y_CUSTOM_CONTROL_VALUE_ACCESSOR = new Provider(
 
 @Component({
   selector: 'a11y-custom-control',
-  templateUrl: './app/form-controls/a11y-custom-control.component.html',
-  styleUrls: ['./app/form-controls/a11y-custom-control.component.css'],
+  templateUrl: './app/shared/a11y-custom-control.component.html',
+  styleUrls: ['./app/shared/a11y-custom-control.component.css'],
   providers: [A11Y_CUSTOM_CONTROL_VALUE_ACCESSOR]
 })
 export class A11yCustomControl implements OnInit, ControlValueAccessor {
