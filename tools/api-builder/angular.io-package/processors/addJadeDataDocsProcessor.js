@@ -58,12 +58,32 @@ module.exports = function addJadeDataDocsProcessor() {
           // GET DATA FOR EACH PAGE (CLASS, VARS, FUNCTIONS)
           var modulePageInfo  = _(doc.exports)
           .map(function(exportDoc) {
+
+            // STABILITY STATUS
+            // Supported tags:
+            // @stable
+            // @experimental
+            // @deprecated
+            // Default is the empty string (no badge)
+            // Do not capitalize the strings, they are intended for use in constructing a css class from _hero.scss
+            // and used in _hero.jade
+            var stability = '';
+            if (_.has(exportDoc, 'stable')) {
+              stability = 'stable';
+            } else if (_.has(exportDoc, 'experimental')) {
+              stability = 'experimental';
+            } else if (_.has(exportDoc, 'deprecated')) {
+              stability = 'deprecated';
+            }
+
             var dataDoc = {
               name: exportDoc.name + '-' + exportDoc.docType,
               title: exportDoc.name,
               docType: exportDoc.docType,
-              exportDoc: exportDoc
+              exportDoc: exportDoc,
+              stability: stability
             };
+
             if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);
             if (exportDoc.originalModule) dataDoc.originalModule = exportDoc.originalModule;
             return dataDoc;
