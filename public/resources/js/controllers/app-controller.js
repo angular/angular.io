@@ -34,6 +34,13 @@ angularIO.controller('AppCtrl', ['$mdDialog', '$timeout', '$http', '$sce', funct
     userfeedback.api.startFeedback(configuration);
   };
 
+  // URL hash keeps track of which method the user wants to view in the API doc.
+  // Refer to _api.scss (.anchor-focused) and class.template.html (where ng-class is used) for details.
+  vm.isApiDocMemberFocused = function(memberName) {
+    var apiDocFocusedMember = window.location.hash.replace('#!#', '').replace('-anchor', '');
+    return apiDocFocusedMember === memberName;
+  };
+
   /*
    * Prettify Code
    *
