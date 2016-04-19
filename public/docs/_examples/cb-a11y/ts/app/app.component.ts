@@ -4,6 +4,7 @@ import {A11yFormControls} from "./form-controls/a11y-form-controls.component";
 import {A11yIndex} from "./a11y-index.component";
 import {A11yHelper} from "./services/a11y-helper.service";
 import {A11yManagingFocus} from "./managing-focus/a11y-managing-focus.component";
+import {A11yComponentRoles} from "./component-roles/a11y-component-roles.component";
 
 @Component({
   selector: 'app',
@@ -20,7 +21,8 @@ import {A11yManagingFocus} from "./managing-focus/a11y-managing-focus.component"
 @RouteConfig([
   {path:'/', name: 'Index', component: A11yIndex},
   {path:'/form-controls', name: 'FormControls', component: A11yFormControls},
-  {path:'/managing-focus', name: 'ManagingFocus', component: A11yManagingFocus}
+  {path:'/managing-focus', name: 'ManagingFocus', component: A11yManagingFocus},
+  {path:'/component-roles', name: 'ComponentRoles', component: A11yComponentRoles}
 ])
 export class AppComponent {
 
