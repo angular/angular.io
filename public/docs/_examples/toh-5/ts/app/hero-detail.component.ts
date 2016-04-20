@@ -2,7 +2,7 @@
 // #docregion
 // #docregion v2
 // #docregion import-oninit
-import { Component, Input, OnInit } from 'angular2/core';
+import { Component, OnInit } from 'angular2/core';
 // #enddocregion import-oninit
 // #docregion import-route-params
 import { RouteParams } from 'angular2/router';
@@ -27,7 +27,7 @@ import { HeroService } from './hero.service';
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
 // #enddocregion implement
-  @Input() hero: Hero;
+  hero: Hero;
 
 // #docregion ctor
   constructor(
