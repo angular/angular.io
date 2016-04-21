@@ -4,9 +4,11 @@ import {provide}
 import {bootstrap}
   from 'angular2/platform/browser';
 import {
+} from 'angular2/router';
+import {
   LocationStrategy,
   HashLocationStrategy
-} from 'angular2/router';
+} from 'angular2/platform/common';
 // #enddocregion ng2import
 
 // #docregion appimport

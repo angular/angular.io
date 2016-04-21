@@ -14,13 +14,13 @@ export class FetchJsonPipe  implements PipeTransform{
 
   constructor(private _http: Http) { }
 
-  transform(url:string):any {
+  transform(url: string): any {
     if (url !== this.prevUrl) {
       this.prevUrl = url;
       this.fetched = null;
       this._http.get(url)
         .map( result => result.json() )
-        .subscribe( result => this.fetched = result )
+        .subscribe( result => this.fetched = result );
     }
 
     return this.fetched;
