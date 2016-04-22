@@ -1,3 +1,4 @@
+// #docregion
 import 'package:angular2/core.dart';
 
 import 'hero.dart';
