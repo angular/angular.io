@@ -7,7 +7,6 @@ class RestoreService<T> {
   T _currentItem;
 
   setItem(T item) {
-    print(item.runtimeType);
     _originalItem = item;
     _currentItem = clone(item);
   }
