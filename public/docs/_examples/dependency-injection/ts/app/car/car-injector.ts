@@ -1,25 +1,25 @@
 // #docplaster
 //#docregion
-import { Injector }         from 'angular2/core';
+import { ReflectiveInjector }         from 'angular2/core';
 
 import {Car, Engine, Tires} from './car';
 import {Logger}             from '../logger.service';
 
 //#docregion injector
 export function useInjector() {
-  var injector:Injector;
+  var injector:ReflectiveInjector;
 
 //#enddocregion injector
 /*
 //#docregion injector-no-new
-  // Cannot 'new' an Injector like this!
-  var injector = new Injector([Car, Engine, Tires, Logger]);
+  // Cannot 'new' an ReflectiveInjector like this!
+  var injector = new ReflectiveInjector([Car, Engine, Tires, Logger]);
 //#enddocregion injector-no-new
 */
 
 //#docregion injector
   //#docregion injector-create-and-call
-  injector = Injector.resolveAndCreate([Car, Engine, Tires, Logger]);
+  injector = ReflectiveInjector.resolveAndCreate([Car, Engine, Tires, Logger]);
   //#docregion injector-call
   var car = injector.get(Car);
  //#enddocregion injector-call
