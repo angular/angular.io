@@ -1,7 +1,7 @@
 // #docregion
 export const heroDetail = {
   bindings: {
-    hero: '=',
+    hero: '<',
     deleted: '&'
   },
   template: `
