@@ -106,7 +106,7 @@ a(id='toc')
 
 <a href="#toc">Back to top</a>
 :marked
-  ### Names
+  ### Components and Directives
   <a id="02-02"></a>
   #### Style 02-02
 
@@ -169,6 +169,52 @@ a(id='toc')
 
 <a href="#toc">Back to top</a>
 :marked
+  ### Use lowerCamelCase for Directive Selectors 
+  <a id="02-05"></a>
+  #### Style 02-05
+  
+    - Use `lowerCamelCase` for naming the selectors of your directives.
+
+      **Why?**: Keeps the names of the properties defined in the components that are bound to the view consistent with the attribute names.
+
+      **Why?**: The Angular 2 HTML parser is case sensitive so `lowerCamelCase` attributes are well supported.
+
+    - Use custom prefix for the selector of your directives (for instance below is used the prefix `toh` from **T**our **o**f **H**eroes).
+
+      **Why?**: This way you will be able to prevent name collisions.
+
+  ```typescript
+  /* avoid */
+  @Directive({
+    selector: '[validate]'
+  })
+  class ValidateDirective {}
+  ```
+
+  ```typescript
+  /* recommended */
+  @Directive({
+    selector: '[tohValidate]'
+  })
+  class ValidateDirective {}
+  ```
+
+  classes     // UpperCamelCase
+  constants   // UPPERCASE with ____ ( UPPER_SNAKE_CASE )
+  interfaces  // ... I or no I ? When we type, use the class. Interfaces are valuable if you are building parts
+  methods     // camelCase
+  properties  // camelCase
+  service that is a factory 
+  e2e tests   // .e2e-spec
+
+  structure crap  
+  app.component.{ts|css|html|spec.ts}
+  
+  barrels
+
+
+<a href="#toc">Back to top</a>
+:marked
   ### Pipe Names
   <a id="02-10"></a>
   #### Style 02-10
@@ -182,9 +228,10 @@ a(id='toc')
       InitCapsPipe    // init-caps.pipe.ts
       ```
 
+
 <a href="#toc">Back to top</a>
 :marked
-  ### Test File Names
+  ### Unit Test File Names
   <a id="02-12"></a>
   #### Style 02-12
 
@@ -771,43 +818,15 @@ a(id='toc')
 :marked
   ## Directives
 
-  ### Use lowerCamelCase for Directive Selectors 
-  <a id="06-01"></a>
-  #### Style 06-01
-  
-    - Use `lowerCamelCase` for naming the selectors of your directives.
-
-      **Why?**: Keeps the names of the properties defined in the components that are bound to the view consistent with the attribute names.
-
-      **Why?**: The Angular 2 HTML parser is case sensitive so `lowerCamelCase` attributes are well supported.
-
-    - Use custom prefix for the selector of your directives (for instance below is used the prefix `toh` from **T**our **o**f **H**eroes).
-
-      **Why?**: This way you will be able to prevent name collisions.
-
-  ```typescript
-  /* avoid */
-  @Directive({
-    selector: '[validate]'
-  })
-  class ValidateDirective {}
-  ```
-
-  ```typescript
-  /* recommended */
-  @Directive({
-    selector: '[tohValidate]'
-  })
-  class ValidateDirective {}
-  ```
+  ###  TODO
   
 <a href="#toc">Back to top</a>
 :marked
   ## Services
 
   ### Singletons
-  <a id="07-40"></a>
-  #### Style 07-40
+  <a id="07-01"></a>
+  #### Style 07-01
 
     - Services are singletons withint he same injector. They should be used for sharing data and functionality.
 
@@ -826,11 +845,18 @@ a(id='toc')
   ```
   
 <a href="#toc">Back to top</a>
+:marked
+  ### Single Responsibility
+  <a id="07-02"></a>
+  #### Style 07-02
 
+    - Services should have a [single responsibility](https://en.wikipedia.org/wiki/Single_responsibility_principle), that is encapsulated by its context. Once a service begins to exceed that singular purpose, a new one should be created.
+
+<a href="#toc">Back to top</a>
 :marked
   ### Providing a Service
-  <a id="07-41"></a>
-  #### Style 07-41
+  <a id="07-03"></a>
+  #### Style 07-03
 
     - Services should be provided to the Angular 2 injector at the top-most component where they will be shared. 
   
@@ -887,22 +913,59 @@ a(id='toc')
     }
   }
   ```
-    
+
 <a href="#toc">Back to top</a>
 :marked
-  ### Single Responsibility
-  <a id="07-42"></a>
-  #### Style 07-42
+  ### Use the @Injectable() Class Decorator
+  <a id="07-04"></a>
+  #### Style 07-04
 
-    - Services should have a [single responsibility](https://en.wikipedia.org/wiki/Single_responsibility_principle), that is encapsulated by its context. Once a service begins to exceed that singular purpose, a new one should be created.
+    - Prefer the `@Injectable` class decorator over the `@Inject` parameter decorator when you are using types as tokens for the dependencies of your service.
+​
+      **Why?**: The DI mechanism of Angular 2 can resolve all the dependencies of your services based on their types declared with the services' constructors.
+    ​
+      **Why?**: When a service accepts only dependencies associated with type tokens, the `@Injectable` syntax is much less verbose compared to using `@Inject` on each individual constructor parameter.
+​
+  ```typescript
+  /* avoid */
+​
+  class HeroFactory {
+    // Implementation
+  }
+​
+  class MultiplayerService {
+    // Implementaiton
+  }
+​
+  class HeroArena {
+    constructor(@Inject(HeroFactory) private _heroFactory: HeroFactory, @Inject(MultiplayerService) private _multiplayerService: MultiplayerService) {}
+  }
+  ```
+​
+  ```typescript
+  /* recommended */
+​
+  class HeroFactory {
+    // Implementation
+  }
+​
+  class MultiplayerService {
+    // Implementaiton
+  }
+​
+  @Injectable()
+  class HeroArena {
+    constructor(private _heroFactory: HeroFactory, private _multiplayerService: MultiplayerService) {}
+  }
+  ```
 
 <a href="#toc">Back to top</a>
 :marked
   ## Data Services
 
   ### Separate Data Calls
-  <a id="08-50"></a>
-  #### Style 08-50
+  <a id="08-01"></a>
+  #### Style 08-01
 
     - Refactor logic for making data operations and interacting with data to a service. Make data services responsible for XHR calls, local storage, stashing in memory, or any other data operations.
 
@@ -912,35 +975,6 @@ a(id='toc')
 
       **Why?** Data service implementation may have very specific code to handle the data repository. This may include headers, how to talk to the data, or other services such as `Http`. Separating the logic into a data service encapsulates this logic in a single place hiding the implementation from the outside consumers (perhaps a component), also making it easier to change the implementation.
 
-  ```typescript
-  // recommended
-  export class HeroListComponent implements OnInit {
-    heroes: Hero[];
-    filteredHeros = this.heroes;
-
-    constructor(private heroService: HeroService) { }
-
-    getHeros() {
-      this.heroes = [];
-      this.heroService.getHeros()
-        .subscribe(heroes => {
-          this.heroes = this.filteredHeros = heroes;
-        },
-        error => {
-          console.log('error occurred here');
-          console.log(error);
-        },
-        () => {
-          console.log('completed');
-        });
-    }
-
-    ngOnInit() {
-      this.getHeros();
-    }
-  }
-  ```
-
 <a href="#toc">Back to top</a>
 :marked
   ## Lifecycle Hooks
@@ -949,8 +983,8 @@ a(id='toc')
 <a href="#toc">Back to top</a>
 :marked
   ### Implement Lifecycle Hooks Interfaces
-  <a id="09-03"></a>
-  #### Style 09-03
+  <a id="09-01"></a>
+  #### Style 09-01
 
     - Implement the lifecycle hook interfaces.
 
@@ -994,8 +1028,8 @@ a(id='toc')
 <a href="#toc">Back to top</a>
 :marked
   ### Component Router
-  <a id="10-30"></a>
-  #### Style 10-30
+  <a id="10-01"></a>
+  #### Style 10-01
 
     - Separate route configuration into a routing component file, also known as a component router.
 
