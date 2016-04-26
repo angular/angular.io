@@ -25,6 +25,8 @@ var globby = require("globby");
 var treeKill = require("tree-kill");
 var blc = require("broken-link-checker");
 
+var tslint = require('gulp-tslint');
+
 // TODO:
 //  1. Think about using runSequence
 //  2. Think about using spawn instead of exec in case of long error messages.
@@ -44,6 +46,7 @@ var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'))
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
 var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
+
 
 var _devguideShredOptions =  {
   examplesDir: path.join(DOCS_PATH, '_examples'),
@@ -495,6 +498,20 @@ gulp.task('_shred-clean-api', function(cb) {
 gulp.task('_zip-examples', function() {
   exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
   exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
+});
+
+
+// Linting
+
+gulp.task('lint', function() {
+  return gulp.src(['./public/docs/_examples/style-guide/ts/**/*.ts', '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts'])
+    .pipe(tslint({
+      rulesDirectory: ['node_modules/codelyzer'],
+      configuration: require('./tslint.json')
+    }))
+    .pipe(tslint.report('prose', {
+      summarizeFailureOutput: true
+    }));
 });
 
 

@@ -1,29 +1,16 @@
-// #docplaster
-
 // #docregion
-/* recommended */
+import { Component } from 'angular2/core';
 
-// app.component.ts
-import { Component, OnInit } from 'angular2/core';
-
-import { Hero } from './hero';
-import { HeroService } from './hero.service';
+import { HeroesComponent } from './heroes/heroes.component';
+import { HeroService } from './heroes/hero.service';
 
 @Component({
   selector: 'toh-app',
   template: `
-      <pre>{{heroes | json}}</pre>
+      <toh-heroes></toh-heroes>
     `,
   styleUrls: ['app/app.component.css'],
+  directives: [HeroesComponent],
   providers: [HeroService]
 })
-export class AppComponent implements OnInit{
-  heroes: Hero[] = [];
-
-  constructor(private heroService: HeroService) {}
-
-  ngOnInit() {
-    this.heroService.getHeroes()
-      .then(heroes => this.heroes = heroes);
-  }
-}
+export class AppComponent { }
