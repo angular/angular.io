@@ -3,7 +3,7 @@ import {
   beforeEach, beforeEachProviders, withProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  inject, injectAsync, fakeAsync, TestComponentBuilder, tick
+  async, inject, TestComponentBuilder
 } from 'angular2/testing';
 
 import { provide } from 'angular2/core';
@@ -81,45 +81,45 @@ describe('Http-HeroService (mockBackend)', () => {
         response = new Response(options);
       }));
 
-      it('should have expected fake heroes (then)', injectAsync([], () => {
+      it('should have expected fake heroes (then)', async(inject([], () => {
         backend.connections.subscribe((c: MockConnection) => c.mockRespond(response));
 
-        return service.getHeroes().toPromise()
+        service.getHeroes().toPromise()
         // .then(() => Promise.reject('deliberate'))
           .then(heroes => {
             expect(heroes.length).toEqual(fakeHeroes.length,
               'should have expected no. of heroes');
           });
-      }));
+      })));
 
-      it('should have expected fake heroes (Observable.do)', injectAsync([], () => {
+      it('should have expected fake heroes (Observable.do)', async(inject([], () => {
         backend.connections.subscribe((c: MockConnection) => c.mockRespond(response));
 
-        return service.getHeroes()
+        service.getHeroes()
           .do(heroes => {
             expect(heroes.length).toEqual(fakeHeroes.length,
               'should have expected no. of heroes');
           })
           .toPromise();
-      }));
+      })));
 
 
-      it('should be OK returning no heroes', injectAsync([], () => {
+      it('should be OK returning no heroes', async(inject([], () => {
         let resp = new Response(new ResponseOptions({status: 200, body: {data: []}}));
         backend.connections.subscribe((c: MockConnection) => c.mockRespond(resp));
 
-        return service.getHeroes()
+        service.getHeroes()
           .do(heroes => {
             expect(heroes.length).toEqual(0, 'should have no heroes');
           })
           .toPromise();
-      }));
+      })));
 
-      it('should treat 404 as an Observable error', injectAsync([], () => {
+      it('should treat 404 as an Observable error', async(inject([], () => {
         let resp = new Response(new ResponseOptions({status: 404}));
         backend.connections.subscribe((c: MockConnection) => c.mockRespond(resp));
 
-        return service.getHeroes()
+        service.getHeroes()
           .do(heroes => {
             fail('should not respond with heroes');
           })
@@ -128,6 +128,6 @@ describe('Http-HeroService (mockBackend)', () => {
             return Observable.of(null); // failure is the expected test result
           })
           .toPromise();
-      }));
+      })));
   });
 });

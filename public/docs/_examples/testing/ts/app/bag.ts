@@ -3,6 +3,8 @@
 import { Component, EventEmitter, Injectable, Input, Output,
          OnInit, OnChanges, OnDestroy, SimpleChange } from 'angular2/core';
 
+import { Observable }     from 'rxjs/Rx';
+
 // Let TypeScript know about the special SystemJS __moduleName variable
 declare var __moduleName: string;
 
@@ -21,7 +23,16 @@ if (!__moduleName) {
 @Injectable()
 export class FancyService {
   value: string = 'real value';
+
   getAsyncValue() { return Promise.resolve('async value'); }
+
+  getObservableValue() { return Observable.of('observable value'); }
+
+  getTimeoutValue() {
+    return new Promise((resolve, reject) => { setTimeout(() => {resolve('timeout value'); }, 10); });
+  }
+
+  getObservableDelayValue() { return Observable.of('observable delay value').delay(10); }
 }
 
 @Injectable()

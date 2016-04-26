@@ -1,15 +1,14 @@
 /* tslint:disable:no-unused-variable */
 import { AppComponent } from './app.component';
 
-import { By }       from 'angular2/platform/browser';
-import { provide  } from 'angular2/core';
+import { By }                     from 'angular2/platform/browser';
+import { DebugElement, provide  } from 'angular2/core';
 
 import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  inject, injectAsync,
-  ComponentFixture, TestComponentBuilder
+  async, inject, ComponentFixture, TestComponentBuilder
 } from 'angular2/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
@@ -22,8 +21,8 @@ describe('AppComponent', () => {
   let fixture: ComponentFixture;
   let comp:    AppComponent;
 
-  beforeEach(injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-    return tcb
+  beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    tcb
       .overrideDirective(AppComponent, RouterLink,   MockRouterLink)
       .overrideDirective(AppComponent, RouterOutlet, MockRouterOutlet)
       .overrideProviders(AppComponent, [
@@ -35,7 +34,7 @@ describe('AppComponent', () => {
         fixture = fix;
         comp = fixture.debugElement.componentInstance;
       });
-  }));
+  })));
 
   it('can instantiate it', () => {
     expect(comp).not.toBeNull();
@@ -51,8 +50,8 @@ describe('AppComponent', () => {
     fixture.detectChanges();
 
     let links = fixture.debugElement
-      .queryAll(function (de) { return de.componentInstance instanceof MockRouterLink; })
-      .map(de => <MockRouterLink> de.componentInstance);
+      .queryAll(By.directive(MockRouterLink))
+      .map(de => <MockRouterLink> extractDirective(de, MockRouterLink));
 
     expect(links.length).toEqual(2, 'should have 2 links');
     expect(links[0].routeParams[0]).toEqual('Dashboard', '1st link should go to Dashboard');
@@ -67,11 +66,12 @@ describe('AppComponent', () => {
 
     // Heroes RouterLink DebugElement
     let heroesDe = fixture.debugElement
-      .queryAll(function (de) { return de.componentInstance instanceof MockRouterLink; })[1];
+      .queryAll(By.directive(MockRouterLink))[1];
 
-    expect(heroesDe).not.toBeNull('should 2nd link');
+    expect(heroesDe).toBeDefined('should have a 2nd RouterLink');
 
-    let link = <MockRouterLink> heroesDe.componentInstance;
+    let link = <MockRouterLink> extractDirective(heroesDe, MockRouterLink);
+
     expect(link.navigatedTo).toBeNull('link should not have navigate yet');
 
     heroesDe.triggerEventHandler('click', null);
@@ -82,3 +82,15 @@ describe('AppComponent', () => {
   });
 });
 
+/////////////  Helpers ////////////////////
+
+import { Type } from 'angular2/src/facade/lang';
+
+/**
+ * Get the directive instance from the DebugElement to which it is attached
+ */
+function extractDirective(de: DebugElement, directive: Type): any {
+  return de.injector.get(
+      de.providerTokens[de.providerTokens.indexOf(directive)]
+  );
+}

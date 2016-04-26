@@ -8,17 +8,11 @@ import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  inject, injectAsync,
-  TestComponentBuilder
+  async, inject, TestComponentBuilder
 } from 'angular2/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 import { Router, MockRouter } from './mock-router';
-
-interface Done {
-    (): void;
-    fail: (err: any) => void;
-}
 
 describe('DashboardComponent', () => {
 
@@ -45,7 +39,7 @@ describe('DashboardComponent', () => {
         'should not have heroes until service promise resolves');
     });
 
-    it('should HAVE heroes after HeroService gets them', (done: Done) => {
+    it('should HAVE heroes after HeroService gets them', (done: DoneFn) => {
       comp.ngOnInit(); // ngOnInit -> getHeroes
       mockHeroService.lastPromise // the one from getHeroes
         .then(() => {
@@ -85,55 +79,55 @@ describe('DashboardComponent', () => {
     });
 
     it('can instantiate it',
-      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-      return tcb.createAsync(DashboardComponent);
-    }));
+      async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      tcb.createAsync(DashboardComponent);
+    })));
 
     it('should NOT have heroes before OnInit',
-      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-      return tcb.createAsync(DashboardComponent).then(fixture => {
+      async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      tcb.createAsync(DashboardComponent).then(fixture => {
         comp = fixture.debugElement.componentInstance;
 
         expect(comp.heroes.length).toEqual(0,
           'should not have heroes before OnInit');
       });
-    }));
+    })));
 
     it('should NOT have heroes immediately after OnInit',
-      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-      return tcb.createAsync(DashboardComponent).then(fixture => {
+      async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      tcb.createAsync(DashboardComponent).then(fixture => {
         comp = fixture.debugElement.componentInstance;
         fixture.detectChanges(); // runs initial lifecycle hooks
 
         expect(comp.heroes.length).toEqual(0,
           'should not have heroes until service promise resolves');
       });
-    }));
+    })));
 
     it('should HAVE heroes after HeroService gets them',
-      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
-      return tcb.createAsync(DashboardComponent).then(fixture => {
+      tcb.createAsync(DashboardComponent).then(fixture => {
         comp = fixture.debugElement.componentInstance;
         fixture.detectChanges();           // runs ngOnInit -> getHeroes
 
-        return mockHeroService.lastPromise // the one from getHeroes
+        mockHeroService.lastPromise // the one from getHeroes
           .then(() => {
             expect(comp.heroes.length).toBeGreaterThan(0,
               'should have heroes after service promise resolves');
           });
 
       });
-    }));
+    })));
 
     it('should DISPLAY heroes after HeroService gets them',
-      injectAsync([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
-      return tcb.createAsync(DashboardComponent).then(fixture => {
+      tcb.createAsync(DashboardComponent).then(fixture => {
         comp = fixture.debugElement.componentInstance;
         fixture.detectChanges();           // runs ngOnInit -> getHeroes
 
-        return mockHeroService.lastPromise // the one from getHeroes
+        mockHeroService.lastPromise // the one from getHeroes
           .then(() => {
 
             // Find and examine the displayed heroes
@@ -148,15 +142,15 @@ describe('DashboardComponent', () => {
           });
 
       });
-    }));
+    })));
 
     it('should tell ROUTER to navigate by hero id',
-      injectAsync([TestComponentBuilder, Router],
+      async(inject([TestComponentBuilder, Router],
       (tcb: TestComponentBuilder, router: MockRouter) => {
 
       let spy = spyOn(router, 'navigate').and.callThrough();
 
-      return tcb.createAsync(DashboardComponent).then(fixture => {
+      tcb.createAsync(DashboardComponent).then(fixture => {
         let hero: Hero = {id: 42, name: 'Abbracadabra' };
         comp = fixture.debugElement.componentInstance;
         comp.gotoDetail(hero);
@@ -166,6 +160,6 @@ describe('DashboardComponent', () => {
         expect(linkParams[1].id).toEqual(hero.id, 'should nav to fake hero\'s id');
 
       });
-    }));
+    })));
   });
 });
