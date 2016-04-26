@@ -31,11 +31,12 @@ class InjectorComponent {
   Hero hero;
 
   String get rodent {
-    var rous = _injector.getOptional(ROUS);
-    if (rous != null) {
-      throw new Exception('Aaaargh!');
+    try {
+      _injector.get(ROUS);
+    } on NoProviderError {
+      return "R.O.U.S.'s? I don't think they exist!";
     }
-    return "R.O.U.S.'s? I don't think they exist!";
+    throw new Exception('Aaaargh!');
   }
 
   InjectorComponent(this._injector) {
