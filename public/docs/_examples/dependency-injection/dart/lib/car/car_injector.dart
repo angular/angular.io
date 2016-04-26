@@ -7,20 +7,20 @@ import 'car.dart';
 
 //#docregion injector
 Car useInjector() {
-  Injector injector;
+  ReflectiveInjector injector;
   //#enddocregion injector
 
   /*
 //#docregion injector-no-new
-  // Cannot 'new' an Injector like this!
-  var injector = new Injector([Car, Engine, Tires, Logger]);
+  // Cannot 'new' an ReflectiveInjector like this!
+  var injector = new ReflectiveInjector([Car, Engine, Tires, Logger]);
 //#enddocregion injector-no-new
 */
 
   //#docregion injector
 
   //#docregion injector-create-and-call
-  injector = Injector.resolveAndCreate([Car, Engine, Tires, Logger]);
+  injector = ReflectiveInjector.resolveAndCreate([Car, Engine, Tires, Logger]);
   //#docregion injector-call
   var car = injector.get(Car);
   //#enddocregion injector-call
