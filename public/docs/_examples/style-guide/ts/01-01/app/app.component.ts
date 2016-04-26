@@ -10,9 +10,9 @@ import { Hero } from './hero';
 import { HeroService } from './hero.service';
 
 @Component({
-  selector: 'my-app',
+  selector: 'toh-app',
   template: `
-      <pre>{{heroes | json}}</pre>  
+      <pre>{{heroes | json}}</pre>
     `,
   styleUrls: ['app/app.component.css'],
   providers: [HeroService]
@@ -20,10 +20,10 @@ import { HeroService } from './hero.service';
 export class AppComponent implements OnInit{
   heroes: Hero[] = [];
 
-  constructor(private _heroService: HeroService) {}
+  constructor(private heroService: HeroService) {}
 
   ngOnInit() {
-    this._heroService.getHeroes()
+    this.heroService.getHeroes()
       .then(heroes => this.heroes = heroes);
   }
 }

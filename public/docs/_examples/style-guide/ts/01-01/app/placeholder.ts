@@ -1,6 +1,6 @@
 // #docplaster
 
-// #docregion 001-1
+// #docregion 01-01-1
   /* avoid */
   import { bootstrap } from 'angular2/platform/browser';
   import { Component, OnInit } from 'angular2/core';
@@ -9,7 +9,7 @@
     selector: 'my-app',
     template: `
         <h1>{{title}}</h1>
-        <pre>{{heroes | json}}</pre>  
+        <pre>{{heroes | json}}</pre>
       `,
     styleUrls: ['app/app.component.css']
   })
@@ -27,11 +27,11 @@
 
   function getHeroes() {
     return // some promise of data;
-  }  
-// #enddocregion 001-1
+  }
+// #enddocregion 01-01-1
 
 
-// #docregion 001-2
+// #docregion 01-01-2
   /* recommended */
 
   // main.ts
@@ -50,7 +50,7 @@
   @Component({
     selector: 'my-app',
     template: `
-        <pre>{{heroes | json}}</pre>  
+        <pre>{{heroes | json}}</pre>
       `,
     styleUrls: ['app/app.component.css'],
     providers: [HeroService]
@@ -58,16 +58,16 @@
   export class AppComponent implements OnInit{
     heroes: Hero[] = [];
 
-    constructor(private _heroService: HeroService) {}
+    constructor(private heroService: HeroService) {}
 
     ngOnInit() {
-      this._heroService.getHeroes()
+      this.heroService.getHeroes()
         .then(heroes => this.heroes = heroes);
     }
   }
-// #enddocregion 001-2
+// #enddocregion 01-01-2
 
-// #docregion 001-3
+// #docregion 01-01-3
   /* recommended */
 
   // hero.service.ts
@@ -80,9 +80,9 @@
       return Promise.resolve(HEROES);
     }
   }
-// #enddocregion 001-3
+// #enddocregion 01-01-3
 
-// #docregion 001-4
+// #docregion 01-01-4
   /* recommended */
 
   // hero.ts
@@ -90,4 +90,4 @@
     id: number;
     name: string;
   }
-// #enddocregion 001-4
+// #enddocregion 01-01-4
