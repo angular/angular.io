@@ -1,5 +1,5 @@
 // #docplaster
-import {Component, ViewEncapsulation} from 'angular2/core';
+import {Component, ViewEncapsulation} from '@angular/core';
 
 // #docregion
 // Let TypeScript know about the special SystemJS __moduleName variable

@@ -1,10 +1,10 @@
 // #docregion
 // #docregion imports
-import {Component}         from 'angular2/core';
+import {Component}         from '@angular/core';
 import {CarComponent}      from './car/car.component';
 import {HeroesComponent}   from './heroes/heroes.component.1';
 
-import {provide, Inject}   from 'angular2/core';
+import {provide, Inject}   from '@angular/core';
 import {Config, CONFIG}    from './app.config';
 import {Logger}            from './logger.service';
 // #enddocregion imports

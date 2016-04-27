@@ -1,4 +1,4 @@
-import {UpgradeAdapter} from 'angular2/upgrade';
+import {UpgradeAdapter} from '@angular/upgrade';
 import {ContainerComponent} from './container.component';
 import {heroDetailComponent} from './hero-detail.component';
 import {upgradeAdapter} from './upgrade_adapter';

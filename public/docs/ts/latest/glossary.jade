@@ -50,18 +50,42 @@ include _util-fns
   ## Barrel
 .l-sub-section
   :marked
-    A **barrel** is an Angular library module consisting of a logical grouping of single-purpose modules
-    such as `Component` and `Directive`.
-
-    Familiar barrels include `angular2/core`, `angular2/common`, `angular2/platform/browser`,
-    `angular2/http`, and `angular2/router`.
-
-    Barrels are packaged and shipped as [**bundles**](#bundle) that
-    we may load with script tags in our `index.html`.
-
-    The script, `angular2.dev.js`, is a bundle.
-
-    Learn more in "[Modules, barrels and bundles](https://github.com/angular/angular/blob/master/modules/angular2/docs/bundles/overview.md)".
+    A barrel is a way to *rollup exports* from several modules into a single convenience module.
+    The barrel itself is a module file that re-exports *selected* exports of other modules.
+    
+    Imagine three modules in a `heroes` folder:
+  code-example(format='').
+    // heroes/hero.component.ts
+    export class HeroComponent {}
+    
+    // heroes/hero.model.ts
+    export class Hero {}
+    
+    // heroes/hero.service.ts
+    export class HeroService {}
+  :marked
+    Without a barrel, a consumer would need three import statements:
+  code-example(format='').
+    import { HeroComponent } from '../heroes/hero.component.ts';
+    import { Hero }          from '../heroes/hero.model.ts';
+    import { HeroService }   from '../heroes/hero.service.ts';
+  :marked
+    We can add a barrel to the `heroes` folder (called `index` by convention) that exports all of these items:
+  code-example(format='').
+    import * from './hero.model.ts';   // re-export all of its exports
+    import * from './hero.service.ts'; // re-export all of its exports
+    export { HeroComponent } from './hero.component.ts'; // re-export the named thing
+  :marked
+    Now a consumer can import what it needs from the barrel.
+  code-example(format='').
+    import { Hero, HeroService } from '../heroes'; // index is implied
+  :marked
+    The Angular [scoped packages](#scoped-package) each have a barrel named `index`.
+// #enddocregion b-c
+:marked
+  That's why we can write this:
++makeExample('../docs/_fragments/quickstart/ts/app/app.component.ts', 'import')(format=".")
+// #docregion b-c
 
 :marked
   ## Binding
@@ -84,24 +108,6 @@ include _util-fns
     [dependency injection system](#dependency-injection).
 
     One can bootstrap multiple apps in the same `index.html`, each with its own top level root.
-
-:marked
-  ## Bundle
-.l-sub-section
-  :marked
-    Angular JavaScript libraries are shipped in **bundles** within an **npm package**
-    such as [angular2](https://www.npmjs.com/package/angular2).
-
-    The scripts `angular2.dev.js`, `http.js`, `router.js`, and `Rx.js` are
-    familiar examples of bundles.
-
-    A bundle contains one more more [**barrels**](#barrel)
-    and each barrel contains a collection of logically related [modules](#module)
-
-    Familiar barrels include `angular2/core`, `angular2/common`, `angular2/platform/browser`,
-    `angular2/http`, `angular2/router`.
-
-    Learn more in "[Modules, barrels and bundles](https://github.com/angular/angular/blob/master/modules/angular2/docs/bundles/overview.md)".
 
 <a id="C"></a>
 .l-main-section
@@ -471,11 +477,8 @@ include _util-fns
     class belongs to a feature module named `date_pipe` in the file `date_pipe.ts`.
 
     Developers rarely access Angular feature modules directly.
-    We usually import them from public-facing **library modules**
-    called [**barrels**](#barrel). Barrels are groups of logically related modules.
-    The `angular2/core` barrel is a good example.
+    We usually import them from one of the Angular [scoped packages](#scoped-package) such as `@angular/core`.
 
-    Learn more in "[Modules, barrels and bundles](https://github.com/angular/angular/blob/master/modules/angular2/docs/bundles/overview.md)".
 // #enddocregion m2
 
 // #docregion n-s
@@ -568,6 +571,22 @@ include _util-fns
 
 <a id="S"></a>
 .l-main-section
+:marked
+  ## Scoped Package
+.l-sub-section
+  :marked
+    Angular modules are delivered within *scoped packages* such as `@angular/core`, `@angular/common`, `@angular/platform-browser-dynamic`,
+    `@angular/http`, and `@angular/router`.
+
+    A [*scoped package*](https://docs.npmjs.com/misc/scope) is a way to group related *npm* packages.
+    
+    We import a scoped package the same way we'd import a *normal* package. 
+    The only difference, from a consumer perspective, 
+    is that the package name begins with the Angular *scope name*, `@angular`.
+// #enddocregion n-s
++makeExample('../docs/_fragments/architecture/ts/app/app.component.ts', 'import')(format=".")
+// #docregion n-s
+
 :marked
   ## Structural Directive
 .l-sub-section

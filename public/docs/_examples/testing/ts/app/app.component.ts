@@ -1,12 +1,12 @@
 // #docplaster
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 
 // Can't test with ROUTER_DIRECTIVES yet
-// import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+// import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router';
 
 import { RouteConfig, RouterLink,
-         RouterOutlet, ROUTER_PROVIDERS } from 'angular2/router';
+         RouterOutlet, ROUTER_PROVIDERS } from '@angular/router';
 
 import { DashboardComponent }  from './dashboard.component';
 import { HeroesComponent }     from './heroes.component';

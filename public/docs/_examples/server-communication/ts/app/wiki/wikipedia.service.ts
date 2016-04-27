@@ -1,6 +1,6 @@
 // #docregion
-import {Injectable} from 'angular2/core';
-import {Jsonp, URLSearchParams} from 'angular2/http';
+import {Injectable} from '@angular/core';
+import {Jsonp, URLSearchParams} from '@angular/http';
 
 @Injectable()
 export class WikipediaService {

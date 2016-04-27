@@ -1,5 +1,5 @@
 // #docregion
-import { bootstrap } from 'angular2/platform/browser';
+import { bootstrap } from '@angular/platform-browser-dynamic';
 import { AppComponent } from './app.component';
 
 // While Angular supplies a Title service for setting the HTML document title
@@ -7,7 +7,7 @@ import { AppComponent } from './app.component';
 // As such, if we want to inject it into the components within our application,
 // we have to explicitly provide the Angular service in our top component.
 // #docregion bootstrap-title
-import { Title } from 'angular2/platform/browser';
+import { Title } from '@angular/platform-browser';
 
 bootstrap(AppComponent, [ Title ])
 // #enddocregion bootstrap-title

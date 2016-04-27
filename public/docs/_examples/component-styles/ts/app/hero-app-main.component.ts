@@ -1,4 +1,4 @@
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from '@angular/core';
 import {Hero} from './hero';
 import {HeroDetailsComponent} from './hero-details.component';
 import {HeroControlsComponent} from './hero-controls.component';

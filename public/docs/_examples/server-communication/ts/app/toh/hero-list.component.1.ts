@@ -1,6 +1,6 @@
 // ToH Promise Version
 // #docregion
-import {Component, OnInit} from 'angular2/core';
+import {Component, OnInit} from '@angular/core';
 import {Hero}              from './hero';
 import {HeroService}       from './hero.service.1';
 

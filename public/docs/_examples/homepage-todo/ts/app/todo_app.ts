@@ -1,5 +1,5 @@
 // #docregion
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {Todo}      from './todo';
 import {TodoList}  from './todo_list';
 import {TodoForm}  from './todo_form';

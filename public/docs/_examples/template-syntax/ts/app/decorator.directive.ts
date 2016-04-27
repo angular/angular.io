@@ -1,6 +1,6 @@
 // Useful for spying on an element
 // for fun; not used (yet)
-import {Directive, ElementRef} from 'angular2/core';
+import {Directive, ElementRef} from '@angular/core';
 
 // set the selector for the element type to spy on.
 @Directive({selector: 'select'})

@@ -1,6 +1,6 @@
 // #docregion
-import {Pipe, PipeTransform} from 'angular2/core';
-import {Http}                from 'angular2/http';
+import {Pipe, PipeTransform} from '@angular/core';
+import {Http}                from '@angular/http';
 
 // #docregion pipe-metadata
 @Pipe({

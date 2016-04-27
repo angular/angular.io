@@ -1,15 +1,15 @@
 /* tslint:disable:no-unused-variable */
 import { DashboardComponent } from './dashboard.component';
 
-import { By }       from 'angular2/platform/browser';
-import { provide  } from 'angular2/core';
+import { By }       from '@angular/platform-browser';
+import { provide  } from '@angular/core';
 
 import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
   async, inject, TestComponentBuilder
-} from 'angular2/testing';
+} from '@angular/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 import { Router, MockRouter } from './mock-router';

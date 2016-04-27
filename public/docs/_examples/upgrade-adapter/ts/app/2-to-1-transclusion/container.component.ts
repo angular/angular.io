@@ -1,5 +1,5 @@
 // #docregion
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {upgradeAdapter} from './upgrade_adapter';
 import {Hero} from '../Hero';
 

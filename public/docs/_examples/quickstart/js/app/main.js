@@ -2,7 +2,7 @@
 (function(app) {
   document.addEventListener('DOMContentLoaded', function() {
     // #docregion import
-    ng.platform.browser.bootstrap(app.AppComponent);
+    ng.platformBrowserDynamic.bootstrap(app.AppComponent);
     // #enddocregion import
   });
 })(window.app || (window.app = {}));

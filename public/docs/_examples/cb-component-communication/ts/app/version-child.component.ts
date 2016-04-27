@@ -1,6 +1,6 @@
 /* tslint:disable:forin */
 // #docregion
-import {Component, Input, OnChanges, SimpleChange} from 'angular2/core';
+import {Component, Input, OnChanges, SimpleChange} from '@angular/core';
 
 @Component({
   selector: 'version-child',

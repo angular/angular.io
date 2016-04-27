@@ -7,20 +7,20 @@ import {
   AfterViewInit,
   AfterViewChecked,
   OnDestroy
-} from 'angular2/core';
-import {Component, Input, Output} from 'angular2/core';
-import {LoggerService}            from './logger.service';
+} from '@angular/core';
+import {Component, Input} from '@angular/core';
+import {LoggerService}    from './logger.service';
 
 let nextId = 1;
 
 // #docregion ngOnInit
 export class PeekABoo implements OnInit {
-  constructor(private _logger:LoggerService) { }
+  constructor(private _logger: LoggerService) { }
 
   // implement OnInit's `ngOnInit` method
   ngOnInit() { this._logIt(`OnInit`); }
 
-  protected _logIt(msg:string){
+  protected _logIt(msg: string) {
     this._logger.log(`#${nextId++} ${msg}`);
   }
 }
@@ -35,23 +35,23 @@ export class PeekABoo implements OnInit {
 // unless we want typing and tool support.
 export class PeekABooComponent extends PeekABoo implements
              OnChanges, OnInit, DoCheck,
-             AfterContentInit,AfterContentChecked,
+             AfterContentInit, AfterContentChecked,
              AfterViewInit, AfterViewChecked,
              OnDestroy {
-  @Input()  name:string;
+  @Input()  name: string;
 
   private _verb = 'initialized';
 
-  constructor(logger:LoggerService) {
+  constructor(logger: LoggerService) {
     super(logger);
-    
+
     let is = this.name ? 'is' : 'is not';
     this._logIt(`name ${is} known at construction`);
   }
 
   // only called for/if there is an @input variable set by parent.
-  ngOnChanges(changes: {[propertyName: string]: SimpleChange}){
-    let changesMsgs:string[] = []
+  ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
+    let changesMsgs: string[] = [];
     for (let propName in changes) {
       if (propName === 'name') {
         let name = changes['name'].currentValue;
@@ -66,19 +66,19 @@ export class PeekABooComponent extends PeekABoo implements
 
   // Beware! Called frequently!
   // Called in every change detection cycle anywhere on the page
-  ngDoCheck(){ this._logIt(`DoCheck`); }
+  ngDoCheck() { this._logIt(`DoCheck`); }
 
-  ngAfterContentInit(){ this._logIt(`AfterContentInit`);  }
-
-  // Beware! Called frequently!
-  // Called in every change detection cycle anywhere on the page
-  ngAfterContentChecked(){ this._logIt(`AfterContentChecked`); }
-
-  ngAfterViewInit(){ this._logIt(`AfterViewInit`); }
+  ngAfterContentInit() { this._logIt(`AfterContentInit`);  }
 
   // Beware! Called frequently!
   // Called in every change detection cycle anywhere on the page
-  ngAfterViewChecked(){ this._logIt(`AfterViewChecked`); }
+  ngAfterContentChecked() { this._logIt(`AfterContentChecked`); }
+
+  ngAfterViewInit() { this._logIt(`AfterViewInit`); }
+
+  // Beware! Called frequently!
+  // Called in every change detection cycle anywhere on the page
+  ngAfterViewChecked() { this._logIt(`AfterViewChecked`); }
 
   ngOnDestroy() { this._logIt(`OnDestroy`); }
 }

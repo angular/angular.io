@@ -1,4 +1,4 @@
-import {Component, HostBinding, HostListener} from 'angular2/core';
+import {Component, HostBinding, HostListener} from '@angular/core';
 
 // #docregion
 @Component({

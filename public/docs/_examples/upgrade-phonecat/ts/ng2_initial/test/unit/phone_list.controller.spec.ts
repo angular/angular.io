@@ -3,8 +3,6 @@ import {Observable} from 'rxjs/Rx';
 import '../../app/js/phone_list/phone_list.module';
 import {Phones} from '../../app/js/core/phones.service';
 
-import 'rxjs/add/observable/fromArray';
-
 describe('PhoneListCtrl', () => {
   var scope, ctrl, $httpBackend;
 
@@ -18,9 +16,9 @@ describe('PhoneListCtrl', () => {
   }));
 
   beforeEach(inject(function(phones, $rootScope, $controller) {
-    spyOn(phones, 'query').and.returnValue(Observable.fromArray([
+    spyOn(phones, 'query').and.returnValue(Observable.of(
       [{name: 'Nexus S'}, {name: 'Motorola DROID'}]
-    ]));
+    ));
     scope = $rootScope.$new();
     ctrl = $controller('PhoneListCtrl', {$scope: scope});
   }));

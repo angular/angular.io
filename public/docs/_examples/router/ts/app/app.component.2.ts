@@ -2,8 +2,8 @@
 // #docplaster
 
 // #docregion
-import {Component}   from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Component}   from '@angular/core';
+import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 
 import {CrisisListComponent}   from './crisis-list.component';
 // #enddocregion
@@ -46,10 +46,10 @@ import {HeroService}           from './heroes/hero.service';
 // #docregion route-config
 @RouteConfig([
 // #docregion route-defs
-  {path:'/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
-  {path:'/heroes',        name: 'Heroes',       component: HeroListComponent},
+  {path: '/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
+  {path: '/heroes',        name: 'Heroes',       component: HeroListComponent},
   // #docregion hero-detail-route
-  {path:'/hero/:id',      name: 'HeroDetail',   component: HeroDetailComponent}
+  {path: '/hero/:id',      name: 'HeroDetail',   component: HeroDetailComponent}
   // #enddocregion hero-detail-route
 // #enddocregion route-defs
 ])

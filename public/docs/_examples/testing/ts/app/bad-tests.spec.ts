@@ -15,8 +15,8 @@ import {
   TestProvidersComp, TestViewProvidersComp
 } from './bag';
 
-import { DebugElement } from 'angular2/core';
-import { By }           from 'angular2/platform/browser';
+import { DebugElement } from '@angular/core';
+import { By }           from '@angular/platform-browser';
 
 import {
   beforeEach, beforeEachProviders, withProviders,
@@ -24,13 +24,10 @@ import {
   expect, it, iit, xit,
   async, inject, fakeAsync, tick,
   ComponentFixture, TestComponentBuilder
-} from 'angular2/testing';
+} from '@angular/testing';
 
-import { provide }        from 'angular2/core';
-import { ViewMetadata }   from 'angular2/core';
-import { PromiseWrapper } from 'angular2/src/facade/promise';
-import { XHR }            from 'angular2/src/compiler/xhr';
-import { XHRImpl }        from 'angular2/src/platform/browser/xhr_impl';
+import { provide }        from '@angular/core';
+import { ViewMetadata }   from '@angular/core';
 import { Observable }     from 'rxjs/Rx';
 
 ////////  SPECS  /////////////
@@ -40,29 +37,29 @@ xdescribe('async & inject testing errors', () => {
   let originalJasmineBeforeEach: any;
 
   let patchJasmineIt = () => {
-    let deferred = PromiseWrapper.completer();
-    originalJasmineIt = jasmine.getEnv().it;
-    jasmine.getEnv().it = (description: string, fn: Function): jasmine.Spec => {
-      let done = () => { deferred.resolve(); };
-      (<any>done).fail = (err: any) => { deferred.reject(err); };
-      fn(done);
-      return null;
-    };
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      originalJasmineIt = jasmine.getEnv().it;
+      jasmine.getEnv().it = (description: string, fn: Function): jasmine.Spec => {
+        let done = () => { resolve(); };
+        (<any>done).fail = (err: any) => { reject(err); };
+        fn(done);
+        return null;
+      };
+    });
   };
 
   let restoreJasmineIt = () => { jasmine.getEnv().it = originalJasmineIt; };
 
   let patchJasmineBeforeEach = () => {
-    let deferred = PromiseWrapper.completer();
-    originalJasmineBeforeEach = jasmine.getEnv().beforeEach;
-    jasmine.getEnv().beforeEach = (fn: any): void => {
-      let done = () => { deferred.resolve(); };
-      (<any>done).fail = (err: any) => { deferred.reject(err); };
-      fn(done);
-      return null;
-    };
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      originalJasmineBeforeEach = jasmine.getEnv().beforeEach;
+      jasmine.getEnv().beforeEach = (fn: any): void => {
+        let done = () => { resolve(); };
+        (<any>done).fail = (err: any) => { reject(err); };
+        fn(done);
+        return null;
+      };
+    });
   };
 
   let restoreJasmineBeforeEach =
@@ -92,13 +89,9 @@ xdescribe('async & inject testing errors', () => {
   it('should fail when a returned promise is rejected', (done: DoneFn) => {
     let itPromise = patchJasmineIt();
 
-    it('should fail with an error from a promise', async(inject([], () => {
-          let deferred = PromiseWrapper.completer();
-          let p = deferred.promise.then(() => { expect(1).toEqual(2); });
-
-          deferred.reject('baz');
-          return p;
-        })));
+    it('should fail with an error from a promise', async(() => {
+      return Promise.reject('baz')
+    }));
 
     itPromise.then(
       shouldNotSucceed(done),

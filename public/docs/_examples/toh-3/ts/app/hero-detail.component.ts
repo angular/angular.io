@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion v1
-import {Component, Input} from 'angular2/core';
+import {Component, Input} from '@angular/core';
 
 // #enddocregion v1
 // #docregion hero-import

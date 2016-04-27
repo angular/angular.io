@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
 // #docregion first, final
-import {Component} from 'angular2/core';
-import {NgForm}    from 'angular2/common';
+import {Component} from '@angular/core';
+import {NgForm}    from '@angular/common';
 import { Hero }    from './hero';
 
 @Component({

@@ -2,11 +2,11 @@
 
 // #docregion
 // #docregion v1
-import {Injectable}     from 'angular2/core';
-import {Http, Response} from 'angular2/http';
+import {Injectable}     from '@angular/core';
+import {Http, Response} from '@angular/http';
 // #enddocregion v1
 // #docregion import-request-options
-import {Headers, RequestOptions} from 'angular2/http';
+import {Headers, RequestOptions} from '@angular/http';
 // #enddocregion import-request-options
 // #docregion v1
 import {Hero}           from './hero';

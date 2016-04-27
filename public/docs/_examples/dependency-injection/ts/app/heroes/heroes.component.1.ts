@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion v1
-import { Component }          from 'angular2/core';
+import { Component }          from '@angular/core';
 import { HeroListComponent }  from './hero-list.component';
 // #enddocregion v1
 import { HeroService }        from './hero.service';

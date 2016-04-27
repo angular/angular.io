@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import {Component,  AfterContentChecked, AfterContentInit, ContentChild} from 'angular2/core';
+import {Component,  AfterContentChecked, AfterContentInit, ContentChild} from '@angular/core';
 
 import {LoggerService}  from './logger.service';
 
@@ -17,7 +17,7 @@ export class ChildComponent {
 @Component({
   selector: 'after-content',
 // #docregion template
-  template:`
+  template: `
     <div>-- projected content begins --</div>
       <ng-content></ng-content>
     <div>-- projected content ends --</div>`
@@ -31,12 +31,13 @@ export class ChildComponent {
 // #docregion hooks
 export class AfterContentComponent implements  AfterContentChecked, AfterContentInit {
   private _prevHero = '';
+  comment = '';
 
   // Query for a CONTENT child of type `ChildComponent`
   @ContentChild(ChildComponent) contentChild: ChildComponent;
 
 // #enddocregion hooks
-  constructor(private _logger:LoggerService){
+  constructor(private _logger: LoggerService) {
     this._logIt('AfterContent constructor');
   }
 
@@ -59,18 +60,17 @@ export class AfterContentComponent implements  AfterContentChecked, AfterContent
   }
 // #enddocregion hooks
 
-  comment = '';
 
 // #docregion do-something
 
   // This surrogate for real business logic sets the `comment`
   private _doSomething() {
-    this.comment = this.contentChild.hero.length > 10 ? "That's a long name" : '';
+    this.comment = this.contentChild.hero.length > 10 ? 'That\'s a long name' : '';
   }
 
-  private _logIt(method:string){
+  private _logIt(method: string) {
     let vc = this.contentChild;
-    let message = `${method}: ${vc ? vc.hero:'no'} child view`
+    let message = `${method}: ${vc ? vc.hero : 'no'} child view`;
     this._logger.log(message);
   }
 // #docregion hooks
@@ -99,21 +99,21 @@ export class AfterContentComponent implements  AfterContentChecked, AfterContent
   </div>
   `,
   styles: ['.parent {background: burlywood}'],
-  providers:[LoggerService],
+  providers: [LoggerService],
   directives: [AfterContentComponent, ChildComponent]
 })
 export class AfterContentParentComponent {
-  logs:string[];
+  logs: string[];
   show = true;
 
-  constructor(logger:LoggerService){
+  constructor(logger: LoggerService) {
     this.logs = logger.logs;
   }
 
   reset() {
-    this.logs.length=0;
+    this.logs.length = 0;
     // quickly remove and reload AfterContentComponent which recreates it
     this.show = false;
-    setTimeout(() => this.show = true, 0)
+    setTimeout(() => this.show = true, 0);
   }
 }
