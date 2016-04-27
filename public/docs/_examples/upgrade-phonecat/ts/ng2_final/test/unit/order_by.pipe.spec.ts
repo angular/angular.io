@@ -13,7 +13,7 @@ describe('OrderByPipe', () => {
   beforeEachProviders(() => [OrderByPipe]);
 
   it('should order by the given property', inject([OrderByPipe], (orderByPipe) => {
-    expect(orderByPipe.transform(input, ['name'])).toEqual([input[1], input[0]]);
+    expect(orderByPipe.transform(input, 'name')).toEqual([input[1], input[0]]);
   }));
 
 });

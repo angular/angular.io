@@ -14,15 +14,15 @@ describe('PhoneFilterPipe', function() {
   beforeEachProviders(() => [PhoneFilterPipe]);
 
   it('should return input when no query', inject([PhoneFilterPipe], (phoneFilterPipe) => {
-    expect(phoneFilterPipe.transform(phones, [])).toEqual(phones);
+    expect(phoneFilterPipe.transform(phones)).toEqual(phones);
   }));
 
   it('should match based on name', inject([PhoneFilterPipe], (phoneFilterPipe) => {
-    expect(phoneFilterPipe.transform(phones, ['nexus'])).toEqual([phones[0]]);
+    expect(phoneFilterPipe.transform(phones, 'nexus')).toEqual([phones[0]]);
   }));
 
   it('should match based on snippet', inject([PhoneFilterPipe], (phoneFilterPipe) => {
-    expect(phoneFilterPipe.transform(phones, ['android'])).toEqual([phones[1]]);
+    expect(phoneFilterPipe.transform(phones, 'android')).toEqual([phones[1]]);
   }));
 
 });
