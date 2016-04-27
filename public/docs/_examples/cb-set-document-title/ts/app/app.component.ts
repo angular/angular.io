@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
 // Import the native Angular services.
-import { Component } from 'angular2/core';
-import { Title }     from 'angular2/platform/browser';
+import { Component } from '@angular/core';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
 selector: 'my-app',

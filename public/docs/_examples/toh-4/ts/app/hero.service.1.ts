@@ -2,7 +2,7 @@
 // #docregion
 import {HEROES} from './mock-heroes';
 // #docregion empty-class
-import {Injectable} from 'angular2/core';
+import {Injectable} from '@angular/core';
 
 // #docregion getHeroes-stub
 @Injectable()

@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import {Component, ElementRef, Host, Inject,  Optional} from 'angular2/core';
+import {Component, ElementRef, Host, Inject,  Optional} from '@angular/core';
 import {HeroCacheService} from './hero-cache.service';
 import {LoggerService}    from './logger.service';
 

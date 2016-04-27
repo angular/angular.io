@@ -6,7 +6,7 @@ import {
   Optional,
   Query,
   QueryList
-} from 'angular2/core';
+} from '@angular/core';
 
 // #docregion
 @Component({

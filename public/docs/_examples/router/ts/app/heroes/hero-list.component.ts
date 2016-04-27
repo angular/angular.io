@@ -2,10 +2,10 @@
 
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
 // #docregion
-import {Component, OnInit}   from 'angular2/core';
+import {Component, OnInit}   from '@angular/core';
 import {Hero, HeroService}   from './hero.service';
 // #docregion import-route-params
-import {Router, RouteParams} from 'angular2/router';
+import {Router, RouteParams} from '@angular/router';
 // #enddocregion import-route-params
 
 @Component({

@@ -1,11 +1,11 @@
 // #docplaster
 
 // #docregion
-import {Component, OnInit} from 'angular2/core';
+import {Component, OnInit} from '@angular/core';
 import {Crisis, CrisisService} from './crisis.service';
-import {RouteParams, Router} from 'angular2/router';
+import {RouteParams, Router} from '@angular/router';
 // #docregion routerCanDeactivate
-import {CanDeactivate, ComponentInstruction} from 'angular2/router';
+import {CanDeactivate, ComponentInstruction} from '@angular/router';
 import {DialogService} from '../dialog.service';
 
 // #enddocregion routerCanDeactivate

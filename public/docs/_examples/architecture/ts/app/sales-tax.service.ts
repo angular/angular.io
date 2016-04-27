@@ -1,5 +1,5 @@
 // #docregion
-import {Injectable, Inject}     from 'angular2/core';
+import {Injectable, Inject}     from '@angular/core';
 import {TaxRateService} from './tax-rate.service';
 
 // #docregion class

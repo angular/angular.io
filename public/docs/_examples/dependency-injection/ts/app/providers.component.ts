@@ -1,7 +1,7 @@
 // Examples of provider arrays
 //#docplaster
 import { Component, Host, Inject, Injectable,
-         provide, Provider}    from 'angular2/core';
+         provide, Provider}    from '@angular/core';
 
 import { APP_CONFIG,
          Config, CONFIG }      from './app.config';
@@ -280,7 +280,7 @@ export class ProviderComponent10a {
 
 // Optional logger
 // #docregion import-optional
-import {Optional} from 'angular2/core';
+import {Optional} from '@angular/core';
 // #enddocregion import-optional
 
 @Component({

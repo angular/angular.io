@@ -1,7 +1,7 @@
 //#docplaster
 
-import {Component, AfterViewInit, ElementRef, OnInit, QueryList, ViewChildren} from 'angular2/core';
-import {NgForm} from 'angular2/common';
+import {Component, AfterViewInit, ElementRef, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {NgForm} from '@angular/common';
 
 import {Hero} from './hero';
 import {HeroDetailComponent, BigHeroDetailComponent} from './hero-detail.component';

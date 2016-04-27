@@ -32,15 +32,9 @@ describe('Router', function () {
     expect(page.heroesHref.getText()).toEqual("Heroes");
   });
 
-  // assumes that jasmine runs tests in order that they appear.
-  // (don't move this test later in this file because it will fail first 'expect').
   it('should be able to see crises center items', function () {
     var page = getPageStruct();
-    expect(page.crisisList.count()).toBe(0, "should be no crisis center entries on startup");
-    page.crisisHref.click().then(function() {
-      expect(page.routerTitle.getText()).toContain('CRISIS CENTER');
-      expect(page.crisisList.count()).toBe(4, "should be 4 crisis center entries");
-    });
+    expect(page.crisisList.count()).toBe(4, "should be 4 crisis center entries at start");
   });
 
   it('should be able to see hero items', function () {

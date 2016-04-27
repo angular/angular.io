@@ -10,6 +10,7 @@ var mkdirp = require('mkdirp');
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
 var COPYRIGHT, COPYRIGHT_JS, COPYRIGHT_HTML;
+var SYSTEM_JS_CONFIG; // content of systemjs.config.js for plunkers that use systemjs
 
 module.exports = {
   buildPlunkers: buildPlunkers
@@ -27,6 +28,7 @@ function buildCopyrightStrings() {
 }
 
 function buildPlunkers(basePath, destPath, options) {
+  getSystemJsConfigPlunker(basePath);
   var errFn = options.errFn || function(e) { console.log(e); };
   var configExtns = ['plnkr.json', '*plnkr.json'];
   var gpaths = configExtns.map(function(extn) {
@@ -58,6 +60,7 @@ function buildPlunkerFrom(configFileName, basePath, destPath ) {
   try {
     var config = initConfigAndCollectFileNames(configFileName);
     var postData = createPostData(config);
+    addSystemJsConfig(config, postData);
     var html = createPlunkerHtml(postData);
     fs.writeFileSync(outputFileName, html, 'utf-8');
     if (altFileName) {
@@ -77,6 +80,20 @@ function buildPlunkerFrom(configFileName, basePath, destPath ) {
     }
     throw e;
   }
+}
+
+function addSystemJsConfig(config, postData){
+  if (config.basePath.indexOf('/ts') > -1) {
+     // uses systemjs.config.js so add plunker version
+     var relativeFileName = 'systemjs.config.js';
+     postData['files[' + relativeFileName + ']'] = SYSTEM_JS_CONFIG;
+  }
+}
+
+function getSystemJsConfigPlunker(basePath) {
+  // Assume plunker version is sibling of node_modules version
+  SYSTEM_JS_CONFIG = fs.readFileSync(basePath + '/systemjs.config.plunker.js', 'utf-8');
+  SYSTEM_JS_CONFIG +=  COPYRIGHT_JS_CSS;
 }
 
 function initConfigAndCollectFileNames(configFileName) {
@@ -106,6 +123,7 @@ function initConfigAndCollectFileNames(configFileName) {
       return path.join(basePath, fileName);
     }
   });
+
   // var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
   var defaultExcludes = [
     '!**/typings/**',
@@ -116,12 +134,14 @@ function initConfigAndCollectFileNames(configFileName) {
     '!**/example-config.json',
     '!**/*.spec.*',
     '!**/tslint.json',
-    '!**/.editorconfig'
+    '!**/.editorconfig',
+    '!**/systemjs.config.js',
    ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
   config.basePath = basePath;
+
   return config;
 }
 
@@ -196,7 +216,6 @@ function encodeBase64(file) {
   return new Buffer(bitmap).toString('base64');
 }
 
-
 function createPlunkerHtml(postData) {
   useNewWindow = false;
   var baseHtml = createBasePlunkerHtml(useNewWindow);
@@ -208,8 +227,10 @@ function createPlunkerHtml(postData) {
     form.appendChild(ele)
   });
   var html = doc.documentElement.outerHTML;
+
   return html;
 }
+
 
 function createBasePlunkerHtml(useNewWindow) {
   var url = 'http://plnkr.co/edit/?p=preview';

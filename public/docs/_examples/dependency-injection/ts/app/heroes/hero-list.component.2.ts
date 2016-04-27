@@ -1,5 +1,5 @@
 // #docregion
-import { Component }   from 'angular2/core';
+import { Component }   from '@angular/core';
 import { Hero }        from './hero';
 import { HeroService } from './hero.service';
 

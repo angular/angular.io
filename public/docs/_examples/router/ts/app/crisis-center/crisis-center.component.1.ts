@@ -1,5 +1,5 @@
-import {Component}     from 'angular2/core';
-import {RouteConfig, RouterOutlet} from 'angular2/router';
+import {Component}     from '@angular/core';
+import {RouteConfig, RouterOutlet} from '@angular/router';
 
 import {CrisisListComponent}   from './crisis-list.component.1';
 import {CrisisDetailComponent} from './crisis-detail.component.1';

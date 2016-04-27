@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion
 // #docregion unless-declaration
-import {Directive, Input} from 'angular2/core';
+import {Directive, Input} from '@angular/core';
 
 // #enddocregion unless-declaration
-import {TemplateRef, ViewContainerRef} from 'angular2/core';
+import {TemplateRef, ViewContainerRef} from '@angular/core';
 
 // #docregion unless-declaration
 @Directive({ selector: '[myUnless]' })
@@ -13,7 +13,7 @@ export class UnlessDirective {
 
   // #docregion unless-constructor
   constructor(
-    private _templateRef: TemplateRef,
+    private _templateRef: TemplateRef<any>,
     private _viewContainer: ViewContainerRef
     ) { }
   // #enddocregion unless-constructor

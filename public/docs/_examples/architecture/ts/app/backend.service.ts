@@ -1,4 +1,4 @@
-import {Injectable, Type} from 'angular2/core';
+import {Injectable, Type} from '@angular/core';
 import {Logger} from './logger.service';
 import {Hero} from './hero';
 

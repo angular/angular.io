@@ -1,6 +1,6 @@
 // #docregion
-import {Component}         from 'angular2/core';
-import {PeekABooComponent} from './peek-a-boo.component'
+import {Component}         from '@angular/core';
+import {PeekABooComponent} from './peek-a-boo.component';
 import {LoggerService}  from './logger.service';
 
 @Component({
@@ -28,12 +28,12 @@ import {LoggerService}  from './logger.service';
 export class PeekABooParentComponent {
 
   hasChild = false;
-  hookLog:string[];
+  hookLog: string[];
 
   heroName = 'Windstorm';
-  private _logger:LoggerService;
+  private _logger: LoggerService;
 
-  constructor(logger:LoggerService){
+  constructor(logger: LoggerService) {
     this._logger = logger;
     this.hookLog = logger.logs;
   }

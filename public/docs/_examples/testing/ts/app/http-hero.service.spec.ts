@@ -4,13 +4,13 @@ import {
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
   async, inject, TestComponentBuilder
-} from 'angular2/testing';
+} from '@angular/testing';
 
-import { provide } from 'angular2/core';
+import { provide } from '@angular/core';
 
 import {
   MockBackend,
-  MockConnection } from 'angular2/src/http/backends/mock_backend';
+  MockConnection } from '@angular/http/testing';
 
 import {
   Http, HTTP_PROVIDERS,
@@ -18,7 +18,7 @@ import {
   Request, RequestMethod, BaseRequestOptions, RequestOptions,
   Response, ResponseOptions,
   URLSearchParams
-} from 'angular2/http';
+} from '@angular/http';
 
 // Add all operators to Observable
 import 'rxjs/Rx';

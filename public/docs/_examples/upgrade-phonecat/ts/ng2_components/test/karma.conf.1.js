@@ -11,19 +11,13 @@ module.exports = function(config){
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-animate/angular-animate.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
-      // #docregion ng2
+      'node_modules/systemjs/dist/system-polyfills.js',
+      'node_modules/es6-shim/es6-shim.js',
+      'node_modules/zone.js/dist/zone.js',
+      'node_modules/reflect-metadata/Reflect.js',
       'node_modules/systemjs/dist/system.src.js',
-      'node_modules/angular2/bundles/angular2-polyfills.js',
-      'node_modules/angular2/bundles/angular2.dev.js',
-      'node_modules/angular2/bundles/upgrade.dev.js',
-      // #enddocregion ng2
-      // #docregion ng2-http
-      'node_modules/rxjs/bundles/Rx.js',
-      'node_modules/angular2/bundles/http.dev.js',
-      // #enddocregion ng2-http
-      // #docregion ng2-testing
-      'node_modules/angular2/bundles/testing.dev.js',
-      // #enddocregion ng2-testing
+      {pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false},
+      {pattern: 'node_modules/@angular/**/*.js', included: false, watched: false},
       'test/karma_test_shim.js',
       {pattern: 'app/js/**/*.js', included: false, watched: true},
       {pattern: 'test/unit/**/*.js', included: false, watched: true},

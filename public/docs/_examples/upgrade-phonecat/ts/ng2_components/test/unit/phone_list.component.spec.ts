@@ -1,25 +1,24 @@
 // #docregion
-import {provide} from 'angular2/core';
-import {HTTP_PROVIDERS} from 'angular2/http';
+import {provide} from '@angular/core';
+import {HTTP_PROVIDERS} from '@angular/http';
 import {Observable} from 'rxjs/Rx';
-import 'rxjs/add/observable/fromArray';
-
 import {
   describe,
   beforeEachProviders,
-  injectAsync,
+  inject,
   it,
-  expect,
-  TestComponentBuilder
-} from 'angular2/testing';
+  expect
+} from '@angular/core/testing';
+import {TestComponentBuilder} from '@angular/compiler/testing';
+
 import PhoneList from '../../app/js/phone_list/phone_list.component';
 import {Phones, Phone} from '../../app/js/core/phones.service';
 
 class MockPhones extends Phones {
   query():Observable<Phone[]> {
-    return Observable.fromArray([
-      [{name: 'Nexus S'}, {name: 'Motorola DROID'}]
-    ])
+    return Observable.of(
+      [{name: 'Nexus S', snippet: ''}, {name: 'Motorola DROID', snippet: ''}]
+    )
   }
 }
 
@@ -32,7 +31,7 @@ describe('PhoneList', () => {
 
 
   it('should create "phones" model with 2 phones fetched from xhr',
-      injectAsync([TestComponentBuilder], (tcb) => {
+      inject([TestComponentBuilder], (tcb) => {
     return tcb.createAsync(PhoneList).then((fixture) => {
       fixture.detectChanges();
 
@@ -46,7 +45,7 @@ describe('PhoneList', () => {
 
 
   it('should set the default value of orderProp model',
-      injectAsync([TestComponentBuilder], (tcb) => {
+      inject([TestComponentBuilder], (tcb) => {
     return tcb.createAsync(PhoneList).then((fixture) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;

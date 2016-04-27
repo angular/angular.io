@@ -1,6 +1,6 @@
 // #docregion
 // #docregion import
-import {Component, View, bootstrap} from 'angular2/angular2';
+import {Component, View, bootstrap} from '@angular/angular2';
 // #enddocregion
 
 // #docregion class-w-annotations

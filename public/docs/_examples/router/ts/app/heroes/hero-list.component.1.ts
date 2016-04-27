@@ -2,9 +2,9 @@
 
 // #docregion
 // TODO SOMEDAY: Feature Componetized like HeroCenter
-import {Component, OnInit}   from 'angular2/core';
+import {Component, OnInit}   from '@angular/core';
 import {Hero, HeroService}   from './hero.service';
-import {Router}              from 'angular2/router';
+import {Router}              from '@angular/router';
 
 @Component({
   // #docregion template

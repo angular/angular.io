@@ -1,5 +1,5 @@
 // #docregion
-import {Directive, OnInit, OnDestroy} from 'angular2/core';
+import {Directive, OnInit, OnDestroy} from '@angular/core';
 import {LoggerService}  from './logger.service';
 
 let nextId = 1;
@@ -10,13 +10,13 @@ let nextId = 1;
 @Directive({selector: '[mySpy]'})
 export class Spy implements OnInit, OnDestroy {
 
-  constructor(private _logger:LoggerService) { }
+  constructor(private _logger: LoggerService) { }
 
   ngOnInit()    { this._logIt(`onInit`); }
 
   ngOnDestroy() { this._logIt(`onDestroy`); }
 
-  private _logIt(msg:string){
+  private _logIt(msg: string) {
     this._logger.log(`Spy #${nextId++} ${msg}`);
   }
 }

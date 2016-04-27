@@ -1,5 +1,5 @@
 // #docplaster
-import {Component, OnInit}   from 'angular2/core';
+import {Component, OnInit}   from '@angular/core';
 import {Hero}                from './hero';
 import {HeroDetailComponent} from './hero-detail.component';
 import {HeroService}         from './hero.service';
@@ -24,13 +24,13 @@ export class HeroesComponent { ... }
 // #docregion class
 export class HeroListComponent implements OnInit {
 // #docregion ctor
-  constructor(private _service: HeroService){ }
+  constructor(private _service: HeroService) { }
 // #enddocregion ctor
 
-  heroes:Hero[];
+  heroes: Hero[];
   selectedHero: Hero;
 
-  ngOnInit(){
+  ngOnInit() {
     this.heroes = this._service.getHeroes();
   }
 

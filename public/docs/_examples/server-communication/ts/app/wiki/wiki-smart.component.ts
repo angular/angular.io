@@ -1,6 +1,6 @@
 // #docregion
-import {Component}        from 'angular2/core';
-import {JSONP_PROVIDERS}  from 'angular2/http';
+import {Component}        from '@angular/core';
+import {JSONP_PROVIDERS}  from '@angular/http';
 import {Observable}       from 'rxjs/Observable';
 // #docregion import-subject
 import {Subject}          from 'rxjs/Subject';
