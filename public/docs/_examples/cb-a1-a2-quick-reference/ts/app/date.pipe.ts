@@ -5,10 +5,10 @@ import {DatePipe} from 'angular2/common';
 // #docregion date-pipe
 @Pipe({name: 'date', pure: true})
 export class StringSafeDatePipe extends DatePipe {
- transform(value: any, args: any[]): string {
+ transform(value: any, pattern?: string): string {
    value = typeof value === 'string' ?
            Date.parse(value) : value
-   return super.transform(value, args);
+   return super.transform(value, pattern);
  }
 }
 // #enddocregion date-pipe
