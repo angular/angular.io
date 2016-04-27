@@ -51,7 +51,7 @@ describe('AppComponent', () => {
 
     let links = fixture.debugElement
       .queryAll(By.directive(MockRouterLink))
-      .map(de => <MockRouterLink> extractDirective(de, MockRouterLink));
+      .map(de => <MockRouterLink> de.injector.get(MockRouterLink) );
 
     expect(links.length).toEqual(2, 'should have 2 links');
     expect(links[0].routeParams[0]).toEqual('Dashboard', '1st link should go to Dashboard');
@@ -70,7 +70,7 @@ describe('AppComponent', () => {
 
     expect(heroesDe).toBeDefined('should have a 2nd RouterLink');
 
-    let link = <MockRouterLink> extractDirective(heroesDe, MockRouterLink);
+    let link = <MockRouterLink> heroesDe.injector.get(MockRouterLink);
 
     expect(link.navigatedTo).toBeNull('link should not have navigate yet');
 
@@ -82,15 +82,3 @@ describe('AppComponent', () => {
   });
 });
 
-/////////////  Helpers ////////////////////
-
-import { Type } from 'angular2/src/facade/lang';
-
-/**
- * Get the directive instance from the DebugElement to which it is attached
- */
-function extractDirective(de: DebugElement, directive: Type): any {
-  return de.injector.get(
-      de.providerTokens[de.providerTokens.indexOf(directive)]
-  );
-}
