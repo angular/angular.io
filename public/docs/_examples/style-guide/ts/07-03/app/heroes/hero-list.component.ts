@@ -1,5 +1,5 @@
 // #docregion
-import { Component, OnInit } from 'angular2/core';
+import { Component, OnInit } from '@angular/core';
 
 import { HeroService } from './shared/hero.service';
 import { Hero } from './shared/hero.model';

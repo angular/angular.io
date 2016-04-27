@@ -1,7 +1,7 @@
 // #docregion full
 // #docregion top
-import {Component} from 'angular2/core';
-import {RouterLink} from 'angular2/router';
+import {Component} from '@angular/core';
+import {RouterLink} from '@angular/router';
 import {Observable} from 'rxjs';
 import {Phones, Phone} from '../core/phones.service';
 import PhoneFilterPipe from './phone_filter.pipe';

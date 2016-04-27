@@ -1,5 +1,5 @@
 // #docregion
-import {bootstrap}           from 'angular2/platform/browser';
+import {bootstrap}           from '@angular/platform-browser-dynamic';
 import {HeroesListComponent} from './heroes-list.component';
 import {HeroesService}       from './heroes.service';
 

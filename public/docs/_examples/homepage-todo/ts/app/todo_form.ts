@@ -1,5 +1,5 @@
 // #docregion
-import {Component, Output, EventEmitter} from 'angular2/core';
+import {Component, Output, EventEmitter} from '@angular/core';
 import {Todo} from './todo';
 
 @Component({

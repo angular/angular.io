@@ -2,11 +2,13 @@
 // #docplaster
 
 // #docregion
-import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import { Component } from '@angular/core';
+// #docregion import-router
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
+// #enddocregion import-router
 
-import {CrisisListComponent}   from './crisis-list.component';
-import {HeroListComponent}     from './hero-list.component';
+import { CrisisListComponent }   from './crisis-list.component';
+import { HeroListComponent }     from './hero-list.component';
 
 @Component({
   selector: 'my-app',
@@ -32,8 +34,8 @@ import {HeroListComponent}     from './hero-list.component';
 // #docregion route-config
 @RouteConfig([
 // #docregion route-defs
-  {path:'/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
-  {path:'/heroes',        name: 'Heroes',       component: HeroListComponent}
+  {path: '/crisis-center', name: 'CrisisCenter', component: CrisisListComponent},
+  {path: '/heroes',        name: 'Heroes',       component: HeroListComponent}
 // #enddocregion route-defs
 ])
 export class AppComponent { }

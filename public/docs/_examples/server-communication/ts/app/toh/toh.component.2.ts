@@ -1,20 +1,20 @@
 // #docplaster
 
 // #docregion
-import { Component }         from 'angular2/core';
-import { HTTP_PROVIDERS }    from 'angular2/http';
+import { Component }         from '@angular/core';
+import { HTTP_PROVIDERS }    from '@angular/http';
 
 import { HeroListComponent } from './hero-list.component';
 import { HeroService }       from './hero.service';
 // #enddocregion
 
 // #docregion in-mem-web-api-imports
-import { provide }           from 'angular2/core';
-import { XHRBackend }        from 'angular2/http';
+import { provide }           from '@angular/core';
+import { XHRBackend }        from '@angular/http';
 
 // in-memory web api imports
 import { InMemoryBackendService,
-        SEED_DATA }         from 'a2-in-memory-web-api/core';
+        SEED_DATA }          from 'angular2-in-memory-web-api/core';
 import { HeroData }          from '../hero-data';
 // #enddocregion in-mem-web-api-imports
 // #docregion

@@ -1,13 +1,12 @@
 // #docregion
-import {Pipe} from 'angular2/core';
+import {Pipe} from '@angular/core';
 import {Phone} from '../core/phones.service';
 
 @Pipe({name: 'phoneFilter'})
 export default class PhoneFilterPipe {
 
-  transform(input:Phone[], args:string[]): Phone[] {
-    let query = args[0];
-    if (query) {
+  transform(input:Phone[], query:string = ''): Phone[] {
+    if (input) {
       query = query.toLowerCase();
       return input.filter((phone) => {
         const name = phone.name.toLowerCase();

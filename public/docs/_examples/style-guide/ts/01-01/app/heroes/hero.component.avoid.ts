@@ -1,8 +1,8 @@
 // #docregion
 /* avoid */
 
-import { bootstrap } from 'angular2/platform/browser';
-import { Component, OnInit } from 'angular2/core';
+import { bootstrap }         from '@angular/platform-browser-dynamic';
+import { Component, OnInit } from '@angular/core';
 
 class Hero {
   id: number;

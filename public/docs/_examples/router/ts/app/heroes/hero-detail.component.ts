@@ -1,7 +1,7 @@
 // #docregion
-import {Component,  OnInit}  from 'angular2/core';
+import {Component,  OnInit}  from '@angular/core';
 import {Hero, HeroService}   from './hero.service';
-import {RouteParams, Router} from 'angular2/router';
+import {RouteParams, Router} from '@angular/router-deprecated';
 
 @Component({
   template: `

@@ -1,5 +1,5 @@
 // #docplaster
-import {Component, Input, Output, EventEmitter} from 'angular2/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 
 import {Hero} from './hero';
 

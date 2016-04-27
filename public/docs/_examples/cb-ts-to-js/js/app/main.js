@@ -7,11 +7,11 @@
   var provide =
     ng.core.provide;
   var bootstrap =
-    ng.platform.browser.bootstrap;
+    ng.platformBrowserDynamic.bootstrap;
   var LocationStrategy =
-    ng.router.LocationStrategy;
+    ng.common.LocationStrategy;
   var HashLocationStrategy =
-    ng.router.HashLocationStrategy;
+    ng.common.HashLocationStrategy;
   // #enddocregion ng2import
 
   // #docregion appimport

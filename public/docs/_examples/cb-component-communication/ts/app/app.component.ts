@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {HeroParentComponent} from './hero-parent.component';
 import {NameParentComponent} from './name-parent.component';
 import {VersionParentComponent} from './version-parent.component';

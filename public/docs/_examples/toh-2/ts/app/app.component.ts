@@ -1,5 +1,5 @@
 // #docregion pt2
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 
 export class Hero {
   id: number;

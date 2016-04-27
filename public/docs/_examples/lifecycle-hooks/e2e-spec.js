@@ -36,7 +36,7 @@ describe('Lifecycle hooks', function () {
     var powerInputEle = inputEles.get(0);
     var titleEle = onChangesViewEle.element(by.css('p'));
     var changeLogEles = onChangesViewEle.all(by.css('div'));
-    
+
     expect(titleEle.getText()).toContain('Windstorm can sing');
     expect(changeLogEles.count()).toEqual(2, "should start with 2 messages");
     // heroNameInputEle.sendKeys('-foo-').then(function () {
@@ -52,7 +52,7 @@ describe('Lifecycle hooks', function () {
       expect(changeLogEles.count()).toEqual(7, "should have 7 messages now");
     });
   });
-  
+
   it('should support DoCheck hook', function () {
     var doCheckViewEle = element.all(by.css('do-check div')).get(0);
     var inputEles = element.all(by.css('do-check-parent input'));
@@ -61,7 +61,7 @@ describe('Lifecycle hooks', function () {
     var titleEle = doCheckViewEle.element(by.css('p'));
     var changeLogEles = doCheckViewEle.all(by.css('div'));
     var logCount;
-    
+
     expect(titleEle.getText()).toContain('Windstorm can sing');
     changeLogEles.count().then(function(count) {
       // Empirically 5 messages to start
@@ -84,15 +84,15 @@ describe('Lifecycle hooks', function () {
       expect(changeLogEles.count()).toEqual(logCount + 15, 'should add 15 more messages');
     });
   });
-  
+
   it('should support AfterView hooks', function () {
     var parentEle = element(by.tagName('after-view-parent'));
     var buttonEle = parentEle.element(by.tagName('button')); // Reset
-    var commentEle = parentEle.element(by.className('comment'));    
+    var commentEle = parentEle.element(by.className('comment'));
     var logEles = parentEle.all(by.css('h4 ~ div'));
     var childViewInputEle = parentEle.element(by.css('my-child input'));
     var logCount;
-    
+
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
 
@@ -101,7 +101,7 @@ describe('Lifecycle hooks', function () {
       return sendKeys(childViewInputEle, "-test-");
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
-      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');      
+      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
@@ -117,11 +117,11 @@ describe('Lifecycle hooks', function () {
   it('should support AfterContent hooks', function () {
     var parentEle = element(by.tagName('after-content-parent'));
     var buttonEle = parentEle.element(by.tagName('button')); // Reset
-    var commentEle = parentEle.element(by.className('comment'));    
+    var commentEle = parentEle.element(by.className('comment'));
     var logEles = parentEle.all(by.css('h4 ~ div'));
     var childViewInputEle = parentEle.element(by.css('my-child input'));
     var logCount;
-    
+
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
 
@@ -130,7 +130,7 @@ describe('Lifecycle hooks', function () {
       return sendKeys(childViewInputEle, "-test-");
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
-      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');      
+      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
@@ -146,7 +146,7 @@ describe('Lifecycle hooks', function () {
     var inputEle = element(by.css('spy-parent input'));
     var addHeroButtonEle = element(by.cssContainingText('spy-parent button','Add Hero'));
     var resetHeroesButtonEle = element(by.cssContainingText('spy-parent button','Reset Heroes'));
-    var heroEles = element.all(by.css('spy-parent div[my-spy'));
+    var heroEles = element.all(by.css('spy-parent div[mySpy'));
     var logEles = element.all(by.css('spy-parent h4 ~ div'));
     expect(heroEles.count()).toBe(2, 'should have two heroes displayed');
     expect(logEles.count()).toBe(2, 'should have two log entries');

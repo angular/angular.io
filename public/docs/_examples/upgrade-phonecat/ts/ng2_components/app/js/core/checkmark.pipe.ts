@@ -1,5 +1,5 @@
 // #docregion
-import {Pipe} from 'angular2/core';
+import {Pipe} from '@angular/core';
 
 @Pipe({name: 'checkmark'})
 export class CheckmarkPipe {

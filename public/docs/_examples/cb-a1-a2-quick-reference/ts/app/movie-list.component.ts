@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion import
-import {Component} from 'angular2/core';
-import {ROUTER_DIRECTIVES} from "angular2/router";
+import {Component} from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router-deprecated';
 // #enddocregion import
 import {MovieService} from './movie.service';
 import {IMovie} from './movie';

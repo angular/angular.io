@@ -1,4 +1,4 @@
-import {Component, HostBinding} from 'angular2/core';
+import {Component, HostBinding} from '@angular/core';
 import {Hero} from './hero';
 import {HeroAppMainComponent} from './hero-app-main.component';
 

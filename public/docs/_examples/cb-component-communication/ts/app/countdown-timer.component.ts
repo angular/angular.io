@@ -1,5 +1,5 @@
 // #docregion
-import {Component, OnInit, OnDestroy} from 'angular2/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 
 @Component({
   selector:'countdown-timer',

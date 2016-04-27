@@ -1,13 +1,13 @@
 /* tslint:disable:one-line:check-open-brace*/
 // #docplaster
 // #docregion opaque-token
-import {OpaqueToken} from 'angular2/core';
+import {OpaqueToken} from '@angular/core';
 
 export const TITLE = new OpaqueToken('title');
 // #enddocregion opaque-token
 
 // #docregion hero-of-the-month
-import { Component, Inject, provide } from 'angular2/core';
+import { Component, Inject, provide } from '@angular/core';
 
 import { DateLoggerService,
          MinimalLogger }     from './date-logger.service';

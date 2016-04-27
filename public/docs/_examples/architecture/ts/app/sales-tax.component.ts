@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import {Component}       from 'angular2/core';
+import {Component}       from '@angular/core';
 import {SalesTaxService} from './sales-tax.service';
 import {TaxRateService}  from './tax-rate.service';
 
