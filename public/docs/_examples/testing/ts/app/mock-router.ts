@@ -1,6 +1,6 @@
 export * from 'angular2/router';
 
-import { Directive, DynamicComponentLoader, ElementRef,
+import { Directive, DynamicComponentLoader, ViewContainerRef,
          Injectable, Optional, Input } from 'angular2/core';
 
 import { PromiseWrapper } from 'angular2/src/facade/promise';
@@ -52,11 +52,11 @@ export class MockRouterOutlet extends RouterOutlet {
   name: string = null;
 
   constructor(
-    _elementRef: ElementRef,
+    _viewContainerRef: ViewContainerRef,
     @Optional() _loader: DynamicComponentLoader,
     _parentRouter: Router,
     nameAttr: string) {
-    super(_elementRef, _loader, _parentRouter, nameAttr);
+    super(_viewContainerRef, _loader, _parentRouter, nameAttr);
       if (nameAttr) {
         this.name = nameAttr;
       }

@@ -11,7 +11,7 @@ import {AppComponent}      from './app.component';
 // Add these symbols to override the `LocationStrategy`
 import {provide}           from 'angular2/core';
 import {LocationStrategy,
-        HashLocationStrategy} from 'angular2/router';
+        HashLocationStrategy} from 'angular2/platform/common';
 // #enddocregion
 /* Can't use AppComponent ... but display as if we can
 // #docregion
