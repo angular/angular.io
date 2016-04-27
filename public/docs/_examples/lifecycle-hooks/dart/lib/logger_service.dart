@@ -6,11 +6,20 @@ import 'package:angular2/core.dart';
 class LoggerService {
   List<String> logs = [];
 
-  log(String msg, [bool noTick = false]) {
-    if (!noTick) {
-      tick();
+  int prevMsgCount;
+
+  String prevMsg;
+
+  log(String msg) {
+    if (msg == prevMsg) {
+      // Repeat message; update last log entry with count.
+      logs[logs.length - 1] = msg + ' (${prevMsgCount += 1}x)';
+    } else {
+      // New message; log it.
+      prevMsg = msg;
+      prevMsgCount = 1;
+      logs.add(msg);
     }
-    logs.add(msg);
   }
 
   clear() => logs.clear();

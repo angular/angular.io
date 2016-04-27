@@ -6,29 +6,43 @@ import 'logger_service.dart';
 
 int nextId = 1;
 
+// #docregion ngOnInit
+class PeekABoo implements OnInit {
+  LoggerService _logger;
+
+  PeekABoo(this._logger);
+
+  // implement OnInit's `ngOnInit` method
+  ngOnInit() => _logIt('OnInit');
+
+  _logIt(String msg){
+    _logger.log('#${nextId++} ${msg}');
+  }
+}
+// #enddocregion ngOnInit
+
 @Component(
     selector: 'peek-a-boo',
     template: '<p>Now you see my hero, {{name}}</p>',
     styles: const ['p {background: LightYellow; padding: 8px}'])
-class PeekABooComponent
+class PeekABooComponent extends PeekABoo
     implements
-        OnChanges,
         OnInit,
         AfterContentInit,
         AfterContentChecked,
         AfterViewInit,
         AfterViewChecked,
         OnDestroy {
+
   @Input() String name;
 
   int _afterContentCheckedCounter = 1;
   int _afterViewCheckedCounter = 1;
   int _id = nextId++;
-  LoggerService _logger;
   int _onChangesCounter = 1;
   String _verb = 'initialized';
 
-  PeekABooComponent(this._logger);
+  PeekABooComponent(LoggerService _logger) : super(_logger);
 
   // Only called if there is an @input variable set by parent.
   ngOnChanges(Map<String, SimpleChange> changes) {
@@ -68,11 +82,4 @@ class PeekABooComponent
   }
 
   ngOnDestroy() => _logIt('onDestroy');
-
-  _logIt(String msg) {
-    // Don't tick or else
-    // the AfterContentChecked and AfterViewChecked recurse.
-    // Let parent call tick()
-    _logger.log("#$_id $msg", true);
-  }
 }
