@@ -1,29 +1,25 @@
 // #docregion
+
 import 'package:angular2/core.dart';
 
-import 'after_content_parent.dart';
+import 'after_content_component.dart';
 import 'after_view_component.dart';
 import 'counter_component.dart';
 import 'on_changes_component.dart';
 import 'peek_a_boo_parent_component.dart';
 import 'spy_component.dart';
+import 'package:lifecycle_hooks/do_check_component.dart';
 
 @Component(
-    selector: 'my-app',
-    template: '''
-    <peek-a-boo-parent></peek-a-boo-parent>
-    <on-changes-parent></on-changes-parent>
-    <after-view-parent></after-view-parent>
-    <after-content-parent></after-content-parent>
-    <spy-parent></spy-parent>
-    <counter-parent></counter-parent>
-    ''',
-    directives: const [
-      PeekABooParentComponent,
-      OnChangesParentComponent,
-      AfterViewParentComponent,
-      AfterContentParentComponent,
-      SpyParentComponent,
-      CounterParentComponent
-    ])
+  selector: 'my-app',
+  templateUrl: 'app_component.html',
+  directives: const [
+    AfterContentParentComponent,
+    AfterViewParentComponent,
+    CounterParentComponent,
+    DoCheckParentComponent,
+    OnChangesParentComponent,
+    PeekABooParentComponent,
+    SpyParentComponent,
+  ])
 class AppComponent {}

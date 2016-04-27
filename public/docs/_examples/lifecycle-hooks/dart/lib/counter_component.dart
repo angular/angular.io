@@ -1,12 +1,13 @@
 // #docregion
+
 import 'package:angular2/core.dart';
 
 import 'logger_service.dart';
 import 'spy_directive.dart';
 
 @Component(
-    selector: 'my-counter',
-    template: '''
+  selector: 'my-counter',
+  template: '''
     <div class="counter">
       Counter = {{counter}}
 
@@ -14,10 +15,8 @@ import 'spy_directive.dart';
       <div *ngFor="#chg of changeLog" mySpy>{{chg}}</div>
     </div>
     ''',
-    styles: const [
-      '.counter {background: LightYellow; padding: 8px; margin-top: 8px}'
-    ],
-    directives: const [Spy])
+  styles: const ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}'],
+  directives: const [Spy])
 class MyCounter implements OnChanges {
   @Input() num counter;
   List<String> changeLog = [];
@@ -32,14 +31,13 @@ class MyCounter implements OnChanges {
     // A change to `counter` is the only change we care about
     SimpleChange prop = changes['counter'];
     var prev = prop.isFirstChange() ? "{}" : prop.previousValue;
-    changeLog.add(
-        'counter: currentValue = ${prop.currentValue}, previousValue = $prev');
+    changeLog.add('counter: currentValue = ${prop.currentValue}, previousValue = $prev');
   }
 }
 
 @Component(
-    selector: 'counter-parent',
-    template: '''
+  selector: 'counter-parent',
+  template: '''
     <div class="parent">
       <h2>Counter Spy</h2>
 
@@ -52,11 +50,9 @@ class MyCounter implements OnChanges {
       <div *ngFor="#msg of spyLog">{{msg}}</div>
     </div>
     ''',
-    styles: const [
-      '.parent {background: gold; padding: 10px; margin:100px 8px;}'
-    ],
-    directives: const [MyCounter],
-    providers: const [LoggerService])
+  styles: const ['.parent {background: gold;}'],
+  directives: const [MyCounter],
+  providers: const [LoggerService])
 class CounterParentComponent {
   num value;
   List<String> spyLog = [];

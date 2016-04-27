@@ -14,12 +14,15 @@ import 'spy_directive.dart';
       <button (click)="addHero()">Add Hero</button>
       <button (click)="reset()">Reset Heroes</button>
 
-      <p></p>
+      <p></p>'''
+// #docregion template
+      '''
       <div *ngFor="#hero of heroes" mySpy class="heroes">
       {{hero}}
       </div>
-
-      <h4>-- Spy Lifecycle Hook Log --</h4>
+      '''
+// #enddocregion template
+  '''<h4>-- Spy Lifecycle Hook Log --</h4>
       <div *ngFor="#msg of spyLog">{{msg}}</div>
     </div>
     ''',
