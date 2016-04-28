@@ -160,7 +160,7 @@ export class BadTemplateUrl { }
       <label>Child value: <input [(ngModel)]="childValue"> </label>
     </div>
     <p><i>Change log:</i></p>
-    <div *ngFor="#log of changeLog; #i=index">{{i + 1}} - {{log}}</div>`
+    <div *ngFor="let log of changeLog; let i=index">{{i + 1}} - {{log}}</div>`
 })
 export class MyIfChildComp implements OnInit, OnChanges, OnDestroy {
   @Input() value = '';

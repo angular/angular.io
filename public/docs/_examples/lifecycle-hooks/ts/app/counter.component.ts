@@ -14,7 +14,7 @@ import {LoggerService}  from './logger.service';
     Counter = {{counter}}
 
     <h5>-- Counter Change Log --</h5>
-    <div *ngFor="#chg of changeLog" my-spy>{{chg}}</div>
+    <div *ngFor="let chg of changeLog" my-spy>{{chg}}</div>
   </div>
   `,
   styles: ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}'],
@@ -55,7 +55,7 @@ export class MyCounter implements OnChanges {
     <my-counter [counter]="value"></my-counter>
 
     <h4>-- Spy Lifecycle Hook Log --</h4>
-    <div *ngFor="#msg of spyLog">{{msg}}</div>
+    <div *ngFor="let msg of spyLog">{{msg}}</div>
    </div>
   `,
   styles: ['.parent {background: gold;}'],

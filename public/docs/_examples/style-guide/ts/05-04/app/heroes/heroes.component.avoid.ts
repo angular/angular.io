@@ -7,7 +7,7 @@
     <div>
       <h2>My Heroes</h2>
       <ul class="heroes">
-        <li *ngFor="#hero of heroes">
+        <li *ngFor="let hero of heroes">
           <span class="badge">{{hero.id}}</span> {{hero.name}}
         </li>
       </ul>

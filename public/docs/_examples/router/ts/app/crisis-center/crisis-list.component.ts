@@ -8,7 +8,7 @@ import {Router, RouteParams} from 'angular2/router';
 @Component({
   template: `
     <ul class="items">
-      <li *ngFor="#crisis of crises"
+      <li *ngFor="let crisis of crises"
         [class.selected]="isSelected(crisis)"
         (click)="onSelect(crisis)">
         <span class="badge">{{crisis.id}}</span> {{crisis.name}}
