@@ -24,7 +24,7 @@ include ../_util-fns
     * [NgSwitch](#ngSwitch)
     * [NgFor](#ngFor)
   * [* and &lt;template>](#star-template)
-  * [Local template variables](#local-vars)
+  * [Template reference variables](#ref-vars)
   * [Input and output properties](#inputs-outputs)
   * [Template expression operators](#expression-operators)
     * [pipe](#pipe)
@@ -148,7 +148,7 @@ include ../_util-fns
   the template expression usually references that component.
 
   The expression context can include objects other than the component.
-  A [local template variable](#local-vars) is one such alternative context object.
+  A [template reference variable](#ref-vars) is one such alternative context object.
 // #enddocregion template-expressions-context
 
 // #docregion template-expressions-guidelines
@@ -251,7 +251,7 @@ include ../_util-fns
   The *onSave* in `(click)="onSave()"` is sure to be a method of the data-bound component instance.
 
   The statement context may include an object other than the component.
-  A [local template variable](#local-vars) is one such alternative context object.
+  A [template reference variable](#ref-vars) is one such alternative context object.
   We'll frequently see the reserved `$event` symbol in event binding statements,
   representing the "message" or "payload" of the raised event.
 
@@ -1186,17 +1186,16 @@ figure.image-display
 // #enddocregion directives-ngFor-3
 
 // #docregion directives-ngFor-4
-.l-sub-section
-  :marked
-    #### NgFor microsyntax
-    The string assigned to `*ngFor` is not a [template expression](#template-expressions).
-    It’s a *microsyntax* &mdash; a little language of its own that Angular interprets. In this example, the string "#hero of heroes" means:
+<a id="ngForMicrosyntax"></a>
+:marked
+  #### NgFor microsyntax
+  The string assigned to `*ngFor` is not a [template expression](#template-expressions).
+  It’s a *microsyntax* &mdash; a little language of its own that Angular interprets. In this example, the string "let hero of heroes" means:
 
-    >*Take each hero in the `heroes` array, store it in the local `hero` variable, and make it available to the templated HTML
-    for each iteration.*
+  >*Take each hero in the `heroes` array, store it in the local `hero` variable, and make it available to the templated HTML
+  for each iteration.*
 
-    Angular translates this instruction into a new set of elements and bindings.
-    We’ll talk about this in the next section.
+  Angular translates this instruction into a new set of elements and bindings.
 // #enddocregion directives-ngFor-4
 // #docregion directives-ngFor-5
 :marked
@@ -1204,8 +1203,13 @@ figure.image-display
   stamping out instances of the element to which it is applied.
   Angular creates a fresh instance of the template for each hero in the array.
 
-  The hash (`#`) character before "hero" creates a [local template variable](#local-vars) called `hero`.
+  The `let` keyword before "hero" creates a template input variable called `hero`.
 
+.alert.is-critical
+  :marked
+     A template input variable is **not** the same as a [template reference variable](#ref-vars)!
+
+:marked
   We use this variable within the template to access a hero’s properties,
   as we’re doing in the interpolation.
   We can also pass the variable in a binding to a component element,
@@ -1216,7 +1220,7 @@ figure.image-display
 :marked
   #### NgFor with index
   The `ngFor` directive supports an optional `index` that increases from 0 to the length of the array for each iteration.
-  We can capture the index in a local template variable and use it in our  template.
+  We can capture the index in a template input variable and use it in our template.
 
   The next example captures the index in a variable named `i`, using it to stamp out rows like "1 - Hercules Son of Zeus".
 // #enddocregion directives-ngFor-6
@@ -1363,79 +1367,60 @@ figure.image-display
   Using the `*ngFor` syntax is much easier than writing out this expanded HTML ourselves.
 // #enddocregion star-template-ngFor-4
 
-// #docregion local-vars-1
-<a id="local-vars"></a>
+// #docregion ref-vars-1
+<a id="ref-vars"></a>
 .l-main-section
 :marked
-  ## Local template variables
+  ## Template reference variables
 
-  A **local template variable** is a vehicle for moving data across element lines.
+  A **Template reference variable** is a reference to an DOM element or directive within a template.
 
-  We've seen `#hero` used to declare a local template variable several times in this chapter,
-  most prominently when writing [NgFor](#ngFor) repeaters.
+  It can be used with native DOM elements but also with Angular 2 components - in fact, it will work with any custom web component.
 
-  In [* and &lt;templates>](#star-template), we learned how Angular expands
-  an `*ngFor` on a component tag into a `<template>` that wraps the component.
-// #enddocregion local-vars-1
-+makeExample('template-syntax/ts/app/app.component.html', 'Template-4')(format=".")
-// #docregion local-vars-2
+// #docregion ref-vars-refs
 :marked
-  The hash (`#`) prefix to "hero" means that we're defining a `hero` variable.
+  ### Referencing a template reference variable
+
+  We can reference a template reference variable on the same element, on a sibling element, or on
+  any child elements.
+
+  Here are two other examples of creating and consuming a Template reference variable:
+// #enddocregion ref-vars-refs
++makeExample('template-syntax/ts/app/app.component.html', 'ref-phone')(format=".")
+// #docregion ref-vars-value
+:marked
+  The hash (`#`) prefix to "phone" means that we're defining a `phone` variable.
 .l-sub-section
   :marked
     Folks who don't like using the `#` character can use its canonical alternative,
-    the `var-` prefix. For example, we can declare the our `hero` variable using
-    either `#hero` or `var-hero`.
-:marked
-  We define `hero` on the outer `<template>` element, where it becomes the current hero item
-  as Angular iterates through the list of heroes.
+    the `ref-` prefix. For example, we can declare the our `phone` variable using
+    either `#phone` or `ref-phone`.
 
-  The `hero` variable appears again in the binding on the inner `<hero-detail>` component element.
-  That's how each instance of the `<hero-detail>` gets its hero.
-// #enddocregion local-vars-2
-
-// #docregion local-vars-refs
-:marked
-  ### Referencing a local template variable
-
-  We can reference a local template variable on the same element, on a sibling element, or on
-  any child elements.
-
-  Here are two other examples of creating and consuming a local template variable:
-// #enddocregion local-vars-refs
-+makeExample('template-syntax/ts/app/app.component.html', 'var-phone')(format=".")
-// #docregion local-vars-value
 :marked
   ### How a variable gets its value
-  The value assigned to a variable depends upon the context.
 
-  When a directive is present on the element, as it is in the earlier NgFor `<hero-detail>` component example,
-  the directive sets the value.  Accordingly, the `NgFor` directive
-  sets the `hero` variable to a hero item from the `heroes` array.
-
-  When no directive is present, as in phone and fax examples,
   Angular sets the variable's value to the element on which it was defined.
   We defined these variables on the `input` elements.
   We’re passing those `input` element objects across to the
   button elements, where they're used in arguments to the `call` methods in the event bindings.
-// #enddocregion local-vars-value
+// #enddocregion ref-vars-value
 
-// #docregion local-vars-form-1
+// #docregion ref-vars-form-1
 :marked
-  ### NgForm and local template variables
-  Let's look at one final example: a form, the poster child for local template variables.
+  ### NgForm and template reference variables
+  Let's look at one final example: a form, the poster child for template reference variables.
 
   The HTML for a form can be quite involved, as we saw in the [Forms](forms.html) chapter.
   The following is a *simplified* example &mdash; and it's not simple at all.
-// #enddocregion local-vars-form-1
-+makeExample('template-syntax/ts/app/app.component.html', 'var-form')(format=".")
-// #docregion local-vars-form-2
+// #enddocregion ref-vars-form-1
++makeExample('template-syntax/ts/app/app.component.html', 'ref-form')(format=".")
+// #docregion ref-vars-form-2
 :marked
-  A local template variable, `theForm`, appears three times in this example, separated
+  A template reference variable, `theForm`, appears three times in this example, separated
   by a large amount of HTML.
-// #enddocregion local-vars-form-2
-+makeExample('template-syntax/ts/app/app.component.html', 'var-form-a')(format=".")
-// #docregion local-vars-form-3
+// #enddocregion ref-vars-form-2
++makeExample('template-syntax/ts/app/app.component.html', 'ref-form-a')(format=".")
+// #docregion ref-vars-form-3
 :marked
   What is the value of `theForm`?
 
@@ -1447,7 +1432,7 @@ figure.image-display
 
   This explains how we can disable the submit button by checking `theForm.form.valid`
   and pass an object with rich information to the parent component's `onSubmit` method.
-// #enddocregion local-vars-form-3
+// #enddocregion ref-vars-form-3
 
 // #docregion inputs-outputs-1
 <a id="inputs-outputs"></a>
