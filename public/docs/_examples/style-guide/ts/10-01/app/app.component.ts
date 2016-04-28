@@ -2,8 +2,10 @@
 import { Component } from 'angular2/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
 
-import { HeroService } from './shared';
-import { NavComponent } from './layout/nav.component';
+import { NavComponent } from './shared/nav/nav.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
+import { HeroesComponent } from './heroes/heroes.component';
+import { HeroService } from './heroes/shared/hero.service';
 
 @Component({
   selector: 'toh-app',

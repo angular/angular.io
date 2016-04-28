@@ -1,7 +1,7 @@
 // #docregion
 import { Component, OnInit } from 'angular2/core';
 
-import { Hero } from './hero.model';
+import { Hero } from './shared/hero.model';
 
 // #docregion example
 @Component({
@@ -12,5 +12,7 @@ import { Hero } from './hero.model';
 export class HeroesComponent implements OnInit {
   heroes: Hero[];
   selectedHero: Hero;
+
+  ngOnInit() { }
 }
 // #enddocregion example

@@ -1,0 +1,8 @@
+import { Pipe, PipeTransform } from 'angular2/core';
+
+@Pipe({ name: 'initCaps' })
+export class InitCapsPipe implements PipeTransform {
+  transform = (value: string) => value;
+}
+
+

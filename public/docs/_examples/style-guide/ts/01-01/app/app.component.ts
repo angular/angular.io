@@ -2,7 +2,7 @@
 import { Component } from 'angular2/core';
 
 import { HeroesComponent } from './heroes/heroes.component';
-import { HeroService } from './heroes/hero.service';
+import { HeroService } from './heroes/shared/hero.service';
 
 @Component({
   selector: 'toh-app',

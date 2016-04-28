@@ -1,7 +1,8 @@
 // #docregion
+import { Component, Output, EventEmitter } from 'angular2/core';
+// #docregion example
 /* avoid */
 
-// #docregion example
 @Component({
   selector: 'toh-hero',
   template: `...`
