@@ -11,7 +11,7 @@ import {Router}              from 'angular2/router';
   template: `
     <h2>HEROES</h2>
     <ul class="items">
-      <li *ngFor="#hero of heroes"
+      <li *ngFor="let hero of heroes"
         (click)="onSelect(hero)">
         <span class="badge">{{hero.id}}</span> {{hero.name}}
       </li>

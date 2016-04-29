@@ -14,7 +14,7 @@ import {WikipediaService} from './wikipedia.service';
     <input #term (keyup)="search(term.value)"/>
     
     <ul>
-      <li *ngFor="#item of items | async">{{item}}</li>
+      <li *ngFor="let item of items | async">{{item}}</li>
     </ul>
   `,
   providers:[JSONP_PROVIDERS, WikipediaService]

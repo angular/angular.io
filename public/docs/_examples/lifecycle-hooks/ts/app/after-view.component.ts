@@ -97,7 +97,7 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
 
     <h4>-- AfterView Logs --</h4>
     <p><button (click)="reset()">Reset</button></p>
-    <div *ngFor="#msg of logs">{{msg}}</div>
+    <div *ngFor="let msg of logs">{{msg}}</div>
   </div>
   `,
   styles: ['.parent {background: burlywood}'],

@@ -9,7 +9,7 @@ import {Router} from 'angular2/router';
   // #docregion template
   template: `
     <ul class="items">
-      <li *ngFor="#crisis of crises"
+      <li *ngFor="let crisis of crises"
         (click)="onSelect(crisis)">
         <span class="badge">{{crisis.id}}</span> {{crisis.name}}
       </li>

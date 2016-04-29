@@ -30,7 +30,7 @@ const template = `
 
   <p>Logs:</p>
   <div id="logs">
-    <div *ngFor="#log of logs">{{log}}</div>
+    <div *ngFor="let log of logs">{{log}}</div>
   </div>
   `;
 

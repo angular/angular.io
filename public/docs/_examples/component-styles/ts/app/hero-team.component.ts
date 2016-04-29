@@ -8,7 +8,7 @@ import {Hero} from './hero';
     <link rel="stylesheet" href="app/hero-team.component.css">
     <h3>Team</h3>
     <ul>
-      <li *ngFor="#member of hero.team">
+      <li *ngFor="let member of hero.team">
         {{member}}
       </li>
     </ul>`

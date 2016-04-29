@@ -6,7 +6,7 @@ import {NameChildComponent} from './name-child.component';
   selector: 'name-parent',
   template: `
     <h2>Master controls {{names.length}} names</h2>
-    <name-child *ngFor="#name of names"
+    <name-child *ngFor="let name of names"
       [name]="name">
     </name-child>
   `,
