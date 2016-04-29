@@ -31,7 +31,7 @@ export class UiPane {
   selector: 'ui-tabs',
   template: `
     <ul class="nav nav-tabs">
-      <li *ngFor="var pane of panes"
+      <li *ngFor="let pane of panes"
           (click)="select(pane)"
           role="presentation" [class.active]="pane.active">
         <a>{{pane.title}}</a>

@@ -11,7 +11,7 @@ import {Component} from 'angular2/core';
 
     <button (click)=addHero(newHero.value)>Add</button>
 
-    <ul><li *ngFor="#hero of heroes">{{hero}}</li></ul>
+    <ul><li *ngFor="let hero of heroes">{{hero}}</li></ul>
   `
 })
 export class LittleTourComponent {

@@ -15,7 +15,7 @@ class Detail {
       <template ui-pane title='Overview' active="true">
         You have {{details.length}} details.
       </template>
-      <template *ngFor="#detail of details" ui-pane [title]="detail.title">
+      <template *ngFor="let detail of details" ui-pane [title]="detail.title">
         {{detail.text}} <br><br>
         <button class="btn" (click)="removeDetail(detail)">Remove</button>
       </template>

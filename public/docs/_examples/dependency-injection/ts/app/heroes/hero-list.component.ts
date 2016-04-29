@@ -6,7 +6,7 @@ import { HeroService } from './hero.service';
 @Component({
   selector: 'hero-list',
   template: `
-  <div *ngFor="#hero of heroes">
+  <div *ngFor="let hero of heroes">
     {{hero.id}} - {{hero.name}}
     ({{hero.isSecret ? 'secret' : 'public'}})
   </div>
@@ -15,9 +15,9 @@ import { HeroService } from './hero.service';
 export class HeroListComponent {
   heroes: Hero[];
 
-  //#docregion ctor-signature
+  // #docregion ctor-signature
   constructor(heroService: HeroService) {
-  //#enddocregion ctor-signature
+  // #enddocregion ctor-signature
     this.heroes = heroService.getHeroes();
   }
 }

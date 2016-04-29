@@ -9,7 +9,7 @@ import { Hero } from './hero.model.ts';
   template: `
     <section>
       Our list of heroes:
-      <hero-profile *ngFor="#hero of heroes" [hero]="hero">
+      <hero-profile *ngFor="let hero of heroes" [hero]="hero">
       </hero-profile>
       Total powers: {{totalPowers}}<br>
       Average power: {{avgPower}}

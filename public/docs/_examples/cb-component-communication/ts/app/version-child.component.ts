@@ -1,3 +1,4 @@
+/* tslint:disable:forin */
 // #docregion
 import {Component, Input, OnChanges, SimpleChange} from 'angular2/core';
 
@@ -7,7 +8,7 @@ import {Component, Input, OnChanges, SimpleChange} from 'angular2/core';
     <h3>Version {{major}}.{{minor}}</h3>
     <h4>Change log:</h4>
     <ul>
-      <li *ngFor="#change of changeLog">{{change}}</li>
+      <li *ngFor="let change of changeLog">{{change}}</li>
     </ul>
   `
 })
