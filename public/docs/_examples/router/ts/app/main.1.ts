@@ -3,9 +3,10 @@
 
 // #docregion all
 import { bootstrap }        from '@angular/platform-browser-dynamic';
-import { ROUTER_PROVIDERS } from '@angular/router';
+import { provideRouter }    from '@angular/router';
 
 import { AppComponent }     from './app.component';
+import { routes }           from './app.routes';
 // #enddocregion all
 
 /* Can't use AppComponent ... but display as if we can
@@ -18,6 +19,6 @@ bootstrap(AppComponent, [
 import { AppComponent as ac } from './app.component.1';
 bootstrap(ac, [
 // #docregion all
-  ROUTER_PROVIDERS
+  provideRouter(routes)
 ]);
 // #enddocregion all

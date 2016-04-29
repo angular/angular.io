@@ -1,6 +1,6 @@
 // #docregion
-import { Component } from '@angular/core';
-import { OnActivate, Router, RouteSegment } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Hero, HeroService } from './hero.service';
 
@@ -21,26 +21,41 @@ import { Hero, HeroService } from './hero.service';
   </div>
   `,
 })
-export class HeroDetailComponent implements OnActivate  {
+export class HeroDetailComponent implements OnInit, OnDestroy  {
   hero: Hero;
 
   // #docregion ctor
+  private sub: any;
+
   constructor(
+    private route: ActivatedRoute,
     private router: Router,
     private service: HeroService) {}
   // #enddocregion ctor
 
   // #docregion OnActivate
-  routerOnActivate(curr: RouteSegment): void {
-    let id = +curr.getParam('id');
-    this.service.getHero(id).then(hero => this.hero = hero);
+  ngOnInit() {
+    this.sub = this.route
+     .params
+     .subscribe(params => {
+       let id =+ params['id'];
+       this.service.getHero(id)
+         .then(hero => this.hero = hero);
+     });
   }
   // #enddocregion OnActivate
 
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
   // #docregion gotoHeroes
   gotoHeroes() {
-    // Like <a [routerLink]="['/heroes']">Heroes</a>
-    this.router.navigate(['/heroes']);
+    let heroId = this.hero ? this.hero.id : null;
+    // Pass along the hero id if available
+    // so that the HeroList component can select that hero.
+    // Add a totally useless `foo` parameter for kicks.
+    this.router.navigate(['/heroes'], { queryParameters: { id: heroId, foo: 'foo' } });
   }
   // #enddocregion gotoHeroes
 }

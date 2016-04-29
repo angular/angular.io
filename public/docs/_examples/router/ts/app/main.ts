@@ -1,7 +1,11 @@
 // #docregion
 import { bootstrap }        from '@angular/platform-browser-dynamic';
-import { ROUTER_PROVIDERS } from '@angular/router';
-
+import { provideRouter }    from '@angular/router';
 import { AppComponent }     from './app.component';
+import { routes }           from './app.routes';
+import { DialogService }    from './dialog.service';
 
-bootstrap(AppComponent, [ROUTER_PROVIDERS]);
+bootstrap(AppComponent, [
+  provideRouter(routes),
+  DialogService
+]);

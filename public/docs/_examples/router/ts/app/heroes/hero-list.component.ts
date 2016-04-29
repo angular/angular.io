@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
-import { Component }          from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 // #docregion import-router
-import { OnActivate, Router, RouteSegment, RouteTree } from '@angular/router';
+import { Router } from '@angular/router';
 // #enddocregion import-router
 
 import { Hero, HeroService }   from './hero.service';
@@ -22,21 +22,33 @@ import { Hero, HeroService }   from './hero.service';
   `
   // #enddocregion template
 })
-export class HeroListComponent implements OnActivate {
+export class HeroListComponent implements OnInit, OnDestroy {
   heroes: Hero[];
 
   // #docregion ctor
   private selectedId: number;
+  private sub: any;
 
   constructor(
     private service: HeroService,
-    private router: Router) {  }
+    private router: Router) {}
   // #enddocregion ctor
 
-  routerOnActivate(curr: RouteSegment, prev?: RouteSegment, currTree?: RouteTree, prevTree?: RouteTree): void {
-    this.selectedId = +curr.getParam('id');
-    this.service.getHeroes().then(heroes => this.heroes = heroes);
+  ngOnInit(){
+    this.sub = this.router
+      .routerState
+      .queryParams
+      .subscribe(params => {
+        this.selectedId =+ params['id'];
+        this.service.getHeroes()
+          .then(heroes => this.heroes = heroes);
+      });
   }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+  // #enddocregion ctor
 
   // #docregion isSelected
   isSelected(hero: Hero) { return hero.id === this.selectedId; }

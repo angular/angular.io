@@ -3,10 +3,7 @@
 
 // #docregion
 import { Component } from '@angular/core';
-import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
-
-import { CrisisListComponent } from './crisis-list.component';
-import { HeroListComponent }   from './hero-list.component';
+import { ROUTER_DIRECTIVES } from '@angular/router';
 
 @Component({
   selector: 'my-app',
@@ -23,20 +20,5 @@ import { HeroListComponent }   from './hero-list.component';
   directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion
-/*
- // #docregion route-config
- @Component({ ... })
- // #enddocregion route-config
- */
-// #docregion
-// #docregion route-config
-@Routes([
-// #docregion route-defs
-  {path: '/crisis-center', component: CrisisListComponent},
-  {path: '/heroes',        component: HeroListComponent},
-  {path: '*',        component: CrisisListComponent}
-// #enddocregion route-defs
-])
 export class AppComponent { }
-// #enddocregion route-config
 // #enddocregion
