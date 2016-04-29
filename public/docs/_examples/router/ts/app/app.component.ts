@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 import {Component} from 'angular2/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from 'angular2/router';
+import {Routes, ROUTER_DIRECTIVES} from 'angular2/alt_router';
 
 import {CrisisCenterComponent} from './crisis-center/crisis-center.component';
 import {HeroListComponent}     from './heroes/hero-list.component';
@@ -16,8 +16,8 @@ import {HeroService}           from './heroes/hero.service';
   template: `
     <h1 class="title">Component Router</h1>
     <nav>
-      <a [routerLink]="['CrisisCenter']">Crisis Center</a>
-      <a [routerLink]="['Heroes']">Heroes</a>
+      <a [routerLink]="['/crisis-center/']">Crisis Center</a>
+      <a [routerLink]="['/heroes']">Heroes</a>
     </nav>
     <router-outlet></router-outlet>
   `,
@@ -25,25 +25,19 @@ import {HeroService}           from './heroes/hero.service';
   providers:  [DialogService, HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
-// #docregion route-config
-@RouteConfig([
+// #docregion routes
+@Routes([
 
-  // #docregion route-config-cc
+  // #docregion routes-cc
   { // Crisis Center child route
     path: '/crisis-center/...',
-    name: 'CrisisCenter',
     component: CrisisCenterComponent,
-    useAsDefault: true
+    // useAsDefault: true // not implemented yet
   },
-  // #enddocregion route-config-cc
+  // #enddocregion routes-cc
 
-  {path: '/heroes',   name: 'Heroes',     component: HeroListComponent},
-  {path: '/hero/:id', name: 'HeroDetail', component: HeroDetailComponent},
-  // #enddocregion route-config
-  // #docregion asteroid-route
-  {path: '/disaster', name: 'Asteroid', redirectTo: ['CrisisCenter', 'CrisisDetail', {id:3}]}
-   // #enddocregion asteroid-route
-   // #docregion route-config
+  {path: '/heroes',  component: HeroListComponent},
+  {path: '/hero/:id', component: HeroDetailComponent},
 ])
-// #enddocregion route-config
+// #enddocregion routes
 export class AppComponent { }

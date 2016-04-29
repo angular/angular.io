@@ -1,9 +1,8 @@
 // #docplaster
-
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {Router, RouteParams} from 'angular2/router';
+import { Component } from 'angular2/core';
+import { Crisis, CrisisService } from './crisis.service';
+import { Router, OnActivate, RouteSegment } from 'angular2/alt_router';
 
 @Component({
   template: `
@@ -16,25 +15,23 @@ import {Router, RouteParams} from 'angular2/router';
     </ul>
   `,
 })
-export class CrisisListComponent implements OnInit {
+export class CrisisListComponent implements OnActivate {
   crises: Crisis[];
 
   private _selectedId: number;
 
   constructor(
     private _service: CrisisService,
-    private _router: Router,
-    routeParams: RouteParams) {
-      this._selectedId = +routeParams.get('id');
-  }
+    private _router: Router) { }
 
   isSelected(crisis: Crisis) { return crisis.id === this._selectedId; }
 
-  ngOnInit() {
+  routerOnActivate(curr: RouteSegment): void {
+    this._selectedId = +curr.getParam('id');
     this._service.getCrises().then(crises => this.crises = crises);
   }
 
   onSelect(crisis: Crisis) {
-    this._router.navigate( ['CrisisDetail', { id: crisis.id }]  );
+    this._router.navigateByUrl( `/crisis-list/${crisis.id}`);
   }
 }
