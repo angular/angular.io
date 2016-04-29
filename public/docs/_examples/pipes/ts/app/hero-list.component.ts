@@ -8,7 +8,7 @@ import {FetchJsonPipe} from './fetch-json.pipe';
   template: `
     <h2>Heroes from JSON File</h2>
 
-    <div *ngFor="#hero of ('heroes.json' | fetch) ">
+    <div *ngFor="let hero of ('heroes.json' | fetch) ">
       {{hero.name}}
     </div>
 
