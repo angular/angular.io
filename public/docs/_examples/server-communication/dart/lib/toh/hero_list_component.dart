@@ -12,7 +12,7 @@ import 'hero_service.dart';
     template: '''
       <h3>Heroes:</h3>
       <ul>
-        <li *ngFor="#hero of heroes">
+        <li *ngFor="let hero of heroes">
           {{hero.name}}
         </li>
       </ul>

@@ -19,7 +19,7 @@ const List<String> _heroes = const [
 <p>Heroes:</p>
 <ul>
 // #docregion li-repeater
-  <li *ngFor="#hero of heroes">
+  <li *ngFor="let hero of heroes">
     {{ hero }}
   </li>
 // #enddocregion li-repeater
