@@ -7,7 +7,7 @@ import 'hero_service.dart';
 @Component(
     selector: 'hero-list',
     template: '''
-      <div *ngFor="#hero of heroes">
+      <div *ngFor="let hero of heroes">
         {{hero.id}} - {{hero.name}}
         ({{hero.isSecret ? 'secret' : 'public'}})
       </div>''')

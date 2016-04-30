@@ -11,7 +11,7 @@ import 'spy_directive.dart';
       Counter = {{counter}}
 
       <h5>-- Counter Change Log --</h5>
-      <div *ngFor="#chg of changeLog" mySpy>{{chg}}</div>
+      <div *ngFor="let chg of changeLog" mySpy>{{chg}}</div>
     </div>
     ''',
     styles: const [
@@ -49,7 +49,7 @@ class MyCounter implements OnChanges {
       <my-counter [counter]="value"></my-counter>
 
       <h4>-- Spy Lifecycle Hook Log --</h4>
-      <div *ngFor="#msg of spyLog">{{msg}}</div>
+      <div *ngFor="let msg of spyLog">{{msg}}</div>
     </div>
     ''',
     styles: const [

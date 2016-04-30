@@ -19,7 +19,7 @@ import 'peek_a_boo_component.dart';
       </peek-a-boo>
 
       <h4>-- Lifecycle Hook Log --</h4>
-      <div *ngFor="#msg of hookLog">{{msg}}</div>
+      <div *ngFor="let msg of hookLog">{{msg}}</div>
     </div>
     ''',
     styles: const [

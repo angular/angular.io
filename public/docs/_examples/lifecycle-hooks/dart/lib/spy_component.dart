@@ -15,12 +15,12 @@ import 'spy_directive.dart';
       <button (click)="reset()">Reset Heroes</button>
 
       <p></p>
-      <div *ngFor="#hero of heroes" mySpy class="heroes">
+      <div *ngFor="let hero of heroes" mySpy class="heroes">
       {{hero}}
       </div>
 
       <h4>-- Spy Lifecycle Hook Log --</h4>
-      <div *ngFor="#msg of spyLog">{{msg}}</div>
+      <div *ngFor="let msg of spyLog">{{msg}}</div>
     </div>
     ''',
     styles: const [

@@ -11,7 +11,7 @@ import 'package:angular2/core.dart';
 
       <button (click)=addHero(newHero.value)>Add</button>
 
-      <ul><li *ngFor="#hero of heroes">{{hero}}</li></ul>
+      <ul><li *ngFor="let hero of heroes">{{hero}}</li></ul>
     ''')
 class LittleTourComponent {
   List<String> heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];

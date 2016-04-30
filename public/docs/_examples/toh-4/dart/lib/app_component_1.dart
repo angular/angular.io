@@ -13,7 +13,7 @@ import 'hero_service_1.dart';
 @Component(
     selector: 'my-app',
     template: '''
-    <div *ngFor="#hero of heroes" (click)="onSelect(hero)">
+    <div *ngFor="let hero of heroes" (click)="onSelect(hero)">
       {{hero.name}}
     </div>
     <my-hero-detail [hero]="selectedHero"></my-hero-detail>
