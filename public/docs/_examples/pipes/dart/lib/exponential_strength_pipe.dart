@@ -12,9 +12,12 @@ import 'package:angular2/angular2.dart';
  *   formats to: 1024
  */
 @Pipe(name: 'exponentialStrength')
-@Injectable() // FIXME(chalin): unnecessary?
 class ExponentialStrengthPipe extends PipeTransform {
-  num transform(num value, String exponent) =>
-    math.pow(value,
-      num.parse(exponent, onError: (_) => 1));
+  transform(dynamic value, [List<dynamic> args]) {
+    var v = int.parse(value.toString(), onError: (source) => 0);
+    var p = args.isEmpty
+        ? 1
+        : int.parse(args.first.toString(), onError: (source) => 1);
+    return math.pow(v, p);
+  }
 }
