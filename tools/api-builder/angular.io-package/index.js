@@ -7,7 +7,7 @@ var cheatsheetPackage = require('../cheatsheet-package');
 var PROJECT_PATH = path.resolve(__dirname, "../../..");
 var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
-var ANGULAR2_DOCS_PATH = path.resolve(__dirname, '../../../../angular/modules/angular2/docs');
+var ANGULAR2_DOCS_PATH = path.resolve(__dirname, '../../../../angular/modules/@angular/docs');
 
 
 module.exports = new Package('angular.io', [basePackage, targetPackage, cheatsheetPackage])
@@ -41,19 +41,22 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .config(function(readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
 
   readTypeScriptModules.sourceFiles = [
-    'angular2/animate.ts',
-    'angular2/common.ts',
-    'angular2/compiler.ts',
-    'angular2/core.ts',
-    'angular2/http.ts',
-    'angular2/http/testing.ts',
-    'angular2/instrumentation.ts',
-    'angular2/platform/browser.ts',
-    'angular2/platform/common.ts',
-    'angular2/router.ts',
-    'angular2/router/testing.ts',
-    'angular2/upgrade.ts',
-    'angular2/testing.ts'
+    '@angular/common/index.ts',
+    '@angular/common/testing.ts',
+    '@angular/compiler/index.ts',
+    '@angular/compiler/testing.ts',
+    '@angular/core/index.ts',
+    '@angular/core/testing.ts',
+    '@angular/http/index.ts',
+    '@angular/http/testing.ts',
+    '@angular/platform-browser/index.ts',
+    '@angular/platform-browser/testing.ts',
+    '@angular/platform-browser-dynamic/index.ts',
+    '@angular/platform-browser-dynamic/testing.ts',
+    '@angular/platform-server/index.ts',
+    '@angular/platform-server/testing.ts',
+    '@angular/router/index.ts',
+    '@angular/upgrade/index.ts',
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
@@ -80,7 +83,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   computePathsProcessor.pathTemplates.push({
     docTypes: ['module'],
     getPath: function computeModulePath(doc) {
-      doc.moduleFolder = doc.id.replace(/^angular2\//, '');
+      doc.moduleFolder = doc.id.replace(/^@angular\//, '');
       return doc.moduleFolder + '/index.html';
     },
     getOutputPath: function computeModulePath(doc) {
