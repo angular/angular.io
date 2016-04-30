@@ -12,7 +12,7 @@ import 'wikipedia_service.dart';
       <p><i>Fetches after each keystroke</i></p>
       <input #term (keyup)="search(term.value)"/>
       <ul>
-        <li *ngFor="#item of items">{{item}}</li>
+        <li *ngFor="let item of items">{{item}}</li>
       </ul>
     ''',
     providers: const [WikipediaService])
