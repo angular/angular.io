@@ -9,6 +9,7 @@ import { ExceptionService, SpinnerService, ToastService } from '../../../app/sha
 
 @Injectable()
 export class HeroService {
+  cachedHeroes: Hero[];
 
   constructor(
     private exceptionService: ExceptionService,
