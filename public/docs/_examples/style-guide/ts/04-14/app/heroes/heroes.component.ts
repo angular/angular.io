@@ -9,7 +9,8 @@ import { Logger } from '../shared/logger.service';
 @Component({
   selector: 'toh-heroes',
   templateUrl: 'heroes.component.html',
-  styleUrls:  ['heroes.component.css']
+  styleUrls:  ['heroes.component.css'],
+  providers: [Logger]
 })
 export class HeroesComponent implements OnInit {
   heroes: Hero[];

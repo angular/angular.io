@@ -7,6 +7,7 @@ import { HeroesComponent } from './+heroes/index';
 
 @Component({
   selector: 'toh-app',
-  template: '<div>app</div>'
+  template: '<div>app</div>',
+  directives: [HeroesComponent]
 })
 export class AppComponent { }
