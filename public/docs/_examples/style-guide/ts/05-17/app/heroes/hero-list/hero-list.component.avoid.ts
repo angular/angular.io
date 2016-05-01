@@ -6,7 +6,7 @@ import { Hero } from '../shared/hero.model';
 /* avoid */
 
 @Component({
-  selector: 'toh-heroes-list',
+  selector: 'toh-hero-list',
   template: `
     <section>
       Our list of heroes:
@@ -17,7 +17,7 @@ import { Hero } from '../shared/hero.model';
     </section>
   `
 })
-export class HeroesListComponent {
+export class HeroListComponent {
   heroes: Hero[];
   totalPowers: number;
 }
