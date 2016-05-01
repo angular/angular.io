@@ -12,7 +12,6 @@ export class ToastComponent implements OnInit {
   title: string;
   private toastElement: any;
 
-
   ngOnInit() {
     this.toastElement = document.getElementById('toh-toast');
   }
