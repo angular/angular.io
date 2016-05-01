@@ -2,18 +2,12 @@
 import { Directive, HostBinding, HostListener } from 'angular2/core';
 
 // #docregion example
-/* avoid */
-
 @Directive({
-  selector: '[tohValidator]',
-  host: {
-    '(mouseenter)': 'onMouseEnter()',
-    'attr.role': 'button'
-  }
+  selector: '[tohValidator]'
 })
 export class ValidatorDirective {
-  role = 'button';
-  onMouseEnter() {
+  @HostBinding('attr.role') role = 'button';
+  @HostListener('mouseenter') onMouseEnter() {
     // do work
   }
 }
