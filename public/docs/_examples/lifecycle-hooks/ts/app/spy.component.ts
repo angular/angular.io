@@ -16,7 +16,7 @@ import {Spy} from './spy.directive';
       <button (click)="reset()">Reset Heroes</button>
     </p>` +
 // #docregion template
-    `<div *ngFor="let hero of heroes"  my-spy  class="heroes">
+    `<div *ngFor="let hero of heroes"  mySpy  class="heroes">
        {{hero}}
      </div>`
 // #enddocregion template
