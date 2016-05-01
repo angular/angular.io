@@ -9,7 +9,7 @@ describe('Hierarchical dependency injection', function () {
       "edit button should be displayed");
   });
 
-  it('should have multiple heros listed', function () {
+  it('should have multiple heroes listed', function () {
     expect(element.all(by.css('heroes-list li')).count()).toBeGreaterThan(1);
   });
 
