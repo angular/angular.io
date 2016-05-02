@@ -2,6 +2,7 @@
 import { OnInit } from '@angular/core';
 // #docregion example
 /* avoid */
+
 export class ToastComponent implements OnInit {
 
   private defaults = {
