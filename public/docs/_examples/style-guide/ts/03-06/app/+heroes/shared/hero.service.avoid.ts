@@ -2,9 +2,9 @@
 // #docregion example
 /* avoid */
 
-import { ExceptionService, SpinnerService, ToastService } from '../../../app/shared';
-import { Http, Response } from 'angular2/http';
-import { Injectable } from 'angular2/core';
+import { ExceptionService, SpinnerService, ToastService } from '../../shared';
+import { Http, Response } from '@angular/http';
+import { Injectable } from '@angular/core';
 import { Hero } from './hero.model';
 // #enddocregion example
 
