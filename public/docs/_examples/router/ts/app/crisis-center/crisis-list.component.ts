@@ -1,9 +1,8 @@
 // #docplaster
-
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {Router, RouteParams} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { Crisis, CrisisService } from './crisis.service';
+import { Router, OnActivate, RouteSegment, RouteTree } from '@angular/router';
 
 @Component({
   template: `
@@ -16,25 +15,28 @@ import {Router, RouteParams} from '@angular/router-deprecated';
     </ul>
   `,
 })
-export class CrisisListComponent implements OnInit {
+export class CrisisListComponent implements OnActivate {
   crises: Crisis[];
-
-  private _selectedId: number;
+  private currSegment: RouteSegment;
+  private selectedId: number;
 
   constructor(
-    private _service: CrisisService,
-    private _router: Router,
-    routeParams: RouteParams) {
-      this._selectedId = +routeParams.get('id');
-  }
+    private service: CrisisService,
+    private router: Router) { }
 
-  isSelected(crisis: Crisis) { return crisis.id === this._selectedId; }
+  isSelected(crisis: Crisis) { return crisis.id === this.selectedId; }
 
-  ngOnInit() {
-    this._service.getCrises().then(crises => this.crises = crises);
+  routerOnActivate(curr: RouteSegment, prev: RouteSegment, currTree: RouteTree) {
+    this.currSegment = curr;
+    this.selectedId = +currTree.parent(curr).getParam('id');
+    this.service.getCrises().then(crises => this.crises = crises);
   }
 
   onSelect(crisis: Crisis) {
-    this._router.navigate( ['CrisisDetail', { id: crisis.id }]  );
+    // Absolute link
+    // this.router.navigate([`/crisis-center`, crisis.id]);
+
+    // Relative link
+    this.router.navigate([`./${crisis.id}`], this.currSegment);
   }
 }

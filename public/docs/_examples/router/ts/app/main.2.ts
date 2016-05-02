@@ -4,14 +4,15 @@
 // #docplaster
 
 // #docregion
-import {bootstrap}         from '@angular/platform-browser-dynamic';
-import {ROUTER_PROVIDERS}  from '@angular/router-deprecated';
-import {AppComponent}      from './app.component';
+import { bootstrap }            from '@angular/platform-browser-dynamic';
+import { ROUTER_PROVIDERS }     from '@angular/router';
+
+import { AppComponent }         from './app.component';
 
 // Add these symbols to override the `LocationStrategy`
-import {provide}           from '@angular/core';
-import {LocationStrategy,
-        HashLocationStrategy} from '@angular/common';
+import { provide }              from '@angular/core';
+import { LocationStrategy,
+         HashLocationStrategy } from '@angular/common';
 // #enddocregion
 /* Can't use AppComponent ... but display as if we can
 // #docregion

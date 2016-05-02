@@ -1,7 +1,7 @@
 // #docregion
-import {Component,  OnInit}  from '@angular/core';
-import {Hero, HeroService}   from './hero.service';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { Hero, HeroService } from './hero.service';
+import { Router, OnActivate, RouteSegment } from '@angular/router';
 
 @Component({
   template: `
@@ -20,27 +20,26 @@ import {RouteParams, Router} from '@angular/router-deprecated';
   </div>
   `,
 })
-export class HeroDetailComponent implements OnInit  {
+export class HeroDetailComponent implements OnActivate  {
   hero: Hero;
 
   // #docregion ctor
   constructor(
-    private _router:Router,
-    private _routeParams:RouteParams,
-    private _service:HeroService){}
+    private router: Router,
+    private service: HeroService) {}
   // #enddocregion ctor
 
-  // #docregion ngOnInit
-  ngOnInit() {
-    let id = this._routeParams.get('id');
-    this._service.getHero(id).then(hero => this.hero = hero);
+  // #docregion OnActivate
+  routerOnActivate(curr: RouteSegment): void {
+    let id = +curr.getParam('id');
+    this.service.getHero(id).then(hero => this.hero = hero);
   }
-  // #enddocregion ngOnInit
+  // #enddocregion OnActivate
 
   // #docregion gotoHeroes
   gotoHeroes() {
-    // Like <a [routerLink]="['Heroes']">Heroes</a>
-    this._router.navigate(['Heroes']);
+    // Like <a [routerLink]="['/heroes']">Heroes</a>
+    this.router.navigate(['/heroes']);
   }
   // #enddocregion gotoHeroes
 }

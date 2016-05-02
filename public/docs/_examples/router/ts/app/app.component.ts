@@ -1,14 +1,14 @@
 // #docplaster
 // #docregion
-import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component, OnInit } from '@angular/core';
+import { Routes, Router, ROUTER_DIRECTIVES } from '@angular/router';
 
-import {CrisisCenterComponent} from './crisis-center/crisis-center.component';
-import {HeroListComponent}     from './heroes/hero-list.component';
-import {HeroDetailComponent}   from './heroes/hero-detail.component';
+import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
+import { HeroListComponent }     from './heroes/hero-list.component';
+import { HeroDetailComponent }   from './heroes/hero-detail.component';
 
-import {DialogService}         from './dialog.service';
-import {HeroService}           from './heroes/hero.service';
+import { DialogService }         from './dialog.service';
+import { HeroService }           from './heroes/hero.service';
 
 @Component({
   selector: 'my-app',
@@ -16,8 +16,8 @@ import {HeroService}           from './heroes/hero.service';
   template: `
     <h1 class="title">Component Router</h1>
     <nav>
-      <a [routerLink]="['CrisisCenter']">Crisis Center</a>
-      <a [routerLink]="['Heroes']">Heroes</a>
+      <a [routerLink]="['/crisis-center']">Crisis Center</a>
+      <a [routerLink]="['/heroes']">Heroes</a>
     </nav>
     <router-outlet></router-outlet>
   `,
@@ -25,20 +25,17 @@ import {HeroService}           from './heroes/hero.service';
   providers:  [DialogService, HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
-// #docregion route-config
-@RouteConfig([
-
-  // #docregion route-config-cc
-  { // Crisis Center child route
-    path: '/crisis-center/...',
-    name: 'CrisisCenter',
-    component: CrisisCenterComponent,
-    useAsDefault: true
-  },
-  // #enddocregion route-config-cc
-
-  {path: '/heroes',   name: 'Heroes',     component: HeroListComponent},
-  {path: '/hero/:id', name: 'HeroDetail', component: HeroDetailComponent},
+// #docregion routes
+@Routes([
+  {path: '/crisis-center',  component: CrisisCenterComponent},
+  {path: '/heroes',  component: HeroListComponent},
+  {path: '/hero/:id', component: HeroDetailComponent},
 ])
-// #enddocregion route-config
-export class AppComponent { }
+// #enddocregion routes
+export class AppComponent implements OnInit {
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.router.navigate(['/crisis-center']);
+  }
+}

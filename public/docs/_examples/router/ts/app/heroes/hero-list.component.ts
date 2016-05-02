@@ -1,11 +1,10 @@
 // #docplaster
-
-// TODO SOMEDAY: Feature Componetized like CrisisCenter
 // #docregion
-import {Component, OnInit}   from '@angular/core';
-import {Hero, HeroService}   from './hero.service';
+// TODO SOMEDAY: Feature Componetized like CrisisCenter
+import { Component }          from '@angular/core';
+import { Hero, HeroService}   from './hero.service';
 // #docregion import-route-params
-import {Router, RouteParams} from '@angular/router-deprecated';
+import { Router, RouteSegment, Tree, OnActivate, RouteTree } from '@angular/router';
 // #enddocregion import-route-params
 
 @Component({
@@ -22,32 +21,31 @@ import {Router, RouteParams} from '@angular/router-deprecated';
   `
   // #enddocregion template
 })
-export class HeroListComponent implements OnInit {
+export class HeroListComponent implements OnActivate {
   heroes: Hero[];
 
   // #docregion ctor
-  private _selectedId: number;
+  private selectedId: number;
 
   constructor(
-    private _service: HeroService,
-    private _router: Router,
-    routeParams: RouteParams) {
-      this._selectedId = +routeParams.get('id');
-  }
+    private service: HeroService,
+    private router: Router) {  }
   // #enddocregion ctor
 
+  routerOnActivate(curr: RouteSegment, prev?: RouteSegment, currTree?: RouteTree, prevTree?: RouteTree): void {
+    this.selectedId = +curr.getParam('id');
+    this.service.getHeroes().then(heroes => this.heroes = heroes);
+  }
+
   // #docregion isSelected
-  isSelected(hero: Hero) { return hero.id === this._selectedId; }
+  isSelected(hero: Hero) { return hero.id === this.selectedId; }
   // #enddocregion isSelected
 
   // #docregion select
   onSelect(hero: Hero) {
-    this._router.navigate( ['HeroDetail', { id: hero.id }] );
+    this.router.navigate(['/hero', hero.id]);
   }
   // #enddocregion select
 
-  ngOnInit() {
-    this._service.getHeroes().then(heroes => this.heroes = heroes)
-  }
 }
 // #enddocregion
