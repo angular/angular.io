@@ -17,5 +17,4 @@ export class ValidatorDirective {
     // do work
   }
 }
-export class ValidateDirective { }
 // #enddocregion example
