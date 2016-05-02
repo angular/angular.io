@@ -1,8 +1,8 @@
 // #docregion
 /* avoid */
 
-import { OnInit } from 'angular2/core';
-import { Http, Response } from 'angular2/http';
+import { OnInit } from '@angular/core';
+import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 
 import { Hero } from '../shared/hero.model';
