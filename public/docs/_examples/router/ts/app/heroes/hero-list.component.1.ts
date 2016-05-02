@@ -1,10 +1,9 @@
 // #docplaster
-
 // #docregion
 // TODO SOMEDAY: Feature Componetized like HeroCenter
 import {Component, OnInit}   from 'angular2/core';
 import {Hero, HeroService}   from './hero.service';
-import {Router}              from 'angular2/router';
+import {Router}              from 'angular2/alt_router';
 
 @Component({
   // #docregion template
@@ -35,7 +34,7 @@ export class HeroListComponent implements OnInit {
   // #docregion select
   onSelect(hero: Hero) {
     // #docregion nav-to-detail
-    this._router.navigate( ['HeroDetail', { id: hero.id }] );
+    this._router.navigateByUrl( `/heroes/${hero.id}`);
     // #enddocregion nav-to-detail
   }
   // #enddocregion select

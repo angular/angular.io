@@ -1,10 +1,9 @@
 // #docplaster
-
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {RouteParams, Router} from 'angular2/router';
-import {CanDeactivate, ComponentInstruction} from 'angular2/router';
+import { Component } from 'angular2/core';
+import { Crisis, CrisisService } from './crisis.service';
+import { Router, OnActivate, RouteSegment } from 'angular2/alt_router';
+// import { CanDeactivate } from 'angular2/alt_router';
 import {DialogService} from '../dialog.service';
 
 @Component({
@@ -26,7 +25,7 @@ import {DialogService} from '../dialog.service';
   styles: ['input {width: 20em}']
 })
 
-export class CrisisDetailComponent implements OnInit, CanDeactivate {
+export class CrisisDetailComponent implements OnActivate {// , CanDeactivate {
 
   crisis: Crisis;
   editName: string;
@@ -34,12 +33,11 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   constructor(
     private _service: CrisisService,
     private _router: Router,
-    private _routeParams: RouteParams,
     private _dialog: DialogService
     ) { }
 
-  ngOnInit() {
-    let id = +this._routeParams.get('id');
+  routerOnActivate(curr: RouteSegment): void {
+    let id = +curr.getParam('id');
     this._service.getCrisis(id).then(crisis => {
       if (crisis) {
         this.editName = crisis.name;
@@ -50,7 +48,8 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     });
   }
 
-  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : any {
+ // NOT IMPLEMENTED YET
+  routerCanDeactivate(): any {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
     if (!this.crisis || this.crisis.name === this.editName) {
       return true;
@@ -77,7 +76,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     // so that the CrisisListComponent can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
-    this._router.navigate(['CrisisList', {id: crisisId, foo: 'foo'} ]);
+    this._router.navigateByUrl(`/crisis-center/${crisisId};foo=foo`);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

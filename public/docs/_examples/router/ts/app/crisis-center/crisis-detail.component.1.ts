@@ -1,15 +1,13 @@
 // #docplaster
-
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {RouteParams, Router} from 'angular2/router';
+import { Component } from 'angular2/core';
+import { Crisis, CrisisService } from './crisis.service';
+import { Router, OnActivate, RouteSegment } from 'angular2/alt_router';
 // #docregion routerCanDeactivate
-import {CanDeactivate, ComponentInstruction} from 'angular2/router';
-import {DialogService} from '../dialog.service';
+// import { CanDeactivate } from 'angular2/alt_router';
+import { DialogService } from '../dialog.service';
 
 // #enddocregion routerCanDeactivate
-
 @Component({
   // #docregion template
   template: `
@@ -31,7 +29,7 @@ import {DialogService} from '../dialog.service';
   styles: ['input {width: 20em}']
 })
 // #docregion routerCanDeactivate, cancel-save
-export class CrisisDetailComponent implements OnInit, CanDeactivate {
+export class CrisisDetailComponent implements OnActivate {// , CanDeactivate {
 
   crisis: Crisis;
   editName: string;
@@ -40,13 +38,12 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   constructor(
     private _service: CrisisService,
     private _router: Router,
-    private _routeParams: RouteParams,
     private _dialog: DialogService
     ) { }
 
-  // #docregion ngOnInit
-  ngOnInit() {
-    let id = +this._routeParams.get('id');
+  // #docregion ngOnActivate
+  routerOnActivate(curr: RouteSegment): void {
+    let id = +curr.getParam('id');
     this._service.getCrisis(id).then(crisis => {
       if (crisis) {
         this.editName = crisis.name;
@@ -56,10 +53,11 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
       }
     });
   }
-  // #enddocregion ngOnInit
+  // #enddocregion ngOnActivate
 
   // #docregion routerCanDeactivate
-  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : any {
+  // NOT IMPLEMENTED YET
+  routerCanDeactivate(): any {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
     if (!this.crisis || this.crisis.name === this.editName) {
       return true;
@@ -84,8 +82,8 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
   // #docregion gotoCrises
   gotoCrises() {
-    // Like <a [routerLink]="['CrisisList']">Crisis Center</a
-    this._router.navigate(['CrisisList']);
+    // Like <a [routerLink]="[/crisis-center/]">Crisis Center</a
+    this._router.navigateByUrl('/crisis-center/');
   }
   // #enddocregion gotoCrises
 // #docregion routerCanDeactivate, cancel-save
