@@ -18,7 +18,7 @@ export class HeroListComponent implements OnInit {
       .map((response: Response) => <Hero[]>response.json().data)
       .catch(this.catchBadResponse)
       .finally(() => this.hideSpinner())
-      .subscribe(heroes => this.heroes = heroes);
+      .subscribe((heroes: Hero[]) => this.heroes = heroes);
   }
   ngOnInit() {
     this.getHeroes();
