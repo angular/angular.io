@@ -174,7 +174,7 @@ function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
     treeKill(appRunSpawnInfo.proc.pid);
-    return true;
+    return !data;
   }).fail(function(err) {
     // Ugh... proc.kill does not work properly on windows with child processes.
     // appRun.proc.kill();
