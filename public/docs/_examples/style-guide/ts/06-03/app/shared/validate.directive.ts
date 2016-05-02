@@ -1,5 +1,5 @@
 // #docregion
-import { Directive, HostBinding, HostListener } from 'angular2/core';
+import { Directive, HostBinding, HostListener } from '@angular/core';
 
 // #docregion example
 @Directive({
@@ -11,5 +11,4 @@ export class ValidatorDirective {
     // do work
   }
 }
-export class ValidateDirective { }
 // #enddocregion example

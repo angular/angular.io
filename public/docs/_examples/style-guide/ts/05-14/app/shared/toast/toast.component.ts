@@ -42,4 +42,4 @@ export class ToastComponent implements OnInit {
     window.setTimeout(() => this.hide(), 2500);
   }
 }
-// #endregion example
+// #enddocregion example
