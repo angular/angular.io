@@ -7,7 +7,7 @@ import 'rxjs/add/observable/fromArray';
 import {
   describe,
   beforeEachProviders,
-  injectAsync,
+  inject,
   it,
   expect,
   TestComponentBuilder
@@ -37,7 +37,7 @@ describe('PhoneDetail', () => {
     HTTP_PROVIDERS
   ]);
 
-  it('should fetch phone detail', injectAsync([TestComponentBuilder], (tcb) => {
+  it('should fetch phone detail', inject([TestComponentBuilder], (tcb) => {
     return tcb.createAsync(PhoneDetail).then((fixture) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
