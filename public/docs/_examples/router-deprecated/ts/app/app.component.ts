@@ -14,7 +14,7 @@ import {HeroService}           from './heroes/hero.service';
   selector: 'my-app',
 // #docregion template
   template: `
-    <h1 class="title">Component Router</h1>
+    <h1 class="title">Component Router (Deprecated)</h1>
     <nav>
       <a [routerLink]="['CrisisCenter']">Crisis Center</a>
       <a [routerLink]="['Heroes']">Heroes</a>

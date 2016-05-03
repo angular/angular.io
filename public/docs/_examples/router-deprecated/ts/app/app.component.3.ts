@@ -35,7 +35,7 @@ import {HeroService}           from './heroes/hero.service';
   */
 // #docregion template
   template: `
-    <h1 class="title">Component Router</h1>
+    <h1 class="title">Component Router (Deprecated)</h1>
     <nav>
       <a [routerLink]="['CrisisCenter', 'CrisisList']">Crisis Center</a>
       <a [routerLink]="['CrisisCenter', 'CrisisDetail', {id:1}]">Dragon Crisis</a>

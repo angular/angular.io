@@ -92,7 +92,8 @@ describe('Router', function () {
   function crisisCenterEdit(index, shouldSave) {
     var page = getPageStruct();
     var crisisEle, crisisText;
-    page.crisisHref.click().then(function () {
+    page.crisisHref.click()
+    .then(function () {
       crisisEle = page.crisisList.get(index);
       return crisisEle.getText();
     }).then(function (text) {

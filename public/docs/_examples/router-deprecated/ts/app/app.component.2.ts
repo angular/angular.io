@@ -26,7 +26,7 @@ import {HeroService}           from './heroes/hero.service';
 @Component({
   selector: 'my-app',
   template: `
-    <h1>Component Router</h1>
+    <h1>Component Router (Deprecated)</h1>
     <nav>
       <a [routerLink]="['CrisisCenter']">Crisis Center</a>
       <a [routerLink]="['Heroes']">Heroes</a>

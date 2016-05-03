@@ -14,7 +14,7 @@ import { HeroListComponent }     from './hero-list.component';
   selector: 'my-app',
 // #docregion template
   template: `
-    <h1>Component Router</h1>
+    <h1>Component Router (Deprecated)</h1>
     <nav>
       <a [routerLink]="['CrisisCenter']">Crisis Center</a>
       <a [routerLink]="['Heroes']">Heroes</a>
