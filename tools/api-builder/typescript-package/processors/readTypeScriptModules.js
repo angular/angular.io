@@ -27,7 +27,7 @@ module.exports = function readTypeScriptModules(tsParser, modules, getFileInfo,
     // We leave class members sorted in order of declaration
     sortClassMembers: false,
     // We can provide a collection of strings or regexes to ignore exports whose export names match
-    ignoreExportsMatching: ['___esModule', '___core_private_types__', '___platform_browser_private__', '___compiler_private__'],
+    ignoreExportsMatching: ['___esModule', '___core_private_types__', '___platform_browser_private__', '___compiler_private__', '__core_private__'],
 
     $process: function(docs) {
 
