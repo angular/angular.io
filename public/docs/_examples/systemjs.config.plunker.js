@@ -6,7 +6,7 @@
  */
 (function(global) {
 
-  var ngVer = '@2.0.0-rc.0'; // lock in the angular package version; do not let it float to current!
+  var ngVer = '@2.0.0-rc.1'; // lock in the angular package version; do not let it float to current!
 
   //map tells the System loader where to look for things
   var  map = {
@@ -34,7 +34,7 @@
       '@angular/upgrade',
   ];
 
-  // add map entries for angular packages in the form '@angular/common': 'https://npmcdn.com/@angular/common@0.0.0-3'
+  // add map entries for angular packages in the form '@angular/common': 'https://npmcdn.com/@angular/common@0.0.0-3?main=browser'
   packageNames.forEach(function(pkgName) {
     map[pkgName] = 'https://npmcdn.com/' + pkgName + ngVer;
   });

@@ -43,7 +43,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://npmcdn.com/zone.js@0.6.12'
+    to:   'https://npmcdn.com/zone.js@0.6.12?main=browser'
   },
   {
     pattern: 'script',
