@@ -10,7 +10,8 @@ import {Headers, RequestOptions} from '@angular/http';
 // #enddocregion import-request-options
 // #docregion v1
 import {Hero}           from './hero';
-import {Observable}     from 'rxjs/Observable';
+// Enable RxJs operators for this example
+import {Observable}     from 'rxjs/Rx';
 
 @Injectable()
 export class HeroService {
