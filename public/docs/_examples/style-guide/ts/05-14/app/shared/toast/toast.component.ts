@@ -1,5 +1,5 @@
 // #docregion
-import { Component, OnInit } from 'angular2/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'my-toast',
@@ -42,4 +42,4 @@ export class ToastComponent implements OnInit {
     window.setTimeout(() => this.hide(), 2500);
   }
 }
-// #endregion example
+// #enddocregion example

@@ -1,8 +1,9 @@
+/* tslint:disable:forin */
 // #docregion
-import {Component, DoCheck, OnChanges, Input, SimpleChange, ViewChild} from 'angular2/core';
+import {Component, DoCheck, OnChanges, Input, SimpleChange, ViewChild} from '@angular/core';
 
 class Hero {
-  constructor(public name:string){}
+  constructor(public name: string) {}
 }
 
 @Component({
@@ -25,7 +26,7 @@ export class DoCheckComponent implements DoCheck, OnChanges {
   @Input() power: string;
 
   changeDetected = false;
-  changeLog:string[] = [];
+  changeLog: string[] = [];
   oldHeroName = '';
   oldPower = '';
   oldLogLength = 0;
@@ -36,13 +37,13 @@ export class DoCheckComponent implements DoCheck, OnChanges {
 
     if (this.hero.name !== this.oldHeroName) {
       this.changeDetected = true;
-      this.changeLog.push(`DoCheck: Hero name changed to "${this.hero.name}" from "${this.oldHeroName}"`)
+      this.changeLog.push(`DoCheck: Hero name changed to "${this.hero.name}" from "${this.oldHeroName}"`);
       this.oldHeroName = this.hero.name;
     }
 
     if (this.power !== this.oldPower) {
       this.changeDetected = true;
-      this.changeLog.push(`DoCheck: Power changed to "${this.power}" from "${this.oldPower}"`)
+      this.changeLog.push(`DoCheck: Power changed to "${this.power}" from "${this.oldPower}"`);
       this.oldPower = this.power;
     }
 
@@ -50,14 +51,14 @@ export class DoCheckComponent implements DoCheck, OnChanges {
         this.noChangeCount = 0;
     } else {
         // log that hook was called when there was no relevant change.
-        let count = this.noChangeCount += 1
+        let count = this.noChangeCount += 1;
         let noChangeMsg = `DoCheck called ${count}x when no change to hero or power`;
         if (count === 1) {
           // add new "no change" message
           this.changeLog.push(noChangeMsg);
         } else {
           // update last "no change" message
-          this.changeLog[this.changeLog.length-1] = noChangeMsg;
+          this.changeLog[this.changeLog.length - 1] = noChangeMsg;
         }
     }
 
@@ -69,7 +70,7 @@ export class DoCheckComponent implements DoCheck, OnChanges {
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
     for (let propName in changes) {
       let prop = changes[propName];
-      let cur  = JSON.stringify(prop.currentValue)
+      let cur  = JSON.stringify(prop.currentValue);
       let prev = JSON.stringify(prop.previousValue);
       this.changeLog.push(`OnChanges: ${propName}: currentValue = ${cur}, previousValue = ${prev}`);
     }
@@ -85,21 +86,21 @@ export class DoCheckComponent implements DoCheck, OnChanges {
 
 @Component({
   selector: 'do-check-parent',
-  templateUrl:'app/on-changes-parent.component.html',
+  templateUrl: 'app/on-changes-parent.component.html',
   styles: ['.parent {background: Lavender}'],
   directives: [DoCheckComponent]
 })
 export class DoCheckParentComponent {
-  hero:Hero;
-  power:string;
+  hero: Hero;
+  power: string;
   title = 'DoCheck';
-  @ViewChild(DoCheckComponent) childView:DoCheckComponent;
+  @ViewChild(DoCheckComponent) childView: DoCheckComponent;
 
   constructor() { this.reset(); }
 
-  reset(){
+  reset() {
     this.hero = new Hero('Windstorm');
     this.power = 'sing';
-    this.childView && this.childView.reset();
+    if (this.childView) { this.childView.reset(); }
   }
 }

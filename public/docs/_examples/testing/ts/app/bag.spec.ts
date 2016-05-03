@@ -12,8 +12,8 @@ import {
   TestProvidersComp, TestViewProvidersComp
 } from './bag';
 
-import { DebugElement } from 'angular2/core';
-import { By }           from 'angular2/platform/browser';
+import { DebugElement } from '@angular/core';
+import { By }           from '@angular/platform-browser';
 
 import {
   beforeEach, beforeEachProviders, withProviders,
@@ -21,13 +21,11 @@ import {
   expect, it, iit, xit,
   async, inject, fakeAsync, tick,
   ComponentFixture, TestComponentBuilder
-} from 'angular2/testing';
+} from '@angular/testing';
 
-import { provide }        from 'angular2/core';
-import { ViewMetadata }   from 'angular2/core';
-import { PromiseWrapper } from 'angular2/src/facade/promise';
-import { XHR }            from 'angular2/src/compiler/xhr';
-import { XHRImpl }        from 'angular2/src/platform/browser/xhr_impl';
+import { provide }        from '@angular/core';
+import { ViewMetadata }   from '@angular/core';
+
 import { Observable }     from 'rxjs/Rx';
 
 ////////  SPECS  /////////////
@@ -113,9 +111,6 @@ describe('using the async helper', () => {
 });
 
 describe('using the test injector with the inject helper', () => {
-
-  it('provides a real XHR instance',
-      inject([XHR], (xhr: any) => { expect(xhr).toBeAnInstanceOf(XHRImpl); }));
 
   describe('setting up Providers with FancyService', () => {
     beforeEachProviders(() => [
@@ -447,9 +442,10 @@ describe('test component builder', function() {
 
         child.childValue = 'bar';
 
-        let deferred = PromiseWrapper.completer();
-        let p = deferred.promise.then(() => {
-
+        return new Promise(resolve => {
+          // Wait one JS engine turn!
+          setTimeout(() => resolve(), 0);
+        }).then(() => {
           fixture.detectChanges();
 
           expect(child.ngOnChangesCounter).toEqual(2,
@@ -458,10 +454,6 @@ describe('test component builder', function() {
             'parentValue should eq changed parent value');
         });
 
-        // Wait one JS engine turn!
-        setTimeout(() => deferred.resolve(), 0);
-
-        return p;
       }));
 
       it('clicking "Close Child" triggers child OnDestroy', () => {
@@ -481,7 +473,7 @@ describe('test component builder', function() {
 
 //////// Testing Framework Bugs? /////
 import { HeroService }  from './hero.service';
-import { Component }    from 'angular2/core';
+import { Component }    from '@angular/core';
 
 @Component({
   selector: 'another-comp',

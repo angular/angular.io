@@ -1,17 +1,17 @@
 // ToH Promise Version
 console.log ('Promise version');
 
-import { Component }         from 'angular2/core';
-import { HTTP_PROVIDERS }    from 'angular2/http';
+import { Component }         from '@angular/core';
+import { HTTP_PROVIDERS }    from '@angular/http';
 
 import { HeroListComponent } from './hero-list.component.1';
 import { HeroService }       from './hero.service.1';
 
-import { provide }           from 'angular2/core';
-import { XHRBackend }        from 'angular2/http';
+import { provide }           from '@angular/core';
+import { XHRBackend }        from '@angular/http';
 
 import { InMemoryBackendService,
-        SEED_DATA }         from 'a2-in-memory-web-api/core';
+        SEED_DATA }          from 'angular2-in-memory-web-api/core';
 import { HeroData }          from '../hero-data';
 
 @Component({

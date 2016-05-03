@@ -1,5 +1,5 @@
 // #docregion
-import {Component}           from 'angular2/core';
+import {Component}           from '@angular/core';
 
 import {ClickMeComponent}    from './click-me.component';
 import {ClickMeComponent2}   from './click-me2.component';

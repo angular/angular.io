@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
-import { Component, OnInit } from 'angular2/core';
+import { Component, OnInit } from '@angular/core';
 // #docregion import-router
-import { Router } from 'angular2/router';
+import { Router } from '@angular/router';
 // #enddocregion import-router
 
 import { Hero } from './hero';

@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Input, OnInit}  from 'angular2/core';
-import {ControlGroup}              from 'angular2/common';
+import {Component, Input, OnInit}  from '@angular/core';
+import {ControlGroup}              from '@angular/common';
 
 import {QuestionBase}                 from './question-base';
 import {QuestionControlService}       from './question-control.service';

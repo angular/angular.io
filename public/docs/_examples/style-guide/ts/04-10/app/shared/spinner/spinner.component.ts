@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from 'angular2/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import { SpinnerService } from './spinner.service';
 

@@ -1,7 +1,8 @@
 // #docregion
-import { OnInit } from 'angular2/core';
+import { OnInit } from '@angular/core';
 // #docregion example
 /* avoid */
+
 export class ToastComponent implements OnInit {
 
   private defaults = {

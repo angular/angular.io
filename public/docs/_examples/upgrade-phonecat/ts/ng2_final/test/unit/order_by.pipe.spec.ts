@@ -1,5 +1,5 @@
 // #docregion
-import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
+import {describe, beforeEachProviders, it, inject} from '@angular/core/testing';
 
 import OrderByPipe from '../../app/js/phone_list/order_by.pipe';
 
@@ -13,7 +13,7 @@ describe('OrderByPipe', () => {
   beforeEachProviders(() => [OrderByPipe]);
 
   it('should order by the given property', inject([OrderByPipe], (orderByPipe) => {
-    expect(orderByPipe.transform(input, ['name'])).toEqual([input[1], input[0]]);
+    expect(orderByPipe.transform(input, 'name')).toEqual([input[1], input[0]]);
   }));
 
 });

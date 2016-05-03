@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion on-init
-import {OnInit} from 'angular2/core';
+import {OnInit} from '@angular/core';
 
 // #enddocregion on-init
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 import {Hero} from './hero';
 import {HeroDetailComponent} from './hero-detail.component';
 // #docregion hero-service-import

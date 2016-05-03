@@ -872,15 +872,18 @@ code-example(format="").
   npm run typings install jasmine -- --save --ambient
 
 :marked
-  In `index.html`, let's now enable SystemJS. Add a `<script>` tag that loads
-  the SystemJS library and a second `<script>` tag that initializes it. These
-  will *replace* the various `<script>` tags we had earlier for loading the
+  In `index.html`, let's now enable SystemJS. Add a couple of `<script>` tags that
+  load the SystemJS library and then one that loads a configuration file for
+  it. Then add one more `<script>` tag that uses SystemJS to load our application.
+  These will *replace* the various `<script>` tags we had earlier for loading the
   application components:
   
 +makeExample('upgrade-phonecat/ts/typescript-conversion/app/index.html', 'scripts', 'app/index.html')
 
++makeExample('upgrade-phonecat/ts/typescript-conversion/app/systemjs.config.js', ull, 'app/systemjs.config.js')
+
 :marked
-  This configuration tells SystemJS that we have a module called `app.module` that
+  This tells SystemJS that we have a module called `app.module` that
   resides in the `js` subdirectory (relative to the `index.html` page). We then load that
   module using `System.import`. This will load and execute the `app/app.module.js` file.
 
@@ -1193,21 +1196,23 @@ code-example(format="").
   npm run typings install
   
 :marked
-  We can then load Angular 2 into the application by adding some `<script>`
-  tags to `index.html`. They should go before the `<script>` tag that has the
-  `System.config()` invocation:
+  We should then load some Angular 2 dependencies into the application by adding
+  some `<script>` tags to `index.html`. They should go before the `<script>` tag
+  that loads `systemjs.config.js`:
   
 +makeExample('upgrade-phonecat/ts/ng2_initial/app/index.html', 'ng2')
 
 :marked
-  The first two scripts are for adding some ES6 features to older browsers
-  that don't natively support them. The last three bring in Angular 2
-  itself.
+  We can then load Angular 2 itself by adding its packages into the `systemjs.config.js`
+  file:
   
-  While we're at it, let's also load the same files into unit tests by
++makeExample('upgrade-phonecat/ts/ng2_initial/app/systemjs.config.js', null, 'app/systemjs.config.js')
+
+:marked
+  While we're at it, let's also make these files available to unit tests by
   updating the Karma config:
   
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/karma.conf.1.js', 'ng2', 'test/karma.conf.js', {otl: /(.*\.\.\/node\_modules\/angular2.*)/})
++makeExample('upgrade-phonecat/ts/ng2_initial/test/karma.conf.1.js', 'ng2', 'test/karma.conf.js')
 
 :marked
   ## Bootstrapping A Hybrid 1+2 PhoneCat
@@ -1269,20 +1274,7 @@ code-example(format="").
   keeping our controllers in Angular 1 land. In the new version we'll just use
   the `Http` service from Angular 2 instead of ngResource.
   
-  The `Http` service isn't included in the main Angular 2 bundle, so we need to 
-  include it in `index.html` separately. As the service uses RxJS Observables,
-  we also need to bring in the RxJS bundle:
-  
-+makeExample('upgrade-phonecat/ts/ng2_initial/app/index.html', 'ng2-http')
-
-:marked
-  We'll also do the same in `karma.conf.js` so that `Http` will be available in
-  unit tests:
-  
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/karma.conf.1.js', 'ng2-http')
-
-:marked
-  Before the `Http` service is available for injection, we still need to register
+  Before the `Http` service is available for injection, we need to register
   it into our application's dependency injector. We should import the `HTTP_PROVIDERS`
   constant in `app.module.ts`:
   
@@ -1402,15 +1394,9 @@ code-example(format="").
     needed in controller code.
   
 :marked
-  To bring our test suite up to speed with the changes, we should first enable
-  the Angular 2 test support library in our unit test suite. We first need to 
-  add the angular `testing` bundle to list of files that Karma is loading:
-  
-+makeExample('upgrade-phonecat/ts/ng2_initial/test/karma.conf.1.js', 'ng2-testing')
-
-:marked
-  Then we'll update the Karma test shim. It'll make some of Angular 2 core
-  providers available before starting to load any of the spec files:
+  To bring our test suite up to speed with the changes, we should update the Karma
+  test shim. It'll make some of Angular 2 providers available before starting
+  to load any of the spec files:
   
 +makeExample('upgrade-phonecat/ts/ng2_initial/test/karma_test_shim.js', null, 'test/karma_test_shim.js')
 
@@ -1795,14 +1781,10 @@ table
   There are just two more things to do: We need to switch the router to
   the Angular 2 one, and then bootstrap the app as a pure Angular 2 app.
   
-  Let's do the routing part first. Angular 2 comes with a [shiny new router](router.html),
-  but it isn't included by default. Just like we did with `Http`, we need to
-  include it in `index.html` before the `System.config()` script first:
+  Let's do the routing part first. Angular 2 comes with a [shiny new router](router.html)
+  that we can use for this.
   
-+makeExample('upgrade-phonecat/ts/ng2_final/app/index.html', 'ng2-router', 'app/index.html')
-
-:marked
-  Angular 2 applications all come with a *root component*, which, among other
+  Angular 2 applications all have a *root component*, which, among other
   things, is where we should plug in the router. We don't yet have such a root
   component, because our app is still managed as an Angular 1 app.
   Let's change this now and add an `AppComponent` class into a new file

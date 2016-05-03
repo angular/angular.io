@@ -1,6 +1,6 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {HTTP_PROVIDERS}    from 'angular2/http';
+import {Component} from '@angular/core';
+import {HTTP_PROVIDERS}    from '@angular/http';
 
 import {FlyingHeroesComponent,
         FlyingHeroesImpureComponent} from './flying-heroes.component';

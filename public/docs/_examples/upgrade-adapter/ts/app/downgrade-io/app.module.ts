@@ -3,7 +3,7 @@ import {MainController} from './main.controller';
 import {HeroDetailComponent} from './hero-detail.component';
 
 // #enddocregion downgradecomponent
-import {UpgradeAdapter} from 'angular2/upgrade';
+import {UpgradeAdapter} from '@angular/upgrade';
 
 const upgradeAdapter = new UpgradeAdapter();
 

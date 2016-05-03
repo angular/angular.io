@@ -7,7 +7,7 @@
   var provide =
     ng.core.provide;
   var bootstrap =
-    ng.platform.browser.bootstrap;
+    ng.platformBrowserDynamic.bootstrap;
   var LocationStrategy =
     ng.router.LocationStrategy;
   var HashLocationStrategy =

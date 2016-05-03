@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
-import { bootstrap }      from 'angular2/platform/browser';
+import { bootstrap }      from '@angular/platform-browser-dynamic';
 // #docregion http-providers
-import { HTTP_PROVIDERS } from 'angular2/http';
+import { HTTP_PROVIDERS } from '@angular/http';
 // #enddocregion http-providers
 
 // #docregion import-rxjs

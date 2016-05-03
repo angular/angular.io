@@ -4,6 +4,10 @@
 __karma__.loaded = function() {};
 
 System.config({
+  map: {
+    'rxjs': 'base/node_modules/rxjs',
+    '@angular': 'base/node_modules/@angular'
+  },
   packages: {
     'base/app/js': {
       defaultExtension: false,
@@ -17,15 +21,24 @@ System.config({
               pathsMapping[moduleName] = appPath + '?' + window.__karma__.files[appPath]
               return pathsMapping;
             }, {})
-    }
+    },
+    '@angular/common':                   { main: 'index.js', defaultExtension: 'js' },
+    '@angular/compiler':                 { main: 'index.js', defaultExtension: 'js' },
+    '@angular/core':                     { main: 'index.js', defaultExtension: 'js' },
+    '@angular/http':                     { main: 'index.js', defaultExtension: 'js' },
+    '@angular/platform-browser':         { main: 'index.js', defaultExtension: 'js' },
+    '@angular/platform-browser-dynamic': { main: 'index.js', defaultExtension: 'js' },
+    '@angular/router':                   { main: 'index.js', defaultExtension: 'js' },
+    '@angular/upgrade':                  { main: 'index.js', defaultExtension: 'js' },
+    'rxjs':                              { defaultExtension: 'js' }
   }
 });
 
 // #docregion ng2
-System.import('angular2/testing').then(function(testing) {
-  return System.import('angular2/platform/testing/browser').then(function(testing_platform_browser) {
-    testing.setBaseTestProviders(testing_platform_browser.TEST_BROWSER_PLATFORM_PROVIDERS,
-                                 testing_platform_browser.TEST_BROWSER_APPLICATION_PROVIDERS);
+System.import('@angular/core/testing').then(function(testing) {
+  return System.import('@angular/platform-browser-dynamic/testing').then(function(browserTesting) {
+    testing.setBaseTestProviders(browserTesting.TEST_BROWSER_PLATFORM_PROVIDERS,
+                                 browserTesting.TEST_BROWSER_APPLICATION_PROVIDERS);
   });
 }).then(function() {
   return Promise.all(

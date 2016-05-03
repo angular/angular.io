@@ -4,7 +4,7 @@ import {
   ContentChild,
   QueryList,
   Input
-} from 'angular2/core';
+} from '@angular/core';
 
 @Component({
   selector: 'active-label',

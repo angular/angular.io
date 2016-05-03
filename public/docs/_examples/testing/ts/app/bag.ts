@@ -1,7 +1,7 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
 /* tslint:disable:forin */
 import { Component, EventEmitter, Injectable, Input, Output,
-         OnInit, OnChanges, OnDestroy, SimpleChange } from 'angular2/core';
+         OnInit, OnChanges, OnDestroy, SimpleChange } from '@angular/core';
 
 import { Observable }     from 'rxjs/Rx';
 

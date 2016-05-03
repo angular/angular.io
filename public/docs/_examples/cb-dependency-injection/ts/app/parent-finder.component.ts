@@ -2,7 +2,7 @@
 /* tslint:disable:one-line:check-open-brace*/
 // #docplaster
 // #docregion
-import { Component, forwardRef, Optional, provide, SkipSelf } from 'angular2/core';
+import { Component, forwardRef, Optional, provide, SkipSelf } from '@angular/core';
 
 // A component base class (see AlexComponent)
 export abstract class Base { name = 'Count Basie'; }

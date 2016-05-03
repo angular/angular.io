@@ -1,6 +1,6 @@
 // #docregion
-import {describe, beforeEachProviders, it, inject} from 'angular2/testing';
-import {HTTP_PROVIDERS} from 'angular2/http';
+import {describe, beforeEachProviders, it, inject} from '@angular/core/testing';
+import {HTTP_PROVIDERS} from '@angular/http';
 import {Phones} from '../../app/js/core/phones.service';
 
 describe('Phones', function() {
