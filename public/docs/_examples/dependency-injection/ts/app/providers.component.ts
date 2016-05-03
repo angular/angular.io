@@ -1,15 +1,15 @@
 // Examples of provider arrays
 //#docplaster
 import { Component, Host, Inject, Injectable,
-         provide, Provider}    from '@angular/core';
+         provide, Provider }    from '@angular/core';
 
 import { APP_CONFIG,
-         Config, CONFIG }      from './app.config';
+         Config, CONFIG }       from './app.config';
 
-import { HeroService}          from './heroes/hero.service';
-import { heroServiceProvider } from './heroes/hero.service.provider';
-import { Logger }              from './logger.service';
-import { User, UserService }   from './user.service';
+import { HeroService }          from './heroes/hero.service';
+import { heroServiceProvider }  from './heroes/hero.service.provider';
+import { Logger }               from './logger.service';
+import { User, UserService }    from './user.service';
 
 let template = '{{log}}';
 
@@ -89,10 +89,10 @@ export class ProviderComponent4 {
 class EvenBetterLogger {
   logs:string[] = [];
 
-  constructor(private _userService: UserService) { }
+  constructor(private userService: UserService) { }
 
   log(message:string){
-    message = `Message to ${this._userService.user.name}: ${message}.`;
+    message = `Message to ${this.userService.user.name}: ${message}.`;
     console.log(message);
     this.logs.push(message);
   }
@@ -230,17 +230,17 @@ export class ProviderComponent9a {
   /*
   // #docregion provider-9a-ctor-interface
   // FAIL! Can't inject using the interface as the parameter type
-  constructor(private _config: Config){ }
+  constructor(private config: Config){ }
   // #enddocregion provider-9a-ctor-interface
   */
 
   // #docregion provider-9a-ctor
   // @Inject(token) to inject the dependency
-  constructor(@Inject('app.config') private _config: Config){ }
+  constructor(@Inject('app.config') private config: Config){ }
   // #enddocregion provider-9a-ctor
 
   ngOnInit() {
-     this.log = '"app.config" Application title is ' + this._config.title;
+     this.log = '"app.config" Application title is ' + this.config.title;
   }
 }
 
@@ -254,11 +254,11 @@ export class ProviderComponent9a {
 export class ProviderComponent9b {
   log: string;
   // #docregion provider-9b-ctor
-  constructor(@Inject(APP_CONFIG) private _config: Config){ }
+  constructor(@Inject(APP_CONFIG) private config: Config){ }
   // #enddocregion provider-9b-ctor
 
   ngOnInit() {
-     this.log = 'APP_CONFIG Application title is ' + this._config.title;
+     this.log = 'APP_CONFIG Application title is ' + this.config.title;
   }
 }
 //////////////////////////////////////////
@@ -290,27 +290,27 @@ import {Optional} from '@angular/core';
 export class ProviderComponent10b {
   // #docregion provider-10-ctor
   log:string;
-  constructor(@Optional() private _logger:Logger) {  }
+  constructor(@Optional() private logger:Logger) {  }
   // #enddocregion provider-10-ctor
 
   ngOnInit() {
     // #docregion provider-10-logger
     // No logger? Make one!
-    if (!this._logger) {
-      this._logger = {
-        log: (msg:string)=> this._logger.logs.push(msg),
+    if (!this.logger) {
+      this.logger = {
+        log: (msg:string)=> this.logger.logs.push(msg),
         logs: []
       }
-    // #enddocregion provider-10-logger      
-      this._logger.log("Optional logger was not available.")
-    // #docregion provider-10-logger      
+    // #enddocregion provider-10-logger
+      this.logger.log("Optional logger was not available.")
+    // #docregion provider-10-logger
     }
     // #enddocregion provider-10-logger
     else {
-      this._logger.log('Hello from the injected logger.')
-      this.log = this._logger.logs[0];
+      this.logger.log('Hello from the injected logger.')
+      this.log = this.logger.logs[0];
     }
-    this.log = this._logger.logs[0];
+    this.log = this.logger.logs[0];
   }
 }
 

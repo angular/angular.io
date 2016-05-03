@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
-import {Injectable}    from '@angular/core';
-import {LoggerService} from './logger.service';
-import {UserService}   from './user.service';
+import { Injectable }    from '@angular/core';
+
+import { LoggerService } from './logger.service';
+import { UserService }   from './user.service';
 
 // #docregion injectables, injectable
 @Injectable()
@@ -13,7 +14,7 @@ export class UserContextService {
   loggedInSince:Date;
 
   // #docregion ctor, injectables
-  constructor(private _userService:UserService, private _loggerService:LoggerService){
+  constructor(private userService:UserService, private loggerService:LoggerService){
    // #enddocregion ctor, injectables
     this.loggedInSince = new Date();
    // #docregion ctor, injectables
@@ -21,11 +22,11 @@ export class UserContextService {
   // #enddocregion ctor, injectables
 
   loadUser(userId:number){
-    let user = this._userService.getUserById(userId);
+    let user = this.userService.getUserById(userId);
     this.name = user.name;
     this.role = user.role;
 
-    this._loggerService.logDebug('loaded User');
+    this.loggerService.logDebug('loaded User');
   }
 // #docregion injectables, injectable
 }

@@ -1,7 +1,8 @@
 // #docregion
-import {Component}          from '@angular/core';
-import {AstronautComponent} from './astronaut.component';
-import {MissionService}     from './mission.service';
+import { Component }          from '@angular/core';
+
+import { AstronautComponent } from './astronaut.component';
+import { MissionService }     from './mission.service';
 
 @Component({
   selector: 'mission-control',

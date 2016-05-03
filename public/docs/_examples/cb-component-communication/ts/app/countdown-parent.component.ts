@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion vc
-import {AfterViewInit, ViewChild} from '@angular/core';
+import { AfterViewInit, ViewChild } from '@angular/core';
 // #docregion lv
-import {Component}                from '@angular/core';
-import {CountdownTimerComponent}  from './countdown-timer.component';
+import { Component }                from '@angular/core';
+import { CountdownTimerComponent }  from './countdown-timer.component';
 
 // #enddocregion lv
 // #enddocregion vc
@@ -42,7 +42,7 @@ export class CountdownLocalVarParentComponent { }
 export class CountdownViewChildParentComponent implements AfterViewInit {
 
   @ViewChild(CountdownTimerComponent)
-  private _timerComponent:CountdownTimerComponent;
+  private timerComponent:CountdownTimerComponent;
 
   seconds() { return 0; }
 
@@ -50,10 +50,10 @@ export class CountdownViewChildParentComponent implements AfterViewInit {
     // Redefine `seconds()` to get from the `CountdownTimerComponent.seconds` ...
     // but wait a tick first to avoid one-time devMode
     // unidirectional-data-flow-violation error
-    setTimeout(() => this.seconds = () => this._timerComponent.seconds, 0)
+    setTimeout(() => this.seconds = () => this.timerComponent.seconds, 0)
   }
 
-  start(){ this._timerComponent.start(); }
-  stop() { this._timerComponent.stop(); }
+  start(){ this.timerComponent.start(); }
+  stop() { this.timerComponent.stop(); }
 }
 // #enddocregion vc

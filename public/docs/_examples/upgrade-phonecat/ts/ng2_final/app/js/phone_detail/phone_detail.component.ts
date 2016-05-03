@@ -1,9 +1,10 @@
 // #docregion
 // #docregion top
-import {Component, Inject} from '@angular/core';
-import {RouteParams} from '@angular/router';
-import {Phones, Phone} from '../core/phones.service';
-import {CheckmarkPipe} from '../core/checkmark.pipe';
+import { Component, Inject } from '@angular/core';
+import { RouteParams } from '@angular/router';
+
+import { Phones, Phone } from '../core/phones.service';
+import { CheckmarkPipe } from '../core/checkmark.pipe';
 
 @Component({
   selector: 'pc-phone-detail',

@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router';
+import { Component } from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router';
+
 import PhoneList from './phone_list/phone_list.component';
 import PhoneDetail from './phone_detail/phone_detail.component';
 

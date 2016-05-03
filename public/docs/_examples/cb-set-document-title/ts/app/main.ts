@@ -1,5 +1,6 @@
 // #docregion
 import { bootstrap } from '@angular/platform-browser-dynamic';
+
 import { AppComponent } from './app.component';
 
 // While Angular supplies a Title service for setting the HTML document title

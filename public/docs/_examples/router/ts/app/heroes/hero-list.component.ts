@@ -2,10 +2,11 @@
 // #docregion
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
 import { Component }          from '@angular/core';
+// #docregion import-router
+import { OnActivate, Router, RouteSegment, RouteTree } from '@angular/router';
+// #enddocregion import-router
+
 import { Hero, HeroService}   from './hero.service';
-// #docregion import-route-params
-import { Router, RouteSegment, Tree, OnActivate, RouteTree } from '@angular/router';
-// #enddocregion import-route-params
 
 @Component({
   // #docregion template

@@ -7,12 +7,12 @@
 import { bootstrap }            from '@angular/platform-browser-dynamic';
 import { ROUTER_PROVIDERS }     from '@angular/router';
 
-import { AppComponent }         from './app.component';
-
 // Add these symbols to override the `LocationStrategy`
 import { provide }              from '@angular/core';
 import { LocationStrategy,
          HashLocationStrategy } from '@angular/common';
+
+import { AppComponent }         from './app.component';
 // #enddocregion
 /* Can't use AppComponent ... but display as if we can
 // #docregion

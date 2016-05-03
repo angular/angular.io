@@ -3,7 +3,7 @@
 
 // #docregion
 import { Component, OnInit }   from '@angular/core';
-import { Routes, ROUTER_DIRECTIVES, Router } from '@angular/router';
+import { Router, ROUTER_DIRECTIVES, Routes } from '@angular/router';
 
 import { CrisisListComponent } from './crisis-list.component';
 // #enddocregion
@@ -11,15 +11,15 @@ import { CrisisListComponent } from './crisis-list.component';
  // Apparent Milestone 2 imports
  // #docregion
  // #docregion hero-import
- import { HeroListComponent }     from './heroes/hero-list.component';
  import { HeroDetailComponent }   from './heroes/hero-detail.component';
+ import { HeroListComponent }     from './heroes/hero-list.component';
  import { HeroService }           from './heroes/hero.service';
  // #enddocregion hero-import
  // #enddocregion
  */
 // Actual Milestone 2 imports
-import { HeroListComponent }     from './heroes/hero-list.component.1';
 import { HeroDetailComponent }   from './heroes/hero-detail.component.1';
+import { HeroListComponent }     from './heroes/hero-list.component.1';
 import { HeroService }           from './heroes/hero.service';
 // #docregion
 

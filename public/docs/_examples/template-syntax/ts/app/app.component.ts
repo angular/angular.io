@@ -1,11 +1,11 @@
 //#docplaster
 
-import {Component, AfterViewInit, ElementRef, OnInit, QueryList, ViewChildren} from '@angular/core';
-import {NgForm} from '@angular/common';
+import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { NgForm } from '@angular/common';
 
-import {Hero} from './hero';
-import {HeroDetailComponent, BigHeroDetailComponent} from './hero-detail.component';
-import {MyClickDirective, MyClickDirective2} from './my-click.directive';
+import { Hero } from './hero';
+import { HeroDetailComponent, BigHeroDetailComponent } from './hero-detail.component';
+import { MyClickDirective, MyClickDirective2 } from './my-click.directive';
 
 // Alerter fn: monkey patch during test
 export function alerter(msg?:string) {
@@ -32,7 +32,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit() {
-    this._detectNgForTrackByEffects();
+    this.detectNgForTrackByEffects();
   }
 
   actionName = 'Go for it';
@@ -53,9 +53,9 @@ export class AppComponent implements AfterViewInit, OnInit {
   deleteHero(hero:Hero){
     this.alert('Deleted hero: '+ (hero && hero.firstName))
   }
-  
+
   // DevMode memoization fields
-  private _priorClasses:{};
+  private priorClasses:{};
   private _priorStyles:{};
   private _priorStyles2:{};
 
@@ -119,10 +119,10 @@ export class AppComponent implements AfterViewInit, OnInit {
   // #enddocregion refresh-heroes
 
   // #docregion same-as-it-ever-was
-  private _samenessCount = 5;
-  moreOfTheSame() {this._samenessCount++;};
+  private samenessCount = 5;
+  moreOfTheSame() {this.samenessCount++;};
   get sameAsItEverWas() {
-    var result:string[] = Array(this._samenessCount);
+    var result:string[] = Array(this.samenessCount);
     for (var i=result.length; i-- > 0;){result[i]='same as it ever was ...'}
     return result;
     // return [1,2,3,4,5].map(id => {
@@ -145,10 +145,10 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
     // #enddocregion setClasses
     // compensate for DevMode (sigh)
-    if (JSON.stringify(classes) === JSON.stringify(this._priorClasses)){
-       return this._priorClasses;
+    if (JSON.stringify(classes) === JSON.stringify(this.priorClasses)){
+       return this.priorClasses;
     }
-    this._priorClasses = classes;
+    this.priorClasses = classes;
     // #docregion setClasses
     return classes;
   }
@@ -209,7 +209,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   heroesNoTrackByChangeCount = 0;
   heroesWithTrackByChangeCount = 0;
 
-  private _detectNgForTrackByEffects() {
+  private detectNgForTrackByEffects() {
     this._oldNoTrackBy   = toArray(this.childrenNoTrackBy);
     this._oldWithTrackBy = toArray(this.childrenWithTrackBy);
 

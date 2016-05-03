@@ -2,15 +2,16 @@
 
 // #docregion
 // #docregion v1
-import {Injectable}     from '@angular/core';
-import {Http, Response} from '@angular/http';
+import { Injectable }     from '@angular/core';
+import { Http, Response } from '@angular/http';
 // #enddocregion v1
 // #docregion import-request-options
-import {Headers, RequestOptions} from '@angular/http';
+import { Headers, RequestOptions } from '@angular/http';
 // #enddocregion import-request-options
 // #docregion v1
-import {Hero}           from './hero';
-import {Observable}     from 'rxjs/Observable';
+
+import { Hero }           from './hero';
+import { Observable }     from 'rxjs/Observable';
 
 @Injectable()
 export class HeroService {
@@ -20,20 +21,20 @@ export class HeroService {
 
   /*
   // #docregion endpoint-json
-  private _heroesUrl = 'app/heroes.json'; // URL to JSON file
+  private heroesUrl = 'app/heroes.json'; // URL to JSON file
   // #enddocregion endpoint-json
   */
 // #docregion
 // #docregion v1
 
   // #docregion endpoint
-  private _heroesUrl = 'app/heroes';  // URL to web api
+  private heroesUrl = 'app/heroes';  // URL to web api
   // #enddocregion endpoint
 
   // #docregion methods
   // #docregion error-handling, http-get
   getHeroes (): Observable<Hero[]> {
-    return this.http.get(this._heroesUrl)
+    return this.http.get(this.heroesUrl)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
@@ -48,7 +49,7 @@ export class HeroService {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
-    return this.http.post(this._heroesUrl, body, options)
+    return this.http.post(this.heroesUrl, body, options)
     // #enddocregion headers
                     .map(this.extractData)
                     .catch(this.handleError);

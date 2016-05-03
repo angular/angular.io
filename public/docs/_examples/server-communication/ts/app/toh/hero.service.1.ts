@@ -2,21 +2,21 @@
 // #docplaster
 
 // #docregion
-import {Injectable}     from '@angular/core';
-import {Http, Response} from '@angular/http';
-import {Headers, RequestOptions} from '@angular/http';
-import {Hero}           from './hero';
+import { Injectable }     from '@angular/core';
+import { Http, Response } from '@angular/http';
+import { Headers, RequestOptions } from '@angular/http';
+import { Hero }           from './hero';
 
 @Injectable()
 export class HeroService {
   constructor (private http: Http) {}
 
   // URL to web api
-  private _heroesUrl = 'app/heroes.json';
+  private heroesUrl = 'app/heroes.json';
 
   // #docregion methods
   getHeroes (): Promise<Hero[]> {
-    return this.http.get(this._heroesUrl)
+    return this.http.get(this.heroesUrl)
                     .toPromise()
                     .then(this.extractData)
                     .catch(this.handleError);
@@ -27,7 +27,7 @@ export class HeroService {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
-    return this.http.post(this._heroesUrl, body, options)
+    return this.http.post(this.heroesUrl, body, options)
                .toPromise()
                .then(this.extractData)
                .catch(this.handleError);

@@ -1,5 +1,6 @@
-import {Component} from '@angular/core';
-import {DataService} from './data.service';
+import { Component } from '@angular/core';
+
+import { DataService } from './data.service';
 
 // #docregion
 @Component({

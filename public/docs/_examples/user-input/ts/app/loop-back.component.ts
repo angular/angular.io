@@ -1,5 +1,5 @@
 // #docregion
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 // #docregion loop-back-component
 @Component({
   selector: 'loop-back',

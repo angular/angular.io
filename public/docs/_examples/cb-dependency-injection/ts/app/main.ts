@@ -2,9 +2,7 @@
 import { bootstrap }        from '@angular/platform-browser-dynamic';
 import { provide }          from '@angular/core';
 import { XHRBackend }       from '@angular/http';
-
 import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
-
 import { LocationStrategy,
          HashLocationStrategy } from '@angular/common';
 

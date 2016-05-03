@@ -31,17 +31,17 @@ export class HeroDetailComponent implements OnInit {
 
 // #docregion ctor
   constructor(
-    private _heroService: HeroService,
-    private _routeParams: RouteParams) {
+    private heroService: HeroService,
+    private routeParams: RouteParams) {
   }
 // #enddocregion ctor
 
 // #docregion ng-oninit
   ngOnInit() {
     // #docregion get-id
-    let id = +this._routeParams.get('id');
+    let id = +this.routeParams.get('id');
     // #enddocregion get-id
-    this._heroService.getHero(id)
+    this.heroService.getHero(id)
       .then(hero => this.hero = hero);
   }
 // #enddocregion ng-oninit

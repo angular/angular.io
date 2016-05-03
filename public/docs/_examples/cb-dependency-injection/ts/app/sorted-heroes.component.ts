@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Hero}              from './hero';
-import {HeroService}       from './hero.service';
+import { Component, OnInit } from '@angular/core';
+
+import { Hero }              from './hero';
+import { HeroService }       from './hero.service';
 
 /////// HeroesBaseComponent /////
 // #docregion heroes-base, injection
@@ -12,18 +13,18 @@ import {HeroService}       from './hero.service';
   providers: [HeroService]
 })
 export class HeroesBaseComponent implements OnInit {
-  constructor(private _heroService: HeroService) { }
+  constructor(private heroService: HeroService) { }
 // #enddocregion injection
 
   heroes: Array<Hero>;
 
   ngOnInit() {
-    this.heroes = this._heroService.getAllHeroes();
-    this._afterGetHeroes();
+    this.heroes = this.heroService.getAllHeroes();
+    this.afterGetHeroes();
   }
 
   // Post-process heroes in derived class override.
-  protected _afterGetHeroes() {}
+  protected afterGetHeroes() {}
 
 // #docregion injection
 }
@@ -41,7 +42,7 @@ export class SortedHeroesComponent extends HeroesBaseComponent {
     super(heroService);
   }
 
-  protected _afterGetHeroes() {
+  protected afterGetHeroes() {
     this.heroes = this.heroes.sort((h1, h2) => {
       return h1.name < h2.name ? -1 :
             (h1.name > h2.name ? 1 : 0);

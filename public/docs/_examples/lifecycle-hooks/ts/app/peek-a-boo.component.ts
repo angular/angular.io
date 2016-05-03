@@ -1,12 +1,13 @@
 import {
-  OnChanges, SimpleChange,
-  OnInit,
-  DoCheck,
-  AfterContentInit,
   AfterContentChecked,
-  AfterViewInit,
+  AfterContentInit,
   AfterViewChecked,
-  OnDestroy
+  AfterViewInit,
+  DoCheck,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChange
 } from '@angular/core';
 import {Component, Input} from '@angular/core';
 import {LoggerService}    from './logger.service';
@@ -15,13 +16,13 @@ let nextId = 1;
 
 // #docregion ngOnInit
 export class PeekABoo implements OnInit {
-  constructor(private _logger: LoggerService) { }
+  constructor(private logger: LoggerService) { }
 
   // implement OnInit's `ngOnInit` method
-  ngOnInit() { this._logIt(`OnInit`); }
+  ngOnInit() { this.logIt(`OnInit`); }
 
-  protected _logIt(msg: string) {
-    this._logger.log(`#${nextId++} ${msg}`);
+  protected logIt(msg: string) {
+    this.logger.log(`#${nextId++} ${msg}`);
   }
 }
 // #enddocregion ngOnInit
@@ -40,13 +41,13 @@ export class PeekABooComponent extends PeekABoo implements
              OnDestroy {
   @Input()  name: string;
 
-  private _verb = 'initialized';
+  private verb = 'initialized';
 
   constructor(logger: LoggerService) {
     super(logger);
 
     let is = this.name ? 'is' : 'is not';
-    this._logIt(`name ${is} known at construction`);
+    this.logIt(`name ${is} known at construction`);
   }
 
   // only called for/if there is an @input variable set by parent.
@@ -55,30 +56,30 @@ export class PeekABooComponent extends PeekABoo implements
     for (let propName in changes) {
       if (propName === 'name') {
         let name = changes['name'].currentValue;
-        changesMsgs.push(`name ${this._verb} to "${name}"`);
+        changesMsgs.push(`name ${this.verb} to "${name}"`);
       } else {
-        changesMsgs.push(propName + ' ' + this._verb);
+        changesMsgs.push(propName + ' ' + this.verb);
       }
     }
-    this._logIt(`OnChanges: ${changesMsgs.join('; ')}`);
-    this._verb = 'changed'; // next time it will be a change
+    this.logIt(`OnChanges: ${changesMsgs.join('; ')}`);
+    this.verb = 'changed'; // next time it will be a change
   }
 
   // Beware! Called frequently!
   // Called in every change detection cycle anywhere on the page
-  ngDoCheck() { this._logIt(`DoCheck`); }
+  ngDoCheck() { this.logIt(`DoCheck`); }
 
-  ngAfterContentInit() { this._logIt(`AfterContentInit`);  }
-
-  // Beware! Called frequently!
-  // Called in every change detection cycle anywhere on the page
-  ngAfterContentChecked() { this._logIt(`AfterContentChecked`); }
-
-  ngAfterViewInit() { this._logIt(`AfterViewInit`); }
+  ngAfterContentInit() { this.logIt(`AfterContentInit`);  }
 
   // Beware! Called frequently!
   // Called in every change detection cycle anywhere on the page
-  ngAfterViewChecked() { this._logIt(`AfterViewChecked`); }
+  ngAfterContentChecked() { this.logIt(`AfterContentChecked`); }
 
-  ngOnDestroy() { this._logIt(`OnDestroy`); }
+  ngAfterViewInit() { this.logIt(`AfterViewInit`); }
+
+  // Beware! Called frequently!
+  // Called in every change detection cycle anywhere on the page
+  ngAfterViewChecked() { this.logIt(`AfterViewChecked`); }
+
+  ngOnDestroy() { this.logIt(`OnDestroy`); }
 }

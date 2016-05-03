@@ -1,6 +1,6 @@
 // #docregion
-import {Component} from '@angular/core';
-import {Observable} from 'rxjs/Rx';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 
 // Initial view: "Message: "
 // After 500ms: Message: You are my Hero!"

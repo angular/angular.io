@@ -27,11 +27,11 @@ export class HeroesComponent implements OnInit {
   selectedHero: Hero;
 
   constructor(
-    private _router: Router,
-    private _heroService: HeroService) { }
+    private router: Router,
+    private heroService: HeroService) { }
 
   getHeroes() {
-    this._heroService.getHeroes().then(heroes => this.heroes = heroes);
+    this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
 
   ngOnInit() {
@@ -41,7 +41,7 @@ export class HeroesComponent implements OnInit {
   onSelect(hero: Hero) { this.selectedHero = hero; }
 
   gotoDetail() {
-    this._router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
+    this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
   }
 // #docregion heroes-component-renaming
 }

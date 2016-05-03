@@ -1,9 +1,10 @@
 // Early versions
 
 // #docregion
-import {Component}         from '@angular/core';
-import {CarComponent}      from './car/car.component';
-import {HeroesComponent}   from './heroes/heroes.component.1';
+import { Component }         from '@angular/core';
+
+import { CarComponent }      from './car/car.component';
+import { HeroesComponent }   from './heroes/heroes.component.1';
 
 @Component({
   selector: 'my-app',

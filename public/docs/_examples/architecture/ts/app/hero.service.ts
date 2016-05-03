@@ -1,25 +1,26 @@
-import {Injectable} from '@angular/core';
-import {Hero} from './hero';
-import {BackendService} from './backend.service';
-import {Logger} from './logger.service';
+import { Injectable } from '@angular/core';
+
+import { Hero } from './hero';
+import { BackendService } from './backend.service';
+import { Logger } from './logger.service';
 
 @Injectable()
 // #docregion class
 export class HeroService {
   // #docregion ctor
   constructor(
-    private _backend: BackendService,
-    private _logger: Logger) { }
+    private backend: BackendService,
+    private logger: Logger) { }
   // #enddocregion ctor
 
-  private _heroes: Hero[] = [];
+  private heroes: Hero[] = [];
 
   getHeroes() {
-    this._backend.getAll(Hero).then( (heroes: Hero[]) => {
-      this._logger.log(`Fetched ${heroes.length} heroes.`);
-      this._heroes.push(...heroes); // fill cache
+    this.backend.getAll(Hero).then( (heroes: Hero[]) => {
+      this.logger.log(`Fetched ${heroes.length} heroes.`);
+      this.heroes.push(...heroes); // fill cache
     });
-    return this._heroes;
+    return this.heroes;
   }
 }
 // #enddocregion class

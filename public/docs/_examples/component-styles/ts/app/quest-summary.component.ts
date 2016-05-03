@@ -1,6 +1,6 @@
 /* tslint:disable:no-unused-variable */
 // #docplaster
-import {Component, ViewEncapsulation} from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 // #docregion
 

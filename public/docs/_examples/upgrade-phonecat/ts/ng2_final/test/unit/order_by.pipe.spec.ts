@@ -1,5 +1,5 @@
 // #docregion
-import {describe, beforeEachProviders, it, inject} from '@angular/core/testing';
+import { describe, beforeEachProviders, it, inject } from '@angular/core/testing';
 
 import OrderByPipe from '../../app/js/phone_list/order_by.pipe';
 

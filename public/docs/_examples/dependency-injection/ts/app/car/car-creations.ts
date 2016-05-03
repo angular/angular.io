@@ -1,7 +1,7 @@
 // Examples with car and engine variations
 
 // #docplaster
-import {Car, Engine, Tires} from './car';
+import { Car, Engine, Tires } from './car';
 
 ///////// example 1 ////////////
 export function simpleCar() {

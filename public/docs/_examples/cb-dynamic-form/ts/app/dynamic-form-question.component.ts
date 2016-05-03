@@ -1,7 +1,8 @@
 // #docregion
-import {Component, Input} from '@angular/core';
-import {ControlGroup}     from '@angular/common';
-import {QuestionBase}     from './question-base';
+import { Component, Input } from '@angular/core';
+import { ControlGroup }     from '@angular/common';
+
+import { QuestionBase }     from './question-base';
 
 @Component({
   selector:'df-question',

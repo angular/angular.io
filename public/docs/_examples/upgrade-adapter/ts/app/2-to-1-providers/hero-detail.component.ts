@@ -1,4 +1,4 @@
-import {Heroes} from './heroes';
+import { Heroes } from './heroes';
 
 // #docregion
 export const heroDetailComponent = {

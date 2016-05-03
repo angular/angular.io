@@ -1,7 +1,7 @@
 // #docregion top
-import {Component} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Phones, Phone} from '../core/phones.service';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Phone, Phones } from '../core/phones.service';
 
 @Component({
   selector: 'pc-phone-list',

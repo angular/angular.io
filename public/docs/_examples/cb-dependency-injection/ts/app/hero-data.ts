@@ -1,5 +1,5 @@
 // #docregion
-import {Hero} from './hero';
+import { Hero } from './hero';
 
 export class HeroData {
   createDb() {

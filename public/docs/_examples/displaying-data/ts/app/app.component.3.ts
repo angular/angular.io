@@ -1,7 +1,7 @@
 // #docregion
-import {Component} from '@angular/core';
+import { Component} from '@angular/core';
 // #docregion import-hero
-import {Hero} from './hero';
+import { Hero} from './hero';
 // #enddocregion import-hero
 
 @Component({

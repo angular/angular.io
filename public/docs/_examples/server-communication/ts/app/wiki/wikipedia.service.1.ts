@@ -1,7 +1,7 @@
 // Create the query string by hand
 // #docregion
-import {Injectable} from '@angular/core';
-import {Jsonp}      from '@angular/http';
+import { Injectable } from '@angular/core';
+import { Jsonp }      from '@angular/http';
 
 @Injectable()
 export class WikipediaService {

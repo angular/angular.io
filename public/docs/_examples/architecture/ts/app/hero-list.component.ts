@@ -1,8 +1,9 @@
 // #docplaster
-import {Component, OnInit}   from '@angular/core';
-import {Hero}                from './hero';
-import {HeroDetailComponent} from './hero-detail.component';
-import {HeroService}         from './hero.service';
+import { Component, OnInit }   from '@angular/core';
+
+import { Hero }                from './hero';
+import { HeroDetailComponent } from './hero-detail.component';
+import { HeroService }         from './hero.service';
 
 // #docregion metadata
 // #docregion providers
@@ -24,14 +25,14 @@ export class HeroesComponent { ... }
 // #docregion class
 export class HeroListComponent implements OnInit {
 // #docregion ctor
-  constructor(private _service: HeroService) { }
+  constructor(private service: HeroService) { }
 // #enddocregion ctor
 
   heroes: Hero[];
   selectedHero: Hero;
 
   ngOnInit() {
-    this.heroes = this._service.getHeroes();
+    this.heroes = this.service.getHeroes();
   }
 
   selectHero(hero: Hero) { this.selectedHero = hero; }

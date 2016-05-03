@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import {Component,  AfterContentChecked, AfterContentInit, ContentChild} from '@angular/core';
+import { AfterContentChecked, AfterContentInit, Component, ContentChild } from '@angular/core';
 
 import {LoggerService}  from './logger.service';
 
@@ -29,33 +29,33 @@ export class ChildComponent {
   `
 })
 // #docregion hooks
-export class AfterContentComponent implements  AfterContentChecked, AfterContentInit {
-  private _prevHero = '';
+export class AfterContentComponent implements AfterContentChecked, AfterContentInit {
+  private prevHero = '';
   comment = '';
 
   // Query for a CONTENT child of type `ChildComponent`
   @ContentChild(ChildComponent) contentChild: ChildComponent;
 
 // #enddocregion hooks
-  constructor(private _logger: LoggerService) {
-    this._logIt('AfterContent constructor');
+  constructor(private logger: LoggerService) {
+    this.logIt('AfterContent constructor');
   }
 
 // #docregion hooks
   ngAfterContentInit() {
     // viewChild is set after the view has been initialized
-    this._logIt('AfterContentInit');
-    this._doSomething();
+    this.logIt('AfterContentInit');
+    this.doSomething();
   }
 
   ngAfterContentChecked() {
     // viewChild is updated after the view has been checked
-    if (this._prevHero === this.contentChild.hero) {
-      this._logIt('AfterContentChecked (no change)');
+    if (this.prevHero === this.contentChild.hero) {
+      this.logIt('AfterContentChecked (no change)');
     } else {
-      this._prevHero = this.contentChild.hero;
-      this._logIt('AfterContentChecked');
-      this._doSomething();
+      this.prevHero = this.contentChild.hero;
+      this.logIt('AfterContentChecked');
+      this.doSomething();
     }
   }
 // #enddocregion hooks
@@ -64,14 +64,14 @@ export class AfterContentComponent implements  AfterContentChecked, AfterContent
 // #docregion do-something
 
   // This surrogate for real business logic sets the `comment`
-  private _doSomething() {
+  private doSomething() {
     this.comment = this.contentChild.hero.length > 10 ? 'That\'s a long name' : '';
   }
 
-  private _logIt(method: string) {
+  private logIt(method: string) {
     let vc = this.contentChild;
     let message = `${method}: ${vc ? vc.hero : 'no'} child view`;
-    this._logger.log(message);
+    this.logger.log(message);
   }
 // #docregion hooks
   // ...

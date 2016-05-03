@@ -1,11 +1,11 @@
 // #docregion adapter-import
-import {UpgradeAdapter} from '@angular/upgrade';
+import { UpgradeAdapter } from '@angular/upgrade';
 // #enddocregion adapter-import
 // #docregion adapter-state-import
 import upgradeAdapter from './core/upgrade_adapter';
 // #enddocregion adapter-state-import
 // #docregion http-import
-import {HTTP_PROVIDERS} from '@angular/http';
+import { HTTP_PROVIDERS } from '@angular/http';
 // #enddocregion http-import
 import core from './core/core.module';
 import phoneList from './phone_list/phone_list.module';

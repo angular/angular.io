@@ -1,8 +1,9 @@
 // #docregion
-import {provide}     from '@angular/core';
-import {HeroService} from './hero.service';
-import {Logger}      from '../logger.service';
-import {UserService} from '../user.service';
+import { provide }     from '@angular/core';
+
+import { HeroService } from './hero.service';
+import { Logger }      from '../logger.service';
+import { UserService } from '../user.service';
 
 // #docregion factory
 let heroServiceFactory = (logger: Logger, userService: UserService) => {

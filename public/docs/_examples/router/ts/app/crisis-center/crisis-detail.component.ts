@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
 import { Component } from '@angular/core';
+import { CanDeactivate, OnActivate, Router, RouteSegment } from '@angular/router';
+
 import { Crisis, CrisisService } from './crisis.service';
-import { Router, OnActivate, CanDeactivate, RouteSegment } from '@angular/router';
 import { DialogService } from '../dialog.service';
 
 @Component({
@@ -60,6 +61,7 @@ export class CrisisDetailComponent implements OnActivate, CanDeactivate {
   }
 
   cancel() {
+    this.editName = this.crisis.name;
     this.gotoCrises();
   }
 

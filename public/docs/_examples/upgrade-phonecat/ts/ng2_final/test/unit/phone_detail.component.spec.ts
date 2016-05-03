@@ -1,9 +1,9 @@
-import {provide} from '@angular/core';
+import { provide } from '@angular/core';
 // #docregion routeparams
-import {RouteParams} from '@angular/router';
+import { RouteParams } from '@angular/router';
 // #enddocregion routeparams
-import {HTTP_PROVIDERS} from '@angular/http';
-import {Observable} from 'rxjs/Rx';
+import { HTTP_PROVIDERS } from '@angular/http';
+import { Observable } from 'rxjs/Rx';
 import {
   describe,
   beforeEachProviders,
@@ -11,10 +11,10 @@ import {
   it,
   expect
 } from '@angular/core/testing';
-import {TestComponentBuilder} from '@angular/compiler/testing';
+import { TestComponentBuilder } from '@angular/compiler/testing';
 
 import PhoneDetail from '../../app/js/phone_detail/phone_detail.component';
-import {Phones, Phone} from '../../app/js/core/phones.service';
+import { Phones, Phone } from '../../app/js/core/phones.service';
 
 function xyzPhoneData():Phone {
   return {

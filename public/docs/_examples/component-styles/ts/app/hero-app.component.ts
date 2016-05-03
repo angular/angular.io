@@ -1,6 +1,6 @@
-import {Component, HostBinding} from '@angular/core';
-import {Hero} from './hero';
-import {HeroAppMainComponent} from './hero-app-main.component';
+import { Component, HostBinding } from '@angular/core';
+import { Hero } from './hero';
+import { HeroAppMainComponent } from './hero-app-main.component';
 
 // #docregion
 @Component({
@@ -17,7 +17,7 @@ export class HeroAppComponent {
     'Human Torch',
     ['Mister Fantastic', 'Invisible Woman', 'Thing']
   )
-  
+
   @HostBinding('class') get themeClass() {
     return 'theme-light';
   }

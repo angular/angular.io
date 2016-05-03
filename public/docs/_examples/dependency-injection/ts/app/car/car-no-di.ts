@@ -1,5 +1,5 @@
 // Car without DI
-import {Engine, Tires} from './car';
+import { Engine, Tires } from './car';
 
 //#docregion car
 export class Car {

@@ -3,16 +3,14 @@ console.log ('Promise version');
 
 import { Component }         from '@angular/core';
 import { HTTP_PROVIDERS }    from '@angular/http';
-
-import { HeroListComponent } from './hero-list.component.1';
-import { HeroService }       from './hero.service.1';
-
 import { provide }           from '@angular/core';
 import { XHRBackend }        from '@angular/http';
-
 import { InMemoryBackendService,
         SEED_DATA }          from 'angular2-in-memory-web-api/core';
+
 import { HeroData }          from '../hero-data';
+import { HeroListComponent } from './hero-list.component.1';
+import { HeroService }       from './hero.service.1';
 
 @Component({
   selector: 'my-toh',

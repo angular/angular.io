@@ -1,6 +1,7 @@
-import {Injectable, Type} from '@angular/core';
-import {Logger} from './logger.service';
-import {Hero} from './hero';
+import { Injectable, Type } from '@angular/core';
+
+import { Logger } from './logger.service';
+import { Hero } from './hero';
 
 const HEROES = [
         new Hero('Windstorm', 'Weather mastery'),
@@ -10,7 +11,7 @@ const HEROES = [
 
 @Injectable()
 export class BackendService {
-  constructor(private _logger: Logger) {}
+  constructor(private logger: Logger) {}
 
   getAll(type:Type) : PromiseLike<any[]>{
     if (type === Hero) {
@@ -18,7 +19,7 @@ export class BackendService {
       return Promise.resolve<Hero[]>(HEROES);
     }
     let err = new Error('Cannot get object of this type');
-    this._logger.error(err);
+    this.logger.error(err);
     throw err;
   }
 }

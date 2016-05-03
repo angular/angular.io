@@ -1,11 +1,11 @@
 /* tslint:disable:no-unused-variable */
 // #docplaster
 import { Component, OnInit } from '@angular/core';
-import { Routes, ROUTER_DIRECTIVES, Router } from '@angular/router';
+import { Router, ROUTER_DIRECTIVES, Routes } from '@angular/router';
 
 import { CrisisCenterComponent } from './crisis-center/crisis-center.component.1';
-import { HeroListComponent }     from './heroes/hero-list.component.1';
 import { HeroDetailComponent }   from './heroes/hero-detail.component.1';
+import { HeroListComponent }     from './heroes/hero-list.component.1';
 
 import { DialogService }         from './dialog.service';
 import { HeroService }           from './heroes/hero.service';

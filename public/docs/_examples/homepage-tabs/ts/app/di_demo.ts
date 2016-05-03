@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from '@angular/core';
-import {UiTabs, UiPane} from './ui_tabs';
+import { Component } from '@angular/core';
+
+import { UiTabs, UiPane } from './ui_tabs';
 
 class Detail {
   title: string;

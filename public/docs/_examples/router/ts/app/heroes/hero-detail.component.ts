@@ -1,7 +1,8 @@
 // #docregion
 import { Component } from '@angular/core';
+import { OnActivate, Router, RouteSegment } from '@angular/router';
+
 import { Hero, HeroService } from './hero.service';
-import { Router, OnActivate, RouteSegment } from '@angular/router';
 
 @Component({
   template: `

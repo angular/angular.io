@@ -1,5 +1,5 @@
 // #docregion bootstrap
-import {upgradeAdapter} from './upgrade_adapter';
+import { upgradeAdapter } from './upgrade_adapter';
 
 // #enddocregion bootstrap
 

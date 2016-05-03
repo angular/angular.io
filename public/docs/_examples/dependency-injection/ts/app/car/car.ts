@@ -1,5 +1,5 @@
 // #docregion
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 // #docregion engine
 export class Engine {

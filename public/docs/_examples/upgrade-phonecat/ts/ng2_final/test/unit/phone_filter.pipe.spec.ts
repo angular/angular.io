@@ -1,8 +1,8 @@
 // #docregion
-import {describe, beforeEachProviders, it, inject} from '@angular/core/testing';
+import { describe, beforeEachProviders, it, inject } from '@angular/core/testing';
 
 import PhoneFilterPipe from '../../app/js/phone_list/phone_filter.pipe';
-import {Phone} from '../../app/js/core/phones.service';
+import { Phone } from '../../app/js/core/phones.service';
 
 describe('PhoneFilterPipe', () => {
 

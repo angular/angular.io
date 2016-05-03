@@ -1,5 +1,5 @@
 // #docregion
-import {Phones, Phone} from '../core/phones.service';
+import { Phones, Phone } from '../core/phones.service';
 
 class PhoneListCtrl {
   phones:Phone[];

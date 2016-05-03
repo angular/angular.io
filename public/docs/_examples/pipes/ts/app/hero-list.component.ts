@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from '@angular/core';
-import {FetchJsonPipe} from './fetch-json.pipe';
+import { Component } from '@angular/core';
+
+import { FetchJsonPipe } from './fetch-json.pipe';
 
 @Component({
   selector: 'hero-list',

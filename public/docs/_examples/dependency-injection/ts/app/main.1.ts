@@ -1,6 +1,6 @@
-import {bootstrap}    from '@angular/platform-browser-dynamic';
-import {AppComponent} from './app.component';
-import {HeroService}  from './heroes/hero.service';
+import { bootstrap }    from '@angular/platform-browser-dynamic';
+import { AppComponent } from './app.component';
+import { HeroService }  from './heroes/hero.service';
 
 //#docregion bootstrap
 bootstrap(AppComponent,

@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Directive, Input, QueryList,
-        ViewContainerRef, TemplateRef, ContentChildren} from '@angular/core';
+import { Component, Directive, Input, QueryList,
+        ViewContainerRef, TemplateRef, ContentChildren } from '@angular/core';
 
 @Directive({
   selector: '[ui-pane]'

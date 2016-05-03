@@ -1,8 +1,8 @@
 // #docregion
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
-import {Hero}                     from './hero';
-import {HeroCacheService}         from './hero-cache.service';
+import { Hero }                     from './hero';
+import { HeroCacheService }         from './hero-cache.service';
 
 // #docregion component
 @Component({
@@ -20,10 +20,10 @@ export class HeroBioComponent implements OnInit  {
 
   @Input() heroId:number;
 
-  constructor(private _heroCache:HeroCacheService) { }
+  constructor(private heroCache:HeroCacheService) { }
 
-  ngOnInit() { this._heroCache.fetchCachedHero(this.heroId); }
+  ngOnInit() { this.heroCache.fetchCachedHero(this.heroId); }
 
-  get hero() { return this._heroCache.hero; }
+  get hero() { return this.heroCache.hero; }
 }
 // #enddocregion component

@@ -1,6 +1,6 @@
 /* tslint:disable:forin */
 // #docregion
-import {Component, DoCheck, OnChanges, Input, SimpleChange, ViewChild} from '@angular/core';
+import { Component, DoCheck, Input, OnChanges, SimpleChange, ViewChild } from '@angular/core';
 
 class Hero {
   constructor(public name: string) {}

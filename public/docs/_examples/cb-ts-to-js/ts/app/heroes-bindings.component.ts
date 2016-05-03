@@ -1,10 +1,10 @@
-import {Component, HostBinding, HostListener} from '@angular/core';
+import { Component, HostBinding, HostListener } from '@angular/core';
 
 // #docregion
 @Component({
   selector: 'heroes-bindings',
   template: `<h1 [class.active]="active">
-    Tour of Heroes
+    Tour ofHeroes
   </h1>`
 })
 export class HeroesComponent {

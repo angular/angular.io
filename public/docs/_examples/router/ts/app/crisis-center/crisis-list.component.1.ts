@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
 import { Component } from '@angular/core';
+import { OnActivate, Router, RouteSegment } from '@angular/router';
+
 import { Crisis, CrisisService } from './crisis.service';
-import { Router, OnActivate, RouteSegment } from '@angular/router';
 
 @Component({
   // #docregion template

@@ -6,3 +6,4 @@ import { Component } from '@angular/core';
   template: '<h3>My Dashboard</h3>'
 })
 export class DashboardComponent { }
+

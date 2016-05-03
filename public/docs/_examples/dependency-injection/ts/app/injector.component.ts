@@ -1,11 +1,11 @@
 // #docplaster
 //#docregion
-import {Component, Injector}  from '@angular/core';
+import { Component, Injector }  from '@angular/core';
 
-import {Car, Engine, Tires}   from './car/car';
-import {HeroService}          from './heroes/hero.service';
-import {heroServiceProvider}  from './heroes/hero.service.provider';
-import {Logger}               from './logger.service';
+import { Car, Engine, Tires }   from './car/car';
+import { HeroService }          from './heroes/hero.service';
+import { heroServiceProvider }  from './heroes/hero.service.provider';
+import { Logger }               from './logger.service';
 
 //#docregion injector
 @Component({
@@ -16,21 +16,22 @@ import {Logger}               from './logger.service';
   <div id="hero">{{hero.name}}</div>
   <div id="rodent">{{rodent}}</div>
   `,
+
   providers: [Car, Engine, Tires,
               heroServiceProvider, Logger]
 })
 export class InjectorComponent {
-  constructor(private _injector: Injector) { }
+  constructor(private injector: Injector) { }
 
-  car:Car = this._injector.get(Car);
+  car:Car = this.injector.get(Car);
 
   //#docregion get-hero-service
-  heroService:HeroService = this._injector.get(HeroService);
+  heroService:HeroService = this.injector.get(HeroService);
   //#enddocregion get-hero-service
   hero = this.heroService.getHeroes()[0];
 
   get rodent() {
-    let rous = this._injector.get(ROUS, null);
+    let rous = this.injector.get(ROUS, null);
     if (rous) {
       throw new Error('Aaaargh!')
     }

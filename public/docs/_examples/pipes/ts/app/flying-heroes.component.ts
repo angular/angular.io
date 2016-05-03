@@ -1,9 +1,10 @@
 // #docplaster
 // #docregion
-import {Component}              from '@angular/core';
-import {FlyingHeroesPipe,
-        FlyingHeroesImpurePipe} from './flying-heroes.pipe';
-import {HEROES}                 from './heroes';
+import { Component }              from '@angular/core';
+
+import { FlyingHeroesPipe,
+        FlyingHeroesImpurePipe }  from './flying-heroes.pipe';
+import { HEROES }                 from './heroes';
 
 @Component({
   selector: 'flying-heroes',

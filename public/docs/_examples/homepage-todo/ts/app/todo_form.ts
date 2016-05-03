@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Output, EventEmitter} from '@angular/core';
-import {Todo} from './todo';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { Todo } from './todo';
 
 @Component({
   selector: 'todo-form',

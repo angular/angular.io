@@ -1,11 +1,11 @@
 // #docplaster
 // #docregion import
-import {Component} from '@angular/core';
-import {ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 // #enddocregion import
-import {MovieService} from './movie.service';
-import {IMovie} from './movie';
-import {StringSafeDatePipe} from './date.pipe';
+import { MovieService } from './movie.service';
+import { IMovie } from './movie';
+import { StringSafeDatePipe } from './date.pipe';
 
 
 // #docregion component

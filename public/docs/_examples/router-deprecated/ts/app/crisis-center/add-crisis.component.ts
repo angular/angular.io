@@ -1,7 +1,8 @@
-import {Component} from '@angular/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {DialogService} from '../dialog.service';
-import {CanDeactivate, ComponentInstruction, Router} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { CanDeactivate, ComponentInstruction, Router } from '@angular/router-deprecated';
+
+import { Crisis, CrisisService } from './crisis.service';
+import { DialogService } from '../dialog.service';
 
 @Component({
   template: `
@@ -19,23 +20,23 @@ export class AddCrisisComponent implements CanDeactivate {
   editName: string;
 
   constructor(
-    private _service: CrisisService,
-    private _router: Router,
-    private _dialog: DialogService) { }
+    private service: CrisisService,
+    private router: Router,
+    private dialog: DialogService) { }
 
   routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) {
     return !!this.editName.trim() ||
-           this._dialog.confirm('Discard changes?');
+           this.dialog.confirm('Discard changes?');
   }
 
   cancel() { this.gotoCrises(); }
 
   save() {
-    this._service.addCrisis(this.editName);
+    this.service.addCrisis(this.editName);
     this.gotoCrises();
   }
 
   gotoCrises() {
-    this._router.navigate(['CrisisCenter']);
+    this.router.navigate(['CrisisCenter']);
   }
 }

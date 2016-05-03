@@ -1,8 +1,8 @@
 import { Component }     from '@angular/core';
-import { Routes, ROUTER_DIRECTIVES } from '@angular/router';
+import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
 
-import { CrisisListComponent }   from './crisis-list.component.1';
 import { CrisisDetailComponent } from './crisis-detail.component.1';
+import { CrisisListComponent }   from './crisis-list.component.1';
 import { CrisisService }         from './crisis.service';
 
 // #docregion minus-imports

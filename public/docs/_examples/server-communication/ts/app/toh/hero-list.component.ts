@@ -1,7 +1,8 @@
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Hero}              from './hero';
-import {HeroService}       from './hero.service';
+import { Component, OnInit } from '@angular/core';
+
+import { Hero }              from './hero';
+import { HeroService }       from './hero.service';
 
 @Component({
   selector: 'hero-list',
@@ -11,7 +12,7 @@ import {HeroService}       from './hero.service';
 // #docregion component
 export class HeroListComponent implements OnInit {
 
-  constructor (private _heroService: HeroService) {}
+  constructor (private heroService: HeroService) {}
 
   errorMessage: string;
   heroes:Hero[];
@@ -21,7 +22,7 @@ export class HeroListComponent implements OnInit {
   // #docregion methods
   // #docregion getHeroes
   getHeroes() {
-    this._heroService.getHeroes()
+    this.heroService.getHeroes()
                      .subscribe(
                        heroes => this.heroes = heroes,
                        error =>  this.errorMessage = <any>error);
@@ -31,7 +32,7 @@ export class HeroListComponent implements OnInit {
   // #docregion addHero
   addHero (name: string) {
     if (!name) {return;}
-    this._heroService.addHero(name)
+    this.heroService.addHero(name)
                      .subscribe(
                        hero  => this.heroes.push(hero),
                        error =>  this.errorMessage = <any>error);

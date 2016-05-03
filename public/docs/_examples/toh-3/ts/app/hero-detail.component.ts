@@ -1,17 +1,17 @@
 // #docplaster
 // #docregion
 // #docregion v1
-import {Component, Input} from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 // #enddocregion v1
 // #docregion hero-import
-import {Hero} from './hero';
+import { Hero } from './hero';
 // #enddocregion hero-import
 
 // #docregion v1
 @Component({
   selector: 'my-hero-detail',
-// #enddocregion v1  
+// #enddocregion v1
   // #docregion template
   template: `
     <div *ngIf="hero">

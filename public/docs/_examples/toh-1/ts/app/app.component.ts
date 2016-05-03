@@ -1,5 +1,5 @@
 // #docregion pt1
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 // #docregion hero-class-1
 export class Hero {

@@ -1,8 +1,8 @@
 // #docregion
 // #docregion top
-import {Component, Inject} from '@angular/core';
-import {Phones, Phone} from '../core/phones.service';
-import {CheckmarkPipe} from '../core/checkmark.pipe';
+import { Component, Inject } from '@angular/core';
+import { Phones, Phone } from '../core/phones.service';
+import { CheckmarkPipe } from '../core/checkmark.pipe';
 
 interface PhoneRouteParams {
   phoneId: string

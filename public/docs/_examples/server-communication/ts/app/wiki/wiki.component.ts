@@ -1,9 +1,9 @@
 // #docregion
-import {Component}        from '@angular/core';
-import {JSONP_PROVIDERS}  from '@angular/http';
-import {Observable}       from 'rxjs/Observable';
+import { Component }        from '@angular/core';
+import { JSONP_PROVIDERS }  from '@angular/http';
+import { Observable }       from 'rxjs/Observable';
 
-import {WikipediaService} from './wikipedia.service';
+import { WikipediaService } from './wikipedia.service';
 
 @Component({
   selector: 'my-wiki',
@@ -12,7 +12,7 @@ import {WikipediaService} from './wikipedia.service';
     <p><i>Fetches after each keystroke</i></p>
 
     <input #term (keyup)="search(term.value)"/>
-    
+
     <ul>
       <li *ngFor="let item of items | async">{{item}}</li>
     </ul>
@@ -21,11 +21,11 @@ import {WikipediaService} from './wikipedia.service';
 })
 export class WikiComponent {
 
-  constructor (private _wikipediaService: WikipediaService) {}
+  constructor (private wikipediaService: WikipediaService) {}
 
   items: Observable<string[]>;
 
   search (term: string) {
-    this.items = this._wikipediaService.search(term);
+    this.items = this.wikipediaService.search(term);
   }
 }

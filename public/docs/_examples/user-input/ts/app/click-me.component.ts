@@ -5,7 +5,7 @@
 */
 
 // #docregion
-import {Component} from '@angular/core';
+import { Component } from '@angular/core';
 
 // #docregion click-me-component
 @Component({

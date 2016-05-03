@@ -1,9 +1,12 @@
 // #docplaster
 // #docregion
-import {HEROES} from './mock-heroes';
 // #docregion empty-class
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
+// #enddocregion empty-class
+import { HEROES } from './mock-heroes';
+
+// #docregion empty-class
 // #docregion getHeroes-stub
 @Injectable()
 export class HeroService {

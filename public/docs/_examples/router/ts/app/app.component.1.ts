@@ -3,7 +3,7 @@
 
 // #docregion
 import { Component } from '@angular/core';
-import { Routes, ROUTER_DIRECTIVES } from '@angular/router';
+import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
 
 import { CrisisListComponent } from './crisis-list.component';
 import { HeroListComponent }   from './hero-list.component';

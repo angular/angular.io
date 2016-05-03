@@ -1,4 +1,4 @@
-import {Hero} from '../Hero';
+import { Hero } from '../Hero';
 
 export class MainController {
   hero = new Hero(1, 'Windstorm');

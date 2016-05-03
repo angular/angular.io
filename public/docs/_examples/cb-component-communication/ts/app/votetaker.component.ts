@@ -1,6 +1,7 @@
 // #docregion
-import {Component}      from '@angular/core';
-import {VoterComponent} from './voter.component';
+import { Component }      from '@angular/core';
+
+import { VoterComponent } from './voter.component';
 
 @Component({
   selector: 'vote-taker',

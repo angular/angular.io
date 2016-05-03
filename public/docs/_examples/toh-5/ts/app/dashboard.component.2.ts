@@ -15,10 +15,10 @@ export class DashboardComponent implements OnInit {
 
   heroes: Hero[] = [];
 
-  constructor(private _heroService: HeroService) { }
+  constructor(private heroService: HeroService) { }
 
   ngOnInit() {
-    this._heroService.getHeroes()
+    this.heroService.getHeroes()
       .then(heroes => this.heroes = heroes.slice(1,5));
   }
 

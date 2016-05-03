@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion full
-import {Directive, ElementRef, Input} from '@angular/core';
+import { Directive, ElementRef, Input } from '@angular/core';
 
 @Directive({
   selector: '[myHighlight]',
@@ -12,9 +12,9 @@ import {Directive, ElementRef, Input} from '@angular/core';
 
 // #docregion class-1
 export class HighlightDirective {
-  
+
   private _defaultColor = 'red';
-  private _el:HTMLElement;
+  private el:HTMLElement;
 // #enddocregion class-1
 // #enddocregion full
   /*
@@ -37,15 +37,15 @@ export class HighlightDirective {
 
 // #enddocregion class-1
 // #docregion class-1
-  constructor(el: ElementRef) { this._el = el.nativeElement; }
+  constructor(el: ElementRef) { this.el = el.nativeElement; }
 
 // #docregion mouse-enter
-  onMouseEnter() { this._highlight(this.highlightColor || this._defaultColor); }
+  onMouseEnter() { this.highlight(this.highlightColor || this._defaultColor); }
 // #enddocregion mouse-enter
-  onMouseLeave() { this._highlight(null); }
+  onMouseLeave() { this.highlight(null); }
 
-  private _highlight(color:string) {
-    this._el.style.backgroundColor = color;
+  private highlight(color:string) {
+    this.el.style.backgroundColor = color;
   }
 }
 // #enddocregion class-1

@@ -1,8 +1,9 @@
 // #docregion
-import {Component} from '@angular/core';
-import {Todo}      from './todo';
-import {TodoList}  from './todo_list';
-import {TodoForm}  from './todo_form';
+import { Component } from '@angular/core';
+
+import { Todo }      from './todo';
+import { TodoList }  from './todo_list';
+import { TodoForm }  from './todo_form';
 
 @Component({
   selector: 'todo-app',

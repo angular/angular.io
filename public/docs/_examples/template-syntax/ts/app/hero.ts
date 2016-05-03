@@ -8,7 +8,8 @@ export class Hero {
     public url?:string,
     public rate:number = 100,
     id?:number) {
-      this.id = id != null ? id : Hero.nextId++;
+ 
+     this.id = id != null ? id : Hero.nextId++;
     }
 
   static clone({firstName, lastName, birthdate, url, rate, id} : Hero){

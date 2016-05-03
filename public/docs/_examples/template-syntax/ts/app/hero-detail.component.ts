@@ -1,7 +1,7 @@
 // #docplaster
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import {Hero} from './hero';
+import { Hero } from './hero';
 
 let nextHeroDetailId = 1;
 

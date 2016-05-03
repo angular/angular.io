@@ -1,9 +1,9 @@
 // #docregion
-import {provide, ApplicationRef} from '@angular/core';
-import {LocationStrategy, HashLocationStrategy} from '@angular/common';
-import {HTTP_PROVIDERS} from '@angular/http';
-import {ROUTER_PROVIDERS, ROUTER_PRIMARY_COMPONENT} from '@angular/router';
-import {Observable} from 'rxjs/Rx';
+import { provide, ApplicationRef } from '@angular/core';
+import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import { HTTP_PROVIDERS } from '@angular/http';
+import { ROUTER_PROVIDERS, ROUTER_PRIMARY_COMPONENT } from '@angular/router';
+import { Observable } from 'rxjs/Rx';
 import {
   describe,
   beforeEachProviders,
@@ -12,12 +12,12 @@ import {
   expect,
   MockApplicationRef
 } from '@angular/core/testing';
-import {MockLocationStrategy} from '@angular/common/testing';
-import {TestComponentBuilder} from '@angular/compiler/testing';
+import { MockLocationStrategy } from '@angular/common/testing';
+import { TestComponentBuilder } from '@angular/compiler/testing';
 
 import AppComponent from '../../app/js/app.component';
 import PhoneList from '../../app/js/phone_list/phone_list.component';
-import {Phones, Phone} from '../../app/js/core/phones.service';
+import { Phones, Phone } from '../../app/js/core/phones.service';
 
 class MockPhones extends Phones {
   query():Observable<Phone[]> {

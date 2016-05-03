@@ -1,7 +1,8 @@
 // #docregion
-import {Component}       from '@angular/core'
-import {DynamicForm}     from './dynamic-form.component';
-import {QuestionService} from './question.service';
+import { Component }       from '@angular/core'
+
+import { DynamicForm }     from './dynamic-form.component';
+import { QuestionService } from './question.service';
 
 @Component({
   selector: 'my-app',

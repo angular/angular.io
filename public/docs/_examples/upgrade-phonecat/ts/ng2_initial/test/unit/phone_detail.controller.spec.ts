@@ -1,7 +1,7 @@
 // #docregion
-import {Observable} from 'rxjs/Rx';
+import { Observable } from 'rxjs/Rx';
 import '../../app/js/phone_detail/phone_detail.module';
-import {Phones} from '../../app/js/core/phones.service';
+import { Phones } from '../../app/js/core/phones.service';
 
 describe('PhoneDetailCtrl', () => {
   var scope, phones, $controller,

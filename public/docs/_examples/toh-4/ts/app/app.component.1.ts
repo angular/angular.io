@@ -1,13 +1,14 @@
 // #docplaster
 // #docregion on-init
-import {OnInit} from '@angular/core';
+import { OnInit } from '@angular/core';
 
 // #enddocregion on-init
-import {Component} from '@angular/core';
-import {Hero} from './hero';
-import {HeroDetailComponent} from './hero-detail.component';
+import { Component } from '@angular/core';
+
+import { Hero } from './hero';
+import { HeroDetailComponent } from './hero-detail.component';
 // #docregion hero-service-import
-import {HeroService} from './hero.service.1';
+import { HeroService } from './hero.service.1';
 // #enddocregion hero-service-import
 
 // Testable but never shown
@@ -37,12 +38,12 @@ export class AppComponent implements OnInit {
   heroService = new HeroService(); // don't do this
   // #enddocregion new-service
   // #docregion ctor
-  constructor(private _heroService: HeroService) { }
+  constructor(private heroService: HeroService) { }
   // #enddocregion ctor
   // #docregion getHeroes
   getHeroes() {
     //#docregion get-heroes
-    this.heroes = this._heroService.getHeroes();
+    this.heroes = this.heroService.getHeroes();
     // #enddocregion get-heroes
   }
   // #enddocregion getHeroes

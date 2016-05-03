@@ -1,6 +1,6 @@
 // #docregion
-import {Pipe} from '@angular/core';
-import {Phone} from '../core/phones.service';
+import { Pipe } from '@angular/core';
+import { Phone } from '../core/phones.service';
 
 @Pipe({name: 'phoneFilter'})
 export default class PhoneFilterPipe {

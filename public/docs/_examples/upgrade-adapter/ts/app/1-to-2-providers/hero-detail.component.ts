@@ -1,7 +1,7 @@
 // #docregion
-import {Component, Inject} from '@angular/core';
-import {HeroesService} from './heroes.service';
-import {Hero} from '../hero';
+import { Component, Inject } from '@angular/core';
+import { HeroesService } from './heroes.service';
+import { Hero } from '../hero';
 
 @Component({
   selector: 'hero-detail',

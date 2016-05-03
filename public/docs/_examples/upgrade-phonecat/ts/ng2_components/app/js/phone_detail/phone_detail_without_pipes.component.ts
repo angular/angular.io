@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Inject} from '@angular/core';
-import {Phones, Phone} from '../core/phones.service';
+import { Component, Inject } from '@angular/core';
+import { Phone, Phones } from '../core/phones.service';
 
 interface PhoneRouteParams {
   phoneId: string

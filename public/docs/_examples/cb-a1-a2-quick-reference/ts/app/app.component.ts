@@ -1,10 +1,10 @@
-import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
-import {MovieListComponent} from './movie-list.component';
-import {MovieService} from './movie.service';
-import {IMovie} from './movie';
-import {StringSafeDatePipe} from './date.pipe';
+import { MovieListComponent } from './movie-list.component';
+import { MovieService } from './movie.service';
+import { IMovie } from './movie';
+import { StringSafeDatePipe } from './date.pipe';
 
 @Component({
   selector: 'my-app',

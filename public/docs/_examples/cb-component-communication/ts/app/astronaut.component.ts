@@ -1,7 +1,8 @@
 // #docregion
-import {Component, Input, OnDestroy} from '@angular/core';
-import {MissionService} from './mission.service';
-import {Subscription}   from 'rxjs/Subscription';
+import { Component, Input, OnDestroy } from '@angular/core';
+
+import { MissionService } from './mission.service';
+import { Subscription }   from 'rxjs/Subscription';
 
 @Component({
   selector: 'my-astronaut',

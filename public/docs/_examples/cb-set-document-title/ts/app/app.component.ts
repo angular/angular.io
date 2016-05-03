@@ -20,10 +20,10 @@ template:
 })
 // #docregion class
 export class AppComponent {
-  public constructor(private _titleService: Title ) { }
+  public constructor(private titleService: Title ) { }
 
   public setTitle( newTitle: string) {
-    this._titleService.setTitle( newTitle );
+    this.titleService.setTitle( newTitle );
   }
 }
 // #enddocregion class

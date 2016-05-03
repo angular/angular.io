@@ -1,16 +1,16 @@
 // #docregion
 // #docregion importbootstrap
-import {provide} from '@angular/core';
-import {LocationStrategy, HashLocationStrategy} from '@angular/common';
-import {bootstrap} from '@angular/platform-browser-dynamic';
-import {ROUTER_PROVIDERS} from '@angular/router';
+import { provide } from '@angular/core';
+import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import { bootstrap } from '@angular/platform-browser-dynamic';
+import { ROUTER_PROVIDERS } from '@angular/router';
 
-import {Phones} from './core/phones.service';
+import { Phones } from './core/phones.service';
 import AppComponent from './app.component';
 // #enddocregion importbootstrap
 
 // #docregion http-import
-import {HTTP_PROVIDERS} from '@angular/http';
+import { HTTP_PROVIDERS } from '@angular/http';
 // #enddocregion http-import
 
 // #docregion bootstrap

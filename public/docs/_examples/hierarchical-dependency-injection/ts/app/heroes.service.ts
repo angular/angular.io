@@ -1,4 +1,4 @@
-import {Hero} from './hero';
+import { Hero } from './hero';
 
 export class HeroesService {
   heroes: Array<Hero> = [

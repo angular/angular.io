@@ -1,8 +1,8 @@
 // #docregion full
 // #docregion top
-import {Component} from '@angular/core';
-import {Observable} from 'rxjs';
-import {Phones, Phone} from '../core/phones.service';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Phones, Phone } from '../core/phones.service';
 import PhoneFilterPipe from './phone_filter.pipe';
 import OrderByPipe from './order_by.pipe';
 

@@ -1,7 +1,7 @@
 /* tslint:disable:one-line:check-open-brace*/
 // #docplaster
 // #docregion opaque-token
-import {OpaqueToken} from '@angular/core';
+import { OpaqueToken } from '@angular/core';
 
 export const TITLE = new OpaqueToken('title');
 // #enddocregion opaque-token

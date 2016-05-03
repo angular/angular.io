@@ -1,20 +1,20 @@
 // #docplaster
 // #docregion
 // #docregion imports
-import {Component, Inject, provide} from '@angular/core';
+import { Component, Inject, provide } from '@angular/core';
 
-import {CarComponent}      from './car/car.component';
-import {HeroesComponent}   from './heroes/heroes.component';
+import { CarComponent }      from './car/car.component';
+import { HeroesComponent }   from './heroes/heroes.component';
 
-import {APP_CONFIG,
-        Config, CONFIG}    from './app.config';
-import {Logger}            from './logger.service';
+import { APP_CONFIG,
+        Config, CONFIG }    from './app.config';
+import { Logger }            from './logger.service';
 
-import {User, UserService} from './user.service';
+import { User, UserService } from './user.service';
 // #enddocregion imports
-import {InjectorComponent} from './injector.component';
-import {TestComponent}     from './test.component';
-import {ProvidersComponent} from './providers.component';
+import { InjectorComponent } from './injector.component';
+import { TestComponent }     from './test.component';
+import { ProvidersComponent } from './providers.component';
 
 @Component({
   selector: 'my-app',
@@ -47,15 +47,15 @@ export class AppComponent {
   //#docregion ctor
   constructor(
     @Inject(APP_CONFIG) config:Config,
-    private _userService: UserService) {
+    private userService: UserService) {
 
     this.title = config.title;
   }
   // #enddocregion ctor
 
   get isAuthorized() { return this.user.isAuthorized;}
-  nextUser()         { this._userService.getNewUser(); }
-  get user()         { return this._userService.user; }
+  nextUser()         { this.userService.getNewUser(); }
+  get user()         { return this.userService.user; }
 
   get userInfo()     {
     return `Current user, ${this.user.name}, is `+

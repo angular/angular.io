@@ -1,9 +1,10 @@
 // Simulate a simple test
 // Reader should look to the testing chapter for the real thing
 
-import {Component}           from '@angular/core';
-import { HeroService }       from './heroes/hero.service';
-import { HeroListComponent } from './heroes/hero-list.component';
+import { Component }           from '@angular/core';
+
+import { HeroService }         from './heroes/hero.service';
+import { HeroListComponent }   from './heroes/hero-list.component';
 
 @Component({
   selector: 'my-tests',

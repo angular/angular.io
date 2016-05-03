@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from '@angular/core';
-import {NameChildComponent} from './name-child.component';
+import { Component } from '@angular/core';
+
+import { NameChildComponent } from './name-child.component';
 
 @Component({
   selector: 'name-parent',
