@@ -1,10 +1,4 @@
 // #docregion
-/**
- * System configuration for Angular 2 samples
- * Adjust as necessary for your application needs.
- * Override at the last minute with global.filterSystemConfig (as plunkers do)
- */
-// #docregion
 (function(global) {
 
   // map tells the System loader where to look for things
@@ -30,6 +24,7 @@
     '@angular/platform-browser',
     '@angular/platform-browser-dynamic',
     '@angular/router',
+    '@angular/router-deprecated',
     '@angular/testing',
     '@angular/upgrade',
   ];
