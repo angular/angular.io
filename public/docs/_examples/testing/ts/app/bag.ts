@@ -5,17 +5,6 @@ import { Component, EventEmitter, Injectable, Input, Output,
 
 import { Observable }     from 'rxjs/Rx';
 
-// Let TypeScript know about the special SystemJS __moduleName variable
-declare var __moduleName: string;
-
-// moduleName is not set in some module loaders; set it explicitly
-if (!__moduleName) {
-  __moduleName = `http://${location.host}/${location.pathname}/app/`;
-}
-// console.log(`The __moduleName is ${__moduleName} `);
-
-
-
 ////////// The App: Services and Components for the tests. //////////////
 
 ////////// Services ///////////////
@@ -136,7 +125,7 @@ export class TestViewProvidersComp {
 
 
 @Component({
-  moduleId: __moduleName,
+  moduleId: module.id,
   selector: 'external-template-comp',
   templateUrl: 'bag-external-template.html'
 })

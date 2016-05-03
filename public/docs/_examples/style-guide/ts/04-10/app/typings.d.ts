@@ -1,1 +1,1 @@
-declare var __moduleName: any;
+declare var module.id: any;
