@@ -1,11 +1,529 @@
 include ../_util-fns
+:marked
+  [HTTP](https://tools.ietf.org/html/rfc2616) is the primary protocol for browser/server communication.
+.l-sub-section
+  :marked
+    The [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol is another important communication technology;
+    we won't cover it in this chapter.
+:marked
+  Modern browsers support two HTTP-based APIs: 
+  [XMLHttpRequest (XHR)](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) and 
+  [JSONP](https://en.wikipedia.org/wiki/JSONP). A few browsers also support
+  [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). 
+  
+  The Angular HTTP client library simplifies application programming of the **XHR** and **JSONP** APIs
+  as we'll learn in this chapter covering:
+  
+  [Http client sample overview](#http-client)<br>
+  [Fetch data with http.get](#fetch-data)<br>
+  [RxJS Observable of HTTP Responses](#rxjs)<br>
+  [Enabling RxJS Operators](#enable-rxjs-operators)<br>
+  [Extract JSON data with RxJS map](#map)<br>
+  [Error handling](#error-handling)<br>
+  [Send data to the server](#update)<br>
+  [Add headers](#headers)<br>
+  [Promises instead of observables](#promises)<br>
+  [JSONP](#jsonp)<br>
+  [Set query string parameters](#search-parameters)<br>
+  [Debounce search term input](#more-observables)<br>
+  [Appendix: the in-memory web api service](#in-mem-web-api)<br>
+  
+  [Dart Source Code](https://github.com/angular/angular.io/tree/master/public/docs/_examples/server-communication/dart).
+
+
+.l-main-section
+:marked
+  ## The *Http* Client Demo
+  
+  We use the Angular `Http` client to communicate via `XMLHttpRequest (XHR)`.
+  
+  We'll demonstrate with a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
+  This version gets some heroes from the server, displays them in a list, lets us add new heroes, and save them to the server.
+  
+  It works like this.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/http-toh.gif' alt="ToH mini app" width="250")
+:marked
+  It's implemented with two components &mdash; a parent `TohComponent` shell and the `HeroListComponent` child.
+  We've seen these kinds of component in many other documentation samples. 
+  Let's see how they change to support communication with a server.
+.l-sub-section
+  :marked
+    We're overdoing the "separation of concerns" by creating two components for a tiny demo. 
+    We're making a point about application structure that is easier to justify when the app grows.
+:marked
+  Here is the `TohComponent` shell:
++makeExample('server-communication/dart/lib/toh/toh_component.dart', null, 'lib/toh/toh_component.dart')
+:marked
+  As usual, we import the symbols we need. The newcomer is `BrowserClient`.
+  We'll be using that library to access the server.
+  We also import a `HeroService` that we'll look at shortly.
+  
+  The component specifies both the ``BroserClient` and the `HeroService` in the metadata `providers` list,
+  making them available to the child components of this "Tour of Heroes" application.
+
+.l-sub-section
+  :marked
+    Alternatively, we may choose to add the `BrowserClient` while bootstrapping the app:
+  +makeExample('server-communication/dart/web/main.dart','http-providers','web/main.dart')(format='.')
+  :marked
+    Learn about providers in the [Dependency Injection](dependency-injection.html) chapter.
 
 :marked
-  We're working on the Dart version of this chapter.
-  In the meantime, please see these resources:
+  This sample only has one child, the `HeroListComponent`.  Here's its template:
++makeExample('server-communication/dart/lib/toh/hero_list_component.html', null, 'lib/toh/hero_list_component.html (Template)')
+:marked
+  The component template displays a list of heroes with the `NgFor` repeater directive.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/hero-list.png' alt="Hero List")
+:marked
+  Beneath the heroes is an input box and an *Add Hero* button where we can enter the names of new heroes
+  and add them to the database. 
+  We use a [local template variable](template-syntax.html#local-vars), `newHero`, to access the 
+  value of the input box in the `(click)` event binding. 
+  When the user clicks the button, we pass that value to the component's `addHero` method and then
+  clear it to make ready for a new hero name.
+  
+  Below the button is a (hidden) area for an error message.
 
-  * [Http Client](/docs/ts/latest/guide/server-communication.html):
-    The TypeScript version of this chapter.
+a(id="oninit")
+a(id="HeroListComponent")
+:marked
+  ### The *HeroListComponent* class
+  Here's the component class:
++makeExample('server-communication/dart/lib/toh/hero_list_component.dart','component', 'lib/toh/hero_list_component.dart (class)')
+:marked
+  We [inject](dependency-injection.html) the `HeroService` into the constructor.
+  That's the instance of the `HeroService` that we provided in the parent shell `TohComponent`.
 
-  * [Dart source code](https://github.com/angular/angular.io/tree/master/public/docs/_examples/server-communication/dart):
-    A preliminary version of the example code that will appear in this chapter.
+  Notice that the component **does not talk to the server directly!** 
+  The component doesn't know or care how we get the data. 
+  Those details it delegates to the `heroService` class (which we'll get to in a moment).
+  
+  This is a golden rule: **always delegate data access to a supporting service class**.
+
+  Although _at runtime_ the component requests heroes immediately after creation, 
+  we do **not** call the service's `get` method in the component's constructor.
+  We call it inside the `ngOnInit` [lifecycle hook](lifecycle-hooks.html) instead
+  and count on Angular to call `ngOnInit` when it instantiates this component. 
+.l-sub-section
+  :marked
+    This is a "best practice". 
+    Components are easier to test and debug when their constructors are simple and all real work 
+    (especially calling a remote server) is handled in a separate method.
+:marked
+  The service `get` and `addHero` methods return an `Observable` of HTTP hero data.
+  We subscribe to this `Observable`, 
+  specifying the actions to take when the request succeeds or fails. 
+  We'll get to observables and subscription shortly.
+  
+  With our basic intuitions about the component squared away, we can turn to development of the backend data source
+  and the client-side `HeroService` that talks to it.
+  
+  ### Fetch data
+  
+  In many of our previous samples we faked the interaction with the server by
+  returning mock heroes in a service like this one:
++makeExample('toh-4/dart/lib/hero_service.dart', 'just-get-heroes')(format=".")
+:marked
+  In this chapter, we get the heroes from the server using Angular's own HTTP Client service.
+  Here's the new `HeroService`: 
+
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'v1', 'lib/toh/hero_service.dart')
+:marked
+  We begin by importing `BrowserClient` service and 
+  [inject it](dependency-injection.html) into the `HeroService` constructor.
+
+  `BrowserClient` is not part of the Angular core. It's a separate library.
+  
+  Look closely at how we call `_http.get`
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'http-get', 'lib/toh/hero_service.dart (getHeroes)')(format=".")
+:marked
+  We pass the resource URL to `get` and it calls the server which should return heroes.
+.l-sub-section
+  :marked
+    It *will* return heroes once we've set up the [in-memory web api](in-mem-web-api)
+    described in the appendix below.
+    
+    Alternatively, we can (temporarily) target a JSON file by changing the endpoint URL:
+  +makeExample('server-communication/dart/lib/toh/hero_service.dart', 'endpoint-json')(format=".")
+:marked
+  <a id="rxjs"></a>
+  The return value of `get` method is a [Future](https://www.dartlang.org/docs/tutorials/futures/).
+  We'd could chain a call to `then()` and extract the heroes.
+  Instead we're using an `await` statement.
+
+a(id="map")
+a(id="extract-data")
+:marked
+  ### Process the response object
+  Remember that our `getHeroes` method mapped the `_http.get` response object to heroes with an `_extractData` helper method:
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'extract-data', 'lib/toh/hero_service.dart (extractData)')(format=".")
+:marked
+  The `response` object does not hold our data in a form we can use directly. 
+  To make it useful in our application we must
+  * check for a bad response
+  * parse the response data into a JSON object
+.alert.is-important
+  :marked
+    *Beta alert*: error status interception and parsing may be absorbed within `http` when Angular is released. 
+:marked
+  #### Bad status codes
+  A status code outside the 200-300 range is an error from the _application point of view_
+  but it is not an error from the `http` point of view_. 
+  For example, a `404 - Not Found` is a response like any other. 
+  The request went out; a response came back; here it is, thank you very much.
+  We'd have an error only if `http` failed to operate (e.g., it errored internally).
+  
+  Because a status code outside the 200-300 range _is an error_ from the application point of view, 
+  we intercept and throw it.
+  
+  The `catch` statement will handle our thrown error.
+
+  #### Parse to JSON
+  The response data are in JSON string form. 
+  We must parse that string into Dart Maps which we do by calling `JSON.decode` and then convert the Maps into Hero
+  Objects by calling `Hero.fromJson` method.
+.l-sub-section
+  :marked
+    We shouldn't expect `response.body` to return the heroes list directly.
+    The server we're calling always wraps JSON results in an object with a `data`
+    property. We have to unwrap it to get the heroes.
+    This is conventional web api behavior, driven by 
+    [security concerns](https://www.owasp.org/index.php/OWASP_AJAX_Security_Guidelines#Always_return_JSON_with_an_Object_on_the_outside).
+.alert.is-important
+  :marked
+    Make no assumptions about the server API. 
+    Not all servers return an object with a `data` property.
+:marked
+  ### Do not return the response object
+  Our `getHeroes()` could have returned the `Future<Response>`.
+  
+  Bad idea! The point of a data service is to hide the server interaction details from consumers.
+  The component that calls the `HeroService` wants heroes. 
+  It has no interest in what we do to get them.
+  It doesn't care where they come from.
+  And it certainly doesn't want to deal with a response object.
+  
+a(id="error-handling")
+:marked
+  ### Always handle errors
+
+  The eagle-eyed reader may have spotted our use of the `catch` statement in conjunction with a `_handleError` method.
+  We haven't discussed so far how that actually works. 
+  Whenever we deal with I/O we must be prepared for something to go wrong as it surely will. 
+  
+  We should catch errors in the `HeroService` and do something with them. 
+  We may also pass an error message back to the component for presentation to the user
+  but only if we can say something the user can understand and act upon.
+
+  In this simple app we provide rudimentary error handling in both the service and the component.
+  
+  We use the `catch` statement on the service level.
+  It takes an error handling function with an error object as the argument.
+  Our service handler, `_handleError`, logs the response to the console, 
+  transforms the error into a user-friendly message, and returns the message in a new, failed observable via `throw`.
+
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'error-handling', 'lib/toh/hero_service.dart')(format=".")
+
+<a id="subscribe"></a>
+<a id="hero-list-component"></a>
+:marked
+  ## `try-catch` in the *HeroListComponent*
+  Back in the `HeroListComponent`, where we called `_heroService.get`, 
+  we surround the call with a `try-catch` statement to handle the error message.
+  The `catch` sets an `errorMessage` variable which we've bound conditionally in the template.
+
++makeExample('server-communication/dart/lib/toh/hero_list_component.dart', 'getHeroes', 'lib/toh/hero_list_component.dart (getHeroes)')(format=".")
+
+.l-sub-section
+  :marked
+    Want to see it fail? Reset the api endpoint in the `HeroService` to a bad value. Remember to restore it!
+
+
+<a id="update"></a>
+<a id="post"></a>
+.l-main-section
+:marked
+  ## Send data to the server
+  
+  So far we've seen how to retrieve data from a remote location using `BrowserClient` service. 
+  Let's add the ability to create new heroes and save them in the backend.
+
+  We'll create an easy method for the `HeroListComponent` to call, an `addHero` method that takes
+  just the name of a new hero and returns an future holding the newly-saved hero:
+code-example(format="." language="javascript").
+  Future&lt;Hero> addHero (String name)
+:marked
+  To implement it, we need to know some details about the server's api for creating heroes.
+  
+  [Our data server](#server) follows typical REST guidelines.
+  It expects a [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request
+  at the same endpoint where we `GET` heroes.
+  It expects the new hero data to arrive in the body of the request, 
+  structured like a `Hero` entity but without the `id` property.
+  The body of the request should look like this:
+
+code-example(format="." language="javascript").
+  { "name": "Windstorm" }
+:marked
+  The server will generate the `id` and return the entire `JSON` representation
+  of the new hero including its generated id. The hero arrives tucked inside a response object
+  with its own `data` property.
+  
+  Now that we know how the API works, we implement `addHero`like this:
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'addhero', 'lib/toh/hero_service.dart (addHero)')(format=".")
+:marked
+  The *body* parameter of the `post` method requires a JSON ***string***
+  so we have to `JSON.encode` the hero content before sending.
+.l-sub-section
+  :marked
+    We may be able to skip the `encode` step in the near future.
+
+<a id="headers"></a>
+:marked
+  ### Headers
+  The server requires a `Content-Type` header for the body of the POST.
+  Compose the `headers` map and pass it in as a named parameter of the `post` method.
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'headers', 'lib/toh/hero_service.dart (headers)')(format=".")
+
+:marked
+  ### JSON results
+  As with `getHeroes`, we [extract the data](#extract-data) from the response with `Hero.fromJson` and unwrap the hero via the `data` property.
+.alert.is-important
+  :marked
+    Know the shape of the data returned by the server. 
+    *This* web api returns the new hero wrapped in an object with a `data` property.
+    A different api might just return the hero in which case we'd omit the `data` de-reference.
+:marked
+  Back in the `HeroListComponent`, we see that *its* `addHero` method is marked with `async` and calls the *service's* `addHero` method using `await`.
+  When the data arrive it adds the new hero object into its `heroes` list for presentation to the user.
++makeExample('server-communication/dart/lib/toh/hero_list_component.dart', 'addHero', 'lib/toh/hero_list_component.dart (addHero)')(format=".")
+
+<a id="jsonp"></a>
+:marked
+  ## Get data with `JSONP`
+
+  We just learned how to make `XMLHttpRequests` using `BrowserClient` service. 
+  This is the most common approach for server communication. 
+  It doesn't work in all scenarios.
+
+  For security reasons, web browsers block `XHR` calls to a remote server whose origin is different from the origin of the web page.
+  The *origin* is the combination of URI scheme, hostname and port number. 
+  This is called the [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy).
+
+.l-sub-section
+  :marked
+    Modern browsers do allow `XHR` requests to servers from a different origin if the server supports the 
+    [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) protocol.
+    If the server requires user credentials, we'll enable them in the [request headers](#headers).
+
+:marked
+  Some servers do not support CORS but do support an older, read-only alternative called [JSONP](https://en.wikipedia.org/wiki/JSONP).
+  Wikipedia is one such server.
+.l-sub-section
+  :marked
+    This [StackOverflow answer](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about/2067584#2067584) covers many details of JSONP.
+:marked
+  ### Search wikipedia
+  
+  Wikipedia offers a `JSONP` search api. Let's build a simple search that shows suggestions from wikipedia as we type in a text box.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/wiki-1.gif' alt="Wikipedia search app (v.1)" width="250")
+:marked
+  The Angular `Jsonp` service both extends the `Http` service for JSONP and restricts us to `GET` requests. 
+  All other HTTP methods throw an error because JSONP is a read-only facility. 
+
+  As always, we wrap our interaction with an Angular data access client service inside a dedicated service, here called `WikipediaService`.
+
++makeExample('server-communication/dart/lib/wiki/wikipedia_service.dart',null,'lib/wiki/wikipedia_service.dart')
+:marked
+  The constructor expects Angular to inject its `jsonp` service. 
+  We register that service by adding the class provider `Jsonp` in the  [component below](#wikicomponent) that calls our `WikipediaService`.
+
+<a id="query-parameters"></a>
+<a id="search-parameters"></a>
+:marked
+  ### Search parameters
+  The [Wikipedia 'opensearch' API](https://www.mediawiki.org/wiki/API:Opensearch)
+  expects four parameters (key/value pairs) to arrive in the request URL's query string.
+  The keys are `search`, `action`, `format`, and `callback`.
+  The value of the `search` key is the user-supplied search term to find in Wikipedia.
+  The other three are the fixed values "opensearch", "json", and "JSONP_CALLBACK" respectively.
+.l-sub-section
+  :marked
+    The `JSONP` technique requires that we pass a callback function name to the server in the query string: `callback=JSONP_CALLBACK`.
+    The server uses that name to build a JavaScript wrapper function in its response which Angular ultimately calls to extract the data.
+    All of this happens under the hood.
+:marked
+  If we're looking for articles with the word "Angular", we could construct the query string by hand and call `jsonp` like this:
++makeExample('server-communication/dart/lib/wiki/wikipedia_service_1.dart','query-string')(format='.')
+:marked
+  In more parameterized examples we might prefer to build an `Uri` object passing a map to the `queryParameters` optional parameter as shown here:
++makeExample('server-communication/dart/lib/wiki/wikipedia_service.dart','search-parameters','lib/wiki/wikipedia_service.dart (search parameters)')(format=".")
+:marked
+  This time we call `_jsonp.get` with an `Uri` object created with `scheme`, `host`, `path` and `queryParameters` optional parameters.
++makeExample('server-communication/dart/lib/wiki/wikipedia_service.dart','call-jsonp','lib/wiki/wikipedia_service.dart (call jsonp)')(format=".")
+:marked
+  `Uri` flattens the `queryParameters` map into the same query string we saw earlier before putting the request on the wire.
+
+<a id="wikicomponent"></a>
+:marked
+  ### The WikiComponent
+  
+  Now that we have a service that can query the Wikipedia API, 
+  we turn to the component that takes user input and displays search results.
+
++makeExample('server-communication/dart/lib/wiki/wiki_component.dart', null, 'lib/wiki/wiki_component.dart')
+:marked
+  The `providers` list in the component metadata specifies the `Jsonp` class service.
+  We register that collection at the component level to make `Jsonp` injectable in the `WikipediaService`.
+
+  The component presents an `<input>` element *search box* to gather search terms from the user. 
+  and calls a `search(term)` method after each `keyup` event.
+  
+  The `search(term)` method delegates to our `WikipediaService` which returns a future list of string results (`Future<List<string>>`). 
+  So that, we could update the `items` list of the component using a chained `then` method or we could use the `await` statement.
+  In this case, `await` statement was used since it makes code more readable.
+.l-sub-section
+  :marked
+    We often use the [async pipe](pipes.html#async-pipe) in read-only components where the component has no need to interact with the data.
+    We couldn't use the pipe in the `HeroListComponent` because the "add hero" feature pushes newly created heroes into the list.
+
+:marked
+  ## Our wasteful app
+
+  Our wikipedia search makes too many calls to the server. 
+  It is inefficient and potentially expensive on mobile devices with limited data plans.
+   
+  ### 1. Wait for the user to stop typing
+  At the moment we call the server after every key stroke.
+  The app should only make requests when the user *stops typing* .
+  Here's how it *should* work &mdash; and *will* work  &mdash;  when we're done refactoring:
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/wiki-2.gif' alt="Wikipedia search app (v.2)" width="250")
+:marked
+  ### 2. Search when the search term changes
+  
+  Suppose the user enters the word *angular* in the search box and pauses for a while. 
+  The application issues a search request for *Angular*.
+  
+  Then the user backspaces over the last three letters, *lar*, and immediately re-types *lar* before pausing once more.
+  The search term is still "angular". The app shouldn't make another request.
+  
+  ### 3. Cope with out-of-order responses
+
+  The user enters *angular*, pauses, clears the search box, and enters *http*. 
+  The application issues two search requests, one for *angular* and one for *http*. 
+  
+  Which response will arrive first? We can't be sure. 
+  A load balancer could dispatch the requests to two different servers with different response times.
+  The results from the first *angular* request might arrive after the later *http* results.
+  The user will be confused if we display the *angular* results to the *http* query.
+  
+  When there are multiple requests in-flight, the app should present the responses
+  in the original request order. That won't happen if *angular* results arrive last.
+
+  <a id="more-observables"></a>
+  ## More fun with EventEmitter
+  We can address these problems and improve our app with the help of some nifty EventEmitter operators. 
+   
+  We could make our changes to the `WikipediaService`. 
+  But we sense that our concerns are driven by the user experience so we update the component class instead.
+
++makeExample('server-communication/dart/lib/wiki/wiki_smart_component.dart', null, 'lib/wiki/wiki_smart_component.dart')
+:marked
+  We made no changes to the template or metadata, confining them all to the component class.
+  Let's review those changes.
+  
+  ### Create a EventEmitter of search terms
+  
+  We're binding to the search box `keyup` event and calling the component's `search` method after each keystroke.
+  
+  We turn these events into an EventEmitter stream of search terms.
+  
+  Each search term is a string, so we emit/add a new `event` of type `string` called `_searchTermStream`.
+  After every keystroke, the `search` method adds the search box value to that stream
+  via the EventEmitter's `add` method.
++makeExample('server-communication/dart/lib/wiki/wiki_smart_component.dart', 'subject')(format='.')
+:marked
+  ### Listen for search terms
+  
+  Earlier, we passed each search term directly to the service and bound the template to the service results.
+  Now we listen to the *stream of terms*, manipulating the stream before it reaches the `WikipediaService`.
++makeExample('server-communication/dart/lib/wiki/wiki_smart_component.dart', 'observable-operators')(format='.')
+:marked
+  We wait for the user to stop typing for at least 300 milliseconds 
+  ([debounce](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
+  Only changed search values make it through to the service 
+  ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
+
+  The `WikipediaService` returns a separate observable of string lists (`Observable<string[]>`) for each request.
+  We could have multiple requests *in flight*, all awaiting the server's reply,
+  which means multiple *observables-of-strings* could arrive at any moment in any order.
+  
+  The [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
+  (formerly known as `flatMapLatest`) returns a new observable that combines these `WikipediaService` observables, 
+  re-arranges them in their original request order,
+  and delivers to subscribers only the most recent search results. 
+
+  The displayed list of search results stays in sync with the user's sequence of search terms.
+
+<a id="in-mem-web-api"></a>
+.l-main-section
+:marked
+  ## Appendix: Tour of Heroes in-memory server
+
+  If we only cared to retrieve data, we could tell Angular to get the heroes from a `heroes.json` file like this one:
++makeJson('server-communication/dart/web/heroes.json', null, 'web/heroes.json')(format=".")
+.l-sub-section
+  :marked
+    We wrap the heroes list in an object with a `data` property for the same reason that a data server does:
+    to mitigate the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk)
+    posed by top-level JSON lists. 
+:marked
+  We'd set the endpoint to the JSON file like this:
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'endpoint-json')(format=".")
+:marked
+  The *get heroes* scenario would work.
+  But we want to *save* data too. We can't save changes to a JSON file. We need a web api server.
+  
+  We didn't want the hassle of setting up and maintaining a real server for this chapter.
+  So we turned to an *in-memory web api simulator* instead. 
+  You too can use it in your own development while waiting for a real server to arrive.
+  
+  First, install it with `npm`:
+code-example(language="bash").
+  npm install a2-in-memory-web-api --save
+:marked
+  Then load the script in the `index.html` below angular:
++makeExample('server-communication/dart/web/index.html', 'in-mem-web-api', 'index.html')(format=".")
+:marked
+  The *in-memory web api* gets its data from a class with a `createDb()` method that returns
+  a "database" object whose keys are collection names ("heroes") 
+  and whose values are lists of objects in those collections.
+  
+  Here's the class we created for this sample by copy-and-pasting the JSON data:
++makeExample('server-communication/dart/lib/hero_data.dart', null, 'lib/hero_data.dart')(format=".")
+:marked
+  We update the `HeroService` endpoint to the location of the web api data.
++makeExample('server-communication/dart/lib/toh/hero_service.dart', 'endpoint')(format=".")
+:marked
+  Finally, we tell Angular itself to direct its http requests to the *in-memory web api* rather
+  than externally to a remote server.
+  
+  This redirection is easy because Angular's `http` delegates the client/server communication tasks
+  to a helper service called the `XHRBackend`. 
+  
+  To enable our server simulation, we replace the default `XHRBackend` service with 
+  the *in-memory web api service* using standard Angular provider registration
+  in the `TohComponent`. We initialize the *in-memory web api* with mock hero data at the same time.
+  
+  Here are the pertinent details, excerpted from `TohComponent`, starting with the imports:
++makeExample('server-communication/dart/lib/toh/toh_component.dart', 'in-mem-web-api-imports', 'toh_component.dart (web api imports)')(format=".")
+:marked
+  Then we add the following two provider definitions to the `providers` list in component metadata:
++makeExample('server-communication/dart/lib/toh/toh_component.dart', 'in-mem-web-api-providers', 'toh_component.dart (web api providers)')(format=".")
+:marked
+  See the full [source code](https://github.com/angular/angular.io/tree/master/public/docs/_examples/server-communication/dart).
+  

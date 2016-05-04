@@ -9,20 +9,7 @@ import 'hero_service.dart';
 @Component(
     selector: 'hero-list',
 // #docregion template
-    template: '''
-      <h3>Heroes:</h3>
-      <ul>
-        <li *ngFor="let hero of heroes">
-          {{hero.name}}
-        </li>
-      </ul>
-      New Hero:
-      <input #newHero />
-      <button (click)="addHero(newHero.value); newHero.value=''">
-        Add Hero
-      </button>
-      <div class="error" *ngIf="hasErrorMessage">{{errorMessage}}</div>
-    ''',
+    templateUrl: 'hero_list_component.html',
 // #enddocregion template
     styles: const ['.error {color:red;}'])
 // #docregion component
@@ -38,6 +25,7 @@ class HeroListComponent implements OnInit {
   Future ngOnInit() => getHeroes();
 
   // #docregion methods
+  // #docregion getHeroes
   Future getHeroes() async {
     try {
       heroes = await _heroService.getHeroes();
@@ -45,7 +33,9 @@ class HeroListComponent implements OnInit {
       errorMessage = e.toString();
     }
   }
+  // #enddocregion getHeroes
 
+  // #docregion addHero
   Future addHero(String name) async {
     name = name.trim();
     if (name.isEmpty) return;
@@ -55,6 +45,7 @@ class HeroListComponent implements OnInit {
       errorMessage = e.toString();
     }
   }
+  // #enddocregion addHero
   // #enddocregion methods
 }
 // #enddocregion component
