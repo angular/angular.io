@@ -32,7 +32,7 @@ class SpyParentComponent {
 
   // removeHero(String hero) { } is not used.
   
-  reset() {
+  void reset() {
     _logger.log('-- reset --');
     heroes.clear();
     _logger.tick();

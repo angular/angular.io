@@ -10,22 +10,24 @@ class Hero {
 }
 
 @Component(
-  selector: 'do-check',
-  template: '''
-  <div class="hero">
-    <p>{{hero.name}} can {{power}}</p>
+    selector: 'do-check',
+    template: '''
+      <div class="hero">
+        <p>{{hero.name}} can {{power}}</p>
 
-    <h4>-- Change Log --</h4>
-    <div *ngFor="let chg of changeLog">{{chg}}</div>
-  </div>
+        <h4>-- Change Log --</h4>
+        <div *ngFor="let chg of changeLog">{{chg}}</div>
+      </div>
   ''',
-  styles: const [
-    '.hero {background: LightYellow; padding: 8px; margin-top: 8px}',
-    'p {background: Yellow; padding: 8px; margin-top: 8px}'
-  ])
+    styles: const [
+      '.hero {background: LightYellow; padding: 8px; margin-top: 8px}',
+      'p {background: Yellow; padding: 8px; margin-top: 8px}'
+    ])
 class DoCheckComponent implements DoCheck, OnChanges {
-  @Input() Hero hero;
-  @Input() String power;
+  @Input()
+  Hero hero;
+  @Input()
+  String power;
 
   bool changeDetected = false;
   List<String> changeLog = [];
@@ -39,7 +41,8 @@ class DoCheckComponent implements DoCheck, OnChanges {
   ngDoCheck() {
     if (hero.name != oldHeroName) {
       changeDetected = true;
-      changeLog.add('DoCheck: Hero name changed to "${hero.name}" from "$oldHeroName"');
+      changeLog.add(
+          'DoCheck: Hero name changed to "${hero.name}" from "$oldHeroName"');
       oldHeroName = hero.name;
     }
 
@@ -54,7 +57,8 @@ class DoCheckComponent implements DoCheck, OnChanges {
     } else {
       // log that hook was called when there was no relevant change.
       var count = noChangeCount += 1;
-      var noChangeMsg = 'DoCheck called ${count}x when no change to hero or power';
+      var noChangeMsg =
+          'DoCheck called ${count}x when no change to hero or power';
       if (count == 1) {
         // add new "no change" message
         changeLog.add(noChangeMsg);
@@ -78,7 +82,7 @@ class DoCheckComponent implements DoCheck, OnChanges {
     });
   }
 
-  reset() {
+  void reset() {
     changeDetected = true;
     changeLog.clear();
   }
@@ -87,19 +91,22 @@ class DoCheckComponent implements DoCheck, OnChanges {
 /***************************************/
 
 @Component(
-  selector: 'do-check-parent',
-  templateUrl: 'on_changes_parent_component.html',
-  styles: const ['.parent {background: Lavender}'],
-  directives: const [DoCheckComponent])
+    selector: 'do-check-parent',
+    templateUrl: 'on_changes_parent_component.html',
+    styles: const ['.parent {background: Lavender}'],
+    directives: const [DoCheckComponent])
 class DoCheckParentComponent {
   Hero hero;
   String power;
   String title = 'DoCheck';
-  @ViewChild(DoCheckComponent) DoCheckComponent childView;
+  @ViewChild(DoCheckComponent)
+  DoCheckComponent childView;
 
-  DoCheckParentComponent() { reset(); }
+  DoCheckParentComponent() {
+    reset();
+  }
 
-  reset() {
+  void reset() {
     hero = new Hero('Windstorm');
     power = 'sing';
     childView?.reset();

@@ -65,12 +65,12 @@ class CounterParentComponent {
 
   List<String> get logs => _logger.logs;
 
-  updateCounter() {
+  void updateCounter() {
     value += 1;
     _logger.tick();
   }
 
-  reset() {
+  void reset() {
     _logger.log('-- reset --');
     value = 0;
     _logger.tick();

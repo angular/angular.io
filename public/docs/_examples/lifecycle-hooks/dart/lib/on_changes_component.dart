@@ -42,7 +42,7 @@ class OnChangesComponent implements OnChanges {
   }
   // #enddocregion ng-on-changes
 
-  reset() { changeLog.clear(); }
+  void reset() { changeLog.clear(); }
 }
 
 @Component(
@@ -60,7 +60,7 @@ class OnChangesParentComponent {
     reset();
   }
 
-  reset() {
+  void reset() {
     // new Hero object every time; triggers onChange
     hero = new Hero('Windstorm');
     // setting power only triggers onChange if this value is different

@@ -59,7 +59,7 @@ class AfterContentComponent implements AfterContentChecked, AfterContentInit {
 // #enddocregion hooks
 // #docregion do-something
   /// This surrogate for real business logic; sets the `comment`
-  _doSomething() {
+  void _doSomething() {
     comment = contentChild.hero.length > 10 ? "That's a long name" : '';
   }
 // #enddocregion do-something
