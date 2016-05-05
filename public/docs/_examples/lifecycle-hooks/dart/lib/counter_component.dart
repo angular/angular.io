@@ -30,10 +30,10 @@ class MyCounter implements OnChanges {
     }
 
     // A change to `counter` is the only change we care about
-    SimpleChange prop = changes['counter'];
-    var prev = prop.isFirstChange() ? "{}" : prop.previousValue;
-    changeLog.add(
-        'counter: currentValue = ${prop.currentValue}, previousValue = $prev');
+    SimpleChange chng = changes['counter'];
+    var cur = chng.currentValue;
+    var prev = chng.isFirstChange() ? "{}" : chng.previousValue;
+    changeLog.add('counter: currentValue = $cur, previousValue = $prev');
   }
 }
 
@@ -52,9 +52,7 @@ class MyCounter implements OnChanges {
       <div *ngFor="let msg of spyLog">{{msg}}</div>
     </div>
     ''',
-    styles: const [
-      '.parent {background: gold; padding: 10px; margin:100px 8px;}'
-    ],
+    styles: const ['.parent {background: gold;}'],
     directives: const [MyCounter],
     providers: const [LoggerService])
 class CounterParentComponent {
@@ -68,10 +66,14 @@ class CounterParentComponent {
     reset();
   }
 
-  updateCounter() => value += 1;
+  updateCounter() {
+    value += 1;
+    _logger.tick();
+  }
 
   reset() {
     _logger.log('-- reset --');
     value = 0;
+    _logger.tick();
   }
 }

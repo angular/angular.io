@@ -22,9 +22,7 @@ import 'peek_a_boo_component.dart';
       <div *ngFor="let msg of hookLog">{{msg}}</div>
     </div>
     ''',
-    styles: const [
-      '.parent {background: moccasin; padding: 10px; margin:100px 8px}'
-    ],
+    styles: const ['.parent {background: moccasin}'],
     directives: const [PeekABooComponent],
     providers: const [LoggerService])
 class PeekABooParentComponent {

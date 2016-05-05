@@ -1,77 +1,117 @@
+// #docplaster
 // #docregion
 import 'package:angular2/core.dart';
 
-import 'child_component.dart';
 import 'logger_service.dart';
 
+//////////////////
+// #docregion child-view
 @Component(
-    selector: 'after-view-parent',
-    template: '''
-    <div class="parent">
-      <h2>AfterView</h2>
-
-      <div>
-        <input [(ngModel)]="hero">
-        <button (click)="showChild = !showChild">Toggle child view</button>
-
-        <my-child *ngIf="showChild" [hero]="hero"></my-child>
-      </div>
-
-      <h4>-- Lifecycle Hook Log --</h4>
-      <div *ngFor="let msg of hookLog">{{msg}}</div>
-    </div>
-    ''',
-    styles: const [
-      '.parent {background: burlywood; padding: 8px; margin:100px 8px;}'
-    ],
-    directives: const [ChildComponent],
-    providers: const [LoggerService])
-class AfterViewParentComponent
-    implements AfterContentInit, AfterViewChecked, AfterViewInit {
-  LoggerService _logger;
-  List<String> hookLog;
+  selector: 'my-child',
+  template: '<input [(ngModel)]="hero">')
+class ChildViewComponent {
   String hero = 'Magneta';
-  bool showChild = true;
+}
+// #enddocregion child-view
 
-  // Query for a CONTENT child of type `ChildComponent`
-  // No such CONTENT child exists!
-  // This component holds a view but no content of that type.
-  @ContentChild(ChildComponent)
-  ChildComponent contentChild;
-
-  // Query for a VIEW child of type `ChildComponent`
-  @ViewChild(ChildComponent)
-  ChildComponent viewChild;
-
-  String _prevHero;
-
-  AfterViewParentComponent(this._logger) {
-    hookLog = _logger.logs;
-    _logger.log('AfterView ctor: $message');
+//////////////////////
+@Component(
+  selector: 'after-view',
+// #docregion template
+  template: '''
+    <div>-- child view begins --</div>
+      <my-child></my-child>
+    <div>-- child view ends --</div>
+    <p *ngIf="comment != null" class="comment">{{comment}}</p>''',
+// #enddocregion template
+  directives: const [ChildViewComponent])
+// #docregion hooks
+class AfterViewComponent implements AfterViewChecked, AfterViewInit {
+  var _prevHero = '';
+  
+  // Query for a VIEW child of type `ChildViewComponent`
+  @ViewChild(ChildViewComponent) ChildViewComponent viewChild;
+  
+// #enddocregion hooks
+  LoggerService _logger;
+  AfterViewComponent(this._logger) {
+    _logIt('AfterView constructor');
   }
 
-  bool get _hasContentChild => contentChild != null;
-  bool get _hasViewChild => viewChild != null;
-
-  ///// Hooks
-  ngAfterContentInit() {
-    _logger.log(
-        'AfterContentInit: There is ${ _hasContentChild ? 'a' : 'no'} content child');
-  }
-
+// #docregion hooks
   ngAfterViewInit() {
     // viewChild is set after the view has been initialized
-    _logger.log('AfterViewInit: $message');
+    _logIt('AfterViewInit');
+    _doSomething();
   }
 
   ngAfterViewChecked() {
     // viewChild is updated after the view has been checked
-    // Called frequently; only report when the hero changes
-    if (!_hasViewChild || _prevHero == viewChild.hero) return;
-    _prevHero = viewChild.hero;
-    _logger.log('AfterViewChecked: $message');
+    if (_prevHero == viewChild.hero) {
+      _logIt('AfterViewChecked (no change)');
+    } else {
+      _prevHero = viewChild.hero;
+      _logIt('AfterViewChecked');
+      _doSomething();
+    }
+  }
+// #enddocregion hooks
+
+  String comment = '';
+
+// #docregion do-something
+  // This surrogate for real business logic sets the `comment`
+  _doSomething() {
+    var c = viewChild.hero.length > 10 ? "That's a long name" : '';
+    if (c != comment) {
+      // Wait a tick because the component's view has already been checked
+      _logger.tick().then((_) { comment = c; });
+    }
+  }
+// #enddocregion do-something
+
+  void _logIt(String method) {
+    var child = viewChild;
+    var message = "${method}: ${child != null ? child.hero:'no'} child view";
+    _logger.log(message);
+  }
+// #docregion hooks
+  // ...
+}
+// #enddocregion hooks
+
+//////////////
+@Component(
+  selector: 'after-view-parent',
+  template: '''
+    <div class="parent">
+      <h2>AfterView</h2>
+
+      <after-view  *ngIf="show"></after-view>
+
+      <h4>-- AfterView Logs --</h4>
+      <p><button (click)="reset()">Reset</button></p>
+      <div *ngFor="let msg of logs">{{msg}}</div>
+    </div>
+    ''',
+  styles: const ['.parent {background: burlywood}'],
+  providers: const [LoggerService],
+  directives: const [AfterViewComponent])
+class AfterViewParentComponent {
+  LoggerService _logger;
+  List<String> logs;
+  bool show = true;
+
+  AfterViewParentComponent(this._logger) {
+    logs = _logger.logs;
   }
 
-  String get message =>
-      _hasViewChild ? '"${viewChild.hero}" child view' : 'no child view';
+  void reset() {
+    logs.clear();
+    // quickly remove and reload AfterViewComponent which recreates it
+    show = false;
+    _logger.tick().then((_) { show = true; });
+  }
+
 }
+// #enddocregion
