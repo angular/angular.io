@@ -1,8 +1,8 @@
 // #docregion
 import { Component, OnInit } from '@angular/core';
 
-import { HeroService } from './shared/hero.service';
-import { Hero } from './shared/hero.model';
+import { HeroService } from '../shared/hero.service';
+import { Hero } from '../shared/hero.model';
 
 @Component({
   selector: 'toh-heroes',
