@@ -1,7 +1,7 @@
 /* tslint:disable:forin */
 // #docregion
 import {
-  Component, Input, Onchanges,
+  Component, Input, OnChanges,
   SimpleChange, ViewChild
 } from '@angular/core';
 
