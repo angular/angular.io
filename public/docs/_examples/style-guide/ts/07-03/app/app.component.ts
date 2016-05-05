@@ -1,7 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { HeroListComponent } from './heroes/hero-list.component';
+import { HeroListComponent } from './heroes/hero-list/hero-list.component';
 import { HeroService } from './heroes/shared/hero.service';
 
 @Component({
