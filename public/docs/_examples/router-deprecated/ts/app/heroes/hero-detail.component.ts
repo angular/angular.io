@@ -1,7 +1,8 @@
 // #docregion
-import {Component,  OnInit}  from '@angular/core';
-import {Hero, HeroService}   from './hero.service';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import { Component,  OnInit }  from '@angular/core';
+import { RouteParams, Router } from '@angular/router-deprecated';
+
+import { Hero, HeroService }   from './hero.service';
 
 @Component({
   template: `
@@ -25,15 +26,15 @@ export class HeroDetailComponent implements OnInit  {
 
   // #docregion ctor
   constructor(
-    private _router:Router,
-    private _routeParams:RouteParams,
-    private _service:HeroService){}
+    private router:Router,
+    private routeParams:RouteParams,
+    private service:HeroService){}
   // #enddocregion ctor
 
   // #docregion ngOnInit
   ngOnInit() {
-    let id = this._routeParams.get('id');
-    this._service.getHero(id).then(hero => this.hero = hero);
+    let id = this.routeParams.get('id');
+    this.service.getHero(id).then(hero => this.hero = hero);
   }
   // #enddocregion ngOnInit
 
@@ -44,7 +45,7 @@ export class HeroDetailComponent implements OnInit  {
     // so that the HeroList component can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoHeroes-navigate
-    this._router.navigate(['Heroes',  {id: heroId, foo: 'foo'} ]);
+    this.router.navigate(['Heroes',  {id: heroId, foo: 'foo'} ]);
     // #enddocregion gotoHeroes-navigate
   }
   // #enddocregion gotoHeroes

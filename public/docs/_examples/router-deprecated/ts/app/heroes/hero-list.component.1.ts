@@ -2,9 +2,10 @@
 
 // #docregion
 // TODO SOMEDAY: Feature Componetized like HeroCenter
-import {Component, OnInit}   from '@angular/core';
-import {Hero, HeroService}   from './hero.service';
-import {Router}              from '@angular/router-deprecated';
+import { Component, OnInit }   from '@angular/core';
+import { Router }              from '@angular/router-deprecated';
+
+import { Hero, HeroService }   from './hero.service';
 
 @Component({
   // #docregion template
@@ -24,18 +25,18 @@ export class HeroListComponent implements OnInit {
 
   // #docregion ctor
   constructor(
-    private _router: Router,
-    private _service: HeroService) { }
+    private router: Router,
+    private service: HeroService) { }
   // #enddocregion ctor
 
   ngOnInit() {
-    this._service.getHeroes().then(heroes => this.heroes = heroes)
+    this.service.getHeroes().then(heroes => this.heroes = heroes)
   }
 
   // #docregion select
   onSelect(hero: Hero) {
     // #docregion nav-to-detail
-    this._router.navigate( ['HeroDetail', { id: hero.id }] );
+    this.router.navigate( ['HeroDetail', { id: hero.id }] );
     // #enddocregion nav-to-detail
   }
   // #enddocregion select
