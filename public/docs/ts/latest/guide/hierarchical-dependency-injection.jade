@@ -84,7 +84,7 @@ figure.image-display
   Behind the scenes each component sets up its own injector with one or more providers defined for that component itself.
 
   When we resolve an instance of `Car` at the deepest component (C),
-  it's injector produces an instance of `Car` resolved by injector (C) with an `Engine` resolved by injector (B) and
+  its injector produces an instance of `Car` resolved by injector (C) with an `Engine` resolved by injector (B) and
   `Tires` resolved by the root injector (A).
 
 figure.image-display
@@ -96,7 +96,7 @@ figure.image-display
 
   In the previous section, we talked about injectors and how they are organized like a tree. Lookups follow the injector tree upwards until they find the requested thing to inject. But when do we actually want to provide providers on the root injector and when do we want to provide them on a child injector?
 
-  Consider you are building a component to show a list of super heroes that displays each super hero in a card with it’s name and superpower. There should also be an edit button that opens up an editor to change the name and superpower of our hero.
+  Consider you are building a component to show a list of super heroes that displays each super hero in a card with its name and superpower. There should also be an edit button that opens up an editor to change the name and superpower of our hero.
 
   One important aspect of the editing functionality is that we want to allow multiple heroes to be in edit mode at the same time and that one can always either commit or cancel the proposed changes.
 
@@ -127,16 +127,16 @@ figure.image-display
 +makeExample('hierarchical-dependency-injection/ts/app/hero-editor.component.ts', null, 'app/hero-editor.component.ts')
 
 :marked
-  Now here it’s getting interesting. The `HeroEditorComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead this is a perfect use case to abstract it into it’s own generic service since we have probably more cases like this in our app.
+  Now here it’s getting interesting. The `HeroEditorComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead, this is a perfect use case to abstract it into its own generic service since we have probably more cases like this in our app.
 
   And this is where the `RestoreService` enters the stage.
 
 +makeExample('hierarchical-dependency-injection/ts/app/restore.service.ts', null, 'app/restore.service.ts')
 
 :marked
-  All this tiny service does is define an API to set a value of any type which can be altered, retrieved or set back to it’s initial value. That’s exactly what we need to implement the desired functionality.
+  All this tiny service does is define an API to set a value of any type which can be altered, retrieved or set back to its initial value. That’s exactly what we need to implement the desired functionality.
 
-  Our `HeroEditComponent` uses this services under the hood for it’s `hero` property. It intercepts the `get` and `set` method to delegate the actual work to our `RestoreService` which in turn makes sure that we won’t work on the original item but on a copy instead.
+  Our `HeroEditComponent` uses this services under the hood for its `hero` property. It intercepts the `get` and `set` method to delegate the actual work to our `RestoreService` which in turn makes sure that we won’t work on the original item but on a copy instead.
 
   At this point we may be scratching our heads asking what this has to do with component injectors?
   Look closely at the metadata for our `HeroEditComponent`. Notice the `providers` property.
@@ -148,7 +148,7 @@ figure.image-display
 
 +makeExample('hierarchical-dependency-injection/ts/app/main.ts', 'bad-alternative')
 :marked
-  Technically we could, but our component wouldn’t quite behave the way it is supposed to. Remember that each injector treats the services that it provides as singletons. However, in order to be able to have multiple instances of `HeroEditComponent` edit multiple heroes at the same time we need to have multiple instances of the `RestoreService`. More specifically each instance of `HeroEditComponent` needs to be bound to it’s own instance of the `RestoreService`.
+  Technically we could, but our component wouldn’t quite behave the way it is supposed to. Remember that each injector treats the services that it provides as singletons. However, in order to be able to have multiple instances of `HeroEditComponent` edit multiple heroes at the same time we need to have multiple instances of the `RestoreService`. More specifically, each instance of `HeroEditComponent` needs to be bound to its own instance of the `RestoreService`.
 
   By configuring a provider for the `RestoreService` on the `HeroEditComponent`, we get exactly one new instance of the `RestoreService`per `HeroEditComponent`.
 
