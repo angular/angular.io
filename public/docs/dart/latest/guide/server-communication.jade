@@ -16,13 +16,10 @@ include ../_util-fns
   
   [Http client sample overview](#http-client)<br>
   [Fetch data with http.get](#fetch-data)<br>
-  [RxJS Observable of HTTP Responses](#rxjs)<br>
-  [Enabling RxJS Operators](#enable-rxjs-operators)<br>
-  [Extract JSON data with RxJS map](#map)<br>
+  [Extract JSON](#map)<br>
   [Error handling](#error-handling)<br>
   [Send data to the server](#update)<br>
   [Add headers](#headers)<br>
-  [Promises instead of observables](#promises)<br>
   [JSONP](#jsonp)<br>
   [Set query string parameters](#search-parameters)<br>
   [Debounce search term input](#more-observables)<br>
@@ -59,7 +56,7 @@ figure.image-display
   We'll be using that library to access the server.
   We also import a `HeroService` that we'll look at shortly.
   
-  The component specifies both the ``BroserClient` and the `HeroService` in the metadata `providers` list,
+  The component specifies both the `BroserClient` and the `HeroService` in the metadata `providers` list,
   making them available to the child components of this "Tour of Heroes" application.
 
 .l-sub-section
@@ -112,10 +109,9 @@ a(id="HeroListComponent")
     Components are easier to test and debug when their constructors are simple and all real work 
     (especially calling a remote server) is handled in a separate method.
 :marked
-  The service `get` and `addHero` methods return an `Observable` of HTTP hero data.
-  We subscribe to this `Observable`, 
-  specifying the actions to take when the request succeeds or fails. 
-  We'll get to observables and subscription shortly.
+  The service `getHeroes` and `addHero` methods return a `Future` of HTTP hero data.
+  We use `await` statement to wait for this `Future` to be completed. If succeeded we set `heroes` with the response
+  data, else if request fails we catch the error and set `errorMessage` with the exception string content.
   
   With our basic intuitions about the component squared away, we can turn to development of the backend data source
   and the client-side `HeroService` that talks to it.
@@ -148,7 +144,6 @@ a(id="HeroListComponent")
     Alternatively, we can (temporarily) target a JSON file by changing the endpoint URL:
   +makeExample('server-communication/dart/lib/toh/hero_service.dart', 'endpoint-json')(format=".")
 :marked
-  <a id="rxjs"></a>
   The return value of `get` method is a [Future](https://www.dartlang.org/docs/tutorials/futures/).
   We'd could chain a call to `then()` and extract the heroes.
   Instead we're using an `await` statement.
@@ -222,7 +217,7 @@ a(id="error-handling")
   We use the `catch` statement on the service level.
   It takes an error handling function with an error object as the argument.
   Our service handler, `_handleError`, logs the response to the console, 
-  transforms the error into a user-friendly message, and returns the message in a new, failed observable via `throw`.
+  transforms the error into a user-friendly message, and returns the message in a new, failed future via `throw`.
 
 +makeExample('server-communication/dart/lib/toh/hero_service.dart', 'error-handling', 'lib/toh/hero_service.dart')(format=".")
 
@@ -458,14 +453,15 @@ figure.image-display
   Only changed search values make it through to the service 
   ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
 
-  The `WikipediaService` returns a separate observable of string lists (`Observable<string[]>`) for each request.
+  The `WikipediaService` returns a separate future of string lists (`Future<List<String>`) for each request.
   We could have multiple requests *in flight*, all awaiting the server's reply,
-  which means multiple *observables-of-strings* could arrive at any moment in any order.
+  which means multiple *futures-of-strings* could arrive at any moment in any order.
   
-  The [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
-  (formerly known as `flatMapLatest`) returns a new observable that combines these `WikipediaService` observables, 
-  re-arranges them in their original request order,
-  and delivers to subscribers only the most recent search results. 
+  To avoid that we use a `Debounce` stream transformer to only sends a request 300 milliseconds after the user has stop
+  typing. Then we use the `distinct` method to skip any similar typed method (for example when user delete one letter
+  and type it again). And Finally, we use the `FlatMapLatest` stream transformer to return a new stream that combines
+  these `WikipediaService` futures, re-arranges them in their original request order, and delivers to only the most
+  recent search results. 
 
   The displayed list of search results stays in sync with the user's sequence of search terms.
 
@@ -512,18 +508,36 @@ code-example(language="bash").
   Finally, we tell Angular itself to direct its http requests to the *in-memory web api* rather
   than externally to a remote server.
   
-  This redirection is easy because Angular's `http` delegates the client/server communication tasks
-  to a helper service called the `XHRBackend`. 
+  This redirection is easy because Angular delegates the client/server communication tasks
+  to a service called `BrowserClient`. 
   
-  To enable our server simulation, we replace the default `XHRBackend` service with 
-  the *in-memory web api service* using standard Angular provider registration
-  in the `TohComponent`. We initialize the *in-memory web api* with mock hero data at the same time.
+  To enable our server simulation, we replace the default `BrowserClient` service with 
+  the *in-memory web api service* called `HttpClientInMemoryBackendService` using a factory Angular provider registration
+  `HttpClientInMemoryBackendServiceFactory` in the `TohComponent`. We initialize the *in-memory web api* with mock hero data at the same time.
   
   Here are the pertinent details, excerpted from `TohComponent`, starting with the imports:
 +makeExample('server-communication/dart/lib/toh/toh_component.dart', 'in-mem-web-api-imports', 'toh_component.dart (web api imports)')(format=".")
 :marked
-  Then we add the following two provider definitions to the `providers` list in component metadata:
+  Then we add the following provider definition to the `providers` list in component metadata:
 +makeExample('server-communication/dart/lib/toh/toh_component.dart', 'in-mem-web-api-providers', 'toh_component.dart (web api providers)')(format=".")
+.l-sub-section
+  :marked
+    Note how we use a separate function `HttpClientInMemoryBackendServiceFactory` for creting the factory instead next
+    code:
+    ```dart
+      const Provider(BrowserClient, useFactory: () => new HttpClientInMemoryBackendService(heroData))
+    ```
+    or either:
+    ```dart
+      const Provider(BrowserClient, useValue: new HttpClientInMemoryBackendService(heroData))
+    ```
+    This is because dart annotations and constants don't support adding anonymous functions or variable parameters. If you
+    still prefer the shorter way you could add it to the `bootstrap` function in the `main.dart` file
+    ```dart
+      main() {
+        bootstrap(TohComponent, [provide(BrowserClient, useValue: new BrowserClient())]);
+      }
+    ```
 :marked
   See the full [source code](https://github.com/angular/angular.io/tree/master/public/docs/_examples/server-communication/dart).
   

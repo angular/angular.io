@@ -13,12 +13,15 @@ import 'hero_list_component.dart';
 import 'hero_service.dart';
 
 // #enddocregion
-@Injectable()
+//#docregion in-mem-web-api-providers
 HttpClientInMemoryBackendService HttpClientInMemoryBackendServiceFactory() =>
     new HttpClientInMemoryBackendService(heroData); // in-mem server
 
+//#enddocregion in-mem-web-api-providers
 // #docregion
+//#docregion in-mem-web-api-providers
 @Component(
+//#enddocregion in-mem-web-api-providers
     selector: 'my-toh',
 // #docregion template
     template: '''
@@ -31,7 +34,7 @@ HttpClientInMemoryBackendService HttpClientInMemoryBackendServiceFactory() =>
       HeroService,
 //#enddocregion
 //#docregion in-mem-web-api-providers
-// in-memory web api providers
+      // in-memory web api providers
       const Provider(BrowserClient,
           useFactory: HttpClientInMemoryBackendServiceFactory)
 //#enddocregion in-mem-web-api-providers
@@ -39,6 +42,9 @@ HttpClientInMemoryBackendService HttpClientInMemoryBackendServiceFactory() =>
     ],
     directives: const [
       HeroListComponent
-    ])
+    ]
+//#docregion in-mem-web-api-providers
+)
+//#enddocregion in-mem-web-api-providers
 class TohComponent {}
 // #enddocregion
