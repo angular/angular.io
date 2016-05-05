@@ -8,7 +8,7 @@ int _nextId = 1;
 
 // #docregion ngOnInit
 class PeekABoo implements OnInit {
-  LoggerService _logger;
+  final LoggerService _logger;
 
   PeekABoo(this._logger);
 

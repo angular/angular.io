@@ -10,7 +10,7 @@ int _nextId = 1;
 // Usage: <div mySpy>...</div>
 @Directive(selector: '[mySpy]')
 class Spy implements OnInit, OnDestroy {
-  LoggerService _logger;
+  final LoggerService _logger;
 
   Spy(this._logger);
 

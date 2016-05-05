@@ -49,22 +49,21 @@ class MyCounter implements OnChanges {
       <my-counter [counter]="value"></my-counter>
 
       <h4>-- Spy Lifecycle Hook Log --</h4>
-      <div *ngFor="let msg of spyLog">{{msg}}</div>
+      <div *ngFor="let msg of logs">{{msg}}</div>
     </div>
     ''',
     styles: const ['.parent {background: gold;}'],
     directives: const [MyCounter],
     providers: const [LoggerService])
 class CounterParentComponent {
+  final LoggerService _logger;
   num value;
-  List<String> spyLog = [];
-
-  LoggerService _logger;
 
   CounterParentComponent(this._logger) {
-    spyLog = _logger.logs;
     reset();
   }
+
+  List<String> get logs => _logger.logs;
 
   updateCounter() {
     value += 1;

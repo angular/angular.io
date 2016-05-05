@@ -17,10 +17,10 @@ class ChildComponent {
     selector: 'after-content',
 // #docregion template
     template: '''
-    <div>-- projected content begins --</div>
-      <ng-content></ng-content>
-    <div>-- projected content ends --</div>
-    <p *ngIf="comment != null" class="comment">{{comment}}</p>
+      <div>-- projected content begins --</div>
+        <ng-content></ng-content>
+      <div>-- projected content ends --</div>
+      <p *ngIf="comment != null" class="comment">{{comment}}</p>
     '''
 // #enddocregion template
     )
@@ -33,7 +33,8 @@ class AfterContentComponent implements AfterContentChecked, AfterContentInit {
   @ContentChild(ChildComponent) ChildComponent contentChild;
 
 // #enddocregion hooks
-  LoggerService _logger;
+  final LoggerService _logger;
+
   AfterContentComponent(this._logger) {
     _logIt('AfterContent constructor');
   }
@@ -57,7 +58,7 @@ class AfterContentComponent implements AfterContentChecked, AfterContentInit {
   }
 // #enddocregion hooks
 // #docregion do-something
-  // This surrogate for real business logic sets the `comment`
+  /// This surrogate for real business logic; sets the `comment`
   _doSomething() {
     comment = contentChild.hero.length > 10 ? "That's a long name" : '';
   }
@@ -65,7 +66,7 @@ class AfterContentComponent implements AfterContentChecked, AfterContentInit {
 
   void _logIt(String method) {
     var child = contentChild;
-    var message = "${method}: ${child != null ? child.hero:'no'} child content";
+    var message = "${method}: ${child?.hero ?? 'no'} child content";
     _logger.log(message);
   }
 // #docregion hooks
@@ -78,32 +79,31 @@ class AfterContentComponent implements AfterContentChecked, AfterContentInit {
     selector: 'after-content-parent',
 // #docregion parent-template
     template: '''
-    <div class="parent">
-      <h2>AfterContent</h2>
+      <div class="parent">
+        <h2>AfterContent</h2>
 
-      <div *ngIf="show">
-        <after-content>
-          <my-child></my-child>
-        </after-content>
+        <div *ngIf="show">
+          <after-content>
+            <my-child></my-child>
+          </after-content>
+        </div>
+
+        <h4>-- AfterContent Logs --</h4>
+        <p><button (click)="reset()">Reset</button></p>
+        <div *ngFor="let msg of logs">{{msg}}</div>
       </div>
-
-    <h4>-- AfterContent Logs --</h4>
-    <p><button (click)="reset()">Reset</button></p>
-    <div *ngFor="let msg of logs">{{msg}}</div>
-  </div>
     ''',
 // #enddocregion parent-template
     styles: const ['.parent {background: burlywood}'],
     providers: const [LoggerService],
     directives: const [AfterContentComponent, ChildComponent])
 class AfterContentParentComponent {
-  LoggerService _logger;
-  List<String> logs;
+  final LoggerService _logger;
   bool show = true;
 
-  AfterContentParentComponent(this._logger) {
-    logs = _logger.logs;
-  }
+  AfterContentParentComponent(this._logger);
+
+  List<String> get logs => _logger.logs;
 
   void reset() {
     logs.clear();

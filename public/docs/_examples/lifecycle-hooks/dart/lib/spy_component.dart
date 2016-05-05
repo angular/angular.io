@@ -14,14 +14,13 @@ import 'spy_directive.dart';
     directives: const [Spy],
     providers: const [LoggerService])
 class SpyParentComponent {
+  final LoggerService _logger;
   String newName = 'Herbie';
   List<String> heroes = ['Windstorm', 'Magneta'];
-  List<String> spyLog;
-  LoggerService _logger;
 
-  SpyParentComponent(this._logger) {
-    spyLog = _logger.logs;
-  }
+  SpyParentComponent(this._logger);
+
+  List<String> get logs => _logger.logs;
 
   addHero() {
     if (newName.trim().isNotEmpty) {

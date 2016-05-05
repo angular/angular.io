@@ -33,7 +33,8 @@ class AfterViewComponent implements AfterViewChecked, AfterViewInit {
   @ViewChild(ChildViewComponent) ChildViewComponent viewChild;
   
 // #enddocregion hooks
-  LoggerService _logger;
+  final LoggerService _logger;
+
   AfterViewComponent(this._logger) {
     _logIt('AfterView constructor');
   }
@@ -98,13 +99,12 @@ class AfterViewComponent implements AfterViewChecked, AfterViewInit {
   providers: const [LoggerService],
   directives: const [AfterViewComponent])
 class AfterViewParentComponent {
-  LoggerService _logger;
-  List<String> logs;
+  final LoggerService _logger;
   bool show = true;
 
-  AfterViewParentComponent(this._logger) {
-    logs = _logger.logs;
-  }
+  AfterViewParentComponent(this._logger);
+
+  List<String> get logs => _logger.logs;
 
   void reset() {
     logs.clear();
