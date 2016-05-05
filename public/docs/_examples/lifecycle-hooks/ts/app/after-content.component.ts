@@ -43,13 +43,13 @@ export class AfterContentComponent implements AfterContentChecked, AfterContentI
 
 // #docregion hooks
   ngAfterContentInit() {
-    // viewChild is set after the view has been initialized
+    // contentChild is set after the content has been initialized
     this.logIt('AfterContentInit');
     this.doSomething();
   }
 
   ngAfterContentChecked() {
-    // viewChild is updated after the view has been checked
+    // contentChild is updated after the content has been checked
     if (this.prevHero === this.contentChild.hero) {
       this.logIt('AfterContentChecked (no change)');
     } else {
@@ -59,8 +59,6 @@ export class AfterContentComponent implements AfterContentChecked, AfterContentI
     }
   }
 // #enddocregion hooks
-
-
 // #docregion do-something
 
   // This surrogate for real business logic sets the `comment`
@@ -69,8 +67,8 @@ export class AfterContentComponent implements AfterContentChecked, AfterContentI
   }
 
   private logIt(method: string) {
-    let vc = this.contentChild;
-    let message = `${method}: ${vc ? vc.hero : 'no'} child view`;
+    let child = this.contentChild;
+    let message = `${method}: ${child ? child.hero : 'no'} child content`;
     this.logger.log(message);
   }
 // #docregion hooks
@@ -85,7 +83,7 @@ export class AfterContentComponent implements AfterContentChecked, AfterContentI
   <div class="parent">
     <h2>AfterContent</h2>
 
-    <div   *ngIf="show">` +
+    <div *ngIf="show">` +
 // #docregion parent-template
      `<after-content>
         <my-child></my-child>
@@ -106,7 +104,7 @@ export class AfterContentParentComponent {
   logs: string[];
   show = true;
 
-  constructor(logger: LoggerService) {
+  constructor(private logger: LoggerService) {
     this.logs = logger.logs;
   }
 
@@ -114,6 +112,6 @@ export class AfterContentParentComponent {
     this.logs.length = 0;
     // quickly remove and reload AfterContentComponent which recreates it
     this.show = false;
-    setTimeout(() => this.show = true, 0);
+    this.logger.tick_then(() => this.show = true);
   }
 }

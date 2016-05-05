@@ -1,7 +1,7 @@
 /* tslint:disable:forin */
 // #docregion
 import {
-  Component, Input, Onchanges,
+  Component, Input, OnChanges,
   SimpleChange, ViewChild
 } from '@angular/core';
 
@@ -36,9 +36,9 @@ export class OnChangesComponent implements OnChanges {
   // #docregion ng-on-changes
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
     for (let propName in changes) {
-      let prop = changes[propName];
-      let cur  = JSON.stringify(prop.currentValue);
-      let prev = JSON.stringify(prop.previousValue);
+      let chng = changes[propName];
+      let cur  = JSON.stringify(chng.currentValue);
+      let prev = JSON.stringify(chng.previousValue);
       this.changeLog.push(`${propName}: currentValue = ${cur}, previousValue = ${prev}`);
     }
   }
