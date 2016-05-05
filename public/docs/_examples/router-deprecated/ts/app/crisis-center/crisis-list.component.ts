@@ -1,9 +1,10 @@
 // #docplaster
 
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {Router, RouteParams} from '@angular/router-deprecated';
+import { Component, OnInit } from '@angular/core';
+import { RouteParams, Router } from '@angular/router-deprecated';
+
+import { Crisis, CrisisService } from './crisis.service';
 
 @Component({
   template: `
@@ -19,22 +20,22 @@ import {Router, RouteParams} from '@angular/router-deprecated';
 export class CrisisListComponent implements OnInit {
   crises: Crisis[];
 
-  private _selectedId: number;
+  private selectedId: number;
 
   constructor(
-    private _service: CrisisService,
-    private _router: Router,
+    private service: CrisisService,
+    private router: Router,
     routeParams: RouteParams) {
-      this._selectedId = +routeParams.get('id');
+      this.selectedId = +routeParams.get('id');
   }
 
-  isSelected(crisis: Crisis) { return crisis.id === this._selectedId; }
+  isSelected(crisis: Crisis) { return crisis.id === this.selectedId; }
 
   ngOnInit() {
-    this._service.getCrises().then(crises => this.crises = crises);
+    this.service.getCrises().then(crises => this.crises = crises);
   }
 
   onSelect(crisis: Crisis) {
-    this._router.navigate( ['CrisisDetail', { id: crisis.id }]  );
+    this.router.navigate( ['CrisisDetail', { id: crisis.id }]  );
   }
 }

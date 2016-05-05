@@ -1,14 +1,14 @@
 // #docplaster
 // #docregion
-import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 
-import {CrisisCenterComponent} from './crisis-center/crisis-center.component';
-import {HeroListComponent}     from './heroes/hero-list.component';
-import {HeroDetailComponent}   from './heroes/hero-detail.component';
+import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
+import { HeroListComponent }     from './heroes/hero-list.component';
+import { HeroDetailComponent }   from './heroes/hero-detail.component';
 
-import {DialogService}         from './dialog.service';
-import {HeroService}           from './heroes/hero.service';
+import { DialogService }         from './dialog.service';
+import { HeroService }           from './heroes/hero.service';
 
 @Component({
   selector: 'my-app',

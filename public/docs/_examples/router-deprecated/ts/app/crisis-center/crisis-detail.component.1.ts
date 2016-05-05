@@ -1,14 +1,15 @@
 // #docplaster
 
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {RouteParams, Router} from '@angular/router-deprecated';
+import { Component, OnInit } from '@angular/core';
+import { RouteParams, Router } from '@angular/router-deprecated';
 // #docregion routerCanDeactivate
-import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
-import {DialogService} from '../dialog.service';
+import { CanDeactivate, ComponentInstruction } from '@angular/router-deprecated';
+
+import { DialogService } from '../dialog.service';
 
 // #enddocregion routerCanDeactivate
+import { Crisis, CrisisService } from './crisis.service';
 
 @Component({
   // #docregion template
@@ -38,16 +39,16 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
 
 // #enddocregion routerCanDeactivate, cancel-save
   constructor(
-    private _service: CrisisService,
-    private _router: Router,
-    private _routeParams: RouteParams,
-    private _dialog: DialogService
+    private service: CrisisService,
+    private router: Router,
+    private routeParams: RouteParams,
+    private dialog: DialogService
     ) { }
 
   // #docregion ngOnInit
   ngOnInit() {
-    let id = +this._routeParams.get('id');
-    this._service.getCrisis(id).then(crisis => {
+    let id = +this.routeParams.get('id');
+    this.service.getCrisis(id).then(crisis => {
       if (crisis) {
         this.editName = crisis.name;
         this.crisis = crisis;
@@ -66,7 +67,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     }
     // Otherwise ask the user with the dialog service and return its
     // promise which resolves to true or false when the user decides
-    return this._dialog.confirm('Discard changes?');
+    return this.dialog.confirm('Discard changes?');
   }
   // #enddocregion routerCanDeactivate
 
@@ -85,7 +86,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   // #docregion gotoCrises
   gotoCrises() {
     // Like <a [routerLink]="['CrisisList']">Crisis Center</a
-    this._router.navigate(['CrisisList']);
+    this.router.navigate(['CrisisList']);
   }
   // #enddocregion gotoCrises
 // #docregion routerCanDeactivate, cancel-save

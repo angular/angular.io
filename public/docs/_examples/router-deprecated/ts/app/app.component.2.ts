@@ -2,25 +2,25 @@
 // #docplaster
 
 // #docregion
-import {Component}   from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component }   from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 
-import {CrisisListComponent}   from './crisis-list.component';
+import { CrisisListComponent }   from './crisis-list.component';
 // #enddocregion
 /*
 // Apparent Milestone 2 imports
 // #docregion
 // #docregion hero-import
-import {HeroListComponent}     from './heroes/hero-list.component';
-import {HeroDetailComponent}   from './heroes/hero-detail.component';
-import {HeroService}           from './heroes/hero.service';
+import { HeroListComponent }     from './heroes/hero-list.component';
+import { HeroDetailComponent }   from './heroes/hero-detail.component';
+import { HeroService }           from './heroes/hero.service';
 // #enddocregion hero-import
 // #enddocregion
 */
 // Actual Milestone 2 imports
-import {HeroListComponent}     from './heroes/hero-list.component.1';
-import {HeroDetailComponent}   from './heroes/hero-detail.component.1';
-import {HeroService}           from './heroes/hero.service';
+import { HeroListComponent }     from './heroes/hero-list.component.1';
+import { HeroDetailComponent }   from './heroes/hero-detail.component.1';
+import { HeroService }           from './heroes/hero.service';
 // #docregion
 
 @Component({

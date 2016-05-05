@@ -1,11 +1,12 @@
 // #docplaster
 
 // #docregion
-import {Component, OnInit} from '@angular/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {RouteParams, Router} from '@angular/router-deprecated';
-import {CanDeactivate, ComponentInstruction} from '@angular/router-deprecated';
-import {DialogService} from '../dialog.service';
+import { Component, OnInit } from '@angular/core';
+import { RouteParams, Router } from '@angular/router-deprecated';
+import { CanDeactivate, ComponentInstruction } from '@angular/router-deprecated';
+
+import { Crisis, CrisisService } from './crisis.service';
+import { DialogService } from '../dialog.service';
 
 @Component({
   template: `
@@ -32,15 +33,15 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
   editName: string;
 
   constructor(
-    private _service: CrisisService,
-    private _router: Router,
-    private _routeParams: RouteParams,
+    private service: CrisisService,
+    private router: Router,
+    private routeParams: RouteParams,
     private _dialog: DialogService
     ) { }
 
   ngOnInit() {
-    let id = +this._routeParams.get('id');
-    this._service.getCrisis(id).then(crisis => {
+    let id = +this.routeParams.get('id');
+    this.service.getCrisis(id).then(crisis => {
       if (crisis) {
         this.editName = crisis.name;
         this.crisis = crisis;
@@ -77,7 +78,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     // so that the CrisisListComponent can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
-    this._router.navigate(['CrisisList', {id: crisisId, foo: 'foo'} ]);
+    this.router.navigate(['CrisisList', {id: crisisId, foo: 'foo'} ]);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

@@ -1,11 +1,10 @@
 // #docplaster
-import {Component} from '@angular/core';
-import {RouteConfig, ROUTER_DIRECTIVES} from '@angular/router-deprecated';
+import { Component } from '@angular/core';
+import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 
-import {CrisisCenterComponent} from './crisis-center/crisis-center.component.1';
-
-import {DialogService}         from './dialog.service';
-import {HeroService}           from './heroes/hero.service';
+import { CrisisCenterComponent } from './crisis-center/crisis-center.component.1';
+import { DialogService }         from './dialog.service';
+import { HeroService }           from './heroes/hero.service';
 
 @Component({
   selector: 'my-app',

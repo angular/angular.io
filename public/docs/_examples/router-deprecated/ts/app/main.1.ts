@@ -2,9 +2,10 @@
 // #docplaster
 
 // #docregion all
-import {AppComponent}     from './app.component';
-import {bootstrap}        from '@angular/platform-browser-dynamic';
-import {ROUTER_PROVIDERS} from '@angular/router-deprecated';
+import { bootstrap }        from '@angular/platform-browser-dynamic';
+import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
+
+import { AppComponent }     from './app.component';
 
 // #enddocregion all
 
@@ -15,7 +16,7 @@ bootstrap(AppComponent, [
 */
 
 // Actually use the v.1 component
-import {AppComponent as ac} from './app.component.1';
+import { AppComponent as ac} from './app.component.1';
 bootstrap(ac, [
 // #docregion all
   ROUTER_PROVIDERS
