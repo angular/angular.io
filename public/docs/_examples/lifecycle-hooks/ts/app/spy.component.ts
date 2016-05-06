@@ -6,25 +6,7 @@ import { Spy } from './spy.directive';
 
 @Component({
   selector: 'spy-parent',
-  template: `
-  <div class="parent">
-    <h2>Spy Directive</h2>
-    <p>
-      <input [(ngModel)]="newName"
-            (keyup.enter)="addHero()"
-            placeholder="Hero name">
-      <button (click)="addHero()">Add Hero</button>
-      <button (click)="reset()">Reset Heroes</button>
-    </p>` +
-// #docregion template
-    `<div *ngFor="let hero of heroes"  mySpy  class="heroes">
-       {{hero}}
-     </div>`
-// #enddocregion template
-+ `<h4>-- Spy Lifecycle Hook Log --</h4>
-    <div *ngFor="let msg of spyLog">{{msg}}</div>
-   </div>
-  `,
+  templateUrl: 'app/spy.component.html',
   styles: [
      '.parent {background: khaki;}',
      '.heroes {background: LightYellow; padding: 0 8px}'

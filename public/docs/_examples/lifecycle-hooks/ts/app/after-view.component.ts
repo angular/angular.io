@@ -29,7 +29,6 @@ export class ChildViewComponent {
       {{comment}}
     </p>
   `,
-
   directives: [ChildViewComponent]
 })
 // #docregion hooks
@@ -71,14 +70,14 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
     let c = this.viewChild.hero.length > 10 ? "That's a long name" : '';
     if (c !== this.comment) {
       // Wait a tick because the component's view has already been checked
-      setTimeout(() => this.comment = c, 0);
+      this.logger.tick_then(() => this.comment = c);
     }
   }
 // #enddocregion do-something
 
   private logIt(method:string){
-    let vc = this.viewChild;
-    let message = `${method}: ${vc ? vc.hero:'no'} child view`
+    let child = this.viewChild;
+    let message = `${method}: ${child ? child.hero:'no'} child view`
     this.logger.log(message);
   }
 // #docregion hooks
@@ -108,7 +107,7 @@ export class AfterViewParentComponent {
   logs:string[];
   show = true;
 
-  constructor(logger:LoggerService){
+  constructor(private logger: LoggerService) {
     this.logs = logger.logs;
   }
 
@@ -116,6 +115,6 @@ export class AfterViewParentComponent {
     this.logs.length=0;
     // quickly remove and reload AfterViewComponent which recreates it
     this.show = false;
-    setTimeout(() => this.show = true, 0)
+    this.logger.tick_then(() => this.show = true);
   }
 }
