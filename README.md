@@ -62,7 +62,7 @@ For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
 If you are only going to work on a specific part of the docs, such as the dev guide, then you can use one of the more specific gulp tasks to only watch those parts of the file system:
 
 * `gulp serve-and-sync` : watch all the local Jade/Sass files, the API source and examples, and the dev guide files
-* `gulp serve-and-sync-api-docs` : watch only the API source and example files
+* `gulp serve-and-sync-api` : watch only the API source and example files
 * `gulp serve-and-sync-devguide` : watch only the dev guide files
 * `gulp build-and-serve` : watch only the local Jade/Sass files
 
