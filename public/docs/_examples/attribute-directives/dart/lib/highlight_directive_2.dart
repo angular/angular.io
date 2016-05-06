@@ -8,7 +8,7 @@ import 'package:angular2/core.dart';
       '(mouseleave)': 'onMouseLeave()'
     }
 // #enddocregion host
-    )
+)
 class Highlight {
   final ElementRef _element;
 // #docregion mouse-methods
