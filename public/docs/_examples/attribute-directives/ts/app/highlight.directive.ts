@@ -9,39 +9,28 @@ import { Directive, ElementRef, Input } from '@angular/core';
     '(mouseleave)': 'onMouseLeave()'
   }
 })
-
 // #docregion class-1
 export class HighlightDirective {
-
   private _defaultColor = 'red';
-  private el:HTMLElement;
-// #enddocregion class-1
-// #enddocregion full
-  /*
-// #docregion highlight
-  @Input() myHighlight: string;
-// #enddocregion highlight
-  */
-// #docregion full
+  private el: HTMLElement;
+    
+  constructor(el: ElementRef) { this.el = el.nativeElement; }
+  // #enddocregion class-1
 
-// #docregion defaultColor
+  // #docregion defaultColor
   @Input() set defaultColor(colorName:string){
     this._defaultColor = colorName || this._defaultColor;
   }
-// #enddocregion defaultColor
-// #docregion class-1
+  // #enddocregion defaultColor
+  // #docregion class-1
 
-// #docregion color
+  // #docregion color
   @Input('myHighlight') highlightColor: string;
-// #enddocregion color
+  // #enddocregion color
 
-// #enddocregion class-1
-// #docregion class-1
-  constructor(el: ElementRef) { this.el = el.nativeElement; }
-
-// #docregion mouse-enter
+  // #docregion mouse-enter
   onMouseEnter() { this.highlight(this.highlightColor || this._defaultColor); }
-// #enddocregion mouse-enter
+  // #enddocregion mouse-enter
   onMouseLeave() { this.highlight(null); }
 
   private highlight(color:string) {
@@ -50,3 +39,8 @@ export class HighlightDirective {
 }
 // #enddocregion class-1
 // #enddocregion full
+/*
+// #docregion highlight
+@Input() myHighlight: string;
+// #enddocregion highlight
+*/
