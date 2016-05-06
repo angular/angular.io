@@ -9,7 +9,7 @@ import 'package:angular2/core.dart';
 // #docregion class-1
 class HighlightDirective {
   String _defaultColor = 'red';
-  final _el;
+  final dynamic _el;
 
   HighlightDirective(ElementRef elRef) : _el = elRef.nativeElement;
   // #enddocregion class-1
@@ -26,12 +26,12 @@ class HighlightDirective {
   // #enddocregion color
   
   // #docregion mouse-enter
-  onMouseEnter() { _highlight(highlightColor ?? _defaultColor); }
+  void onMouseEnter() { _highlight(highlightColor ?? _defaultColor); }
   // #enddocregion mouse-enter
-  onMouseLeave() { _highlight(); }
+  void onMouseLeave() { _highlight(); }
 
   void _highlight([String color]) {
-    _el?.style?.backgroundColor = color;
+    if(_el != null) _el.style.backgroundColor = color;
   }
 }
 // #enddocregion class-1

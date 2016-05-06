@@ -11,16 +11,17 @@ import 'package:angular2/core.dart';
 )
 class HighlightDirective {
   // #docregion ctor
-  final _el;
+  final dynamic _el;
+
   HighlightDirective(ElementRef elRef) : _el = elRef.nativeElement;
   // #enddocregion ctor
 
   // #docregion mouse-methods
-  onMouseEnter() { _highlight("yellow"); }
-  onMouseLeave() { _highlight(); }
+  void onMouseEnter() { _highlight("yellow"); }
+  void onMouseLeave() { _highlight(); }
 
   void _highlight([String color]) {
-    _el?.style?.backgroundColor = color;
+    if (_el != null) _el.style.backgroundColor = color;
   }
   // #enddocregion mouse-methods
 }
