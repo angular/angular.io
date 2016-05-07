@@ -14,7 +14,7 @@ import { HeroTeamComponent } from './hero-team.component';
   directives: [HeroTeamComponent]
 })
 export class HeroDetailsComponent {
-// #enddocregion styleurls
-
+  // #enddocregion styleurls
   @Input() hero:Hero;
+  // #docregion styleurls
 }
