@@ -1,0 +1,180 @@
+include ../_util-fns
+
+a(id='top')
+
+:marked
+  When we want to make a custom form control, the first thing that we want to do is **not 
+  make a custom form control**. By that, I mean that we want to build our components as if 
+  they know nothing about forms. In the same way that the native Input, Select, and 
+  Textarea elements know nothing about `ngModel`, neither should our custom components. 
+  Binding a component to a form-based interaction is the responsibility of an external 
+  "glue and translation layer" know as a "value accessor".
+
+:marked
+  ## Building A Basic Component
+
+:marked
+  To explore the relationship between components and form controls, we'll start by 
+  building a Toggle component that displays an On/Off switch. Our component will accept 
+  a `[value]` input binding and expose a `(valueChange)` output event: 
+
+:marked
+  **See the [live example](/resources/live-examples/cb-custom-form-controls/ts/plnkr.html)**.
+
++makeExample( 'cb-custom-form-controls/ts/app/toggle.component.ts', 'component', 'app/toggle.component.ts - Our Custom Widget' )(format='.')
+
+:marked
+  At this point, we might actually be done.
+
+:marked
+  If all we need to do is implement a proper one-way data flow, this Toggle component is
+  ready for consumption; we can use the `[value]` input to assign a value and the 
+  `(valueChange)` output to react to user interactions.
+
+code-example(format='')
+  &lt;cb-toggle [value]='isOn' (valueChange)='handleChange( $event )'&gt;&lt;/cb-toggle&gt;
+
+:marked
+  In fact, even if we want to implement a two-way data flow, this Toggle component is 
+  equally viable thanks to the `[x]` and `(xChange)` naming convention that we followed:
+
+code-example(format='')
+  &lt;cb-toggle [(value)]='isOn'&gt;&lt;/cb-toggle&gt;
+
+:marked
+  ## Connecting Components To The Form
+
+:marked
+  For most situations, the preceding code is likely to be sufficient. However, if we 
+  need to take advantage of the robust form management features that Angular provides, 
+  we need to create a "value accessor" that facilitates bi-directional communication
+  between the parent form and our component. The value accessor has several 
+  responsibilities:
+
+:marked
+  * Push external data into the component.
+  * Announce data-change events emitted by the component.
+  * Loop data-change events back into the component (*implementing two-way data flow*).
+  * Format data on the way into the component (*implementing optional formatters*).
+  * Parse data on the way out of the component (*implementing optional parsers*).
+  * Coordinate with change-detection strategies.
+  * Coordinate with the component life-cycle event handlers.
+
+:marked
+  The value accessor must implement the `ControlValueAccessor` interface:
+
+:marked
+  * `writeValue( obj: any ) : void`
+  * `registerOnChange( fn: any ) : void`
+  * `registerOnTouched( fn: any ) : void`
+  
+:marked
+  In order for `ngModel` to be able to consume the value accessor, the value accessor 
+  needs to be made available within the dependency injector using the `NG_VALUE_ACCESSOR`
+  token. Typically, this is done using an attribute directive that selects on the target
+  element's node-name but limits the match based on the existence of an attribute that 
+  implies `ngModel` usage. For example, the default value accessor for `Textarea` uses 
+  the following selector:
+
+:marked
+  `textarea[ngControl],textarea[ngFormControl],textarea[ngModel]`
+
+:marked
+  In this scenario, the attribute directive is typically playing two roles. On the one 
+  hand, it is a directive that is providing the value accessor service to the injector
+  associated with the target component. But, on the other hand, it is also implementing
+  the value accessor interface. In other words, it is both a directive and a value 
+  accessor. In order to accomplish this, we have to define a provider that points back 
+  to itself:
+
++makeExample( 'cb-custom-form-controls/ts/app/toggle-ng-model.directive.ts', 'provider', 'app/toggle-ng-model.directive.ts - Provider Meta-Data' )(format='.')
+
+:marked
+  Notice that our `ToggleNgModelDirective` directive meta-data defines a `useExisting`
+  provider that is nothing more than a `forwardRef()` back to itself. And, that our
+  directive implements the `ControlValueAccessor` interface. At this point, when the
+  `ngModel` directive requests the `NG_VALUE_ACCESSOR` injectable, Angular will provide
+  it with the `ToggleNgModelDirective` class instance.
+
+:marked
+  Now, implementing the actual `ControlValueAccessor` interface is complicated. But, to
+  some degree, it can be boiled down to a single method that applies the value change
+  to the target component (which, in our case, is the `ToggleComponent` component):
+
++makeExample( 'cb-custom-form-controls/ts/app/toggle-ng-model.directive.ts', 'applychanges', 'app/toggle-ng-model.directive.ts - Applying Value Changes' )(format='.')
+
+:marked
+  At this point, the rest of the value accessor is little more than a set of methods that
+  marshal external requests (from either the `ToggleComponent` component or the `ngModel`
+  directive) and invoke the above method with the appropriate arguments. Bringing it all
+  together, our Directive / Value Accessor implementation looks like this:
+
++makeExample( 'cb-custom-form-controls/ts/app/toggle-ng-model.directive.ts', 'valueaccesor', 'app/toggle-ng-model.directive.ts - Bringing It All Together' )(format='.')
+
+:marked
+  In this case, we didn't implement any optional parsers or formatters. But, if we wanted
+  to, we could parse the data in our `handleValueChange()` method; and, we could format 
+  the data in our `writeValue()` method.
+
+:marked
+  Now that we have our value accessor defined, we can use our our `ToggleComponent` 
+  component with or without `ngModel`. Of course, if we want to use `ngModel`, we have to
+  provide the calling context with the both the `ToggleComponent` and the 
+  `ToggleNgModelDirective` directives; otherwise, `ngModel` won't know how to access the
+  underlying data. In the following view, notice that we are using four separate 
+  instances of the `ToggleComponent` component, each with a slightly different syntax and
+  access pattern.
+
++makeExample( 'cb-custom-form-controls/ts/app/app.component.ts', 'providers', 'app/app.component.ts - Consuming ToggleComponent With ngModel' )(format='.')
+
+:marked
+  The last Toggle in the example is wrapped in a `form` element that exposes view-local
+  references for `#toggleForm` and `#toggle`. With these references we can confirm that 
+  the appropriate CSS classes - `ng-pristine` and `ng-dirty` - are present on the last
+  toggle when we interact with it.
+
+figure.image-display
+  img( src='/resources/images/cookbooks/custom-form-controls/custom-form-controls.gif' alt='Custom form controls with ngModel' )
+
+:marked
+  Here's the complete solution:
+
++makeTabs( 
+  `
+    cb-custom-form-controls/ts/app/main.ts,
+    cb-custom-form-controls/ts/app/app.component.ts,
+    cb-custom-form-controls/ts/app/toggle.component.ts,
+    cb-custom-form-controls/ts/app/toggle-ng-model.directive.ts,
+    cb-custom-form-controls/ts/sample.css
+  `, 
+  '', 
+  `
+    main.ts,
+    app.component.ts,
+    toggle.component.ts,
+    toggle-ng-model.directive.ts,
+    sample.css
+  `
+)
+
+.l-sub-section
+  :marked
+    ### Future Improvements
+
+  :marked
+    If we study the above code, we can see that the value accessor functionality depends
+    on a few references:
+
+  :marked
+    * The target component.
+    * The name of the property being mutated.
+    * The `changeDetectorRef`.
+
+  :marked
+    Since the bulk of the logic is already encapsulated within the 
+    `applyChangeToTarget()` method, it would be rather easy to move all of this logic
+    into an abstract base class. Then, our concrete class would do little more than 
+    invoke the super class constructor with the appropriate references.
+
+:marked
+  [Back to top](#top)
