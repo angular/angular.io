@@ -16,8 +16,6 @@ class HeroAppComponent {
       new Hero('Human Torch', ['Mister Fantastic', 'Invisible Woman', 'Thing']);
 
   @HostBinding('class')
-  String get themeClass {
-    return 'theme-light';
-  }
+  String get themeClass => 'theme-light';
 // #docregion
 }

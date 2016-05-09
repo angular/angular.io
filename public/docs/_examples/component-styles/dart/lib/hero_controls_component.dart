@@ -14,7 +14,10 @@ import 'hero.dart';
       <h3>Controls</h3>
       <button (click)="activate()">Activate</button>''')
 class HeroControlsComponent {
-  @Input() Hero hero;
+  @Input()
+  Hero hero;
 
-  void activate() { hero.active = true; }
+  void activate() {
+    hero.active = true;
+  }
 }
