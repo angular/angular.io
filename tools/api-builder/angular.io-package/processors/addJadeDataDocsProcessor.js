@@ -75,7 +75,7 @@ module.exports = function addJadeDataDocsProcessor() {
             } else if (_.has(exportDoc, 'deprecated')) {
               stability = 'deprecated';
             }
-
+            
             var howToUse = '';
             if(_.has(exportDoc, 'howToUse')) {
               var howToUseArray = exportDoc.tags.tags.filter(function(tag) {
@@ -96,6 +96,16 @@ module.exports = function addJadeDataDocsProcessor() {
               whatItDoes = whatItDoesArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
             }
 
+            // SECURITY STATUS
+            // Supported tags:
+            // @security
+            // Default is no security risk assessed for api
+            var security = false;
+            if (_.has(exportDoc, 'security')) {
+              security = true;
+            }
+
+            // Data inserted into jade-data.template.html
             var dataDoc = {
               name: exportDoc.name + '-' + exportDoc.docType,
               title: exportDoc.name,
@@ -103,7 +113,8 @@ module.exports = function addJadeDataDocsProcessor() {
               exportDoc: exportDoc,
               stability: stability,
               howToUse: howToUse,
-              whatItDoes: whatItDoes
+              whatItDoes: whatItDoes,
+              security: security
             };
 
             if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);

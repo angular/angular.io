@@ -6,4 +6,5 @@ module.exports = [
   require('./stable'),
   require('./experimental'),
   require('./docsNotRequired'),
+  require('./security'),
 ];
