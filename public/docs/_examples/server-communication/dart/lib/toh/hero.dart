@@ -5,11 +5,10 @@ class Hero {
 
   Hero(this.id, this.name);
 
-  factory Hero.fromJson(Map hero) {
-    final _id = hero['id'];
-    final id = _id is int ? _id : int.parse(_id);
-    return new Hero(id,hero['name']);
-  }
+  factory Hero.fromJson(Map<String, dynamic> hero) =>
+      new Hero(_toInt(hero['id']), hero['name']);
 
   Map toJson() => {'id': id, 'name': name};
+
+  static int _toInt(id) => id is int ? id : int.parse(id);
 }
