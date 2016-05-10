@@ -167,7 +167,7 @@ code-example(format="." language="bash").
 
   ### Inject the *HeroService*
   
-  Two lines replace the one line of *new*:
+  Two lines replace the one line that created with *new*:
   1. we add a constructor.
   1. we add to the component's `providers` metadata
   
@@ -178,11 +178,6 @@ code-example(format="." language="bash").
   defines a private `heroService` property and identifies it as a `HeroService` injection site.
 :marked
   Now Angular will know to supply an instance of the `HeroService` when it creates a new `AppComponent`. 
-  
-  Angular has to get that instance from somewhere. That's the role of the Angular *Dependency Injector*.
-  The **Injector** has a **container** of previously created services. 
-  Either it finds and returns a pre-existing `HeroService` from its container or it creates a new instance, adds
-  it to the container, and returns it to Angular.
 
 .l-sub-section
   :marked
@@ -201,22 +196,7 @@ code-example(format="." language="html").
 :marked
   The `providers` array  tells Angular to create a fresh instance of the `HeroService` when it creates a new `AppComponent`.
   The `AppComponent` can use that service to get heroes and so can every child component of its component tree.
-<a id="child-component"></a>  
-.l-sub-section
-  :marked
-    ### Services and the component tree
-    
-    Recall that the `AppComponent` creates an instance of `HeroDetail` by virtue of the
-    `<my-hero-detail>` tag at the bottom of its template. That `HeroDetail` is a child of the `AppComponent`.
-    
-    If the `HeroDetailComponent` needed its parent component's `HeroService`,
-    it would ask Angular to inject the service into its constructor which would look just like the one for `AppComponent`:
-  +makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'hero-detail.component.ts (constructor)')
-  :marked
-    The `HeroDetailComponent` must *not* repeat its parent's `providers` array! Guess [why](#shadow-provider).
-    
-    The `AppComponent` is the top level component of our application. 
-    There should be only one instance of that component and only one instance of the `HeroService` in our entire app.
+a#child-component
 :marked
   ### *getHeroes* in the *AppComponent*
   We've got the service in a `heroService` private variable. Let's use it.
@@ -384,18 +364,3 @@ code-example(format="." language="html").
   
   Back in the `AppComponent`, replace `heroService.getHeroes` with `heroService.getHeroesSlowly`
   and see how the app behaves.
-  
-.l-main-section
-<a id="shadow-provider"></a>
-:marked
-  ### Appendix: Shadowing the parent's service
-  
-  We stated [earlier](#child-component) that if we injected the parent `AppComponent` `HeroService`
-  into the `HeroDetailComponent`, *we must not add a providers array* to the `HeroDetailComponent` metadata.
-
-  Why?  Because that tells Angular to create a new instance of the `HeroService` at the `HeroDetailComponent` level.
-  The `HeroDetailComponent` doesn't want its *own*  service instance; it wants its *parent's* service instance.
-  Adding the `providers` array creates a new service instance that shadows the parent instance.
-  
-  Think carefully about where and when to register a provider. 
-  Understand the scope of that registration. Be careful not to create a new service instance at the wrong level.
