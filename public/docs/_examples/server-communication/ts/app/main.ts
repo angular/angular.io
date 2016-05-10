@@ -10,12 +10,12 @@ import { HTTP_PROVIDERS } from '@angular/http';
 import 'rxjs/Rx';
 // #enddocregion import-rxjs
 
+import { TohComponent }       from './toh/toh.component';
 import { WikiComponent }      from './wiki/wiki.component';
 import { WikiSmartComponent } from './wiki/wiki-smart.component';
-import { TohComponent }       from './toh/toh.component';
 
-bootstrap(WikiComponent);
-bootstrap(WikiSmartComponent);
 // #docregion http-providers
 bootstrap(TohComponent, [HTTP_PROVIDERS]);
 // #enddocregion http-providers
+bootstrap(WikiComponent);
+bootstrap(WikiSmartComponent);
