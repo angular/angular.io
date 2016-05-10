@@ -8,20 +8,20 @@ import { HEROES } from './mock-heroes';
 
 @Injectable()
 export class HeroService {
-  //#docregion get-heroes
+  // #docregion get-heroes
   getHeroes() {
     return Promise.resolve(HEROES);
   }
-  //#enddocregion get-heroes
+  // #enddocregion get-heroes
   // #enddocregion just-get-heroes
   // See the "Take it slow" appendix
-  //#docregion get-heroes-slowly
+  // #docregion get-heroes-slowly
   getHeroesSlowly() {
     return new Promise<Hero[]>(resolve =>
       setTimeout(()=>resolve(HEROES), 2000) // 2 seconds
     );
   }
-  //#enddocregion get-heroes-slowly
+  // #enddocregion get-heroes-slowly
   // #docregion just-get-heroes
 }
 // #enddocregion just-get-heroes
