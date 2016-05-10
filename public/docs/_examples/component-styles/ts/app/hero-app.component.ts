@@ -11,8 +11,8 @@ import { HeroAppMainComponent } from './hero-app-main.component';
   styles: ['h1 { font-weight: normal; }'],
   directives: [HeroAppMainComponent]
 })
-// #enddocregion
 export class HeroAppComponent {
+// #enddocregion
   hero = new Hero(
     'Human Torch',
     ['Mister Fantastic', 'Invisible Woman', 'Thing']
@@ -21,5 +21,6 @@ export class HeroAppComponent {
   @HostBinding('class') get themeClass() {
     return 'theme-light';
   }
-
+// #docregion
 }
+// #enddocregion

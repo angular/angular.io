@@ -3,7 +3,6 @@
 import { Component, ViewEncapsulation } from '@angular/core';
 
 // #docregion
-
 @Component({
   moduleId: module.id,
   selector: 'quest-summary',
@@ -11,6 +10,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
   templateUrl: 'quest-summary.component.html',
   styleUrls:  ['quest-summary.component.css']
   // #enddocregion urls
+})
+export class QuestSummaryComponent { }
 // #enddocregion
 /*
   // #docregion encapsulation.native
@@ -18,7 +19,3 @@ import { Component, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.Native
   // #enddocregion encapsulation.native
 */
-// #docregion
-})
-export class QuestSummaryComponent { }
-// #enddocregion

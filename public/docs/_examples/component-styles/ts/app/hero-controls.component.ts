@@ -17,7 +17,6 @@ import { Hero } from './hero';
 })
 // #enddocregion inlinestyles
 export class HeroControlsComponent {
-
   @Input() hero: Hero;
 
   activate() {
