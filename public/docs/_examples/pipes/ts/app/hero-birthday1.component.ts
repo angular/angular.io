@@ -1,4 +1,3 @@
-// Version #1
 // #docregion
 import { Component } from '@angular/core'
 
@@ -11,4 +10,3 @@ import { Component } from '@angular/core'
 export class HeroBirthday {
   birthday = new Date(1988,3,15); // April 15, 1988
 }
-// #enddocregion

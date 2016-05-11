@@ -2,16 +2,11 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 
-// Initial view: "Message: "
-// After 500ms: Message: You are my Hero!"
-
 @Component({
   selector: 'hero-message',
   template: `
     <h2>Async Hero Message and AsyncPipe</h2>
-
     <p>Message: {{ message$ | async }}</p>
-
     <button (click)="resend()">Resend</button>`,
 })
 export class HeroAsyncMessageComponent {
