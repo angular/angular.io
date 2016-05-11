@@ -76,12 +76,34 @@ module.exports = function addJadeDataDocsProcessor() {
               stability = 'deprecated';
             }
 
+            var howToUse = '';
+            if(_.has(exportDoc, 'howToUse')) {
+              var howToUseArray = exportDoc.tags.tags.filter(function(tag) {
+                return tag.tagName === 'howToUse'
+              });
+
+              // Remove line breaks, there should only be one tag
+              howToUse = howToUseArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+            }
+
+            var whatItDoes = '';
+            if(_.has(exportDoc, 'whatItDoes')) {
+              var whatItDoesArray = exportDoc.tags.tags.filter(function(tag) {
+                return tag.tagName === 'whatItDoes'
+              });
+
+              // Remove line breaks, there should only be one tag
+              whatItDoes = whatItDoesArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+            }
+
             var dataDoc = {
               name: exportDoc.name + '-' + exportDoc.docType,
               title: exportDoc.name,
               docType: exportDoc.docType,
               exportDoc: exportDoc,
-              stability: stability
+              stability: stability,
+              howToUse: howToUse,
+              whatItDoes: whatItDoes
             };
 
             if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);
