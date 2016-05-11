@@ -1,5 +1,5 @@
+// #docregion
 import 'dart:math' as math;
-
 import 'package:angular2/angular2.dart';
 
 /*
@@ -13,11 +13,13 @@ import 'package:angular2/angular2.dart';
  */
 @Pipe(name: 'exponentialStrength')
 class ExponentialStrengthPipe extends PipeTransform {
-  transform(dynamic value, [List<dynamic> args]) {
-    var v = int.parse(value.toString(), onError: (source) => 0);
-    var p = args.isEmpty
+  num transform(dynamic _value, [List<dynamic> args]) {
+    var exponent = args.isEmpty
         ? 1
-        : int.parse(args.first.toString(), onError: (source) => 1);
-    return math.pow(v, p);
+        : args.first is num
+            ? args.first
+            : num.parse(args.first.toString(), (_) => 1);
+    var value = _value is num ? _value : num.parse(_value.toString(), (_) => 0);
+    return math.pow(value, exponent);
   }
 }
