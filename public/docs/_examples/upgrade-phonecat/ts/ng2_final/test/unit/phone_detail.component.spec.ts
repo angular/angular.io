@@ -1,6 +1,6 @@
 import { provide } from '@angular/core';
 // #docregion routeparams
-import { RouteParams } from '@angular/router';
+import { RouteParams } from '@angular/router-deprecated';
 // #enddocregion routeparams
 import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
