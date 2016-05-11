@@ -10,6 +10,9 @@ include ../_util-fns
   
   This chapter covers some aspects of TypeScript configuration and the TypeScript environment
   that are important to Angular developers.
+  
+  * [tsconfig.json](#tsconfig) - TypeScript compiler configuration.
+  * [typings](#typings) - TypesScript declaration files.
 
 a(id="tsconfig")
 .l-main-section
@@ -77,7 +80,7 @@ a(id="typings")
   
   **We need do nothing to get *typings* files for library packages which include *d.ts* files &mdash; as all Angular packages do.**
   
-  ### Manual typings
+  ### Installable typings files
   Sadly, many libraries &mdash; jQuery, Jasmine, and Lodash among them &mdash; do *not* include `d.ts` files in their npm packages.
   Fortunately, either their authors or community contributors have created separate *d.ts* files for these libraries and 
   published them in well-known locations.
@@ -88,8 +91,8 @@ a(id="typings")
   to run that tool automatically after *npm* installation completes.
 +makeJson('quickstart/ts/package.1.json', {paths: 'scripts.postinstall'}, 'package.json (postinstall)')(format=".")
 :marked
-  This *typings* tool command installs the *d.ts* files that we identify in a `typings.json` file 
-  such as this one from the [QuickStart](../quickstart.html):
+  This *typings* tool command installs the *d.ts* files that we identify in a `typings.json` file into the **typings** folder.
+  We created a `typings.json` file in the [QuickStart](../quickstart.html):
 +makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
 :marked
   We identified two *typings* file in the QuickStart, the *d.ts* file for 
@@ -101,12 +104,17 @@ a(id="typings")
   and most of us would be disappointed if typical ES2015 features didn't work out-of-the-box
   or we didn't support testing.
 
-  We can also run the *typings* tool ourselves. The following command lists the locally installed typings files.
+  We can also run the *typings* tool ourselves.
+  The following command (re)installs the typings files, as is sometimes necessary when the `postInstall` hook fails to do so.
 code-example(format="").
-  npm run typings -- list
+  npm run typings install
 :marked
-    The following command installs the typings file for the Jasmine test library and updates the `typings.config` 
-    so we that we get it automatically the next time.
+  This command lists the installed typings files:
+code-example(format="").
+  npm run typings list
+:marked
+  The following command installs the typings file for the Jasmine test library and updates the `typings.config` 
+  so we that we get it automatically the next time.
 code-example(format="").
   npm run typings -- install jasmine --ambient --save
 .l-sub-section
@@ -116,7 +124,18 @@ code-example(format="").
     
     Learn about the features of the *typings* tool at its [site on github](https://github.com/typings/typings/blob/master/README.md).
 :marked
-  #### Typing file collisions
+  ### *typings.d.ts*
+  In the [QuickStart](../quickstart.html) we added a custom `typings.d.ts` file to the *typings* folder.
++makeExample('quickstart/ts/typings.d.1.ts', null, 'typings/typings.d.ts')(format=".")
+:marked
+  The `typings.d.ts` file is the place to declare so-called *ambient* objects that will be globally available at runtime.
+  We only need it when there is *no typings file* to declare it for us.
+  
+  This example declares objects that we need in order to tell Angular how to load templates and styles with [module-relative URLs](component-styles.html#!#relative-urls).
+  A module loader creates one or the other object dynamically as it loads a module.
+  These semi-globals are not described in any other `d.ts` file at this time so we have to declare them ourselves.
+  
+  ### Typing file collisions
   
   The TypeScript compiler does not tolerate redefinition of a type. For example, it throws an error if it's given two definitions for
   the `Promise` type.
@@ -145,6 +164,7 @@ code-example(format="").
   .children
      .file browser.d.ts
      .file main.d.ts
+     .file typings.d.ts
 :marked
   The `es6-shim` typings are duplicated and the `browser.d.ts` and `main.d.ts` have overlapping content.
   
