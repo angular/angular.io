@@ -1,7 +1,7 @@
 // #docregion
 // #docregion top
 import { Component, Inject } from '@angular/core';
-import { RouteParams } from '@angular/router';
+import { RouteParams } from '@angular/router-deprecated';
 
 import { Phones, Phone } from '../core/phones.service';
 import { CheckmarkPipe } from '../core/checkmark.pipe';

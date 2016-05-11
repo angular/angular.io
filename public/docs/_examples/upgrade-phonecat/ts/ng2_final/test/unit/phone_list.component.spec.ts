@@ -2,7 +2,7 @@
 import { provide, ApplicationRef } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { HTTP_PROVIDERS } from '@angular/http';
-import { ROUTER_PROVIDERS, ROUTER_PRIMARY_COMPONENT } from '@angular/router';
+import { ROUTER_PROVIDERS, ROUTER_PRIMARY_COMPONENT } from '@angular/router-deprecated';
 import { Observable } from 'rxjs/Rx';
 import {
   describe,

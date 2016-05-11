@@ -1,7 +1,7 @@
 // #docregion full
 // #docregion top
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router-deprecated';
 import { Observable } from 'rxjs';
 
 import { Phones, Phone } from '../core/phones.service';

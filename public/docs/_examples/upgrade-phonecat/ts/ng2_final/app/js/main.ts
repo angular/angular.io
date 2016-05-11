@@ -3,7 +3,7 @@
 import { provide } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { bootstrap } from '@angular/platform-browser-dynamic';
-import { ROUTER_PROVIDERS } from '@angular/router';
+import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
 import { Phones } from './core/phones.service';
 import AppComponent from './app.component';

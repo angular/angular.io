@@ -29,6 +29,7 @@ System.config({
     '@angular/platform-browser':         { main: 'index.js', defaultExtension: 'js' },
     '@angular/platform-browser-dynamic': { main: 'index.js', defaultExtension: 'js' },
     '@angular/router':                   { main: 'index.js', defaultExtension: 'js' },
+    '@angular/router-deprecated':        { main: 'index.js', defaultExtension: 'js' },
     '@angular/upgrade':                  { main: 'index.js', defaultExtension: 'js' },
     'rxjs':                              { defaultExtension: 'js' }
   }
@@ -37,8 +38,8 @@ System.config({
 // #docregion ng2
 System.import('@angular/core/testing').then(function(testing) {
   return System.import('@angular/platform-browser-dynamic/testing').then(function(browserTesting) {
-    testing.setBaseTestProviders(browserTesting.TEST_BROWSER_PLATFORM_PROVIDERS,
-                                 browserTesting.TEST_BROWSER_APPLICATION_PROVIDERS);
+    testing.setBaseTestProviders(browserTesting.TEST_BROWSER_DYNAMIC_PLATFORM_PROVIDERS,
+                                 browserTesting.TEST_BROWSER_DYNAMIC_APPLICATION_PROVIDERS);
   });
 }).then(function() {
   return Promise.all(

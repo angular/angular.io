@@ -24,7 +24,7 @@ angular.module('phonecatApp', [
 
 configure.$inject = ['$routeProvider'];
 
-function configure($routeProvider) { }
+function configure($routeProvider) {
   // #docregion list-route
   $routeProvider.
     when('/phones', {
