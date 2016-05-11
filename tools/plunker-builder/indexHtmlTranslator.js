@@ -18,17 +18,7 @@ var _rxRules = {
   link: {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to: '<link rel="stylesheet" href="%tag%">'
-  },
-  config: {
-    from: /\s*System.config\(\{[\s\S]*\}\);/m,
-    to: "\n" +
-        "      System.config({\n" +
-        "        transpiler: 'typescript', \n" +
-        "        typescriptOptions: { emitDecoratorMetadata: true }, \n" +
-        "        packages: {'app': {defaultExtension: 'ts'}} \n" +
-        "      });"
-  },
-
+  }
 };
 
 var _rxData = [
@@ -72,9 +62,6 @@ var _rxData = [
   },
   {
     pattern: 'angular_pkg',
-  },
-  {
-    pattern: 'config',
   }
 ];
 

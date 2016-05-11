@@ -45,6 +45,7 @@
   });
 
   var config = {
+    // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
     transpiler: 'typescript',
     typescriptOptions: {
       emitDecoratorMetadata: true
