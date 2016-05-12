@@ -18,17 +18,7 @@ var _rxRules = {
   link: {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to: '<link rel="stylesheet" href="%tag%">'
-  },
-  config: {
-    from: /\s*System.config\(\{[\s\S]*\}\);/m,
-    to: "\n" +
-        "      System.config({\n" +
-        "        transpiler: 'typescript', \n" +
-        "        typescriptOptions: { emitDecoratorMetadata: true }, \n" +
-        "        packages: {'app': {defaultExtension: 'ts'}} \n" +
-        "      });"
-  },
-
+  }
 };
 
 var _rxData = [
@@ -38,7 +28,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/es6-shim/es6-shim.min.js',
-    to:   'https://cdnjs.cloudflare.com/ajax/libs/es6-shim/0.35.0/es6-shim.min.js'
+    to:   'https://npmcdn.com/es6-shim@0.35.0/es6-shim.min.js'
   },
   {
     pattern: 'script',
@@ -58,7 +48,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   ['https://cdnjs.cloudflare.com/ajax/libs/systemjs/0.19.27/system.js', 'https://npmcdn.com/typescript@1.8.10/lib/typescript.js']
+    to:   'https://npmcdn.com/systemjs@0.19.27/dist/system.src.js'
   },
   {
     pattern: 'script',
@@ -72,9 +62,6 @@ var _rxData = [
   },
   {
     pattern: 'angular_pkg',
-  },
-  {
-    pattern: 'config',
   }
 ];
 
