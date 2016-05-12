@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:angular2/core.dart';
 
 import 'wikipedia_service.dart';
+import 'package:jsonpadding/jsonpadding.dart';
 
 @Component(
     selector: 'my-wiki',
@@ -15,14 +16,14 @@ import 'wikipedia_service.dart';
         <li *ngFor="let item of items">{{item}}</li>
       </ul>
     ''',
-    providers: const [WikipediaService])
+    providers: const [Jsonp, WikipediaService])
 class WikiComponent {
   final WikipediaService _wikipediaService;
   List items = [];
 
   WikiComponent(this._wikipediaService);
 
-  Future search(String term) async {
+  search(String term) async {
     items = await this._wikipediaService.search(term);
   }
 }
