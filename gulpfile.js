@@ -109,10 +109,12 @@ gulp.task('run-e2e-tests', function() {
 // with the corresponding apps that they should run under. Then run
 // each app/spec collection sequentially.
 function findAndRunE2eTests(filter) {
+  var lang = (argv.lang || '(ts|js)').toLowerCase();
+  if (lang === 'all') { lang = '(ts|js|dart)'; }
   var startTime = new Date().getTime();
   // create an output file with header.
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
-  var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
+  var header = "Protractor example results for " + lang + " on " + (new Date()).toLocaleString() + "\n\n";
   if (filter) {
     header += '  Filter: ' + filter.toString() + '\n\n';
   }
@@ -128,6 +130,10 @@ function findAndRunE2eTests(filter) {
     fsExtra.copySync(srcConfig, destConfig);
     // get all of the examples under each dir where a pcFilename is found
     examplePaths = getExamplePaths(specPath, true);
+    // Filter by language
+    examplePaths = examplePaths.filter(function (fn) {
+      return fn.match('/'+lang+'$') != null;
+    });
     if (filter) {
       examplePaths = examplePaths.filter(function (fn) {
         return fn.match(filter) != null;
@@ -142,7 +148,9 @@ function findAndRunE2eTests(filter) {
   var status = { passed: [], failed: [] };
   return exeConfigs.reduce(function (promise, combo) {
     return promise.then(function () {
-      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
+      var isDart = combo.examplePath.indexOf('/dart') > -1;
+      var runTests = isDart ? runE2eDartTests : runE2eTsTests;
+      return runTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
         var arr = ok ? status.passed : status.failed;
         arr.push(combo.examplePath);
       })
@@ -158,12 +166,16 @@ function findAndRunE2eTests(filter) {
 // start the example in appDir; then run protractor with the specified
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
-function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
+function runE2eTsTests(appDir, protractorConfigFilename, outputFile) {
   // start the app
   var appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
   var tscRunSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
 
-  return tscRunSpawnInfo.promise.then(function(data) {
+  return runProtractor(tscRunSpawnInfo.promise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile);
+}
+
+function runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile) {
+  return prepPromise.then(function (data) {
     // start protractor
     var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
     var exePath = path.join(process.cwd(), "./node_modules/.bin/");
@@ -184,19 +196,39 @@ function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
   });
 }
 
+// start the server in appDir/build/web; then run protractor with the specified
+// fileName; then shut down the example.  All protractor output is appended
+// to the outputFile.
+function runE2eDartTests(appDir, protractorConfigFilename, outputFile) {
+  var deployDir = path.resolve(path.join(appDir, 'build/web'));
+  gutil.log('AppDir for Dart e2e: ' + appDir);
+  gutil.log('Deploying from: ' + deployDir);
+
+  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: EXAMPLES_PATH });
+  if (!appRunSpawnInfo.proc.pid) {
+    gutil.log('http-server failed to launch over ' + deployDir);
+    return false;
+  }
+  var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
+  var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
+    return spawnExt('pub', ['build'], { cwd: appDir }).promise;
+  });
+  return runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile);
+}
+
 function reportStatus(status) {
   gutil.log('Suites passed:');
   status.passed.forEach(function(val) {
     gutil.log('  ' + val);
   });
 
-  gutil.log('Suites failed:');
-  status.failed.forEach(function(val) {
-    gutil.log('  ' + val);
-  });
-
   if (status.failed.length == 0) {
     gutil.log('All tests passed');
+  } else {
+    gutil.log('Suites failed:');
+    status.failed.forEach(function (val) {
+      gutil.log('  ' + val);
+    });
   }
   gutil.log('Elapsed time: ' +  status.elapsedTime + ' seconds');
 }
