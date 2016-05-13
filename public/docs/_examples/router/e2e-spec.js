@@ -1,6 +1,6 @@
 describe('Router', function () {
 
-  beforeAll(function () {
+  beforeEach(function () {
     browser.get('');
   });
 
