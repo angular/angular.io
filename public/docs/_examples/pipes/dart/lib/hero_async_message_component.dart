@@ -11,7 +11,7 @@ import 'package:angular2/angular2.dart';
       <button (click)="resend()">Resend</button>
     ''')
 class HeroAsyncMessageComponent {
-  static const DELAY = const Duration(milliseconds: 500);
+  static const _msgEventDelay = const Duration(milliseconds: 500);
 
   Stream<String> message;
 
@@ -20,7 +20,8 @@ class HeroAsyncMessageComponent {
   }
 
   void resend() {
-    message = new Stream.periodic(DELAY, (i) => _msgs[i]).take(_msgs.length);
+    message =
+        new Stream.periodic(_msgEventDelay, (i) => _msgs[i]).take(_msgs.length);
   }
 
   List<String> _msgs = <String>[
