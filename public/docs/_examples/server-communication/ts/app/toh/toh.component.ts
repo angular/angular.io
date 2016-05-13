@@ -1,5 +1,4 @@
 // #docplaster
-
 // #docregion
 import { Component }         from '@angular/core';
 import { HTTP_PROVIDERS }    from '@angular/http';
