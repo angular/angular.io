@@ -3,7 +3,7 @@
 *
 */
 
-var angularIO = angular.module('angularIOApp', ['ngMaterial'])
+var angularIO = angular.module('angularIOApp', ['ngMaterial', 'firebase'])
 .config(function($mdThemingProvider) {
 
   // THEMEING FOR ANGULAR MATERIAL
