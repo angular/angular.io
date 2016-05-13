@@ -1,7 +1,6 @@
 // #docregion
-import 'dart:html';
-import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:angular2/angular2.dart';
 
@@ -9,15 +8,17 @@ import 'package:angular2/angular2.dart';
 @Pipe(name: 'fetch', pure: false)
 // #enddocregion pipe-metadata
 class FetchJsonPipe extends PipeTransform {
-  dynamic _fetchedValue;
-  Future<dynamic> _fetchPromise;
+  dynamic _fetchedJson;
+  String _prevUrl;
 
-  transform(dynamic url, [List<dynamic> args]) {
-    if (_fetchPromise == null) {
-      _fetchPromise = new Future(() async {
-        _fetchedValue = JSON.decode(await HttpRequest.getString(url));
-      });
+  dynamic transform(dynamic url, [List<dynamic> args]) {
+    if (url != _prevUrl) {
+      _prevUrl = url;
+      _fetchedJson = null;
+      HttpRequest.getString(url).then((s) {
+          _fetchedJson = JSON.decode(s);
+        });
     }
-    return _fetchedValue;
+    return _fetchedJson;
   }
 }

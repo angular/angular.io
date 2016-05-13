@@ -9,10 +9,6 @@ describe('Pipes', function () {
     expect(element(by.css('hero-birthday p')).getText()).toEqual("The hero's birthday is Apr 15, 1988");
   });
 
-  it('should show an async hero message', function () {
-    expect(element.all(by.tagName('hero-message')).get(0).getText()).toContain('hero');
-  });
-
   it('should show 4 heroes', function () {
     expect(element.all(by.css('hero-list div')).count()).toEqual(4);
   });
@@ -112,6 +108,10 @@ describe('Pipes', function () {
     .then(function(){
        expect(flyingHeroesEle.count()).toEqual(3, 'new flying hero should show in mutating array');
     })
+  });
+
+  it('should show an async hero message', function () {
+    expect(element.all(by.tagName('hero-message')).get(0).getText()).toContain('hero');
   });
 
 });
