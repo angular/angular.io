@@ -9,7 +9,7 @@ System.config({
     '@angular':                   pkgPath + '@angular'
   },
   packages: {
-    'js':                                { defaultExtension: 'js' },
+    './':                                { defaultExtension: 'js' },
 
     '@angular/common':                   { main: 'index.js', defaultExtension: 'js' },
     '@angular/compiler':                 { main: 'index.js', defaultExtension: 'js' },
@@ -18,6 +18,7 @@ System.config({
     '@angular/platform-browser':         { main: 'index.js', defaultExtension: 'js' },
     '@angular/platform-browser-dynamic': { main: 'index.js', defaultExtension: 'js' },
     '@angular/router':                   { main: 'index.js', defaultExtension: 'js' },
+    '@angular/router-deprecated':        { main: 'index.js', defaultExtension: 'js' },
     '@angular/upgrade':                  { main: 'index.js', defaultExtension: 'js' },
     'rxjs':                              { defaultExtension: 'js' }
 

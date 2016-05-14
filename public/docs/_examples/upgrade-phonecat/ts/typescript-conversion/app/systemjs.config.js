@@ -5,7 +5,7 @@
 var pkgPath =  global.packagePath || '../node_modules/'; // path to packages
 System.config({
   packages: {
-    'js': { defaultExtension: 'js' },
+    './': { defaultExtension: 'js' },
   }
 });
 
