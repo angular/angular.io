@@ -4,6 +4,10 @@
 //- Should be one of: 'ts', 'dart' or 'js'. Set in lang specific _util-fns file.
 - var _docsFor = ''; 
 
+//- Should match `_docsFor`, but in this case provides the full capitalized
+//- name of the language.
+- var _Lang = 'TypeScript';
+
 //- Simple "macros" used via interpolation in text:
 //- e.g., the #{_priv}el variable has an `@Input` #{_decorator}.
 
@@ -11,8 +15,14 @@
 //- preceded by the article "a". (E.g., will be "annotation" for Dart)
 - var _decorator = 'decorator';
 
+//- Articles (which toggle between 'a' and 'an'). Used for, e.g.,
+//- array vs. list; decorator vs. annotation.
+- var _a = 'a';
+- var _an = 'an';
+
 //- TS arrays vs. Dart lists
 - var _array = 'array';
+//- Deprecate now that we have the articles _a and _an
 - var _an_array = 'an array';
 
 //- Promise vs. Future, etc
@@ -48,6 +58,7 @@ mixin makeExample(_filePath, region, _title, stylePatterns)
   - var frag = getFrag(filePath, region);
   - var defaultFormat = frag.split('\n').length > 2 ? "linenums" : "";
   - var format = attributes.format || defaultFormat;
+  - if (attributes.format === '.') format = '';
   - var avoid = !!attributes.avoid;
 
   if (title)
@@ -57,6 +68,13 @@ mixin makeExample(_filePath, region, _title, stylePatterns)
       .example-title #{title}
   code-example(language="#{language}" format="#{format}")
     != styleString(frag, stylePatterns)
+    
+//- Like makeExample, but doesn't show line numbers and
+//- title is appened with `(excerpt)` if it doesn't already
+//- end with a parenthetical remark.
+mixin makeExcerpt(_filePath, region, _title, stylePatterns)
+  - if (_title && !_title.match(/\([\w ]+\)$/)) _title = _title + ' (excerpt)';
+  +makeExample(_filePath, region, _title, stylePatterns)(format='')
 
 mixin makeTabs(filePaths, regions, tabNames, stylePatterns)
   - filePaths = strSplit(filePaths);
