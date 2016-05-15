@@ -55,11 +55,15 @@
 
   var config = {
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
-    transpiler: 'typescript',
+    transpiler: 'ts',
     typescriptOptions: {
-      emitDecoratorMetadata: true
+      tsconfig: true
     },
-
+    meta: {
+      'typescript': {
+        "exports": "ts"
+      }
+    },
     map: map,
     packages: packages
   }

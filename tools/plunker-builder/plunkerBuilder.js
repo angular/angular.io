@@ -10,7 +10,9 @@ var mkdirp = require('mkdirp');
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
 var COPYRIGHT, COPYRIGHT_JS, COPYRIGHT_HTML;
-var SYSTEM_JS_CONFIG; // content of systemjs.config.js for plunkers that use systemjs
+var SYSTEMJS_CONFIG; // content of systemjs.config.js for plunkers that use systemjs
+var TSCONFIG;  // content of tsconfig.json for plunkers that use systemjs
+
 
 module.exports = {
   buildPlunkers: buildPlunkers
@@ -82,18 +84,23 @@ function buildPlunkerFrom(configFileName, basePath, destPath ) {
   }
 }
 
+/**
+ * Add plunker versions of systemjs.config and tsconfig.json
+ */
 function addSystemJsConfig(config, postData){
   if (config.basePath.indexOf('/ts') > -1) {
      // uses systemjs.config.js so add plunker version
      var relativeFileName = 'systemjs.config.js';
-     postData['files[' + relativeFileName + ']'] = SYSTEM_JS_CONFIG;
+     postData['files[' + relativeFileName + ']'] = SYSTEMJS_CONFIG;
+     postData['files[tsconfig.json]'] = TSCONFIG;
   }
 }
 
 function getSystemJsConfigPlunker(basePath) {
   // Assume plunker version is sibling of node_modules version
-  SYSTEM_JS_CONFIG = fs.readFileSync(basePath + '/systemjs.config.plunker.js', 'utf-8');
-  SYSTEM_JS_CONFIG +=  COPYRIGHT_JS_CSS;
+  SYSTEMJS_CONFIG = fs.readFileSync(basePath + '/systemjs.config.plunker.js', 'utf-8');
+  SYSTEMJS_CONFIG +=  COPYRIGHT_JS_CSS;
+  TSCONFIG = fs.readFileSync(basePath + '/tsconfig.json', 'utf-8');
 }
 
 function initConfigAndCollectFileNames(configFileName) {
