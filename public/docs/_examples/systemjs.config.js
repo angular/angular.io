@@ -1,7 +1,6 @@
 /**
  * System configuration for Angular 2 samples
  * Adjust as necessary for your application needs.
- * Override at the last minute with global.filterSystemConfig (as plunkers do)
  */
 (function(global) {
 
@@ -41,9 +40,6 @@
     map: map,
     packages: packages
   }
-
-  // filterSystemConfig - index.html's chance to modify config before we register it.
-  if (global.filterSystemConfig) { global.filterSystemConfig(config); }
 
   System.config(config);
 
