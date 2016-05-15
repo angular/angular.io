@@ -1,6 +1,6 @@
 // #docregion
 module.exports = {
-  devtools: 'source-map',
+  devtool: 'inline-source-map',
 
   resolve: {
     extensions: ['', '.ts', '.js']
