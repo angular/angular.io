@@ -32,8 +32,8 @@ angularIO.directive('apiList', function () {
         { cssClass: 'class', title: 'Class', matches: ['class'] },
         { cssClass: 'interface', title: 'Interface', matches: ['interface'] },
         { cssClass: 'function', title: 'Function', matches: ['function'] },
-        { cssClass: 'const', title: 'Const or Enum', matches: ['const', 'enum'] },
-        { cssClass: 'var', title: 'Variable', matches: ['var', 'let'] }
+        { cssClass: 'enum', title: 'Enum', matches: ['enum'] },
+        { cssClass: 'const', title: 'Const', matches: ['var', 'let', 'const'] }
       ];
 
       $ctrl.apiFilter = getApiFilterFromLocation();
