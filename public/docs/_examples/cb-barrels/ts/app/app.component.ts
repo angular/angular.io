@@ -1,3 +1,4 @@
+// #docregion
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 

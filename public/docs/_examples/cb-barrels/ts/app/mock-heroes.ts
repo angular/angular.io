@@ -1,3 +1,4 @@
+// #docregion
 import { Hero } from './heroes';
 
 export var HEROES: Hero[] = [
