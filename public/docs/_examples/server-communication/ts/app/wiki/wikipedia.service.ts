@@ -11,7 +11,7 @@ export class WikipediaService {
     let wikiUrl = 'http://en.wikipedia.org/w/api.php';
 
     // #docregion search-parameters
-    var params = new URLSearchParams();
+    let params = new URLSearchParams();
 params.set('search', term); // the user's search value
     params.set('action', 'opensearch');
     params.set('format', 'json');

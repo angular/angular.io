@@ -6,8 +6,8 @@ import { HTTP_PROVIDERS } from '@angular/http';
 // #enddocregion http-providers
 
 // #docregion import-rxjs
-// Add all operators to Observable
-import 'rxjs/Rx';
+// Add the RxJS Observable operators we need in this app.
+import './add-rxjs-operators';
 // #enddocregion import-rxjs
 
 import { TohComponent }       from './toh/toh.component';

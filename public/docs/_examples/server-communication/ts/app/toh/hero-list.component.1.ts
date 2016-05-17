@@ -28,7 +28,7 @@ export class HeroListComponent implements OnInit {
   }
 
   addHero (name: string) {
-    if (!name) {return;}
+    if (!name) { return; }
     this.heroService.addHero(name)
                      .then(
                        hero  => this.heroes.push(hero),

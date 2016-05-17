@@ -1,3 +1,4 @@
+/* tslint:disable:member-ordering */
 // #docregion
 import { Component }        from '@angular/core';
 import { JSONP_PROVIDERS }  from '@angular/http';
@@ -20,7 +21,7 @@ import { WikipediaService } from './wikipedia.service';
       <li *ngFor="let item of items | async">{{item}}</li>
     </ul>
   `,
-  providers:[JSONP_PROVIDERS, WikipediaService]
+  providers: [JSONP_PROVIDERS, WikipediaService]
 })
 export class WikiSmartComponent {
 
@@ -29,13 +30,13 @@ export class WikiSmartComponent {
   // #docregion subject
   private searchTermStream = new Subject<string>();
 
-  search(term:string) { this.searchTermStream.next(term); }
+  search(term: string) { this.searchTermStream.next(term); }
   // #enddocregion subject
 
   // #docregion observable-operators
-  items:Observable<string[]> = this.searchTermStream
+  items: Observable<string[]> = this.searchTermStream
     .debounceTime(300)
     .distinctUntilChanged()
-    .switchMap((term:string) => this.wikipediaService.search(term));
+    .switchMap((term: string) => this.wikipediaService.search(term));
 // #enddocregion observable-operators
 }

@@ -60,6 +60,7 @@ figure.image-display
 :marked
   Here is the `TohComponent` shell:
 +makeExample('server-communication/ts/app/toh/toh.component.ts', '', 'app/toh/toh.component.ts')
+
 block http-providers
   :marked
     As usual, we import the symbols we need. The newcomer is `HTTP_PROVIDERS`, 
@@ -191,18 +192,26 @@ block rxjs
     We should include only those features that we actually need.
 
     Accordingly, Angular exposes a stripped down version of `Observable` in the `rxjs/Observable` module, 
-    a version that lacks almost all operators including the ones we'd like to use here
+    a version that lacks most of the operators including some we'd like to use here
     such as the `map` method we called above in `getHeroes`.
 
     It's up to us to add the operators we need. 
-    We could add each operator, one-by-one, until we had a custom *Observable* implementation tuned
-    precisely to our requirements.
-
-    That would be a distraction today. We're learning HTTP, not counting bytes.
-    So we'll make it easy on ourselves and enrich *Observable* with the full set of operators.
-    It only takes one `import` statement. 
-    It's best to add that statement early when we're bootstrapping the application. 
-    :
+    
+    We could add _every_ RxJS operators with a single import statement. 
+    While that is the easiest thing to do, we'd pay a penalty in extended launch time and application size
+    because the full library is so big. We only use a few operators in our app.
+    
+    Instead, we'll import each operator, one-by-one, until we have a custom *Observable* implementation tuned
+    precisely to our requirements. We'll put the `import` statements in one `app/add-rxjs-operators.ts` file.
+  +makeExample('server-communication/ts/app/add-rxjs-operators.ts', null, 'app/add-rxjs-operators.ts')(format=".")
+  :marked
+    If we forget an operator, the compiler will warn that it's missing and we'll update this file.
+  .l-sub-section
+    :marked
+      We don't need _all_ of these particular operators in the `HeroService` &mdash; just `map` and `catch`.
+      We'll need the others later, in a *Wiki* example [below](#more-observables).
+  :marked
+    Finally, we import `add-rxjs-operator`_itself_ in our `main.ts`:
   +makeExample('server-communication/ts/app/main.ts', 'import-rxjs', 'app/main.ts (import rxjs)')(format=".")
 
 a#extract-data
@@ -212,31 +221,8 @@ a#extract-data
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'extract-data', 'app/toh/hero.service.ts (excerpt)')(format=".")
 :marked
   The `response` object does not hold our data in a form we can use directly. 
-  To make it useful in our application we must
-  * check the response status,
-  * parse the response data into a JSON object
+  To make it useful in our application we must parse the response data into a JSON object
 
-+ifDocsFor('ts')
-  .alert.is-important
-    :marked
-      *Beta alert*: error status interception and parsing may be absorbed within `http` when Angular is released. 
-
-:marked
-  #### Non-success status codes
-  A status code outside the 200-299 range denotes an error from the _application point of view_
-  but it is not an error from the _HTTP point of view_. 
-  For example, a `404 - Not Found` is a response like any other. 
-  The request went out; a response came back; here it is, thank you very much.
-  We'd have an exception only if `#{_priv}http` failed to operate (e.g., it errored internally).
-
-block non-success-status-codes
-  :marked
-    Because a status code outside the 200-299 range _is an error_ from the application point of view, 
-    we intercept it and throw, moving the observable chain to the error path.
-
-    The `catch` operator that is next in the `getHeroes` observable chain will handle our thrown error.
-
-:marked
   #### Parse to JSON
 block parse-json
   :marked
@@ -597,7 +583,7 @@ block wikipedia-jsonp+
   +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-operators')(format='.')
   :marked
     We wait for the user to stop typing for at least 300 milliseconds 
-    ([debounce](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
+    ([debounceTime](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
     Only changed search values make it through to the service 
     ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
 
@@ -611,6 +597,10 @@ block wikipedia-jsonp+
     and delivers to subscribers only the most recent search results. 
 
     The displayed list of search results stays in sync with the user's sequence of search terms.
+  .l-sub-section
+    :marked
+      We added the `debounceTime`, `distinctUntilChanged`, and `switchMap` operators to the RxJS `Observable` class
+      in `add-rxjs-operators` as [described above](#rxjs)
 
 a#in-mem-web-api
 .l-main-section

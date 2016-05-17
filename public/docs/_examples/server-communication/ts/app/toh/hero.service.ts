@@ -29,7 +29,7 @@ export class HeroService {
   // #enddocregion error-handling, http-get, v1
 
   // #docregion addhero, addhero-sig
-  addHero (name: string): Observable<Hero> { 
+  addHero (name: string): Observable<Hero> {
   // #enddocregion addhero-sig
     let body = JSON.stringify({ name });
     let headers = new Headers({ 'Content-Type': 'application/json' });
@@ -43,9 +43,6 @@ export class HeroService {
 
   // #docregion v1, extract-data
   private extractData(res: Response) {
-    if (res.status < 200 || res.status >= 300) {
-      throw new Error('Response status: ' + res.status);
-    }
     let body = res.json();
     return body.data || { };
   }
@@ -54,7 +51,8 @@ export class HeroService {
   // #docregion error-handling
   private handleError (error: any) {
     // In a real world app, we might use a remote logging infrastructure
-    let errMsg = error.message || 'Server error';
+    // We'd also dig deeper into the error to get a better message
+    let errMsg = error.message || error.statusText || 'Server error';
     console.error(errMsg); // log to console instead
     return Observable.throw(errMsg);
   }

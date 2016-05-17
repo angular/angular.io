@@ -17,7 +17,7 @@ import { WikipediaService } from './wikipedia.service';
       <li *ngFor="let item of items | async">{{item}}</li>
     </ul>
   `,
-  providers:[JSONP_PROVIDERS, WikipediaService]
+  providers: [JSONP_PROVIDERS, WikipediaService]
 })
 export class WikiComponent {
 

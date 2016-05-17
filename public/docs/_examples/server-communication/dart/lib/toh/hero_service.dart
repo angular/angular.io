@@ -47,9 +47,6 @@ class HeroService {
 
   // #docregion extract-data
   dynamic _extractData(Response res) {
-    if (res.statusCode < 200 || res.statusCode >= 300) {
-      throw new Exception('Response status: ${res.statusCode}');
-    }
     var body = JSON.decode(res.body);
     // TODO: once fixed, https://github.com/adaojunior/http-in-memory-web-api/issues/1
     // Drop the `?? body` term

@@ -31,7 +31,7 @@ export class HeroListComponent implements OnInit {
 
   // #docregion addHero
   addHero (name: string) {
-    if (!name) {return;}
+    if (!name) { return; }
     this.heroService.addHero(name)
                      .subscribe(
                        hero  => this.heroes.push(hero),
