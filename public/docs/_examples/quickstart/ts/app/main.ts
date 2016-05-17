@@ -1,8 +1,8 @@
 // #docregion
 import { bootstrap }    from '@angular/platform-browser-dynamic';
 
-// #docregion app-component
+// #docregion import
 import { AppComponent } from './app.component';
-// #enddocregion app-component
+// #enddocregion import
 
 bootstrap(AppComponent);
