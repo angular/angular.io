@@ -1,7 +1,7 @@
 // #docregion imports
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
-import { HeroesComponent, HeroDetailComponent, HeroService } from './heroes';
+import { HeroesComponent, HeroDetailComponent, HeroService } from './heroes/index';
 import { DashboardComponent } from './dashboard.component';
 
 @Component({
