@@ -1,11 +1,11 @@
-// #docregion
+// #docregion imports
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
-
 import { HeroesComponent, HeroDetailComponent, HeroService } from './heroes';
 import { DashboardComponent } from './dashboard.component';
 
 @Component({
+// #enddocregion
   selector: 'my-app',
   template: `
     <h1>{{title}}</h1>

@@ -1,8 +1,10 @@
+// #docregion imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router-deprecated';
 import { HeroService, HeroDetailComponent, Hero } from '../heroes';
 
 @Component({
+// #enddocregion
   selector: 'my-heroes',
   templateUrl: 'app/heroes/heroes.component.html',
   styleUrls: ['app/heroes/heroes.component.css'],
