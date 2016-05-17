@@ -7,7 +7,7 @@ export const TITLE = new OpaqueToken('title');
 // #enddocregion opaque-token
 
 // #docregion hero-of-the-month
-import { Component, Inject, provide } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 
 import { DateLoggerService,
          MinimalLogger }     from './date-logger.service';
@@ -26,7 +26,7 @@ const template = `
   <h3>{{title}}</h3>
   <div>Winner: <strong>{{heroOfTheMonth.name}}</strong></div>
   <div>Reason for award: <strong>{{heroOfTheMonth.description}}</strong></div>
-  <div>Runners-up: <strong id="rups1">{{runnersUp}}</strong></div>
+  <div>Runners-up: <strong id="rups2">{{runnersUp}}</strong></div>
 
   <p>Logs:</p>
   <div id="logs">
@@ -36,28 +36,20 @@ const template = `
 
 // #docregion hero-of-the-month
 @Component({
-  selector: 'hero-of-the-month',
+  selector: 'hero-of-the-month-lit',
   template: template,
+  // #docregion providers-using-object-literals
   providers: [
-    // #docregion use-value
-    provide(Hero,          {useValue:    someHero}),
-    // #docregion provide-opaque-token
-    provide(TITLE,         {useValue:   'Hero of the Month'}),
-    // #enddocregion provide-opaque-token
-    // #enddocregion use-value
-    // #docregion use-class
-    provide(HeroService,   {useClass:    HeroService}),
-    provide(LoggerService, {useClass:    DateLoggerService}),
-    // #enddocregion use-class
-    // #docregion use-existing
-    provide(MinimalLogger, {useExisting: LoggerService}),
-    // #enddocregion use-existing
-    // #docregion provide-opaque-token, use-factory
-    provide(RUNNERS_UP,    {useFactory:  runnersUpFactory(2), deps: [Hero, HeroService]})
-    // #enddocregion provide-opaque-token, use-factory
+    {provide: Hero,          useValue:    someHero},
+    {provide: TITLE,         useValue:    'Hero of the Month - Object Literals'},
+    {provide: HeroService,   useClass:    HeroService},
+    {provide: LoggerService, useClass:    DateLoggerService},
+    {provide: MinimalLogger, useExisting: LoggerService},
+    {provide: RUNNERS_UP,    useFactory:  runnersUpFactory(2), deps: [Hero, HeroService]}
   ]
+  // #enddocregion providers-using-object-literals
 })
-export class HeroOfTheMonthComponent {
+export class HeroOfTheMonthLiteralsComponent {
   logs: string[] = [];
 
 // #docregion ctor-signature

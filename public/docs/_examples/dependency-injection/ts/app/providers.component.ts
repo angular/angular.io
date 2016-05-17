@@ -1,6 +1,7 @@
+/* tslint:disable:one-line:check-open-brace*/
 // Examples of provider arrays
-//#docplaster
-import { Component, Host, Inject, Injectable,
+// #docplaster
+import { Component, Inject, Injectable,
          provide, Provider }    from '@angular/core';
 
 import { APP_CONFIG,
@@ -9,7 +10,7 @@ import { APP_CONFIG,
 import { HeroService }          from './heroes/hero.service';
 import { heroServiceProvider }  from './heroes/hero.service.provider';
 import { Logger }               from './logger.service';
-import { User, UserService }    from './user.service';
+import { UserService }    from './user.service';
 
 let template = '{{log}}';
 
@@ -18,12 +19,12 @@ let template = '{{log}}';
   selector: 'provider-1',
   template: template,
   providers:
-    //#docregion providers-1
+    // #docregion providers-1
     [Logger]
-    //#enddocregion providers-1
+    // #enddocregion providers-1
 })
 export class ProviderComponent1 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with Logger class');
     this.log = logger.logs[0];
@@ -35,12 +36,12 @@ export class ProviderComponent1 {
   selector: 'provider-2',
   template: template,
   providers:
-    //#docregion providers-2
+    // #docregion providers-2
     [new Provider(Logger, {useClass: Logger})]
-    //#enddocregion providers-2
+    // #enddocregion providers-2
 })
 export class ProviderComponent2 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with Provider class and useClass');
     this.log = logger.logs[0];
@@ -52,14 +53,31 @@ export class ProviderComponent2 {
   selector: 'provider-3',
   template: template,
   providers:
-    //#docregion providers-3
+    // #docregion providers-3
     [provide(Logger, {useClass: Logger})]
-    //#enddocregion providers-3
+    // #enddocregion providers-3
 })
 export class ProviderComponent3 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useClass');
+    this.log = logger.logs[0];
+  }
+}
+
+//////////////////////////////////////////
+@Component({
+  selector: 'provider-3a',
+  template: template,
+  providers:
+    // #docregion providers-3a
+    [{provide: Logger, useClass: Logger}]
+    // #enddocregion providers-3a
+})
+export class ProviderComponent3a {
+  log: string;
+  constructor(logger: Logger) {
+    logger.log('Hello from logger provided with {provide: Logger, useClass: Logger}');
     this.log = logger.logs[0];
   }
 }
@@ -71,12 +89,12 @@ class BetterLogger extends Logger {}
   selector: 'provider-4',
   template: template,
   providers:
-    //#docregion providers-4
+    // #docregion providers-4
     [provide(Logger, {useClass: BetterLogger})]
-    //#enddocregion providers-4
+    // #enddocregion providers-4
 })
 export class ProviderComponent4 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useClass:BetterLogger');
     this.log = logger.logs[0];
@@ -87,11 +105,11 @@ export class ProviderComponent4 {
 // #docregion EvenBetterLogger
 @Injectable()
 class EvenBetterLogger {
-  logs:string[] = [];
+  logs: string[] = [];
 
   constructor(private userService: UserService) { }
 
-  log(message:string){
+  log(message: string){
     message = `Message to ${this.userService.user.name}: ${message}.`;
     console.log(message);
     this.logs.push(message);
@@ -103,13 +121,13 @@ class EvenBetterLogger {
   selector: 'provider-5',
   template: template,
   providers:
-    //#docregion providers-5
+    // #docregion providers-5
     [ UserService,
       provide(Logger, {useClass: EvenBetterLogger}) ]
-    //#enddocregion providers-5
+    // #enddocregion providers-5
 })
 export class ProviderComponent5 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from EvenBetterlogger');
     this.log = logger.logs[0];
@@ -119,9 +137,9 @@ export class ProviderComponent5 {
 //////////////////////////////////////////
 class NewLogger extends Logger {}
 class OldLogger {
-  logs:string[] = [];
-  log(message:string) {
-    throw new Error('Should not call the old logger!')
+  logs: string[] = [];
+  log(message: string) {
+    throw new Error('Should not call the old logger!');
   };
 }
 
@@ -129,15 +147,15 @@ class OldLogger {
   selector: 'provider-6a',
   template: template,
   providers:
-    //#docregion providers-6a
+    // #docregion providers-6a
     [ NewLogger,
       // Not aliased! Creates two instances of `NewLogger`
-      provide(OldLogger, {useClass:NewLogger}) ]
-    //#enddocregion providers-6a
+      provide(OldLogger, {useClass: NewLogger}) ]
+    // #enddocregion providers-6a
 })
 export class ProviderComponent6a {
-  log:string;
-  constructor(newLogger:NewLogger, oldLogger: OldLogger) {
+  log: string;
+  constructor(newLogger: NewLogger, oldLogger: OldLogger) {
     if (newLogger === oldLogger){
       throw new Error('expected the two loggers to be different instances');
     }
@@ -152,15 +170,15 @@ export class ProviderComponent6a {
   selector: 'provider-6b',
   template: template,
   providers:
-    //#docregion providers-6b
+    // #docregion providers-6b
     [ NewLogger,
       // Alias OldLogger w/ reference to NewLogger
       provide(OldLogger, {useExisting: NewLogger}) ]
-    //#enddocregion providers-6b
+    // #enddocregion providers-6b
 })
 export class ProviderComponent6b {
-  log:string;
-  constructor(newLogger:NewLogger, oldLogger: OldLogger) {
+  log: string;
+  constructor(newLogger: NewLogger, oldLogger: OldLogger) {
     if (newLogger !== oldLogger){
       throw new Error('expected the two loggers to be the same instance');
     }
@@ -175,19 +193,19 @@ export class ProviderComponent6b {
 let silentLogger = {
   logs: ['Silent logger says "Shhhhh!". Provided via "useValue"'],
   log: () => {}
-}
+};
 // #enddocregion silent-logger
 
 @Component({
   selector: 'provider-7',
   template: template,
   providers:
-    //#docregion providers-7
+    // #docregion providers-7
     [provide(Logger, {useValue: silentLogger})]
-    //#enddocregion providers-7
+    // #enddocregion providers-7
 })
 export class ProviderComponent7 {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useValue');
     this.log = logger.logs[0];
@@ -198,7 +216,7 @@ export class ProviderComponent7 {
 @Component({
   selector: 'provider-8',
   template: template,
-  providers:[heroServiceProvider, Logger, UserService]
+  providers: [heroServiceProvider, Logger, UserService]
 })
 export class ProviderComponent8{
   // #docregion provider-8-ctor
@@ -206,7 +224,7 @@ export class ProviderComponent8{
   // #enddocregion provider-8-ctor
 
   // must be true else this component would have blown up at runtime
-  log = 'Hero service injected successfully'
+  log = 'Hero service injected successfully';
 }
 
 /////////////////
@@ -248,7 +266,7 @@ export class ProviderComponent9a {
   selector: 'provider-9b',
   template: template,
   // #docregion providers-9b
-  providers:[provide(APP_CONFIG, {useValue: CONFIG})]
+  providers: [provide(APP_CONFIG, {useValue: CONFIG})]
   // #enddocregion providers-9b
 })
 export class ProviderComponent9b {
@@ -266,12 +284,12 @@ export class ProviderComponent9b {
 @Component({
   selector: 'provider-10a',
   template: template,
-  //#docregion providers-logger
+  // #docregion providers-logger
   providers: [Logger]
-  //#enddocregion providers-logger
+  // #enddocregion providers-logger
 })
 export class ProviderComponent10a {
-  log:string;
+  log: string;
   constructor(logger: Logger) {
     logger.log('Hello from the required logger.');
     this.log = logger.logs[0];
@@ -289,8 +307,8 @@ import {Optional} from '@angular/core';
 })
 export class ProviderComponent10b {
   // #docregion provider-10-ctor
-  log:string;
-  constructor(@Optional() private logger:Logger) {  }
+  log: string;
+  constructor(@Optional() private logger: Logger) {  }
   // #enddocregion provider-10-ctor
 
   ngOnInit() {
@@ -298,16 +316,16 @@ export class ProviderComponent10b {
     // No logger? Make one!
     if (!this.logger) {
       this.logger = {
-        log: (msg:string)=> this.logger.logs.push(msg),
+        log: (msg: string) => this.logger.logs.push(msg),
         logs: []
-      }
+      };
     // #enddocregion provider-10-logger
-      this.logger.log("Optional logger was not available.")
+      this.logger.log('Optional logger was not available.');
     // #docregion provider-10-logger
     }
     // #enddocregion provider-10-logger
     else {
-      this.logger.log('Hello from the injected logger.')
+      this.logger.log('Hello from the injected logger.');
       this.log = this.logger.logs[0];
     }
     this.log = this.logger.logs[0];
@@ -322,6 +340,7 @@ export class ProviderComponent10b {
   <div id="p1"><provider-1></provider-1></div>
   <div id="p2"><provider-2></provider-2></div>
   <div id="p3"><provider-3></provider-3></div>
+  <div id="p3a"><provider-3a></provider-3a></div>
   <div id="p4"><provider-4></provider-4></div>
   <div id="p5"><provider-5></provider-5></div>
   <div id="p6a"><provider-6a></provider-6a></div>
@@ -333,10 +352,11 @@ export class ProviderComponent10b {
   <div id="p10a"><provider-10a></provider-10a></div>
   <div id="p10b"><provider-10b></provider-10b></div>
   `,
-  directives:[
+  directives: [
     ProviderComponent1,
     ProviderComponent2,
     ProviderComponent3,
+    ProviderComponent3a,
     ProviderComponent4,
     ProviderComponent5,
     ProviderComponent6a,

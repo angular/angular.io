@@ -9,10 +9,13 @@ import { HeroesBaseComponent,
 import { HighlightDirective }          from './highlight.directive';
 import { ParentFinderComponent }       from './parent-finder.component';
 
+// Object Literal syntax
+import { HeroOfTheMonthLiteralsComponent } from './hero-of-the-month-literals.component';
+
 const DIRECTIVES = [
     HeroBiosComponent, HeroBiosAndContactsComponent,
     HeroesBaseComponent, SortedHeroesComponent,
-    HeroOfTheMonthComponent,
+    HeroOfTheMonthComponent, HeroOfTheMonthLiteralsComponent,
     HighlightDirective,
     ParentFinderComponent
 ];
@@ -24,7 +27,7 @@ import { UserService }        from './user.service';
 
 @Component({
   selector: 'my-app',
-  templateUrl:'app/app.component.html',
+  templateUrl: 'app/app.component.html',
   directives: DIRECTIVES,
 // #docregion providers
   providers: [LoggerService, UserContextService, UserService]
@@ -33,10 +36,10 @@ import { UserService }        from './user.service';
 export class AppComponent {
 // #enddocregion import-services
 
-  private userId:number = 1;
+  private userId: number = 1;
 
   // #docregion ctor
-  constructor(logger:LoggerService, public userContext:UserContextService) {
+  constructor(logger: LoggerService, public userContext: UserContextService) {
     userContext.loadUser(this.userId);
     logger.logInfo('AppComponent initialized');
   }
