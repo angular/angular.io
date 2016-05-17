@@ -1,7 +1,7 @@
 // #docregion imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router-deprecated';
-import { Hero, HeroService } from './heroes/index';
+import { Hero, HeroService } from './heroes';
 
 @Component({
 // #enddocregion

@@ -1,5 +1,5 @@
 // #docregion imports
-import { Hero } from './heroes/index';
+import { Hero } from './heroes';
 
 export var HEROES: Hero[] = [
 // #enddocregion
