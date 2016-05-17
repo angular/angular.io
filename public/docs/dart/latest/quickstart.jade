@@ -28,15 +28,17 @@ block download-source
 
 block package-and-config-files
   :marked
-    In the project folder just created, put a file named
-    **[pubspec.yaml][pubspec]** in it.
-    As shown below, in `pubspec.yaml`, specify the angular2 and browser
-    packages as dependencies, as well as the angular2 transformer.
+    In the project folder just created, create a file named
+    **[pubspec.yaml][pubspec]** with the code below.
+    This pubspec must specify the **angular2** and **browser**
+    packages as dependencies, as well as the `angular2` transformer.
+    It can also specify other packages and transformers for the app to use,
+    such as [dart_to_js_script_rewriter](https://pub.dartlang.org/packages/dart_to_js_script_rewriter).
     Angular 2 is still changing, so provide an exact version: **2.0.0-beta.17**.
 
     [pubspec]: https://www.dartlang.org/tools/pub/pubspec.html
 
-  +makeExample('quickstart/dart/pubspec.yaml', 'no-rewriter', 'pubspec.yaml')
+  +makeExample('quickstart/dart/pubspec.yaml', null, 'pubspec.yaml')
 
 block install-packages
   :marked
@@ -58,29 +60,28 @@ block create-main
     Create:
   ul
     li a #[b folder named #[code web]]
-    li a file named #[code #[+adjExPath('app/main.ts')]] with the following content:
+    li a <b>file named #[code #[+adjExPath('app/main.ts')]]</b> with the following content:
 
 block index-html-commentary-for-ts
   //- N/A
 
 block run-app
   p.
-    You have a few options for running your app.
+    We have a few options for running our app.
     One is to launch a local HTTP server
     and then view the app in
     <a href="https://www.dartlang.org/tools/dartium/">Dartium</a>.
-    You can use whatever server you like, such as WebStorm's server
+    We can use any web server, such as WebStorm's server
     or Python's SimpleHTTPServer.
   p.
     Another option is to build and serve the app using <code>pub serve</code>,
     and then run it by visiting <b><code>http://localhost:8080</code></b> in any modern browser.
     Pub serve generates JavaScript on the fly,
-    which can take a while when you first visit the page.
+    which can take a while when first visiting the page.
     Pub serve also runs in <b><i>watch mode</i></b>, and will recompile and subsequently serve
-    and changed assets.
+    any changed assets.
   p.
-    Once the app is running, you should see the following in your browser
-    window:
+    Once the app is running, the browser window should show the following:
 
 block build-app
   .alert.is-important
@@ -93,26 +94,8 @@ block build-app
     h3#section-angular-run-app Building the app (generating JavaScript)
 
     :marked
-      Before you can deploy your app, you need to generate JavaScript files.
+      Before deploying the app, we need to generate JavaScript files.
       The `pub build` command makes that easy.
-      To improve your app's performance, convert the
-      HTML file to directly include the generated JavaScript;
-      one way to do that is with `dart_to_js_script_rewriter`.
-
-      Add the `dart_to_js_script_rewriter` package to your pubspec,
-      in both the `dependencies` and `transformers` sections.
-
-    - var stylePattern = { pnk: /(dart_to_js_script_rewriter.*$)|(- dart_to_js_script_rewriter.*$)/gm, otl: /(dependencies:)|(transformers:)/g };
-    +makeExample('quickstart/dart/pubspec.yaml', null, 'pubspec.yaml', stylePattern)
-
-    .alert.is-important
-      :marked
-        The `dart_to_js_script_rewriter` transformer must be
-        **after** the `angular2` transformer in `pubspec.yaml`.
-
-    p.
-      Then compile your Dart code to JavaScript,
-      using <code>pub build</code>.
 
     code-example(language="sh").
       &gt; <span class="blk">pub build</span>
@@ -121,10 +104,13 @@ block build-app
     p.
       The generated JavaScript appears, along with supporting files,
       under a directory named <code>build</code>.
+
+    h4#angular_transformer Using the Angular transformer
+
     p.
-      When you generate JavaScript for an Angular app,
+      When generating JavaScript for an Angular app,
       be sure to use the Angular transformer.
-      It analyzes your code,
+      It analyzes the Dart code,
       converting reflection-using code to static code
       that Dart's build tools can compile to faster, smaller JavaScript.
       The highlighted lines in <code>pubspec.yaml</code>
@@ -135,7 +121,7 @@ block build-app
 
     p.
       The <code>entry_points</code> item
-      identifies the Dart file in your app
+      identifies the Dart file in our app
       that has a <code>main()</code> function.
       For more information, see the
       <a href="https://github.com/angular/angular/wiki/Angular-2-Dart-Transformer">Angular
@@ -144,14 +130,35 @@ block build-app
     #performance.l-sub-section
       h3 Performance, the transformer, and Angular 2 libraries
       p.
-        When you import <code>bootstrap.dart</code>,
-        you also get <code>dart:mirrors</code>,
+        When an app imports <code>bootstrap.dart</code>,
+        it also gets <code>dart:mirrors</code>,
         a reflection library that
         causes performance problems when compiled to JavaScript.
         Don't worry,
-        the Angular transformer converts your entry points
+        the Angular transformer converts the app's entry points
         (<code>entry_points</code> in <code>pubspec.yaml</code>)
         so that they don't use mirrors.
+
+    h4#dart_to_js_script_rewriter Using dart_to_js_script_rewriter
+
+    :marked
+      To improve the app's performance, convert the
+      HTML file to directly include the generated JavaScript;
+      one way to do that is with `dart_to_js_script_rewriter`.
+      To use the rewriter, specify `dart_to_js_script_rewriter` in both
+      the `dependencies` and `transformers` sections of the pubspec.
+
+    - var stylePattern = { otl: /(dart_to_js_script_rewriter.*$)|(- dart_to_js_script_rewriter.*$)|(dependencies:)|(transformers:)/gm };
+    +makeExample('quickstart/dart/pubspec.yaml', null, 'pubspec.yaml', stylePattern)
+
+    .alert.is-important
+      :marked
+        The `dart_to_js_script_rewriter` transformer must be
+        **after** the `angular2` transformer in `pubspec.yaml`.
+
+    :marked
+      For more information, see the docs for
+      [dart_to_js_script_rewriter](https://pub.dartlang.org/packages/dart_to_js_script_rewriter).
 
 block server-watching
   :marked
@@ -183,7 +190,7 @@ block project-file-structure
       the packages that our app depends on.
       The `pub build` command creates a `build` directory
       containing the JavaScript version of our app.
-      Pub, IDEs, and other tools might create
+      Pub, IDEs, and other tools often create
       other directories and dotfiles.
 
 block project-files
