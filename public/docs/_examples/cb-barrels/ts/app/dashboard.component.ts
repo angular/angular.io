@@ -1,9 +1,10 @@
-// #docregion
+// #docregion imports
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router-deprecated';
 import { Hero, HeroService } from './heroes';
 
 @Component({
+// #enddocregion
   selector: 'my-dashboard',
   templateUrl: 'app/dashboard.component.html',
   styleUrls: ['app/dashboard.component.css']

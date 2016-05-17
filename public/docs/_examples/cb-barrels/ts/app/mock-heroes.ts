@@ -1,8 +1,10 @@
-// #docregion
+// #docregion imports
 import { Hero } from './heroes';
 
 export var HEROES: Hero[] = [
-	{"id": 11, "name": "Mr. Nice"},
+// #enddocregion
+
+  {"id": 11, "name": "Mr. Nice"},
 	{"id": 12, "name": "Narco"},
 	{"id": 13, "name": "Bombasto"},
 	{"id": 14, "name": "Celeritas"},
