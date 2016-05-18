@@ -1,14 +1,13 @@
 // #docregion imports
 import { Component, OnInit } from '@angular/core';
 import { RouteParams } from '@angular/router-deprecated';
-import { HeroService } from './hero.service';
-import { Hero } from './hero';
+import { HeroService, Hero } from '../shared';
 
 @Component({
 // #enddocregion
   selector: 'my-hero-detail',
-  templateUrl: 'app/heroes/hero-detail.component.html',
-  styleUrls: ['app/heroes/hero-detail.component.css']
+  templateUrl: 'app/heroes/hero-detail/hero-detail.component.html',
+  styleUrls: ['app/heroes/hero-detail/hero-detail.component.css']
 })
 export class HeroDetailComponent implements OnInit {
   hero: Hero;
