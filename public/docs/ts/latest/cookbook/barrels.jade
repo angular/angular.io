@@ -4,8 +4,8 @@ include ../_util-fns
 :marked
   This cookbook contains recipes for creating barrels to simplify file imports. In Angular 2 apps, we frequently find
   ouselves importing multiple files together (for example, in the tutorial app, the hero component and the hero service
-  are both frequently imported together into other components). We can create a single export that contains them both.
-  This is called a barrel.
+  are both frequently imported together into other components). We can create a single export that contains them both
+  so they can be easily imported together. This is called a barrel.
 
 <a id="toc"></a>
 :marked
@@ -23,36 +23,50 @@ include ../_util-fns
 :marked
   ## Creating a barrel
 
-  `Hero`, `HeroDetailComponent`, `HeroService`, and `HeroesComponent` are all frequently used together.  Each of them
-  are moved into a `heroes` directory with their supporting files:
+  The `Hero` model, `HeroDetailComponent`, `HeroesComponent`, and `HeroService` are all frequently used together.
+  It would make things easier if we could import them all together. To make this possible, each of them
+  is moved into a `heroes` directory and organized into sub-directories with their supporting files:
 
-  <pre class="prettyprint prettyprinted">
-    /heroes
-      hero-detail.component.css
-      hero-detail.component.html
-      hero-detail.component.ts
-      hero.service.ts
-      hero.ts
-      heroes.component.css
-      heroes.component.html
-      heroes.component.ts
-  </pre>
+.filetree
+  .file heroes
+  .children
+    .file heroes.component.css
+    .file heroes.component.html
+    .file heroes.component.ts
+    .file hero-detail
+    .children
+      .file hero-detail.component.css
+      .file hero-detail.component.html
+      .file hero-detail.component.ts
+    .file shared
+    .children
+      .file hero.service.ts
+      .file hero.ts
+      .file mock-heroes.ts
 
-  An `index.ts` file is created in the `/heroes` directory. And each of the files is imported and re-exported:
+:marked
+  Since there are two exportable items in the shared folder, an `index.ts` file is created in that
+  folder, and then each of the files in that folder are imported and re-exported. This is our first
+  barrel. Since `mock-heroes.ts` is not used outside of the barrel it is not re-exported.
++makeExample('cb-barrels/ts/app/heroes/shared/index.ts', '', 'app/heroes/shared/index.ts')
+
+:marked
+  Our next barrel is in the heroes folder. An `index.ts` file is created in that folder and then the
+  components and services and the `shared` barrel we just created are all imported and re-exported:
 +makeExample('cb-barrels/ts/app/heroes/index.ts', '', 'app/heroes/index.ts')
 
 :marked
-  The SystemJs module loader is not yet able to identify our new barrel, so
-  app/heroes is added manually as a package in index.html.
+  The SystemJs module loader is not yet able to identify our new barrels, so
+  they are added manually as packages in index.html.
 +makeExample('cb-barrels/ts/index.html', 'packages', 'index.html')
 
 :marked
-  The files inside the barrel can now be imported through a single import.
+  The files inside the barrels can now be imported through a single import.
 
 <a id="importing-a-barrel"></a>
 :marked
   ## Importing a barrel
-  The app component imports `HeroesComponent`, `HeroDetailComponent`, and `HeroService` with a
+  The app component imports the `HeroesComponent`, `HeroDetailComponent`, and `HeroService` with a
   single import:
 +makeExample('cb-barrels/ts/app/app.component.ts', 'imports', 'app/app.component.ts')
 
@@ -64,26 +78,20 @@ include ../_util-fns
   The `main.ts` bootstrap file imports `HeroService`:
 +makeExample('cb-barrels/ts/app/main.ts', 'imports', 'app/main.ts')
 
-:marked
-  The `mock-heroes.ts` file imports `Hero`:
-+makeExample('cb-barrels/ts/app/mock-heroes.ts', 'imports', 'app/mock-heroes.ts')
-
 .alert.is-helpful
   :marked
     Do not attempt to reference the barrel index file from within the barrel.
     These files are still imported individually as shown below.
 
+:marked
+  The `HeroDetailComponent` and `HeroesComponent` import the `HeroService` and `Hero` model from the
+  `shared` barrel. And the reference to the `HeroDetailComponent` is updated in the `HeroesComponent`
+  since it was moved into a new folder:
 +makeTabs(
-  `cb-barrels/ts/app/heroes/hero-detail.component.ts,
+  `cb-barrels/ts/app/heroes/hero-detail/hero-detail.component.ts,
    cb-barrels/ts/app/heroes/heroes.component.ts`,
   `imports,
    imports`,
-  `app/heroes/hero-detail.component.ts,
+  `app/heroes/hero-detail/hero-detail.component.ts,
    app/heroes/heroes.component.ts`
 )
-
-:marked
-  Since the `HeroService` was moved into a new folder, it's reference to
-  `mock-heroes` is updated to add `../`.
-
-+makeExample('cb-barrels/ts/app/heroes/hero.service.ts', 'imports', 'app/heroes/hero.service.ts')
