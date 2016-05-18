@@ -68,13 +68,43 @@ mixin makeExample(_filePath, region, _title, stylePatterns)
       .example-title #{title}
   code-example(language="#{language}" format="#{format}")
     != styleString(frag, stylePatterns)
-    
-//- Like makeExample, but doesn't show line numbers and
-//- title is appened with `(excerpt)` if it doesn't already
-//- end with a parenthetical remark.
-mixin makeExcerpt(_filePath, region, _title, stylePatterns)
-  - if (_title && !_title.match(/\([\w ]+\)$/)) _title = _title + ' (excerpt)';
-  +makeExample(_filePath, region, _title, stylePatterns)(format='.')
+
+//- Like makeExample, but the first argument is a path that is 
+//- relative to the project root. Unless title is defined, 
+//- the project relative path will be used.
+mixin makeProjExample(projRootRelativePath, region, title, stylePatterns)
+  - var relPath = projRootRelativePath.trim();
+  - var filePath = getExampleName() + '/ts/' + relPath;
+  - if (!title) {
+  -   // Is path like styles.1.css? Then drop the '.1' qualifier:
+  -   var matches = relPath.match(/^(.*)\.\d(\.\w+)$/);
+  -   title = matches ? matches[1] + matches[2] : relPath;
+  - }
+  +makeExample(filePath, region, title, stylePatterns)
+
+//- Like makeExample, but doesn't show line numbers, and the first
+//- argument is a path that is relative to the example project root. 
+//- Unless title is defined, the project relative path will be used.
+//- Title will always end with a phrase in parentheses; if no such
+//- ending is given, then the title will be suffixed with
+//- either "(excerpt)", or "(#{region})" when region is defined.
+mixin makeExcerpt(projRootRelativePath, region, title, stylePatterns)
+  - var relPath = projRootRelativePath.trim();
+  - var filePath = getExampleName() + '/ts/' + relPath;
+  - if (!title) {
+  -   // Is path like styles.1.css? Then drop the '.1' qualifier:
+  -   var matches = relPath.match(/^(.*)\.\d(\.\w+)$/);
+  -   title = matches ? matches[1] + matches[2] : relPath;
+  - }
+  - var excerpt = region || 'excerpt';
+  - if (title && !title.match(/\([\w ]+\)$/)) title = title + ' (' + excerpt + ')';
+  +makeExample(filePath, region, title, stylePatterns)(format='.')
+
+//- Extract the doc example name from `current`.
+- var getExampleName = function() {
+-   var dir = current.path[current.path.length - 1];
+-   return dir == 'latest' ? current.source : dir;
+- };
 
 mixin makeTabs(filePaths, regions, tabNames, stylePatterns)
   - filePaths = strSplit(filePaths);
