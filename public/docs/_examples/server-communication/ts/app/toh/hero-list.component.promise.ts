@@ -1,21 +1,22 @@
-// ToH Promise Version
 // #docregion
+// Promise Version
 import { Component, OnInit } from '@angular/core';
 import { Hero }              from './hero';
-import { HeroService }       from './hero.service.1';
+import { HeroService }       from './hero.service.promise';
 
 @Component({
-  selector: 'hero-list',
+  selector: 'hero-list-promise',
   templateUrl: 'app/toh/hero-list.component.html',
-  styles: ['.error {color:red;}']
+  providers: [ HeroService ]
 })
 // #docregion component
-export class HeroListComponent implements OnInit {
+export class HeroListPromiseComponent implements OnInit {
 
   constructor (private heroService: HeroService) {}
 
   errorMessage: string;
   heroes: Hero[];
+  mode = 'Promise';
 
   ngOnInit() { this.getHeroes(); }
 

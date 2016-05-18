@@ -1,13 +1,13 @@
 // #docregion
+// Observable Version
 import { Component, OnInit } from '@angular/core';
-
 import { Hero }              from './hero';
 import { HeroService }       from './hero.service';
 
 @Component({
   selector: 'hero-list',
   templateUrl: 'app/toh/hero-list.component.html',
-  styles: ['.error {color:red;}']
+  providers: [ HeroService ]
 })
 // #docregion component
 export class HeroListComponent implements OnInit {
@@ -15,7 +15,8 @@ export class HeroListComponent implements OnInit {
   constructor (private heroService: HeroService) {}
 
   errorMessage: string;
-  heroes:Hero[];
+  heroes: Hero[];
+  mode = 'Observable';
 
   ngOnInit() { this.getHeroes(); }
 
