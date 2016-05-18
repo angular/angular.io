@@ -7,6 +7,7 @@ import { Logger } from '../shared/logger.service';
 // #enddocregion example
 
 @Component({
+  moduleId: module.id,
   selector: 'toh-heroes',
   templateUrl: 'heroes.component.html',
   styleUrls:  ['heroes.component.css'],

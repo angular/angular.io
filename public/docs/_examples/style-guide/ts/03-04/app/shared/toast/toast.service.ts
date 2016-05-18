@@ -1,3 +1,4 @@
+// #docplaster
 // #docregion
 // #docregion example
 import { Injectable } from '@angular/core';
@@ -21,5 +22,11 @@ export class ToastService {
   private log() {
     console.log(this.message);
   }
+  // #enddocregion example
+  // testing harness
+  activate(message: string) {
+    this.message = message;
+  }
+  // #docregion example
 }
 // #enddocregion example

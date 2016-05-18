@@ -1,9 +1,6 @@
-// #docregion
 import { Component } from '@angular/core';
 
-// #docregion example
-import { HeroesComponent } from './+heroes/index';
-// #enddocregion example
+import { HeroesComponent } from './heroes/heroes.component';
 
 @Component({
   selector: 'sg-app',

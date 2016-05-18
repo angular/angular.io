@@ -19,7 +19,7 @@ export class HeroService {
   ) { }
 
   getHero(id: number) {
-    return this.http.get(`api/heroes/${id}`)
+    return this.http.get(`app/heroes/${id}`)
       .map((res: Response) => res.json().data);
   }
 

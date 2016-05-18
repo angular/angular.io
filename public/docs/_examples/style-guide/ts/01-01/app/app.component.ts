@@ -7,11 +7,12 @@ import { HeroesComponent } from './heroes/heroes.component';
 import { HeroService } from './heroes/shared/hero.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'toh-app',
   template: `
       <toh-heroes></toh-heroes>
     `,
-  styleUrls: ['app/app.component.css'],
+  styleUrls: ['app.component.css'],
   directives: [HeroesComponent],
   providers: [HeroService]
 })
