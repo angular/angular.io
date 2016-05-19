@@ -3,14 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router }            from '@angular/router-deprecated';
 
 import { Hero }                from './hero';
-import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService }         from './hero.service';
 
 @Component({
   selector: 'my-heroes',
   templateUrl: 'app/heroes.component.html',
-  styleUrls:  ['app/heroes.component.css'],
-  directives: [HeroDetailComponent]
+  styleUrls:  ['app/heroes.component.css']
 })
 export class HeroesComponent implements OnInit {
   heroes: Hero[];

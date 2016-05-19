@@ -4,7 +4,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router-deprecated';
 
 import { Hero } from './hero';
-import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService } from './hero.service';
 
 // #docregion metadata
@@ -13,8 +12,7 @@ import { HeroService } from './hero.service';
   selector: 'my-heroes',
 // #enddocregion heroes-component-renaming
   templateUrl: 'app/heroes.component.html',
-  styleUrls:  ['app/heroes.component.css'],
-  directives: [HeroDetailComponent]
+  styleUrls:  ['app/heroes.component.css']
 // #docregion heroes-component-renaming
 })
 // #enddocregion heroes-component-renaming
