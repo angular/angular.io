@@ -18,6 +18,14 @@ var _rxRules = {
   link: {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to: '<link rel="stylesheet" href="%tag%">'
+  },
+  system_extra_main: {
+    from: /main:\s*[\'|\"]index.js[\'|\"]/,
+    to: 'main: "index.ts"'
+  },
+  system_extra_defaultExtension: {
+    from: /defaultExtension:\s*[\'|\"]js[\'|\"]/,
+    to: 'defaultExtension: "ts"'
   }
 };
 
@@ -62,6 +70,12 @@ var _rxData = [
   },
   {
     pattern: 'angular_pkg',
+  },
+  {
+    pattern: 'system_extra_main'
+  },
+  {
+    pattern: 'system_extra_defaultExtension'
   }
 ];
 
