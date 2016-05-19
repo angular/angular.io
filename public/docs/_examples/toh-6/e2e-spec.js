@@ -16,7 +16,7 @@ describe('TOH Http Chapter', function () {
       myHeroesHref: hrefEles.get(1),
       myHeroesParent: element(by.css('my-app my-heroes')),
       allHeroes: element.all(by.css('my-app my-heroes li .hero-element')),
-      
+
       firstDeleteButton: element.all(by.buttonText('Delete')).get(0),
 
       addButton: element.all(by.buttonText('Add New Hero')).get(0),
@@ -28,21 +28,21 @@ describe('TOH Http Chapter', function () {
   it('should be able to add a hero from the "Heroes" view', function(){
     var page = getPageStruct();
     var heroCount;
-    
+
     page.myHeroesHref.click().then(function() {
       browser.waitForAngular();
       heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(4, 'should show 4');
+      expect(heroCount).toBe(10, 'should show 10');
     }).then(function() {
       return page.addButton.click();
     }).then(function(){
       return save(page,'','The New Hero');
     }).then(function(){
       browser.waitForAngular();
-      
+
       heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(5, 'should show 5');
-      
+      expect(heroCount).toBe(11, 'should show 11');
+
       var newHero = element(by.xpath('//span[@class="hero-element" and contains(text(),"The New Hero")]'));
       expect(newHero).toBeDefined();
     });
@@ -51,17 +51,17 @@ describe('TOH Http Chapter', function () {
   it('should be able to delete hero from "Heroes" view', function(){
     var page = getPageStruct();
     var heroCount;
-    
+
     page.myHeroesHref.click().then(function() {
       browser.waitForAngular();
       heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(4, 'should show 4');
+      expect(heroCount).toBe(10, 'should show 10');
     }).then(function() {
       return page.firstDeleteButton.click();
     }).then(function(){
       browser.waitForAngular();
       heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(3, 'should show 3');
+      expect(heroCount).toBe(9, 'should show 9');
     });
   });
 
@@ -71,7 +71,7 @@ describe('TOH Http Chapter', function () {
     var heroEle = page.topHeroes.get(2);
     var heroDescrEle = heroEle.element(by.css('h4'));
     var heroDescr;
-    
+
     return heroDescrEle.getText().then(function(text) {
       heroDescr = text;
       return heroEle.click();
@@ -89,10 +89,10 @@ describe('TOH Http Chapter', function () {
 
   it('should be able to save details from "Heroes" view', function () {
     var page = getPageStruct();
-    
+
     var viewDetailsButtonEle = page.myHeroesParent.element(by.cssContainingText('button', 'View Details'));
     var heroEle, heroDescr;
-    
+
     page.myHeroesHref.click().then(function() {
       expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
       expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be present');
@@ -130,4 +130,94 @@ describe('TOH Http Chapter', function () {
       return saveButtonEle.click();
     });
   }
+
+  it('should be able to see the start screen', function () {
+    var page = getPageStruct();
+    expect(page.hrefs.count()).toEqual(2, 'should be two dashboard choices');
+    expect(page.myDashboardHref.getText()).toEqual("Dashboard");
+    expect(page.myHeroesHref.getText()).toEqual("Heroes");
+  });
+
+  it('should be able to see dashboard choices', function () {
+    var page = getPageStruct();
+    expect(page.topHeroes.count()).toBe(4, "should be 4 dashboard hero choices");
+  });
+
+  it('should be able to toggle the views', function () {
+    var page = getPageStruct();
+
+    expect(page.myDashboardParent.element(by.css('h3')).getText()).toEqual('Top Heroes');
+    page.myHeroesHref.click().then(function() {
+      expect(page.myDashboardParent.isPresent()).toBe(false, 'should no longer see dashboard element');
+      expect(page.allHeroes.count()).toBeGreaterThan(4, "should be more than 4 heroes shown");
+      return page.myDashboardHref.click();
+    }).then(function() {
+      expect(page.myDashboardParent.isPresent()).toBe(true, 'should once again see the dashboard element');
+    });
+
+  });
+
+  it('should be able to edit details from "Dashboard" view', function () {
+    var page = getPageStruct();
+    expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be available');
+    var heroEle = page.topHeroes.get(3);
+    var heroDescrEle = heroEle.element(by.css('h4'));
+    var heroDescr;
+    return heroDescrEle.getText().then(function(text) {
+      heroDescr = text;
+      return heroEle.click();
+    }).then(function() {
+      return editDetails(page, heroDescr, '-foo');
+    }).then(function() {
+      expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be back');
+      expect(heroDescrEle.getText()).toEqual(heroDescr + '-foo');
+    });
+  });
+
+  it('should be able to edit details from "Heroes" view', function () {
+    var page = getPageStruct();
+    expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be present');
+    var viewDetailsButtonEle = page.myHeroesParent.element(by.cssContainingText('button', 'View Details'));
+    var heroEle, heroDescr;
+    page.myHeroesHref.click().then(function() {
+      expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
+      expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be present');
+      expect(viewDetailsButtonEle.isPresent()).toBe(false, 'viewDetails button should not yet be present');
+      heroEle = page.allHeroes.get(2);
+      return heroEle.getText();
+    }).then(function(text) {
+      // remove leading 'id' from the element
+      heroDescr = text.substr(text.indexOf(' ')+1);
+      return heroEle.click();
+    }).then(function() {
+      expect(viewDetailsButtonEle.isDisplayed()).toBe(true, 'viewDetails button should now be visible');
+      return viewDetailsButtonEle.click();
+    }).then(function() {
+      return editDetails(page, heroDescr, '-bar');
+    }).then(function() {
+      expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be back');
+      expect(heroEle.getText()).toContain(heroDescr + '-bar');
+      expect(viewDetailsButtonEle.isPresent()).toBe(false, 'viewDetails button should again NOT be present');
+    });
+  });
+
+  function editDetails(page, origValue, textToAdd) {
+    expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
+    expect(page.myHeroesParent.isPresent()).toBe(false, 'myHeroes element should NOT be present');
+    expect(page.heroDetail.isDisplayed()).toBe(true, 'should be able to see hero-details');
+    var inputEle = page.heroDetail.element(by.css('input'));
+    expect(inputEle.isDisplayed()).toBe(true, 'should be able to see the input box');
+    var buttons = page.heroDetail.all(by.css('button'));
+    var backButtonEle = buttons.get(0);
+    var saveButtonEle = buttons.get(1);
+    expect(backButtonEle.isDisplayed()).toBe(true, 'should be able to see the back button');
+    expect(saveButtonEle.isDisplayed()).toBe(true, 'should be able to see the save button');
+    var detailTextEle = page.heroDetail.element(by.css('div h2'));
+    expect(detailTextEle.getText()).toContain(origValue);
+    return sendKeys(inputEle, textToAdd).then(function () {
+      expect(detailTextEle.getText()).toContain(origValue + textToAdd);
+      return saveButtonEle.click();
+    });
+  }
+
 });
