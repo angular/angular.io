@@ -32,6 +32,11 @@ var _rxData = [
   },
   {
     pattern: 'script',
+    from: 'node_modules/core-js/client/shim.min.js',
+    to:   'https://npmcdn.com/core-js@2.4.0/client/shim.min.js'
+  },
+  {
+    pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
     to:   'https://npmcdn.com/zone.js@0.6.12?main=browser'
   },
