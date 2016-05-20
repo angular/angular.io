@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router } from '@angular/router-deprecated';
 
 import { Hero } from './hero';
 import { HeroDetailComponent } from './hero-detail.component';

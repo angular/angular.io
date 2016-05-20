@@ -19,12 +19,13 @@ import { DebugElement } from '@angular/core';
 import { By }           from '@angular/platform-browser';
 
 import {
-  beforeEach, beforeEachProviders, withProviders,
+  beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, fakeAsync, tick,
-  ComponentFixture, TestComponentBuilder
-} from '@angular/testing';
+  async, inject
+} from '@angular/core/testing';
+
+import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
 import { provide }        from '@angular/core';
 import { ViewMetadata }   from '@angular/core';
@@ -90,7 +91,7 @@ xdescribe('async & inject testing errors', () => {
     let itPromise = patchJasmineIt();
 
     it('should fail with an error from a promise', async(() => {
-      return Promise.reject('baz')
+      return Promise.reject('baz');
     }));
 
     itPromise.then(

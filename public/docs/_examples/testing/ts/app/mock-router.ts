@@ -1,10 +1,10 @@
-export * from '@angular/router';
+export * from '@angular/router-deprecated';
 
 import { Directive, DynamicComponentLoader, ViewContainerRef,
          Injectable, Optional, Input } from '@angular/core';
 
 import { ComponentInstruction, Instruction,
-         Router, RouterOutlet} from '@angular/router';
+         Router, RouterOutlet} from '@angular/router-deprecated';
 
 let _resolveToTrue = Promise.resolve(true);
 

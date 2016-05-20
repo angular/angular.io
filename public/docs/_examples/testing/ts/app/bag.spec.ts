@@ -16,12 +16,14 @@ import { DebugElement } from '@angular/core';
 import { By }           from '@angular/platform-browser';
 
 import {
-  beforeEach, beforeEachProviders, withProviders,
+  beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, fakeAsync, tick,
-  ComponentFixture, TestComponentBuilder
-} from '@angular/testing';
+  async, inject,
+  fakeAsync, tick, withProviders
+} from '@angular/core/testing';
+
+import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
 import { provide }        from '@angular/core';
 import { ViewMetadata }   from '@angular/core';
@@ -349,7 +351,7 @@ describe('test component builder', function() {
       })), 10000);  // Long timeout because this test makes an actual XHR.
 
     describe('(lifecycle hooks w/ MyIfParentComp)', () => {
-      let fixture: ComponentFixture;
+      let fixture: ComponentFixture<MyIfParentComp>;
       let parent:  MyIfParentComp;
       let child:   MyIfChildComp;
 

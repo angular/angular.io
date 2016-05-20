@@ -3,10 +3,10 @@
 import { Component } from '@angular/core';
 
 // Can't test with ROUTER_DIRECTIVES yet
-// import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router';
+// import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
 import { RouteConfig, RouterLink,
-         RouterOutlet, ROUTER_PROVIDERS } from '@angular/router';
+         RouterOutlet, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
 import { DashboardComponent }  from './dashboard.component';
 import { HeroesComponent }     from './heroes.component';

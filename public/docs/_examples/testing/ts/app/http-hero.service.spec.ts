@@ -1,10 +1,12 @@
 /* tslint:disable:no-unused-variable */
 import {
-  beforeEach, beforeEachProviders, withProviders,
+  beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, TestComponentBuilder
-} from '@angular/testing';
+  async, inject, withProviders
+} from '@angular/core/testing';
+
+import { TestComponentBuilder } from '@angular/compiler/testing';
 
 import { provide } from '@angular/core';
 

@@ -21,34 +21,30 @@ module.exports = function(config) {
       }
     },
     files: [
-      // Polyfills.
-      'node_modules/code-js/client/shim.min.js',
+      // System.js for module loading
+      'node_modules/systemjs/dist/system.src.js',
 
-      // Zone.js dependencies
-      // Note - do not include zone.js itself here, it is already
-      // included in angular2-polyfills
+      // Polyfills
+      'node_modules/core-js/client/shim.js',
+
+      // Reflect and Zone.js
+      'node_modules/reflect-metadata/Reflect.js',
       'node_modules/zone.js/dist/zone.js',
       'node_modules/zone.js/dist/jasmine-patch.js',
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
 
-      { pattern: 'node_modules/reflect-metadata/Reflect.js', included: true, watched: false },
-      { pattern: 'https://code.angularjs.org/tools/system.js', included: true, watched: false },
-
       // RxJs.
       { pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false },
       { pattern: 'node_modules/rxjs/**/*.js.map', included: false, watched: false },
 
-      {pattern: 'karma-test-shim.js', included: true, watched: true},
-      {pattern: 'built/test/matchers.js', included: true, watched: true},
+      // Angular 2 itself and the testing library
+      {pattern: 'node_modules/@angular/**/*.js', included: false, watched: false},
+      {pattern: 'node_modules/@angular/**/*.js.map', included: false, watched: false},
 
-      // paths loaded via module imports
-      {pattern: 'built/**/*.js', included: false, watched: true},
+      'karma-test-shim.js',
 
-      {pattern: 'node_modules/@angular/**/*.js', included: false, watched: true},
-      {pattern: 'node_modules/@angular/**/*.js.map', included: false, watched: true},
-
-      // transpiled application & spec code paths to be loaded via module imports
+      // transpiled application & spec code paths loaded via module imports
       {pattern: appBase + '**/*.js', included: false, watched: true},
 
       // asset (HTML & CSS) paths loaded via Angular's component compiler

@@ -8,8 +8,10 @@ import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, ComponentFixture, TestComponentBuilder
-} from '@angular/testing';
+  async, inject
+} from '@angular/core/testing';
+
+import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 
@@ -18,7 +20,7 @@ import { Router,       MockRouter,
          RouterOutlet, MockRouterOutlet} from './mock-router';
 
 describe('AppComponent', () => {
-  let fixture: ComponentFixture;
+  let fixture: ComponentFixture<AppComponent>;
   let comp:    AppComponent;
 
   beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
