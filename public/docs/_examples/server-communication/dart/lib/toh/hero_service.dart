@@ -11,7 +11,7 @@ import 'package:http/http.dart';
 @Injectable()
 class HeroService {
   // #docregion endpoint, http-get
-  final String _heroesUrl = 'app/heroes'; // URL to web API
+  static const _heroesUrl = 'app/heroes'; // URL to web API
   // #enddocregion endpoint, http-get
   final BrowserClient _http;
 
@@ -69,6 +69,6 @@ class HeroService {
 
 /*
   // #docregion endpoint-json
-  final String _heroesUrl = 'heroes.json'; // URL to JSON file
+  static const _heroesUrl = 'heroes.json'; // URL to JSON file
   // #enddocregion endpoint-json
 */
