@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router-deprecated';
 import { HeroService, Hero } from './shared';
-import { HeroDetailComponent } from './hero-detail/hero-detail.component'
+import { HeroDetailComponent } from './hero-detail'
 
 @Component({
 // #enddocregion
