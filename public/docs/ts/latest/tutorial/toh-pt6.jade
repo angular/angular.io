@@ -1,51 +1,22 @@
 include ../_util-fns
 
 :marked
-  # Http
+  # Getting and Saving Data with HTTP
   
-  Our application has become a huge success and our stakeholders have expanded the vision to include integration with a hero api. 
+  Our stakeholders appreciate our progress. 
+  Now they want to get the hero data from a server, let users add, edit, and delete heroes,
+  and save these changes back to the server.
   
-  The current solution limits us to a fixed set of heroes, but integration with a web server api will make our application much more flexible. We will also be able to add, edit and delete heroes. 
-  
-  In this chapter we will connect our Angular 2 services to make http calls to our new api.
+  In this chapter we teach our application to make the corresponding http calls to a remote server's web api.
 :marked
   [Run the live example](/resources/live-examples/toh-6/ts/plnkr.html).   
   
 .l-main-section
 :marked
   ## Where We Left Off
-  Before we continue with our Tour of Heroes, let’s verify that we have the following structure after adding our hero service 
-  and hero detail component. If not, we’ll need to go back and follow the previous chapters.
+  In the [previous chapter](toh-pt5.html), we learned to navigate between the dashboard and the fixed heroes list, editing a selected hero along the way.
+  That's our starting point for this chapter.
 
-.filetree
-  .file angular2-tour-of-heroes
-  .children
-    .file app
-    .children
-      .file app.component.ts
-      .file app.component.css
-      .file dashboard.component.css
-      .file dashboard.component.html
-      .file dashboard.component.ts
-      .file hero.ts
-      .file hero-detail.component.css
-      .file hero-detail.component.html
-      .file hero-detail.component.ts
-      .file hero.service.ts
-      .file heroes.component.css
-      .file heroes.component.html
-      .file heroes.component.ts
-      .file main.ts
-      .file mock-heroes.ts
-    .file node_modules ...
-    .file typings ...      
-    .file index.html
-    .file package.json
-    .file styles.css
-    .file systemjs.config.json
-    .file tsconfig.json
-    .file typings.json
-:marked
   ### Keep the app transpiling and running
   Open a terminal/console window and enter the following command to
   start the TypeScript compiler, start the server, and watch for changes:
@@ -243,9 +214,10 @@ code-example(format="." language="bash").
 :marked
   ## Updating Components
   
-  Loading heroes using `Http` required no changes outside of `HeroService`, but we added a few new features as well. In the following section we will update our components to use our new methods to add, edit and delete heroes.
+  Loading heroes using `Http` required no changes outside of `HeroService`, but we added a few new features as well. 
+  In the following section we will update our components to use our new methods to add, edit and delete heroes.
   
-  ### Add/Edit
+  ### Add/Edit in the *HeroDetailComponent*
   We already have `HeroDetailComponent` for viewing details about a specific hero. Add and Edit are natural extensions of the detail view, so we are able to reuse `DetailHeroComponent` with a few tweaks. The original component was created to render existing data, but to add new data we have to initialize the `hero` property to an empty `Hero` object.
   
 +makeExample('toh-6/ts/app/hero-detail.component.ts', 'ngOnInit', 'app/hero-detail.component.ts (ngOnInit)')(format=".")     
@@ -267,23 +239,63 @@ code-example(format="." language="bash").
     The `emit` "handshake" between `HeroDetailComponent` and `HeroesComponent` is an example of component to component communication. This is a topic for another day, but we have detailed information in our <a href="/docs/ts/latest/cookbook/component-communication.html#!#child-to-parent">Component Interaction Cookbook</a>  
 
 :marked
-  Here is `HeroDetailComponent` with the added save button.
+  Here is `HeroDetailComponent` with its new save button.
   
 figure.image-display
   img(src='/resources/images/devguide/toh/hero-details-save-button.png' alt="Hero Details With Save Button") 
 
 :marked
-  ### Delete
+  ### Add/Delete in the *HeroesComponent*
   
-  We have added the option to delete hereos from `HeroesComponent`. `HeroService` will delete the hero, but we still have to filter out the deleted hero from the list to update the view.
+  The user can *add* a new hero by clicking a button and entering a name.
+
+  When the user clicks the *Add New Hero* button, we display the `HeroDetailComponent`.
+  We aren't navigating to the component so it won't receive a hero `id`;
+  As we noted above, that is the component's cue to create and present an empty hero.
   
-+makeExample('toh-6/ts/app/heroes.component.ts', 'delete', 'app/heroes.component.ts (delete)')(format=".")  
+  Add the following HTML to the `heroes.component.html`, just below the hero list (the `*ngFor`).
++makeExample('toh-6/ts/app/heroes.component.html', 'add-hero', 'app/heroes.component.ts (add)')(format=".")  
+:marked
+  The user can *delete* an existing hero by clicking a delete button next to the hero's name.
+  
+  Add the following HTML to the `heroes.component.html` right after the name in the repeated `<li>` tag:
++makeExample('toh-6/ts/app/heroes.component.html', 'delete-hero', 'app/heroes.component.ts (delete)')(format=".")  
 
 :marked
-  Here is `HeroesComponent` with the delete button. 
+  Now let's fix-up the `HeroesComponent` to support the *add* and *delete* actions in the template.
+  Let's start with *add*.
   
+  We're using the `HeroDetailComponent` to capture the new hero information.
+  We have to tell Angular about that by importing the `HeroDetailComponent` and referencing it in the component metadata `directives` array.
++makeExample('toh-6/ts/app/heroes.component.ts', 'hero-detail-component', 'app/heroes.component.ts (HeroDetailComponent)')(format=".")  
+.l-sub-section
+  :marked
+    These are the same lines that we removed in the previous [Routing](toh-pt5.html) chapter.
+    We didn't know at the time that we'd need the *HeroDetailComponent* again. So we tidied up.
+    
+    Now we *must* put these lines back. If we don't, Angular will ignore the `<my-hero-detail>`
+    tag and pushing the *Add New Hero* button will have no visible effect.
+:marked
+  Next we implement the click handler for the *Add New Hero* button.
+
++makeExample('toh-6/ts/app/heroes.component.ts', 'add', 'app/heroes.component.ts (add)')(format=".")  
+:marked
+  The `HeroDetailComponent` does most of the work. All we do is toggle an `*ngIf` flag that
+  swaps it into the DOM when were add a hero and remove it from the DOM when the user is done.
+  
+  The *delete* logic is a bit trickier.
++makeExample('toh-6/ts/app/heroes.component.ts', 'delete', 'app/heroes.component.ts (delete)')(format=".")
+
+:marked
+  Of course we delegate the persistence of hero deletion to the `HeroService`. 
+  But the component is still responsible for updating the display.
+  So the *delete* method removes the deleted hero from the list.
+
+:marked
+  ### Let's see it
+  Here are the fruits of labor in action:
 figure.image-display
-  img(src='/resources/images/devguide/toh/heroes-list-delete-button.png' alt="Heroes List With Delete Button")  
+  img(src='/resources/images/devguide/toh/toh-http.anim.gif' alt="Heroes List Editting w/ HTTP")  
 
 :marked
   ### Review the App Structure

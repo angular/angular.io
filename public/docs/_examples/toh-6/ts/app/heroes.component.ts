@@ -4,12 +4,16 @@ import { Router }            from '@angular/router-deprecated';
 
 import { Hero }                from './hero';
 import { HeroService }         from './hero.service';
+// #docregion hero-detail-component
+import { HeroDetailComponent } from './hero-detail.component';
 
 @Component({
   selector: 'my-heroes',
   templateUrl: 'app/heroes.component.html',
-  styleUrls:  ['app/heroes.component.css']
+  styleUrls:  ['app/heroes.component.css'],
+  directives: [HeroDetailComponent]
 })
+// #enddocregion hero-detail-component
 export class HeroesComponent implements OnInit {
   heroes: Hero[];
   selectedHero: Hero;
@@ -27,6 +31,7 @@ export class HeroesComponent implements OnInit {
         .catch(error => this.error = error); // TODO: Display error message
   }
 
+  // #docregion add
   addHero() {
     this.addingHero = true;
     this.selectedHero = null;
@@ -36,6 +41,7 @@ export class HeroesComponent implements OnInit {
     this.addingHero = false;
     if (savedHero) { this.getHeroes(); }
   }
+  // #enddocregion add
 
   // #docregion delete
   delete(hero: Hero, event: any) {
