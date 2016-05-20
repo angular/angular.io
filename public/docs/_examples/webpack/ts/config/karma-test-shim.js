@@ -1,7 +1,7 @@
 // #docregion
 Error.stackTraceLimit = Infinity;
 
-require('es6-shim');
+require('core-js/es6');
 require('reflect-metadata');
 
 require('zone.js/dist/zone');
