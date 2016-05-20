@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion
-import "package:angular2/core.dart" show Component;
+import "package:angular2/core.dart";
 
-import "toh/hero_list_component.dart" show HeroListComponent;
-import "wiki/wiki_component.dart" show WikiComponent;
-import "wiki/wiki_smart_component.dart" show WikiSmartComponent;
+import "toh/hero_list_component.dart";
+import "wiki/wiki_component.dart";
+import "wiki/wiki_smart_component.dart";
 
 @Component(
     selector: "my-app",

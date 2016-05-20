@@ -6,12 +6,12 @@ import 'dart:convert';
 import 'hero.dart';
 import 'package:angular2/core.dart';
 import 'package:http/browser_client.dart';
-import 'package:http/http.dart' show Response;
+import 'package:http/http.dart';
 
 @Injectable()
 class HeroService {
   // #docregion endpoint, http-get
-  final String _heroesUrl = 'app/heroes';  // URL to web API
+  final String _heroesUrl = 'app/heroes'; // URL to web API
   // #enddocregion endpoint, http-get
   final BrowserClient _http;
 
@@ -35,7 +35,7 @@ class HeroService {
 
   // #docregion addhero, addhero-sig
   Future<Hero> addHero(String name) async {
-  // #enddocregion addhero-sig
+    // #enddocregion addhero-sig
     try {
       final response = await _http.post(_heroesUrl,
           headers: {'Content-Type': 'application/json'},
@@ -50,8 +50,8 @@ class HeroService {
   // #docregion extract-data
   dynamic _extractData(Response res) {
     var body = JSON.decode(res.body);
-    // TODO: once fixed, https://github.com/adaojunior/http-in-memory-web-api/issues/1
-    // Drop the `?? body` term
+    // TODO: https://github.com/adaojunior/http-in-memory-web-api/issues/1
+    // Once #1 is fixed, drop the `?? body` term:
     return body['data'] ?? body;
   }
   // #enddocregion extract-data
@@ -69,6 +69,6 @@ class HeroService {
 
 /*
   // #docregion endpoint-json
-  private _heroesUrl = 'heroes.json'; // URL to JSON file
+  final String _heroesUrl = 'heroes.json'; // URL to JSON file
   // #enddocregion endpoint-json
 */

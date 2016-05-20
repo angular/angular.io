@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion final
-import 'package:angular2/core.dart' show Provider;
+import 'package:angular2/core.dart';
 // #docregion v1
-import 'package:angular2/platform/browser.dart' show bootstrap;
+import 'package:angular2/platform/browser.dart';
 // #docregion http-providers
-import 'package:http/browser_client.dart' show BrowserClient;
+import 'package:http/browser_client.dart';
 // #enddocregion http-providers
 
 import 'package:server_communication/app_component.dart';
