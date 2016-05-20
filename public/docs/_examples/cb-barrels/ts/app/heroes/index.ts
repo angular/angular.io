@@ -1,4 +1,4 @@
 // #docregion
-export * from './hero-detail/hero-detail.component';
+export * from './hero-detail';
 export * from './heroes.component';
 export * from './shared';
