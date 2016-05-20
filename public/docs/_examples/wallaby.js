@@ -10,7 +10,7 @@ module.exports = function () {
       {pattern: 'node_modules/systemjs/dist/system.js', instrument: false},
 
       // Polyfills
-      {pattern: 'node_modules/es6-shim/es6-shim.js', instrument: false},
+      {pattern: 'node_modules/code-js/client/shim.min.js', instrument: false},
       {pattern: 'node_modules/angular2/bundles/angular2-polyfills.js', instrument: false},
 
       // Zone.js dependencies

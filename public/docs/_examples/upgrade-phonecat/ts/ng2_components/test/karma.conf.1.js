@@ -12,7 +12,7 @@ module.exports = function(config){
       'app/bower_components/angular-animate/angular-animate.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
       'node_modules/systemjs/dist/system-polyfills.js',
-      'node_modules/es6-shim/es6-shim.js',
+      'node_modules/core-js/client/shim.min.js',
       'node_modules/zone.js/dist/zone.js',
       'node_modules/reflect-metadata/Reflect.js',
       'node_modules/systemjs/dist/system.src.js',

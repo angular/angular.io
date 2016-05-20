@@ -22,7 +22,7 @@ module.exports = function(config) {
     },
     files: [
       // Polyfills.
-      'node_modules/es6-shim/es6-shim.js',
+      'node_modules/code-js/client/shim.min.js',
 
       // Zone.js dependencies
       // Note - do not include zone.js itself here, it is already

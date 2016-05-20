@@ -14,7 +14,7 @@ module.exports = function(config){
       'node_modules/systemjs/dist/system-polyfills.js',
       'node_modules/systemjs/dist/system.src.js',
       // #docregion ng2
-      'node_modules/es6-shim/es6-shim.js',
+      'node_modules/core-js/client/shim.min.js',
       'node_modules/zone.js/dist/zone.js',
       'node_modules/reflect-metadata/Reflect.js',
       {pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false},

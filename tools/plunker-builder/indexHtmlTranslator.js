@@ -35,13 +35,8 @@ var _rxData = [
   },
   {
     pattern: 'script',
-    from: 'node_modules/es6-shim/es6-shim.min.js',
-    to:   'https://npmcdn.com/es6-shim@0.35.0/es6-shim.min.js'
-  },
-  {
-    pattern: 'script',
     from: 'node_modules/core-js/client/shim.min.js',
-    to:   'https://npmcdn.com/core-js@2.4.0/client/shim.min.js'
+    to:   'https://npmcdn.com/core-js/client/shim.min.js'
   },
   {
     pattern: 'script',
