@@ -98,9 +98,14 @@ Also, open any `plunkr.no-link.html` to see the code execute in plunker
 
 ### Sample end-to-end tests
 
-All samples should be covered to some degree by end-to-end tests.
+All samples should be covered to some degree by end-to-end tests:
+- `gulp run-e2e-tests` to run all TypeScript and JavaScript tests
+- `gulp run-e2e-tests --lang=dart` to run all Dart tests
+- `gulp run-e2e-tests --lang=all` to run TypeScript, JavaScript, and Dart tests
+- `gulp run-e2e-tests --filter=quickstart` to filter the examples to run, by name
+- `gulp run-e2e-tests --fast` to ignore npm install, webdriver update and boilerplate copy
 
-Run them yourself: `gulp run-e2e-tests`.
+Any combination of options is possible.
 
 
 ## Technology Used
