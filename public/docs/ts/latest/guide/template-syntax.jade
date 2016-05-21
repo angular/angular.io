@@ -1,7 +1,13 @@
-include ../_util-fns
+block includes
+  include ../_util-fns
+  - var _JavaScript = 'JavaScript';
+  //- Double underscore means don't escape var, use !{__var}.
+  - var __chaining_op = '<code>;</code> or <code>,</code>';
+  - var __new_op = '<code>new</code>';
+  - var __objectAsMap = 'object';
 
 :marked
-  Our Angular application manages what the user sees and does through the interaction of a Component class instance (the *component*) and its user-facing template.
+  Our Angular application manages what the user sees and it achieves this through the interaction of a Component class instance (the *component*) and its user-facing template.
 
   Many of us are familiar with the component/template duality from our experience with model-view-controller (MVC) or model-view-viewmodel (MVVM). In Angular,  the component plays the part of the controller/viewmodel, and the template represents the view.
 
@@ -29,8 +35,8 @@ include ../_util-fns
     * [pipe](#pipe)
     * ["safe navigation operator" (?.)](#safe-navigation-operator)
 .l-sub-section
-  :marked
-    The [live example](/resources/live-examples/template-syntax/ts/plnkr.html)
+  p.
+    The #[+liveExampleLink2()]
     demonstrates all of the syntax and code snippets described in this chapter.
 
 .l-main-section
@@ -38,7 +44,9 @@ include ../_util-fns
   ## HTML
   HTML is the language of the Angular template. Our [QuickStart](../quickstart.html) application had a template that was pure HTML:
 
-+makeExample('template-syntax/ts/app/app.component.html', 'my-first-app')(format=".")
+code-example(language="html" escape="html").
+  <h1>My First Angular 2 App</h1>
+
 :marked
   Almost all HTML syntax is valid template syntax. The `<script>` element is a notable exception; it is forbidden, eliminating the risk of script injection attacks. (In practice, `<script>` is simply ignored.)
 
@@ -92,33 +100,38 @@ include ../_util-fns
   appearing in quotes to the right of the `=` symbol as in `[property]="expression"`.
 
 :marked
-  We write template expressions in a language that looks like JavaScript.
-  Many JavaScript expressions are legal template expressions, but not all.
-  JavaScript expressions that have or promote side effects are prohibited,
+  We write template expressions in a language that looks like #{_JavaScript}.
+  Many #{_JavaScript} expressions are legal template expressions, but not all.
+  #{_JavaScript} expressions that have or promote side effects are prohibited,
   including:
 
-  * assignments (`=`, `+=`, `-=`)
-  * the `new` operator
-  * chaining expressions with `;` or `,`
+  * assignments (`=`, `+=`, `-=`, ...)
+  * !{__new_op}
+  * chaining expressions with !{__chaining_op}
   * increment and decrement operators (`++` and `--`)
 
-  Other notable differences from JavaScript syntax include:
-
-  * no support for the bitwise operators `|` and `&`
-  * new [template expression operators](#expression-operators), such as `|` and `?.`
-
-- var lang = current.path[1]
-- var details = lang === 'dart' ? 'template expressions can’t refer to static properties, nor to top-level variables or functions, such as <code>window</code> or <code>document</code> from <code>dart:html</code>. They can’t directly call <code>print</code> or functions imported from <code>dart:math</code>. They are restricted to referencing members of the expression context.' : 'template expressions cannot refer to anything in the global namespace. They can’t refer to <code>window</code> or <code>document</code>. They can’t call <code>console.log</code> or <code>Math.max</code>. They are restricted to referencing members of the expression context.'
 :marked
-  <a id="expression-context"></a>
-  ### Expression context
+  Other notable differences from #{_JavaScript} syntax include:
 
-  Perhaps more surprising, !{details}
+block notable-differences
+  :marked
+    * no support for the bitwise operators `|` and `&`
+    * new [template expression operators](#expression-operators), such as `|` and `?.`
 
+h3#expression-context Expression context
+
+block template-expressions-cannot
+  :marked
+    Perhaps more surprising, template expressions cannot refer to anything in
+    the global namespace. They can’t refer to `window` or `document`. They
+    can’t call `console.log` or `Math.max`. They are restricted to referencing
+    members of the expression context.
+
+:marked
   The *expression context* is typically the **component instance**, which is
   the source of binding values.
 
-  When we see *title* wrapped in double-curly braces, <code>{{title}}</code>,
+  When we see *title* wrapped in double-curly braces, `{{title}}`,
   we know that `title` is a property of the data-bound component.
   When we see *isUnchanged* in `[disabled]="isUnchanged"`,
   we know we are referring to that component's `isUnchanged` property.
@@ -174,8 +187,11 @@ include ../_util-fns
 :marked
   Dependent values should not change during a single turn of the event loop.
   If an idempotent expression returns a string or a number, it returns the same string or number
-  when called twice in a row. If the expression returns an object (including a `Date` or `Array`),
+  when called twice in a row. If the expression returns an object (including #{_a} `#{_Array}`),
   it returns the same object *reference* when called twice in a row.
+
+block array-is-list-in-Dart
+  //- N/A
 
 <a id="template-statements"></a>
 .l-main-section
@@ -196,27 +212,33 @@ include ../_util-fns
   :marked
     Responding to events is the other side of Angular's "unidirectional data flow".
     We're free to change anything, anywhere, during this turn of the event loop.
-:marked
-  Like template expressions, template *statements* use a language that looks like JavaScript.
-  The template statement parser is different than the template expression parser and
-  specifically supports both basic assignment (`=`) and chaining expressions with semicolons (`;`) and commas (`,`).
 
-  However, certain JavaScript syntax is not allowed:
-  * the `new` operator
+:marked
+  Like template expressions, template *statements* use a language that looks like #{_JavaScript}.
+  The template statement parser is different than the template expression parser and
+  specifically supports both basic assignment (`=`) and chaining expressions 
+  with !{__chaining_op}.
+
+  However, certain #{_JavaScript} syntax is not allowed:
+  * !{__new_op}
   * increment and decrement operators, `++` and `--`
   * operator assignment, such as `+=` and `-=`
   * the bitwise operators `|` and `&`
   * the [template expression operators](#expression-operators)
 
-- var lang = current.path[1]
-- var details = lang === 'dart' ? 'Template statements can’t refer to static properties on the class, nor to top-level variables or functions, such as <code>window</code> or <code>document</code> from <code>dart:html</code>. They can’t directly call <code>print</code> or functions imported from <code>dart:math</code>.' : 'Template statements cannot refer to anything in the global namespace. They can’t refer to <code>window</code> or <code>document</code>. They can’t call <code>console.log</code> or <code>Math.max</code>.'
 :marked
   ### Statement context
 
   As with expressions, statements can refer only to what's in the statement context — typically the
   **component instance** to which we're binding the event.
-  !{details}
 
+block statement-context
+  :marked
+    Template statements cannot refer to anything in the global namespace. They
+    can’t refer to `window` or `document`. They can’t call `console.log` or
+    `Math.max`.
+
+:marked
   The *onSave* in `(click)="onSave()"` is sure to be a method of the data-bound component instance.
 
   The statement context may include an object other than the component.
@@ -254,7 +276,7 @@ table
   tr
     td One-way<br>from data source<br>to view target
     td
-      code-example(format="" ).
+      code-example().
         {{expression}}
         [target] = "expression"
         bind-target = "expression"
@@ -267,14 +289,14 @@ table
     tr
       td One-way<br>from view target<br>to data source
       td
-        code-example(format="" ).
+        code-example().
           (target) = "statement"
           on-target = "statement"
       td Event
     tr
       td Two-way
       td
-        code-example(format="" ).
+        code-example().
           [(target)] = "expression"
           bindon-target = "expression"
       td Two-way
@@ -517,6 +539,10 @@ table
 
   The `hero` property of the `HeroDetail` component expects a `Hero` object, which is exactly what we’re sending in the property binding:
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-4')(format=".")
+
+block dart-type-exceptions
+  //- N/A
+
 :marked
   ### Remember the brackets
   The brackets tell Angular to evaluate the template expression.
@@ -525,6 +551,10 @@ table
 
   Don't make the following mistake:
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-6')(format=".")
+
+block dart-type-exception-example
+  //- N/A
+
 a(id="one-time-initialization")
 :marked
   ### One-time string initialization
@@ -536,7 +566,7 @@ a(id="one-time-initialization")
   We routinely initialize attributes this way in standard HTML, and it works
   just as well for directive and component property initialization.
   The following example initializes the `prefix` property of the `HeroDetailComponent` to a fixed string,
-  not a template expression. Angular sets it and forgets it.
+  not a template expression. Angular sets it and forgets about it.
 +makeExample('template-syntax/ts/app/app.component.html', 'property-binding-7')(format=".")
 :marked
   The `[hero]` binding, on the other hand, remains a live binding to the component's `currentHero` property.
@@ -551,7 +581,7 @@ a(id="one-time-initialization")
 
   There is no technical reason to prefer one form to the other.
   We lean toward readability, which tends to favor interpolation.
-  We suggest establishing coding style rules for the organization and choosing the form that
+  We suggest establishing coding style rules and choosing the form that
   both conforms to the rules and feels most natural for the task at hand.
 
 .l-main-section
@@ -582,7 +612,7 @@ code-example(language="html").
   &lt;tr>&lt;td colspan="{{1 + 1}}">Three-Four&lt;/td>&lt;/tr>
 :marked
   We get this error:
-code-example(format="", language="html").
+code-example(format="nocode").
   Template parse errors:
   Can't bind to 'colspan' since it isn't a known native property
 :marked
@@ -625,10 +655,14 @@ code-example(format="", language="html").
 :marked
   We can replace that with a binding to a string of the desired class names; this is an all-or-nothing, replacement binding.
 +makeExample('template-syntax/ts/app/app.component.html', 'class-binding-2')(format=".")
+
+block dart-class-binding-bug
+  //- N/A
+
 :marked
   Finally, we can bind to a specific class name.
-  Angular adds the class when the template expression evaluates to something truthy.
-  It removes the class when the expression is falsey.
+  Angular adds the class when the template expression evaluates to #{_truthy}.
+  It removes the class when the expression is #{_falsey}.
 +makeExample('template-syntax/ts/app/app.component.html', 'class-binding-3')(format=".")
 
 .l-sub-section
@@ -654,6 +688,10 @@ code-example(format="", language="html").
   :marked
     While this is a fine way to set a single style,
     we generally prefer the [NgStyle directive](#ngStyle) when setting several inline styles at the same time.
+
+.l-sub-section
+  :marked
+    Note that the _style property_ name can be written in camcel case, such as `fontSize`.
 
 .l-main-section
 :marked
@@ -685,11 +723,17 @@ code-example(format="", language="html").
   Element events may be the more common targets, but Angular looks first to see if the name matches an event property
   of a known directive, as it does in the following example:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-3')(format=".")
+
+.l-sub-section
+  :marked
+    The `myClick` directive is further described below in the section
+    on [Aliasing input/output properties](#aliasing-io).
+
 :marked
   If the name fails to match an element event or an output property of a known directive,
   Angular reports an “unknown directive” error.
 
-  ### $event and event handling statements
+  ### *$event* and event handling statements
   In an event binding, Angular sets up an event handler for the target event.
 
   When the event is raised, the handler executes the template statement.
@@ -749,7 +793,7 @@ code-example(format="", language="html").
   passing the *hero-to-delete* (emitted by `HeroDetail`) in the `$event` variable.
 
   ### Template statements have side effects
-  The `deleteHero` method has a side effect: It deletes a hero.
+  The `deleteHero` method has a side effect: it deletes a hero.
   Template statement side effects are not just OK, they are expected.
 
   Deleting the hero updates the model, perhaps triggering other changes
@@ -790,12 +834,10 @@ code-example(format="", language="html").
   ## Two-way binding with NgModel
   When developing data entry forms, we often want to both display a data property and update that property when the user makes changes.
 
-  The `[(NgModel)]` two-way data binding syntax makes that easy. Here's an example:
+  The `[(ngModel)]` two-way data binding syntax makes that easy. Here's an example:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
 .callout.is-important
-  header
-    :marked
-       <span style="font-family:consolas; monospace">[()]</span> = banana in a box
+  header [()] = banana in a box
   :marked
     To remember that the parentheses go inside the brackets, visualize a *banana in a box*.
 :marked
@@ -822,7 +864,7 @@ code-example(format="", language="html").
     The details are specific to each kind of element and therefore the `NgModel` directive only works for elements,
     such as the input text box, that are supported by a [ControlValueAccessor](../api/common/ControlValueAccessor-interface.html).
     We can't apply `[(ngModel)]` to our custom components until we write a suitable *value accessor*,
-    a technique that is out of scope for this chapter.
+    a technique that is beyond the scope of this chapter.
 
 :marked
   Separate `ngModel` bindings is an improvement. We can do better.
@@ -837,10 +879,9 @@ code-example(format="", language="html").
     into an `x` input property for property binding and an `xChange` output property for event binding.
     Angular constructs the event property binding's template statement by appending `=$event`
     to the literal string of the template expression.
-  code-example(format="." ).
-    [(x)]="hero.name" &lt;==> [x]="hero.name" (xChange)="hero.name=$event"
 
-  :marked
+    > <span style="font-family:courier">[(_x_)]="_e_" &lt;==> [_x_]="_e_" (<i>x</i>Change)="_e_=$event"</span>
+
     We can write a two-way binding directive of our own to exploit this behavior.
 
 :marked
@@ -891,8 +932,9 @@ figure.image-display
   The `NgClass` directive may be the better choice
   when we want to add or remove *many* CSS classes at the same time.
 
-  A good way to apply `NgClass` is by binding it to a key:value control object. Each key of the object is a CSS class name; its value is `true` if the class should be added, `false` if it should be removed.
+  A good way to apply `NgClass` is by binding it to a key:value control !{__objectAsMap}. Each key of the object is a CSS class name; its value is `true` if the class should be added, `false` if it should be removed.
 
+:marked
   Consider a component method such as `setClasses` that manages the state of three CSS classes:
 +makeExample('template-syntax/ts/app/app.component.ts', 'setClasses')(format=".")
 :marked
@@ -913,7 +955,7 @@ figure.image-display
   The `NgStyle` directive may be the better choice
   when we want to set *many* inline styles at the same time.
 
-  We apply `NgStyle` by binding it to a key:value control object.
+  We apply `NgStyle` by binding it to a key:value control !{__objectAsMap}.
   Each key of the object is a style name; its value is whatever is appropriate for that style.
 
   Consider a component method such as `setStyles` that returns an object defining three styles:
@@ -927,7 +969,7 @@ figure.image-display
 .l-main-section
 :marked
   ### NgIf
-  We can add an element subtree (an element and its children) to the DOM  by binding an `NgIf` directive to a truthy expression.
+  We can add an element subtree (an element and its children) to the DOM  by binding an `NgIf` directive to a #{_truthy} expression.
 +makeExample('template-syntax/ts/app/app.component.html', 'NgIf-1')(format=".")
 
 .alert.is-critical
@@ -935,8 +977,11 @@ figure.image-display
     Don't forget the asterisk (`*`) in front of `ngIf`.
     For more information, see [\* and &lt;template>](#star-template).
 :marked
-  Binding to a falsey expression removes the element subtree from the DOM.
+  Binding to a #{_falsey} expression removes the element subtree from the DOM.
 +makeExample('template-syntax/ts/app/app.component.html', 'NgIf-2')(format=".")
+
+block dart-no-truthy-falsey
+  //- N/A
 
 :marked
   #### Visibility and NgIf are not the same
@@ -1025,18 +1070,17 @@ figure.image-display
 :marked
   #### NgFor microsyntax
   The string assigned to `*ngFor` is not a [template expression](#template-expressions).
-  It’s a *microsyntax* &mdash; a little language of its own that Angular interprets. In this example, the string "let hero of heroes" means:
+  It’s a *microsyntax* &mdash; a little language of its own that Angular interprets. In this example, the string `"let hero of heroes"` means:
 
-  >*Take each hero in the `heroes` array, store it in the local `hero` variable, and make it available to the templated HTML
-  for each iteration.*
+  > *Take each hero in the `heroes` #{_array}, store it in the local `hero` variable, and make it available to the templated HTML for each iteration.*
 
   Angular translates this instruction into a new set of elements and bindings.
-:marked
-  In the two previous examples, the `ngFor` directive iterates over the `heroes` array returned by the parent component’s `heroes` property,
+
+  In the two previous examples, the `ngFor` directive iterates over the `heroes` #{_array} returned by the parent component’s `heroes` property,
   stamping out instances of the element to which it is applied.
   Angular creates a fresh instance of the template for each hero in the array.
 
-  The `let` keyword before "hero" creates a template input variable called `hero`.
+  The `let` keyword before `hero` creates a template input variable called `hero`.
 
 .alert.is-critical
   :marked
@@ -1123,14 +1167,15 @@ figure.image-display
   Notice that the `[hero]="currentHero"` binding remains on the child `<hero-detail>`
   element inside the template.
 
-.callout.is-critical
-  header Remember the brackets!
-  :marked
-    Don’t make the mistake of writing `ngIf="currentHero"`!
-    That syntax assigns the *string* value "currentHero" to `ngIf`.
-    In JavaScript a non-empty string is a truthy value, so `ngIf` would always be
-    `true` and Angular would always display the `hero-detail`
-    … even when there is no `currentHero`!
+block remember-the-brackets
+  .callout.is-critical
+    header Remember the brackets!
+    :marked
+      Don’t make the mistake of writing `ngIf="currentHero"`!
+      That syntax assigns the *string* value `"currentHero"` to `ngIf`.
+      In JavaScript a non-empty string is a truthy value, so `ngIf` would always be
+      `true` and Angular would always display the `hero-detail`
+      … even when there is no `currentHero`!
 
 :marked
   ### Expanding `*ngSwitch`
@@ -1172,7 +1217,7 @@ figure.image-display
 
   A **template reference variable** is a reference to an DOM element or directive within a template.
 
-  It can be used with native DOM elements but also with Angular 2 components - in fact, it will work with any custom web component.
+  It can be used with native DOM elements but also with Angular 2 components &mdash; in fact, it will work with any custom web component.
 
 :marked
   ### Referencing a template reference variable
@@ -1245,7 +1290,7 @@ figure.image-display
     The *source* is on the *right* of the `=`.
 
     The *target* of a binding is the property or event inside the binding punctuation: `[]`, `()` or `[()]`.
-    The *source* is either inside quotes (`" "`) or within an interpolation (`{}`).
+    The *source* is either inside quotes (`" "`) or within an interpolation (`{{}}`).
 
     Every member of a **source** directive is automatically available for binding.
     We don't have to do anything special to access a directive member in a template expression or statement.
@@ -1276,12 +1321,12 @@ figure.image-display
 :marked
 .l-sub-section
   :marked
-    Alternatively, we can identify members in the `inputs` and `outputs` arrays
+    Alternatively, we can identify members in the `inputs` and `outputs` #{_array}s
     of the directive metadata, as in this example:
   +makeExample('template-syntax/ts/app/hero-detail.component.ts', 'input-output-2')(format=".")
   <br>
   :marked
-    We can specify an input/output property either with a decorator or in a metadata array.
+    We can specify an input/output property either with a decorator or in a metadata #{_array}.
     Don't do both!
 :marked
   ### Input or output?
@@ -1299,9 +1344,8 @@ figure.image-display
   `HeroDetailComponent.deleteRequest` is an **output** property from the perspective of `HeroDetailComponent`
   because events stream *out* of that property and toward the handler in a template binding statement.
 
+h3#aliasing-io Aliasing input/output properties
 :marked
-  ### Aliasing input/output properties
-
   Sometimes we want the public name of an input/output property to be different from the internal name.
 
   This is frequently the case with [attribute directives](attribute-directives.html).
@@ -1325,7 +1369,7 @@ figure.image-display
 
 .l-sub-section
   :marked
-    We can also alias property names in the `inputs` and `outputs` arrays.
+    We can also alias property names in the `inputs` and `outputs` #{_array}s.
     We write a colon-delimited (`:`) string with
     the directive property name on the *left* and the public alias on the *right*:
   +makeExample('template-syntax/ts/app/my-click.directive.ts', 'my-click-output-2')(format=".")
@@ -1334,7 +1378,7 @@ figure.image-display
 .l-main-section
 :marked
   ## Template expression operators
-  The template expression language employs a subset of JavaScript syntax supplemented with a few special operators
+  The template expression language employs a subset of #{_JavaScript} syntax supplemented with a few special operators
   for specific scenarios. We'll cover two of these operators: _pipe_ and _safe navigation operator_.
 
 :marked
@@ -1352,11 +1396,20 @@ figure.image-display
   We can chain expressions through multiple pipes:
 +makeExample('template-syntax/ts/app/app.component.html', 'pipes-2')(format=".")
 :marked
-  And we can configure them too:
+  And we can also [apply parameters](./pipes.html#parameterizing-a-pipe) to a pipe:
 +makeExample('template-syntax/ts/app/app.component.html', 'pipes-3')(format=".")
-:marked
-  The `json` pipe is particularly helpful for debugging our bindings:
-+makeExample('template-syntax/ts/app/app.component.html', 'pipes-json')(format=".")
+
+block json-pipe
+  :marked
+    The `json` pipe is particularly helpful for debugging our bindings:
+  +makeExample('template-syntax/ts/app/app.component.html', 'pipes-json')(format=".")
+  :marked
+    The generated output would look something like this
+  code-example(language="json").
+    { "firstName": "Hercules", "lastName": "Son of Zeus",
+      "birthdate": "1970-02-25T08:00:00.000Z",
+      "url": "http://www.imdb.com/title/tt0065832/",
+      "rate": 325, "id": 1 }
 
 :marked
   <a id="safe-navigation-operator"></a>
@@ -1365,6 +1418,10 @@ figure.image-display
   The Angular **safe navigation operator (`?.`)** is a fluent and convenient way to guard against null and undefined values in property paths.
   Here it is, protecting against a view render failure if the `currentHero` is null.
 +makeExample('template-syntax/ts/app/app.component.html', 'safe-2')(format=".")
+
+block dart-safe-nav-op
+  //- N/A
+  
 :marked
   Let’s elaborate on the problem and this particular solution.
 
@@ -1377,12 +1434,15 @@ figure.image-display
   Suppose the template expression involves a property path, as in this next example
   where we’re displaying the `firstName` of a null hero.
 
-code-example(format="" language="html").
+code-example(language="html").
   The null hero's name is {{nullHero.firstName}}
-:marked
-  JavaScript throws a null reference error, and so does Angular:
-code-example(format="" language="html").
-  TypeError: Cannot read property 'firstName' of null in [null]
+
+block null-deref-example
+  :marked
+    JavaScript throws a null reference error, and so does Angular:
+  code-example(format="nocode").
+    TypeError: Cannot read property 'firstName' of null in [null].
+
 :marked
   Worse, the *entire view disappears*.
 
@@ -1401,14 +1461,17 @@ code-example(format="" language="html").
 
   We could code around that problem with [NgIf](#ngIf).
 +makeExample('template-syntax/ts/app/app.component.html', 'safe-4')(format=".")
-:marked
-  Or we could try to chain parts of the property path with `&&`, knowing that the expression bails out
-  when it encounters the first null.
-+makeExample('template-syntax/ts/app/app.component.html', 'safe-5')(format=".")
+
+block safe-op-alt
+  :marked
+    Or we could try to chain parts of the property path with `&&`, knowing that the expression bails out
+    when it encounters the first null.
+  +makeExample('template-syntax/ts/app/app.component.html', 'safe-5')(format=".")
+
 :marked
   These approaches have merit but can be cumbersome, especially if the property path is long.
   Imagine guarding against a null somewhere in a long property path such as `a.b.c.d`.
-:marked
+
   The Angular safe navigation operator (`?.`) is a more fluent and convenient way to guard against nulls in property paths.
   The expression bails out when it hits the first null value.
   The display is blank, but the app keeps rolling without errors.

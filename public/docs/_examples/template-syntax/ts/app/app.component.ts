@@ -77,6 +77,9 @@ export class AppComponent implements AfterViewInit, OnInit {
   heroImageUrl = 'images/hero.png';
 
   //iconUrl = 'https://angular.io/resources/images/logos/standard/shield-large.png';
+  clicked = '';
+  clickMessage = '';
+  clickMessage2 = '';
   iconUrl = 'images/ng-logo.png';
   isActive = false;
   isSpecial = true;

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:html';
 
 import 'package:angular2/core.dart';
+import 'package:angular2/common.dart';
 
 import 'hero.dart';
 import 'hero_detail_component.dart';
@@ -40,7 +41,9 @@ class AppComponent implements OnInit, AfterViewInit {
   bool isSpecial = true;
   bool isUnchanged = true;
   bool isSelected = false;
+  final Color colorRed = Color.red;
   Color color = Color.red;
+  var colorEnum = Color;
 
   List<Hero> heroes;
   Hero currentHero;
@@ -56,7 +59,7 @@ class AppComponent implements OnInit, AfterViewInit {
   final Hero nullHero = null;
   Map product = {'name': 'frimfram', 'price': 42};
   FormElement form;
-  String clickity = '';
+  String clicked = '';
   String clickMessage = '';
   String clickMessage2 = '';
   final String iconUrl = 'assets/images/ng-logo.png';
@@ -87,14 +90,14 @@ class AppComponent implements OnInit, AfterViewInit {
 
   int getVal() => val;
 
-  void onCancel(MouseEvent event) {
-    DivElement el = event.target;
+  void onCancel(UIEvent event) {
+    HtmlElement el = event?.target;
     var evtMsg = event != null ? 'Event target is ${el.innerHtml}.' : '';
     alerter('Canceled. $evtMsg');
   }
 
-  void onClickMe(MouseEvent event) {
-    DivElement el = event.target;
+  void onClickMe(UIEvent event) {
+    HtmlElement el = event?.target;
     var evtMsg = event != null ? 'Event target class is ${el.className}.' : '';
     alerter('Click me. $evtMsg');
   }
@@ -103,9 +106,10 @@ class AppComponent implements OnInit, AfterViewInit {
     alerter('Deleted hero: ${hero?.firstName}');
   }
 
-  bool onSave([MouseEvent event = null]) {
+  bool onSave([UIEvent event = null]) {
+    HtmlElement el = event?.target;
     var evtMsg =
-        event != null ? ' Event target is ${event.target.innerHtml}.' : '';
+        event != null ? ' Event target is ${el.innerHtml}.' : '';
     alerter('Saved. $evtMsg');
     return false;
   }
