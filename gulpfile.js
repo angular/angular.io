@@ -86,21 +86,46 @@ var _exampleBoilerplateFiles = [
 
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
-// --filter may be passed in to filter/select _example app subdir names
-// i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
-// 'foo' in their folder names.
+/**
+ * Run Protractor End-to-End Tests for Doc Samples
+ *
+ * Flags
+ *   --filter to filter/select _example app subdir names
+ *    e.g. gulp run-e2e-tests --filter=foo  // all example apps with 'foo' in their folder names.
+ *
+ *    --fast by-passes the npm install and webdriver update
+ *    Use it for repeated test runs (but not the FIRST run)
+ *    e.g. gulp run-e2e-tests --fast
+ *
+ *   --lang to filter by code language
+ *     e.g. gulp run-e2e-tests --lang=ts  // only TypeScript apps
+ *     default is (ts|js)
+ *     all means (ts|js|dart)
+ */
 gulp.task('run-e2e-tests', function() {
-  var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
-  return spawnInfo.promise.then(function() {
-    copyExampleBoilerplate();
-    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-    spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
-    return spawnInfo.promise;
-  }).then(function() {
+
+  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+
+  var promise;
+  if (argv.fast) {
+    // fast; skip all setup
+    promise = Promise.resolve(true);
+  } else  {
+    // Not 'fast'; do full setup
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
+    promise = spawnInfo.promise.then(function() {
+      copyExampleBoilerplate();
+      spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
+      return spawnInfo.promise;
+    });
+  }
+
+  promise.then(function() {
     return findAndRunE2eTests(argv.filter);
   }).then(function(status) {
     reportStatus(status);
-  }).fail(function(e) {
+  }).catch(function(e) {
+    gutil.log(e);
     return e;
   });
 });
@@ -114,10 +139,13 @@ function findAndRunE2eTests(filter) {
   var startTime = new Date().getTime();
   // create an output file with header.
   var outputFile = path.join(process.cwd(), 'protractor-results.txt');
-  var header = "Protractor example results for " + lang + " on " + (new Date()).toLocaleString() + "\n\n";
-  if (filter) {
-    header += '  Filter: ' + filter.toString() + '\n\n';
-  }
+
+  var header = `Doc Sample Protractor Results for ${lang} on ${new Date().toLocaleString()}\n`;
+  header += argv.fast ?
+    '  Fast Mode (--fast): no npm install, webdriver update, or boilerplate copy\n' :
+    '  Slow Mode: npm install, webdriver update, and boilerplate copy\n';
+  header += `  Filter: ${filter ? filter : 'All tests'}\n\n`;
+
   fs.writeFileSync(outputFile, header);
 
   // create an array of combos where each
@@ -175,25 +203,32 @@ function runE2eTsTests(appDir, protractorConfigFilename, outputFile) {
 }
 
 function runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile) {
-  return prepPromise.then(function (data) {
-    // start protractor
-    var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
-    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-    var spawnInfo = spawnExt('protractor',
-      [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
-    return spawnInfo.promise;
-  }).then(function(data) {
-    // kill the app now that protractor has completed.
-    // Ugh... proc.kill does not work properly on windows with child processes.
-    // appRun.proc.kill();
-    treeKill(appRunSpawnInfo.proc.pid);
-    return !data;
-  }).fail(function(err) {
-    // Ugh... proc.kill does not work properly on windows with child processes.
-    // appRun.proc.kill();
-    treeKill(appRunSpawnInfo.proc.pid);
-    return false;
-  });
+  return prepPromise
+    .catch(function(){
+      var emsg = `AppDir failed during compile: ${appDir}\n\n`;
+      gutil.log(emsg);
+      fs.appendFileSync(outputFile, emsg);
+      return Promise.reject(emsg);
+    })
+    .then(function (data) {
+      // start protractor
+      var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
+      var exePath = path.join(process.cwd(), "./node_modules/.bin/");
+      var spawnInfo = spawnExt('protractor',
+        [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+      return spawnInfo.promise
+    })
+    .then(
+       function() { return finish(true);},
+       function() { return finish(false);}
+    )
+
+    function finish(ok){
+      // Ugh... proc.kill does not work properly on windows with child processes.
+      // appRun.proc.kill();
+      treeKill(appRunSpawnInfo.proc.pid);
+      return ok;
+    }
 }
 
 // start the server in appDir/build/web; then run protractor with the specified
@@ -252,9 +287,11 @@ function spawnExt(command, args, options) {
   proc.stderr.on('data', function (data) {
     gutil.log(data.toString());
   });
-  proc.on('close', function (data) {
+  proc.on('close', function (returnCode) {
     gutil.log('completed: ' + descr);
-    deferred.resolve(data);
+    // Many tasks (e.g., tsc) complete but are actually errors;
+    // Confirm return code is zero.
+    returnCode === 0 ? deferred.resolve(0) : deferred.reject(returnCode);
   });
   proc.on('error', function (data) {
     gutil.log('completed with error:' + descr);

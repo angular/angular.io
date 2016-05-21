@@ -8,7 +8,7 @@ import { LocationStrategy,
 
 import { HeroData }         from './hero-data';
 import { InMemoryBackendService,
-         SEED_DATA }        from 'angular2-in-memory-web-api/core';
+         SEED_DATA }        from 'angular2-in-memory-web-api';
 
 import { AppComponent }     from './app.component';
 

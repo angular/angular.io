@@ -4,7 +4,7 @@
 import { provide }    from '@angular/core';
 import { XHRBackend } from '@angular/http';
 
-import { InMemoryBackendService, SEED_DATA } from 'angular2-in-memory-web-api/core';
+import { InMemoryBackendService, SEED_DATA } from 'angular2-in-memory-web-api';
 import { InMemoryDataService }               from './in-memory-data.service';
 
 // The usual bootstrapping imports

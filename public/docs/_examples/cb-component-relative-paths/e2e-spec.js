@@ -1,27 +1,32 @@
-// gulp run-e2e-tests --filter=cb-set-document-title
-describe('Set Document Title', function () {
+describe('Cookbook: component-relative paths', function () {
 
-    beforeAll(function () {
-        browser.get('');
-    });
+  function getPageStruct() {
+    return {
+      title: element( by.tagName( 'h1' )),
+      absComp: element( by.css( 'absolute-path div' ) ),
+      relComp: element( by.css( 'relative-path div' ) )
+    }
+  }
 
-    it('should set the document title', function () {
-
-      var titles = [
-        'Good morning!',
-        'Good afternoon!',
-        'Good evening!'
-      ];
-
-      element.all( by.css( 'ul li a' ) ).each(
-        function iterator( element, i ) {
-
-          element.click();
-          expect( browser.getTitle() ).toEqual( titles[ i ] );
-
-        }
-      );
-
+  var page;
+  beforeAll(function () {
+      browser.get('');
+      page = getPageStruct();
   });
 
+  it('should display title of the sample', function () {
+    expect(element(by.tagName('h1')).getText()).toContain('Paths');
+  });
+
+  it('should have absolute-path element', function () {
+    expect(page.absComp.isPresent()).toBe(true, 'no <absolute-path> element');
+  });
+
+  it('should display the absolute path text', function () {
+    expect(page.absComp.getText()).toContain('Absolute');
+  });
+
+  it('should display the component-relative path text', function () {
+    expect(page.relComp.getText()).toContain('Component-relative');
+  });
 });

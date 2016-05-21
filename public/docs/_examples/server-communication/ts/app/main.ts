@@ -5,7 +5,7 @@ import { provide }    from '@angular/core';
 import { XHRBackend } from '@angular/http';
 
 import { InMemoryBackendService,
-         SEED_DATA }  from 'angular2-in-memory-web-api/core';
+         SEED_DATA }  from 'angular2-in-memory-web-api';
 import { HeroData }   from './hero-data';
 
 // The usual bootstrapping imports
