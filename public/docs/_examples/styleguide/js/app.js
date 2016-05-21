@@ -4,11 +4,9 @@
 var AppComponent = ng
     // #docregion component
     .Component({
-      selector: 'my-app'
-    })
+      selector: 'my-app',
     // #enddocregion
     // #docregion view
-    .View({
       template: '<h1 id="output">My First Angular 2 App</h1>'
     })
     // #enddocregion

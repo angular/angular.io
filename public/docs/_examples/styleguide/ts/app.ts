@@ -1,13 +1,13 @@
 // #docregion
 // #docregion import
-import {Component, View, bootstrap} from '@angular/angular2';
+import { Component } from '@angular/core';
+import { bootstrap } from '@angular/platform-browser-dynamic';
+
 // #enddocregion
 
 // #docregion class-w-annotations
 @Component({
-  selector: 'my-app'
-})
-@View({
+  selector: 'my-app',
   template: '<h1 id="output">My First Angular 2 App</h1>'
 })
 // #docregion class
