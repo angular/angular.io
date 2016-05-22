@@ -59,7 +59,7 @@ describe('Router', function () {
     crisisCenterEdit(2, true);
   });
 
-  it('should be able to edit and cancel details from the crisis center view', function () {
+  xit('should be able to edit and cancel details from the crisis center view', function () {
     crisisCenterEdit(3, false);
   });
 

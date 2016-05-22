@@ -103,9 +103,6 @@ var _exampleDartWebBoilerPlateFiles = ['styles.css'];
  *     all means (ts|js|dart)
  */
 gulp.task('run-e2e-tests', function() {
-
-  var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-
   var promise;
   if (argv.fast) {
     // fast; skip all setup
@@ -115,7 +112,7 @@ gulp.task('run-e2e-tests', function() {
     var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
     promise = spawnInfo.promise.then(function() {
       copyExampleBoilerplate();
-      spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
+      spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
       return spawnInfo.promise;
     });
   }
@@ -124,9 +121,12 @@ gulp.task('run-e2e-tests', function() {
     return findAndRunE2eTests(argv.filter);
   }).then(function(status) {
     reportStatus(status);
+    if (status.failed.length > 0){
+      return Promise.reject('Some test suites failed');
+    }
   }).catch(function(e) {
     gutil.log(e);
-    return e;
+    process.exit(1);
   });
 });
 
@@ -213,9 +213,8 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFil
     .then(function (data) {
       // start protractor
       var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
-      var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-      var spawnInfo = spawnExt('protractor',
-        [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
+      var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', pcFilename, 
+        '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PATH });
       return spawnInfo.promise
     })
     .then(
@@ -483,9 +482,14 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
 
 gulp.task('check-deploy', ['build-docs'], function() {
   return harpCompile().then(function() {
-    gutil.log('compile ok - running live server ...');
-    execPromise('npm run live-server ./www');
-    return askDeploy();
+    gutil.log('compile ok');
+    if(argv.dryRun) {
+      return false;
+    } else {
+      gutil.log('running live server ...');
+      execPromise('npm run live-server ./www');
+      return askDeploy();
+    }
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
       gutil.log('deploying...');
