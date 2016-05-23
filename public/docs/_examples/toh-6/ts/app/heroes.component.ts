@@ -21,11 +21,11 @@ export class HeroesComponent implements OnInit {
   error: any;
 
   constructor(
-    private _router: Router,
-    private _heroService: HeroService) { }
+    private router: Router,
+    private heroService: HeroService) { }
 
   getHeroes() {
-    this._heroService
+    this.heroService
         .getHeroes()
         .then(heroes => this.heroes = heroes)
         .catch(error => this.error = error); // TODO: Display error message
@@ -46,7 +46,7 @@ export class HeroesComponent implements OnInit {
   // #docregion delete
   delete(hero: Hero, event: any) {
     event.stopPropagation();
-    this._heroService
+    this.heroService
         .delete(hero)
         .then(res => {
           this.heroes = this.heroes.filter(h => h !== hero);
@@ -66,6 +66,6 @@ export class HeroesComponent implements OnInit {
   }
 
   gotoDetail() {
-    this._router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
+    this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
   }
 }
