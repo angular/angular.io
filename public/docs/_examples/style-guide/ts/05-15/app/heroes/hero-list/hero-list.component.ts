@@ -1,7 +1,7 @@
 // #docregion example
 import { Component, OnInit } from '@angular/core';
 
-import { Hero, HeroService } from '../shared/index';
+import { Hero, HeroService } from '../shared';
 
 @Component({
   selector: 'toh-hero-list',
@@ -10,13 +10,13 @@ import { Hero, HeroService } from '../shared/index';
 export class HeroListComponent implements OnInit {
   heroes: Hero[];
   constructor(private heroService: HeroService) {}
-  getHeros() {
+  getHeroes() {
     this.heroes = [];
     this.heroService.getHeroes()
       .subscribe(heroes => this.heroes = heroes);
   }
   ngOnInit() {
-    this.getHeros();
+    this.getHeroes();
   }
 }
 // #enddocregion example
