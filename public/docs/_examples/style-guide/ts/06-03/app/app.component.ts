@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { ValidatorDirective } from './shared/validate.directive';
+import { ValidatorDirective } from './shared/validator.directive';
 
 @Component({
   selector: 'sg-app',
