@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HEROES_URL, VILLAIN_URL } from './shared/data.service';
+import { HEROES_URL, VILLAINS_URL } from './shared/data.service';
 
 @Component({
   selector: 'sg-app',
@@ -11,5 +11,5 @@ import { HEROES_URL, VILLAIN_URL } from './shared/data.service';
 })
 export class AppComponent {
   heroesUrl = HEROES_URL;
-  villainsUrl = VILLAIN_URL;
+  villainsUrl = VILLAINS_URL;
 }
