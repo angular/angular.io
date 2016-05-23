@@ -4,7 +4,7 @@ import { HeroButtonComponent } from './heroes/shared/hero-button/hero-button.com
 
 @Component({
   selector: 'sg-app',
-  template: '<toh-hero-button></toh-hero-button>',
+  template: '<toh-hero-button label="OK"></toh-hero-button>',
   directives: [HeroButtonComponent]
 })
 export class AppComponent { }
