@@ -127,7 +127,7 @@ describe('Style Guide', function () {
   it('05-14', function () {
     browser.get('#/05-14');
 
-    var toast = element(by.tagName('sg-app > my-toast'));
+    var toast = element(by.tagName('sg-app > toh-toast'));
     expect(toast.getText()).toBe('...');
   });
 

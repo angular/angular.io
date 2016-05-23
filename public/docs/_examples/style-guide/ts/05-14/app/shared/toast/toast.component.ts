@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'my-toast',
+  selector: 'toh-toast',
   template: `...`
 })
 // #docregion example
