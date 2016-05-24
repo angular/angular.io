@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { ToastComponent } from './shared/toast/toast.component';
+import { ToastComponent } from './shared';
 
 @Component({
   selector: 'sg-app',

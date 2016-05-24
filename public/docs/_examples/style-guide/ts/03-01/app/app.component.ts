@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ExceptionService } from './shared/exception.service';
+import { ExceptionService } from './shared';
 
 @Component({
   selector: 'sg-app',

@@ -1,7 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { HeroArena, HeroService, Hero } from './heroes/shared';
+import { HeroArena, HeroService, Hero } from './heroes';
 
 @Component({
   selector: 'toh-app',
