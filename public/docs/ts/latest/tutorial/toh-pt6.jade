@@ -358,6 +358,99 @@ block review
   figure.image-display
     img(src='/resources/images/devguide/toh/toh-http.anim.gif' alt="Heroes List Editting w/ HTTP")
 
+:marked
+  ## Observables
+
+  In this section we discuss `Observables` as an alternative to promises when processing http calls.
+
+  `Http` calls return RxJS observables by default, but so far we've been hiding that by converting the observable to a promise by calling `toPromise`.
+
+  Observables and promises are both great for processing http calls, but as we will see, the observables api is much richer. 
+
+  `RxJs` offers a wide variety of operators that we can use to manage event flows.     
+
+  In this section we will discuss how to use some of these operators to build a type-to-search filter where we can search for heroes by name. 
+
+  We start by creating `HeroSearchService`, a simple service for sending search queries to our api.
+ 
++makeExample('toh-6/ts/app/hero-search.service.ts', null, 'app/hero-search.service.ts')(format=".")
+
+:marked
+  The http call in `HeroSearchService` is not that different from our previous http calls, but we no longer call `toPromise`. This means we will return an observable instead of a promise.
+ 
+  Now, let's implement our search component `HeroSearchComponent`.  
+
++makeTabs(
+  `toh-6/ts/app/hero-search.component.ts,
+   toh-6/ts/app/hero-search.component.html`,
+  null,
+  `hero-search.component.ts,
+   hero-search.component.html`
+)   
+
+:marked
+  The `HeroSearchComponent` UI is simple - just a textbox and a list of matching search results. 
+  
+  To keep track of text changes in the search box we are using an RxJs `Subject`.
+  
+  Observables are great for managing event streams. In our example we will actually be dealing with two different types of event streams:
+  
+  1) Key events from typing into the search textbox
+  
+  2) Results from http calls based on values entered in the search textbox
+  
+  Although we are dealing with two different streams, we can use `RxJs` operators to combine them into a single stream. 
+  
+  Converging on a single stream is the end game, but let's start by going through the different parts of the observable chain.
+  
++makeExample('toh-6/ts/app/hero-search.component.ts', 'search', 'app/hero-search.component.ts')(format=".")
+
+:marked
+  ### asObservable
+  We start the observable chain by calling `asObservable` on our `Subject` to return an observable that represents text changes as we are typing into the search box.
+  
+  ### debounceTime(300)
+  By specifying a debounce time of 300 ms we are telling `RxJs` that we only want to be notified of key events after intervals of 300 ms. This is a performance measure meant to prevent us from hitting the api too often with partial search queries.
+  
+  ### distinctUntilChanged
+  `distinctUntilChanged` tells `RxJs` to only react if the value of the textbox actually changed.
+  
+  ### switchMap
+  `switchMap` is where observables from key events and observables from http calls converge on a single observable. 
+  
+  Every qualifying key event will trigger an http call, so we may get into a situation where we have multiple http calls in flight. 
+  
+  Normally this could lead to results being returned out of order, but `switchMap` has built in support for ensuring that only the most recent http call will be processed. Results from prior calls will be discarded.  
+  
+  We short circuit the http call and return an observable containing an empty array if the search box is empty.
+
+  ### subscribe
+  `subscribe` is similar to `then` in the promise world. 
+  
+  The first callback is the success callback where we grab the result of the search and assign it to our `heroes` array.
+  
+  The second callback is the error callback. This callback will execute if there is an error - either from the http call or in our processing of key events. 
+  
+  In our current implementation we are just logging the error to the console, but a real life application should do better.
+  
+  ### Import operators
+  The `RxJs` operators are not included by default, so we have to include them using `import` statements. 
+  
+  We have combined all operator imports in a single file.
+
++makeExample('toh-6/ts/app/rxjs-operators.ts', null, 'app/rxjs-operators.ts')(format=".")
+
+:marked
+  We can then load all the operators in a single operation by importing `rxjs-operators` in `AppComponent`
+
++makeExample('toh-6/ts/app/app.component.ts', 'rxjs-operators', 'app/app/app.component.ts')(format=".")  
+  
+:marked
+  Here is the final search component.
+
+figure.image-display
+  img(src='/resources/images/devguide/toh/toh-hero-search.png' alt="Hero Search Component")
+
 .l-main-section
 :marked
   ## Application structure and code
@@ -381,6 +474,10 @@ block filetree
         .file hero-detail.component.css
         .file hero-detail.component.html
         .file hero-detail.component.ts
+        .file hero-search.component.html
+        .file hero-search.component.ts
+        .file hero-search.service.ts
+        .file rxjs-operators.ts
         .file hero.service.ts
         .file heroes.component.css
         .file heroes.component.html
@@ -407,7 +504,8 @@ block filetree
   - We extended HeroService to support post, put and delete calls.
   - We updated our components to allow adding, editing and deleting of heroes.
   - We configured an in-memory web API.
-
+  - We learned how to use Observables.
+  
   Below is a summary of the files we changed and added.
 
 block file-summary
@@ -430,3 +528,15 @@ block file-summary
      in-memory-data.service.ts,
      sample.css`
   )
+
+  +makeTabs(
+    `toh-6/ts/app/hero-search.service.ts,
+    toh-6/ts/app/hero-search.component.ts,
+    toh-6/ts/app/hero-search.component.html,
+    toh-6/ts/app/rxjs-operators.ts`,
+    null,
+    `hero-search.service.ts,
+    hero-search.component.ts,
+    hero-search.service.html,
+    rxjs-operators.ts`
+) 
