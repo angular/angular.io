@@ -1,10 +1,7 @@
 // #docregion
-
-// app.component.ts
 import { Component } from '@angular/core';
 
-import { HeroesComponent } from './heroes/heroes.component';
-import { HeroService } from './heroes/shared/hero.service';
+import { HeroesComponent, HeroService } from './heroes';
 
 @Component({
   moduleId: module.id,

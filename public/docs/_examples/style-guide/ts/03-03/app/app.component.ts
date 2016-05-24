@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { HeroCollectorService } from './shared/hero-collector.service';
-import { Hero } from './shared/hero.model';
+import { Hero, HeroCollectorService } from './shared';
 
 @Component({
   selector: 'sg-app',

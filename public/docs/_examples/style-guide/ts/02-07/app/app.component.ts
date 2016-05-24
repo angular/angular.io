@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { HeroComponent } from './heroes/hero.component';
-import { UsersComponent } from './users/users.component';
+import { HeroComponent } from './heroes';
+import { UsersComponent } from './users';
 
 @Component({
   selector: 'sg-app',

@@ -1,3 +1,3 @@
 // #docregion
-export * from './hero.model.ts';
-export * from './hero.service.ts';
+export * from './hero.model';
+export * from './hero.service';
