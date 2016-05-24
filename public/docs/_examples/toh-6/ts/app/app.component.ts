@@ -4,6 +4,9 @@ import { Component }          from '@angular/core';
 import { ROUTER_DIRECTIVES }  from '@angular/router';
 
 import { HeroService }        from './hero.service';
+// #docregion rxjs-extensions
+import './rxjs-extensions';
+// #enddocregion rxjs-extensions
 
 @Component({
   selector: 'my-app',
