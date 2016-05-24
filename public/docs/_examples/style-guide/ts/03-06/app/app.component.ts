@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { HeroService } from './+heroes/shared/hero.service';
+import { Hero, HeroService } from './+heroes';
 import { ExceptionService, SpinnerService, ToastService } from './shared';
-import { Hero } from './+heroes/shared/hero.model';
 
 @Component({
   moduleId: module.id,

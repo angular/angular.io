@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HeroButtonComponent } from './heroes/shared/hero-button/hero-button.component';
+import { HeroButtonComponent } from './heroes';
 
 @Component({
   selector: 'sg-app',
