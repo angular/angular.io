@@ -65,8 +65,9 @@ mixin includeShared(filePath, region)
   !=partial(newPath)
 
 mixin makeExample(_filePath, region, _title, stylePatterns)
-  - var filePath = adjustTsExamplePath4Dart ? adjustTsExamplePath4Dart(_filePath) : _filePath;
-  - var title = adjustTsExampleTitle4Dart ? adjustTsExampleTitle4Dart(_title) : _title;
+  - var adjustments = adjustExamplePathAndTitle({filePath:_filePath, title:_title});
+  - var filePath = adjustments.filePath;
+  - var title = adjustments.title;
   - var language = attributes.language || getExtn(filePath);
   - var frag = getFrag(filePath, region);
   - var defaultFormat = frag.split('\n').length > 2 ? "linenums" : "";
@@ -82,35 +83,21 @@ mixin makeExample(_filePath, region, _title, stylePatterns)
   code-example(language="#{language}" format="#{format}")
     != styleString(frag, stylePatterns)
 
-//- Like makeExample, but the first argument is a path that is
-//- relative to the project root. Unless title is defined,
-//- the project relative path will be used.
-mixin makeProjExample(projRootRelativePath, region, title, stylePatterns)
-  - var relPath = projRootRelativePath.trim();
-  - var filePath = getExampleName() + '/ts/' + relPath;
-  - if (!title) {
-  -   // Is path like styles.1.css? Then drop the '.1' qualifier:
-  -   var matches = relPath.match(/^(.*)\.\d(\.\w+)$/);
-  -   title = matches ? matches[1] + matches[2] : relPath;
-  - }
-  +makeExample(filePath, region, title, stylePatterns)
-
-//- Like makeExample, but doesn't show line numbers, and the first
-//- argument is a path that is relative to the example project root.
-//- Unless title is defined, the project relative path will be used.
-//- Title will always end with a phrase in parentheses; if no such
-//- ending is given, then the title will be suffixed with
-//- either "(excerpt)", or "(#{region})" when region is defined.
-mixin makeExcerpt(projRootRelativePath, region, title, stylePatterns)
-  - var relPath = projRootRelativePath.trim();
-  - var filePath = getExampleName() + '/ts/' + relPath;
-  - if (!title) {
-  -   // Is path like styles.1.css? Then drop the '.1' qualifier:
-  -   var matches = relPath.match(/^(.*)\.\d(\.\w+)$/);
-  -   title = matches ? matches[1] + matches[2] : relPath;
-  - }
-  - var excerpt = region || 'excerpt';
-  - if (title && !title.match(/\([\w ]+\)$/)) title = title + ' (' + excerpt + ')';
+//- Like makeExample, but: (1) doesn't show line numbers. (2) If region
+//- is omitted and title is 'foo (r)' then region is taken as 'r'.
+//- (3) Title will always end with a phrase in parentheses; if no such
+//- ending is given or is just (), then the title will be suffixed with
+//- either "(excerpt)", or "(#{_region})" when _region is defined.
+mixin makeExcerpt(_filePath, _region, _title, stylePatterns)
+  - var matches = _filePath.match(/(.*)\s+\(([\w ]*)\)$/);
+  - var parenText;
+  - if (matches) { _filePath = matches[1]; parenText = matches[2]; }
+  - var adjustments = adjustExamplePathAndTitle({filePath:_filePath, title:_title});
+  - var filePath = adjustments.filePath;
+  - var title = adjustments.title;
+  - var region = _region || parenText;
+  - var excerpt = !region || parenText === '' ? 'excerpt' : region;
+  - if (title) title = title + ' (' + excerpt + ')';
   +makeExample(filePath, region, title, stylePatterns)(format='.')
 
 //- Extract the doc example name from `current`.
@@ -216,6 +203,43 @@ script.
       return CCSstyle[style] = value
   }
 //---------------------------------------------------------------------------------------------------------
+//- Converts the given project-relative path (like 'app/main.ts')
+//- to a doc folder relative path (like 'quickstart/ts/app/main.ts')
+//- by prefixing it with '<example-name>/ts/'. If title is not given,
+//- then the project-relative path is used, adjusted to remove numeric
+//- file version qualifiers; e.g. 'styles.1.css' becomes 'styles.css'.
+- var adjExampleProjPathAndTitle = function(ex/*:{filePath,title}*/) {
+-   // E.g. of a proj relative path is 'app/main.ts'
+-   if (ex.title === null || ex.title === undefined) {
+-     // Title is not given so take it to be ex.filePath.
+-     // Is title like styles.1.css? Then drop the '.1' qualifier:
+-     var matches = ex.filePath.match(/^(.*)\.\d(\.\w+)$/);
+-     ex.title = matches ? matches[1] + matches[2] : ex.filePath;
+-   }
+-   ex.filePath = getExampleName() + '/' + _docsFor + '/' + ex.filePath;
+-   return ex;
+- };
+
+//- If the given path is project relative, then first convert it using
+//- adjExampleProjPathAndTitle(ex). Then the path is adjusted to match
+//- the documentation language.
+- var adjustExamplePathAndTitle = function(ex/*:{filePath,title}*/) {
+-   // Not a doc folder relative path? Assume that it is app project relative.
+-   if(isProjRelDir(ex.filePath)) adjExampleProjPathAndTitle(ex);
+-   // Adjust doc folder relative paths if adjustment functions exist.
+-   if(adjustTsExamplePath4Dart) ex.filePath = adjustTsExamplePath4Dart(ex.filePath);
+-   if(adjustTsExampleTitle4Dart) ex.title = adjustTsExampleTitle4Dart(ex.title);
+-   return ex;
+- };
+
+//- Returns truthy iff path is example project relative.
+- var isProjRelDir = function(path) {
+-   return !path.match(/\/(js|ts|dart)(-snippets)?\//) && !path.endsWith('e2e-spec.js');
+-   // Last conjunct handles case for shared project e2e test file like
+-   // cb-component-communication/e2e-spec.js (is shared between ts & dart)
+-   // TODO: generalize: compare start with getExampleName(); which needs to be fixed.
+- };
+
 - var translatePath = function(filePath, region) {
 -   filePath = filePath.trim();
 -   var regionPad = (region && region.length) ? '-' + region.toString() : '';
