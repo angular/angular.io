@@ -60,7 +60,7 @@ var _devguideShredJadeOptions =  {
 };
 
 var _apiShredOptions =  {
-  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples'),
+  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api')
 };
@@ -849,7 +849,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function apiSourceWatch(postBuildAction) {
-  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
+  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/src/**/*.*')];
   gulp.watch(srcPattern, {readDelay: 500}, function (event, done) {
     gutil.log('API source changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
@@ -860,7 +860,7 @@ function apiSourceWatch(postBuildAction) {
 }
 
 function apiExamplesWatch(postShredAction) {
-  var examplesPath = path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**');
+  var examplesPath = path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples/**');
   var includePattern = path.join(examplesPath, '**/*.*');
   var excludePattern = '!' + path.join(examplesPath, '**/node_modules/**/*.*');
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
