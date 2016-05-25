@@ -30,7 +30,7 @@ if not install [nvm](https://github.com/creationix/nvm) to get node going on you
 1. clone this repo and the [angular source code repo](https://github.com/angular/angular) to the same parent directory.
 The two cloned repo directories must be sibling.
 
-1. cd into root directory `Angular.io/`
+1. cd into root directory `angular.io/`
 
 1. install the *all-docs* local packages by running `npm install`
 > If running node v.5+, you probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
@@ -54,7 +54,7 @@ For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
 - `public/docs/ts/latest/tutorial/toh-pt5.jade`
 
 ### Local server with watches and browser reload
- 1. cd into root directory `Angular.io/`
+ 1. cd into root directory `angular.io/`
  1. run `gulp serve-and-sync`
  1. browser will launch on localhost:3000 and stay refreshed automatically.
 
@@ -82,7 +82,7 @@ take the following extra steps to prepare the environment:
 
 1. install the canonical node packages for all samples by running `npm install`
 
-1. cd back up to `Angular.io` root: `cd ../../..`
+1. cd back up to `angular.io` root: `cd ../../..`
 
 1. run `gulp add-example-boilerplate` (elevate to admin on Windows) 
 to copy canonical files to the sample directories and create symlinks there for node_modules and typings. 
