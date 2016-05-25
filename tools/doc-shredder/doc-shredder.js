@@ -198,7 +198,7 @@ var createShredMapPackage = function(mapOptions) {
     .config(function(readFilesProcessor, extractPathsReader ) {
       readFilesProcessor.fileReaders = [ extractPathsReader];
     })
-    // default configs - may be overriden
+    // default configs - may be overridden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
       readFilesProcessor.basePath = '/';
