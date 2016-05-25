@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 /**
  * Async modal dialog service
  * DialogService makes this app easier to test by faking this service.
- * TODO: better modal implemenation that doesn't use window.confirm
+ * TODO: better modal implementation that doesn't use window.confirm
  */
 @Injectable()
 export class DialogService {

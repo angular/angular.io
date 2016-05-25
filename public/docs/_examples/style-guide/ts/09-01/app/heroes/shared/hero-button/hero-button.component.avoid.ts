@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
   template: `<button>OK<button>`
 })
 export class HeroButtonComponent {
-  onInit() { // mispelled
+  onInit() { // misspelled
     console.log('The component is initialized');
   }
 }
