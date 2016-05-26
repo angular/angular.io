@@ -1,5 +1,4 @@
 // #docregion
-
 // app.component.ts
 import { Component } from '@angular/core';
 
