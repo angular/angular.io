@@ -65,7 +65,7 @@ var _apiShredOptions =  {
   zipDir: path.join(RESOURCES_PATH, 'zips/api')
 };
 
-var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
+var _excludePatterns = ['**/node_modules/**', '**/packages/**'];
 
 var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
@@ -80,7 +80,6 @@ var _exampleBoilerplateFiles = [
   'systemjs.config.js',
   'tsconfig.json',
   'tslint.json',
-  'typings.json',
   'wallaby.js'
  ];
 
@@ -322,13 +321,6 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  realPath = path.join(EXAMPLES_PATH, '/typings');
-  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
-  typingsPaths.forEach(function(linkPath) {
-    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
-    fsUtils.addSymlink(realPath, linkPath);
-  });
-
   return copyExampleBoilerplate();
 });
 
@@ -363,11 +355,6 @@ function copyExampleBoilerplate() {
 gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
   nodeModulesPaths.forEach(function(linkPath) {
-    fsUtils.removeSymlink(linkPath);
-  });
-
-  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
-  typingsPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
 
@@ -751,13 +738,6 @@ function getE2eSpecPaths(basePath) {
 function getNodeModulesPaths(basePath) {
   var paths = getExamplePaths(basePath).map(function(examplePath) {
     return path.join(examplePath, "/node_modules");
-  });
-  return paths;
-}
-
-function getTypingsPaths(basePath) {
-  var paths = getExamplePaths(basePath).map(function(examplePath) {
-    return path.join(examplePath, "/typings");
   });
   return paths;
 }
