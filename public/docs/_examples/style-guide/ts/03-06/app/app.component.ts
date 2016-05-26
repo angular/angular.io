@@ -11,11 +11,13 @@ import { Hero } from './+heroes/shared/hero.model';
   providers: [HeroService, ExceptionService, SpinnerService, ToastService]
 })
 export class AppComponent implements OnInit {
+  favorite: Hero;
   heroes: Hero[];
 
   constructor(private heroService: HeroService) { }
 
   ngOnInit() {
+    this.heroService.getHero(1).subscribe(hero => this.favorite = hero);
     this.heroService.getHeroes().subscribe(heroes => this.heroes = heroes);
   }
 }

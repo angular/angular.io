@@ -58,6 +58,9 @@ describe('Style Guide', function () {
   it('03-05', function () {
     browser.get('#/03-05');
 
+    var div = element(by.tagName('sg-app > div'));
+    expect(div.getText()).toBe('Actual favorite: Windstorm');
+
     var lis = element.all(by.tagName('sg-app > ul > li'));
     expect(lis.get(0).getText()).toBe('Windstorm');
     expect(lis.get(1).getText()).toBe('Bombasto');
@@ -67,6 +70,9 @@ describe('Style Guide', function () {
 
   it('03-06', function () {
     browser.get('#/03-06');
+
+    var div = element(by.tagName('sg-app > div'));
+    expect(div.getText()).toBe('Actual favorite: Windstorm');
 
     var lis = element.all(by.tagName('sg-app > ul > li'));
     expect(lis.get(0).getText()).toBe('Windstorm');
