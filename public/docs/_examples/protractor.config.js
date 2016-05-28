@@ -27,7 +27,7 @@ exports.config = {
   framework: 'jasmine',
 
   // Spec patterns are relative to this config file
-  specs: ['**/*e2e-spec.js' ],
+  specs: ['**/*e2e-spec.+(js|ts)' ],
 
 
   // For angular2 tests
@@ -79,6 +79,11 @@ exports.config = {
     defaultTimeoutInterval: 10000,
     showTiming: true,
     print: function() {}
+  },
+  
+  beforeLaunch: function() {
+    // add TS support for specs
+    require('ts-node');
   }
 };
 
