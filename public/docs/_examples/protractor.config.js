@@ -71,6 +71,14 @@ exports.config = {
     global.setProtractorToNg1Mode = function() {
       browser.useAllAngular2AppRoots = false;
       browser.rootEl = 'body';
+      
+      var disableNgAnimate = function() {
+        angular.module('disableNgAnimate', []).run(['$animate', function($animate) {
+          $animate.enabled(false);
+        }]);
+      };
+
+      browser.addMockModule('disableNgAnimate', disableNgAnimate);
     };
   },
 
