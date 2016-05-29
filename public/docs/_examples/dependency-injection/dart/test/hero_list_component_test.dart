@@ -9,13 +9,8 @@ import 'package:test/test.dart';
 ///////////////////////////////////////
 ////#docregion spec
 List<Hero> expectedHeroes = [
-  new Hero()
-    ..id = 1
-    ..name = 'hero1',
-  new Hero()
-    ..id = 2
-    ..name = 'hero2'
-    ..isSecret = true
+  new Hero(1, 'hero1'),
+  new Hero(2, 'hero2', true)
 ];
 
 class HeroServiceMock implements HeroService {

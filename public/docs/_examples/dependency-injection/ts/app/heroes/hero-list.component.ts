@@ -17,8 +17,9 @@ export class HeroListComponent {
   heroes: Hero[];
 
   // #docregion ctor-signature
-  constructor(heroService: HeroService) {
+  constructor(heroService: HeroService)
   // #enddocregion ctor-signature
+  {
     this.heroes = heroService.getHeroes();
   }
 }

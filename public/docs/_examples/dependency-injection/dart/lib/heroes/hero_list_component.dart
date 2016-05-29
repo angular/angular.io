@@ -14,7 +14,8 @@ import 'hero_service.dart';
 class HeroListComponent {
   final List<Hero> heroes;
 
-//#docregion ctor-signature
-  HeroListComponent(HeroService heroService) : heroes = heroService.getHeroes();
-//#enddocregion ctor-signature
+  // #docregion ctor-signature
+  HeroListComponent(HeroService heroService)
+  // #enddocregion ctor-signature
+    : heroes = heroService.getHeroes();
 }

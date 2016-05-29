@@ -20,5 +20,5 @@ class HeroService {
         .where((hero) => _isAuthorized || !hero.isSecret)
         .toList();
   }
-// #enddocregion internals
+  // #enddocregion internals
 }

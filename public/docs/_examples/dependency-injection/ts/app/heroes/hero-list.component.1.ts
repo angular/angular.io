@@ -9,7 +9,7 @@ import { HEROES }      from './mock-heroes';
   <div *ngFor="let hero of heroes">
     {{hero.id}} - {{hero.name}}
   </div>
-  `,
+  `
 })
 export class HeroListComponent {
   heroes = HEROES;

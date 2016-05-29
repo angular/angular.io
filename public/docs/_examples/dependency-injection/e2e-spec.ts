@@ -101,7 +101,7 @@ describe('Dependency Injection Tests', function () {
     });
 
     it('P5 (useClass:EvenBetterLogger - dependency)  displays as expected', function () {
-      expectedMsg = 'Message to Bob: Hello from EvenBetterlogger.';
+      expectedMsg = 'Message to Bob: Hello from EvenBetterlogger';
       expect(element(by.css('#p5')).getText()).toEqual(expectedMsg);
     });
 
@@ -121,28 +121,18 @@ describe('Dependency Injection Tests', function () {
     });
 
     it('P8 (useFactory) displays as expected', function () {
-      expectedMsg = 'Hero service injected successfully';
+      expectedMsg = 'Hero service injected successfully via heroServiceProvider';
       expect(element(by.css('#p8')).getText()).toEqual(expectedMsg);
     });
 
-    it('P9a (string token) displays as expected', function () {
-      expectedMsg = '"app.config" Application title is Dependency Injection';
-      expect(element(by.css('#p9a')).getText()).toEqual(expectedMsg);
-    });
-
-    it('P9b (OpaqueToken) displays as expected', function () {
+    it('P9 (OpaqueToken) displays as expected', function () {
       expectedMsg = 'APP_CONFIG Application title is Dependency Injection';
-      expect(element(by.css('#p9b')).getText()).toEqual(expectedMsg);
+      expect(element(by.css('#p9')).getText()).toEqual(expectedMsg);
     });
 
-    it('P10a (required dependency) displays as expected', function () {
-      expectedMsg = 'Hello from the required logger.';
-      expect(element(by.css('#p10a')).getText()).toEqual(expectedMsg);
-    });
-
-    it('P10b (optional dependency) displays as expected', function () {
-      expectedMsg = 'Optional logger was not available.';
-      expect(element(by.css('#p10b')).getText()).toEqual(expectedMsg);
+    it('P10 (optional dependency) displays as expected', function () {
+      expectedMsg = 'Optional logger was not available';
+      expect(element(by.css('#p10')).getText()).toEqual(expectedMsg);
     })
   });
 

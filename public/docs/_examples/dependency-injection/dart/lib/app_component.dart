@@ -11,6 +11,7 @@ import 'user_service.dart';
 //PENDING: check whether we intend to hide injector_component.dart & providers_component.dart; if so, change docregion name?
 // #enddocregion imports
 import 'injector_component.dart';
+import 'test_component.dart';
 import 'providers_component.dart';
 
 @Component(
@@ -31,21 +32,21 @@ import 'providers_component.dart';
       CarComponent,
       HeroesComponent,
       InjectorComponent,
+      TestComponent,
       ProvidersComponent
     ],
-// #docregion providers
+    // #docregion providers
     providers: const [
-      Logger,
-      UserService,
-      const Provider(AppConfig, useValue: config1)]
-// #enddocregion providers
+      Logger, UserService,
+      const Provider(APP_CONFIG, useFactory: heroDiConfigFactory)]
+    // #enddocregion providers
 )
 class AppComponent {
   final UserService _userService;
   final String title;
 
-  //#docregion ctor
-  AppComponent(AppConfig config, this._userService)
+  // #docregion ctor
+  AppComponent(@Inject(APP_CONFIG) AppConfig config, this._userService)
       : title = config.title;
   // #enddocregion ctor
 
@@ -64,4 +65,3 @@ class AppComponent {
   String get userInfo => 'Current user, ${user.name}, is'
       '${isAuthorized ? "" : " not"} authorized. ';
 }
-// #enddocregion

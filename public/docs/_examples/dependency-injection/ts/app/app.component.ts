@@ -6,8 +6,8 @@ import { Component, Inject, provide } from '@angular/core';
 import { CarComponent }      from './car/car.component';
 import { HeroesComponent }   from './heroes/heroes.component';
 
-import { APP_CONFIG,
-        Config, CONFIG }    from './app.config';
+import { APP_CONFIG, AppConfig,
+         HERO_DI_CONFIG }    from './app.config';
 import { Logger }            from './logger.service';
 
 import { User, UserService } from './user.service';
@@ -33,22 +33,21 @@ import { ProvidersComponent } from './providers.component';
   `,
   directives:[CarComponent, HeroesComponent,
               InjectorComponent, TestComponent, ProvidersComponent],
-// #docregion providers
+  // #docregion providers
   providers: [
     Logger,
     UserService,
-    provide(APP_CONFIG, {useValue: CONFIG})
+    provide(APP_CONFIG, {useValue: HERO_DI_CONFIG})
   ]
-// #enddocregion providers
+  // #enddocregion providers
 })
 export class AppComponent {
   title:string;
 
-  //#docregion ctor
+  // #docregion ctor
   constructor(
-    @Inject(APP_CONFIG) config:Config,
+    @Inject(APP_CONFIG) config:AppConfig,
     private userService: UserService) {
-
     this.title = config.title;
   }
   // #enddocregion ctor
@@ -62,4 +61,3 @@ export class AppComponent {
            `${this.isAuthorized ? '' : 'not'} authorized. `;
   }
 }
-// #enddocregion

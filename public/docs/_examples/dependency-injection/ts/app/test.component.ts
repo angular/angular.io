@@ -35,14 +35,14 @@ function runTests() {
 
 //////////////////////////////////
 // Fake Jasmine infrastructure
-var testName:string;
+var testName: string;
 var testResults: {pass:string; message:string};
 
 function expect(actual:any) {
   return {
     toEqual: function(expected:any){
       testResults = actual === expected?
-        {pass:'passed', message: `${testName}`} :
+        {pass:'passed', message: testName} :
         {pass:'failed', message: `${testName}; expected ${actual} to equal ${expected}.`};
     }
   }

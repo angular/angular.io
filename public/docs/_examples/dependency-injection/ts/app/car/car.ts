@@ -1,21 +1,15 @@
-// #docregion
 import { Injectable } from '@angular/core';
 
-// #docregion engine
 export class Engine {
-  public cylinders = 4; // default
+  public cylinders = 4;
 }
-// #enddocregion engine
 
-// #docregion tires
 export class Tires {
   public make  = 'Flintstone';
   public model = 'Square';
 }
-// #enddocregion tires
 
 @Injectable()
-// #docregion car
 export class Car {
   //#docregion car-ctor
   public description = 'DI';
@@ -29,4 +23,3 @@ export class Car {
       `${this.engine.cylinders} cylinders and ${this.tires.make} tires.`
   }
 }
-// #enddocregion car
