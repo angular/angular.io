@@ -744,7 +744,7 @@ function deleteFiles(baseFileNames, destPaths) {
 // TODO: filter out all paths that are subdirs of another
 // path in the result.
 function getE2eSpecPaths(basePath) {
-  var paths = getPaths(basePath, '*e2e-spec.js', true);
+  var paths = getPaths(basePath, '*e2e-spec.+(js|ts)', true);
   return _.uniq(paths);
 }
 
