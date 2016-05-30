@@ -195,11 +195,19 @@ function findAndRunE2eTests(filter) {
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
 function runE2eTsTests(appDir, protractorConfigFilename, outputFile) {
-  // start the app
-  var appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
-  var tscRunSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
+  // spawn tasks to start the app
+  var appBuildSpawnInfo;
+  var appRunSpawnInfo;
+  
+  if (fs.existsSync(path.join(appDir, 'angular-cli.json'))) {
+    appBuildSpawnInfo = spawnExt('npm',['run','build:cli'], { cwd: appDir });
+    appRunSpawnInfo = spawnExt('npm',['run','http-server:cli', '--', '-s' ], { cwd: appDir });
+  } else {
+    appBuildSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
+    appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
+  }
 
-  return runProtractor(tscRunSpawnInfo.promise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile);
+  return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile);
 }
 
 function runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFilename, outputFile) {
