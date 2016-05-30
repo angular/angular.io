@@ -126,7 +126,7 @@ gulp.task('run-e2e-tests', function() {
     }
   }).catch(function(e) {
     gutil.log(e);
-    process.exit(1);
+    process.exitCode = 1;
   });
 });
 
