@@ -87,6 +87,11 @@ var _exampleBoilerplateFiles = [
 
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
+var _exampleProtractorBoilerplateFiles = [
+  'protractor.config.js',
+  'tsconfig.json'
+];
+
 /**
  * Run Protractor End-to-End Specs for Doc Samples
  * Alias for 'run-e2e-tests'
@@ -117,14 +122,31 @@ function runE2e() {
     // fast; skip all setup
     promise = Promise.resolve(true);
   } else  {
-    // Not 'fast'; do full setup
+    /*
+       // Not 'fast'; do full setup
     var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
     promise = spawnInfo.promise.then(function() {
       copyExampleBoilerplate();
       spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
       return spawnInfo.promise;
     });
-  }
+    */
+    // Not 'fast'; do full setup
+    gutil.log('runE2e: install _protractor stuff');
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PROTRACTOR_PATH});
+    promise = spawnInfo.promise
+      .then(function() {
+        gutil.log('runE2e: install _examples stuff');
+        spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH})
+        return spawnInfo.promise;
+      })
+      .then(function() {
+        copyExampleBoilerplate();
+        gutil.log('runE2e: update webdriver');
+        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
+        return spawnInfo.promise;
+      });
+  };
 
   promise.then(function() {
     return findAndRunE2eTests(argv.filter);
@@ -137,6 +159,7 @@ function runE2e() {
     gutil.log(e);
     process.exit(1);
   });
+  return promise;
 }
 
 // finds all of the *e2e-spec.tests under the _examples folder along
@@ -352,6 +375,7 @@ gulp.task('_copy-example-boilerplate', copyExampleBoilerplate);
 // also copies certain web files (e.g., styles.css) to ~/_examples/**/dart/**/web
 // also copies protractor.config.js file
 function copyExampleBoilerplate() {
+  gutil.log('Copying example boilerplate files');
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
@@ -370,8 +394,8 @@ function copyExampleBoilerplate() {
     // contains a e2e-spec file.
     .then(function() {
       var protractorSourceFiles =
-        fs.readdirSync(EXAMPLES_PROTRACTOR_PATH)
-        .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
+        _exampleProtractorBoilerplateFiles
+          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
       return copyFiles(protractorSourceFiles, e2eSpecPaths);
     });
@@ -396,6 +420,7 @@ gulp.task('remove-example-boilerplate', function() {
 gulp.task('_delete-example-boilerplate', deleteExampleBoilerPlate);
 
 function deleteExampleBoilerPlate() {
+  gutil.log('Deleting example boilerplate files');
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
@@ -404,7 +429,7 @@ function deleteExampleBoilerPlate() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
     })
     .then(function() {
-      var protractorFiles = fs.readdirSync(EXAMPLES_PROTRACTOR_PATH);
+      var protractorFiles = _exampleProtractorBoilerplateFiles;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
       return deleteFiles(protractorFiles, e2eSpecPaths);
     });

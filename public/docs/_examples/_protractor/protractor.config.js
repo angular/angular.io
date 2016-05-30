@@ -27,7 +27,7 @@ exports.config = {
   framework: 'jasmine',
 
   // Spec patterns are relative to this config file
-  specs: ['**/*e2e-spec.js' ],
+  specs: ['**/*e2e-spec.+(js|ts)' ],
 
 
   // For angular2 tests
@@ -71,7 +71,7 @@ exports.config = {
     global.setProtractorToNg1Mode = function() {
       browser.useAllAngular2AppRoots = false;
       browser.rootEl = 'body';
-      
+
       var disableNgAnimate = function() {
         angular.module('disableNgAnimate', []).run(['$animate', function($animate) {
           $animate.enabled(false);
@@ -87,6 +87,13 @@ exports.config = {
     defaultTimeoutInterval: 10000,
     showTiming: true,
     print: function() {}
+  },
+
+  beforeLaunch: function() {
+    // add TS support for specs
+    require('ts-node').register({
+      project: '_protractor'
+    });
   }
 };
 
