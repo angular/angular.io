@@ -38,6 +38,7 @@ var TEMP_PATH = './_temp';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
+var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
@@ -87,22 +88,30 @@ var _exampleBoilerplateFiles = [
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
 /**
+ * Run Protractor End-to-End Specs for Doc Samples
+ * Alias for 'run-e2e-tests'
+ */
+gulp.task('e2e', runE2e);
+
+gulp.task('run-e2e-tests', runE2e);
+
+/**
  * Run Protractor End-to-End Tests for Doc Samples
  *
  * Flags
  *   --filter to filter/select _example app subdir names
- *    e.g. gulp run-e2e-tests --filter=foo  // all example apps with 'foo' in their folder names.
+ *    e.g. gulp e2e --filter=foo  // all example apps with 'foo' in their folder names.
  *
  *    --fast by-passes the npm install and webdriver update
  *    Use it for repeated test runs (but not the FIRST run)
- *    e.g. gulp run-e2e-tests --fast
+ *    e.g. gulp e2e --fast
  *
  *   --lang to filter by code language
- *     e.g. gulp run-e2e-tests --lang=ts  // only TypeScript apps
+ *     e.g. gulp e2e --lang=ts  // only TypeScript apps
  *     default is (ts|js)
  *     all means (ts|js|dart)
  */
-gulp.task('run-e2e-tests', function() {
+function runE2e() {
   var promise;
   if (argv.fast) {
     // fast; skip all setup
@@ -128,7 +137,7 @@ gulp.task('run-e2e-tests', function() {
     gutil.log(e);
     process.exit(1);
   });
-});
+}
 
 // finds all of the *e2e-spec.tests under the _examples folder along
 // with the corresponding apps that they should run under. Then run
@@ -152,7 +161,7 @@ function findAndRunE2eTests(filter) {
   // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
   var exeConfigs = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-  var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
+  var srcConfig = path.join(EXAMPLES_PROTRACTOR_PATH, 'protractor.config.js');
   e2eSpecPaths.forEach(function(specPath) {
     var destConfig = path.join(specPath, 'protractor.config.js');
     fsExtra.copySync(srcConfig, destConfig);
@@ -213,7 +222,7 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, protractorConfigFil
     .then(function (data) {
       // start protractor
       var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
-      var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', pcFilename, 
+      var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', pcFilename,
         '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PATH });
       return spawnInfo.promise
     })
@@ -312,7 +321,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-// requires admin access
+// requires admin access because it adds symlinks
 gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
@@ -331,6 +340,12 @@ gulp.task('add-example-boilerplate', function() {
 
   return copyExampleBoilerplate();
 });
+
+
+// copies boilerplate files to locations
+// where an example app is found
+gulp.task('_copy-example-boilerplate', copyExampleBoilerplate);
+
 
 // copies boilerplate files to locations
 // where an example app is found
@@ -351,12 +366,14 @@ function copyExampleBoilerplate() {
     .then(function() {
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths);
     })
-    // copy protractor.config.js from _examples dir to each subdir that
+    // copy files from _examples/_protractor dir to each subdir that
     // contains a e2e-spec file.
     .then(function() {
-      var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
+      var protractorSourceFiles =
+        fs.readdirSync(EXAMPLES_PROTRACTOR_PATH)
+        .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return copyFiles(sourceFiles, e2eSpecPaths);
+      return copyFiles(protractorSourceFiles, e2eSpecPaths);
     });
 }
 
@@ -371,6 +388,14 @@ gulp.task('remove-example-boilerplate', function() {
     fsUtils.removeSymlink(linkPath);
   });
 
+  deleteExampleBoilerPlate();
+});
+
+// deletes boilerplate files that were added by copyExampleBoilerplate
+// from locations where an example app is found
+gulp.task('_delete-example-boilerplate', deleteExampleBoilerPlate);
+
+function deleteExampleBoilerPlate() {
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
@@ -379,10 +404,11 @@ gulp.task('remove-example-boilerplate', function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
     })
     .then(function() {
+      var protractorFiles = fs.readdirSync(EXAMPLES_PROTRACTOR_PATH);
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return deleteFiles(['protractor.config.js'], e2eSpecPaths);
-    })
-});
+      return deleteFiles(protractorFiles, e2eSpecPaths);
+    });
+}
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   // watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
@@ -744,7 +770,7 @@ function deleteFiles(baseFileNames, destPaths) {
 // TODO: filter out all paths that are subdirs of another
 // path in the result.
 function getE2eSpecPaths(basePath) {
-  var paths = getPaths(basePath, '*e2e-spec.js', true);
+  var paths = getPaths(basePath, '*e2e-spec.+(js|ts)', true);
   return _.uniq(paths);
 }
 
