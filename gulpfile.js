@@ -183,6 +183,7 @@ function findAndRunE2eTests(filter) {
   // create an array of combos where each
   // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
   var exeConfigs = [];
+  var e2eSpecFilesPaths = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
   var srcConfig = path.join(EXAMPLES_PROTRACTOR_PATH, 'protractor.config.js');
   e2eSpecPaths.forEach(function(specPath) {
@@ -197,30 +198,49 @@ function findAndRunE2eTests(filter) {
     if (filter) {
       examplePaths = examplePaths.filter(function (fn) {
         return fn.match(filter) != null;
-      })
+      });
     }
+    // If this example is going to run, we add it to the list of specs to compile
+    if (examplePaths.length) {
+      e2eSpecFilesPaths.push(specPath);
+    }
+    
     examplePaths.forEach(function(exPath) {
       exeConfigs.push( { examplePath: exPath, protractorConfigFilename: destConfig });
-    })
-  });
-
-  // run the tests sequentially
-  var status = { passed: [], failed: [] };
-  return exeConfigs.reduce(function (promise, combo) {
-    return promise.then(function () {
-      var isDart = combo.examplePath.indexOf('/dart') > -1;
-      var runTests = isDart ? runE2eDartTests : runE2eTsTests;
-      return runTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
-        var arr = ok ? status.passed : status.failed;
-        arr.push(combo.examplePath);
-      })
     });
-  }, Q.resolve()).then(function() {
-    var stopTime = new Date().getTime();
-    status.elapsedTime = (stopTime - startTime)/1000;
-    fs.appendFileSync(outputFile, '\nElaped Time: ' + status.elapsedTime + ' seconds');
-    return status;
   });
+  
+  // compile all spec tests for this run
+  var promises = e2eSpecFilesPaths.map(function(path) {
+    return compileE2eTest(path);
+  });
+  
+  return Promise.all(promises).then(function() {
+    // run the tests sequentially
+    var status = { passed: [], failed: [] };
+    return exeConfigs.reduce(function (promise, combo) {
+      return promise.then(function () {
+        var isDart = combo.examplePath.indexOf('/dart') > -1;
+        var runTests = isDart ? runE2eDartTests : runE2eTsTests;
+        return runTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
+          var arr = ok ? status.passed : status.failed;
+          arr.push(combo.examplePath);
+        });
+      });
+    }, Q.resolve()).then(function() {
+      var stopTime = new Date().getTime();
+      status.elapsedTime = (stopTime - startTime)/1000;
+      fs.appendFileSync(outputFile, '\nElaped Time: ' + status.elapsedTime + ' seconds');
+      return status;
+    });
+  });
+}
+
+// Compile a e2e.spec.ts file to be feeded to protractor
+function compileE2eTest(examplePath) {
+  var specFile = '../e2e-spec.ts';
+  var exampleTsFolder = path.join(examplePath, 'ts');
+  return spawnExt('npm',['run', 'tsc', '--', specFile], { cwd: exampleTsFolder });
 }
 
 // start the example in appDir; then run protractor with the specified

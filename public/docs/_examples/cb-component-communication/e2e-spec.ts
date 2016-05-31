@@ -33,7 +33,7 @@ describe('Component Communication Cookbook Tests', function () {
     // ...
     it('should display trimmed, non-empty names', function () {
       let _nonEmptyNameIndex = 0;
-      let _nonEmptyName = '\'Mr. IQ\'';
+      let _nonEmptyName = '"Mr. IQ"';
       let parent = element.all(by.tagName('name-parent')).get(0);
       let hero = parent.all(by.tagName('name-child')).get(_nonEmptyNameIndex);
 
@@ -43,7 +43,7 @@ describe('Component Communication Cookbook Tests', function () {
 
     it('should replace empty name with default name', function () {
       let _emptyNameIndex = 1;
-      let _defaultName = '\'<no name set>\'';
+      let _defaultName = '"<no name set>"';
       let parent = element.all(by.tagName('name-parent')).get(0);
       let hero = parent.all(by.tagName('name-child')).get(_emptyNameIndex);
 
