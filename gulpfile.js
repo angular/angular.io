@@ -691,7 +691,7 @@ function linkChecker(options) {
   var handlers = {
     robots: function(robots, customData){},
     html: function(tree, robots, response, pageUrl, customData){
-      //gutil.log('Scanning ' + pageUrl);docs/ts/latest/api/core/
+      // gutil.log('Scanning ' + pageUrl);
     },
     junk: function(result, customData){},
 
@@ -708,8 +708,8 @@ function linkChecker(options) {
       }
       var msg = '\n  [' + result.html.location.line + ', ' + result.brokenReason + '] ' + result.url.resolved;
       fs.appendFileSync(outputFile, msg);
-      //gutil.log(msg);
-      //gutil.log(result);
+      // gutil.log(msg);
+      // gutil.log(result);
     },
 
     page: function(error, pageUrl, customData){},
@@ -737,8 +737,11 @@ function linkChecker(options) {
   var startTime = new Date().getTime();
 
   try {
+    gutil.log('link checker started');
     siteChecker.enqueue(siteUrl, customData);
   } catch (err) {
+    gutil.log('link checker died');
+    console.error('link checker died', err);
     deferred.reject(err);
   }
   return deferred.promise;
