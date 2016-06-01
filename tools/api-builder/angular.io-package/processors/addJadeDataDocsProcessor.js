@@ -74,6 +74,7 @@ module.exports = function addJadeDataDocsProcessor() {
               stability = 'experimental';
             } else if (_.has(exportDoc, 'deprecated')) {
               stability = 'deprecated';
+              exportDoc.showDeprecatedNotes = true;
             }
             
             var howToUse = '';
@@ -102,7 +103,14 @@ module.exports = function addJadeDataDocsProcessor() {
             // Default is no security risk assessed for api
             var security = false;
             if (_.has(exportDoc, 'security')) {
-              security = true;
+              var securityArray = exportDoc.tags.tags.filter(function(tag) {
+                return tag.tagName === 'security'
+              });
+
+              // Remove line breaks, there should only be one tag
+              security = securityArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+
+              exportDoc.showSecurityNotes = true;
             }
 
             // Data inserted into jade-data.template.html
