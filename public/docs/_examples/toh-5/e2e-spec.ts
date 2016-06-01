@@ -5,9 +5,8 @@ describe('Tutorial', function () {
     browser.get('');
   });
 
-
   function getPageStruct() {
-    hrefEles = element.all(by.css('my-app a'));
+    let hrefEles = element.all(by.css('my-app a'));
 
     return {
       hrefs: hrefEles,
@@ -54,7 +53,7 @@ describe('Tutorial', function () {
     expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be available');
     let heroEle = page.topHeroes.get(3);
     let heroDescrEle = heroEle.element(by.css('h4'));
-    let heroDescr;
+    let heroDescr: string;
     return heroDescrEle.getText().then(function(text) {
       heroDescr = text;
       return heroEle.click();
@@ -70,7 +69,8 @@ describe('Tutorial', function () {
     let page = getPageStruct();
     expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be present');
     let viewDetailsButtonEle = page.myHeroesParent.element(by.cssContainingText('button', 'View Details'));
-    let heroEle, heroDescr;
+    let heroEle: protractor.ElementFinder;
+    let heroDescr: string;
     page.myHeroesHref.click().then(function() {
       expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
       expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be present');
@@ -93,7 +93,7 @@ describe('Tutorial', function () {
     });
   });
 
-  function editDetails(page, origValue, textToAdd) {
+  function editDetails(page: any, origValue: string, textToAdd: string) {
     expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
     expect(page.myHeroesParent.isPresent()).toBe(false, 'myHeroes element should NOT be present');
     expect(page.heroDetail.isDisplayed()).toBe(true, 'should be able to see hero-details');

@@ -61,7 +61,7 @@ describe('Lifecycle hooks', function () {
     let powerInputEle = inputEles.get(0);
     let titleEle = doCheckViewEle.element(by.css('p'));
     let changeLogEles = doCheckViewEle.all(by.css('div'));
-    let logCount;
+    let logCount: number;
 
     expect(titleEle.getText()).toContain('Windstorm can sing');
     changeLogEles.count().then(function(count) {
@@ -92,7 +92,7 @@ describe('Lifecycle hooks', function () {
     let commentEle = parentEle.element(by.className('comment'));
     let logEles = parentEle.all(by.css('h4 ~ div'));
     let childViewInputEle = parentEle.element(by.css('my-child input'));
-    let logCount;
+    let logCount: number;
 
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
@@ -121,7 +121,7 @@ describe('Lifecycle hooks', function () {
     let commentEle = parentEle.element(by.className('comment'));
     let logEles = parentEle.all(by.css('h4 ~ div'));
     let childViewInputEle = parentEle.element(by.css('my-child input'));
-    let logCount;
+    let logCount: number;
 
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');

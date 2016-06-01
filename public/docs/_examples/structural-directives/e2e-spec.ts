@@ -32,7 +32,7 @@ describe('Structural Directives', function () {
     let ngIfSiblingEle = ngIfParentEle.element(by.css('heavy-loader'));
     let cssButtonEle = element(by.cssContainingText('button', 'show | hide'));
     let cssSiblingEle = cssButtonEle.element(by.xpath('..')).element(by.css('heavy-loader'));
-    let setConditionText;
+    let setConditionText: string;
     setConditionButtonEle.getText().then(function(text) {
       setConditionText = text;
       expect(ngIfButtonEle.isPresent()).toBe(true, 'should be able to find ngIfButton');

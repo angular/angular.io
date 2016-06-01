@@ -29,19 +29,18 @@ describe('Hierarchical dependency injection', function () {
     testEdit(false);
   });
 
-  function testEdit(shouldSave) {
-    let inputEle;
+  function testEdit(shouldSave: boolean) {
     // select 2nd ele
     let heroEle = element.all(by.css('heroes-list li')).get(1);
     // get the 2nd span which is the name of the hero
     let heroNameEle = heroEle.all(by.css('hero-card span')).get(1);
     let editButtonEle = heroEle.element(by.cssContainingText('button','edit'));
     editButtonEle.click().then(function() {
-      inputEle = heroEle.element(by.css('hero-editor input'));
+      let inputEle = heroEle.element(by.css('hero-editor input'));
       // return inputEle.sendKeys("foo");
       return sendKeys(inputEle, "foo");
     }).then(function() {
-      buttonName = shouldSave ? 'save' : 'cancel';
+      let buttonName = shouldSave ? 'save' : 'cancel';
       let buttonEle = heroEle.element(by.cssContainingText('button', buttonName));
       return buttonEle.click();
     }).then(function() {

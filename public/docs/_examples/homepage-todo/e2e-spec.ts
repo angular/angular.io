@@ -7,7 +7,7 @@ describe('Homepage Todo', function () {
 
   // Does it even launch?
   let expectedAppTitle = 'Todo';
-  it('should display app title: ' + expectedAppTitle, function () {
+  it(`should display app title: ${expectedAppTitle}`, function () {
     expect(element(by.css('h2')).getText()).toEqual(expectedAppTitle);
   });
 

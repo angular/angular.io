@@ -7,7 +7,7 @@ describe('User Input Tests', function () {
 
   it('should support the click event', function () {
     let mainEle = element(by.css('click-me'));
-    let buttonEle =element(by.css('click-me button'));
+    let buttonEle = element(by.css('click-me button'));
     expect(mainEle.getText()).not.toContain('You are my hero!');
     buttonEle.click().then(function() {
       expect(mainEle.getText()).toContain('You are my hero!');
@@ -16,7 +16,7 @@ describe('User Input Tests', function () {
 
   it('should support the click event with an event payload', function () {
     let mainEle = element(by.css('click-me2'));
-    let buttonEle =element(by.css('click-me2 button'));
+    let buttonEle = element(by.css('click-me2 button'));
     expect(mainEle.getText()).not.toContain('Event target is ');
     buttonEle.click().then(function() {
       expect(mainEle.getText()).toContain('Event target is BUTTON');
@@ -86,7 +86,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let addButtonEle = mainEle.element(by.css('button'));
     let heroEles = mainEle.all(by.css('li'));
-    let numHeroes;
+    let numHeroes: number;
     expect(heroEles.count()).toBeGreaterThan(0);
     heroEles.count().then(function(count) {
       numHeroes = count;

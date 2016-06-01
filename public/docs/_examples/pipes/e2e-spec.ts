@@ -65,7 +65,7 @@ describe('Pipes', function () {
 
   it('should support flying heroes (pure) ', function () {
     let nameEle = element(by.css('flying-heroes input[type="text"]'));
-    let canFlyCheckEle = element(by.css('flying-heroes #can-fly'));    
+    let canFlyCheckEle = element(by.css('flying-heroes #can-fly'));
     let mutateCheckEle = element(by.css('flying-heroes #mutate'));
     let resetEle = element(by.css('flying-heroes button'));
     let flyingHeroesEle = element.all(by.css('flying-heroes #flyers div'));

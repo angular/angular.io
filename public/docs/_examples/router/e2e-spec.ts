@@ -6,7 +6,7 @@ describe('Router', function () {
   });
 
   function getPageStruct() {
-    hrefEles = element.all(by.css('my-app a'));
+    let hrefEles = element.all(by.css('my-app a'));
 
     return {
       hrefs: hrefEles,
@@ -66,7 +66,8 @@ describe('Router', function () {
 
   it('should be able to edit and save details from the heroes view', function () {
     let page = getPageStruct();
-    let heroEle, heroText;
+    let heroEle: protractor.ElementFinder;
+    let heroText: string;
     page.heroesHref.click().then(function() {
       heroEle = page.heroesList.get(4);
       return heroEle.getText();
@@ -90,9 +91,10 @@ describe('Router', function () {
     })
   });
 
-  function crisisCenterEdit(index, shouldSave) {
+  function crisisCenterEdit(index: number, shouldSave: boolean) {
     let page = getPageStruct();
-    let crisisEle, crisisText;
+    let crisisEle: protractor.ElementFinder;
+    let crisisText: string;
     page.crisisHref.click()
     .then(function () {
       crisisEle = page.crisisList.get(index);

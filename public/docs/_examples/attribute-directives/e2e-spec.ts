@@ -7,7 +7,7 @@ describe('Attribute directives', function () {
     browser.get('');
   });
 
-  it('should display correct title: ' + _title, function () {
+  it(`should display correct title: ${_title}`, function () {
     expect(element(by.css('h1')).getText()).toEqual(_title);
   });
 

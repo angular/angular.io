@@ -7,13 +7,13 @@ describe('Architecture', function () {
     browser.get('');
   });
 
-  function itReset(name: string, func: (v: void) => any) {
+  function itReset(name: string, func: () => any) {
     it(name, function() {
       browser.get('').then(func);
     });
   }
 
-  it('should display correct title: ' + title, function () {
+  it(`should display correct title: ${title}`, function () {
     expect(element(by.css('h2')).getText()).toEqual(title);
   });
 

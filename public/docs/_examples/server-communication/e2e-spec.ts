@@ -70,7 +70,7 @@ describe('Server Communication', function () {
       });
     });
 
-    function testForRefreshedResult(keyPressed, done) {
+    function testForRefreshedResult(keyPressed: string, done: () => void) {
       testForResult('my-wiki', keyPressed, false, done)
     }
   });
@@ -101,17 +101,17 @@ describe('Server Communication', function () {
     });
 
 
-    function testForNewResult(keyPressed, done) {
+    function testForNewResult(keyPressed: string, done: () => void) {
       testForResult('my-wiki-smart', keyPressed, false, done)
     }
 
-    function testForStaleResult(keyPressed, done) {
+    function testForStaleResult(keyPressed: string, done: () => void) {
       testForResult('my-wiki-smart', keyPressed, true, done)
     }
 
   });
 
-  function testForResult(componentTagName, keyPressed, hasListBeforeSearch, done) {
+  function testForResult(componentTagName: string, keyPressed: string, hasListBeforeSearch: boolean, done: () => void) {
     let searchWait = 1000; // Wait for wikipedia but not so long that tests timeout
     let wikiComponent = element(by.tagName(componentTagName));
     expect(wikiComponent).toBeDefined('<' + componentTagName + '> must exist');

@@ -7,18 +7,17 @@ describe('Homepage Hello World', function () {
 
   // Does it even launch?
   let expectedLabel = 'Name:';
-  it('should display the label: ' + expectedLabel, function () {
+  it(`should display the label: ${expectedLabel}`, function () {
     expect(element(by.css('label')).getText()).toEqual(expectedLabel);
   });
   
   it('should display entered name', function () {
     let testName = 'Bobby Joe';
-    let newValue;
     let nameEle = element.all(by.css('input')).get(0);
     nameEle.getAttribute('value').then(function(value) {
       // nameEle.sendKeys(testName); // should work but doesn't
       sendKeys(nameEle, testName); // utility that does work
-      newValue = value + testName; // old input box value + new name
+      let newValue = value + testName; // old input box value + new name
       expect(nameEle.getAttribute('value')).toEqual(newValue);
     }).then(function() {
       // Check the interpolated message built from name

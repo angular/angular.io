@@ -6,7 +6,7 @@ describe('Getting Started E2E Tests', function() {
   let expectedMsg = 'My First Angular 2 App';
 
   // tests shared across languages
-  function sharedTests(basePath) {
+  function sharedTests(basePath: string) {
     beforeEach(function () {
       browser.get(basePath + 'index.html');
     });
