@@ -231,19 +231,33 @@ function runE2eTsTests(appDir, outputFile) {
 }
 
 function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
+  var specFilename = path.resolve(`${appDir}/../e2e-spec.ts`);
   return prepPromise
     .catch(function(){
-      var emsg = `AppDir failed during compile: ${appDir}\n\n`;
+      var emsg = `Application at ${appDir} failed to transpile.\n\n`;
       gutil.log(emsg);
       fs.appendFileSync(outputFile, emsg);
       return Promise.reject(emsg);
     })
     .then(function (data) {
+      var transpileError = false;
+
       // start protractor
-      var specFilename = path.resolve(`${appDir}/../e2e-spec.ts`);
+
       var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', 'protractor.config.js',
         `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PROTRACTOR_PATH });
-      return spawnInfo.promise;
+
+      spawnInfo.proc.stderr.on('data', function (data) {
+        transpileError = transpileError || /npm ERR! Exit status 100/.test(data.toString());
+      });
+      return spawnInfo.promise.catch(function(err) {
+        if (transpileError) {
+        var emsg = `${specFilename} failed to transpile.\n\n`;
+        gutil.log(emsg);
+        fs.appendFileSync(outputFile, emsg);
+        }
+        return Promise.reject(emsg);
+      });
     })
     .then(
        function() { return finish(true);},
@@ -373,7 +387,6 @@ gulp.task('_copy-example-boilerplate', copyExampleBoilerplate);
 // copies boilerplate files to locations
 // where an example app is found
 // also copies certain web files (e.g., styles.css) to ~/_examples/**/dart/**/web
-// also copies protractor.config.js file
 function copyExampleBoilerplate() {
   gutil.log('Copying example boilerplate files');
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
@@ -390,8 +403,7 @@ function copyExampleBoilerplate() {
     .then(function() {
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths);
     })
-    // copy files from _examples/_protractor dir to each subdir that
-    // contains a e2e-spec file.
+    // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
     .then(function() {
       var protractorSourceFiles =
         _exampleProtractorBoilerplateFiles
@@ -474,11 +486,8 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
-gulp.task('build-plunkers', function() {
-  return copyExampleBoilerplate()
-    .then(function() {
-      return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
-    });
+gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
+  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -586,11 +595,11 @@ gulp.task('_harp-compile', function() {
   });
 });
 
-gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
+gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   return docShredder.shred( _devguideShredOptions);
 });
 
-gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade'],  function() {
+gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade', '_copy-example-boilerplate'],  function() {
   return docShredder.shred( _devguideShredJadeOptions);
 });
 

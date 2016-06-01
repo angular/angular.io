@@ -1,1 +1,1 @@
-export * from './validate.directive';
+export * from './validator.directive';

@@ -118,6 +118,7 @@ function sendKeys(element, str) {
   // better to create a resolved promise here but ... don't know how with protractor;
   }
 
+// See http://jasmine.github.io/2.1/custom_reporter.html
 function Reporter(options) {
   var _defaultOutputFile = path.resolve(process.cwd(), "../../../../", 'protractor-results.txt');
   options.outputFile = options.outputFile || _defaultOutputFile;
@@ -143,7 +144,7 @@ function Reporter(options) {
   };
 
   this.specStarted = function(spec) {
-    
+
   };
 
   this.specDone = function(spec) {
