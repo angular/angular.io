@@ -1,6 +1,3 @@
-// #docplaster
-// #docregion
-// #docregion imports
 import 'package:angular2/core.dart';
 
 import 'app_config.dart';
@@ -8,8 +5,6 @@ import 'car/car_component.dart';
 import 'heroes/heroes_component.dart';
 import 'logger_service.dart';
 import 'user_service.dart';
-//PENDING: check whether we intend to hide injector_component.dart & providers_component.dart; if so, change docregion name?
-// #enddocregion imports
 import 'injector_component.dart';
 import 'test_component.dart';
 import 'providers_component.dart';
@@ -62,6 +57,6 @@ class AppComponent {
     return _userService.user;
   }
 
-  String get userInfo => 'Current user, ${user.name}, is'
-      '${isAuthorized ? "" : " not"} authorized. ';
+  String get userInfo => 'Current user, ${user.name}, is' +
+    (isAuthorized ? '' : ' not') + ' authorized. ';
 }
