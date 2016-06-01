@@ -157,6 +157,11 @@ function Reporter(options) {
 
     _currentSuite.specs.push(currentSpec);
     log(spec.status + ' - ' + spec.description);
+    if (spec.status === 'failed') {
+      spec.failedExpectations.forEach(function(err) {
+        log(err.message);
+      });
+    }
   };
 
   this.jasmineDone = function() {
