@@ -1,32 +1,32 @@
 import { Component } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 
-import { AppComponent as S0101 } from '../01-01/app/app.component';
-import { AppComponent as S0207 } from '../02-07/app/app.component';
-import { AppComponent as S0208 } from '../02-08/app/app.component';
-import { AppComponent as S0301 } from '../03-01/app/app.component';
-import { AppComponent as S0302 } from '../03-02/app/app.component';
-import { AppComponent as S0303 } from '../03-03/app/app.component';
-import { AppComponent as S0304 } from '../03-04/app/app.component';
-import { AppComponent as S0305 } from '../03-05/app/app.component';
-import { AppComponent as S0306 } from '../03-06/app/app.component';
-import { AppComponent as S0410 } from '../04-10/app/app.component';
-import { AppComponent as S0414 } from '../04-14/app/app.component';
-import { AppComponent as S0502 } from '../05-02/app/app.component';
-import { AppComponent as S0503 } from '../05-03/app/app.component';
-import { AppComponent as S0504 } from '../05-04/app/app.component';
-import { AppComponent as S0512 } from '../05-12/app/app.component';
-import { AppComponent as S0513 } from '../05-13/app/app.component';
-import { AppComponent as S0514 } from '../05-14/app/app.component';
-import { AppComponent as S0515 } from '../05-15/app/app.component';
-import { AppComponent as S0516 } from '../05-16/app/app.component';
-import { AppComponent as S0517 } from '../05-17/app/app.component';
-import { AppComponent as S0601 } from '../06-01/app/app.component';
-import { AppComponent as S0603 } from '../06-03/app/app.component';
-import { AppComponent as S0701 } from '../07-01/app/app.component';
-import { AppComponent as S0703 } from '../07-03/app/app.component';
-import { AppComponent as S0704 } from '../07-04/app/app.component';
-import { AppComponent as S0901 } from '../09-01/app/app.component';
+import { AppComponent as S0101 } from '../01-01/app';
+import { AppComponent as S0207 } from '../02-07/app';
+import { AppComponent as S0208 } from '../02-08/app';
+import { AppComponent as S0301 } from '../03-01/app';
+import { AppComponent as S0302 } from '../03-02/app';
+import { AppComponent as S0303 } from '../03-03/app';
+import { AppComponent as S0304 } from '../03-04/app';
+import { AppComponent as S0305 } from '../03-05/app';
+import { AppComponent as S0306 } from '../03-06/app';
+import { AppComponent as S0410 } from '../04-10/app';
+import { AppComponent as S0414 } from '../04-14/app';
+import { AppComponent as S0502 } from '../05-02/app';
+import { AppComponent as S0503 } from '../05-03/app';
+import { AppComponent as S0504 } from '../05-04/app';
+import { AppComponent as S0512 } from '../05-12/app';
+import { AppComponent as S0513 } from '../05-13/app';
+import { AppComponent as S0514 } from '../05-14/app';
+import { AppComponent as S0515 } from '../05-15/app';
+import { AppComponent as S0516 } from '../05-16/app';
+import { AppComponent as S0517 } from '../05-17/app';
+import { AppComponent as S0601 } from '../06-01/app';
+import { AppComponent as S0603 } from '../06-03/app';
+import { AppComponent as S0701 } from '../07-01/app';
+import { AppComponent as S0703 } from '../07-03/app';
+import { AppComponent as S0704 } from '../07-04/app';
+import { AppComponent as S0901 } from '../09-01/app';
 
 @Component({
   selector: 'my-app',

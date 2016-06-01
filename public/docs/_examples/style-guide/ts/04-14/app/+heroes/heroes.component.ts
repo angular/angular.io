@@ -1,9 +1,9 @@
 // #docregion
 import { Component, OnInit } from '@angular/core';
 
-import { Hero } from './shared/hero.model';
+import { Hero } from './shared';
 // #docregion example
-import { Logger } from '../shared/logger.service';
+import { Logger } from '../shared';
 // #enddocregion example
 
 @Component({

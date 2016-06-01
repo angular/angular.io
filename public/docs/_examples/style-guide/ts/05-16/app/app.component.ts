@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HeroComponent } from './heroes/hero.component';
+import { HeroComponent } from './heroes';
 
 @Component({
   moduleId: module.id,

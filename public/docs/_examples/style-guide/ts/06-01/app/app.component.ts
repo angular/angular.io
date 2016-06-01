@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HighlightDirective } from './shared/highlight.directive';
+import { HighlightDirective } from './shared';
 
 @Component({
   moduleId: module.id,

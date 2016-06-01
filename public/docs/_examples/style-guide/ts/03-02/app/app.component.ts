@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { HEROES_URL, VILLAINS_URL } from './shared/data.service';
+import { HEROES_URL, VILLAINS_URL } from './shared';
 
 @Component({
   selector: 'sg-app',
