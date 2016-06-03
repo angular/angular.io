@@ -2,7 +2,7 @@
 import { AppComponent } from './app.component';
 
 import { By }                     from '@angular/platform-browser';
-import { DebugElement, provide  } from '@angular/core';
+import { DebugElement } from '@angular/core';
 
 import {
   beforeEach, beforeEachProviders,
@@ -28,8 +28,8 @@ describe('AppComponent', () => {
       .overrideDirective(AppComponent, RouterLink,   MockRouterLink)
       .overrideDirective(AppComponent, RouterOutlet, MockRouterOutlet)
       .overrideProviders(AppComponent, [
-        provide(HeroService, {useClass: MockHeroService}),
-        provide(Router,      {useClass: MockRouter}),
+        { provide: HeroService, useClass: MockHeroService},
+        { provide: Router,      useClass: MockRouter},
       ])
       .createAsync(AppComponent)
       .then(fix => {

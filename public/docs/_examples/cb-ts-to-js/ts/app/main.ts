@@ -1,6 +1,4 @@
 // #docregion ng2import
-import { provide }
-  from '@angular/core';
 import { bootstrap }
   from '@angular/platform-browser-dynamic';
 import {
@@ -29,7 +27,7 @@ bootstrap(HeroComponent);
 bootstrap(HeroLifecycleComponent);
 bootstrap(HeroDIComponent, [DataService]);
 bootstrap(HeroDIInjectComponent, [
-  provide('heroName', {useValue: 'Windstorm'})
+  { provide: 'heroName', useValue: 'Windstorm' }
 ]);
 bootstrap(AppDIInjectAdditionalComponent);
 bootstrap(AppIOComponent);

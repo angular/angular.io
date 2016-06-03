@@ -1,5 +1,5 @@
 // #docregion routestuff
-import { provide, ApplicationRef } from '@angular/core';
+import { ApplicationRef } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { HTTP_PROVIDERS } from '@angular/http';
 import {
@@ -40,14 +40,14 @@ class MockPhone extends Phone {
 describe('PhoneList', () => {
 
   // #docregion routestuff
-  
+
   beforeEachProviders(() => [
-    provide(Phone, {useClass: MockPhone}),
+    { provide: Phone, useClass: MockPhone},
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
-    provide(ApplicationRef, {useClass: MockApplicationRef}),
-    provide(ROUTER_PRIMARY_COMPONENT, {useValue: AppComponent}),
-    provide(LocationStrategy, {useClass: MockLocationStrategy}),
+    { provide: ApplicationRef, useClass: MockApplicationRef },
+    { provide: ROUTER_PRIMARY_COMPONENT, useValue: AppComponent },
+    { provide: LocationStrategy, useClass: MockLocationStrategy},
   ]);
   // #enddocregion routestuff
 

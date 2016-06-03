@@ -2,7 +2,6 @@
 import { DashboardComponent } from './dashboard.component';
 
 import { By }       from '@angular/platform-browser';
-import { provide  } from '@angular/core';
 
 import {
   beforeEach, beforeEachProviders,
@@ -74,9 +73,9 @@ describe('DashboardComponent', () => {
     beforeEachProviders(() => {
       mockHeroService = new MockHeroService();
       return [
-        provide(Router,      {useClass: MockRouter}),
-        provide(MockRouter,  {useExisting: Router}),
-        provide(HeroService, {useValue: mockHeroService})
+        { provide: Router,      useClass: MockRouter},
+        { provide: MockRouter,  useExisting: Router},
+        { provide: HeroService, useValue: mockHeroService }
       ];
     });
 

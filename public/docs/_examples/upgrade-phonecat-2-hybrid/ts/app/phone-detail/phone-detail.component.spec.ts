@@ -1,5 +1,4 @@
 // #docregion
-import { provide } from '@angular/core';
 import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
@@ -35,8 +34,8 @@ class MockPhone extends Phone {
 describe('PhoneDetailComponent', () => {
 
   beforeEachProviders(() => [
-    provide(Phone, {useClass: MockPhone}),
-    provide('$routeParams', {useValue: {phoneId: 'xyz'}}),
+    { provide: Phone, useClass: MockPhone },
+    { provide: '$routeParams', useValue: {phoneId: 'xyz'}},
     HTTP_PROVIDERS
   ]);
 
