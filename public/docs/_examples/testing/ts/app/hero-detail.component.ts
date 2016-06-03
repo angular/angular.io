@@ -5,7 +5,7 @@
 import { Component, OnInit } from '@angular/core';
 // #enddocregion import-oninit
 // #docregion import-route-params
-import {RouteParams} from '@angular/router-deprecated';
+import { RouteParams } from '@angular/router-deprecated';
 // #enddocregion import-route-params
 
 import { Hero } from './hero';

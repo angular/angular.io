@@ -4,7 +4,7 @@ import { Component }         from '@angular/core';
 import { CarComponent }      from './car/car.component';
 import { HeroesComponent }   from './heroes/heroes.component.1';
 
-import { provide, Inject }   from '@angular/core';
+import { Inject }   from '@angular/core';
 import { APP_CONFIG, AppConfig,
          HERO_DI_CONFIG }    from './app.config';
 import { Logger }            from './logger.service';
@@ -21,7 +21,7 @@ import { Logger }            from './logger.service';
   providers: [
     Logger,
    // #docregion providers
-    provide(APP_CONFIG, {useValue: HERO_DI_CONFIG})
+    { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
    // #enddocregion providers
   ]
 })

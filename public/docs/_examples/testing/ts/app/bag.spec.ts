@@ -25,7 +25,6 @@ import {
 
 import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
-import { provide }        from '@angular/core';
 import { ViewMetadata }   from '@angular/core';
 
 import { Observable }     from 'rxjs/Rx';
@@ -116,7 +115,7 @@ describe('using the test injector with the inject helper', () => {
 
   describe('setting up Providers with FancyService', () => {
     beforeEachProviders(() => [
-      provide(FancyService, {useValue: new FancyService()})
+      { provide: FancyService, useValue: new FancyService() }
     ]);
 
     it('should use FancyService',
@@ -183,7 +182,7 @@ describe('using the test injector with the inject helper', () => {
   describe('using `withProviders` for per-test provision', () => {
     it('should inject test-local FancyService for this test',
       // `withProviders`:  set up providers at individual test level
-      withProviders(() => [provide(FancyService, {useValue: {value: 'fake value'}})])
+      withProviders(() => [{ provide: FancyService, useValue: {value: 'fake value' }}])
 
       // now inject and test
         .inject([FancyService], (service: FancyService) => {
@@ -314,7 +313,7 @@ describe('test component builder', function() {
 
         tcb.overrideProviders(
               TestProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{ provide: FancyService, useClass: MockFancyService }]
             )
             .createAsync(TestProvidersComp)
             .then(fixture => {
@@ -329,7 +328,7 @@ describe('test component builder', function() {
 
         tcb.overrideViewProviders(
               TestViewProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{ provide: FancyService, useClass: MockFancyService }]
             )
             .createAsync(TestViewProvidersComp)
             .then(fixture => {
@@ -495,7 +494,7 @@ describe('tcb.overrideProviders', () => {
 
     tcb.overrideProviders(
           AnotherProvidersComp,
-          [provide(HeroService, {useValue: {}})]
+          [{ provide: HeroService, useValue: {}} ]
         )
         .createAsync(AnotherProvidersComp);
     })));

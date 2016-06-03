@@ -108,7 +108,7 @@ const templateB = `
   selector:   'barry',
   template:   templateB,
   directives: C_DIRECTIVES,
-  providers:  [ { provide: Parent, useExisting: forwardRef(() => BarryComponent) } ]
+  providers:  [{ provide: Parent, useExisting: forwardRef(() => BarryComponent) }]
 })
 export class BarryComponent implements Parent {
   name = 'Barry';
@@ -158,7 +158,7 @@ const B_DIRECTIVES = [ BarryComponent, BethComponent, BobComponent ];
     </div>`,
 // #enddocregion alex-1
 // #docregion alex-providers
-  providers: [ { provide: Parent, useExisting: forwardRef(() => AlexComponent) } ],
+  providers: [{ provide: Parent, useExisting: forwardRef(() => AlexComponent) }],
 // #enddocregion alex-providers
 // #docregion alex-1
   directives: C_DIRECTIVES

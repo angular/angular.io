@@ -8,8 +8,6 @@ import {
 
 import { TestComponentBuilder } from '@angular/compiler/testing';
 
-import { provide } from '@angular/core';
-
 import {
   MockBackend,
   MockConnection } from '@angular/http/testing';
@@ -46,7 +44,7 @@ describe('Http-HeroService (mockBackend)', () => {
 
   beforeEachProviders(() => [
     HTTP_PROVIDERS,
-    provide(XHRBackend, {useClass: MockBackend})
+    { provide: XHRBackend, useClass: MockBackend }
   ]);
 
   it('can instantiate service when inject service',
