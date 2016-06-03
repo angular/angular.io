@@ -6,8 +6,7 @@ import '../user_service.dart';
 import 'hero_service.dart';
 
 // #docregion factory
-@Injectable()
-heroServiceFactory(Logger logger, UserService userService) =>
+HeroService heroServiceFactory(Logger logger, UserService userService) =>
     new HeroService(logger, userService.user.isAuthorized);
 // #enddocregion factory
 

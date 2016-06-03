@@ -1,17 +1,27 @@
-// #docregion
 // #docregion token
 import 'package:angular2/core.dart';
 
-//#docregion const-class
-@Injectable()
+const APP_CONFIG = const OpaqueToken('app.config');
+// #enddocregion token
+
+// #docregion config
+const Map heroDiConfig = const <String,String>{
+  'apiEndpoint' : 'api.heroes.com',
+  'title' : 'Dependency Injection'
+};
+// #enddocregion config
+
+// #docregion config-alt
 class AppConfig {
-  final apiEndpoint;
-  final String title;
-
-  const AppConfig(this.apiEndpoint, this.title);
+  String apiEndpoint;
+  String title;
 }
-//#enddocregion const-class
 
-//#docregion const-object
-const config1 = const AppConfig('api.heroes.com', 'Dependency Injection');
-//#enddocregion const-object
+AppConfig heroDiConfigFactory() => new AppConfig()
+  ..apiEndpoint = 'api.heroes.com'
+  ..title = 'Dependency Injection';
+// #enddocregion config-alt
+
+const appConfigProvider = const Provider(APP_CONFIG,
+  useFactory: heroDiConfigFactory,
+  deps: const []);

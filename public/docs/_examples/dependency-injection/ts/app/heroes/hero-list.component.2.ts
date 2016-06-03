@@ -1,8 +1,16 @@
+// #docplaster
 // #docregion
 import { Component }   from '@angular/core';
 
 import { Hero }        from './hero';
+// #enddocregion
+import { HeroService } from './hero.service.1';
+/*
+// #docregion
 import { HeroService } from './hero.service';
+// #enddocregion
+*/
+// #docregion
 
 @Component({
   selector: 'hero-list',

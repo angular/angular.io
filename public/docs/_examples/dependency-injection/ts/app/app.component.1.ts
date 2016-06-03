@@ -19,14 +19,3 @@ import { HeroesComponent }   from './heroes/heroes.component.1';
 export class AppComponent {
   title = 'Dependency Injection';
 }
-// #enddocregion
-
-
-/*
-//#docregion ctor-di-fail
-// FAIL! Injectable `config` is not a class!
-constructor(heroService: HeroService, config: config) {
-  this.title = config.title;
-}
-//#enddocregion ctor-di-fail
-*/

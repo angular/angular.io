@@ -1,8 +1,12 @@
 import { bootstrap }    from '@angular/platform-browser-dynamic';
-import { AppComponent } from './app.component';
-import { HeroService }  from './heroes/hero.service';
+import { AppComponent } from './app.component.1';
+import { HeroService }  from './heroes/hero.service.1';
 
-//#docregion bootstrap
-bootstrap(AppComponent,
-         [HeroService]); // DISCOURAGED (but works)
-//#enddocregion bootstrap
+bootstrap(AppComponent);
+
+function discouraged() {
+  //#docregion bootstrap-discouraged
+  bootstrap(AppComponent,
+           [HeroService]); // DISCOURAGED (but works)
+  //#enddocregion bootstrap-discouraged
+}

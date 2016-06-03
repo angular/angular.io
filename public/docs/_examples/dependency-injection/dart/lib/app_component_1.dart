@@ -16,13 +16,3 @@ import 'heroes/heroes_component_1.dart';
 class AppComponent {
   final String title = 'Dependency Injection';
 }
-// #enddocregion
-
-/*
-//#docregion ctor-di-fail
-// FAIL! Injectable `config` is not a class!
-AppComponent(HeroService heroService, Map config) {
-  title = config['title'];
-}
-//#enddocregion ctor-di-fail
-*/

@@ -1,6 +1,7 @@
-include ../_util-fns
+block includes
+  include ../_util-fns
+  - var _thisDot = 'this.';
 
-// #docregion intro
 :marked
   **Dependency injection** is an important application design pattern.
   Angular has its own dependency injection framework, and
@@ -9,34 +10,35 @@ include ../_util-fns
 
   In this chapter we'll learn what DI is and why we want it.
   Then we'll learn [how to use it](#angular-di) in an Angular app.
-// #enddocregion intro
-:marked
-  [Run the live example](/resources/live-examples/dependency-injection/ts/plnkr.html)
-// #docregion why-1
-<a id="why-di"></a>
-.l-main-section
+
+  - [Why dependency injection?](#why-dependency-injection)
+  - [Angular dependency injection](#angular-dependency-injection)
+  - [Injector providers](#injector-providers)
+  - [Dependency injection tokens](#dependency-injection-tokens)
+  - [Summary](#summary)
+
+p Run the #[+liveExampleLink2()].
+
+.l-main-section#why-di
 :marked
   ## Why dependency injection?
 
   Let's start with the following code.
-// #enddocregion why-1
+
 +makeExample('dependency-injection/ts/app/car/car-no-di.ts', 'car', 'app/car/car.ts (without DI)')
-// #docregion why-2
-- var lang = current.path[1]
-- var prefix = lang == 'dart' ? '' : 'this.'
+
 :marked
   Our `Car` creates everything it needs inside its constructor.
   What's the problem?
-
   The problem is that our `Car` class is brittle, inflexible, and hard to test.
 
   Our `Car` needs an engine and tires. Instead of asking for them,
-  the `Car` constructor creates its own copies by "new-ing" them from
-  the very specific classes, `Engine` and `Tires`.
+  the `Car` constructor instantiates its own copies from
+  the very specific classes `Engine` and `Tires`.
 
   What if the `Engine` class evolves and its constructor requires a parameter?
   Our `Car` is broken and stays broken until we rewrite it along the lines of
-  `#{prefix}engine = new Engine(theNewParameter)`.
+  `#{_thisDot}engine = new Engine(theNewParameter)`.
   We didn't care about `Engine` constructor parameters when we first wrote `Car`.
   We don't really care about them now.
   But we'll *have* to start caring because
@@ -67,31 +69,30 @@ include ../_util-fns
 
   How can we make `Car` more robust, flexible, and testable?
 
+  <a id="ctor-injection"></a>
   That's super easy. We change our `Car` constructor to a version with DI:
 
-  <a id="ctor-injection"></a>
-// #enddocregion why-2
 +makeTabs(
   'dependency-injection/ts/app/car/car.ts, dependency-injection/ts/app/car/car-no-di.ts',
   'car-ctor, car-ctor',
   'app/car/car.ts (excerpt with DI), app/car/car.ts (excerpt without DI)')(format=".")
-// #docregion why-3-1
+
 :marked
   See what happened? We moved the definition of the dependencies to the constructor.
   Our `Car` class no longer creates an engine or tires.
   It just consumes them.
-// #enddocregion why-3-1
-// TypeScript only
-.l-sub-section
-  :marked
-    We also leverage TypeScript's constructor syntax for declaring parameters and properties simultaneously.
-// #docregion why-3-2
+
+block ctor-syntax
+  .l-sub-section
+    :marked
+      We also leveraged TypeScript's constructor syntax for declaring
+      parameters and properties simultaneously.
+
 :marked
   Now we create a car by passing the engine and tires to the constructor.
-// #enddocregion why-3-2
-- var stylePattern = { otl: /(new Car.*$)/gm };
-+makeExample('dependency-injection/ts/app/car/car-creations.ts', 'car-ctor-instantiation', '', stylePattern)(format=".")
-// #docregion why-4
+
++makeExample('dependency-injection/ts/app/car/car-creations.ts', 'car-ctor-instantiation', '')(format=".")
+
 :marked
   How cool is that?
   The definition of the engine and tire dependencies are
@@ -100,8 +101,7 @@ include ../_util-fns
   conform to the general API requirements of an engine or tires.
 
   If someone extends the `Engine` class, that is not `Car`'s problem.
-// #enddocregion why-4
-// Must copy the following, due to indented +make.
+
 .l-sub-section
   :marked
     The _consumer_ of `Car` has the problem. The consumer must update the car creation code to
@@ -113,16 +113,16 @@ include ../_util-fns
   :marked
     The critical point is this: `Car` itself did not have to change.
     We'll take care of the consumer's problem soon enough.
-// #docregion why-6
+
 :marked
   The `Car` class is much easier to test because we are in complete control
   of its dependencies.
   We can pass mocks to the constructor that do exactly what we want them to do
   during each test:
-// #enddocregion why-6
+
 - var stylePattern = { otl: /(new Car.*$)/gm };
 +makeExample('dependency-injection/ts/app/car/car-creations.ts', 'car-ctor-instantiation-with-mocks', '', stylePattern)(format=".")
-// #docregion why-7
+
 :marked
   **We just learned what dependency injection is**.
 
@@ -136,9 +136,9 @@ include ../_util-fns
   We need something that takes care of assembling these parts for us.
 
   We could write a giant class to do that:
-// #enddocregion why-7
+
 +makeExample('dependency-injection/ts/app/car/car-factory.ts', null, 'app/car/car-factory.ts')
-// #docregion why-8
+
 :marked
   It's not so bad now with only three creation methods.
   But maintaining it will be hairy as the application grows.
@@ -153,9 +153,9 @@ include ../_util-fns
   We register some classes with this injector, and it figures out how to create them.
 
   When we need a `Car`, we simply ask the injector to get it for us and we're good to go.
-// #enddocregion why-8
+
 +makeExample('dependency-injection/ts/app/car/car-injector.ts','injector-call')(format=".")
-// #docregion why-9
+
 :marked
   Everyone wins. The `Car` knows nothing about creating an `Engine` or `Tires`.
   The consumer knows nothing about creating a `Car`.
@@ -166,10 +166,8 @@ include ../_util-fns
 
   Now that we know what dependency injection is and appreciate its benefits,
   let's see how it is implemented in Angular.
-// #enddocregion why-9
-// #docregion di-1
-<a id="angular-di"></a>
-.l-main-section
+
+.l-main-section#angular-di
 :marked
   ## Angular dependency injection
 
@@ -181,7 +179,7 @@ include ../_util-fns
 
   We'll begin with a simplified version of the `HeroesComponent`
   that we built in the [The Tour of Heroes](../tutorial/).
-// #enddocregion di-1
+
 +makeTabs(
   `dependency-injection/ts/app/heroes/heroes.component.1.ts,
   dependency-injection/ts/app/heroes/hero-list.component.1.ts,
@@ -192,14 +190,13 @@ include ../_util-fns
   app/heroes/hero-list.component.ts,
   app/heroes/hero.ts,
   app/heroes/mock-heroes.ts`)
-// #docregion di-2
+
 :marked
   The `HeroesComponent` is the root component of the *Heroes* feature area.
   It governs all the child components of this area.
   Our stripped down version has only one child, `HeroListComponent`,
   which displays a list of heroes.
-// #enddocregion di-2
-// #docregion di-3
+
 :marked
   Right now `HeroListComponent` gets heroes from `HEROES`, an in-memory collection
   defined in another file.
@@ -209,51 +206,57 @@ include ../_util-fns
   fix every other use of the `HEROES` mock data.
 
   Let's make a service that hides how we get hero data.
-// #enddocregion di-3
 
-// Unnecessary for Dart
 .l-sub-section
   :marked
-    Write this service in its own file. See [this note](#forward-ref) to understand why.
+    Given that the service is a
+    [separate concern](https://en.wikipedia.org/wiki/Separation_of_concerns),
+    we suggest that you
+    write the service code in its own file.
+  +ifDocsFor('ts')
+    :marked
+      See [this note](#one-class-per-file) for details.
+
 +makeExample('dependency-injection/ts/app/heroes/hero.service.1.ts',null, 'app/heroes/hero.service.ts' )
-// #docregion di-4
+
 :marked
   Our `HeroService` exposes a `getHeroes` method that returns
   the same mock data as before, but none of its consumers need to know that.
-// #enddocregion di-4
-// #docregion di-5
+.l-sub-section
+  :marked
+    Notice the `@Injectable()` #{_decorator} above the service class.
+    We'll discuss its purpose [shortly](#injectable).
+
+- var _perhaps = _docsFor == 'dart' ? '' : 'perhaps';
 .l-sub-section
   :marked
     We aren't even pretending this is a real service.
-    If we were actually getting data from a remote server, the API would have to be asynchronous,
-    perhaps returning
-    [ES2015 promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+    If we were actually getting data from a remote server, the API would have to be 
+    asynchronous, #{_perhaps} returning a !{_PromiseLinked}.
     We'd also have to rewrite the way components consume our service.
     This is important in general, but not to our current story.
-// #enddocregion di-5
-// #docregion di-6
+
 :marked
   A service is nothing more than a class in Angular 2.
   It remains nothing more than a class until we register it with an Angular injector.
-// #enddocregion di-6
-// #docregion di-configure-injector-1
+
+#bootstrap
 :marked
   ### Configuring the injector
 
-  <a id="bootstrap"></a>
   We don't have to create an Angular injector.
   Angular creates an application-wide injector for us during the bootstrap process.
-// #enddocregion di-configure-injector-1
+
 +makeExample('dependency-injection/ts/app/main.ts', 'bootstrap', 'app/main.ts (excerpt)')(format='.')
-// #docregion di-configure-injector-2
+
 :marked
   We do have to configure the injector by registering the **providers**
   that create the services our application requires.
   We'll explain what [providers](#providers) are later in this chapter.
   Before we do, let's see an example of provider registration during bootstrapping:
-// #enddocregion di-configure-injector-2
-+makeExample('dependency-injection/ts/app/main.1.ts', 'bootstrap')(format='.')
-// #docregion di-configure-injector-3
+
++makeExample('dependency-injection/ts/app/main.1.ts', 'bootstrap-discouraged')(format='.')
+
 :marked
   The injector now knows about our `HeroService`.
   An instance of our `HeroService` will be available for injection across our entire application.
@@ -266,81 +269,78 @@ include ../_util-fns
   The preferred approach is to register application providers in application components.
   Because the `HeroService` is used within the *Heroes* feature area &mdash;
   and nowhere else &mdash; the ideal place to register it is in the top-level `HeroesComponent`.
-// #enddocregion di-configure-injector-3
-// #docregion di-register-providers-1
+
 :marked
   ### Registering providers in a component
   Here's a revised `HeroesComponent` that registers the `HeroService`.
-// #enddocregion di-register-providers-1
-+makeExample('dependency-injection/ts/app/heroes/heroes.component.1.ts',null,'app/heroes/heroes.component.ts')
-// #docregion di-register-providers-2
+
+- var stylePattern = { otl: /(providers:.*),/ };
++makeExample('dependency-injection/ts/app/heroes/heroes.component.1.ts', 'full','app/heroes/heroes.component.ts', stylePattern)(format='.')
+
 :marked
-  Look closely at the `providers` part of the `@Component` metadata:
-// #enddocregion di-register-providers-2
-+makeExample('dependency-injection/ts/app/heroes/heroes.component.1.ts','providers')(format='.')
-// #docregion di-register-providers-3
-:marked
+  Look closely at the `providers` part of the `@Component` metadata.
   An instance of the `HeroService` is now available for injection in this `HeroesComponent`
   and all of its child components.
 
   The `HeroesComponent` itself doesn't happen to need the `HeroService`.
   But its child `HeroListComponent` does, so we head there next.
-// #enddocregion di-register-providers-3
-// #docregion di-prepare-for-injection-1
+
 :marked
   ### Preparing the HeroListComponent for injection
 
   The `HeroListComponent` should get heroes from the injected `HeroService`.
-  Per the dependency injection pattern, the component must ask for the service in its constructor, [as we explained
-  earlier](#ctor-injection).
+  Per the dependency injection pattern, the component must ask for the service in its 
+  constructor, [as we explained earlier](#ctor-injection).
   It's a small change:
-// #enddocregion di-prepare-for-injection-1
+
 +makeTabs(
   `dependency-injection/ts/app/heroes/hero-list.component.2.ts,
   dependency-injection/ts/app/heroes/hero-list.component.1.ts`,
   null,
   `app/heroes/hero-list.component (with DI),
    app/heroes/hero-list.component (without DI)`)
-// Must copy the following, due to indented +make.
+
 .l-sub-section
   :marked
-    ### Focus on the constructor
+    #### Focus on the constructor
 
     Adding a parameter to the constructor isn't all that's happening here.
 
   +makeExample('dependency-injection/ts/app/heroes/hero-list.component.2.ts', 'ctor')(format=".")
 
-  // TypeScript only
   :marked
-    We're writing in TypeScript and have followed the parameter name with a type annotation, `:HeroService`.
-    The class is also decorated with the `@Component` decorator (scroll up to confirm that fact).
+    Note that the constructor parameter has the type `HeroService`, and that
+    the `HeroListComponent` class has an `@Component` #{_decorator}
+    (scroll up to confirm that fact).
+    Also recall that the parent component (`HeroesComponent`)
+    has `providers` information for `HeroService`.
 
-    When the TypeScript compiler evaluates this class, it sees the `@Component` decorator and adds class metadata
-    into the generated JavaScript code. Within that metadata lurks the information that
-    associates the `heroService` parameter with the `HeroService` class.
+    The constructor parameter type, the `@Component` #{_decorator},
+    and the parent's `providers` information combine to tell the
+    Angular injector to inject an instance of
+    `HeroService` whenever it creates a new `HeroListComponent`.
 
-    That's how the Angular injector knows to inject an instance of the `HeroService` when it
-    creates a new `HeroListComponent`.
-// #docregion di-create-injector-implicitly-1
+#di-metadata
 :marked
-  <a id="di-metadata"></a>
-  ### Creating the injector (implicitly)
-  When we introduced the idea of an injector above, we showed how to create
-  an injector and use it to create a new `Car`.
-// #enddocregion di-create-injector-implicitly-1
+  ### Implicit injector creation
+
+  When we introduced the idea of an injector above, we showed how to
+  use it to create a new `Car`. Here we also show how such an injector
+  would be explicitly created:
+
 +makeExample('dependency-injection/ts/app/car/car-injector.ts','injector-create-and-call')(format=".")
-// #docregion di-create-injector-implicitly-2
+
 :marked
   We won't find code like that in the Tour of Heroes or any of our other samples.
-  We *could* write [code with an explicit injector](#explicit-injector) if we *had* to, but we rarely do.
+  We *could* write code that [explicitly creates an injector](#explicit-injector) if we *had* to, but we rarely do.
   Angular takes care of creating and calling injectors
   when it creates components for us &mdash; whether through HTML markup, as in `<hero-list></hero-list>`,
   or after navigating to a component with the [router](./router.html).
   If we let Angular do its job, we'll enjoy the benefits of automated dependency injection.
-// #enddocregion di-create-injector-implicitly-2
-// #docregion di-singleton-services
+
 :marked
   ### Singleton services
+
   Dependencies are singletons within the scope of an injector.
   In our example, a single `HeroService` instance is shared among the
   `HeroesComponent` and its `HeroListComponent` children.
@@ -348,27 +348,25 @@ include ../_util-fns
   However, Angular DI is an hierarchical injection
   system, which means that nested injectors can create their own service instances.
   Learn more about that in the [Hierarchical Injectors](./hierarchical-dependency-injection.html) chapter.
-// #enddocregion di-singleton-services
 
-// Skip this for Dart, for now
-// #docregion di-testing-component-1
 :marked
   ### Testing the component
+
   We emphasized earlier that designing a class for dependency injection makes the class easier to test.
   Listing dependencies as constructor parameters may be all we need to test application parts effectively.
 
   For example, we can create a new `HeroListComponent` with a mock service that we can manipulate
   under test:
-// #enddocregion di-testing-component-1
+
 +makeExample('dependency-injection/ts/app/test.component.ts', 'spec')(format='.')
-// #docregion di-testing-component-2
+
 .l-sub-section
   :marked
     Learn more in [Testing](../testing/index.html).
-// #enddocregion di-testing-component-2
-// #docregion di-service-service-1
+
 :marked
   ### When the service needs a service
+
   Our `HeroService` is very simple. It doesn't have any dependencies of its own.
 
 
@@ -377,144 +375,110 @@ include ../_util-fns
   adding a constructor that takes a `Logger` parameter.
 
   Here is the revision compared to the original.
-// #enddocregion di-service-service-1
+
 +makeTabs(
   `dependency-injection/ts/app/heroes/hero.service.2.ts,
   dependency-injection/ts/app/heroes/hero.service.1.ts`,
   null,
-  `app/heroes/hero.service (v.2),
-  app/heroes/hero.service (v.1)`)
-// #docregion di-service-service-2
+  `app/heroes/hero.service (v2),
+  app/heroes/hero.service (v1)`)
+
 :marked
-  The constructor now asks for an injected instance of a `Logger` and stores it in a private property called `logger`.
+  The constructor now asks for an injected instance of a `Logger` and stores it in a private property called `#{_priv}logger`.
   We call that property within our `getHeroes` method when anyone asks for heroes.
-// #enddocregion di-service-service-2
-// #docregion di-injectable-1
-- var lang = current.path[1]
-- var decoration = lang == 'dart' ? 'annotation' : 'decoration'
-- var tsmetadata = lang == 'ts' ? 'As <a href="#di-metadata">we mentioned earlier</a>, <b>TypeScript only generates metadata for classes that have a decorator.</b>' : ''
+
+//- FIXME refer to Dart API when that page becomes available.
+- var injMetaUrl = 'https://angular.io/docs/ts/latest/api/core/index/InjectableMetadata-class.html';
+h3#injectable Why @Injectable()?
 :marked
-  <a id="injectable"></a>
-  ### Why @Injectable?
-  Notice the `@Injectable()` #{decoration} above the service class.
-  We haven't seen `@Injectable()` before.
-  As it happens, we could have added it to our first version of `HeroService`.
-  We didn't bother because we didn't need it then.
+  **<a href="#{injMetaUrl}">@Injectable()</a>** marks a class as available to an
+  injector for instantiation. Generally speaking, an injector will report an
+  error when trying to instantiate a class that is not marked as
+  `@Injectable()`.
 
-  We need it now... now that our service has an injected dependency.
-  We need it because Angular requires constructor parameter metadata in order to inject a `Logger`. !{tsmetadata}
-// #enddocregion di-injectable-1
+block injectable-not-always-needed-in-ts
+  .l-sub-section
+    :marked
+      As it happens, we could have omitted `@Injectable()` from our first
+      version of `HeroService` because it had no injected parameters.
+      But we must have it now that our service has an injected dependency.
+      We need it because Angular requires constructor parameter metadata 
+      in order to inject a `Logger`.
 
-// #docregion di-injectable-2
-- var lang = current.path[1]
-- var a_decorator = lang == 'dart' ? 'an annotation' : 'a decorator'
-- var decorated = lang == 'dart' ? 'annotated' : 'decorated'
-- var any_decorator = lang == 'dart' ? '' : 'TypeScript generates metadata for any class with a decorator, and any decorator will do.'
-.callout.is-helpful
-  header Suggestion: add @Injectable() to every service class
-  :marked
-    We recommend adding `@Injectable()` to every service class, even those that don't have dependencies
-    and, therefore, do not technically require it. Here's why:
-  ul(style="font-size:inherit")
-    li <b>Future proofing:</b> No need to remember <code>@Injectable()</code> when we add a dependency later.
-    li <b>Consistency:</b> All services follow the same rules, and we don't have to wonder why #{a_decorator} is missing.
+  .callout.is-helpful
+    header Suggestion: add @Injectable() to every service class
+    :marked
+      We recommend adding `@Injectable()` to every service class, even those that don't have dependencies
+      and, therefore, do not technically require it. Here's why:
 
-  :marked
-    Although we recommend applying `@Injectable` to all service classes, do not feel bound by it.
-    Some developers prefer to add it only where needed and that's a reasonable policy too.
+    ul(style="font-size:inherit")
+      li <b>Future proofing:</b> No need to remember <code>@Injectable()</code> when we add a dependency later.
+      li <b>Consistency:</b> All services follow the same rules, and we don't have to wonder why #{_a} #{_decorator} is missing.
 
-.l-sub-section
-  :marked
-    The `HeroesComponent` has an injected dependency too. Why don't we add `@Injectable()` to the `HeroesComponent`?
+:marked
+  Injectors are also responsible for instantiating components
+  like `HeroesComponent`. Why haven't we marked `HeroesComponent` as
+  `@Injectable()`?
 
-    We *can* add it if we really want to. It isn't necessary because
-    the `HeroesComponent` is already #{decorated} with `@Component`. #{any_decorator}
-// #enddocregion di-injectable-2
+  We *can* add it if we really want to. It isn't necessary because the
+  `HeroesComponent` is already marked with `@Component`, and this
+  !{_decorator} class (like `@Directive` and `@Pipe`, which we'll learn about later)
+  is a subtype of <a href="#{injMetaUrl}">InjectableMetadata</a>.  It is in
+  fact `InjectableMetadata` #{_decorator}s that
+  identify a class as a target for instantiation by an injector.
+
+block ts-any-decorator-will-do
+  .l-sub-section
+    :marked
+      Injectors use a class's constructor metadata to determine dependent types as
+      identified by the constructor's parameter types.
+      TypeScript generates such metadata for any class with a decorator, and any decorator will do.
+      But of course, it is more meaningful to mark a class using the appropriate
+      <a href="#{injMetaUrl}">InjectableMetadata</a> #{_decorator}.
+
 .callout.is-critical
   header Always include the parentheses
-  :marked
-    Always use `@Injectable()`, not just `@Injectable`.
-    Our application will fail mysteriously if we forget the parentheses.
+  block always-include-paren
+    :marked
+      Always write `@Injectable()`, not just `@Injectable`.
+      Our application will fail mysteriously if we forget the parentheses.
 
-// #docregion logger-service-1
-.l-main-section
+.l-main-section#logger-service
 :marked
   ## Creating and registering a logger service
+
   We're injecting a logger into our `HeroService` in two steps:
   1. Create the logger service.
   1. Register it with the application.
 
-  The logger service implementation is no big deal.
-// #enddocregion logger-service-1
-+makeExample(
-  'dependency-injection/ts/app/logger.service.ts',null, 'app/logger.service')
+  Our logger service is quite simple:
 
-// Copied into Dart, due to different directory structure
++makeExample('dependency-injection/ts/app/logger.service.ts', null, 'app/logger.service.ts')
+
+block real-logger
+  //- N/A
+
 :marked
   We're likely to need the same logger service everywhere in our application,
-  so we put it at the root level of the application in the `app/` folder, and
-  we register it in the `providers` array of the metadata for our application root component, `AppComponent`.
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-logger', 'app/app.component.ts (excerpt)')
-// #docregion logger-service-3
+  so we put it in the project's `#{_appDir}` folder, and
+  we register it in the `providers` #{_array} of the metadata for our application root component, `AppComponent`.
+
++makeExcerpt('app/providers.component.ts','providers-logger','app/app.component.ts (excerpt)')
+
 :marked
   If we forget to register the logger, Angular throws an exception when it first looks for the logger:
-code-example(format, language="html").
+code-example(format="nocode").
   EXCEPTION: No provider for Logger! (HeroListComponent -> HeroService -> Logger)
-// #enddocregion logger-service-3
-// #docregion logger-service-4
+
 :marked
   That's Angular telling us that the dependency injector couldn't find the *provider* for the logger.
   It needed that provider to create a `Logger` to inject into a new
   `HeroService`, which it needed to
   create and inject into a new `HeroListComponent`.
 
-  The chain of creations started with the `Logger` provider. The *provider* is the subject of our next section.
+  The chain of creations started with the `Logger` provider. *Providers* are the subject of our next section.
 
-  But wait!  What if the logger is optional?
-  <a id="optional"></a>
-  ### Optional dependencies
-
-  Our `HeroService` currently requires a `Logger`. What if we could get by without a logger?
-  We'd use it if we had it, ignore it if we didn't. We can do that.
-// #enddocregion logger-service-4
-
-// TypeScript only?
-:marked
-  First import the `@Optional()` decorator.
-+makeExample('dependency-injection/ts/app/providers.component.ts','import-optional')(format='.')
-
-// #docregion logger-service-5
-- var lang = current.path[1]
-- var rewrite = lang == 'dart' ? 'Just rewrite' : 'Then rewrite'
-- var decorator = lang == 'dart' ? 'annotation' : 'decorator'
-:marked
-  #{rewrite} the constructor with the `@Optional()` #{decorator} preceding the private `logger` parameter.
-  That tells the injector that `logger` is optional.
-// #enddocregion logger-service-5
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-10-ctor')(format='.')
-// #docregion logger-service-6
-:marked
-  Be prepared for a null logger. If we don't register one somewhere up the line,
-  the injector will inject `null`. We have a method that logs.
-  What can we do to avoid a null reference exception?
-
-  We could substitute a *do-nothing* logger stub so that calling methods continue to work:
-// #enddocregion logger-service-6
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-10-logger')(format='.')
-// #docregion logger-service-7
-:marked
-  Obviously we'd take a more sophisticated approach if the logger were optional
-  in multiple locations.
-
-  But enough about optional loggers. In our sample application, the `Logger` is required.
-  We must register a `Logger` with the application injector using *providers*,
-  as we learn in the next section.
-// #enddocregion logger-service-7
-
-// #docregion providers-1
-:marked
-<a id="providers"></a>
-.l-main-section
+.l-main-section#providers
 :marked
   ## Injector providers
 
@@ -524,20 +488,16 @@ code-example(format, language="html").
 
   We must register a service *provider* with the injector, or it won't know how to create the service.
 
-  Earlier we registered the `Logger` service in the `providers` array of the metadata for the `AppComponent` like this:
-// #enddocregion providers-1
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-logger')
-// #docregion providers-2
-- var lang = current.path[1]
-- var implements = lang == 'dart' ? 'implements' : 'looks and behaves like a '
-- var objectlike = lang == 'dart' ? '' : 'an object that behaves like '
-- var loggerlike = lang == 'dart' ? '' : 'We could provide a logger-like object. '
-:marked
-  The `providers` array appears to hold a service class.
-  In reality it holds an instance of the [Provider](../api/core/Provider-class.html) class that can create that service.
+  Earlier we registered the `Logger` service in the `providers` #{_array} of the metadata for the `AppComponent` like this:
 
++makeExample('dependency-injection/ts/app/providers.component.ts','providers-logger')
+
+- var implements = _docsFor == 'dart' ? 'implements' : 'looks and behaves like a '
+- var objectlike = _docsFor == 'dart' ? '' : 'an object that behaves like '
+- var loggerlike = _docsFor == 'dart' ? '' : 'We could provide a logger-like object. '
+:marked
   There are many ways to *provide* something that #{implements} `Logger`.
-  The `Logger` class itself is an obvious and natural provider &mdash; it has the right shape and it's designed to be created.
+  The `Logger` class itself is an obvious and natural provider.
   But it's not the only way.
 
   We can configure the injector with alternative providers that can deliver #{objectlike} a `Logger`.
@@ -546,80 +506,79 @@ code-example(format, language="html").
   Any of these approaches might be a good choice under the right circumstances.
 
   What matters is that the injector has a provider to go to when it needs a `Logger`.
-// #enddocregion providers-2
-// #docregion providers-provide-1
-:marked
-  <a id="provide"></a>
-// #enddocregion providers-provide-1
 
-// Don't mention provide function in Dart
+//- Dart limitation: the provide function isn't const so it cannot be used in an annotation.
+- var __andProvideFn = _docsFor == 'dart' ? '' : 'and <i>provide</i> function';
+#provide
 :marked
-  ### The *Provider* class and *provide* function
-// #docregion providers-provide-1-1
+  ### The *Provider* class !{__andProvideFn}
+
 :marked
-  We wrote the `providers` array like this:
-// #enddocregion providers-provide-1-1
+  We wrote the `providers` #{_array} like this:
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-1')
-// #docregion providers-provide-2
+
 :marked
   This is actually a short-hand expression for a provider registration that creates a new instance of the
   [Provider](../api/core/Provider-class.html) class.
-// #enddocregion providers-provide-2
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-2')
-// #docregion providers-provide-3
-// Skip for Dart, where the provide() function won't pass type checking.
-:marked
-  The [provide](../api/core/provide-function.html) function is the typical way to create a `Provider`:
-// #enddocregion providers-provide-3
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-3')
-// #docregion providers-provide-4-1
-// Modified for Dart.
 
-:marked
- Or we can declare a provider in an _object literal_ and skip the `provide` function.
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-3a')  
+block provider-function-etc
+  :marked
+    The [provide](../api/core/provide-function.html) function is the typical way 
+    to create a `Provider`:
 
-:marked
-  Pick the syntax that you prefer. They all do the same thing.
-  
-  In each syntax, we supply two types of values.
-// #enddocregion providers-provide-4-1
-// #docregion providers-provide-4-2
+  +makeExample('dependency-injection/ts/app/providers.component.ts','providers-3')
+
+  :marked
+   Or we can declare a provider in an _object literal_ and skip the `provide` function.
+
+  +makeExample('dependency-injection/ts/app/providers.component.ts','providers-3a')  
+
+  :marked
+    Pick the syntax that you prefer. They all do the same thing.
+
+block provider-ctor-args
+  - var _secondParam = 'provider definition object';
+  :marked
+    In each syntax, we supply two types of values.
+
+//- var _secondParam = _docsFor == 'dart' ? 'named parameter, such as <code>useClass</code>' : 'provider definition object';
 :marked
   The first is the [token](#token) that serves as the key for both locating a dependency value
   and registering the provider.
-// #enddocregion providers-provide-4-2
 
-// Dart is different here (uses an optional parameter)
+  The second is a !{_secondParam}, 
+  which we can think of as a *recipe* for creating the dependency value. 
+  There are many ways to create dependency values ... and many ways to write a recipe.
+
+#class-provider
 :marked
-  The second is a provider definition object,
-  which we can think of as a *recipe* for creating the dependency value.
-  There are many ways to create dependency values... and many ways to write a recipe.
-  
-// #docregion providers-alternative-1
-:marked
-  <a id="class-provider"></a>
   ### Alternative class providers
 
   Occasionally we'll ask a different class to provide the service.
   The following code tells the injector
   to return a `BetterLogger` when something asks for the `Logger`.
-// #enddocregion providers-alternative-1
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-4')
-// #docregion providers-alternative-2
+
+block dart-diff-const-metadata
+  //- N/A
+
 :marked
   ### Class provider with dependencies
   Maybe an `EvenBetterLogger` could display the user name in the log message.
   This logger gets the user from the injected `UserService`,
   which happens also to be injected at the application level.
-// #enddocregion providers-alternative-2
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','EvenBetterLogger')(format='.')
-// #docregion providers-alternative-3
+
 :marked
   Configure it like we did `BetterLogger`.
-// #enddocregion providers-alternative-3
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-5')(format=".")
-// #docregion providers-aliased-1
+
 :marked
   ### Aliased class providers
 
@@ -636,30 +595,40 @@ code-example(format, language="html").
 
   We certainly do not want two different `NewLogger` instances in our app.
   Unfortunately, that's what we get if we try to alias `OldLogger` to `NewLogger` with `useClass`.
-// #enddocregion providers-aliased-1
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-6a')(format=".")
-// #docregion providers-aliased-2
+
 :marked
-  The solution: Alias with the `useExisting` option.
-// #enddocregion providers-aliased-2
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-6b')(format=".")
-// #docregion providers-value-1
-<a id="value-provider"></a>
+  The solution: alias with the `useExisting` option.
+
+- var stylePattern = { otl: /(useExisting: \w*)/gm };
++makeExample('dependency-injection/ts/app/providers.component.ts','providers-6b', '', stylePattern)(format=".")
+
+#value-provider
 :marked
   ### Value providers
-// #enddocregion providers-value-1
 
-// Typescript only
 :marked
   Sometimes it's easier to provide a ready-made object rather than ask the injector to create it from a class.
+
+block dart-diff-const-metadata-ctor
+  //- N/A
+
 +makeExample('dependency-injection/ts/app/providers.component.ts','silent-logger')(format=".")
+
 :marked
   Then we register a provider with the `useValue` option,
   which makes this object play the logger role.
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-7')(format=".")
 
-// #docregion providers-factory-1
-<a id="factory-provider"></a>
+- var stylePattern = { otl: /(useValue: \w*)/gm };
++makeExample('dependency-injection/ts/app/providers.component.ts','providers-7', '', stylePattern)(format=".")
+
+:marked
+  See more `useValue` examples in the
+  [Non-class dependencies](#non-class-dependencies) and
+  [OpaqueToken](#opaquetoken) sections.
+
+#factory-provider
 :marked
   ### Factory providers
 
@@ -672,7 +641,7 @@ code-example(format, language="html").
   This situation calls for a **factory provider**.
 
   Let's illustrate by adding a new business requirement:
-  The HeroService must hide *secret* heroes from normal users.
+  the HeroService must hide *secret* heroes from normal users.
   Only authorized users should see secret heroes.
 
   Like the `EvenBetterLogger`, the `HeroService` needs a fact about the user.
@@ -683,61 +652,61 @@ code-example(format, language="html").
   Unlike `EvenBetterLogger`, we can't inject the `UserService` into the `HeroService`.
   The `HeroService` won't have direct access to the user information to decide
   who is authorized and who is not.
+
 .l-sub-section
   :marked
     Why? We don't know either. Stuff like this happens.
+
 :marked
   Instead the `HeroService` constructor takes a boolean flag to control display of secret heroes.
-// #enddocregion providers-factory-1
+
 +makeExample('dependency-injection/ts/app/heroes/hero.service.ts','internals', 'app/heroes/hero.service.ts (excerpt)')(format='.')
-// #docregion providers-factory-2
+
 :marked
   We can inject the `Logger`, but we can't inject the  boolean `isAuthorized`.
   We'll have to take over the creation of new instances of this `HeroService` with a factory provider.
 
   A factory provider needs a factory function:
-// #enddocregion providers-factory-2
+
 +makeExample('dependency-injection/ts/app/heroes/hero.service.provider.ts','factory', 'app/heroes/hero.service.provider.ts (excerpt)')(format='.')
-// #docregion providers-factory-3
+
 :marked
   Although the `HeroService` has no access to the `UserService`, our factory function does.
 
   We inject both the `Logger` and the `UserService` into the factory provider and let the injector pass them along to the factory function:
-// #enddocregion providers-factory-3
+
 +makeExample('dependency-injection/ts/app/heroes/hero.service.provider.ts','provider', 'app/heroes/hero.service.provider.ts (excerpt)')(format='.')
-// #docregion providers-factory-4
+
 .l-sub-section
   :marked
     The `useFactory` field tells Angular that the provider is a factory function
     whose implementation is the `heroServiceFactory`.
 
-    The `deps` property is an array of [provider tokens](#token).
+    The `deps` property is #{_an} #{_array} of [provider tokens](#token).
     The `Logger` and `UserService` classes serve as tokens for their own class providers.
     The injector resolves these tokens and injects the corresponding services into the matching factory function parameters.
-// #enddocregion providers-factory-4
-// #docregion providers-factory-5
-- var lang = current.path[1]
-- var anexportedvar = lang == 'dart' ? 'a constant' : 'an exported variable'
-- var variable = lang == 'dart' ? 'constant' : 'variable'
+
+- var exportedvar = _docsFor == 'dart' ? 'constant' : 'exported variable'
+- var variable = _docsFor == 'dart' ? 'constant' : 'variable'
 :marked
-  Notice that we captured the factory provider in #{anexportedvar}, `heroServiceProvider`.
+  Notice that we captured the factory provider in #{_an} #{exportedvar}, `heroServiceProvider`.
   This extra step makes the factory provider reusable.
   We can register our `HeroService` with this #{variable} wherever we need it.
 
   In our sample, we need it only in the `HeroesComponent`,
-  where it replaces the previous `HeroService` registration in the metadata `providers` array.
+  where it replaces the previous `HeroService` registration in the metadata `providers` #{_array}.
   Here we see the new and the old implementation side-by-side:
-// #enddocregion providers-factory-5
+
+- var stylePattern = { otl: /(providers.*),$/gm };
 +makeTabs(
   `dependency-injection/ts/app/heroes/heroes.component.ts,
   dependency-injection/ts/app/heroes/heroes.component.1.ts`,
-  null,
-  `app/heroes/heroes.component (v.3),
-  app/heroes/heroes.component (v.2)`)
+  ',full',
+  `app/heroes/heroes.component (v3),
+  app/heroes/heroes.component (v2)`,
+  stylePattern)
 
-// #docregion tokens-1
-<a id="token"></a>
-.l-main-section
+.l-main-section#token
 :marked
   ## Dependency injection tokens
 
@@ -748,105 +717,119 @@ code-example(format, language="html").
   In all previous examples, the dependency value has been a class *instance*, and
   the class *type* served as its own lookup key.
   Here we get a `HeroService` directly from the injector by supplying the `HeroService` type as the token:
-// #enddocregion tokens-1
+
 +makeExample('dependency-injection/ts/app/injector.component.ts','get-hero-service')(format='.')
-// #docregion tokens-2
+
 :marked
   We have similar good fortune when we write a constructor that requires an injected class-based dependency.
   We define a constructor parameter with the `HeroService` class type,
   and Angular knows to inject the
   service associated with that `HeroService` class token:
-// #enddocregion tokens-2
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-8-ctor')(format=".")
-// #docregion tokens-3
+
++makeExample('dependency-injection/ts/app/heroes/hero-list.component.ts', 'ctor-signature')
+
 :marked
   This is especially convenient when we consider that most dependency values are provided by classes.
-// #enddocregion tokens-3
 
-// #docregion tokens-non-class-deps-1
-- var lang = current.path[1]
-- var objectexamples = lang == 'dart' ? 'a string or list literal, or maybe a function' : 'a string, a function, or an object'
-// Is function injection useful? Should we show it?
+//- TODO: if function injection is useful explain or illustrate why.
 :marked
   ### Non-class dependencies
+p
+  | What if the dependency value isn't a class? Sometimes the thing we want to inject is a 
+  block non-class-dep-eg
+    span string, function, or object.
+p
+  | Applications often define configuration objects with lots of small facts 
+  | (like the title of the application or the address of a web API endpoint)
+  block config-obj-maps
+    | &nbsp;but these configuration objects aren't always instances of a class.
+    | They can be object literals 
+  | &nbsp;such as this one:
 
-  What if the dependency value isn't a class?
-  Sometimes the thing we want to inject is #{objectexamples}.
-// #enddocregion tokens-non-class-deps-1
-
-// TS/JS only
-:marked
-  Applications often define configuration objects with lots of small facts like the title of the application or the address of a web API endpoint.
-  These configuration objects aren't always instances of a class. They tend to be object hashes like this one:
 +makeExample('dependency-injection/ts/app/app.config.ts','config','app/app-config.ts (excerpt)')(format='.')
 
-// TypeScript only?
 :marked
-  We'd like to make this `config` object available for injection.
+  We'd like to make this configuration object available for injection.
   We know we can register an object with a [value provider](#value-provider).
-  But what do we use for the token?
-  We don't have a class to serve as a token. There is no `Config` class.
 
-// Typescript only
-<a id="interface"></a>
-.l-sub-section
+block what-should-we-use-as-token
   :marked
-    ### TypeScript interfaces aren't valid tokens
+    But what should we use as the token?
+    We don't have a class to serve as a token.
+    There is no `AppConfig` class.
 
-    The `CONFIG` constant has an interface, `Config`. Unfortunately, we
-    cannot use a TypeScript interface as a token:
-  +makeExample('dependency-injection/ts/app/providers.component.ts','providers-9a-interface')(format=".")
-  +makeExample('dependency-injection/ts/app/providers.component.ts','provider-9a-ctor-interface')(format=".")
-  :marked
-    That seems strange if we're used to dependency injection in strongly typed languages, where
-    an interface is the preferred dependency lookup key.
+  .l-sub-section#interface
+    :marked
+      ### TypeScript interfaces aren't valid tokens
 
-    It's not Angular's fault. An interface is a TypeScript design-time artifact. JavaScript doesn't have interfaces.
-    The TypeScript interface disappears from the generated JavaScript.
-    There is no interface type information left for Angular to find at runtime.
-// end Typescript only
+      The `HERO_DI_CONFIG` constant has an interface, `AppConfig`. Unfortunately, we
+      cannot use a TypeScript interface as a token:
+    +makeExample('dependency-injection/ts/app/providers.component.ts','providers-9-interface')(format=".")
+    +makeExample('dependency-injection/ts/app/providers.component.ts','provider-9-ctor-interface')(format=".")
+    :marked
+      That seems strange if we're used to dependency injection in strongly typed languages, where
+      an interface is the preferred dependency lookup key.
 
-// #docregion tokens-opaque-1
-<a id="opaque-token"></a>
-- var lang = current.path[1]
-- var opaquetoken = lang == 'dart' ? '<code>OpaqueToken</code>' : '<a href="../api/core/OpaqueToken-class.html"><code>OpaqueToken</code></a>'
-h3 OpaqueToken
-p.
-  The solution is to define and use an !{opaquetoken}.
+      It's not Angular's fault. An interface is a TypeScript design-time artifact. JavaScript doesn't have interfaces.
+      The TypeScript interface disappears from the generated JavaScript.
+      There is no interface type information left for Angular to find at runtime.
+
+//- FIXME simplify once APIs are defined for Dart.
+- var opaquetoken = _docsFor == 'dart' ? '<b>OpaqueToken</b>' : '<a href="../api/core/OpaqueToken-class.html"><b>OpaqueToken</b></a>'
+:marked
+  ### OpaqueToken
+
+  One solution to choosing a provider token for non-class dependencies is
+  to define and use an !{opaquetoken}.
   The definition looks like this:
-// #enddocregion tokens-opaque-1
+
 +makeExample('dependency-injection/ts/app/app.config.ts','token')(format='.')
+
 :marked
   We register the dependency provider using the `OpaqueToken` object:
-+makeExample('dependency-injection/ts/app/providers.component.ts','providers-9b')(format=".")
-// #docregion tokens-opaque-2
-- var lang = current.path[1]
-- var decorated = lang == 'dart' ? 'annotated' : 'decorated'
-- var configuration = lang == 'dart' ? '' : 'configuration'
-:marked
-  Now we can inject the #{configuration} object into any constructor that needs it, with
-  the help of an `@Inject` #{decorator} that tells Angular how to find the #{configuration} dependency value.
-// #enddocregion tokens-opaque-2
-+makeExample('dependency-injection/ts/app/providers.component.ts','provider-9b-ctor')(format=".")
 
-// begin Typescript only
++makeExample('dependency-injection/ts/app/providers.component.ts','providers-9')(format=".")
+
+:marked
+  Now we can inject the configuration object into any constructor that needs it, with
+  the help of an `@Inject` #{_decorator}:
+
++makeExample('dependency-injection/ts/app/app.component.2.ts','ctor')(format=".")
+
+- var configType = _docsFor == 'dart' ? '<code>Map</code>' : '<code>AppConfig</code>'
 .l-sub-section
   :marked
-    Although it plays no role in dependency injection,
-    the `Config` interface supports strong typing of the configuration object within the class.
-:marked
-// end typescript only
+    Although the !{configType} interface plays no role in dependency injection,
+    it supports typing of the configuration object within the class.
 
-// Skip for Dart (we have another example)
-:marked
-  Or we can provide and inject the configuration object in our top-level `AppComponent`.
-+makeExample('dependency-injection/ts/app/app.component.ts','providers', 'app/app.component.ts (providers)')(format=".")
-+makeExample('dependency-injection/ts/app/app.component.ts','ctor', 'app/app.component.ts (constructor)')(format=".")
+block dart-map-alternative
+  :marked
+    Or we can provide and inject the configuration object in our top-level `AppComponent`.
 
-// #docregion summary
+  +makeExcerpt('app/app.component.ts','providers')
+
+#optional
+:marked
+  ## Optional dependencies
+
+  Our `HeroService` *requires* a `Logger`, but what if it could get by without
+  a logger?
+  We can tell Angular that the dependency is optional by annotating the 
+  constructor argument with `@Optional()`:
+
++ifDocsFor('ts')
+  +makeExample('dependency-injection/ts/app/providers.component.ts','import-optional', '')
++makeExample('dependency-injection/ts/app/providers.component.ts','provider-10-ctor', '')(format='.')
+
+:marked
+  When using `@Optional()`, our code must be prepared for a null value. If we
+  don't register a logger somewhere up the line, the injector will set the
+  value of `logger` to null.
+
 .l-main-section
 :marked
   ## Summary
+
   We learned the basics of Angular dependency injection in this chapter.
   We can register various kinds of providers,
   and we know how to ask for an injected object (such as a service) by
@@ -856,20 +839,18 @@ p.
   We can learn more about its advanced features, beginning with its support for
   nested injectors, in the
   [Hierarchical Dependency Injection](hierarchical-dependency-injection.html) chapter.
-// #enddocregion summary
 
-// #docregion appendix-explicit-injector-1
-.l-main-section
-<a id="explicit-injector"></a>
+.l-main-section#explicit-injector
 :marked
-  ### Appendix: Working with injectors directly
-  We rarely work directly with an injector.
-  Here's an `InjectorComponent` that does.
-// #enddocregion appendix-explicit-injector-1
+  ## Appendix: Working with injectors directly
+
+  We rarely work directly with an injector, but
+  here's an `InjectorComponent` that does.
+
 +makeExample('dependency-injection/ts/app/injector.component.ts', 'injector', 'app/injector.component.ts')
-// #docregion appendix-explicit-injector-2
+
 :marked
-  The `Injector` is itself an injectable service.
+  An `Injector` is itself an injectable service.
 
   In this example, Angular injects the component's own `Injector` into the component's constructor.
   The component then asks the injected injector for the services it wants.
@@ -896,26 +877,24 @@ p.
 
     Framework developers may take this approach when they
     must acquire services generically and dynamically.
-// #enddocregion appendix-explicit-injector-2
 
-// TypeScript only? Unnecessary for Dart
-.l-main-section
-<a id="forward-ref"></a>
-:marked
-  ### Appendix: Why we recommend one class per file
-
-  Having multiple classes in the same file is confusing and best avoided.
-  Developers expect one class per file. Keep them happy.
-
-  If we scorn this advice and, say,
-  combine our `HeroService` class with the `HeroesComponent` in the same file,
-  **define the component last!**
-  If we define the component before the service,
-  we'll get a runtime null reference error.
-
-.l-sub-section
+block one-class-per-file-ts-tradeoffs
+  .l-main-section#one-class-per-file
   :marked
-    We actually can define the component first with the help of the `forwardRef()` method as explained
-    in this [blog post](http://blog.thoughtram.io/angular/2015/09/03/forward-references-in-angular-2.html).
-    But why flirt with trouble?
-    Avoid the problem altogether by defining components and services in separate files.
+    ## Appendix: Why we recommend one class per file
+
+    Having multiple classes in the same file is confusing and best avoided.
+    Developers expect one class per file. Keep them happy.
+
+    If we scorn this advice and, say,
+    combine our `HeroService` class with the `HeroesComponent` in the same file,
+    **define the component last!**
+    If we define the component before the service,
+    we'll get a runtime null reference error.
+
+  .l-sub-section
+    :marked
+      We actually can define the component first with the help of the `forwardRef()` method as explained
+      in this [blog post](http://blog.thoughtram.io/angular/2015/09/03/forward-references-in-angular-2.html).
+      But why flirt with trouble?
+      Avoid the problem altogether by defining components and services in separate files.
