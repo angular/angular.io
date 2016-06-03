@@ -35,13 +35,8 @@ describe('Dependency Injection Cookbook', function () {
       expect(sortedHero).toBeDefined();
     });
 
-    it('should render Hero of the Month when DI deps are defined using provide()', function () {
+    it('should render Hero of the Month', function () {
       let heroOfTheMonth = element.all(by.xpath('//h3[text()="Hero of the month"]')).get(0);
-      expect(heroOfTheMonth).toBeDefined();
-    });
-
-    it('should render Hero of the Month when DI deps are defined using provide object literal', function () {
-      let heroOfTheMonth = element.all(by.xpath('//h3[text()="Hero of the month 2"]')).get(0);
       expect(heroOfTheMonth).toBeDefined();
     });
 
@@ -60,13 +55,8 @@ describe('Dependency Injection Cookbook', function () {
       expect(magmaPhone).toBeDefined();
     });
 
-    it('should render Hero-of-the-Month runner-ups when DI deps are defined using provide()', function () {
+    it('should render Hero-of-the-Month runner-ups', function () {
       let runnersUp =  element(by.id('rups1')).getText();
-      expect(runnersUp).toContain('RubberMan, Mr. Nice');
-    });
-
-    it('should render Hero-of-the-Month runner-ups when DI deps are defined using provide object literal', function () {
-      let runnersUp =  element(by.id('rups2')).getText();
       expect(runnersUp).toContain('RubberMan, Mr. Nice');
     });
 

@@ -1,6 +1,5 @@
 // #docregion
 // #docregion imports
-import { provide } from '@angular/core';
 import {
   LocationStrategy,
   HashLocationStrategy,
@@ -17,8 +16,8 @@ import { AppComponent } from './app.component';
 bootstrap(AppComponent, [
   HTTP_PROVIDERS,
   ROUTER_PROVIDERS,
-  provide(APP_BASE_HREF, {useValue: '!'}),
-  provide(LocationStrategy, {useClass: HashLocationStrategy}),
+  { provide: APP_BASE_HREF, useValue: '!' },
+  { provide: LocationStrategy, useClass: HashLocationStrategy },
   Phone
 ]);
 // #enddocregion bootstrap

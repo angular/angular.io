@@ -7,7 +7,7 @@ export const TITLE = new OpaqueToken('title');
 // #enddocregion opaque-token
 
 // #docregion hero-of-the-month
-import { Component, Inject, provide } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 
 import { DateLoggerService,
          MinimalLogger }     from './date-logger.service';
@@ -40,20 +40,20 @@ const template = `
   template: template,
   providers: [
     // #docregion use-value
-    provide(Hero,          {useValue:    someHero}),
+    { provide: Hero,          useValue:    someHero },
     // #docregion provide-opaque-token
-    provide(TITLE,         {useValue:   'Hero of the Month'}),
+    { provide: TITLE,         useValue:   'Hero of the Month' },
     // #enddocregion provide-opaque-token
     // #enddocregion use-value
     // #docregion use-class
-    provide(HeroService,   {useClass:    HeroService}),
-    provide(LoggerService, {useClass:    DateLoggerService}),
+    { provide: HeroService,   useClass:    HeroService },
+    { provide: LoggerService, useClass:    DateLoggerService },
     // #enddocregion use-class
     // #docregion use-existing
-    provide(MinimalLogger, {useExisting: LoggerService}),
+    { provide: MinimalLogger, useExisting: LoggerService },
     // #enddocregion use-existing
     // #docregion provide-opaque-token, use-factory
-    provide(RUNNERS_UP,    {useFactory:  runnersUpFactory(2), deps: [Hero, HeroService]})
+    { provide: RUNNERS_UP,    useFactory:  runnersUpFactory(2), deps: [Hero, HeroService] }
     // #enddocregion provide-opaque-token, use-factory
   ]
 })
