@@ -1,6 +1,4 @@
 // #docregion
-import { provide }     from '@angular/core';
-
 import { HeroService } from './hero.service';
 import { Logger }      from '../logger.service';
 import { UserService } from '../user.service';
@@ -13,8 +11,8 @@ let heroServiceFactory = (logger: Logger, userService: UserService) => {
 
 // #docregion provider
 export let heroServiceProvider =
-  provide(HeroService, {
+  { provide: HeroService,
     useFactory: heroServiceFactory,
     deps: [Logger, UserService]
-  });
+  };
 // #enddocregion provider

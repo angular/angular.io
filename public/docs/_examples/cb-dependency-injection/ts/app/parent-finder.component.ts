@@ -22,14 +22,17 @@ const DifferentParent = Parent;
 const provideParent =
 // #enddocregion provide-parent, provide-the-parent
 // #docregion provide-parent
-  (component: any, parentType?: any) =>
-    provide(parentType || Parent, { useExisting: forwardRef(() => component) });
+  (component: any, parentType?: any) => {
+    return { provide: parentType || Parent, useExisting: forwardRef(() => component) }
+  };
 // #enddocregion provide-parent
 
 // Simpler syntax version that always provides the component in the name of `Parent`.
 const provideTheParent =
 // #docregion provide-the-parent
-  (component: any) => provide(Parent, { useExisting: forwardRef(() => component) });
+  (component: any) => {
+    return { provide: Parent, useExisting: forwardRef(() => component) }
+  };
 // #enddocregion provide-the-parent
 
 
@@ -105,7 +108,7 @@ const templateB = `
   selector:   'barry',
   template:   templateB,
   directives: C_DIRECTIVES,
-  providers:  [ provide(Parent, { useExisting: forwardRef(() => BarryComponent) }) ]
+  providers:  [{ provide: Parent, useExisting: forwardRef(() => BarryComponent) }]
 })
 export class BarryComponent implements Parent {
   name = 'Barry';
@@ -155,7 +158,7 @@ const B_DIRECTIVES = [ BarryComponent, BethComponent, BobComponent ];
     </div>`,
 // #enddocregion alex-1
 // #docregion alex-providers
-  providers: [ provide(Parent, { useExisting: forwardRef(() => AlexComponent) }) ],
+  providers: [{ provide: Parent, useExisting: forwardRef(() => AlexComponent) }],
 // #enddocregion alex-providers
 // #docregion alex-1
   directives: C_DIRECTIVES

@@ -9,13 +9,10 @@ import { HeroesBaseComponent,
 import { HighlightDirective }          from './highlight.directive';
 import { ParentFinderComponent }       from './parent-finder.component';
 
-// Object Literal syntax
-import { HeroOfTheMonthLiteralsComponent } from './hero-of-the-month-literals.component';
-
 const DIRECTIVES = [
     HeroBiosComponent, HeroBiosAndContactsComponent,
     HeroesBaseComponent, SortedHeroesComponent,
-    HeroOfTheMonthComponent, HeroOfTheMonthLiteralsComponent,
+    HeroOfTheMonthComponent,
     HighlightDirective,
     ParentFinderComponent
 ];

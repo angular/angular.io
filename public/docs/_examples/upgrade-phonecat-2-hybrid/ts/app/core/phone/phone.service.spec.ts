@@ -1,5 +1,4 @@
 // #docregion
-import { provide } from '@angular/core';
 import {
   describe,
   beforeEach,
@@ -29,11 +28,11 @@ describe('Phone', function() {
     Phone,
     MockBackend,
     BaseRequestOptions,
-    provide(Http, {
+    { provide: Http,
       useFactory: (backend: MockBackend, options: BaseRequestOptions) =>
                     new Http(backend, options),
       deps: [MockBackend, BaseRequestOptions]
-    })
+    }
   ]);
 
   beforeEach(inject([MockBackend, Phone],

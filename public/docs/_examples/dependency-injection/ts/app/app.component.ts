@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion imports
-import { Component, Inject, provide } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 
 import { CarComponent }      from './car/car.component';
 import { HeroesComponent }   from './heroes/heroes.component';
@@ -37,7 +37,7 @@ import { ProvidersComponent } from './providers.component';
   providers: [
     Logger,
     UserService,
-    provide(APP_CONFIG, {useValue: HERO_DI_CONFIG})
+    { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
   ]
   // #enddocregion providers
 })

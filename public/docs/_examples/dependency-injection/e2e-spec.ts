@@ -80,18 +80,8 @@ describe('Dependency Injection Tests', function () {
       expect(element(by.css('#p1')).getText()).toEqual(expectedMsg);
     });
 
-    it('P2 (Provider) displays as expected', function () {
-      expectedMsg = 'Hello from logger provided with Provider class and useClass';
-      expect(element(by.css('#p2')).getText()).toEqual(expectedMsg);
-    });
-
-    it('P3 (provide) displays as expected', function () {
-      expectedMsg = 'Hello from logger provided with useClass';
-      expect(element(by.css('#p3')).getText()).toEqual(expectedMsg);
-    });
-
     it('P3a (provide) displays as expected', function () {
-      expectedMsg = 'Hello from logger provided with {provide: Logger, useClass: Logger}';
+      expectedMsg = 'Hello from logger provided with { provide: Logger, useClass: Logger }';
       expect(element(by.css('#p3a')).getText()).toEqual(expectedMsg);
     });
 

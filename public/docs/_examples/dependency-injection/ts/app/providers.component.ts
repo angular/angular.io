@@ -1,8 +1,7 @@
 /* tslint:disable:one-line:check-open-brace*/
 // Examples of provider arrays
 // #docplaster
-import { Component, Inject, Injectable,
-         provide, Provider }    from '@angular/core';
+import { Component, Inject, Injectable } from '@angular/core';
 
 import { APP_CONFIG, AppConfig,
          HERO_DI_CONFIG }       from './app.config';
@@ -32,51 +31,17 @@ export class ProviderComponent1 {
 
 //////////////////////////////////////////
 @Component({
-  selector: 'provider-2',
-  template: template,
-  providers:
-    // #docregion providers-2
-    [new Provider(Logger, {useClass: Logger})]
-    // #enddocregion providers-2
-})
-export class ProviderComponent2 {
-  log: string;
-  constructor(logger: Logger) {
-    logger.log('Hello from logger provided with Provider class and useClass');
-    this.log = logger.logs[0];
-  }
-}
-
-//////////////////////////////////////////
-@Component({
-  selector: 'provider-3',
-  template: template,
-  providers:
-    // #docregion providers-3
-    [provide(Logger, {useClass: Logger})]
-    // #enddocregion providers-3
-})
-export class ProviderComponent3 {
-  log: string;
-  constructor(logger: Logger) {
-    logger.log('Hello from logger provided with useClass');
-    this.log = logger.logs[0];
-  }
-}
-
-//////////////////////////////////////////
-@Component({
   selector: 'provider-3a',
   template: template,
   providers:
     // #docregion providers-3a
-    [{provide: Logger, useClass: Logger}]
+    [{ provide: Logger, useClass: Logger }]
     // #enddocregion providers-3a
 })
 export class ProviderComponent3a {
   log: string;
   constructor(logger: Logger) {
-    logger.log('Hello from logger provided with {provide: Logger, useClass: Logger}');
+    logger.log('Hello from logger provided with { provide: Logger, useClass: Logger }');
     this.log = logger.logs[0];
   }
 }
@@ -89,7 +54,7 @@ class BetterLogger extends Logger {}
   template: template,
   providers:
     // #docregion providers-4
-    [provide(Logger, {useClass: BetterLogger})]
+    [{ provide: Logger, useClass: BetterLogger }]
     // #enddocregion providers-4
 })
 export class ProviderComponent4 {
@@ -119,7 +84,7 @@ class EvenBetterLogger extends Logger {
   providers:
     // #docregion providers-5
     [ UserService,
-      provide(Logger, {useClass: EvenBetterLogger}) ]
+      { provide: Logger, useClass: EvenBetterLogger }]
     // #enddocregion providers-5
 })
 export class ProviderComponent5 {
@@ -146,7 +111,7 @@ class OldLogger {
     // #docregion providers-6a
     [ NewLogger,
       // Not aliased! Creates two instances of `NewLogger`
-      provide(OldLogger, {useClass: NewLogger}) ]
+      { provide: OldLogger, useClass: NewLogger}]
     // #enddocregion providers-6a
 })
 export class ProviderComponent6a {
@@ -169,7 +134,7 @@ export class ProviderComponent6a {
     // #docregion providers-6b
     [ NewLogger,
       // Alias OldLogger w/ reference to NewLogger
-      provide(OldLogger, {useExisting: NewLogger}) ]
+      { provide: OldLogger, useExisting: NewLogger}]
     // #enddocregion providers-6b
 })
 export class ProviderComponent6b {
@@ -197,7 +162,7 @@ let silentLogger = {
   template: template,
   providers:
     // #docregion providers-7
-    [provide(Logger, {useValue: silentLogger})]
+    [{ provide: Logger, useValue: silentLogger }]
     // #enddocregion providers-7
 })
 export class ProviderComponent7 {
@@ -230,11 +195,11 @@ export class ProviderComponent8 {
   /*
    // #docregion providers-9-interface
    // FAIL!  Can't use interface as provider token
-   [provide(AppConfig, {useValue: HERO_DI_CONFIG})]
+   [{ provide: AppConfig, useValue: HERO_DI_CONFIG })]
    // #enddocregion providers-9-interface
    */
   // #docregion providers-9
-  providers: [provide(APP_CONFIG, {useValue: HERO_DI_CONFIG})]
+  providers: [{ provide: APP_CONFIG, useValue: HERO_DI_CONFIG }]
   // #enddocregion providers-9
 })
 export class ProviderComponent9 {
@@ -257,7 +222,7 @@ export class ProviderComponent9 {
 // Sample providers 1 to 7 illustrate a required logger dependency.
 // Optional logger, can be null
 // #docregion import-optional
-import {Optional} from '@angular/core';
+import { Optional } from '@angular/core';
 // #enddocregion import-optional
 
 let some_message: string = 'Hello from the injected logger';
@@ -286,8 +251,6 @@ export class ProviderComponent10 {
   template: `
   <h2>Provider variations</h2>
   <div id="p1"><provider-1></provider-1></div>
-  <div id="p2"><provider-2></provider-2></div>
-  <div id="p3"><provider-3></provider-3></div>
   <div id="p3a"><provider-3a></provider-3a></div>
   <div id="p4"><provider-4></provider-4></div>
   <div id="p5"><provider-5></provider-5></div>
@@ -300,8 +263,6 @@ export class ProviderComponent10 {
   `,
   directives: [
     ProviderComponent1,
-    ProviderComponent2,
-    ProviderComponent3,
     ProviderComponent3a,
     ProviderComponent4,
     ProviderComponent5,

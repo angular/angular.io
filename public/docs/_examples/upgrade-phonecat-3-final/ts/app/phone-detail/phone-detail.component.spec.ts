@@ -1,5 +1,4 @@
 // #docregion
-import { provide } from '@angular/core';
 import { HTTP_PROVIDERS } from '@angular/http';
 // #docregion routeparams
 import { RouteParams } from '@angular/router-deprecated';
@@ -41,8 +40,8 @@ describe('PhoneDetailComponent', () => {
   // #docregion routeparams
 
   beforeEachProviders(() => [
-    provide(Phone, {useClass: MockPhone}),
-    provide(RouteParams, {useValue: new RouteParams({phoneId: 'xyz'})}),
+    { provide: Phone, useClass: MockPhone },
+    { provide: RouteParams, useValue: new RouteParams({phoneId: 'xyz'})},
     HTTP_PROVIDERS
   ]);
   // #enddocregion routeparams
