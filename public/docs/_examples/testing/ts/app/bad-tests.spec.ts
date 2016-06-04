@@ -4,7 +4,7 @@
  * Tests that show what goes wrong when the tests are incorrectly written or have a problem
  */
 import {
-  BadTemplateUrl, ButtonComp,
+  BadTemplateUrlComp, ButtonComp,
   ChildChildComp, ChildComp, ChildWithChildComp,
   ExternalTemplateComp,
   FancyService, MockFancyService,
@@ -134,7 +134,7 @@ xdescribe('async & inject testing errors', () => {
 
     it('should fail with an error from a promise',
       async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-        tcb.createAsync(BadTemplateUrl);
+        tcb.createAsync(BadTemplateUrlComp);
       })));
 
     itPromise.then(

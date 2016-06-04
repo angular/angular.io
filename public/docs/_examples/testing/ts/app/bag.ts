@@ -1,6 +1,6 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
 /* tslint:disable:forin */
-import { Component, EventEmitter, Injectable, Input, Output,
+import { Component, EventEmitter, Injectable, Input, Output, Optional,
          OnInit, OnChanges, OnDestroy, SimpleChange } from '@angular/core';
 
 import { Observable }     from 'rxjs/Rx';
@@ -12,6 +12,8 @@ import { Observable }     from 'rxjs/Rx';
 @Injectable()
 export class FancyService {
   value: string = 'real value';
+
+  getValue() { return this.value; }
 
   getAsyncValue() { return Promise.resolve('async value'); }
 
@@ -123,20 +125,36 @@ export class TestViewProvidersComp {
   constructor(private fancyService: FancyService) {}
 }
 
-
 @Component({
   moduleId: module.id,
   selector: 'external-template-comp',
   templateUrl: 'bag-external-template.html'
 })
-export class ExternalTemplateComp { }
+export class ExternalTemplateComp {
+  serviceValue: string;
 
+  constructor(@Optional() private service: FancyService) {  }
+
+  ngOnInit() {
+    if (this.service) { this.serviceValue = this.service.getValue(); }
+  }
+}
+
+@Component({
+  selector: 'comp-w-ext-comp',
+  template: `
+  <h3>comp-w-ext-comp</h3>
+  <external-template-comp></external-template-comp>
+  `,
+  directives: [ExternalTemplateComp]
+})
+export class CompWithCompWithExternalTemplate { }
 
 @Component({
   selector: 'bad-template-comp',
   templateUrl: 'non-existant.html'
 })
-export class BadTemplateUrl { }
+export class BadTemplateUrlComp { }
 
 
 ///////// MyIfChildComp ////////
@@ -222,3 +240,16 @@ export class MyIfParentComp implements OnInit {
     this.toggleLabel = this.showChild ? 'Close' : 'Show';
   }
 }
+
+export const BAG_PROVIDERS = [FancyService];
+
+export const BAG_DIRECTIVES = [
+  ButtonComp,
+  ChildChildComp, ChildComp, ChildWithChildComp,
+  ExternalTemplateComp, CompWithCompWithExternalTemplate,
+  InputComp,
+  MyIfComp, MyIfChildComp, MyIfParentComp,
+  MockChildComp, MockChildChildComp,
+  ParentComp,
+  TestProvidersComp, TestViewProvidersComp
+];

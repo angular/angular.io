@@ -1,9 +1,9 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
 /* tslint:disable:no-unused-variable */
 import {
-  BadTemplateUrl, ButtonComp,
+  BadTemplateUrlComp, ButtonComp,
   ChildChildComp, ChildComp, ChildWithChildComp,
-  ExternalTemplateComp,
+  CompWithCompWithExternalTemplate, ExternalTemplateComp,
   FancyService, MockFancyService,
   InputComp,
   MyIfComp, MyIfChildComp, MyIfParentComp,
@@ -18,14 +18,16 @@ import { By }           from '@angular/platform-browser';
 import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
-  expect, it, iit, xit,
+  it, iit, xit,
   async, inject,
   fakeAsync, tick, withProviders
 } from '@angular/core/testing';
 
+// https://github.com/angular/angular/issues/9017
+import {expect} from './expect-proper';
+
 import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
-import { provide }        from '@angular/core';
 import { ViewMetadata }   from '@angular/core';
 
 import { Observable }     from 'rxjs/Rx';
@@ -116,7 +118,7 @@ describe('using the test injector with the inject helper', () => {
 
   describe('setting up Providers with FancyService', () => {
     beforeEachProviders(() => [
-      provide(FancyService, {useValue: new FancyService()})
+      {provide: FancyService, useValue: new FancyService()}
     ]);
 
     it('should use FancyService',
@@ -183,16 +185,42 @@ describe('using the test injector with the inject helper', () => {
   describe('using `withProviders` for per-test provision', () => {
     it('should inject test-local FancyService for this test',
       // `withProviders`:  set up providers at individual test level
-      withProviders(() => [provide(FancyService, {useValue: {value: 'fake value'}})])
+      withProviders(() => [{provide: FancyService, useValue: {value: 'fake value'}}])
 
       // now inject and test
         .inject([FancyService], (service: FancyService) => {
           expect(service.value).toEqual('fake value');
         }));
   });
+
+
+  describe('can spy on FancyService', () => {
+
+    let spy: jasmine.Spy;
+    let value: string;
+
+    beforeEachProviders(() => [
+      {provide: FancyService, useValue: new FancyService()}
+    ]);
+
+    beforeEach(inject([FancyService], (service: FancyService) => {
+      spy = spyOn(service, 'getValue').and.callFake(() => 'fake value');
+      value = service.getValue();
+    }));
+
+    it('FancyService.getValue spy should return fake', () => {
+      expect(value).toBe('fake value');
+    });
+
+    it('FancyService.getValue spy should have been called', () => {
+      expect(spy.calls.count()).toBe(1, 'should be called once');
+    });
+  });
 });
 
 describe('test component builder', function() {
+  beforeEachProviders(() => [ FancyService ]);
+
   it('should instantiate a component with valid DOM',
       async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
@@ -314,7 +342,7 @@ describe('test component builder', function() {
 
         tcb.overrideProviders(
               TestProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{provide: FancyService, useClass: MockFancyService}]
             )
             .createAsync(TestProvidersComp)
             .then(fixture => {
@@ -329,7 +357,7 @@ describe('test component builder', function() {
 
         tcb.overrideViewProviders(
               TestViewProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{provide: FancyService, useClass: MockFancyService}]
             )
             .createAsync(TestViewProvidersComp)
             .then(fixture => {
@@ -339,7 +367,7 @@ describe('test component builder', function() {
             });
       })));
 
-  it('should allow an external templateUrl',
+  it('should allow an external template',
       async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
 
         tcb.createAsync(ExternalTemplateComp)
@@ -348,130 +376,201 @@ describe('test component builder', function() {
               expect(fixture.nativeElement)
                   .toHaveText('from external template\n');
             });
-      })), 10000);  // Long timeout because this test makes an actual XHR.
+      })), 10000);  // Long timeout because of actual XHR to fetch template.
 
-    describe('(lifecycle hooks w/ MyIfParentComp)', () => {
-      let fixture: ComponentFixture<MyIfParentComp>;
-      let parent:  MyIfParentComp;
-      let child:   MyIfChildComp;
+  it('should create a component with a component that has an external template',
+    async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+      tcb.createAsync(CompWithCompWithExternalTemplate)
+        .then(fixture => {
+          fixture.detectChanges();
+          let h3 = fixture.debugElement.query(By.css('h3'));
+          expect(h3).not.toBeNull('should create CompWithExtComp component');
+        })
+        .catch((err) => {
+          // console.error(err);
+          throw (err);
+        });
+    })), 10000); // Long timeout because of actual XHR to fetch template.
 
-      /**
-       * Get the MyIfChildComp from parent; fail w/ good message if cannot.
-       */
-      function getChild() {
 
-        let childDe: DebugElement; // DebugElement that should hold the MyIfChildComp
+  it('should spy on injected component service',
+      async(inject([TestComponentBuilder, FancyService],
+        (tcb: TestComponentBuilder, service: FancyService) => {
 
-        // The Hard Way: requires detailed knowledge of the parent template
-        try {
-          childDe = fixture.debugElement.children[4].children[0];
-        } catch (err) { /* we'll report the error */ }
+        let spy = spyOn(service, 'getValue').and.callThrough();
 
-        // DebugElement.queryAll: if we wanted all of many instances:
-        childDe = fixture.debugElement
-          .queryAll(function (de) { return de.componentInstance instanceof MyIfChildComp; })[0];
+        tcb
+        .createAsync(ExternalTemplateComp)
+          .then(fixture => {
 
-        // WE'LL USE THIS APPROACH !
-        // DebugElement.query: find first instance (if any)
-        childDe = fixture.debugElement
-          .query(function (de) { return de.componentInstance instanceof MyIfChildComp; });
+            // let spy = spyOn(service, 'getValue').and.callThrough();
 
-        if (childDe && childDe.componentInstance) {
-          child = childDe.componentInstance;
-        } else {
-          fail('Unable to find MyIfChildComp within MyIfParentComp');
-        }
+            fixture.detectChanges();
+            expect(spy.calls.count()).toBe(1, 'should be called once');
+          });
+      })), 10000);  // Long timeout because of actual XHR to fetch template.
 
-        return child;
+  describe('(lifecycle hooks w/ MyIfParentComp)', () => {
+    let fixture: ComponentFixture<MyIfParentComp>;
+    let parent:  MyIfParentComp;
+    let child:   MyIfChildComp;
+
+    /**
+     * Get the MyIfChildComp from parent; fail w/ good message if cannot.
+     */
+    function getChild() {
+
+      let childDe: DebugElement; // DebugElement that should hold the MyIfChildComp
+
+      // The Hard Way: requires detailed knowledge of the parent template
+      try {
+        childDe = fixture.debugElement.children[4].children[0];
+      } catch (err) { /* we'll report the error */ }
+
+      // DebugElement.queryAll: if we wanted all of many instances:
+      childDe = fixture.debugElement
+        .queryAll(function (de) { return de.componentInstance instanceof MyIfChildComp; })[0];
+
+      // WE'LL USE THIS APPROACH !
+      // DebugElement.query: find first instance (if any)
+      childDe = fixture.debugElement
+        .query(function (de) { return de.componentInstance instanceof MyIfChildComp; });
+
+      if (childDe && childDe.componentInstance) {
+        child = childDe.componentInstance;
+      } else {
+        fail('Unable to find MyIfChildComp within MyIfParentComp');
       }
 
-      // Create MyIfParentComp TCB and component instance before each test (async beforeEach)
-      beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-         tcb.createAsync(MyIfParentComp)
-            .then(fix => {
-              fixture = fix;
-              parent = fixture.debugElement.componentInstance;
-            });
-      })));
+      return child;
+    }
 
-      it('should instantiate parent component', () => {
-        expect(parent).not.toBeNull('parent component should exist');
-      });
+    // Create MyIfParentComp TCB and component instance before each test (async beforeEach)
+    beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+        tcb.createAsync(MyIfParentComp)
+          .then(fix => {
+            fixture = fix;
+            parent = fixture.debugElement.componentInstance;
+          });
+    })));
 
-      it('parent component OnInit should NOT be called before first detectChanges()', () => {
-        expect(parent.ngOnInitCalled).toEqual(false);
-      });
+    it('should instantiate parent component', () => {
+      expect(parent).not.toBeNull('parent component should exist');
+    });
 
-      it('parent component OnInit should be called after first detectChanges()', () => {
-        fixture.detectChanges();
-        expect(parent.ngOnInitCalled).toEqual(true);
-      });
+    it('parent component OnInit should NOT be called before first detectChanges()', () => {
+      expect(parent.ngOnInitCalled).toEqual(false);
+    });
 
-      it('child component should exist after OnInit', () => {
-        fixture.detectChanges();
-        getChild();
-        expect(child instanceof MyIfChildComp).toEqual(true, 'should create child');
-      });
+    it('parent component OnInit should be called after first detectChanges()', () => {
+      fixture.detectChanges();
+      expect(parent.ngOnInitCalled).toEqual(true);
+    });
 
-      it('should have called child component\'s OnInit ', () => {
-        fixture.detectChanges();
-        getChild();
-        expect(child.ngOnInitCalled).toEqual(true);
-      });
+    it('child component should exist after OnInit', () => {
+      fixture.detectChanges();
+      getChild();
+      expect(child instanceof MyIfChildComp).toEqual(true, 'should create child');
+    });
 
-      it('child component called OnChanges once', () => {
-        fixture.detectChanges();
-        getChild();
-        expect(child.ngOnChangesCounter).toEqual(1);
-      });
+    it('should have called child component\'s OnInit ', () => {
+      fixture.detectChanges();
+      getChild();
+      expect(child.ngOnInitCalled).toEqual(true);
+    });
 
-      it('changed parent value flows to child', () => {
-        fixture.detectChanges();
-        getChild();
+    it('child component called OnChanges once', () => {
+      fixture.detectChanges();
+      getChild();
+      expect(child.ngOnChangesCounter).toEqual(1);
+    });
 
-        parent.parentValue = 'foo';
+    it('changed parent value flows to child', () => {
+      fixture.detectChanges();
+      getChild();
+
+      parent.parentValue = 'foo';
+      fixture.detectChanges();
+
+      expect(child.ngOnChangesCounter).toEqual(2,
+        'expected 2 changes: initial value and changed value');
+      expect(child.childValue).toEqual('foo',
+        'childValue should eq changed parent value');
+    });
+
+    it('changed child value flows to parent', async(() => {
+      fixture.detectChanges();
+      getChild();
+
+      child.childValue = 'bar';
+
+      return new Promise(resolve => {
+        // Wait one JS engine turn!
+        setTimeout(() => resolve(), 0);
+      }).then(() => {
         fixture.detectChanges();
 
         expect(child.ngOnChangesCounter).toEqual(2,
           'expected 2 changes: initial value and changed value');
-        expect(child.childValue).toEqual('foo',
-          'childValue should eq changed parent value');
+        expect(parent.parentValue).toEqual('bar',
+          'parentValue should eq changed parent value');
       });
 
-      it('changed child value flows to parent', async(() => {
-        fixture.detectChanges();
-        getChild();
+    }));
 
-        child.childValue = 'bar';
+    it('clicking "Close Child" triggers child OnDestroy', () => {
+      fixture.detectChanges();
+      getChild();
 
-        return new Promise(resolve => {
-          // Wait one JS engine turn!
-          setTimeout(() => resolve(), 0);
-        }).then(() => {
-          fixture.detectChanges();
+      let btn = fixture.debugElement.query(By.css('button'));
+      btn.triggerEventHandler('click', null);
 
-          expect(child.ngOnChangesCounter).toEqual(2,
-            'expected 2 changes: initial value and changed value');
-          expect(parent.parentValue).toEqual('bar',
-            'parentValue should eq changed parent value');
-        });
-
-      }));
-
-      it('clicking "Close Child" triggers child OnDestroy', () => {
-        fixture.detectChanges();
-        getChild();
-
-        let btn = fixture.debugElement.query(By.css('button'));
-        btn.triggerEventHandler('click', null);
-
-        fixture.detectChanges();
-        expect(child.ngOnDestroyCalled).toEqual(true);
-      });
-
+      fixture.detectChanges();
+      expect(child.ngOnDestroyCalled).toEqual(true);
     });
+
+  });
 });
 
+describe('test component builder in beforeEach (comp w/ external template)', function() {
+  let fixture: ComponentFixture<ExternalTemplateComp>;
+
+  beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    tcb.createAsync(ExternalTemplateComp).then(fix => fixture = fix);
+  }))
+  );
+  // May need Long timeout because this test makes an actual XHR to get template
+  // , 10000); WHY CAN'T I ADD TIMEOUT OVERRIDE
+
+  it('should allow an external template', () => {
+    fixture.detectChanges();
+    expect(fixture.nativeElement)
+        .toHaveText('from external template\n');
+  });
+
+});
+
+describe('test component builder in beforeEach (comp w/ internal comp w/ external template)', function() {
+  let fixture: ComponentFixture<CompWithCompWithExternalTemplate>;
+
+  beforeEach(async(inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    tcb.createAsync(CompWithCompWithExternalTemplate).then(fix => fixture = fix)
+       .catch((err) => {
+         // console.error(err);
+         throw (err);
+       });
+  }))
+  );
+  // May need Long timeout because this test makes an actual XHR to get template
+  // , 10000); WHY CAN'T I ADD TIMEOUT OVERRIDE
+
+  it('should allow an external template', () => {
+    fixture.detectChanges();
+    let h3 = fixture.debugElement.query(By.css('h3'));
+    expect(h3).not.toBeNull('should create CompWithExtComp component');
+  });
+
+});
 
 //////// Testing Framework Bugs? /////
 import { HeroService }  from './hero.service';
@@ -495,7 +594,7 @@ describe('tcb.overrideProviders', () => {
 
     tcb.overrideProviders(
           AnotherProvidersComp,
-          [provide(HeroService, {useValue: {}})]
+          [{provide: HeroService, useValue: {}}]
         )
         .createAsync(AnotherProvidersComp);
     })));
