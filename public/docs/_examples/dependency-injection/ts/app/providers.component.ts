@@ -31,17 +31,17 @@ export class ProviderComponent1 {
 
 //////////////////////////////////////////
 @Component({
-  selector: 'provider-3a',
+  selector: 'provider-3',
   template: template,
   providers:
-    // #docregion providers-3a
+    // #docregion providers-3
     [{ provide: Logger, useClass: Logger }]
-    // #enddocregion providers-3a
+    // #enddocregion providers-3
 })
-export class ProviderComponent3a {
+export class ProviderComponent3 {
   log: string;
   constructor(logger: Logger) {
-    logger.log('Hello from logger provided with { provide: Logger, useClass: Logger }');
+    logger.log('Hello from logger provided with useClass:Logger');
     this.log = logger.logs[0];
   }
 }
@@ -252,7 +252,7 @@ export class ProviderComponent10 {
   template: `
   <h2>Provider variations</h2>
   <div id="p1"><provider-1></provider-1></div>
-  <div id="p3a"><provider-3a></provider-3a></div>
+  <div id="p3"><provider-3></provider-3></div>
   <div id="p4"><provider-4></provider-4></div>
   <div id="p5"><provider-5></provider-5></div>
   <div id="p6a"><provider-6a></provider-6a></div>
@@ -264,7 +264,7 @@ export class ProviderComponent10 {
   `,
   directives: [
     ProviderComponent1,
-    ProviderComponent3a,
+    ProviderComponent3,
     ProviderComponent4,
     ProviderComponent5,
     ProviderComponent6a,
