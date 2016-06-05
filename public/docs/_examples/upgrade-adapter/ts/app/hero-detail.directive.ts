@@ -1,6 +1,7 @@
 // #docregion
 export function heroDetailDirective() {
   return {
+    restrict: 'E',
     scope: {},
     bindToController: {
       hero: '=',
