@@ -1,6 +1,6 @@
 /* tslint:disable:no-unused-variable */
 // #docplaster
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router, ROUTER_DIRECTIVES } from '@angular/router';
 
 import { HeroService }           from './heroes/hero.service';
@@ -45,10 +45,5 @@ import { HeroService }           from './heroes/hero.service';
   providers:  [HeroService],
   directives: [ROUTER_DIRECTIVES]
 })
-export class AppComponent implements OnInit {
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    this.router.navigate(['/crisis-center']);
-  }
+export class AppComponent {
 }

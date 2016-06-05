@@ -44,6 +44,6 @@ export class HeroListComponent implements OnInit {
 
 /* A link parameters array
 // #docregion link-parameters-array
-['HeroDetail', { id: hero.id }] // {id: 15}
+['/hero', hero.id] // { 15 }
 // #enddocregion link-parameters-array
 */

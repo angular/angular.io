@@ -31,6 +31,9 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
 
   crisis: Crisis;
   editName: string;
+  // #enddocregion ngOnDestroy
+  private sub: any;
+  // #enddocregion ngOnDestroy
 
 // #enddocregion cancel-save
   constructor(
@@ -40,7 +43,7 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
     private dialog: DialogService
   ) { }
 
-  // #docregion ngOnActivate
+  // #docregion ngOnInit
   ngOnInit() {
     this.sub = this.route
       .params
@@ -57,11 +60,15 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
           });
       });
   }
+  // #enddocregion ngOnInit
 
+  // #enddocregion ngOnDestroy
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
-  // #enddocregion ngOnActivate
+  // #enddocregion ngOnDestroy
 
   // #docregion cancel-save
   cancel() {

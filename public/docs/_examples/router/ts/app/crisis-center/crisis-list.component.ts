@@ -18,7 +18,6 @@ import { Crisis, CrisisService } from './crisis.service';
 })
 export class CrisisListComponent implements OnInit, OnDestroy {
   crises: Crisis[];
-  private currSegment: RouteSegment;
   private selectedId: number;
   private sub: any;
 
@@ -33,14 +32,16 @@ export class CrisisListComponent implements OnInit, OnDestroy {
     this.sub = this.route
       .params
       .subscribe(params => {
-        this.selectedId =+ params['id'];
+        this.selectedId = + params['id'];
         this.service.getCrises()
           .then(crises => this.crises = crises);
       });
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   onSelect(crisis: Crisis) {

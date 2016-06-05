@@ -19,6 +19,7 @@ import { Crisis, CrisisService } from './crisis.service';
 })
 export class CrisisListComponent implements OnInit, OnDestroy {
   crises: Crisis[];
+  selectedId: number;
   private sub: any;
 
   constructor(
@@ -30,7 +31,7 @@ export class CrisisListComponent implements OnInit, OnDestroy {
     this.sub = this.route
       .params
       .subscribe(params => {
-        this.selectedId =+ params['id'];
+        this.selectedId = + params['id'];
         this.service.getCrises()
           .then(crises => this.crises = crises);
       });

@@ -23,31 +23,36 @@ import { Hero, HeroService } from './hero.service';
 })
 export class HeroDetailComponent implements OnInit, OnDestroy  {
   hero: Hero;
+  // #docregion ngOnInit
+  private sub: any;
+  // #enddocregion ngOnInit
 
   // #docregion ctor
-  private sub: any;
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private service: HeroService) {}
   // #enddocregion ctor
 
-  // #docregion OnActivate
+  // #docregion ngOnInit
   ngOnInit() {
     this.sub = this.route
      .params
      .subscribe(params => {
-       let id =+ params['id'];
+       let id = + params['id'];
        this.service.getHero(id)
          .then(hero => this.hero = hero);
      });
   }
-  // #enddocregion OnActivate
+  // #enddocregion ngOnInit
 
+  // #docregion ngOnDestroy
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
+  // #enddocregion ngOnDestroy
 
   // #docregion gotoHeroes
   gotoHeroes() {
@@ -55,7 +60,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy  {
     // Pass along the hero id if available
     // so that the HeroList component can select that hero.
     // Add a totally useless `foo` parameter for kicks.
-    this.router.navigate(['/heroes'], { queryParameters: { id: heroId, foo: 'foo' } });
+    this.router.navigate(['/heroes'], { queryParams: { id: `${heroId}`, foo: 'foo' } });
   }
   // #enddocregion gotoHeroes
 }
