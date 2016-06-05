@@ -7,8 +7,6 @@ var _ = require('lodash');
 var argv = require('yargs').argv;
 var env = require('gulp-env');
 var Q = require("q");
-// delPromise is a 'promise' version of del
-var delPromise =  Q.denodeify(del);
 var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
 var Package = require('dgeni').Package;
@@ -609,14 +607,14 @@ gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
   // jade fragments now all go into _fragments subdirs under their source.
   var newCleanPath = path.join(DOCS_PATH, '**/_fragments/*.jade');
   // Much slower 8-9x then using globby first ... ???
-  // return delPromise([ newCleanPath, oldCleanPath]);
+  // return del([ newCleanPath, oldCleanPath]);
   var files = globby.sync( [newCleanPath, oldCleanPath]);
-  return delPromise(files);
+  return del(files);
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
   var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
+  return del([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
 });
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
@@ -626,7 +624,7 @@ gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
 
 gulp.task('_shred-clean-api', function(cb) {
   var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
+  return del([ cleanPath, '!**/*.ovr.*' ]);
 });
 
 gulp.task('_zip-examples', function() {
@@ -933,7 +931,7 @@ function apiExamplesWatch(postShredAction) {
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
 
-    return delPromise(cleanPath).then(function() {
+    return del(cleanPath).then(function() {
       return docShredder.shred(_apiShredOptions);
     }).then(postShredAction);
   });

@@ -1,7 +1,5 @@
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
 var path = require('canonical-path');
-var Q = require('q');
-var _ = require('lodash');
 var jsonfile = require('jsonfile');
 var assert = require('assert-plus');
 // adm-zip does not work properly on Windows

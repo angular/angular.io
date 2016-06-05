@@ -13,11 +13,10 @@ gulp.task('zipExamples', ['clean'], function() {
   return exampleZipper.zipExamples("../../../public/docs/_examples", _outputFolder);
 });
 
-gulp.task('clean', function (cb) {
+gulp.task('clean', function () {
   var cleanPath = path.join(_outputFolder, '**/*.*');
-  del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
+  del([ cleanPath, '!**/*.ovr.*']).then(function (err, paths) {
     console.log('Deleted files/folders:\n', paths.join('\n'));
-    cb();
   });
 });
 
