@@ -1,4 +1,3 @@
-var _ = require('lodash');
 var path = require('canonical-path');
 
 /**
