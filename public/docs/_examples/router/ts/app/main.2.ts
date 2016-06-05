@@ -5,7 +5,7 @@
 
 // #docregion
 import { bootstrap }            from '@angular/platform-browser-dynamic';
-import { provideRouter }     from '@angular/router';
+import { provideRouter }        from '@angular/router';
 
 // Add these symbols to override the `LocationStrategy`
 import { LocationStrategy,
@@ -28,7 +28,7 @@ import { AppComponent as ac } from './app.component.2';
 bootstrap(ac, [
 // #docregion
   provideRouter(routes),
-  provide(LocationStrategy,
-         {useClass: HashLocationStrategy}) // .../#/crisis-center/
+  { provide: LocationStrategy,
+         useClass: HashLocationStrategy } // .../#/crisis-center/
 ]);
 // #enddocregion

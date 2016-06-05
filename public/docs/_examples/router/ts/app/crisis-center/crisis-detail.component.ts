@@ -28,7 +28,6 @@ import { DialogService } from '../dialog.service';
 export class CrisisDetailComponent implements OnInit, OnDestroy {
   crisis: Crisis;
   editName: string;
-  private curSegment: RouteSegment;
   private sub: any;
 
   constructor(
@@ -42,7 +41,7 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
     this.sub = this.route
       .params
       .subscribe(params => {
-        let id =+ params['id'];
+        let id = + params['id'];
         this.service.getCrisis(id)
           .then(crisis => {
             if (crisis) {
@@ -56,7 +55,9 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   cancel() {
@@ -77,9 +78,6 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
     // #docregion gotoCrises-navigate
     // Absolute link
     this.router.navigate(['/crisis-center', {id: crisisId, foo: 'foo'}]);
-
-    // Relative link
-    this.router.navigate(['../', {id: crisisId, foo: 'foo'}], { relativeTo: this.route });
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

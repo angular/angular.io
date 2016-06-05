@@ -2,7 +2,7 @@
 // #docplaster
 
 // #docregion
-import { Component, OnInit }   from '@angular/core';
+import { Component }   from '@angular/core';
 import { Router, ROUTER_DIRECTIVES } from '@angular/router';
 
 // #enddocregion
@@ -34,12 +34,7 @@ import { HeroService }           from './heroes/hero.service';
   directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion
-export class AppComponent  implements OnInit {
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    this.router.navigate(['/crisis-center']);
-  }
+export class AppComponent {
 }
 // #enddocregion route-config
 // #enddocregion

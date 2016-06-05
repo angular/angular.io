@@ -39,7 +39,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy  {
     this.sub = this.route
      .params
      .subscribe(params => {
-       let id =+ params['id'];
+       let id = + params['id'];
        this.service.getHero(id)
          .then(hero => this.hero = hero);
      });
@@ -56,7 +56,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy  {
     // so that the HeroList component can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoHeroes-navigate
-    this.router.navigate(['/heroes'], { queryParameters: { id: heroId, foo: 'foo' } });
+    this.router.navigate(['/heroes'], { queryParams: { id: `${heroId}`, foo: 'foo' } });
     // #enddocregion gotoHeroes-navigate
   }
 }
