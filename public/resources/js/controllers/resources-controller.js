@@ -15,11 +15,9 @@ angularIO.controller('ResourcesCtrl', ['$scope', '$element', '$window', '$fireba
   // TODO: Implement handler for scroll behaviour
   vm.scrollPos = 0;
 
-  $window.onscroll = function() {
+  window.onscroll = function() {
     vm.scrollPos = document.body.scrollTop || document.documentElement.scrollTop || 0;
-    $element.css('c8');
     $scope.$apply();
-    console.log(vm.scrollPos);
   };
 
   // onSelect :: String
