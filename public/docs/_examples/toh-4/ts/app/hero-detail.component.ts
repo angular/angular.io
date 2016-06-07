@@ -6,13 +6,15 @@ import { Hero } from './hero';
   selector: 'my-hero-detail',
   template: `
     <div *ngIf="hero">
-      <h2>{{hero.name}} details!</h2>
+      <h3>{{hero.name}} details!</h3>
+      <dl>
+        <dt>id:</dt>
+        <dd>{{hero.id}}</dd>
+      </dl>
       <div>
-        <label>id: </label>{{hero.id}}
-      </div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="hero.name" placeholder="name"/>
+        <label>name: 
+          <input [(ngModel)]="hero.name" placeholder="name">
+        </label>
       </div>
     </div>
   `

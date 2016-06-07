@@ -13,10 +13,14 @@ export class Hero {
   template: `
     <h1>{{title}}</h1>
     <h2>{{hero.name}} details!</h2>
-    <div><label>id: </label>{{hero.id}}</div>
+    <dl>
+      <dt>id:</dt>
+      <dd>{{hero.id}}</dd>
+    </dl>
     <div>
-      <label>name: </label>
-      <input [(ngModel)]="hero.name" placeholder="name">
+      <label>name: 
+        <input [(ngModel)]="hero.name" placeholder="name">
+      </label>
     </div>
     `
 })
