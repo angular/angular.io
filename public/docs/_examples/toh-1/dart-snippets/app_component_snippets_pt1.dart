@@ -25,7 +25,7 @@ template: '''
   <div><label>id: </label>{{hero.id}}</div>
   <div>
     <label>name: </label>
-    <div><input value="{{hero.name}}" placeholder="name"></div>
+    <input value="{{hero.name}}" placeholder="name">
   </div>'''
 // #enddocregion editing-Hero
 
@@ -35,7 +35,3 @@ class AppComponent {
   Hero hero = 'Windstorm';
 }
 // #enddocregion app-component-1
-
-// #docregion hero-property-1
-Hero hero = new Hero(1, 'Windstorm');
-// #enddocregion hero-property-1
