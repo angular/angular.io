@@ -10,15 +10,15 @@ import { LoggerService }        from './logger.service';
 //////// HeroBiosComponent ////
 // #docregion simple
 @Component({
-  selector:'hero-bios',
-  template:`
+  selector: 'hero-bios',
+  template: `
     <hero-bio [heroId]="1"></hero-bio>
     <hero-bio [heroId]="2"></hero-bio>
     <hero-bio [heroId]="3"></hero-bio>`,
-  directives:[HeroBioComponent],
+  directives: [HeroBioComponent],
   providers: [HeroService]
 })
-export class HeroBiosComponent{
+export class HeroBiosComponent {
 // #enddocregion simple
 // #docregion ctor
   constructor(logger: LoggerService) {
@@ -32,19 +32,19 @@ export class HeroBiosComponent{
 //////// HeroBiosAndContactsComponent ////
 // #docregion hero-bios-and-contacts
 @Component({
-  selector:'hero-bios-and-contacts',
+  selector: 'hero-bios-and-contacts',
   // #docregion template
-  template:`
+  template: `
     <hero-bio [heroId]="1"> <hero-contact></hero-contact> </hero-bio>
     <hero-bio [heroId]="2"> <hero-contact></hero-contact> </hero-bio>
     <hero-bio [heroId]="3"> <hero-contact></hero-contact> </hero-bio>`,
   // #enddocregion template
-  directives:[HeroBioComponent, HeroContactComponent],
+  directives: [HeroBioComponent, HeroContactComponent],
   // #docregion class-provider
   providers: [HeroService]
   // #enddocregion class-provider
 })
-export class HeroBiosAndContactsComponent{
+export class HeroBiosAndContactsComponent {
   constructor(logger: LoggerService) {
     logger.logInfo('Creating HeroBiosAndContactsComponent');
   }

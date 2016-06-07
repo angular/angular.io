@@ -1,6 +1,6 @@
 // #docregion
 export class EditItem<T> {
-  editing: boolean
+  editing: boolean;
   constructor (public item: T) {}
 }
 // #docregion

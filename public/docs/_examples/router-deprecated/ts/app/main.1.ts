@@ -16,7 +16,7 @@ bootstrap(AppComponent, [
 */
 
 // Actually use the v.1 component
-import { AppComponent as ac} from './app.component.1';
+import { AppComponent as ac } from './app.component.1';
 bootstrap(ac, [
 // #docregion all
   ROUTER_PROVIDERS

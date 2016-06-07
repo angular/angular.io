@@ -13,7 +13,7 @@ const HEROES = [
 export class BackendService {
   constructor(private logger: Logger) {}
 
-  getAll(type:Type) : PromiseLike<any[]>{
+  getAll(type: Type): PromiseLike<any[]> {
     if (type === Hero) {
       // TODO get from the database
       return Promise.resolve<Hero[]>(HEROES);

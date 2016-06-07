@@ -3,7 +3,7 @@ import { UpgradeAdapter } from '@angular/upgrade';
 import { MainController } from './main.controller';
 import { HeroDetailComponent } from './hero-detail.component';
 
-declare var angular:any;
+declare var angular: any;
 const upgradeAdapter = new UpgradeAdapter();
 
 angular.module('heroApp', [])

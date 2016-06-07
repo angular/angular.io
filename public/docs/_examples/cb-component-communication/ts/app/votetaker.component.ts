@@ -18,7 +18,7 @@ import { VoterComponent } from './voter.component';
 export class VoteTakerComponent {
   agreed = 0;
   disagreed = 0;
-  voters = ['Mr. IQ', 'Ms. Universe', 'Bombasto']
+  voters = ['Mr. IQ', 'Ms. Universe', 'Bombasto'];
 
   onVoted(agreed: boolean) {
     agreed ? this.agreed++ : this.disagreed++;

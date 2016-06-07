@@ -19,19 +19,19 @@ describe('Tutorial', function () {
       allHeroes: element.all(by.css('my-app my-heroes li')),
 
       heroDetail: element(by.css('my-app my-hero-detail'))
-    }
+    };
   }
 
   it('should be able to see the start screen', function () {
     let page = getPageStruct();
     expect(page.hrefs.count()).toEqual(2, 'should be two dashboard choices');
-    expect(page.myDashboardHref.getText()).toEqual("Dashboard");
-    expect(page.myHeroesHref.getText()).toEqual("Heroes");
+    expect(page.myDashboardHref.getText()).toEqual('Dashboard');
+    expect(page.myHeroesHref.getText()).toEqual('Heroes');
   });
 
   it('should be able to see dashboard choices', function () {
     let page = getPageStruct();
-    expect(page.topHeroes.count()).toBe(4, "should be 4 dashboard hero choices");
+    expect(page.topHeroes.count()).toBe(4, 'should be 4 dashboard hero choices');
   });
 
   it('should be able to toggle the views', function () {
@@ -40,7 +40,7 @@ describe('Tutorial', function () {
     expect(page.myDashboardParent.element(by.css('h3')).getText()).toEqual('Top Heroes');
     page.myHeroesHref.click().then(function() {
       expect(page.myDashboardParent.isPresent()).toBe(false, 'should no longer see dashboard element');
-      expect(page.allHeroes.count()).toBeGreaterThan(4, "should be more than 4 heroes shown");
+      expect(page.allHeroes.count()).toBeGreaterThan(4, 'should be more than 4 heroes shown');
       return page.myDashboardHref.click();
     }).then(function() {
       expect(page.myDashboardParent.isPresent()).toBe(true, 'should once again see the dashboard element');
@@ -79,7 +79,7 @@ describe('Tutorial', function () {
       return heroEle.getText();
     }).then(function(text) {
       // remove leading 'id' from the element
-      heroDescr = text.substr(text.indexOf(' ')+1);
+      heroDescr = text.substr(text.indexOf(' ') + 1);
       return heroEle.click();
     }).then(function() {
       expect(viewDetailsButtonEle.isDisplayed()).toBe(true, 'viewDetails button should now be visible');

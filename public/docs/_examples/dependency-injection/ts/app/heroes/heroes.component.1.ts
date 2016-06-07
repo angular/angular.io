@@ -21,8 +21,8 @@ import { HeroService }        from './hero.service';
   <hero-list></hero-list>
   `,
   // #enddocregion v1
-  providers:[HeroService],
+  providers: [HeroService],
   // #docregion v1
-  directives:[HeroListComponent]
+  directives: [HeroListComponent]
 })
 export class HeroesComponent { }

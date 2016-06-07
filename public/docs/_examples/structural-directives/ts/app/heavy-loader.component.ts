@@ -1,5 +1,5 @@
 // #docregion
-import { Component, Input, Output } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
 let nextId = 1;
 
@@ -7,7 +7,7 @@ let nextId = 1;
   selector: 'heavy-loader',
   template: '<span>heavy loader #{{id}} on duty!</span>'
 })
-export class HeavyLoaderComponent {
+export class HeavyLoaderComponent implements OnDestroy, OnInit {
   id = nextId++;
   @Input() logs: string[];
 

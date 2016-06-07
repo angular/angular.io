@@ -1,4 +1,4 @@
-declare var angular:any;
+declare var angular: any;
 
 angular.module('heroApp', [])
   .controller('MainCtrl', function() {

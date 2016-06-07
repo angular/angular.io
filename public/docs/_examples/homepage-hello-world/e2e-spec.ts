@@ -10,7 +10,7 @@ describe('Homepage Hello World', function () {
   it(`should display the label: ${expectedLabel}`, function () {
     expect(element(by.css('label')).getText()).toEqual(expectedLabel);
   });
-  
+
   it('should display entered name', function () {
     let testName = 'Bobby Joe';
     let nameEle = element.all(by.css('input')).get(0);

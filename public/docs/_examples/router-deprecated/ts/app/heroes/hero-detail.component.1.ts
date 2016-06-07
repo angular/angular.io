@@ -26,9 +26,9 @@ export class HeroDetailComponent implements OnInit  {
 
   // #docregion ctor
   constructor(
-    private router:Router,
-    private routeParams:RouteParams,
-    private service:HeroService){}
+    private router: Router,
+    private routeParams: RouteParams,
+    private service: HeroService) {}
   // #enddocregion ctor
 
   // #docregion ngOnInit

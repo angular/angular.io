@@ -21,7 +21,7 @@ import { Hero, HeroService } from './hero.service';
   </div>
   `,
 })
-export class HeroDetailComponent implements OnActivate  {
+export class HeroDetailComponent implements OnActivate {
   hero: Hero;
 
   // #docregion ctor

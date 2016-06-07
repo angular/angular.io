@@ -10,8 +10,8 @@ import { Component, HostBinding, HostListener } from '@angular/core';
 export class HeroesComponent {
   @HostBinding() title = 'Tooltip content';
   @HostBinding('class.heading')
-    hClass = true
-  active:boolean;
+    hClass = true;
+  active: boolean;
 
   constructor() {}
 
@@ -21,7 +21,7 @@ export class HeroesComponent {
   }
 
   @HostListener('dblclick', ['$event'])
-  doubleClicked(evt:Event) {
+  doubleClicked(evt: Event) {
     this.active = true;
   }
 }

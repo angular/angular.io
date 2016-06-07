@@ -21,7 +21,7 @@ bootstrap(AppComponent, [
 */
 
 // Actually use the v.2 component
-import {AppComponent as ac} from './app.component.2';
+import { AppComponent as ac } from './app.component.2';
 
 bootstrap(ac, [
 // #docregion

@@ -15,8 +15,8 @@ import { Component } from '@angular/core';
   `
 })
 export class LittleTourComponent {
-  heroes=['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
-  addHero(newHero:string) {
+  heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
+  addHero(newHero: string) {
     if (newHero) {
       this.heroes.push(newHero);
     }

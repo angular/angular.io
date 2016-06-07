@@ -14,7 +14,7 @@ import { TodoForm }  from './todo_form';
 
     <todo-list [todos]="todos"></todo-list>
     <todo-form (newTask)="addTask($event)"></todo-form>`,
-  styles:['a { cursor: pointer; cursor: hand; }'],
+  styles: ['a { cursor: pointer; cursor: hand; }'],
   directives: [TodoList, TodoForm]
 })
 export class TodoApp {

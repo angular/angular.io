@@ -2,7 +2,7 @@ import { HeroDetailComponent } from './hero-detail.component';
 import { HeroesService } from './heroes.service';
 import { upgradeAdapter } from './upgrade_adapter';
 
-declare var angular:any;
+declare var angular: any;
 
 // #docregion register
 angular.module('heroApp', [])

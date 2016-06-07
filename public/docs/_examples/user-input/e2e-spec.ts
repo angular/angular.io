@@ -20,7 +20,7 @@ describe('User Input Tests', function () {
     expect(mainEle.getText()).not.toContain('Event target is ');
     buttonEle.click().then(function() {
       expect(mainEle.getText()).toContain('Event target is BUTTON');
-    })
+    });
   });
 
   it('should support the keyup event ', function () {
@@ -28,7 +28,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle,'abc').then(function() {
+    return sendKeys(inputEle, 'abc').then(function() {
       expect(outputTextEle.getText()).toEqual('a | ab | abc |');
     });
   });
@@ -38,7 +38,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle,'abc').then(function() {
+    return sendKeys(inputEle, 'abc').then(function() {
       expect(outputTextEle.getText()).toEqual('abc');
     });
   });
@@ -48,7 +48,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle,'abc').then(function() {
+    return sendKeys(inputEle, 'abc').then(function() {
       expect(outputTextEle.getText()).toEqual('a | ab | abc |');
     });
   });
@@ -58,7 +58,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle,'abc').then(function() {
+    return sendKeys(inputEle, 'abc').then(function() {
       expect(outputTextEle.getText()).toEqual('', 'should be blank - have not sent enter yet');
       return sendKeys(inputEle, protractor.Key.ENTER);
     }).then(function() {
@@ -72,7 +72,7 @@ describe('User Input Tests', function () {
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle,'abc').then(function() {
+    return sendKeys(inputEle, 'abc').then(function() {
       expect(outputTextEle.getText()).toEqual('', 'should be blank - have not sent enter yet');
       // change the focus
       return prevInputEle.click();

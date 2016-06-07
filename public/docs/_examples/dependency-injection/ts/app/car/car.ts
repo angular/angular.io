@@ -11,7 +11,7 @@ export class Tires {
 
 @Injectable()
 export class Car {
-  //#docregion car-ctor
+  // #docregion car-ctor
   public description = 'DI';
 
   constructor(public engine: Engine, public tires: Tires) { }
@@ -20,6 +20,6 @@ export class Car {
   // Method using the engine and tires
   drive() {
     return `${this.description} car with ` +
-      `${this.engine.cylinders} cylinders and ${this.tires.make} tires.`
+      `${this.engine.cylinders} cylinders and ${this.tires.make} tires.`;
   }
 }

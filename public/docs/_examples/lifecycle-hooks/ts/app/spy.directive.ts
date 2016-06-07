@@ -1,7 +1,7 @@
 // #docregion
-import {Directive, OnInit, OnDestroy} from '@angular/core';
+import { Directive, OnInit, OnDestroy } from '@angular/core';
 
-import {LoggerService} from './logger.service';
+import { LoggerService } from './logger.service';
 
 let nextId = 1;
 

@@ -2,8 +2,6 @@
 import { bootstrap }
   from '@angular/platform-browser-dynamic';
 import {
-} from '@angular/router';
-import {
   LocationStrategy,
   HashLocationStrategy
 } from '@angular/common';

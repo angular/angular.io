@@ -15,7 +15,7 @@ describe('Dynamic Form', function () {
       emailElement.sendKeys(email);
       expect(emailElement.getAttribute('value')).toEqual(email);
 
-      element(by.css('select option[value="solid"]')).click()
+      element(by.css('select option[value="solid"]')).click();
 
       let saveButton = element.all(by.css('button')).get(0);
       saveButton.click().then(function(){

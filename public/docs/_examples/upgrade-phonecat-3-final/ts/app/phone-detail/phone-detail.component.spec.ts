@@ -21,16 +21,16 @@ import {
 import { PhoneDetailComponent } from './phone-detail.component';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
-function xyzPhoneData():PhoneData {
+function xyzPhoneData(): PhoneData {
   return {
     name: 'phone xyz',
     snippet: '',
     images: ['image/url1.png', 'image/url2.png']
-  }
+  };
 }
 
 class MockPhone extends Phone {
-  get(id: string):Observable<PhoneData> {
+  get(id: string): Observable<PhoneData> {
     return Observable.of(xyzPhoneData());
   }
 }

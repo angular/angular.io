@@ -8,7 +8,7 @@ import { Http }                from '@angular/http';
   pure: false
 })
 // #enddocregion pipe-metadata
-export class FetchJsonPipe  implements PipeTransform{
+export class FetchJsonPipe  implements PipeTransform {
   private fetchedJson: any = null;
   private prevUrl = '';
 

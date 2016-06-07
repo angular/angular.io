@@ -17,8 +17,8 @@ import { Component } from '@angular/core';
 export class ClickMeComponent {
   clickMessage = '';
 
-  onClickMe(){
-    this.clickMessage ='You are my hero!';
+  onClickMe() {
+    this.clickMessage = 'You are my hero!';
   }
 }
 // #enddocregion click-me-component

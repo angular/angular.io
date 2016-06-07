@@ -12,7 +12,7 @@ describe('Cookbook: component-relative paths', function () {
       title: element( by.tagName( 'h1' )),
       absComp: element( by.css( 'absolute-path div' ) ),
       relComp: element( by.css( 'relative-path div' ) )
-    }
+    };
   }
 
   let page: Page;

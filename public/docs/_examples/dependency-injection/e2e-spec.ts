@@ -123,7 +123,7 @@ describe('Dependency Injection Tests', function () {
     it('P10 (optional dependency) displays as expected', function () {
       expectedMsg = 'Optional logger was not available';
       expect(element(by.css('#p10')).getText()).toEqual(expectedMsg);
-    })
+    });
   });
 
   describe('User/Heroes:', function() {
@@ -163,8 +163,8 @@ describe('Dependency Injection Tests', function () {
     describe('after button click', function() {
 
       beforeAll(function (done) {
-        let buttonEle = element.all(by.cssContainingText('button','Next User')).get(0);
-        buttonEle.click().then(done,done);
+        let buttonEle = element.all(by.cssContainingText('button', 'Next User')).get(0);
+        buttonEle.click().then(done, done);
       });
 
       it('User is Alice  - authorized', function () {

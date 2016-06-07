@@ -19,7 +19,7 @@ let directives: any[] = [
 // Include Countdown examples
 // unless in e2e tests which they break.
 if (!/e2e/.test(location.search)) {
-  console.log('adding countdown timer examples')
+  console.log('adding countdown timer examples');
   directives.push(CountdownLocalVarParentComponent);
   directives.push(CountdownViewChildParentComponent);
 }

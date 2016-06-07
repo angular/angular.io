@@ -15,13 +15,13 @@ import { MockBackend, MockConnection } from '@angular/http/testing';
 import { Phone, PhoneData } from './phone.service';
 
 describe('Phone', function() {
-  let phone:Phone;
-  let phonesData:PhoneData[] = [
+  let phone: Phone;
+  let phonesData: PhoneData[] = [
     {name: 'Phone X', snippet: '', images: []},
     {name: 'Phone Y', snippet: '', images: []},
     {name: 'Phone Z', snippet: '', images: []}
   ];
-  let mockBackend:MockBackend;
+  let mockBackend: MockBackend;
 
   beforeEachProviders(() => [
     Phone,
@@ -33,7 +33,7 @@ describe('Phone', function() {
     }
   ]);
 
-  beforeEach(inject([MockBackend, Phone], (_mockBackend_:MockBackend, _phone_:Phone) => {
+  beforeEach(inject([MockBackend, Phone], (_mockBackend_: MockBackend, _phone_: Phone) => {
     mockBackend = _mockBackend_;
     phone = _phone_;
   }));

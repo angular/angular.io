@@ -66,7 +66,7 @@ describe('Dependency Injection Cookbook', function () {
     });
 
     it('should highlight Hero Bios and Contacts container when mouseover', function () {
-      let target = element(by.css('div[myHighlight="yellow"]'))
+      let target = element(by.css('div[myHighlight="yellow"]'));
       let yellow = 'rgba(255, 255, 0, 1)';
 
       expect(target.getCssValue('background-color')).not.toEqual(yellow);

@@ -10,7 +10,13 @@ import { Observable } from 'rxjs/Rx';
     <button (click)="resend()">Resend</button>`,
 })
 export class HeroAsyncMessageComponent {
-  message$:Observable<string>;
+  message$: Observable<string>;
+
+  private messages = [
+    'You are my hero!',
+    'You are the best hero!',
+    'Will you be my hero?'
+  ];
 
   constructor() { this.resend(); }
 
@@ -19,12 +25,6 @@ export class HeroAsyncMessageComponent {
       .map(i => this.messages[i])
       .take(this.messages.length);
   }
-
-  private messages = [
-    'You are my hero!',
-    'You are the best hero!',
-    'Will you be my hero?'
-  ];
 }
 // #enddocregion
 

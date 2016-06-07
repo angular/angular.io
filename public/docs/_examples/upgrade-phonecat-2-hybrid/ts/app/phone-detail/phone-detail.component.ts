@@ -15,7 +15,7 @@ import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
   // #docregion initialclass
 })
 // #enddocregion checkmark-pipe
-export class PhoneDetailComponent{
+export class PhoneDetailComponent {
   phone: PhoneData;
   mainImageUrl: string;
 

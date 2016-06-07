@@ -30,7 +30,7 @@ export class HeroListComponent implements OnInit {
   // #enddocregion ctor
 
   ngOnInit() {
-    this.service.getHeroes().then(heroes => this.heroes = heroes)
+    this.service.getHeroes().then(heroes => this.heroes = heroes);
   }
 
   // #docregion select

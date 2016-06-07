@@ -85,7 +85,7 @@ describe('Angular 1 to 2 Quick Reference Tests', function () {
 
     posterButton.click().then(function () {
       testImagesAreDisplayed(isDisplayed);
-    })
+    });
   }
 
   function getMovieRows() {
@@ -107,7 +107,7 @@ describe('Angular 1 to 2 Quick Reference Tests', function () {
         } else {
           expect(favoriteHeroLabel.isDisplayed()).toBe(false);
         }
-      })
-    })
+      });
+    });
   }
 });

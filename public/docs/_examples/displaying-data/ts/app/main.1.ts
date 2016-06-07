@@ -1,3 +1,4 @@
+/* tslint:disable */
 import { bootstrap } from '@angular/platform-browser-dynamic';
 
 import { AppCtorComponent } from './app-ctor.component';
@@ -8,9 +9,9 @@ import { AppComponent as v3 } from './app.component.3';
 import { AppComponent as final } from './app.component';
 
 // pick one
-//bootstrap(v1);
-//bootstrap(v2);
-//bootstrap(v3);
+// bootstrap(v1);
+// bootstrap(v2);
+// bootstrap(v3);
 bootstrap(final);
 
 // for doc testing

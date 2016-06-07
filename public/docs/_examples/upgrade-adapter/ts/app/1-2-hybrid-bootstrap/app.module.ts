@@ -1,4 +1,4 @@
-declare var angular:any;
+declare var angular: any;
 
 // #docregion bootstrap
 import { UpgradeAdapter } from '@angular/upgrade';
