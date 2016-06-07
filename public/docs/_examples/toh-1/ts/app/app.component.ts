@@ -22,10 +22,11 @@ export class Hero {
 })
 export class AppComponent {
   title = 'Tour of Heroes';
+  // #docregion hero-property-1
   hero: Hero = {
     id: 1,
     name: 'Windstorm'
   };
+  // #enddocregion hero-property-1
 }
-
 // #enddocregion pt1
