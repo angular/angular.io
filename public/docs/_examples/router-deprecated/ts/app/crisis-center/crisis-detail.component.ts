@@ -51,7 +51,7 @@ export class CrisisDetailComponent implements OnInit, CanDeactivate {
     });
   }
 
-  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : any {
+  routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction): any {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
     if (!this.crisis || this.crisis.name === this.editName) {
       return true;

@@ -636,7 +636,15 @@ gulp.task('_zip-examples', function() {
 // Linting
 
 gulp.task('lint', function() {
-  return gulp.src(['./public/docs/_examples/style-guide/ts/**/*.ts', '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts'])
+  return gulp.src([
+      './public/docs/_examples/**/*.ts',
+      '!./public/docs/_examples/**/ts-snippets/*.ts',
+      '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts',
+      '!./public/docs/_examples/**/node_modules/**/*',
+      '!./public/docs/_examples/_protractor/**/*',
+      '!./public/docs/_examples/**/typings/**/*',
+      '!./public/docs/_examples/**/typings-ng1/**/*'
+    ])
     .pipe(tslint({
       rulesDirectory: ['node_modules/codelyzer'],
       configuration: require('./tslint.json')

@@ -5,8 +5,8 @@ export class MainController {
   heroes = [
     new Hero(2, 'Superman'),
     new Hero(3, 'Spiderman')
-  ]
-  onDelete(hero:Hero) {
+  ];
+  onDelete(hero: Hero) {
     hero.name = 'Ex-' + hero.name;
   }
 }

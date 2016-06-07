@@ -37,7 +37,7 @@ describe('TOH Http Chapter', function () {
     }).then(function() {
       return page.addButton.click();
     }).then(function(){
-      return save(page,'','The New Hero');
+      return save(page, '', 'The New Hero');
     }).then(function(){
       browser.waitForAngular();
 

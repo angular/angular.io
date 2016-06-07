@@ -18,7 +18,7 @@ export class HeroService {
   // #docregion get-heroes-slowly
   getHeroesSlowly() {
     return new Promise<Hero[]>(resolve =>
-      setTimeout(()=>resolve(HEROES), 2000) // 2 seconds
+      setTimeout(() => resolve(HEROES), 2000) // 2 seconds
     );
   }
   // #enddocregion get-heroes-slowly

@@ -17,7 +17,7 @@ import { Logger }            from './logger.service';
     <my-car></my-car>
     <my-heroes></my-heroes>
   `,
-  directives:[CarComponent, HeroesComponent],
+  directives: [CarComponent, HeroesComponent],
   providers: [
     Logger,
    // #docregion providers
@@ -26,10 +26,10 @@ import { Logger }            from './logger.service';
   ]
 })
 export class AppComponent {
-  title:string;
+  title: string;
 
   // #docregion ctor
-  constructor(@Inject(APP_CONFIG) config:AppConfig) {
+  constructor(@Inject(APP_CONFIG) config: AppConfig) {
     this.title = config.title;
   }
   // #enddocregion ctor

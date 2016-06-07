@@ -1,5 +1,5 @@
 // #docregion
-import { Component }       from '@angular/core'
+import { Component }       from '@angular/core';
 
 import { DynamicForm }     from './dynamic-form.component';
 import { QuestionService } from './question.service';
@@ -16,7 +16,7 @@ import { QuestionService } from './question.service';
   providers:  [QuestionService]
 })
 export class AppComponent {
-  questions:any[]
+  questions: any[];
 
   constructor(service: QuestionService) {
     this.questions = service.getQuestions();

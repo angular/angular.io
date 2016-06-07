@@ -20,10 +20,9 @@ import { WikipediaService } from './wikipedia.service';
   providers: [JSONP_PROVIDERS, WikipediaService]
 })
 export class WikiComponent {
+  items: Observable<string[]>;
 
   constructor (private wikipediaService: WikipediaService) {}
-
-  items: Observable<string[]>;
 
   search (term: string) {
     this.items = this.wikipediaService.search(term);

@@ -8,10 +8,10 @@ import { Hero }           from './hero';
 
 @Injectable()
 export class HeroService {
-  constructor (private http: Http) {}
-
   // URL to web api
   private heroesUrl = 'app/heroes.json';
+
+  constructor (private http: Http) {}
 
   // #docregion methods
   getHeroes (): Promise<Hero[]> {

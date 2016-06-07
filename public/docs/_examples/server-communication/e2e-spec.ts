@@ -29,7 +29,7 @@ describe('Server Communication', function () {
       addButton.click().then(function() {
         expect(heroTags.count()).toBe(initialHeroCount, 'No new hero should be added');
       });
-    })
+    });
 
     it('should add a new hero to the list', function () {
       expect(heroNameInput).toBeDefined('<input> for hero name must exist');
@@ -40,7 +40,7 @@ describe('Server Communication', function () {
         let newHeroInList = heroTags.get(heroCountAfterAdd - 1).getText();
         expect(newHeroInList).toBe(newHeroName, 'The hero should be added to the end of the list');
       });
-    })
+    });
   });
 
   describe('Wikipedia Demo', function () {
@@ -71,7 +71,7 @@ describe('Server Communication', function () {
     });
 
     function testForRefreshedResult(keyPressed: string, done: () => void) {
-      testForResult('my-wiki', keyPressed, false, done)
+      testForResult('my-wiki', keyPressed, false, done);
     }
   });
 
@@ -102,11 +102,11 @@ describe('Server Communication', function () {
 
 
     function testForNewResult(keyPressed: string, done: () => void) {
-      testForResult('my-wiki-smart', keyPressed, false, done)
+      testForResult('my-wiki-smart', keyPressed, false, done);
     }
 
     function testForStaleResult(keyPressed: string, done: () => void) {
-      testForResult('my-wiki-smart', keyPressed, true, done)
+      testForResult('my-wiki-smart', keyPressed, true, done);
     }
 
   });

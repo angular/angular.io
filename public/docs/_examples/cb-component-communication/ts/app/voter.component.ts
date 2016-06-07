@@ -14,7 +14,7 @@ export class VoterComponent {
   @Output() onVoted = new EventEmitter<boolean>();
   voted = false;
 
-  vote(agreed:boolean){
+  vote(agreed: boolean) {
     this.onVoted.emit(agreed);
     this.voted = true;
   }

@@ -8,7 +8,7 @@ import { Component, Inject } from '@angular/core';
 export class HeroComponent {
   constructor(
     @Inject('heroName')
-      private name:string) {
+      private name: string) {
   }
 }
 // #enddocregion

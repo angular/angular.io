@@ -1,5 +1,5 @@
 // #docregion
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { HeroArena, HeroService, Hero } from './heroes';
 
@@ -8,7 +8,7 @@ import { HeroArena, HeroService, Hero } from './heroes';
   template: '<pre>{{heroes | json}}</pre>',
   providers: [HeroArena, HeroService]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   heroes: Hero[] = [];
 
   constructor(private heroArena: HeroArena) { }

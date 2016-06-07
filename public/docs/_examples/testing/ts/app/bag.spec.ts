@@ -1,5 +1,5 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
-/* tslint:disable:no-unused-variable */
+/* tslint:disable */
 import {
   BadTemplateUrl, ButtonComp,
   ChildChildComp, ChildComp, ChildWithChildComp,

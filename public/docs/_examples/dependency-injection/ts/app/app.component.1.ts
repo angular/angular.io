@@ -13,7 +13,7 @@ import { HeroesComponent }   from './heroes/heroes.component.1';
     <my-car></my-car>
     <my-heroes></my-heroes>
   `,
-  directives:[CarComponent, HeroesComponent]
+  directives: [CarComponent, HeroesComponent]
 })
 
 export class AppComponent {

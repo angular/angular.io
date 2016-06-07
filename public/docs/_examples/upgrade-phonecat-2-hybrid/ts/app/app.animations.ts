@@ -9,7 +9,7 @@ angular.
     };
 
     function animateIn(element: JQuery, className: string, done: () => void) {
-      if (className !== 'selected') return;
+      if (className !== 'selected') { return; }
 
       element.css({
         display: 'block',
@@ -21,12 +21,12 @@ angular.
       }, done);
 
       return function animateInEnd(wasCanceled: boolean) {
-        if (wasCanceled) element.stop();
+        if (wasCanceled) { element.stop(); }
       };
     }
 
     function animateOut(element: JQuery, className: string, done: () => void) {
-      if (className !== 'selected') return;
+      if (className !== 'selected') { return; }
 
       element.css({
         position: 'absolute',
@@ -37,7 +37,7 @@ angular.
       }, done);
 
       return function animateOutEnd(wasCanceled: boolean) {
-        if (wasCanceled) element.stop();
+        if (wasCanceled) { element.stop(); }
       };
     }
   });

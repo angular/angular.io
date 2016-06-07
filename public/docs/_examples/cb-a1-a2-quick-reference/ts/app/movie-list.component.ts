@@ -11,7 +11,7 @@ import { StringSafeDatePipe } from './date.pipe';
 // #docregion component
 @Component({
   selector: 'movie-list',
-  templateUrl:'app/movie-list.component.html',
+  templateUrl: 'app/movie-list.component.html',
 // #enddocregion component
 // #docregion style-url
   styleUrls: ['app/movie-list.component.css'],

@@ -235,8 +235,9 @@ export class ProviderComponent10 {
   log: string;
   // #docregion provider-10-ctor
   constructor(@Optional() private logger: Logger) {
-    if (this.logger)
+    if (this.logger) {
       this.logger.log(some_message);
+    }
   }
   // #enddocregion provider-10-ctor
 

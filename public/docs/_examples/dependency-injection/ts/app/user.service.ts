@@ -1,10 +1,10 @@
 // #docregion
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 export class User {
   constructor(
-    public name:string,
-    public isAuthorized:boolean = false) { }
+    public name: string,
+    public isAuthorized = false) { }
 }
 
 // Todo: get the user; don't 'new' it.

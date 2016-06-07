@@ -11,12 +11,11 @@ import { HeroService }       from './hero.service.promise';
 })
 // #docregion component
 export class HeroListPromiseComponent implements OnInit {
-
-  constructor (private heroService: HeroService) {}
-
   errorMessage: string;
   heroes: Hero[];
   mode = 'Promise';
+
+  constructor (private heroService: HeroService) {}
 
   ngOnInit() { this.getHeroes(); }
 

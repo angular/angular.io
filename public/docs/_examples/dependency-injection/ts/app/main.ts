@@ -2,7 +2,7 @@ import { bootstrap }          from '@angular/platform-browser-dynamic';
 import { AppComponent }       from './app.component';
 import { ProvidersComponent } from './providers.component';
 
-//#docregion bootstrap
+// #docregion bootstrap
 bootstrap(AppComponent);
-//#enddocregion bootstrap
+// #enddocregion bootstrap
 bootstrap(ProvidersComponent);

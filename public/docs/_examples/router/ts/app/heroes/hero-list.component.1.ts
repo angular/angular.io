@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion
 // TODO SOMEDAY: Feature Componetized like HeroCenter
-import {Component, OnInit}   from '@angular/core';
-import {Router}              from '@angular/router';
+import { Component, OnInit }   from '@angular/core';
+import { Router }              from '@angular/router';
 
-import {Hero, HeroService}   from './hero.service';
+import { Hero, HeroService }   from './hero.service';
 
 @Component({
   // #docregion template
@@ -29,7 +29,7 @@ export class HeroListComponent implements OnInit {
   // #enddocregion ctor
 
   ngOnInit() {
-    this.service.getHeroes().then(heroes => this.heroes = heroes)
+    this.service.getHeroes().then(heroes => this.heroes = heroes);
   }
 
   // #docregion select

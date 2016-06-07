@@ -20,8 +20,6 @@ import { Logger }               from './logger.service';
   providers: [Car, Engine, Tires, heroServiceProvider, Logger]
 })
 export class InjectorComponent {
-  constructor(private injector: Injector) { }
-
   car: Car = this.injector.get(Car);
 
   // #docregion get-hero-service
@@ -29,8 +27,10 @@ export class InjectorComponent {
   // #enddocregion get-hero-service
   hero: Hero = this.heroService.getHeroes()[0];
 
+  constructor(private injector: Injector) { }
+
   get rodent() {
-    let rousDontExist = "R.O.U.S.'s? I don't think they exist!";
+    let rousDontExist = `R.O.U.S.'s? I don't think they exist!`;
     return this.injector.get(ROUS, rousDontExist);
   }
 }

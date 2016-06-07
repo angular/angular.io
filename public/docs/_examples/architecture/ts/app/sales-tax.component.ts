@@ -35,7 +35,7 @@ export class SalesTaxComponent {
   constructor(private salesTaxService: SalesTaxService) { }
 // #enddocregion ctor
 
-  getTax(value:string | number){
+  getTax(value: string | number) {
     return this.salesTaxService.getVAT(value);
   }
 }

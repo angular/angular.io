@@ -23,36 +23,36 @@ describe('Router', function () {
       heroDetail: element(by.css('my-app > undefined > div')),
       heroDetailTitle: element(by.css('my-app > undefined > div > h3')),
 
-    }
+    };
   }
 
   it('should be able to see the start screen', function () {
     let page = getPageStruct();
     expect(page.hrefs.count()).toEqual(2, 'should be two dashboard choices');
-    expect(page.crisisHref.getText()).toEqual("Crisis Center");
-    expect(page.heroesHref.getText()).toEqual("Heroes");
+    expect(page.crisisHref.getText()).toEqual('Crisis Center');
+    expect(page.heroesHref.getText()).toEqual('Heroes');
   });
 
   it('should be able to see crises center items', function () {
     let page = getPageStruct();
-    expect(page.crisisList.count()).toBe(4, "should be 4 crisis center entries at start");
+    expect(page.crisisList.count()).toBe(4, 'should be 4 crisis center entries at start');
   });
 
   it('should be able to see hero items', function () {
     let page = getPageStruct();
     page.heroesHref.click().then(function() {
       expect(page.routerTitle.getText()).toContain('HEROES');
-      expect(page.heroesList.count()).toBe(6, "should be 6 heroes");
+      expect(page.heroesList.count()).toBe(6, 'should be 6 heroes');
     });
   });
 
   it('should be able to toggle the views', function () {
     let page = getPageStruct();
     page.crisisHref.click().then(function() {
-      expect(page.crisisList.count()).toBe(4, "should be 4 crisis center entries");
+      expect(page.crisisList.count()).toBe(4, 'should be 4 crisis center entries');
       return page.heroesHref.click();
     }).then(function() {
-      expect(page.heroesList.count()).toBe(6, "should be 6 heroes");
+      expect(page.heroesList.count()).toBe(6, 'should be 6 heroes');
     });
   });
 
@@ -77,7 +77,7 @@ describe('Router', function () {
       heroText = text.substr(text.indexOf(' ')).trim();
       return heroEle.click();
     }).then(function() {
-      expect(page.heroesList.count()).toBe(0, "should no longer see crisis center entries");
+      expect(page.heroesList.count()).toBe(0, 'should no longer see crisis center entries');
       expect(page.heroDetail.isPresent()).toBe(true, 'should be able to see crisis detail');
       expect(page.heroDetailTitle.getText()).toContain(heroText);
       let inputEle = page.heroDetail.element(by.css('input'));
@@ -88,7 +88,7 @@ describe('Router', function () {
       return buttonEle.click();
     }).then(function() {
       expect(heroEle.getText()).toContain(heroText + '-foo');
-    })
+    });
   });
 
   function crisisCenterEdit(index: number, shouldSave: boolean) {
@@ -105,7 +105,7 @@ describe('Router', function () {
       crisisText = text.substr(text.indexOf(' ')).trim();
       return crisisEle.click();
     }).then(function () {
-      expect(page.crisisList.count()).toBe(0, "should no longer see crisis center entries");
+      expect(page.crisisList.count()).toBe(0, 'should no longer see crisis center entries');
       expect(page.crisisDetail.isPresent()).toBe(true, 'should be able to see crisis detail');
       expect(page.crisisDetailTitle.getText()).toContain(crisisText);
       let inputEle = page.crisisDetail.element(by.css('input'));

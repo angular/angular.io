@@ -50,7 +50,7 @@ export class HeroListComponent implements OnInit {
   ngOnInit() {
 
 
-  this.service.getHeroes().then(heroes => this.heroes = heroes)
+  this.service.getHeroes().then(heroes => this.heroes = heroes);
   }
 }
 // #enddocregion

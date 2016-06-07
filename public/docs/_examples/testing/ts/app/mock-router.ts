@@ -1,3 +1,4 @@
+/* tslint:disable */
 export * from '@angular/router-deprecated';
 
 import { Directive, DynamicComponentLoader, ViewContainerRef,

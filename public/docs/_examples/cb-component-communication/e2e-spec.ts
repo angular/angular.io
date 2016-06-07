@@ -20,8 +20,8 @@ describe('Component Communication Cookbook Tests', function () {
       for (let i = 0; i < _heroNames.length; i++) {
         let childTitle = heroes.get(i).element(by.tagName('h3')).getText();
         let childDetail = heroes.get(i).element(by.tagName('p')).getText();
-        expect(childTitle).toEqual(_heroNames[i] + ' says:')
-        expect(childDetail).toContain(_masterName)
+        expect(childTitle).toEqual(_heroNames[i] + ' says:');
+        expect(childDetail).toContain(_masterName);
       }
     });
     // ...
@@ -38,7 +38,7 @@ describe('Component Communication Cookbook Tests', function () {
       let hero = parent.all(by.tagName('name-child')).get(_nonEmptyNameIndex);
 
       let displayName = hero.element(by.tagName('h3')).getText();
-      expect(displayName).toEqual(_nonEmptyName)
+      expect(displayName).toEqual(_nonEmptyName);
     });
 
     it('should replace empty name with default name', function () {
@@ -48,7 +48,7 @@ describe('Component Communication Cookbook Tests', function () {
       let hero = parent.all(by.tagName('name-child')).get(_emptyNameIndex);
 
       let displayName = hero.element(by.tagName('h3')).getText();
-      expect(displayName).toEqual(_defaultName)
+      expect(displayName).toEqual(_defaultName);
     });
     // ...
     // #enddocregion parent-to-child-setter
@@ -83,7 +83,7 @@ describe('Component Communication Cookbook Tests', function () {
           expect(actual.label).toBe(labelAfter2Minor);
           expect(actual.count).toBe(3);
           expect(actual.logs.get(2).getText()).toBe(logAfter2Minor);
-        })
+        });
       });
     });
 
@@ -155,11 +155,11 @@ describe('Component Communication Cookbook Tests', function () {
   // Can't run timer tests in protractor because
   // interaction w/ zones causes all tests to freeze & timeout.
   xdescribe('Parent calls child via local var', function() {
-    countDownTimerTests('countdown-parent-lv')
+    countDownTimerTests('countdown-parent-lv');
   });
 
   xdescribe('Parent calls ViewChild', function() {
-    countDownTimerTests('countdown-parent-vc')
+    countDownTimerTests('countdown-parent-vc');
   });
 
   function countDownTimerTests(parentTag: string) {

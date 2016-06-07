@@ -4,7 +4,7 @@ import { bootstrap }           from '@angular/platform-browser-dynamic';
 import { HeroesListComponent } from './heroes-list.component';
 import { HeroesService }       from './heroes.service';
 
-bootstrap(HeroesListComponent, [HeroesService])
+bootstrap(HeroesListComponent, [HeroesService]);
 
 /* Documentation artifact below
 // #docregion bad-alternative
