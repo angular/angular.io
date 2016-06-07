@@ -1,7 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { SomeAbsoluteComponent, SomeRelativeComponent} from './some.component';
+import { SomeAbsoluteComponent, SomeRelativeComponent } from './some.component';
 
 @Component({
 selector: 'my-app',

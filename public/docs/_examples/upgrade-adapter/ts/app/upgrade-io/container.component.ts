@@ -17,7 +17,7 @@ const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
 })
 export class ContainerComponent {
   hero = new Hero(1, 'Windstorm');
-  heroDeleted(hero:Hero) {
+  heroDeleted(hero: Hero) {
     hero.name = 'Ex-' + hero.name;
   }
 }

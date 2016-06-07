@@ -21,7 +21,7 @@ import { MissionService }     from './mission.service';
   providers: [MissionService]
 })
 export class MissionControlComponent {
-  astronauts = ['Lovell', 'Swigert', 'Haise']
+  astronauts = ['Lovell', 'Swigert', 'Haise'];
   history: string[] = [];
   missions = ['Fly to the moon!',
               'Fly to mars!',
@@ -32,7 +32,7 @@ export class MissionControlComponent {
     missionService.missionConfirmed$.subscribe(
       astronaut => {
         this.history.push(`${astronaut} confirmed the mission`);
-      })
+      });
   }
 
   announce() {

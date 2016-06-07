@@ -17,14 +17,14 @@ import { PhoneListComponent } from './phone-list.component';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 class MockPhone extends Phone {
-  query():Observable<PhoneData[]> {
+  query(): Observable<PhoneData[]> {
     console.log('mocking here');
     return Observable.of(
       [
         {name: 'Nexus S', snippet: '', images: []},
         {name: 'Motorola DROID', snippet: '', images: []}
       ]
-    )
+    );
   }
 }
 

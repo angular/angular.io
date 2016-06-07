@@ -8,12 +8,12 @@ import { Logger }     from '../logger.service';
 @Injectable()
 export class HeroService {
 
-  //#docregion ctor
+  // #docregion ctor
   constructor(private logger: Logger) {  }
-  //#enddocregion ctor
+  // #enddocregion ctor
 
   getHeroes() {
-    this.logger.log('Getting heroes ...')
+    this.logger.log('Getting heroes ...');
     return HEROES;
   }
 }

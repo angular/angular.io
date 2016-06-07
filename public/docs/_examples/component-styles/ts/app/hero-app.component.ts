@@ -16,7 +16,7 @@ export class HeroAppComponent {
   hero = new Hero(
     'Human Torch',
     ['Mister Fantastic', 'Invisible Woman', 'Thing']
-  )
+  );
 
   @HostBinding('class') get themeClass() {
     return 'theme-light';

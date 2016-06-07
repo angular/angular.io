@@ -14,7 +14,7 @@ import { HEROES }                 from './heroes';
 })
 // #docregion v1
 export class FlyingHeroesComponent {
-  heroes:any[] = [];
+  heroes: any[] = [];
   canFly = true;
 // #enddocregion v1
   mutate = true;
@@ -23,7 +23,7 @@ export class FlyingHeroesComponent {
 // #docregion v1
   constructor() { this.reset(); }
 
-  addHero(name:string) {
+  addHero(name: string) {
     name = name.trim();
     if (!name) { return; }
     let hero = {name, canFly: this.canFly};
@@ -33,7 +33,7 @@ export class FlyingHeroesComponent {
     // Impure pipe will display
 // #docregion v1
 // #docregion push
-    this.heroes.push(hero)
+    this.heroes.push(hero);
 // #enddocregion push
 // #enddocregion v1
     } else {

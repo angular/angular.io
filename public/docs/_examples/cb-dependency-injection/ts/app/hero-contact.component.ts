@@ -1,14 +1,14 @@
 // #docplaster
 // #docregion
-import { Component, ElementRef, Host, Inject,  Optional } from '@angular/core';
+import { Component, ElementRef, Host, Inject, Optional } from '@angular/core';
 
 import { HeroCacheService } from './hero-cache.service';
 import { LoggerService }    from './logger.service';
 
 // #docregion component
 @Component({
-  selector:'hero-contact',
-  template:`
+  selector: 'hero-contact',
+  template: `
   <div>Phone #: {{phoneNumber}}
   <span *ngIf="hasLogger">!!!</span></div>`
 })

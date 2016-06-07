@@ -11,7 +11,7 @@ import { Component, OnInit }
 // #docregion
 export class HeroComponent
     implements OnInit {
-  name:string;
+  name: string;
   ngOnInit() {
     this.name = 'Windstorm';
   }

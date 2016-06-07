@@ -1,3 +1,4 @@
+/* tslint:disable */
 // Simulate a simple test
 // Reader should look to the testing chapter for the real thing
 
@@ -20,15 +21,15 @@ export class TestComponent {
 /////////////////////////////////////
 function runTests() {
 
-  //#docregion spec
+  // #docregion spec
   let expectedHeroes = [{name: 'A'}, {name: 'B'}]
   let mockService = <HeroService> {getHeroes: () => expectedHeroes }
 
-  it("should have heroes when HeroListComponent created", () => {
+  it('should have heroes when HeroListComponent created', () => {
     let hlc = new HeroListComponent(mockService);
     expect(hlc.heroes.length).toEqual(expectedHeroes.length);
-  })
-  //#enddocregion spec
+  });
+  // #enddocregion spec
 
   return testResults;
 }
@@ -36,19 +37,19 @@ function runTests() {
 //////////////////////////////////
 // Fake Jasmine infrastructure
 var testName: string;
-var testResults: {pass:string; message:string};
+var testResults: {pass: string; message: string};
 
-function expect(actual:any) {
+function expect(actual: any) {
   return {
-    toEqual: function(expected:any){
-      testResults = actual === expected?
-        {pass:'passed', message: testName} :
-        {pass:'failed', message: `${testName}; expected ${actual} to equal ${expected}.`};
+    toEqual: function(expected: any){
+      testResults = actual === expected ?
+        {pass: 'passed', message: testName} :
+        {pass: 'failed', message: `${testName}; expected ${actual} to equal ${expected}.`};
     }
-  }
+  };
 }
 
-function it(label:string, test: () => void) {
+function it(label: string, test: () => void) {
   testName = label;
   test();
 }

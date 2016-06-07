@@ -31,7 +31,7 @@ import { ProvidersComponent } from './providers.component';
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
   `,
-  directives:[CarComponent, HeroesComponent,
+  directives: [CarComponent, HeroesComponent,
               InjectorComponent, TestComponent, ProvidersComponent],
   // #docregion providers
   providers: [
@@ -42,22 +42,22 @@ import { ProvidersComponent } from './providers.component';
   // #enddocregion providers
 })
 export class AppComponent {
-  title:string;
+  title: string;
 
   // #docregion ctor
   constructor(
-    @Inject(APP_CONFIG) config:AppConfig,
+    @Inject(APP_CONFIG) config: AppConfig,
     private userService: UserService) {
     this.title = config.title;
   }
   // #enddocregion ctor
 
-  get isAuthorized() { return this.user.isAuthorized;}
+  get isAuthorized() { return this.user.isAuthorized; }
   nextUser()         { this.userService.getNewUser(); }
   get user()         { return this.userService.user; }
 
   get userInfo()     {
-    return `Current user, ${this.user.name}, is `+
+    return `Current user, ${this.user.name}, is ` +
            `${this.isAuthorized ? '' : 'not'} authorized. `;
   }
 }

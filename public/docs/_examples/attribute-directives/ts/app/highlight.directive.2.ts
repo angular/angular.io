@@ -14,12 +14,12 @@ import { Directive, ElementRef, Input } from '@angular/core';
 export class HighlightDirective {
 
   // #docregion ctor
-  private el:HTMLElement;
+  private el: HTMLElement;
   constructor(el: ElementRef) { this.el = el.nativeElement; }
   // #enddocregion ctor
 
   // #docregion mouse-methods
-  onMouseEnter() { this.highlight("yellow"); }
+  onMouseEnter() { this.highlight('yellow'); }
   onMouseLeave() { this.highlight(null); }
 
   private highlight(color: string) {

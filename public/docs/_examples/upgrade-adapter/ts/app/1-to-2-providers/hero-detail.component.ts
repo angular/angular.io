@@ -10,8 +10,8 @@ import { Hero } from '../hero';
   `
 })
 export class HeroDetailComponent {
-  hero:Hero;
-  constructor(@Inject('heroes') heroes:HeroesService) {
+  hero: Hero;
+  constructor(@Inject('heroes') heroes: HeroesService) {
     this.hero = heroes.get()[0];
   }
 }

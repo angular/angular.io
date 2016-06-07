@@ -6,7 +6,7 @@ import { Flyer } from './heroes';
 
 @Pipe({ name: 'flyingHeroes' })
 export class FlyingHeroesPipe implements PipeTransform {
-  transform(allHeroes:Flyer[]) {
+  transform(allHeroes: Flyer[]) {
     // #docregion filter
     return allHeroes.filter(hero => hero.canFly);
     // #enddocregion filter

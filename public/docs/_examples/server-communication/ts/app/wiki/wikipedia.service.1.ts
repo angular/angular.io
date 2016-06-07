@@ -14,7 +14,7 @@ export class WikipediaService {
 
     // #docregion query-string
     let queryString =
-      `?search=${term}&action=opensearch&format=json&callback=JSONP_CALLBACK`
+      `?search=${term}&action=opensearch&format=json&callback=JSONP_CALLBACK`;
 
     return this.jsonp
                .get(wikiUrl + queryString)

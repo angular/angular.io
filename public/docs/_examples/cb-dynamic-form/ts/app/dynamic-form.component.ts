@@ -7,8 +7,8 @@ import { QuestionControlService }       from './question-control.service';
 import { DynamicFormQuestionComponent } from './dynamic-form-question.component';
 
 @Component({
-  selector:'dynamic-form',
-  templateUrl:'app/dynamic-form.component.html',
+  selector: 'dynamic-form',
+  templateUrl: 'app/dynamic-form.component.html',
   directives: [DynamicFormQuestionComponent],
   providers:  [QuestionControlService]
 })
@@ -20,7 +20,7 @@ export class DynamicForm {
 
   constructor(private qcs: QuestionControlService) {  }
 
-  ngOnInit(){
+  ngOnInit() {
     this.form = this.qcs.toControlGroup(this.questions);
   }
 

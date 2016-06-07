@@ -18,5 +18,5 @@ export function heroDetailDirective() {
       };
     },
     controllerAs: 'ctrl'
-  }
+  };
 }

@@ -9,19 +9,19 @@ import { UserService }   from './user.service';
 @Injectable()
 export class UserContextService {
 // #enddocregion injectables, injectable
-  name:string;
-  role:string;
-  loggedInSince:Date;
+  name: string;
+  role: string;
+  loggedInSince: Date;
 
   // #docregion ctor, injectables
-  constructor(private userService:UserService, private loggerService:LoggerService){
+  constructor(private userService: UserService, private loggerService: LoggerService) {
    // #enddocregion ctor, injectables
     this.loggedInSince = new Date();
    // #docregion ctor, injectables
   }
   // #enddocregion ctor, injectables
 
-  loadUser(userId:number){
+  loadUser(userId: number) {
     let user = this.userService.getUserById(userId);
     this.name = user.name;
     this.role = user.role;

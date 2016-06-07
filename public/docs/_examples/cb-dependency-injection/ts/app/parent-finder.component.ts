@@ -23,7 +23,7 @@ const provideParent =
 // #enddocregion provide-parent, provide-the-parent
 // #docregion provide-parent
   (component: any, parentType?: any) => {
-    return { provide: parentType || Parent, useExisting: forwardRef(() => component) }
+    return { provide: parentType || Parent, useExisting: forwardRef(() => component) };
   };
 // #enddocregion provide-parent
 
@@ -31,7 +31,7 @@ const provideParent =
 const provideTheParent =
 // #docregion provide-the-parent
   (component: any) => {
-    return { provide: Parent, useExisting: forwardRef(() => component) }
+    return { provide: Parent, useExisting: forwardRef(() => component) };
   };
 // #enddocregion provide-the-parent
 

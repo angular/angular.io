@@ -57,9 +57,9 @@ describe('Structural Directives', function () {
   it('should be able to use *ngIf ', function () {
     let setConditionButtonEle = element.all(by.css('button')).get(0);
     let displayEles = element.all(by.cssContainingText('p', 'Our heroes are true!'));
-    expect(displayEles.count()).toBe(2, "should be displaying two ngIf elements");
+    expect(displayEles.count()).toBe(2, 'should be displaying two ngIf elements');
     setConditionButtonEle.click().then(function() {
-      expect(displayEles.count()).toBe(0, "should nog longer be displaying ngIf elements");
+      expect(displayEles.count()).toBe(0, 'should nog longer be displaying ngIf elements');
     });
   });
 });

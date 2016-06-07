@@ -13,15 +13,15 @@ export class HeroService {
   // See the "Take it slow" appendix
   getHeroesSlowly() {
     return new Promise<Hero[]>(resolve =>
-      setTimeout(()=>resolve(HEROES), 2000) // 2 seconds
+      setTimeout(() => resolve(HEROES), 2000) // 2 seconds
     );
   }
 
-  //#docregion get-hero
+  // #docregion get-hero
   getHero(id: number) {
     return this.getHeroes()
                .then(heroes => heroes.filter(hero => hero.id === id)[0]);
   }
-  //#enddocregion get-hero
+  // #enddocregion get-hero
 }
 // #enddocregion

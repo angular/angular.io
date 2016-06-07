@@ -17,7 +17,7 @@ import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 
 import { Router,       MockRouter,
          RouterLink,   MockRouterLink,
-         RouterOutlet, MockRouterOutlet} from './mock-router';
+         RouterOutlet, MockRouterOutlet } from './mock-router';
 
 describe('AppComponent', () => {
   let fixture: ComponentFixture<AppComponent>;

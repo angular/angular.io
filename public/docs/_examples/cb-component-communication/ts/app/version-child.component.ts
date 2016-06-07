@@ -17,7 +17,7 @@ export class VersionChildComponent implements OnChanges {
   @Input() minor: number;
   changeLog: string[] = [];
 
-  ngOnChanges(changes: {[propKey:string]: SimpleChange}){
+  ngOnChanges(changes: {[propKey: string]: SimpleChange}) {
     let log: string[] = [];
     for (let propName in changes) {
       let changedProp = changes[propName];

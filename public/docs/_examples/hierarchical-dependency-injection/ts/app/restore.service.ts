@@ -8,16 +8,16 @@ export class RestoreService<T> {
     this.currentItem = this.clone(item);
   }
 
-  getItem () :T {
+  getItem (): T {
     return this.currentItem;
   }
 
-  restoreItem () :T {
+  restoreItem (): T {
     this.currentItem = this.originalItem;
     return this.getItem();
   }
 
-  clone (item: T) :T {
+  clone (item: T): T {
     // super poor clone implementation
     return JSON.parse(JSON.stringify(item));
   }

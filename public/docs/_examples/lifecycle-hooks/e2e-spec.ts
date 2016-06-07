@@ -11,22 +11,22 @@ describe('Lifecycle hooks', function () {
 
   it('should support peek-a-boo', function () {
     let pabComp = element(by.css('peek-a-boo-parent peek-a-boo'));
-    expect(pabComp.isPresent()).toBe(false, "should not be able to find the 'peek-a-boo' component");
+    expect(pabComp.isPresent()).toBe(false, 'should not be able to find the "peek-a-boo" component');
     let pabButton = element.all(by.css('peek-a-boo-parent button')).get(0);
     let updateHeroButton = element.all(by.css('peek-a-boo-parent button')).get(1);
     expect(pabButton.getText()).toContain('Create Peek');
     pabButton.click().then(function () {
       expect(pabButton.getText()).toContain('Destroy Peek');
-      expect(pabComp.isDisplayed()).toBe(true, "should be able to see the 'peek-a-boo' component");
+      expect(pabComp.isDisplayed()).toBe(true, 'should be able to see the "peek-a-boo" component');
       expect(pabComp.getText()).toContain('Windstorm');
       expect(pabComp.getText()).not.toContain('Windstorm!');
-      expect(updateHeroButton.isPresent()).toBe(true, "should be able to see the update hero button");
+      expect(updateHeroButton.isPresent()).toBe(true, 'should be able to see the update hero button');
       return updateHeroButton.click();
     }).then(function () {
       expect(pabComp.getText()).toContain('Windstorm!');
       return pabButton.click();
     }).then(function () {
-      expect(pabComp.isPresent()).toBe(false, "should no longer be able to find the 'peek-a-boo' component");
+      expect(pabComp.isPresent()).toBe(false, 'should no longer be able to find the "peek-a-boo" component');
     });
   });
 
@@ -39,18 +39,18 @@ describe('Lifecycle hooks', function () {
     let changeLogEles = onChangesViewEle.all(by.css('div'));
 
     expect(titleEle.getText()).toContain('Windstorm can sing');
-    expect(changeLogEles.count()).toEqual(2, "should start with 2 messages");
+    expect(changeLogEles.count()).toEqual(2, 'should start with 2 messages');
     // heroNameInputEle.sendKeys('-foo-').then(function () {
     sendKeys(heroNameInputEle, '-foo-').then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
-      expect(changeLogEles.count()).toEqual(2, "should still have 2 messages");
+      expect(changeLogEles.count()).toEqual(2, 'should still have 2 messages');
       // protractor bug with sendKeys means that line below does not work.
       // return powerInputEle.sendKeys('-bar-');
       return sendKeys(powerInputEle, '-bar-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
       // 7 == 2 previously + length of '-bar-'
-      expect(changeLogEles.count()).toEqual(7, "should have 7 messages now");
+      expect(changeLogEles.count()).toEqual(7, 'should have 7 messages now');
     });
   });
 
@@ -66,16 +66,16 @@ describe('Lifecycle hooks', function () {
     expect(titleEle.getText()).toContain('Windstorm can sing');
     changeLogEles.count().then(function(count) {
       // Empirically 5 messages to start
-      expect(count).toBeGreaterThan(4, "should start with some messages");
+      expect(count).toBeGreaterThan(4, 'should start with some messages');
       logCount = count;
       // heroNameInputEle.sendKeys('-foo-').then(function () {
-      return sendKeys(heroNameInputEle, '-foo-')
+      return sendKeys(heroNameInputEle, '-foo-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
-      return changeLogEles.count()
+      return changeLogEles.count();
     }).then(function (count) {
       // two more for each keystroke except the 1st
-      expect(count).toEqual(logCount + 9, 'should add 9 more messages')
+      expect(count).toEqual(logCount + 9, 'should add 9 more messages');
       logCount = count;
       // return powerInputEle.sendKeys('-bar-');
       return sendKeys(powerInputEle, '-bar-');
@@ -99,18 +99,18 @@ describe('Lifecycle hooks', function () {
 
     logEles.count().then(function(count) {
       logCount = count;
-      return sendKeys(childViewInputEle, "-test-");
+      return sendKeys(childViewInputEle, '-test-');
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
-      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');
+      expect(commentEle.isPresent()).toBe(true, 'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 10).toEqual(count, "10 additional log messages should have been added");
+      expect(logCount + 10).toEqual(count, '10 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
     }).then(function() {
-      expect(logEles.count()).toBeLessThan(logCount, "log should shrink after reset");
+      expect(logEles.count()).toBeLessThan(logCount, 'log should shrink after reset');
     });
   });
 
@@ -128,30 +128,30 @@ describe('Lifecycle hooks', function () {
 
     logEles.count().then(function(count) {
       logCount = count;
-      return sendKeys(childViewInputEle, "-test-");
+      return sendKeys(childViewInputEle, '-test-');
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
-      expect(commentEle.isPresent()).toBe(true,'should have comment because >10 chars');
+      expect(commentEle.isPresent()).toBe(true, 'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 10).toEqual(count, "10 additional log messages should have been added");
+      expect(logCount + 10).toEqual(count, '10 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
     }).then(function() {
-      expect(logEles.count()).toBeLessThan(logCount, "log should shrink after reset");
+      expect(logEles.count()).toBeLessThan(logCount, 'log should shrink after reset');
     });
   });
 
   it('should support spy\'s OnInit & OnDestroy hooks', function () {
     let inputEle = element(by.css('spy-parent input'));
-    let addHeroButtonEle = element(by.cssContainingText('spy-parent button','Add Hero'));
-    let resetHeroesButtonEle = element(by.cssContainingText('spy-parent button','Reset Heroes'));
+    let addHeroButtonEle = element(by.cssContainingText('spy-parent button', 'Add Hero'));
+    let resetHeroesButtonEle = element(by.cssContainingText('spy-parent button', 'Reset Heroes'));
     let heroEles = element.all(by.css('spy-parent div[mySpy'));
     let logEles = element.all(by.css('spy-parent h4 ~ div'));
     expect(heroEles.count()).toBe(2, 'should have two heroes displayed');
     expect(logEles.count()).toBe(2, 'should have two log entries');
-    sendKeys(inputEle, "-test-").then(function() {
+    sendKeys(inputEle, '-test-').then(function() {
       return addHeroButtonEle.click();
     }).then(function() {
       expect(heroEles.count()).toBe(3, 'should have added one hero');
@@ -161,12 +161,12 @@ describe('Lifecycle hooks', function () {
     }).then(function() {
       expect(heroEles.count()).toBe(0, 'should no longer have any heroes');
       expect(logEles.count()).toBe(7, 'should now have 7 log entries - 3 orig + 1 reset + 3 removeall');
-    })
+    });
   });
 
   it('should support "spy counter"', function () {
-    let updateCounterButtonEle = element(by.cssContainingText('counter-parent button','Update'));
-    let resetCounterButtonEle = element(by.cssContainingText('counter-parent button','Reset'));
+    let updateCounterButtonEle = element(by.cssContainingText('counter-parent button', 'Update'));
+    let resetCounterButtonEle = element(by.cssContainingText('counter-parent button', 'Reset'));
     let textEle = element(by.css('counter-parent my-counter > div'));
     let logEles = element.all(by.css('counter-parent h4 ~ div'));
     expect(textEle.getText()).toContain('Counter = 0');
@@ -178,8 +178,6 @@ describe('Lifecycle hooks', function () {
     }).then(function() {
       expect(textEle.getText()).toContain('Counter = 0');
       expect(logEles.count()).toBe(7, 'should now have 7 log entries - 3 prev + 1 reset + 2 destroy + 1 init');
-    })
+    });
   });
-
-
 });

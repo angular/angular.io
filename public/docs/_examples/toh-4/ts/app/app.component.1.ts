@@ -42,7 +42,7 @@ export class AppComponent implements OnInit {
   // #enddocregion ctor
   // #docregion getHeroes
   getHeroes() {
-    //#docregion get-heroes
+    // #docregion get-heroes
     this.heroes = this.heroService.getHeroes();
     // #enddocregion get-heroes
   }

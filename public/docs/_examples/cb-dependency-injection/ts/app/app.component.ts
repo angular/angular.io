@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 
 import { HeroBiosComponent,
-         HeroBiosAndContactsComponent} from './hero-bios.component';
+         HeroBiosAndContactsComponent } from './hero-bios.component';
 import { HeroOfTheMonthComponent }     from './hero-of-the-month.component';
 import { HeroesBaseComponent,
          SortedHeroesComponent }       from './sorted-heroes.component';

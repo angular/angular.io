@@ -2,7 +2,7 @@
 // #docregion
 import { AfterViewChecked, AfterViewInit, Component, ViewChild } from '@angular/core';
 
-import {LoggerService}  from './logger.service';
+import { LoggerService }  from './logger.service';
 
 //////////////////
 // #docregion child-view
@@ -39,7 +39,7 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
   @ViewChild(ChildViewComponent) viewChild: ChildViewComponent;
 
 // #enddocregion hooks
-  constructor(private logger:LoggerService){
+  constructor(private logger: LoggerService) {
     this.logIt('AfterView constructor');
   }
 
@@ -67,7 +67,7 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
 // #docregion do-something
   // This surrogate for real business logic sets the `comment`
   private doSomething() {
-    let c = this.viewChild.hero.length > 10 ? "That's a long name" : '';
+    let c = this.viewChild.hero.length > 10 ? `That's a long name` : '';
     if (c !== this.comment) {
       // Wait a tick because the component's view has already been checked
       this.logger.tick_then(() => this.comment = c);
@@ -75,9 +75,9 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
   }
 // #enddocregion do-something
 
-  private logIt(method:string){
+  private logIt(method: string) {
     let child = this.viewChild;
-    let message = `${method}: ${child ? child.hero:'no'} child view`
+    let message = `${method}: ${child ? child.hero : 'no'} child view`;
     this.logger.log(message);
   }
 // #docregion hooks
@@ -100,11 +100,11 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
   </div>
   `,
   styles: ['.parent {background: burlywood}'],
-  providers:[LoggerService],
+  providers: [LoggerService],
   directives: [AfterViewComponent]
 })
 export class AfterViewParentComponent {
-  logs:string[];
+  logs: string[];
   show = true;
 
   constructor(private logger: LoggerService) {
@@ -112,7 +112,7 @@ export class AfterViewParentComponent {
   }
 
   reset() {
-    this.logs.length=0;
+    this.logs.length = 0;
     // quickly remove and reload AfterViewComponent which recreates it
     this.show = false;
     this.logger.tick_then(() => this.show = true);

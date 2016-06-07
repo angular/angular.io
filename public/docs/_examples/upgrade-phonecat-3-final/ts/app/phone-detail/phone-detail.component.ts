@@ -10,7 +10,7 @@ import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
   templateUrl: 'phone-detail/phone-detail.template.html',
   pipes: [ CheckmarkPipe ]
 })
-export class PhoneDetailComponent{
+export class PhoneDetailComponent {
   phone: PhoneData;
   mainImageUrl: string;
 

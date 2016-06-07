@@ -8,8 +8,8 @@ import { DataService } from './data.service';
   template: `<h1>Hero: {{name}}</h1>`
 })
 export class HeroComponent {
-  name:string;
-  constructor(dataService:DataService) {
+  name: string;
+  constructor(dataService: DataService) {
     this.name = dataService.getHeroName();
   }
 }

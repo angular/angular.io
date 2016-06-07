@@ -6,7 +6,7 @@ describe('phoneDetail', () => {
 
   // Test the controller
   describe('PhoneDetailController', () => {
-    let $httpBackend: angular.IHttpBackendService
+    let $httpBackend: angular.IHttpBackendService;
     let ctrl: any;
     let xyzPhoneData = {
       name: 'phone xyz',

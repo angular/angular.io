@@ -24,15 +24,15 @@ import { Hero } from './hero';
     </div>
   `
   // #enddocregion template
-// #docregion v1  
+// #docregion v1
 })
 export class HeroDetailComponent {
 // #enddocregion v1
 // #docregion hero-input
-  @Input() 
-// #docregion hero  
+  @Input()
+// #docregion hero
   hero: Hero;
-// #enddocregion hero  
+// #enddocregion hero
 // #enddocregion hero-input
 // #docregion v1
 }

@@ -1,6 +1,6 @@
 // #docregion routestuff
 import { ApplicationRef } from '@angular/core';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
+import { LocationStrategy } from '@angular/common';
 import { HTTP_PROVIDERS } from '@angular/http';
 import {
   ROUTER_PROVIDERS,
@@ -29,11 +29,11 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 
 
 class MockPhone extends Phone {
-  query():Observable<PhoneData[]> {
+  query(): Observable<PhoneData[]> {
     return Observable.of([
       {name: 'Nexus S', snippet: '', images: []},
       {name: 'Motorola DROID', snippet: '', images: []}
-    ])
+    ]);
   }
 }
 

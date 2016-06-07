@@ -1,5 +1,5 @@
 // #docregion
-import { Injectable } from '@angular/core'
+import { Injectable } from '@angular/core';
 import { Subject }    from 'rxjs/Subject';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class MissionService {
 
   // Service message commands
   announceMission(mission: string) {
-    this.missionAnnouncedSource.next(mission)
+    this.missionAnnouncedSource.next(mission);
   }
 
   confirmMission(astronaut: string) {

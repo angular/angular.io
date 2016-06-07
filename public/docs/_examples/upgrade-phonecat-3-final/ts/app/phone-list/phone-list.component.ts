@@ -12,7 +12,7 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 // #enddocregion top
 export class PhoneListComponent {
   phones: PhoneData[];
-  query:string;
+  query: string;
   orderProp: string;
 
   constructor(phone: Phone) {
@@ -24,7 +24,7 @@ export class PhoneListComponent {
   // #enddocregion initialclass
 
   // #docregion getphones
-  getPhones():PhoneData[] {
+  getPhones(): PhoneData[] {
     return this.sortPhones(this.filterPhones(this.phones));
   }
 

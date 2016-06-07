@@ -14,7 +14,7 @@ import { PowerBoostCalculator } from './power-boost-calculator.component';
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
-  directives:[
+  directives: [
     FlyingHeroesComponent, FlyingHeroesImpureComponent,
     HeroAsyncMessageComponent,
     HeroBirthday,
@@ -22,8 +22,8 @@ import { PowerBoostCalculator } from './power-boost-calculator.component';
     HeroListComponent,
     PowerBooster, PowerBoostCalculator
   ],
-  providers:[HTTP_PROVIDERS]
+  providers: [HTTP_PROVIDERS]
 })
 export class AppComponent {
-  birthday = new Date(1988,3,15); // April 15, 1988
+  birthday = new Date(1988, 3, 15); // April 15, 1988
 }

@@ -1,7 +1,7 @@
 export class Hero {
-  active:boolean;
+  active: boolean;
 
-  constructor(public name:string,
-              public team:string[]) {
+  constructor(public name: string,
+              public team: string[]) {
   }
 }
