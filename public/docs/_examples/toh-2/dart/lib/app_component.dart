@@ -1,4 +1,4 @@
-// #docregion pt2
+// #docregion
 import 'package:angular2/core.dart';
 
 class Hero {
@@ -29,7 +29,7 @@ class Hero {
         </div>
       </div>
     ''',
-// #docregion styles-1
+// #docregion styles
     styles: const [
       '''
       .selected {
@@ -80,21 +80,21 @@ class Hero {
       }
     '''
     ])
-// #enddocregion styles-1
+// #enddocregion styles
 class AppComponent {
   final String title = 'Tour of Heroes';
   final List<Hero> heroes = mockHeroes;
-// #docregion selected-hero-1
+// #docregion selected-hero
   Hero selectedHero;
-// #enddocregion selected-hero-1
+// #enddocregion selected-hero
 
-// #docregion on-select-1
+// #docregion on-select
   onSelect(Hero hero) {
     selectedHero = hero;
   }
-// #enddocregion on-select-1
+// #enddocregion on-select
 }
-// #enddocregion pt2
+// #enddocregion
 
 // #docregion hero-array
 final List<Hero> mockHeroes = [
@@ -109,6 +109,3 @@ final List<Hero> mockHeroes = [
   new Hero(19, 'Magma'),
   new Hero(20, 'Tornado')
 ];
-// #enddocregion hero-array
-
-// #enddocregion pt2
