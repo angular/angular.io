@@ -29,15 +29,18 @@ class ProviderComponent1 {
 
 /// Component just used to ensure that shared E2E tests pass.
 @Component(
-  selector: 'provider-3a',
+  selector: 'provider-3',
   template: '{{log}}',
-  providers: const [const Provider(Logger, useClass: Logger)]
+  providers: 
+    // #docregion providers-3
+    const [const Provider(Logger, useClass: Logger)]
+    // #enddocregion providers-3
 )
-class ProviderComponent3a {
+class ProviderComponent3 {
   String log;
 
-  ProviderComponent3a(Logger logger) {
-    logger.log('Hello from logger provided with {provide: Logger, useClass: Logger}');
+  ProviderComponent3(Logger logger) {
+    logger.log('Hello from logger provided with useClass:Logger');
     log = logger.logs[0];
   }
 }
@@ -250,7 +253,7 @@ class ProviderComponent10 implements OnInit {
     template: '''
       <h2>Provider variations</h2>
       <div id="p1"><provider-1></provider-1></div>
-      <div id="p3a"><provider-3a></provider-3a></div>
+      <div id="p3"><provider-3></provider-3></div>
       <div id="p4"><provider-4></provider-4></div>
       <div id="p5"><provider-5></provider-5></div>
       <div id="p6a"><provider-6a></provider-6a></div>
@@ -261,7 +264,7 @@ class ProviderComponent10 implements OnInit {
       <div id="p10"><provider-10></provider-10></div>''',
     directives: const [
       ProviderComponent1,
-      ProviderComponent3a,
+      ProviderComponent3,
       ProviderComponent4,
       ProviderComponent5,
       ProviderComponent6a,
