@@ -1,3 +1,4 @@
+var fs = require('fs');
 var path = require('canonical-path');
 var Package = require('dgeni').Package;
 var basePackage = require('../docs-package');
@@ -40,6 +41,21 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
 .config(function(readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
 
+  var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
+  // confirm that the angular repo is actually there.
+  if (!fs.existsSync(angular_repo_path)) {
+    throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
+  }
+  readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
+  readTypeScriptModules.ignoreExportsMatching = [
+    '___esModule',
+    '___core_private_types__',
+    '___platform_browser_private__',
+    '___compiler_private__',
+    '__core_private__',
+    '___core_private__'
+  ];
+
   readTypeScriptModules.sourceFiles = [
     '@angular/common/index.ts',
     '@angular/common/testing.ts',
@@ -56,9 +72,11 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '@angular/platform-server/index.ts',
     '@angular/platform-server/testing.ts',
     '@angular/router/index.ts',
+    '@angular/router-deprecated/index.ts',
     '@angular/upgrade/index.ts',
   ];
   readTypeScriptModules.hidePrivateMembers = true;
+
 
   readFilesProcessor.basePath = DOCS_PATH;
   readFilesProcessor.sourceFiles = [{

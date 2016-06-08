@@ -1,5 +1,6 @@
-import {Component} from 'angular2/core';
-import {DataService} from './data.service';
+import { Component } from '@angular/core';
+
+import { DataService } from './data.service';
 
 // #docregion
 @Component({
@@ -7,8 +8,8 @@ import {DataService} from './data.service';
   template: `<h1>Hero: {{name}}</h1>`
 })
 export class HeroComponent {
-  name:string;
-  constructor(dataService:DataService) {
+  name: string;
+  constructor(dataService: DataService) {
     this.name = dataService.getHeroName();
   }
 }

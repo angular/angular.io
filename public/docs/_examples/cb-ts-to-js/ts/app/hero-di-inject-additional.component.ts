@@ -6,7 +6,7 @@ import {
   Optional,
   Query,
   QueryList
-} from 'angular2/core';
+} from '@angular/core';
 
 // #docregion
 @Component({
@@ -21,11 +21,11 @@ export class TitleComponent {
   constructor(
     @Inject('titlePrefix')
     @Optional()
-      private titlePrefix:string,
+      private titlePrefix: string,
     @Attribute('title')
-      private title:string,
+      private title: string,
     @Query('okMsg')
-      private msg:QueryList<ElementRef>) {
+      private msg: QueryList<ElementRef>) {
   }
 
   ok() {

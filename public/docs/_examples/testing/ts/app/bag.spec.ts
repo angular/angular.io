@@ -1,5 +1,5 @@
 // Based on https://github.com/angular/angular/blob/master/modules/angular2/test/testing/testing_public_spec.ts
-/* tslint:disable:no-unused-variable */
+/* tslint:disable */
 import {
   BadTemplateUrl, ButtonComp,
   ChildChildComp, ChildComp, ChildWithChildComp,
@@ -12,22 +12,21 @@ import {
   TestProvidersComp, TestViewProvidersComp
 } from './bag';
 
-import { DebugElement } from 'angular2/core';
-import { By }           from 'angular2/platform/browser';
+import { DebugElement } from '@angular/core';
+import { By }           from '@angular/platform-browser';
 
 import {
-  beforeEach, beforeEachProviders, withProviders,
+  beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, fakeAsync, tick,
-  ComponentFixture, TestComponentBuilder
-} from 'angular2/testing';
+  async, inject,
+  fakeAsync, tick, withProviders
+} from '@angular/core/testing';
 
-import { provide }        from 'angular2/core';
-import { ViewMetadata }   from 'angular2/core';
-import { PromiseWrapper } from 'angular2/src/facade/promise';
-import { XHR }            from 'angular2/src/compiler/xhr';
-import { XHRImpl }        from 'angular2/src/platform/browser/xhr_impl';
+import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
+
+import { ViewMetadata }   from '@angular/core';
+
 import { Observable }     from 'rxjs/Rx';
 
 ////////  SPECS  /////////////
@@ -114,12 +113,9 @@ describe('using the async helper', () => {
 
 describe('using the test injector with the inject helper', () => {
 
-  it('provides a real XHR instance',
-      inject([XHR], (xhr: any) => { expect(xhr).toBeAnInstanceOf(XHRImpl); }));
-
   describe('setting up Providers with FancyService', () => {
     beforeEachProviders(() => [
-      provide(FancyService, {useValue: new FancyService()})
+      { provide: FancyService, useValue: new FancyService() }
     ]);
 
     it('should use FancyService',
@@ -186,7 +182,7 @@ describe('using the test injector with the inject helper', () => {
   describe('using `withProviders` for per-test provision', () => {
     it('should inject test-local FancyService for this test',
       // `withProviders`:  set up providers at individual test level
-      withProviders(() => [provide(FancyService, {useValue: {value: 'fake value'}})])
+      withProviders(() => [{ provide: FancyService, useValue: {value: 'fake value' }}])
 
       // now inject and test
         .inject([FancyService], (service: FancyService) => {
@@ -317,7 +313,7 @@ describe('test component builder', function() {
 
         tcb.overrideProviders(
               TestProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{ provide: FancyService, useClass: MockFancyService }]
             )
             .createAsync(TestProvidersComp)
             .then(fixture => {
@@ -332,7 +328,7 @@ describe('test component builder', function() {
 
         tcb.overrideViewProviders(
               TestViewProvidersComp,
-              [provide(FancyService, {useClass: MockFancyService})]
+              [{ provide: FancyService, useClass: MockFancyService }]
             )
             .createAsync(TestViewProvidersComp)
             .then(fixture => {
@@ -354,7 +350,7 @@ describe('test component builder', function() {
       })), 10000);  // Long timeout because this test makes an actual XHR.
 
     describe('(lifecycle hooks w/ MyIfParentComp)', () => {
-      let fixture: ComponentFixture;
+      let fixture: ComponentFixture<MyIfParentComp>;
       let parent:  MyIfParentComp;
       let child:   MyIfChildComp;
 
@@ -447,9 +443,10 @@ describe('test component builder', function() {
 
         child.childValue = 'bar';
 
-        let deferred = PromiseWrapper.completer();
-        let p = deferred.promise.then(() => {
-
+        return new Promise(resolve => {
+          // Wait one JS engine turn!
+          setTimeout(() => resolve(), 0);
+        }).then(() => {
           fixture.detectChanges();
 
           expect(child.ngOnChangesCounter).toEqual(2,
@@ -458,10 +455,6 @@ describe('test component builder', function() {
             'parentValue should eq changed parent value');
         });
 
-        // Wait one JS engine turn!
-        setTimeout(() => deferred.resolve(), 0);
-
-        return p;
       }));
 
       it('clicking "Close Child" triggers child OnDestroy', () => {
@@ -481,7 +474,7 @@ describe('test component builder', function() {
 
 //////// Testing Framework Bugs? /////
 import { HeroService }  from './hero.service';
-import { Component }    from 'angular2/core';
+import { Component }    from '@angular/core';
 
 @Component({
   selector: 'another-comp',
@@ -501,7 +494,7 @@ describe('tcb.overrideProviders', () => {
 
     tcb.overrideProviders(
           AnotherProvidersComp,
-          [provide(HeroService, {useValue: {}})]
+          [{ provide: HeroService, useValue: {}} ]
         )
         .createAsync(AnotherProvidersComp);
     })));

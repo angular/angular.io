@@ -1,6 +1,7 @@
+/* tslint:disable:class-name component-class-suffix */
 // #docplaster
 // #docregion
-import {Component} from 'angular2/core';
+import { Component } from '@angular/core';
 
 // #docregion key-up-component-1
 @Component({
@@ -14,7 +15,7 @@ import {Component} from 'angular2/core';
 })
 // #docregion key-up-component-1-class, key-up-component-1-class-no-type
 export class KeyUpComponent_v1 {
-  values='';
+  values = '';
 
 // #enddocregion key-up-component-1-class, key-up-component-1-class-no-type
   /*
@@ -27,7 +28,7 @@ export class KeyUpComponent_v1 {
   */
   // #docregion key-up-component-1-class
   // with strong typing
-  onKey(event:KeyboardEvent) {
+  onKey(event: KeyboardEvent) {
     this.values += (<HTMLInputElement>event.target).value + ' | ';
   }
 // #docregion key-up-component-1-class-no-type
@@ -45,8 +46,8 @@ export class KeyUpComponent_v1 {
   `
 })
 export class KeyUpComponent_v2 {
-  values='';
-  onKey(value:string) {
+  values = '';
+  onKey(value: string) {
     this.values += value + ' | ';
   }
 }
@@ -64,7 +65,7 @@ export class KeyUpComponent_v2 {
   `
 })
 export class KeyUpComponent_v3 {
-  values='';
+  values = '';
 }
 // #enddocregion key-up-component-3
 
@@ -83,6 +84,6 @@ export class KeyUpComponent_v3 {
   `
 })
 export class KeyUpComponent_v4 {
-  values='';
+  values = '';
 }
 // #enddocregion key-up-component-4

@@ -1,16 +1,16 @@
 /* tslint:disable:no-unused-variable */
 import {
-  beforeEach, beforeEachProviders, withProviders,
+  beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, TestComponentBuilder
-} from 'angular2/testing';
+  async, inject, withProviders
+} from '@angular/core/testing';
 
-import { provide } from 'angular2/core';
+import { TestComponentBuilder } from '@angular/compiler/testing';
 
 import {
   MockBackend,
-  MockConnection } from 'angular2/src/http/backends/mock_backend';
+  MockConnection } from '@angular/http/testing';
 
 import {
   Http, HTTP_PROVIDERS,
@@ -18,7 +18,7 @@ import {
   Request, RequestMethod, BaseRequestOptions, RequestOptions,
   Response, ResponseOptions,
   URLSearchParams
-} from 'angular2/http';
+} from '@angular/http';
 
 // Add all operators to Observable
 import 'rxjs/Rx';
@@ -44,7 +44,7 @@ describe('Http-HeroService (mockBackend)', () => {
 
   beforeEachProviders(() => [
     HTTP_PROVIDERS,
-    provide(XHRBackend, {useClass: MockBackend})
+    { provide: XHRBackend, useClass: MockBackend }
   ]);
 
   it('can instantiate service when inject service',

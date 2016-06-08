@@ -23,11 +23,11 @@ include ../_util-fns
   [Inject the component's DOM element](#component-element)
 
   [Define dependencies with providers](#providers)
-  * [The *provide* function](#provide)
+  * [The *provide* object literal](#provide)
   * [useValue - the *value provider*](#usevalue)
   * [useClass - the *class provider*](#useclass)
   * [useExisting - the *alias provider*](#useexisting)
-  * [useFactory - the *factory provider*](#usefactory)  
+  * [useFactory - the *factory provider*](#usefactory)
 
   [Provider token alternatives](#tokens)
   * [class-interface](#class-interface)
@@ -178,7 +178,7 @@ figure.image-display
   
   Accordingly, dependencies provided in the root `AppComponent` can be injected into *any* component *anywhere* in the application.
   
-  That isn't always desireable. 
+  That isn't always desirable. 
   Sometimes we want to restrict service availability to a particular region of the application.
   
   We can limit the scope of an injected service to a *branch* of the application hierarchy
@@ -277,7 +277,7 @@ a(id="qualify-dependency-lookup")
   placing it in the `<ng-content>` slot of the `HeroBioComponent` template:
 +makeExample('cb-dependency-injection/ts/app/hero-bio.component.ts','template','app/hero-bio.component.ts (template)')(format='.')
 :marked
-  It looks like this, with the heroe's telephone number from `HeroContactComponent` projected above the hero description:
+  It looks like this, with the hero's telephone number from `HeroContactComponent` projected above the hero description:
 figure.image-display
   img(src="/resources/images/cookbooks/dependency-injection/hero-bio-and-content.png" alt="bio and contact")    
 :marked
@@ -287,11 +287,11 @@ figure.image-display
   Focus on the constructor parameters
 +makeExample('cb-dependency-injection/ts/app/hero-contact.component.ts','ctor-params','app/hero-contact.component.ts')(format='.')
 :marked
-  The `@Host()` function decorating the  `_heroCache` property ensures that 
+  The `@Host()` function decorating the  `heroCache` property ensures that 
   we get a reference to the cache service from the parent `HeroBioComponent`.
   Angular throws if the parent lacks that service, even if a component higher in the component tree happens to have that service.
   
-  A second `@Host()` function decorates the `_loggerService` property.
+  A second `@Host()` function decorates the `loggerService` property.
   We know the only `LoggerService` instance in the app is provided at the `AppComponent` level.
   The host `HeroBioComponent` doesn't have its own `LoggerService` provider.
   
@@ -308,7 +308,7 @@ figure.image-display
 :marked
   If we comment out the `@Host()` decorator, Angular now walks up the injector ancestor tree 
   until it finds the logger at the `AppComponent` level. The logger logic kicks in and the hero display updates
-  with the gratuituous "!!!", indicating that the logger was found.
+  with the gratuitous "!!!", indicating that the logger was found.
 figure.image-display
   img(src="/resources/images/cookbooks/dependency-injection/hero-bio-contact-no-host.png" alt="Without @Host") 
 :marked
@@ -367,7 +367,7 @@ figure.image-display
   
   Where did the injector get that value?
   It may already have that value in its internal container. 
-  It it doesn't, it may be able to make one with the help of a ***provider***.
+  If it doesn't, it may be able to make one with the help of a ***provider***.
   A *provider* is a recipe for delivering a service associated with a *token*.
 .l-sub-section
   :marked
@@ -404,12 +404,9 @@ figure.image-display
 .l-main-section
 a(id='provide')
 :marked
-  #### The *provide* function
+  #### The *provide* object literal
   
-  The imported Angular `provide` function creates an instance of 
-  the Angular [Provider](../api/core/Provider-class.html) class.
-  
-  The `provide` function takes a *token* and a *definition object*.
+  The `provide` object literal takes a *token* and a *definition object*.
   The *token* is usually a class but [it doesn't have to be](#tokens).
   
   The *definition* object has one main property, (e.g. `useValue`) that indicates how the provider 
@@ -541,7 +538,6 @@ a(id='usefactory')
     Look at the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)
     for the full source code.
 
-
 a(id="tokens")
 .l-main-section
 :marked
@@ -647,7 +643,7 @@ figure.image-display
     This rule makes the component safe to construct under test without fear that it will do something dramatic like talk to the server.
     That's why we call the `HeroService` from within the `ngOnInit` rather than the constructor.
     
-    We explain the mysterious `_afterGetHeroes` below.
+    We explain the mysterious `afterGetHeroes` below.
 :marked
   Users want to see the heroes in alphabetical order.
   Rather than modify the original component, we sub-class it and create a
@@ -661,12 +657,12 @@ figure.image-display
     
 +makeExample('cb-dependency-injection/ts/app/sorted-heroes.component.ts','sorted-heroes','app/sorted-heroes.component.ts (SortedHeroesComponent)') 
 :marked
-  Now take note of the `_afterGetHeroes` method. 
+  Now take note of the `afterGetHeroes` method. 
   Our first instinct was to create an `ngOnInit` method in `SortedHeroesComponent` and do the sorting there.
   But Angular calls the *derived* class's `ngOnInit` *before* calling the base class's `ngOnInit` 
   so we'd be sorting the heroes array *before they arrived*. That produces a nasty error.
   
-  Overriding the base class's `_afterGetHeroes` method solves the problem
+  Overriding the base class's `afterGetHeroes` method solves the problem
   
   These complications argue for *avoiding component inheritance*. 
 
@@ -755,7 +751,7 @@ a(id='alex')
   Recall that Angular always adds a component instance to its own injector; 
   that's why we could inject *Alex* into *Carol* [earlier](#known-parent).
 
-  We write an [*alias provider*](#useexisting) &mdash; a `provide` function with a `useExisting` definition &mdash;
+  We write an [*alias provider*](#useexisting) &mdash; a `provide` object literal with a `useExisting` definition &mdash;
   that creates an *alternative* way to inject the same component instance
   and add that provider to the `providers` array of the `@Component` metadata for the `AlexComponent`:
 a(id="alex-providers")

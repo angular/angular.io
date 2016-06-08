@@ -17,11 +17,10 @@ gulp.task('shred', ['clean'], function() {
   return docShredder.shred(shredOptions);
 });
 
-gulp.task('clean', function (cb) {
+gulp.task('clean', function () {
   var cleanPath = path.join(shredOptions.fragmentsDir, '**/*.*')
-  del([ cleanPath, '!**/*.ovr.*'], function (err, paths) {
+  del([ cleanPath, '!**/*.ovr.*']).then(function (err, paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
-    cb();
   });
 });
 

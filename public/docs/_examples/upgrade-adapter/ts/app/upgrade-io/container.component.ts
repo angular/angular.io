@@ -1,7 +1,7 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {upgradeAdapter} from './upgrade_adapter';
-import {Hero} from '../Hero';
+import { Component } from '@angular/core';
+import { upgradeAdapter } from './upgrade_adapter';
+import { Hero } from '../hero';
 
 const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
 
@@ -17,7 +17,7 @@ const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
 })
 export class ContainerComponent {
   hero = new Hero(1, 'Windstorm');
-  heroDeleted(hero:Hero) {
+  heroDeleted(hero: Hero) {
     hero.name = 'Ex-' + hero.name;
   }
 }

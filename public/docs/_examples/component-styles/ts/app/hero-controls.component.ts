@@ -1,5 +1,5 @@
-import {Component, Input} from 'angular2/core';
-import {Hero} from './hero';
+import { Component, Input } from '@angular/core';
+import { Hero } from './hero';
 
 // #docregion inlinestyles
 @Component({
@@ -17,7 +17,6 @@ import {Hero} from './hero';
 })
 // #enddocregion inlinestyles
 export class HeroControlsComponent {
-
   @Input() hero: Hero;
 
   activate() {

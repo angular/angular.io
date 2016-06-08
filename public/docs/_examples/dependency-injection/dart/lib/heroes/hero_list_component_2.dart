@@ -1,8 +1,16 @@
+// #docplaster
 // #docregion
 import 'package:angular2/core.dart';
 
 import 'hero.dart';
+// #enddocregion
+import 'hero_service_1.dart';
+/*
+// #docregion
 import 'hero_service.dart';
+// #enddocregion
+*/
+// #docregion
 
 @Component(
     selector: 'hero-list',
@@ -13,8 +21,8 @@ import 'hero_service.dart';
 class HeroListComponent {
   final List<Hero> heroes;
 
-//#docregion ctor
+  // #docregion ctor
   HeroListComponent(HeroService heroService)
       : heroes = heroService.getHeroes();
-//#enddocregion ctor
+  // #enddocregion ctor
 }

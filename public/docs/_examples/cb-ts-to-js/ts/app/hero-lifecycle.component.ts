@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import {Component, OnInit}
-  from 'angular2/core';
+import { Component, OnInit }
+  from '@angular/core';
   // #enddocregion
 
 @Component({
@@ -11,7 +11,7 @@ import {Component, OnInit}
 // #docregion
 export class HeroComponent
     implements OnInit {
-  name:string;
+  name: string;
   ngOnInit() {
     this.name = 'Windstorm';
   }

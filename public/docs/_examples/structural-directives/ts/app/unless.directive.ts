@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion
 // #docregion unless-declaration
-import {Directive, Input} from 'angular2/core';
+import { Directive, Input } from '@angular/core';
 
 // #enddocregion unless-declaration
-import {TemplateRef, ViewContainerRef} from 'angular2/core';
+import { TemplateRef, ViewContainerRef } from '@angular/core';
 
 // #docregion unless-declaration
 @Directive({ selector: '[myUnless]' })
@@ -13,17 +13,17 @@ export class UnlessDirective {
 
   // #docregion unless-constructor
   constructor(
-    private _templateRef: TemplateRef,
-    private _viewContainer: ViewContainerRef
+    private templateRef: TemplateRef<any>,
+    private viewContainer: ViewContainerRef
     ) { }
   // #enddocregion unless-constructor
 
   // #docregion unless-set
   @Input() set myUnless(condition: boolean) {
     if (!condition) {
-      this._viewContainer.createEmbeddedView(this._templateRef);
+      this.viewContainer.createEmbeddedView(this.templateRef);
     } else {
-      this._viewContainer.clear();
+      this.viewContainer.clear();
     }
   }
   // #enddocregion unless-set

@@ -1,16 +1,17 @@
-//#docregion
-import {Component} from 'angular2/core';
+// #docregion
+import { Component } from '@angular/core';
+
 // #docregion hero-import
-import {Hero} from './hero';
+import { Hero } from './hero';
 // #enddocregion hero-import
 // #docregion hero-detail-import
-import {HeroDetailComponent} from './hero-detail.component';
+import { HeroDetailComponent } from './hero-detail.component';
 // #enddocregion hero-detail-import
 
 @Component({
   selector: 'my-app',
 // #docregion hero-detail-template
-  template:`
+  template: `
     <h1>{{title}}</h1>
     <h2>My Heroes</h2>
     <ul class="heroes">
@@ -23,7 +24,7 @@ import {HeroDetailComponent} from './hero-detail.component';
     <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
 // #enddocregion hero-detail-template
-  styles:[`
+  styles: [`
     .selected {
       background-color: #CFD8DC !important;
       color: white;
@@ -84,15 +85,15 @@ export class AppComponent {
   onSelect(hero: Hero) { this.selectedHero = hero; }
 }
 
-var HEROES: Hero[] = [
-  { "id": 11, "name": "Mr. Nice" },
-  { "id": 12, "name": "Narco" },
-  { "id": 13, "name": "Bombasto" },
-  { "id": 14, "name": "Celeritas" },
-  { "id": 15, "name": "Magneta" },
-  { "id": 16, "name": "RubberMan" },
-  { "id": 17, "name": "Dynama" },
-  { "id": 18, "name": "Dr IQ" },
-  { "id": 19, "name": "Magma" },
-  { "id": 20, "name": "Tornado" }
+const HEROES: Hero[] = [
+  { id: 11, name: 'Mr. Nice' },
+  { id: 12, name: 'Narco' },
+  { id: 13, name: 'Bombasto' },
+  { id: 14, name: 'Celeritas' },
+  { id: 15, name: 'Magneta' },
+  { id: 16, name: 'RubberMan' },
+  { id: 17, name: 'Dynama' },
+  { id: 18, name: 'Dr IQ' },
+  { id: 19, name: 'Magma' },
+  { id: 20, name: 'Tornado' }
 ];

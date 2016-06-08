@@ -1,17 +1,17 @@
 // #docplaster
 // #docregion import
-import {Component} from 'angular2/core';
-import {ROUTER_DIRECTIVES} from "angular2/router";
+import { Component } from '@angular/core';
+import { ROUTER_DIRECTIVES } from '@angular/router-deprecated';
 // #enddocregion import
-import {MovieService} from './movie.service';
-import {IMovie} from './movie';
-import {StringSafeDatePipe} from './date.pipe';
+import { MovieService } from './movie.service';
+import { IMovie } from './movie';
+import { StringSafeDatePipe } from './date.pipe';
 
 
 // #docregion component
 @Component({
   selector: 'movie-list',
-  templateUrl:'app/movie-list.component.html',
+  templateUrl: 'app/movie-list.component.html',
 // #enddocregion component
 // #docregion style-url
   styleUrls: ['app/movie-list.component.css'],

@@ -1,15 +1,13 @@
-export * from 'angular2/router';
+/* tslint:disable */
+export * from '@angular/router-deprecated';
 
 import { Directive, DynamicComponentLoader, ViewContainerRef,
-         Injectable, Optional, Input } from 'angular2/core';
-
-import { PromiseWrapper } from 'angular2/src/facade/promise';
-import { isString}        from 'angular2/src/facade/lang';
+         Injectable, Optional, Input } from '@angular/core';
 
 import { ComponentInstruction, Instruction,
-         Router, RouterOutlet} from 'angular2/router';
+         Router, RouterOutlet} from '@angular/router-deprecated';
 
-let _resolveToTrue = PromiseWrapper.resolve(true);
+let _resolveToTrue = Promise.resolve(true);
 
 const NOT_IMPLEMENTED = (what: string) => {
   throw new Error (`"${what}" is not implemented`);
@@ -39,7 +37,7 @@ export class MockRouterLink  {
     this.navigatedTo = null;
 
     // If no target, or if target is _self, prevent default browser behavior
-    if (!isString(this.target) || this.target === '_self') {
+    if (!this.target || typeof this.target !== 'string' || this.target === '_self') {
       this.navigatedTo = this.routeParams;
       return false;
     }
@@ -151,7 +149,7 @@ export class MockRouter extends Router {
    * See the {@link RouterLink} directive for more.
    */
   navigate(linkParams: any[]): Promise<any> {
-    return PromiseWrapper.resolve(linkParams);
+    return Promise.resolve(linkParams);
   }
 
   /**
@@ -162,7 +160,7 @@ export class MockRouter extends Router {
    * If the given URL does not begin with `/`, the router will navigate relative to this component.
    */
   navigateByUrl(url: string, _skipLocationChange = false): Promise<any> {
-    return PromiseWrapper.resolve(url);
+    return Promise.resolve(url);
   }
 
 
@@ -171,7 +169,7 @@ export class MockRouter extends Router {
    * complete.
    */
   navigateByInstruction(instruction: Instruction, _skipLocationChange = false): Promise<any> {
-    return PromiseWrapper.resolve(instruction);
+    return Promise.resolve(instruction);
   }
 
   /**
@@ -185,7 +183,7 @@ export class MockRouter extends Router {
    * Given a URL, returns an instruction representing the component graph
    */
   recognize(url: string): Promise<Instruction> {
-    return PromiseWrapper.resolve(this.mockRecognizedInstruction);
+    return Promise.resolve(this.mockRecognizedInstruction);
   }
 
   registerPrimaryOutlet(outlet: RouterOutlet): Promise<any> {

@@ -1,9 +1,9 @@
 // #docplaster
-
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Crisis, CrisisService} from './crisis.service';
-import {Router} from 'angular2/router';
+import { Component } from '@angular/core';
+import { OnActivate, Router, RouteSegment } from '@angular/router';
+
+import { Crisis, CrisisService } from './crisis.service';
 
 @Component({
   // #docregion template
@@ -17,20 +17,20 @@ import {Router} from 'angular2/router';
   `,
   // #enddocregion template
 })
-export class CrisisListComponent implements OnInit {
+export class CrisisListComponent implements OnActivate {
   crises: Crisis[];
 
   constructor(
-    private _service: CrisisService,
-    private _router: Router) {}
+    private service: CrisisService,
+    private router: Router) {}
 
-  ngOnInit() {
-    this._service.getCrises().then(crises => this.crises = crises);
+  routerOnActivate(curr: RouteSegment): void {
+    this.service.getCrises().then(crises => this.crises = crises);
   }
 
   // #docregion select
   onSelect(crisis: Crisis) {
-    this._router.navigate(['CrisisDetail', { id: crisis.id }]  );
+    this.router.navigateByUrl( `/crisis-list/${crisis.id}`);
   }
   // #enddocregion select
 }

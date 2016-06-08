@@ -1,6 +1,5 @@
-// Version #1
 // #docregion
-import {Component} from 'angular2/core'
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'hero-birthday',
@@ -9,6 +8,5 @@ import {Component} from 'angular2/core'
   // #enddocregion hero-birthday-template
 })
 export class HeroBirthday {
-  birthday = new Date(1988,3,15); // April 15, 1988
+  birthday = new Date(1988, 3, 15); // April 15, 1988
 }
-// #enddocregion

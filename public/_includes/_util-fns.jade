@@ -1,16 +1,78 @@
 //- Mixins and associated functions
 
+//- _docsFor: used to identify the language this version of the docs if for;
+//- Should be one of: 'ts', 'dart' or 'js'. Set in lang specific _util-fns file.
+- var _docsFor = '';
+
+//- Should match `_docsFor`, but in this case provides the full capitalized
+//- name of the language.
+- var _Lang = 'TypeScript';
+
+//- Simple "macros" used via interpolation in text:
+//- e.g., the #{_priv}el variable has an `@Input` #{_decorator}.
+
+//- Use #{_decorator} whereever the word "decorator" is expected, provided it is not
+//- preceded by the article "a". (E.g., will be "annotation" for Dart)
+- var _decorator = 'decorator';
+
+//- Articles (which toggle between 'a' and 'an'). Used for, e.g.,
+//- array vs. list; decorator vs. annotation.
+- var _a = 'a';
+- var _an = 'an';
+
+//- TS arrays vs. Dart lists
+- var _Array = 'Array';
+- var _array = 'array';
+
+//- Promise vs. Future, etc
+- var _Promise = 'Promise';
+- var _PromiseUrl = 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise';
+- var _PromiseLinked = '<a href="' + _PromiseUrl + '">' + _Promise + '</a>';
+- var _Observable = 'Observable';
+
+//- Directories & folders
+- var _appDir = 'app';
+- var _indexHtmlDir = 'project root';
+- var _mainDir = _appDir;
+
+//- Location of sample code
+- var _liveLink = 'live link';
+
+//- Other
+- var _truthy = 'truthy';
+- var _falsey = 'falsey';
+
+//- Used to prefix identifiers that are private. In Dart this will be '_'.
+- var _priv = '';
+
+//- Use to conditionally include the block that follows +ifDocsFor(...).
+//- Generally favor use of Jade named blocks instead. ifDocsFor is convenient
+//- for prose that should appear only in one language version.
+mixin ifDocsFor(langPattern)
+  if _docsFor.toLowerCase().match(langPattern.toLowerCase())
+    block
+
+//- Use to map inlined (prose) TS paths into, say, Dart paths via the
+//- adjustTsExamplePathForDart transformer function.
+mixin adjExPath(path)
+  if adjustTsExamplePathForDart
+    | #{adjustTsExamplePathForDart(path)}
+  else
+    | #{path}
+
 mixin includeShared(filePath, region)
   - var newPath = translatePath(filePath, region);
   !=partial(newPath)
 
 mixin makeExample(_filePath, region, _title, stylePatterns)
-  - var filePath = adjustExamplePath ? adjustExamplePath(_filePath) : _filePath;
-  - var title = adjustExampleTitle ? adjustExampleTitle(_title) : _title;
+  - var adjustments = adjustExamplePathAndTitle({filePath:_filePath, title:_title});
+  - var filePath = adjustments.filePath;
+  - var title = adjustments.title;
   - var language = attributes.language || getExtn(filePath);
   - var frag = getFrag(filePath, region);
   - var defaultFormat = frag.split('\n').length > 2 ? "linenums" : "";
   - var format = attributes.format || defaultFormat;
+  - if (attributes.format === '.') format = '';
   - var avoid = !!attributes.avoid;
 
   if (title)
@@ -21,10 +83,35 @@ mixin makeExample(_filePath, region, _title, stylePatterns)
   code-example(language="#{language}" format="#{format}")
     != styleString(frag, stylePatterns)
 
+//- Like makeExample, but: (1) doesn't show line numbers. (2) If region
+//- is omitted and title is 'foo (r)' then region is taken as 'r'.
+//- (3) Title will always end with a phrase in parentheses; if no such
+//- ending is given or is just (), then the title will be suffixed with
+//- either "(excerpt)", or "(#{_region})" when _region is defined.
+mixin makeExcerpt(_filePath, _region, _title, stylePatterns)
+  - var matches = _filePath.match(/(.*)\s+\(([\w ]*)\)$/);
+  - var parenText;
+  - if (matches) { _filePath = matches[1]; parenText = matches[2]; }
+  - var adjustments = adjustExamplePathAndTitle({filePath:_filePath, title:_title});
+  - var filePath = adjustments.filePath;
+  - var title = adjustments.title;
+  - var region = _region || parenText;
+  - var excerpt = !region || parenText === '' ? 'excerpt' : region;
+  - if (title) title = title + ' (' + excerpt + ')';
+  +makeExample(filePath, region, title, stylePatterns)(format='.')
+
+//- Extract the doc example name from `current`.
+- var getExampleName = function() {
+-   var dir = current.path[current.path.length - 1];
+-   return dir == 'latest' ? current.source : dir;
+- };
+
 mixin makeTabs(filePaths, regions, tabNames, stylePatterns)
   - filePaths = strSplit(filePaths);
+  - if (adjustTsExamplePathForDart) filePaths = filePaths.map(adjustTsExamplePathForDart);
   - regions = strSplit(regions, filePaths.length);
   - tabNames = strSplit(tabNames, filePaths.length);
+  - if (adjustTsExampleTitleForDart) tabNames = tabNames.map(adjustTsExampleTitleForDart);
 
   code-tabs
       each filePath,index in filePaths
@@ -77,7 +164,7 @@ script.
     el.style.display = isVerbose ? 'block' : 'none';
     var el = document.querySelector('button.verbose.on');
     el.style.display = isVerbose ? 'none' : 'block';
-    
+
     CCSStylesheetRuleStyle('main','.l-verbose-section', 'display',
       isVerbose ? 'block' : 'none');
   }
@@ -116,6 +203,43 @@ script.
       return CCSstyle[style] = value
   }
 //---------------------------------------------------------------------------------------------------------
+//- Converts the given project-relative path (like 'app/main.ts')
+//- to a doc folder relative path (like 'quickstart/ts/app/main.ts')
+//- by prefixing it with '<example-name>/ts/'. If title is not given,
+//- then the project-relative path is used, adjusted to remove numeric
+//- file version qualifiers; e.g. 'styles.1.css' becomes 'styles.css'.
+- var adjExampleProjPathAndTitle = function(ex/*:{filePath,title}*/) {
+-   // E.g. of a project relative path is 'app/main.ts'
+-   if (ex.title === null || ex.title === undefined) {
+-     // Title is not given so take it to be ex.filePath.
+-     // Is title like styles.1.css? Then drop the '.1' qualifier:
+-     var matches = ex.filePath.match(/^(.*)\.\d(\.\w+)$/);
+-     ex.title = matches ? matches[1] + matches[2] : ex.filePath;
+-   }
+-   ex.filePath = getExampleName() + '/' + _docsFor + '/' + ex.filePath;
+-   return ex;
+- };
+
+//- If the given path is project relative, then first convert it using
+//- adjExampleProjPathAndTitle(ex). Then the path is adjusted to match
+//- the documentation language.
+- var adjustExamplePathAndTitle = function(ex/*:{filePath,title}*/) {
+-   // Not a doc folder relative path? Assume that it is app project relative.
+-   if(isProjRelDir(ex.filePath)) adjExampleProjPathAndTitle(ex);
+-   // Adjust doc folder relative paths if adjustment functions exist.
+-   if(adjustTsExamplePathForDart) ex.filePath = adjustTsExamplePathForDart(ex.filePath);
+-   if(adjustTsExampleTitleForDart) ex.title = adjustTsExampleTitleForDart(ex.title);
+-   return ex;
+- };
+
+//- Returns truthy iff path is example project relative.
+- var isProjRelDir = function(path) {
+-   return !path.match(/\/(js|ts|dart)(-snippets)?\//) && !path.endsWith('e2e-spec.js');
+-   // Last conjunct handles case for shared project e2e test file like
+-   // cb-component-communication/e2e-spec.js (is shared between ts & dart)
+-   // TODO: generalize: compare start with getExampleName(); which needs to be fixed.
+- };
+
 - var translatePath = function(filePath, region) {
 -   filePath = filePath.trim();
 -   var regionPad = (region && region.length) ? '-' + region.toString() : '';

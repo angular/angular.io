@@ -1,6 +1,6 @@
 // #docregion
-import {Component}         from 'angular2/core';
-import {HeroFormComponent} from './hero-form.component'
+import { Component }         from '@angular/core';
+import { HeroFormComponent } from './hero-form.component';
 
 @Component({
   selector: 'my-app',

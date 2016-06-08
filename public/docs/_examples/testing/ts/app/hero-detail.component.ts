@@ -1,11 +1,12 @@
+/* tslint:disable */
 // #docplaster
 // #docregion
 // #docregion v2
 // #docregion import-oninit
-import { Component, OnInit } from 'angular2/core';
+import { Component, OnInit } from '@angular/core';
 // #enddocregion import-oninit
 // #docregion import-route-params
-import {RouteParams} from 'angular2/router';
+import { RouteParams } from '@angular/router-deprecated';
 // #enddocregion import-route-params
 
 import { Hero } from './hero';

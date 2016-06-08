@@ -1,4 +1,4 @@
-import {Component, Inject} from 'angular2/core';
+import { Component, Inject } from '@angular/core';
 
 // #docregion
 @Component({
@@ -8,7 +8,7 @@ import {Component, Inject} from 'angular2/core';
 export class HeroComponent {
   constructor(
     @Inject('heroName')
-      private name:string) {
+      private name: string) {
   }
 }
 // #enddocregion

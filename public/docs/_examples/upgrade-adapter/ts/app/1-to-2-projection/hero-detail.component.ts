@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Input} from 'angular2/core';
-import {Hero} from '../hero';
+import { Component, Input } from '@angular/core';
+import { Hero } from '../hero';
 
 @Component({
   selector: 'hero-detail',

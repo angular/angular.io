@@ -1,11 +1,10 @@
 var Package = require('dgeni').Package;
 var jsdocPackage = require('dgeni-packages/jsdoc');
 var nunjucksPackage = require('dgeni-packages/nunjucks');
-var typescriptPackage = require('../typescript-package');
+var typescriptPackage = require('dgeni-packages/typescript');
 var linksPackage = require('../links-package');
 var gitPackage = require('dgeni-packages/git');
 var path = require('canonical-path');
-var fs = require('fs');
 
 // Define the dgeni package for generating the docs
 module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, typescriptPackage, linksPackage, gitPackage])
@@ -34,21 +33,6 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 
 .config(function(renderDocsProcessor, versionInfo) {
   renderDocsProcessor.extraData.versionInfo = versionInfo;
-})
-
-// Configure file reading
-.config(function(readTypeScriptModules) {
-
-  var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
-  // confirm that the angular repo is actually there.
-  if (!fs.existsSync(angular_repo_path)) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
-  }
-  readTypeScriptModules.sourceFiles = [
-    '*/*.@(js|es6|ts)',
-    '*/src/**/*.@(js|es6|ts)'
-  ];
-  readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
 })
 
 

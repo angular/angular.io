@@ -30,7 +30,7 @@ if not install [nvm](https://github.com/creationix/nvm) to get node going on you
 1. clone this repo and the [angular source code repo](https://github.com/angular/angular) to the same parent directory.
 The two cloned repo directories must be sibling.
 
-1. cd into root directory `Angular.io/`
+1. cd into root directory `angular.io/`
 
 1. install the *all-docs* local packages by running `npm install`
 > If running node v.5+, you probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
@@ -54,7 +54,7 @@ For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
 - `public/docs/ts/latest/tutorial/toh-pt5.jade`
 
 ### Local server with watches and browser reload
- 1. cd into root directory `Angular.io/`
+ 1. cd into root directory `angular.io/`
  1. run `gulp serve-and-sync`
  1. browser will launch on localhost:3000 and stay refreshed automatically.
 
@@ -62,7 +62,7 @@ For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
 If you are only going to work on a specific part of the docs, such as the dev guide, then you can use one of the more specific gulp tasks to only watch those parts of the file system:
 
 * `gulp serve-and-sync` : watch all the local Jade/Sass files, the API source and examples, and the dev guide files
-* `gulp serve-and-sync-api-docs` : watch only the API source and example files
+* `gulp serve-and-sync-api` : watch only the API source and example files
 * `gulp serve-and-sync-devguide` : watch only the dev guide files
 * `gulp build-and-serve` : watch only the local Jade/Sass files
 
@@ -82,7 +82,7 @@ take the following extra steps to prepare the environment:
 
 1. install the canonical node packages for all samples by running `npm install`
 
-1. cd back up to `Angular.io` root: `cd ../../..`
+1. cd back up to `angular.io` root: `cd ../../..`
 
 1. run `gulp add-example-boilerplate` (elevate to admin on Windows) 
 to copy canonical files to the sample directories and create symlinks there for node_modules and typings. 
@@ -98,9 +98,14 @@ Also, open any `plunkr.no-link.html` to see the code execute in plunker
 
 ### Sample end-to-end tests
 
-All samples should be covered to some degree by end-to-end tests.
+All samples should be covered to some degree by end-to-end tests:
+- `gulp run-e2e-tests` to run all TypeScript and JavaScript tests
+- `gulp run-e2e-tests --lang=dart` to run all Dart tests
+- `gulp run-e2e-tests --lang=all` to run TypeScript, JavaScript, and Dart tests
+- `gulp run-e2e-tests --filter=quickstart` to filter the examples to run, by name
+- `gulp run-e2e-tests --fast` to ignore npm install, webdriver update and boilerplate copy
 
-Run them yourself: `gulp run-e2e-tests`.
+Any combination of options is possible.
 
 
 ## Technology Used

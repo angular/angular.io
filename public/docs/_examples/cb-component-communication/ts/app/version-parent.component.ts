@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {VersionChildComponent} from './version-child.component';
+import { Component } from '@angular/core';
+
+import { VersionChildComponent } from './version-child.component';
 
 @Component({
   selector: 'version-parent',

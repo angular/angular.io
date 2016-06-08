@@ -1,6 +1,6 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {upgradeAdapter} from './upgrade_adapter';
+import { Component } from '@angular/core';
+import { upgradeAdapter } from './upgrade_adapter';
 
 const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
 

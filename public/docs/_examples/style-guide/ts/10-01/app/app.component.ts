@@ -1,11 +1,10 @@
 // #docregion
-import { Component } from 'angular2/core';
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from 'angular2/router';
+import { Component } from '@angular/core';
+import { Routes, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router';
 
-import { NavComponent } from './shared/nav/nav.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { HeroesComponent } from './heroes/heroes.component';
-import { HeroService } from './heroes/shared/hero.service';
+import { NavComponent } from './shared';
+import { DashboardComponent } from './+dashboard';
+import { HeroesComponent, HeroService } from './+heroes';
 
 @Component({
   selector: 'toh-app',
@@ -17,8 +16,8 @@ import { HeroService } from './heroes/shared/hero.service';
     HeroService
   ]
 })
-@RouteConfig([
-  { path: '/dashboard', name: 'Dashboard', component: DashboardComponent, useAsDefault: true },
-  { path: '/heroes/...', name: 'Heroes', component: HeroesComponent },
+@Routes([
+  { path: '/dashboard', component: DashboardComponent }, // , useAsDefault: true}, // coming soon
+  { path: '/heroes/...', component: HeroesComponent },
 ])
 export class AppComponent {}

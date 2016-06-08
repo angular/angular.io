@@ -1,15 +1,15 @@
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 
-import { HeroesComponent } from './heroes/heroes.component';
-import { HeroService } from './heroes/shared/hero.service';
+import { HeroesComponent, HeroService } from './heroes';
 
 @Component({
+  moduleId: module.id,
   selector: 'toh-app',
   template: `
       <toh-heroes></toh-heroes>
     `,
-  styleUrls: ['app/app.component.css'],
+  styleUrls: ['app.component.css'],
   directives: [HeroesComponent],
   providers: [HeroService]
 })

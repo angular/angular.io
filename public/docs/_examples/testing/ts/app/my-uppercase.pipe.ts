@@ -1,6 +1,6 @@
 // #docregion
 // #docregion depends-on-angular
-import {Pipe, PipeTransform} from 'angular2/core';
+import { Pipe, PipeTransform } from '@angular/core';
 // #enddocregion depends-on-angular
 
 @Pipe({ name: 'my-uppercase' })

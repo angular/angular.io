@@ -1,10 +1,9 @@
 // #docplaster
 // #docregion
-import { Component, OnInit } from 'angular2/core';
-import { Router } from 'angular2/router';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router-deprecated';
 
 import { Hero } from './hero';
-import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService } from './hero.service';
 
 // #docregion metadata
@@ -13,8 +12,7 @@ import { HeroService } from './hero.service';
   selector: 'my-heroes',
 // #enddocregion heroes-component-renaming
   templateUrl: 'app/heroes.component.html',
-  styleUrls:  ['app/heroes.component.css'],
-  directives: [HeroDetailComponent]
+  styleUrls:  ['app/heroes.component.css']
 // #docregion heroes-component-renaming
 })
 // #enddocregion heroes-component-renaming
@@ -27,11 +25,11 @@ export class HeroesComponent implements OnInit {
   selectedHero: Hero;
 
   constructor(
-    private _router: Router,
-    private _heroService: HeroService) { }
+    private router: Router,
+    private heroService: HeroService) { }
 
   getHeroes() {
-    this._heroService.getHeroes().then(heroes => this.heroes = heroes);
+    this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
 
   ngOnInit() {
@@ -41,7 +39,7 @@ export class HeroesComponent implements OnInit {
   onSelect(hero: Hero) { this.selectedHero = hero; }
 
   gotoDetail() {
-    this._router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
+    this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
   }
 // #docregion heroes-component-renaming
 }

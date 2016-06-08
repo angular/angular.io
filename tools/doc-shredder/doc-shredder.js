@@ -1,9 +1,6 @@
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
 var path = require('canonical-path');
-var Q = require('q');
 var del = require('del');
-// delPromise is a 'promise' version of del
-var delPromise =  Q.denodeify(del);
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 var globby = require('globby');
@@ -37,7 +34,7 @@ var shredSingleDir = function(shredOptions, filePath) {
     fragmentsDir: fragmentsDir
   }
   var cleanPath = path.join(fragmentsDir, '*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
+  return del([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
     // console.log('Deleted files/folders:\n', paths.join('\n'));
     return shred(options);
   });
@@ -198,7 +195,7 @@ var createShredMapPackage = function(mapOptions) {
     .config(function(readFilesProcessor, extractPathsReader ) {
       readFilesProcessor.fileReaders = [ extractPathsReader];
     })
-    // default configs - may be overriden
+    // default configs - may be overridden
     .config(function(readFilesProcessor) {
       // Specify the base path used when resolving relative paths to source and output files
       readFilesProcessor.basePath = '/';

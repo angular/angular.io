@@ -19,24 +19,20 @@ import 'peek_a_boo_component.dart';
       </peek-a-boo>
 
       <h4>-- Lifecycle Hook Log --</h4>
-      <div *ngFor="let msg of hookLog">{{msg}}</div>
+      <div *ngFor="let msg of logs">{{msg}}</div>
     </div>
     ''',
-    styles: const [
-      '.parent {background: moccasin; padding: 10px; margin:100px 8px}'
-    ],
+    styles: const ['.parent {background: moccasin}'],
     directives: const [PeekABooComponent],
     providers: const [LoggerService])
 class PeekABooParentComponent {
+  final LoggerService _logger;
   bool hasChild = false;
-  List<String> hookLog;
-
   String heroName = 'Windstorm';
-  LoggerService _logger;
 
-  PeekABooParentComponent(this._logger) {
-    hookLog = _logger.logs;
-  }
+  PeekABooParentComponent(this._logger);
+
+  List<String> get logs => _logger.logs;
 
   toggleChild() {
     hasChild = !hasChild;

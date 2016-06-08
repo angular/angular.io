@@ -1,7 +1,8 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {HeroChildComponent} from './hero-child.component';
-import {HEROES} from './hero';
+import { Component } from '@angular/core';
+
+import { HeroChildComponent } from './hero-child.component';
+import { HEROES } from './hero';
 
 @Component({
   selector: 'hero-parent',

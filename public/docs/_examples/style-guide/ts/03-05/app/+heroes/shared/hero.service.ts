@@ -1,7 +1,7 @@
 // #docregion
 // #docregion example
-import { Injectable } from 'angular2/core';
-import { Http, Response } from 'angular2/http';
+import { Injectable } from '@angular/core';
+import { Http, Response } from '@angular/http';
 
 import { Hero } from './hero.model';
 import { ExceptionService, SpinnerService, ToastService } from '../../shared';
@@ -19,7 +19,7 @@ export class HeroService {
   ) { }
 
   getHero(id: number) {
-    return this.http.get(`api/heroes/${id}`)
+    return this.http.get(`app/heroes/${id}`)
       .map((res: Response) => res.json().data);
   }
 

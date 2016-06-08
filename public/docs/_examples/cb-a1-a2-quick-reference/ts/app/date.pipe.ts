@@ -1,14 +1,14 @@
-import {Injectable, Pipe} from 'angular2/core';
-import {DatePipe} from 'angular2/common';
+import { Injectable, Pipe } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 @Injectable()
 // #docregion date-pipe
 @Pipe({name: 'date', pure: true})
 export class StringSafeDatePipe extends DatePipe {
- transform(value: any, args: string): string {
+ transform(value: any, format: string): string {
    value = typeof value === 'string' ?
-           Date.parse(value) : value
-   return super.transform(value, args);
+           Date.parse(value) : value;
+   return super.transform(value, format);
  }
 }
 // #enddocregion date-pipe

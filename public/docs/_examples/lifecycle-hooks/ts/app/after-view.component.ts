@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
-import {Component,  AfterViewChecked, AfterViewInit, ViewChild} from 'angular2/core';
+import { AfterViewChecked, AfterViewInit, Component, ViewChild } from '@angular/core';
 
-import {LoggerService}  from './logger.service';
+import { LoggerService }  from './logger.service';
 
 //////////////////
 // #docregion child-view
@@ -29,36 +29,35 @@ export class ChildViewComponent {
       {{comment}}
     </p>
   `,
-
   directives: [ChildViewComponent]
 })
 // #docregion hooks
 export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
-  private _prevHero = '';
+  private prevHero = '';
 
   // Query for a VIEW child of type `ChildViewComponent`
   @ViewChild(ChildViewComponent) viewChild: ChildViewComponent;
 
 // #enddocregion hooks
-  constructor(private _logger:LoggerService){
-    this._logIt('AfterView constructor');
+  constructor(private logger: LoggerService) {
+    this.logIt('AfterView constructor');
   }
 
 // #docregion hooks
   ngAfterViewInit() {
     // viewChild is set after the view has been initialized
-    this._logIt('AfterViewInit');
-    this._doSomething();
+    this.logIt('AfterViewInit');
+    this.doSomething();
   }
 
   ngAfterViewChecked() {
     // viewChild is updated after the view has been checked
-    if (this._prevHero === this.viewChild.hero) {
-      this._logIt('AfterViewChecked (no change)');
+    if (this.prevHero === this.viewChild.hero) {
+      this.logIt('AfterViewChecked (no change)');
     } else {
-      this._prevHero = this.viewChild.hero;
-      this._logIt('AfterViewChecked');
-      this._doSomething();
+      this.prevHero = this.viewChild.hero;
+      this.logIt('AfterViewChecked');
+      this.doSomething();
     }
   }
 // #enddocregion hooks
@@ -67,19 +66,19 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
 
 // #docregion do-something
   // This surrogate for real business logic sets the `comment`
-  private _doSomething() {
-    let c = this.viewChild.hero.length > 10 ? "That's a long name" : '';
+  private doSomething() {
+    let c = this.viewChild.hero.length > 10 ? `That's a long name` : '';
     if (c !== this.comment) {
       // Wait a tick because the component's view has already been checked
-      setTimeout(() => this.comment = c, 0);
+      this.logger.tick_then(() => this.comment = c);
     }
   }
 // #enddocregion do-something
 
-  private _logIt(method:string){
-    let vc = this.viewChild;
-    let message = `${method}: ${vc ? vc.hero:'no'} child view`
-    this._logger.log(message);
+  private logIt(method: string) {
+    let child = this.viewChild;
+    let message = `${method}: ${child ? child.hero : 'no'} child view`;
+    this.logger.log(message);
   }
 // #docregion hooks
   // ...
@@ -101,21 +100,21 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
   </div>
   `,
   styles: ['.parent {background: burlywood}'],
-  providers:[LoggerService],
+  providers: [LoggerService],
   directives: [AfterViewComponent]
 })
 export class AfterViewParentComponent {
-  logs:string[];
+  logs: string[];
   show = true;
 
-  constructor(logger:LoggerService){
+  constructor(private logger: LoggerService) {
     this.logs = logger.logs;
   }
 
   reset() {
-    this.logs.length=0;
+    this.logs.length = 0;
     // quickly remove and reload AfterViewComponent which recreates it
     this.show = false;
-    setTimeout(() => this.show = true, 0)
+    this.logger.tick_then(() => this.show = true);
   }
 }

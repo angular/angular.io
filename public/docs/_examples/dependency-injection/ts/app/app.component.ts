@@ -1,20 +1,20 @@
 // #docplaster
 // #docregion
 // #docregion imports
-import {Component, Inject, provide} from 'angular2/core';
+import { Component, Inject } from '@angular/core';
 
-import {CarComponent}      from './car/car.component';
-import {HeroesComponent}   from './heroes/heroes.component';
+import { CarComponent }      from './car/car.component';
+import { HeroesComponent }   from './heroes/heroes.component';
 
-import {APP_CONFIG,
-        Config, CONFIG}    from './app.config';
-import {Logger}            from './logger.service';
+import { APP_CONFIG, AppConfig,
+         HERO_DI_CONFIG }    from './app.config';
+import { Logger }            from './logger.service';
 
-import {User, UserService} from './user.service';
+import { User, UserService } from './user.service';
 // #enddocregion imports
-import {InjectorComponent} from './injector.component';
-import {TestComponent}     from './test.component';
-import {ProvidersComponent} from './providers.component';
+import { InjectorComponent } from './injector.component';
+import { TestComponent }     from './test.component';
+import { ProvidersComponent } from './providers.component';
 
 @Component({
   selector: 'my-app',
@@ -31,35 +31,33 @@ import {ProvidersComponent} from './providers.component';
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
   `,
-  directives:[CarComponent, HeroesComponent,
+  directives: [CarComponent, HeroesComponent,
               InjectorComponent, TestComponent, ProvidersComponent],
-// #docregion providers
+  // #docregion providers
   providers: [
     Logger,
     UserService,
-    provide(APP_CONFIG, {useValue: CONFIG})
+    { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
   ]
-// #enddocregion providers
+  // #enddocregion providers
 })
 export class AppComponent {
-  title:string;
+  title: string;
 
-  //#docregion ctor
+  // #docregion ctor
   constructor(
-    @Inject(APP_CONFIG) config:Config,
-    private _userService: UserService) {
-
+    @Inject(APP_CONFIG) config: AppConfig,
+    private userService: UserService) {
     this.title = config.title;
   }
   // #enddocregion ctor
 
-  get isAuthorized() { return this.user.isAuthorized;}
-  nextUser()         { this._userService.getNewUser(); }
-  get user()         { return this._userService.user; }
+  get isAuthorized() { return this.user.isAuthorized; }
+  nextUser()         { this.userService.getNewUser(); }
+  get user()         { return this.userService.user; }
 
   get userInfo()     {
-    return `Current user, ${this.user.name}, is `+
+    return `Current user, ${this.user.name}, is ` +
            `${this.isAuthorized ? '' : 'not'} authorized. `;
   }
 }
-// #enddocregion

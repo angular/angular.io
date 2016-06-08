@@ -1,5 +1,6 @@
+// #docplaster
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 
 import { Hero } from '../shared/hero.model.ts';
 
@@ -20,6 +21,13 @@ export class HeroListComponent {
   heroes: Hero[];
   totalPowers: number;
 
+  // #enddocregion example
+  // testing harness
+  constructor() {
+    this.heroes = [];
+  }
+
+  // #docregion example
   get avgPower() {
     return this.totalPowers / this.heroes.length;
   }

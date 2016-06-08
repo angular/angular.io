@@ -1,19 +1,19 @@
 // #docregion
-import {Component, Directive, Input, QueryList,
-        ViewContainerRef, TemplateRef, ContentChildren} from 'angular2/core';
+import { Component, Directive, Input, QueryList,
+        ViewContainerRef, TemplateRef, ContentChildren } from '@angular/core';
 
 @Directive({
   selector: '[ui-pane]'
 })
 export class UiPane {
   @Input() title: string;
-  private _active:boolean = false;
+  private _active: boolean = false;
 
   constructor(public viewContainer: ViewContainerRef,
-              public templateRef: TemplateRef) { }
+              public templateRef: TemplateRef<any>) { }
 
   @Input() set active(active: boolean) {
-    if (active == this._active) return;
+    if (active === this._active) { return; }
     this._active = active;
     if (active) {
       this.viewContainer.createEmbeddedView(this.templateRef);
@@ -39,13 +39,13 @@ export class UiPane {
     </ul>
     <ng-content></ng-content>
     `,
-    styles:['a { cursor: pointer; cursor: hand; }']
+    styles: ['a { cursor: pointer; cursor: hand; }']
 })
 export class UiTabs {
   @ContentChildren(UiPane) panes: QueryList<UiPane>;
 
   select(pane: UiPane) {
-    this.panes.toArray().forEach((p: UiPane) => p.active = p == pane);
+    this.panes.toArray().forEach((p: UiPane) => p.active = p === pane);
   }
 }
 

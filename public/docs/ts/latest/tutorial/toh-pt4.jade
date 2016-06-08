@@ -15,8 +15,7 @@ include ../_util-fns
   Because data services are invariably asynchronous, 
   we'll finish the chapter with a promise-based version of the data service.
 
-:marked
-  [Run the live example for part 4](/resources/live-examples/toh-4/ts/plnkr.html)
+p Run the #[+liveExampleLink2('', 'toh-4')] for this part.
 
 .l-main-section
 :marked
@@ -37,14 +36,17 @@ include ../_util-fns
     .file typings ...
     .file index.html
     .file package.json
+    .file styles.css
+    .file systemjs.config.js
     .file tsconfig.json
     .file typings.json
+
 :marked
   ### Keep the app transpiling and running
   Open a terminal/console window. 
   Start the TypeScript compiler, watch for changes, and start our server by entering the command:
 
-code-example(format="." language="bash").
+code-example(language="bash").
   npm start
 
 :marked
@@ -165,7 +167,7 @@ code-example(format="." language="bash").
 
   ### Inject the *HeroService*
   
-  Two lines replace the one line of *new*:
+  Two lines replace the one line that created with *new*:
   1. we add a constructor.
   1. we add to the component's `providers` metadata
   
@@ -173,18 +175,9 @@ code-example(format="." language="bash").
 +makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'app.component.ts (constructor)')
 :marked
   The constructor itself does nothing. The parameter simultaneously 
-  defines a private `_heroService` property and identifies it as a `HeroService` injection site.
-.l-sub-section
-  :marked
-    We prefix private variables with an underscore (_) to warn readers of our code
-    that this variable is not part of the component's public API.
+  defines a private `heroService` property and identifies it as a `HeroService` injection site.
 :marked
   Now Angular will know to supply an instance of the `HeroService` when it creates a new `AppComponent`. 
-  
-  Angular has to get that instance from somewhere. That's the role of the Angular *Dependency Injector*.
-  The **Injector** has a **container** of previously created services. 
-  Either it finds and returns a pre-existing `HeroService` from its container or it creates a new instance, adds
-  it to the container, and returns it to Angular.
 
 .l-sub-section
   :marked
@@ -203,25 +196,10 @@ code-example(format="." language="html").
 :marked
   The `providers` array  tells Angular to create a fresh instance of the `HeroService` when it creates a new `AppComponent`.
   The `AppComponent` can use that service to get heroes and so can every child component of its component tree.
-<a id="child-component"></a>  
-.l-sub-section
-  :marked
-    ### Services and the component tree
-    
-    Recall that the `AppComponent` creates an instance of `HeroDetail` by virtue of the
-    `<my-hero-detail>` tag at the bottom of its template. That `HeroDetail` is a child of the `AppComponent`.
-    
-    If the `HeroDetailComponent` needed its parent component's `HeroService`,
-    it would ask Angular to inject the service into its constructor which would look just like the one for `AppComponent`:
-  +makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'hero-detail.component.ts (constructor)')
-  :marked
-    The `HeroDetailComponent` must *not* repeat its parent's `providers` array! Guess [why](#shadow-provider).
-    
-    The `AppComponent` is the top level component of our application. 
-    There should be only one instance of that component and only one instance of the `HeroService` in our entire app.
+a#child-component
 :marked
   ### *getHeroes* in the *AppComponent*
-  We've got the service in a `_heroService` private variable. Let's use it.
+  We've got the service in a `heroService` private variable. Let's use it.
   
   We pause to think. We can call the service and get the data in one line.
 +makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
@@ -362,8 +340,8 @@ code-example(format="." language="html").
   * We created mock hero data and imported them into our service
   * We designed our service to return a promise and our component to get our data from the promise
 
-  [Run the live example for part 4](/resources/live-examples/toh-4/ts/plnkr.html)
-
+p Run the #[+liveExampleLink2('', 'toh-4')] for this part.
+:marked
   ### The Road Ahead
   Our Tour of Heroes has become more reusable using shared components and services.
   We want to create a dashboard, add menu links that route between the views, and format data in a template.
@@ -379,25 +357,10 @@ code-example(format="." language="html").
   We can simulate a slow connection.
   
   Import the `Hero` symbol and add the following `getHeroesSlowly` method to the `HeroService`
-+makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes-slowly', 'hero.service.ts (getHeroesSlowy)')(format=".")
++makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes-slowly', 'hero.service.ts (getHeroesSlowly)')(format=".")
 :marked
   Like `getHeroes`, it also returns a promise. 
   But this promise waits 2 seconds before resolving the promise with mock heroes.
   
-  Back in the `AppComponent`, replace `_heroService.getHeroes` with `_heroService.getHeroesSlowly`
+  Back in the `AppComponent`, replace `heroService.getHeroes` with `heroService.getHeroesSlowly`
   and see how the app behaves.
-  
-.l-main-section
-<a id="shadow-provider"></a>
-:marked
-  ### Appendix: Shadowing the parent's service
-  
-  We stated [earlier](#child-component) that if we injected the parent `AppComponent` `HeroService`
-  into the `HeroDetailComponent`, *we must not add a providers array* to the `HeroDetailComponent` metadata.
-
-  Why?  Because that tells Angular to create a new instance of the `HeroService` at the `HeroDetailComponent` level.
-  The `HeroDetailComponent` doesn't want its *own*  service instance; it wants its *parent's* service instance.
-  Adding the `providers` array creates a new service instance that shadows the parent instance.
-  
-  Think carefully about where and when to register a provider. 
-  Understand the scope of that registration. Be careful not to create a new service instance at the wrong level.

@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
 // Import the native Angular services.
-import { Component } from 'angular2/core';
-import { Title }     from 'angular2/platform/browser';
+import { Component } from '@angular/core';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
 selector: 'my-app',
@@ -20,10 +20,10 @@ template:
 })
 // #docregion class
 export class AppComponent {
-  public constructor(private _titleService: Title ) { }
+  public constructor(private titleService: Title ) { }
 
   public setTitle( newTitle: string) {
-    this._titleService.setTitle( newTitle );
+    this.titleService.setTitle( newTitle );
   }
 }
 // #enddocregion class

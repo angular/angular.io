@@ -1,9 +1,9 @@
-import {Component}     from 'angular2/core';
-import {RouteConfig, RouterOutlet} from 'angular2/router';
+import { Component }     from '@angular/core';
+import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
 
-import {CrisisListComponent}   from './crisis-list.component.1';
-import {CrisisDetailComponent} from './crisis-detail.component.1';
-import {CrisisService}         from './crisis.service';
+import { CrisisDetailComponent } from './crisis-detail.component.1';
+import { CrisisListComponent }   from './crisis-list.component.1';
+import { CrisisService }         from './crisis.service';
 
 // #docregion minus-imports
 @Component({
@@ -11,17 +11,17 @@ import {CrisisService}         from './crisis.service';
     <h2>CRISIS CENTER</h2>
     <router-outlet></router-outlet>
   `,
-  directives: [RouterOutlet],
+  directives: [ROUTER_DIRECTIVES],
 // #docregion providers
   providers:  [CrisisService]
 // #enddocregion providers
 })
 // #docregion route-config
-@RouteConfig([
+@Routes([
   // #docregion default-route
-  {path:'/',    name: 'CrisisList',   component: CrisisListComponent, useAsDefault: true},
+  {path: '/',    component: CrisisListComponent}, // , useAsDefault: true}, // coming soon
   // #enddocregion default-route
-  {path:'/:id', name: 'CrisisDetail', component: CrisisDetailComponent}
+  {path: '/:id', component: CrisisDetailComponent}
 ])
 // #enddocregion route-config
 export class CrisisCenterComponent { }

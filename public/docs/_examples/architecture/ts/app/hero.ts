@@ -1,10 +1,10 @@
+let nextId = 1;
+
 export class Hero {
-  id:number
+  id: number;
   constructor(
-    public name:string,
-    public power?:string){
+    public name: string,
+    public power?: string) {
       this.id = nextId++;
     }
 }
-
-var nextId = 1;

@@ -1,7 +1,7 @@
 // #docregion
-import {Component, Inject} from 'angular2/core';
-import {HeroesService} from './heroes.service';
-import {Hero} from '../hero';
+import { Component, Inject } from '@angular/core';
+import { HeroesService } from './heroes.service';
+import { Hero } from '../hero';
 
 @Component({
   selector: 'hero-detail',
@@ -10,8 +10,8 @@ import {Hero} from '../hero';
   `
 })
 export class HeroDetailComponent {
-  hero:Hero;
-  constructor(@Inject('heroes') heroes:HeroesService) {
+  hero: Hero;
+  constructor(@Inject('heroes') heroes: HeroesService) {
     this.hero = heroes.get()[0];
   }
 }

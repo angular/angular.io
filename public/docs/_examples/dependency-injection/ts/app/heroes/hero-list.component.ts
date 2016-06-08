@@ -1,5 +1,7 @@
+/* tslint:disable:one-line */
 // #docregion
-import { Component }   from 'angular2/core';
+import { Component }   from '@angular/core';
+
 import { Hero }        from './hero';
 import { HeroService } from './hero.service';
 
@@ -16,8 +18,9 @@ export class HeroListComponent {
   heroes: Hero[];
 
   // #docregion ctor-signature
-  constructor(heroService: HeroService) {
+  constructor(heroService: HeroService)
   // #enddocregion ctor-signature
+  {
     this.heroes = heroService.getHeroes();
   }
 }

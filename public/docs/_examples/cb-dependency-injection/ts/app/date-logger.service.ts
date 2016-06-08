@@ -1,6 +1,7 @@
 /* tslint:disable:one-line:check-open-brace*/
 // #docregion
-import { Injectable }    from 'angular2/core';
+import { Injectable }    from '@angular/core';
+
 import { LoggerService } from './logger.service';
 
 // #docregion minimal-logger

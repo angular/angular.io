@@ -1,8 +1,5 @@
 var docShredder = require('../doc-shredder');
-var Q = require("q");
-var del = require('del')
-// delPromise is a 'promise' version of del
-var delPromise =  Q.denodeify(del);
+var del = require('del');
 var globby = require('globby');
 var path = require('canonical-path');
 var fs = require('fs');
@@ -59,7 +56,7 @@ describe('doc-shredder', function() {
 
   function clean(shredOptions) {
     var cleanPath = path.join(shredOptions.fragmentsDir, '**/*.*')
-    return delPromise([ cleanPath, '!**/*.ovr.*']);
+    return del([ cleanPath, '!**/*.ovr.*']);
   }
 
 });

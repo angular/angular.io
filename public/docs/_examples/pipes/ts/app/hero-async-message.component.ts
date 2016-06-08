@@ -1,21 +1,22 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {Observable} from 'rxjs/Rx';
-
-// Initial view: "Message: "
-// After 500ms: Message: You are my Hero!"
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs/Rx';
 
 @Component({
   selector: 'hero-message',
   template: `
     <h2>Async Hero Message and AsyncPipe</h2>
-
     <p>Message: {{ message$ | async }}</p>
-
     <button (click)="resend()">Resend</button>`,
 })
 export class HeroAsyncMessageComponent {
-  message$:Observable<string>;
+  message$: Observable<string>;
+
+  private messages = [
+    'You are my hero!',
+    'You are the best hero!',
+    'Will you be my hero?'
+  ];
 
   constructor() { this.resend(); }
 
@@ -24,12 +25,6 @@ export class HeroAsyncMessageComponent {
       .map(i => this.messages[i])
       .take(this.messages.length);
   }
-
-  private messages = [
-    'You are my hero!',
-    'You are the best hero!',
-    'Will you be my hero?'
-  ];
 }
 // #enddocregion
 

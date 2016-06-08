@@ -1,10 +1,12 @@
+// #docregion
 import 'package:angular2/angular2.dart';
 
 @Component(
     selector: 'hero-birthday',
-    template: '''
-      <p>The hero's birthday is {{ birthday | date }}</p>
-    ''')
+    // #docregion hero-birthday-template
+    template: "<p>The hero's birthday is {{ birthday | date }}</p>"
+    // #enddocregion hero-birthday-template
+    )
 class HeroBirthday {
   DateTime birthday = new DateTime(1988, 4, 15); // April 15, 1988
 }

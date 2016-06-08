@@ -1,23 +1,17 @@
-// #docregion
-import {Injectable} from 'angular2/core';
+import { Injectable } from '@angular/core';
 
-// #docregion engine
 export class Engine {
-  public cylinders = 4; // default
+  public cylinders = 4;
 }
-// #enddocregion engine
 
-// #docregion tires
 export class Tires {
   public make  = 'Flintstone';
   public model = 'Square';
 }
-// #enddocregion tires
 
 @Injectable()
-// #docregion car
 export class Car {
-  //#docregion car-ctor
+  // #docregion car-ctor
   public description = 'DI';
 
   constructor(public engine: Engine, public tires: Tires) { }
@@ -26,7 +20,6 @@ export class Car {
   // Method using the engine and tires
   drive() {
     return `${this.description} car with ` +
-      `${this.engine.cylinders} cylinders and ${this.tires.make} tires.`
+      `${this.engine.cylinders} cylinders and ${this.tires.make} tires.`;
   }
 }
-// #enddocregion car

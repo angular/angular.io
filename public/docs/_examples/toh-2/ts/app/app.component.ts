@@ -1,5 +1,5 @@
 // #docregion pt2
-import {Component} from 'angular2/core';
+import { Component } from '@angular/core';
 
 export class Hero {
   id: number;
@@ -8,7 +8,7 @@ export class Hero {
 
 @Component({
   selector: 'my-app',
-  template:`
+  template: `
     <h1>{{title}}</h1>
     <h2>My Heroes</h2>
     <ul class="heroes">
@@ -28,7 +28,7 @@ export class Hero {
     </div>
   `,
 // #docregion styles-1
-  styles:[`
+  styles: [`
     .selected {
       background-color: #CFD8DC !important;
       color: white;
@@ -93,17 +93,17 @@ export class AppComponent {
 // #enddocregion pt2
 
 // #docregion hero-array
-var HEROES: Hero[] = [
-  { "id": 11, "name": "Mr. Nice" },
-  { "id": 12, "name": "Narco" },
-  { "id": 13, "name": "Bombasto" },
-  { "id": 14, "name": "Celeritas" },
-  { "id": 15, "name": "Magneta" },
-  { "id": 16, "name": "RubberMan" },
-  { "id": 17, "name": "Dynama" },
-  { "id": 18, "name": "Dr IQ" },
-  { "id": 19, "name": "Magma" },
-  { "id": 20, "name": "Tornado" }
+const HEROES: Hero[] = [
+  { id: 11, name: 'Mr. Nice' },
+  { id: 12, name: 'Narco' },
+  { id: 13, name: 'Bombasto' },
+  { id: 14, name: 'Celeritas' },
+  { id: 15, name: 'Magneta' },
+  { id: 16, name: 'RubberMan' },
+  { id: 17, name: 'Dynama' },
+  { id: 18, name: 'Dr IQ' },
+  { id: 19, name: 'Magma' },
+  { id: 20, name: 'Tornado' }
 ];
 // #enddocregion hero-array
 

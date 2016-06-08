@@ -12,7 +12,7 @@
       this.active = true;
     }
   });
-  
+
   // #docregion content
   var HeroComponent = ng.core.Component({
     selector: 'hero',
@@ -38,7 +38,7 @@
   var AppComponent = ng.core.Component({
     selector: 'heroes-queries',
     template:
-      '<hero *ngFor="#hero of heroData"' +
+      '<hero *ngFor="let hero of heroData"' +
             '[hero]="hero">' +
         '<active-label></active-label>' +
       '</hero>' +

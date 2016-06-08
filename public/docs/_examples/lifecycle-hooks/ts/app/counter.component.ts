@@ -1,11 +1,11 @@
 // #docregion
 import {
-  Component, Input, Output,
+  Component, Input,
   OnChanges, SimpleChange,
-} from 'angular2/core';
+} from '@angular/core';
 
-import {Spy} from './spy.directive';
-import {LoggerService}  from './logger.service';
+import { Spy } from './spy.directive';
+import { LoggerService }  from './logger.service';
 
 @Component({
   selector: 'my-counter',
@@ -14,15 +14,15 @@ import {LoggerService}  from './logger.service';
     Counter = {{counter}}
 
     <h5>-- Counter Change Log --</h5>
-    <div *ngFor="let chg of changeLog" my-spy>{{chg}}</div>
+    <div *ngFor="let chg of changeLog" mySpy>{{chg}}</div>
   </div>
   `,
   styles: ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}'],
-  directives:[Spy]
+  directives: [Spy]
 })
 export class MyCounter implements OnChanges {
   @Input() counter: number;
-  changeLog:string[] = [];
+  changeLog: string[] = [];
 
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
 
@@ -33,9 +33,9 @@ export class MyCounter implements OnChanges {
     }
 
     // A change to `counter` is the only change we care about
-    let prop = changes['counter'];
-    let cur = prop.currentValue;
-    let prev = JSON.stringify(prop.previousValue); // first time is {}; after is integer
+    let chng = changes['counter'];
+    let cur = chng.currentValue;
+    let prev = JSON.stringify(chng.previousValue); // first time is {}; after is integer
     this.changeLog.push(`counter: currentValue = ${cur}, previousValue = ${prev}`);
   }
 
@@ -64,25 +64,25 @@ export class MyCounter implements OnChanges {
 })
 export class CounterParentComponent {
   value: number;
-  spyLog:string[] = [];
+  spyLog: string[] = [];
 
-  private _logger:LoggerService;
+  private logger: LoggerService;
 
-  constructor(logger:LoggerService){
-    this._logger = logger;
+  constructor(logger: LoggerService) {
+    this.logger = logger;
     this.spyLog = logger.logs;
     this.reset();
   }
 
   updateCounter() {
     this.value += 1;
-    this._logger.tick();
+    this.logger.tick();
   }
 
-  reset(){
-    this._logger.log('-- reset --');
-    this.value=0;
-    this._logger.tick();
+  reset() {
+    this.logger.log('-- reset --');
+    this.value = 0;
+    this.logger.tick();
   }
 }
 

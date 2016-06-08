@@ -1,15 +1,17 @@
 // #docplaster
 // #docregion
-import {Injectable}     from 'angular2/core';
-import {Http, Response} from 'angular2/http';
-import {Headers, RequestOptions} from 'angular2/http';
-import {Hero}           from './hero';
-import {Observable}     from 'rxjs/Observable';
+import { Injectable }     from '@angular/core';
+import { Http, Response } from '@angular/http';
+import { Headers, RequestOptions } from '@angular/http';
+import { Hero }           from './hero';
+import { Observable }     from 'rxjs/Observable';
 
 @Injectable()
 export class HeroService {
-  constructor (private http: Http) {}
   private _heroesUrl = 'app/heroes';  // URL to web api
+
+  constructor (private http: Http) {}
+
   getHeroes (): Observable<Hero[]> {
     return this.http.get(this._heroesUrl)
                     .map(this.extractData)

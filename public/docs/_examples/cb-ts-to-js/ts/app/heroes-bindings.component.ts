@@ -1,17 +1,17 @@
-import {Component, HostBinding, HostListener} from 'angular2/core';
+import { Component, HostBinding, HostListener } from '@angular/core';
 
 // #docregion
 @Component({
   selector: 'heroes-bindings',
   template: `<h1 [class.active]="active">
-    Tour of Heroes
+    Tour ofHeroes
   </h1>`
 })
 export class HeroesComponent {
   @HostBinding() title = 'Tooltip content';
   @HostBinding('class.heading')
-    hClass = true
-  active:boolean;
+    hClass = true;
+  active: boolean;
 
   constructor() {}
 
@@ -21,7 +21,7 @@ export class HeroesComponent {
   }
 
   @HostListener('dblclick', ['$event'])
-  doubleClicked(evt:Event) {
+  doubleClicked(evt: Event) {
     this.active = true;
   }
 }

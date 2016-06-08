@@ -1,18 +1,16 @@
-//#docregion
 // #docregion token
-import {OpaqueToken} from 'angular2/core';
+import { OpaqueToken } from '@angular/core';
 
 export let APP_CONFIG = new OpaqueToken('app.config');
 // #enddocregion token
 
-//#docregion config
-export interface Config {
-  apiEndpoint: string,
-  title: string
+// #docregion config
+export interface AppConfig {
+  apiEndpoint: string;
+  title: string;
 }
 
-export const CONFIG:Config = {
+export const HERO_DI_CONFIG: AppConfig = {
   apiEndpoint: 'api.heroes.com',
   title: 'Dependency Injection'
 };
-//#enddocregion config

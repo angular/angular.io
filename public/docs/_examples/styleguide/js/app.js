@@ -1,14 +1,13 @@
-(function() {
+(function(app) {
+
 // #docregion
 // #docregion class-w-annotations
-var AppComponent = ng
+app.AppComponent =
     // #docregion component
-    .Component({
-      selector: 'my-app'
-    })
+    ng.core.Component({
+      selector: 'my-app',
     // #enddocregion
     // #docregion view
-    .View({
       template: '<h1 id="output">My First Angular 2 App</h1>'
     })
     // #enddocregion
@@ -21,26 +20,24 @@ var AppComponent = ng
 
 // #docregion bootstrap
 document.addEventListener('DOMContentLoaded', function() {
-  ng.bootstrap(AppComponent);
+  ng.platformBrowserDynamic.bootstrap(app.AppComponent);
 });
 // #enddocregion
 // #enddocregion
 
-})();
+})(window.app || (window.app = {}));
 
 /* Non DSL Approach */
-(function() {
+(function(app) {
 
 // #docregion no-dsl
-function  AppComponent () {}
+app.AppComponent = function  AppComponent () {}
 
-AppComponent.annotations = [
-  new ng.ComponentAnnotation({
-    selector: 'my-app'
-  }),
-  new ng.ViewAnnotation({
+app.AppComponent.annotations = [
+  new ng.core.Component({
+    selector: 'my-app',
     template: '<h1 id="output">My First Angular 2 App</h1>'
   })
 ];
 // #enddocregion
-})();
+})(window.app || (window.app = {}));

@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output } from 'angular2/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  moduleId: __moduleName,
+  moduleId: module.id,
   selector: 'toh-filter-text',
   template: '<div>filter</div>'
 })

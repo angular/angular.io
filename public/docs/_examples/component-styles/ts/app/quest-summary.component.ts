@@ -1,32 +1,21 @@
+/* tslint:disable:no-unused-variable */
 // #docplaster
-import {Component, ViewEncapsulation} from 'angular2/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
 // #docregion
-// Let TypeScript know about the special SystemJS __moduleName variable
-declare var __moduleName: string;
-// #enddocregion
-// moduleName is not set in some module loaders; set it explicitly
-if (!__moduleName) {
-  __moduleName = `http://${location.host}/${location.pathname}/app/`;
-}
-console.log(`The __moduleName is ${__moduleName} `);
-// #docregion
-
 @Component({
-  moduleId: __moduleName,
+  moduleId: module.id,
   selector: 'quest-summary',
   // #docregion urls
   templateUrl: 'quest-summary.component.html',
   styleUrls:  ['quest-summary.component.css']
-  // #enddocregion urls  
+  // #enddocregion urls
+})
+export class QuestSummaryComponent { }
 // #enddocregion
 /*
   // #docregion encapsulation.native
   // warning: few browsers support shadow DOM encapsulation at this time
-  encapsulation: ViewEncapsulation.Native 
+  encapsulation: ViewEncapsulation.Native
   // #enddocregion encapsulation.native
 */
-// #docregion
-})
-export class QuestSummaryComponent { }
-// #enddocregion

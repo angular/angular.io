@@ -1,32 +1,67 @@
 include ../../../_includes/_util-fns
 
-mixin liveExLinks(name)
-  :marked
-    [Run the live example](https://angular-examples.github.io/#{name}) |
-    [View its source code](https://github.com/angular-examples/#{name})
+//- See the _util-fns file included above for a description of the use of these variables.
+- var _docsFor = 'dart';
+- var _decorator = 'annotation';
+- var _Array = 'List';
+- var _array = 'list';
+- var _a = 'an';
+- var _an = 'a';
+- var _priv = '_';
+- var _Lang = 'Dart';
+- var _Promise = 'Future';
+- var _FutureUrl = 'https://api.dartlang.org/dart_async/Future.html';
+- var _PromiseLinked = '<a href="' + _FutureUrl + '">' + _Promise + '</a>';
+- var _Observable = 'Stream';
+- var _liveLink = 'sample repo';
+- var _truthy = 'true';
+- var _falsey = 'false';
+- var _appDir = 'lib';
+- var _indexHtmlDir = 'web';
+- var _mainDir = 'web';
 
-- var adjustExamplePath = function(path) {
+mixin liveExampleLink(linkText, exampleUrlPartName)
+  - var text = linkText || 'live example';
+  - var ex = exampleUrlPartName || getExampleName();
+  - var href = 'http://angular-examples.github.io/' + ex;
+  a(href='#{href}' target="_blank")= text
+
+mixin liveExampleLink2(linkText, exampleUrlPartName)
+  - var srcText = attributes.srcText || 'view source';
+  - var ex = exampleUrlPartName || attributes.example || getExampleName();
+  - var href = 'http://github.com/angular-examples/' + ex;
+  span #[+liveExampleLink(linkText, ex)] (#[a(href='#{href}' target="_blank") #{srcText}])
+
+- var adjustTsExamplePathForDart = function(_path) {
+-   if(!_path) return _path;
+-   var path = _path.trim();
 -   var folder = getFolder(path);
 -   var extn = getExtn(path);
 -   // if(extn == 'dart') return path;
--   var baseName = getBaseFileName(path);
+-   var baseName = getBaseFileName(path) || path; // TODO: have getBaseFileName() return path
 -   var baseNameNoExt = baseName.substr(0,baseName.length - (extn.length + 1));
--   var inWebFolder = baseNameNoExt.match(/^(main|index)$/);
--   // Adjust the folder path, e.g., ts -> dart 
--   folder = folder.replace(/(^|\/)ts\//, '$1dart/').replace(/(^|\/)app$/, inWebFolder ? '$1web' : '$1lib');
+-   var inWebFolder = baseNameNoExt.match(/^(main|index)(\.\d)?$/);
+-   // Adjust the folder path, e.g., ts -> dart
+-   folder = folder.replace(/(^|\/)ts($|\/)/, '$1dart$2').replace(/(^|\/)app($|\/)/, inWebFolder ? '$1web$2' : '$1lib$2');
+-   // Special case not handled above: e.g., index.html -> web/index.html
+-   if(baseNameNoExt.match(/^(index|styles)(\.\d)?$/) && !folder.match(/web$/)) folder = (folder ? folder + '/' : '') + 'web';
 -   // In file name, replace special characters with underscore
 -   baseNameNoExt = baseNameNoExt.replace(/[\-\.]/g, '_');
 -   // Adjust the file extension
 -   if(extn == 'ts') extn = 'dart';
--   return folder + '/' + baseNameNoExt + '.' + extn;
+-   return (folder ? folder + '/' : '') + baseNameNoExt + (extn ? '.' + extn : '');
 - };
 
-- var adjustExampleTitle = function(title) {
--   // Assume title is a path if it ends with an extension like '.foo'.
--   if(title && title.match(/\.\w+$/) && adjustExamplePath) {
--     var isAbsolutePath = title.match(/^\//);
--     title = adjustExamplePath(title);
--     if(!isAbsolutePath && title.match(/^\//)) title = title.substring(1);
+- var adjustTsExampleTitleForDart = function(_title) {
+-   if(!_title || !adjustTsExamplePathForDart) return _title;
+-   var title = _title.trim();
+-   // Assume title is a path if it ends with an extension like '.foo',
+-   // optionally followed by some comment in parentheses.
+-   var matches = title.match(/(.*\.\w+)($|\s*\([\w ]+\)$)/);
+-   if(matches && matches.length == 3) {
+-     // e.g. matches == ['abc.ts (excerpt)', 'abc.ts', ' (excerpt)']
+-     var path = adjustTsExamplePathForDart(matches[1]);
+-     title = path + matches[2];
 -   }
 -   return title;
 - }

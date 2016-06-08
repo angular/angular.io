@@ -1,7 +1,7 @@
 // #docplaster
-import {Component, Input, Output, EventEmitter} from 'angular2/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import {Hero} from './hero';
+import { Hero } from './hero';
 
 let nextHeroDetailId = 1;
 
@@ -13,7 +13,7 @@ let nextHeroDetailId = 1;
   inputs: ['hero'],
   outputs: ['deleteRequest'],
   // #enddocregion input-output-2
-  styles:['button { margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
+  styles: ['button { margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
   // #docregion template-1
   template: `
   <div>
@@ -28,6 +28,12 @@ let nextHeroDetailId = 1;
 })
 // #enddocregion input-output-2
 export class HeroDetailComponent {
+  hero: Hero = new Hero('', 'Zzzzzzzz'); // default sleeping hero
+  // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
+  // Public Domain terms of use: http://www.wpclipart.com/terms.html
+  heroImageUrl = 'images/hero.png';
+  lineThrough = '';
+  @Input() prefix = '';
 
 // #docregion deleteRequest
   // This component make a request but it can't actually delete a hero.
@@ -40,13 +46,6 @@ export class HeroDetailComponent {
     // #docregion deleteRequest
   }
 // #enddocregion deleteRequest
-
-  hero: Hero = new Hero('','Zzzzzzzz'); // default sleeping hero
-  // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
-  // Public Domain terms of use: http://www.wpclipart.com/terms.html
-  heroImageUrl = 'images/hero.png';
-  lineThrough = '';
-  @Input() prefix = '';
 }
 
 @Component({

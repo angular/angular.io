@@ -2,8 +2,8 @@
 export class Hero {
   constructor(
     // #docregion id-parameter
-    public id:number,
+    public id: number,
     // #enddocregion id-parameter
-    public name:string) { }
+    public name: string) { }
 }
 // #enddocregion

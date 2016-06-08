@@ -1,16 +1,17 @@
 // #docplaster
 // #docregion
-import {Component, OnInit} from 'angular2/core';
-import {Hero} from './hero';
-import {HeroDetailComponent} from './hero-detail.component';
+import { Component, OnInit } from '@angular/core';
+
+import { Hero } from './hero';
+import { HeroDetailComponent } from './hero-detail.component';
 // #docregion hero-service-import
-import {HeroService} from './hero.service';
+import { HeroService } from './hero.service';
 // #enddocregion hero-service-import
 
 @Component({
   selector: 'my-app',
   // #docregion template
-  template:`
+  template: `
     <h1>{{title}}</h1>
     <h2>My Heroes</h2>
     <ul class="heroes">
@@ -22,8 +23,8 @@ import {HeroService} from './hero.service';
     </ul>
     <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
-  // #enddocregion template  
-  styles:[`
+  // #enddocregion template
+  styles: [`
     .selected {
       background-color: #CFD8DC !important;
       color: white;
@@ -80,11 +81,11 @@ export class AppComponent implements OnInit {
   heroes: Hero[];
   selectedHero: Hero;
 
-  constructor(private _heroService: HeroService) { }
+  constructor(private heroService: HeroService) { }
 
 // #docregion get-heroes
   getHeroes() {
-    this._heroService.getHeroes().then(heroes => this.heroes = heroes);
+    this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
 // #enddocregion get-heroes
 

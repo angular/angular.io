@@ -1,13 +1,14 @@
-import {HeroDetailComponent} from './hero-detail.component';
-import {HeroesService} from './heroes.service';
-import {upgradeAdapter} from './upgrade_adapter';
+import { HeroDetailComponent } from './hero-detail.component';
+import { HeroesService } from './heroes.service';
+import { upgradeAdapter } from './upgrade_adapter';
 
-declare var angular:any;
+declare var angular: any;
 
 // #docregion register
 angular.module('heroApp', [])
   .service('heroes', HeroesService)
-  .directive('heroDetail', upgradeAdapter.downgradeNg2Component(HeroDetailComponent));
+  .directive('heroDetail',
+    upgradeAdapter.downgradeNg2Component(HeroDetailComponent));
 
 upgradeAdapter.upgradeNg1Provider('heroes');
 

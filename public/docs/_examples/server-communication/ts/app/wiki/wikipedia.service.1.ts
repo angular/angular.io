@@ -1,7 +1,7 @@
 // Create the query string by hand
 // #docregion
-import {Injectable} from 'angular2/core';
-import {Jsonp}      from 'angular2/http';
+import { Injectable } from '@angular/core';
+import { Jsonp }      from '@angular/http';
 
 @Injectable()
 export class WikipediaService {
@@ -14,7 +14,7 @@ export class WikipediaService {
 
     // #docregion query-string
     let queryString =
-      `?search=${term}&action=opensearch&format=json&callback=JSONP_CALLBACK`
+      `?search=${term}&action=opensearch&format=json&callback=JSONP_CALLBACK`;
 
     return this.jsonp
                .get(wikiUrl + queryString)

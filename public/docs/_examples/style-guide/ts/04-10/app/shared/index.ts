@@ -10,21 +10,3 @@ export * from './nav';
 export * from './spinner';
 export * from './toast';
 // #enddocregion example
-
-import {EntityService} from './entity.service';
-import {ExceptionService} from './exception.service';
-import {FilterService} from './filter-text';
-import {InitCapsPipe} from './init-caps.pipe';
-import {ModalService} from './modal';
-import {SpinnerService} from './spinner';
-import {ToastService} from './toast';
-
-export const BLOCK_PROVIDERS = [
-  EntityService,
-  ExceptionService,
-  FilterService,
-  InitCapsPipe,
-  ModalService,
-  SpinnerService,
-  ToastService
-];

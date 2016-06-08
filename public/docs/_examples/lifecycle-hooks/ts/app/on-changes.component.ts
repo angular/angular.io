@@ -1,9 +1,9 @@
 /* tslint:disable:forin */
 // #docregion
 import {
-  Component, Input, ViewChild,
-  OnChanges, SimpleChange
-} from 'angular2/core';
+  Component, Input, OnChanges,
+  SimpleChange, ViewChild
+} from '@angular/core';
 
 
 class Hero {
@@ -36,9 +36,9 @@ export class OnChangesComponent implements OnChanges {
   // #docregion ng-on-changes
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
     for (let propName in changes) {
-      let prop = changes[propName];
-      let cur  = JSON.stringify(prop.currentValue);
-      let prev = JSON.stringify(prop.previousValue);
+      let chng = changes[propName];
+      let cur  = JSON.stringify(chng.currentValue);
+      let prev = JSON.stringify(chng.previousValue);
       this.changeLog.push(`${propName}: currentValue = ${cur}, previousValue = ${prev}`);
     }
   }
@@ -59,13 +59,13 @@ export class OnChangesParentComponent {
   hero: Hero;
   power: string;
   title = 'OnChanges';
-  @ViewChild(OnChangesComponent) childView:OnChangesComponent;
+  @ViewChild(OnChangesComponent) childView: OnChangesComponent;
 
   constructor() {
     this.reset();
   }
 
-  reset(){
+  reset() {
     // new Hero object every time; triggers onChanges
     this.hero = new Hero('Windstorm');
     // setting power only triggers onChanges if this value is different

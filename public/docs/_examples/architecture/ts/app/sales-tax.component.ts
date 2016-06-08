@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
-import {Component}       from 'angular2/core';
-import {SalesTaxService} from './sales-tax.service';
-import {TaxRateService}  from './tax-rate.service';
+import { Component }       from '@angular/core';
+
+import { SalesTaxService } from './sales-tax.service';
+import { TaxRateService }  from './tax-rate.service';
 
 // #docregion metadata
 // #docregion providers
@@ -12,7 +13,7 @@ import {TaxRateService}  from './tax-rate.service';
   template: `
     <h2>Sales Tax Calculator</h2>
     Amount: <input #amountBox (change)="0">
-    
+
     <div *ngIf="amountBox.value">
     The sales tax is
      {{ getTax(amountBox.value) | currency:'USD':true:'1.2-2' }}
@@ -31,11 +32,11 @@ export class SalesTaxComponent { ... }
 // #docregion class
 export class SalesTaxComponent {
 // #docregion ctor
-  constructor(private _salesTaxService: SalesTaxService) { }
+  constructor(private salesTaxService: SalesTaxService) { }
 // #enddocregion ctor
 
-  getTax(value:string | number){
-    return this._salesTaxService.getVAT(value);
+  getTax(value: string | number) {
+    return this.salesTaxService.getVAT(value);
   }
 }
 // #enddocregion class

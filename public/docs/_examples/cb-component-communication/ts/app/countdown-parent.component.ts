@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion vc
-import {AfterViewInit, ViewChild} from 'angular2/core';
+import { AfterViewInit, ViewChild } from '@angular/core';
 // #docregion lv
-import {Component}                from 'angular2/core';
-import {CountdownTimerComponent}  from './countdown-timer.component';
+import { Component }                from '@angular/core';
+import { CountdownTimerComponent }  from './countdown-timer.component';
 
 // #enddocregion lv
 // #enddocregion vc
@@ -11,7 +11,7 @@ import {CountdownTimerComponent}  from './countdown-timer.component';
 //// Local variable, #timer, version
 // #docregion lv
 @Component({
-  selector:'countdown-parent-lv',
+  selector: 'countdown-parent-lv',
   template: `
   <h3>Countdown to Liftoff (via local variable)</h3>
   <button (click)="timer.start()">Start</button>
@@ -28,7 +28,7 @@ export class CountdownLocalVarParentComponent { }
 //// View Child version
 // #docregion vc
 @Component({
-  selector:'countdown-parent-vc',
+  selector: 'countdown-parent-vc',
   template: `
   <h3>Countdown to Liftoff (via ViewChild)</h3>
   <button (click)="start()">Start</button>
@@ -42,7 +42,7 @@ export class CountdownLocalVarParentComponent { }
 export class CountdownViewChildParentComponent implements AfterViewInit {
 
   @ViewChild(CountdownTimerComponent)
-  private _timerComponent:CountdownTimerComponent;
+  private timerComponent: CountdownTimerComponent;
 
   seconds() { return 0; }
 
@@ -50,10 +50,10 @@ export class CountdownViewChildParentComponent implements AfterViewInit {
     // Redefine `seconds()` to get from the `CountdownTimerComponent.seconds` ...
     // but wait a tick first to avoid one-time devMode
     // unidirectional-data-flow-violation error
-    setTimeout(() => this.seconds = () => this._timerComponent.seconds, 0)
+    setTimeout(() => this.seconds = () => this.timerComponent.seconds, 0);
   }
 
-  start(){ this._timerComponent.start(); }
-  stop() { this._timerComponent.stop(); }
+  start() { this.timerComponent.start(); }
+  stop() { this.timerComponent.stop(); }
 }
 // #enddocregion vc

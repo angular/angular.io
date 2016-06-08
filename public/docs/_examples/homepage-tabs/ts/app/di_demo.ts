@@ -1,6 +1,7 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {UiTabs, UiPane} from './ui_tabs';
+import { Component } from '@angular/core';
+
+import { UiTabs, UiPane } from './ui_tabs';
 
 class Detail {
   title: string;
@@ -40,7 +41,7 @@ export class DiDemo {
     });
   }
 
-  removeDetail(detail:Detail) {
+  removeDetail(detail: Detail) {
     this.details = this.details.filter((d) => d !== detail);
   }
 }

@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
-import {Component, Input, Output} from 'angular2/core';
-import {UnlessDirective}          from './unless.directive';
-import {HeavyLoaderComponent}     from './heavy-loader.component';
+import { Component } from '@angular/core';
+import { UnlessDirective }          from './unless.directive';
+import { HeavyLoaderComponent }     from './heavy-loader.component';
 
 @Component({
   selector: 'structural-directives',
@@ -18,4 +18,4 @@ export class StructuralDirectivesComponent {
   logs: string[] = [];
   status = 'ready';
 }
-//#enddocregion
+// #enddocregion

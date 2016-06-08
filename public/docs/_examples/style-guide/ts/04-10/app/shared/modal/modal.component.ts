@@ -1,9 +1,9 @@
-import { Component, OnInit } from 'angular2/core';
+import { Component, OnInit } from '@angular/core';
 
 import { ModalService } from './modal.service';
 
 @Component({
-  moduleId: __moduleName,
+  moduleId: module.id,
   selector: 'toh-modal-confirm',
   template: '<div>modal</div>'
 })

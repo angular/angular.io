@@ -1,15 +1,16 @@
 /* tslint:disable:no-unused-variable */
 import { DashboardComponent } from './dashboard.component';
 
-import { By }       from 'angular2/platform/browser';
-import { provide  } from 'angular2/core';
+import { By }       from '@angular/platform-browser';
 
 import {
   beforeEach, beforeEachProviders,
   describe, ddescribe, xdescribe,
   expect, it, iit, xit,
-  async, inject, TestComponentBuilder
-} from 'angular2/testing';
+  async, inject
+} from '@angular/core/testing';
+
+import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 import { Router, MockRouter } from './mock-router';
@@ -72,9 +73,9 @@ describe('DashboardComponent', () => {
     beforeEachProviders(() => {
       mockHeroService = new MockHeroService();
       return [
-        provide(Router,      {useClass: MockRouter}),
-        provide(MockRouter,  {useExisting: Router}),
-        provide(HeroService, {useValue: mockHeroService})
+        { provide: Router,      useClass: MockRouter},
+        { provide: MockRouter,  useExisting: Router},
+        { provide: HeroService, useValue: mockHeroService }
       ];
     });
 

@@ -1,5 +1,5 @@
 // #docregion
-import {Pipe, PipeTransform} from 'angular2/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({ name: 'my-uppercase' })
 export class MyUppercasePipe implements PipeTransform {

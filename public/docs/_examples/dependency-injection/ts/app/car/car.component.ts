@@ -1,8 +1,9 @@
 // #docregion
-import { Component, Injector} from 'angular2/core';
-import { Car, Engine, Tires } from './car';
-import { Car as CarNoDi }     from './car-no-di';
-import { CarFactory}          from './car-factory';
+import { Component, Injector } from '@angular/core';
+
+import { Car, Engine, Tires }  from './car';
+import { Car as CarNoDi }      from './car-no-di';
+import { CarFactory }          from './car-factory';
 
 import { testCar,
          simpleCar,

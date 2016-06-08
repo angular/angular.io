@@ -1,8 +1,9 @@
-import {Component, Input} from 'angular2/core';
-import {Hero} from './hero';
-import {HeroDetailsComponent} from './hero-details.component';
-import {HeroControlsComponent} from './hero-controls.component';
-import {QuestSummaryComponent} from './quest-summary.component';
+import { Component, Input } from '@angular/core';
+
+import { Hero } from './hero';
+import { HeroDetailsComponent } from './hero-details.component';
+import { HeroControlsComponent } from './hero-controls.component';
+import { QuestSummaryComponent } from './quest-summary.component';
 
 @Component({
   selector: 'hero-app-main',

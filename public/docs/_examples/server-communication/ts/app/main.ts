@@ -1,21 +1,29 @@
 // #docplaster
-// #docregion
-import { bootstrap }      from 'angular2/platform/browser';
-// #docregion http-providers
-import { HTTP_PROVIDERS } from 'angular2/http';
-// #enddocregion http-providers
+// #docregion final
+// Imports for loading & configuring the in-memory web api
+import { XHRBackend } from '@angular/http';
 
-// #docregion import-rxjs
-// Add all operators to Observable
-import 'rxjs/Rx';
-// #enddocregion import-rxjs
+import { InMemoryBackendService,
+         SEED_DATA }  from 'angular2-in-memory-web-api';
+import { HeroData }   from './hero-data';
 
-import { WikiComponent }      from './wiki/wiki.component';
-import { WikiSmartComponent } from './wiki/wiki-smart.component';
-import { TohComponent }       from './toh/toh.component';
+// The usual bootstrapping imports
+// #docregion v1
+import { bootstrap }      from '@angular/platform-browser-dynamic';
+import { HTTP_PROVIDERS } from '@angular/http';
 
-bootstrap(WikiComponent);
-bootstrap(WikiSmartComponent);
-// #docregion http-providers
-bootstrap(TohComponent, [HTTP_PROVIDERS]);
-// #enddocregion http-providers
+import { AppComponent }   from './app.component';
+
+// #enddocregion v1, final
+/*
+// #docregion v1
+bootstrap(AppComponent, [ HTTP_PROVIDERS ]);
+// #enddocregion v1
+ */
+// #docregion final
+bootstrap(AppComponent, [
+    HTTP_PROVIDERS,
+    { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server
+    { provide: SEED_DATA,  useClass: HeroData }                // in-mem server data
+]);
+// #enddocregion final

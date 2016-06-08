@@ -7,8 +7,6 @@ var _ = require('lodash');
 var argv = require('yargs').argv;
 var env = require('gulp-env');
 var Q = require("q");
-// delPromise is a 'promise' version of del
-var delPromise =  Q.denodeify(del);
 var Minimatch = require("minimatch").Minimatch;
 var Dgeni = require('dgeni');
 var Package = require('dgeni').Package;
@@ -38,6 +36,7 @@ var TEMP_PATH = './_temp';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
+var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
@@ -60,7 +59,7 @@ var _devguideShredJadeOptions =  {
 };
 
 var _apiShredOptions =  {
-  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples'),
+  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api')
 };
@@ -77,6 +76,7 @@ var _exampleBoilerplateFiles = [
   'karma-test-shim.js',
   'package.json',
   'styles.css',
+  'systemjs.config.js',
   'tsconfig.json',
   'tslint.json',
   'typings.json',
@@ -85,71 +85,134 @@ var _exampleBoilerplateFiles = [
 
 var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
-// --filter may be passed in to filter/select _example app subdir names
-// i.e. gulp run-e2e-tests --filter=foo  ; would select all example apps with
-// 'foo' in their folder names.
-gulp.task('run-e2e-tests', function() {
-  var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
-  return spawnInfo.promise.then(function() {
-    copyExampleBoilerplate();
-    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-    spawnInfo = spawnExt('webdriver-manager', ['update'], {cwd: exePath});
-    return spawnInfo.promise;
-  }).then(function() {
-    return findAndRunE2eTests(argv.filter);
+var _exampleProtractorBoilerplateFiles = [
+  'tsconfig.json'
+];
+
+/**
+ * Run Protractor End-to-End Specs for Doc Samples
+ * Alias for 'run-e2e-tests'
+ */
+gulp.task('e2e', runE2e);
+
+gulp.task('run-e2e-tests', runE2e);
+
+/**
+ * Run Protractor End-to-End Tests for Doc Samples
+ *
+ * Flags
+ *   --filter to filter/select _example app subdir names
+ *    e.g. gulp e2e --filter=foo  // all example apps with 'foo' in their folder names.
+ *
+ *    --fast by-passes the npm install and webdriver update
+ *    Use it for repeated test runs (but not the FIRST run)
+ *    e.g. gulp e2e --fast
+ *
+ *   --lang to filter by code language
+ *     e.g. gulp e2e --lang=ts  // only TypeScript apps
+ *     default is (ts|js)
+ *     all means (ts|js|dart)
+ */
+function runE2e() {
+  var promise;
+  if (argv.fast) {
+    // fast; skip all setup
+    promise = Promise.resolve(true);
+  } else  {
+    /*
+       // Not 'fast'; do full setup
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
+    promise = spawnInfo.promise.then(function() {
+      copyExampleBoilerplate();
+      spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
+      return spawnInfo.promise;
+    });
+    */
+    // Not 'fast'; do full setup
+    gutil.log('runE2e: install _protractor stuff');
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PROTRACTOR_PATH});
+    promise = spawnInfo.promise
+      .then(function() {
+        gutil.log('runE2e: install _examples stuff');
+        spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH})
+        return spawnInfo.promise;
+      })
+      .then(function() {
+        copyExampleBoilerplate();
+        gutil.log('runE2e: update webdriver');
+        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PROTRACTOR_PATH});
+        return spawnInfo.promise;
+      });
+  };
+
+  var outputFile = path.join(process.cwd(), 'protractor-results.txt');
+
+  promise.then(function() {
+    return findAndRunE2eTests(argv.filter, outputFile);
   }).then(function(status) {
-    reportStatus(status);
-  }).fail(function(e) {
-    return e;
+    reportStatus(status, outputFile);
+    if (status.failed.length > 0){
+      return Promise.reject('Some test suites failed');
+    }
+  }).catch(function(e) {
+    gutil.log(e);
+    process.exitCode = 1;
   });
-});
+  return promise;
+}
 
 // finds all of the *e2e-spec.tests under the _examples folder along
 // with the corresponding apps that they should run under. Then run
 // each app/spec collection sequentially.
-function findAndRunE2eTests(filter) {
-  var startTime = new Date().getTime();
+function findAndRunE2eTests(filter, outputFile) {
+
   // create an output file with header.
-  var outputFile = path.join(process.cwd(), 'protractor-results.txt');
-  var header = "Protractor example results for: " + (new Date()).toLocaleString() + "\n\n";
-  if (filter) {
-    header += '  Filter: ' + filter.toString() + '\n\n';
-  }
+  var lang = (argv.lang || '(ts|js)').toLowerCase();
+  if (lang === 'all') { lang = '(ts|js|dart)'; }
+  var startTime = new Date().getTime();
+  var header = `Doc Sample Protractor Results for ${lang} on ${new Date().toLocaleString()}\n`;
+  header += argv.fast ?
+    '  Fast Mode (--fast): no npm install, webdriver update, or boilerplate copy\n' :
+    '  Slow Mode: npm install, webdriver update, and boilerplate copy\n';
+  header += `  Filter: ${filter ? filter : 'All tests'}\n\n`;
   fs.writeFileSync(outputFile, header);
 
   // create an array of combos where each
   // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
-  var exeConfigs = [];
+  var examplePaths = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-  var srcConfig = path.join(EXAMPLES_PATH, 'protractor.config.js');
-  e2eSpecPaths.forEach(function(specPath) {
+   e2eSpecPaths.forEach(function(specPath) {
     var destConfig = path.join(specPath, 'protractor.config.js');
-    fsExtra.copySync(srcConfig, destConfig);
     // get all of the examples under each dir where a pcFilename is found
-    examplePaths = getExamplePaths(specPath, true);
+    localExamplePaths = getExamplePaths(specPath, true);
+    // Filter by language
+    localExamplePaths = localExamplePaths.filter(function (fn) {
+      return fn.match('/'+lang+'$') != null;
+    });
     if (filter) {
-      examplePaths = examplePaths.filter(function (fn) {
+      localExamplePaths = localExamplePaths.filter(function (fn) {
         return fn.match(filter) != null;
       })
     }
-    examplePaths.forEach(function(exPath) {
-      exeConfigs.push( { examplePath: exPath, protractorConfigFilename: destConfig });
+    localExamplePaths.forEach(function(examplePath) {
+      examplePaths.push(examplePath);
     })
   });
 
   // run the tests sequentially
   var status = { passed: [], failed: [] };
-  return exeConfigs.reduce(function (promise, combo) {
+  return examplePaths.reduce(function (promise, examplePath) {
     return promise.then(function () {
-      return runE2eTests(combo.examplePath, combo.protractorConfigFilename, outputFile).then(function(ok) {
+      var isDart = examplePath.indexOf('/dart') > -1;
+      var runTests = isDart ? runE2eDartTests : runE2eTsTests;
+      return runTests(examplePath, outputFile).then(function(ok) {
         var arr = ok ? status.passed : status.failed;
-        arr.push(combo.examplePath);
+        arr.push(examplePath);
       })
     });
   }, Q.resolve()).then(function() {
     var stopTime = new Date().getTime();
     status.elapsedTime = (stopTime - startTime)/1000;
-    fs.appendFileSync(outputFile, '\nElaped Time: ' + status.elapsedTime + ' seconds');
     return status;
   });
 }
@@ -157,47 +220,103 @@ function findAndRunE2eTests(filter) {
 // start the example in appDir; then run protractor with the specified
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
-function runE2eTests(appDir, protractorConfigFilename, outputFile ) {
-  // start the app
-  var appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
-  var tscRunSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
+function runE2eTsTests(appDir, outputFile) {
+  // spawn tasks to start the app
+  var appBuildSpawnInfo;
+  var appRunSpawnInfo;
 
-  return tscRunSpawnInfo.promise.then(function(data) {
-    // start protractor
-    var pcFilename = path.resolve(protractorConfigFilename); // need to resolve because we are going to be running from a different dir
-    var exePath = path.join(process.cwd(), "./node_modules/.bin/");
-    var spawnInfo = spawnExt('protractor',
-      [ pcFilename, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: exePath });
-    return spawnInfo.promise;
-  }).then(function(data) {
-    // kill the app now that protractor has completed.
-    // Ugh... proc.kill does not work properly on windows with child processes.
-    // appRun.proc.kill();
-    treeKill(appRunSpawnInfo.proc.pid);
-    return true;
-  }).fail(function(err) {
-    // Ugh... proc.kill does not work properly on windows with child processes.
-    // appRun.proc.kill();
-    treeKill(appRunSpawnInfo.proc.pid);
-    return false;
-  });
+  if (fs.existsSync(path.join(appDir, 'angular-cli.json'))) {
+    appBuildSpawnInfo = spawnExt('npm', ['run', 'build:cli'], { cwd: appDir });
+    appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:cli', '--', '-s'], { cwd: appDir });
+  } else {
+    appBuildSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
+    appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
+  }
+
+  return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
 }
 
-function reportStatus(status) {
-  gutil.log('Suites passed:');
-  status.passed.forEach(function(val) {
-    gutil.log('  ' + val);
-  });
+function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
+  var specFilename = path.resolve(`${appDir}/../e2e-spec.ts`);
+  return prepPromise
+    .catch(function(){
+      var emsg = `Application at ${appDir} failed to transpile.\n\n`;
+      gutil.log(emsg);
+      fs.appendFileSync(outputFile, emsg);
+      return Promise.reject(emsg);
+    })
+    .then(function (data) {
+      var transpileError = false;
 
-  gutil.log('Suites failed:');
-  status.failed.forEach(function(val) {
-    gutil.log('  ' + val);
+      // start protractor
+
+      var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', 'protractor.config.js',
+        `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PROTRACTOR_PATH });
+
+      spawnInfo.proc.stderr.on('data', function (data) {
+        transpileError = transpileError || /npm ERR! Exit status 100/.test(data.toString());
+      });
+      return spawnInfo.promise.catch(function(err) {
+        if (transpileError) {
+        var emsg = `${specFilename} failed to transpile.\n\n`;
+        gutil.log(emsg);
+        fs.appendFileSync(outputFile, emsg);
+        }
+        return Promise.reject(emsg);
+      });
+    })
+    .then(
+       function() { return finish(true);},
+       function() { return finish(false);}
+    )
+
+    function finish(ok){
+      // Ugh... proc.kill does not work properly on windows with child processes.
+      // appRun.proc.kill();
+      treeKill(appRunSpawnInfo.proc.pid);
+      return ok;
+    }
+}
+
+// start the server in appDir/build/web; then run protractor with the specified
+// fileName; then shut down the example.  All protractor output is appended
+// to the outputFile.
+function runE2eDartTests(appDir, outputFile) {
+  var deployDir = path.resolve(path.join(appDir, 'build/web'));
+  gutil.log('AppDir for Dart e2e: ' + appDir);
+  gutil.log('Deploying from: ' + deployDir);
+
+  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: EXAMPLES_PATH });
+  if (!appRunSpawnInfo.proc.pid) {
+    gutil.log('http-server failed to launch over ' + deployDir);
+    return false;
+  }
+  var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
+  var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
+    return spawnExt('pub', ['build'], { cwd: appDir }).promise;
+  });
+  return runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile);
+}
+
+function reportStatus(status, outputFile) {
+  var log = [''];
+  log.push('Suites passed:');
+  status.passed.forEach(function(val) {
+    log.push('  ' + val);
   });
 
   if (status.failed.length == 0) {
-    gutil.log('All tests passed');
+    log.push('All tests passed');
+  } else {
+    log.push('Suites failed:');
+    status.failed.forEach(function (val) {
+      log.push('  ' + val);
+    });
   }
-  gutil.log('Elapsed time: ' +  status.elapsedTime + ' seconds');
+  log.push('\nElapsed time: ' +  status.elapsedTime + ' seconds');
+  var log = log.join('\n');
+  gutil.log(log);
+  fs.appendFileSync(outputFile, log);
 }
 
 // returns both a promise and the spawned process so that it can be killed if needed.
@@ -219,9 +338,11 @@ function spawnExt(command, args, options) {
   proc.stderr.on('data', function (data) {
     gutil.log(data.toString());
   });
-  proc.on('close', function (data) {
+  proc.on('close', function (returnCode) {
     gutil.log('completed: ' + descr);
-    deferred.resolve(data);
+    // Many tasks (e.g., tsc) complete but are actually errors;
+    // Confirm return code is zero.
+    returnCode === 0 ? deferred.resolve(0) : deferred.reject(returnCode);
   });
   proc.on('error', function (data) {
     gutil.log('completed with error:' + descr);
@@ -243,7 +364,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
   return shouldRemove;
 }));
 
-// requires admin access
+// requires admin access because it adds symlinks
 gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
@@ -263,11 +384,17 @@ gulp.task('add-example-boilerplate', function() {
   return copyExampleBoilerplate();
 });
 
+
+// copies boilerplate files to locations
+// where an example app is found
+gulp.task('_copy-example-boilerplate', copyExampleBoilerplate);
+
+
 // copies boilerplate files to locations
 // where an example app is found
 // also copies certain web files (e.g., styles.css) to ~/_examples/**/dart/**/web
-// also copies protractor.config.js file
 function copyExampleBoilerplate() {
+  gutil.log('Copying example boilerplate files');
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
@@ -282,12 +409,13 @@ function copyExampleBoilerplate() {
     .then(function() {
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths);
     })
-    // copy protractor.config.js from _examples dir to each subdir that
-    // contains a e2e-spec file.
+    // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
     .then(function() {
-      var sourceFiles = [ path.join(EXAMPLES_PATH, 'protractor.config.js') ];
+      var protractorSourceFiles =
+        _exampleProtractorBoilerplateFiles
+          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return copyFiles(sourceFiles, e2eSpecPaths);
+      return copyFiles(protractorSourceFiles, e2eSpecPaths);
     });
 }
 
@@ -302,6 +430,15 @@ gulp.task('remove-example-boilerplate', function() {
     fsUtils.removeSymlink(linkPath);
   });
 
+  deleteExampleBoilerPlate();
+});
+
+// deletes boilerplate files that were added by copyExampleBoilerplate
+// from locations where an example app is found
+gulp.task('_delete-example-boilerplate', deleteExampleBoilerPlate);
+
+function deleteExampleBoilerPlate() {
+  gutil.log('Deleting example boilerplate files');
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
@@ -310,10 +447,11 @@ gulp.task('remove-example-boilerplate', function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
     })
     .then(function() {
+      var protractorFiles = _exampleProtractorBoilerplateFiles;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return deleteFiles(['protractor.config.js'], e2eSpecPaths);
-    })
-});
+      return deleteFiles(protractorFiles, e2eSpecPaths);
+    });
+}
 
 gulp.task('serve-and-sync', ['build-docs'], function (cb) {
   // watchAndSync({devGuide: true, apiDocs: true, apiExamples: true, localFiles: true}, cb);
@@ -354,11 +492,8 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
-gulp.task('build-plunkers', function() {
-  return copyExampleBoilerplate()
-    .then(function() {
-      return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
-    });
+gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
+  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -413,9 +548,14 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
 
 gulp.task('check-deploy', ['build-docs'], function() {
   return harpCompile().then(function() {
-    gutil.log('compile ok - running live server ...');
-    execPromise('npm run live-server ./www');
-    return askDeploy();
+    gutil.log('compile ok');
+    if(argv.dryRun) {
+      return false;
+    } else {
+      gutil.log('running live server ...');
+      execPromise('npm run live-server ./www');
+      return askDeploy();
+    }
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
       gutil.log('deploying...');
@@ -461,11 +601,11 @@ gulp.task('_harp-compile', function() {
   });
 });
 
-gulp.task('_shred-devguide-examples', ['_shred-clean-devguide'], function() {
+gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   return docShredder.shred( _devguideShredOptions);
 });
 
-gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade'],  function() {
+gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade', '_copy-example-boilerplate'],  function() {
   return docShredder.shred( _devguideShredJadeOptions);
 });
 
@@ -475,14 +615,14 @@ gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
   // jade fragments now all go into _fragments subdirs under their source.
   var newCleanPath = path.join(DOCS_PATH, '**/_fragments/*.jade');
   // Much slower 8-9x then using globby first ... ???
-  // return delPromise([ newCleanPath, oldCleanPath]);
+  // return del([ newCleanPath, oldCleanPath]);
   var files = globby.sync( [newCleanPath, oldCleanPath]);
-  return delPromise(files);
+  return del(files);
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
   var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
+  return del([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
 });
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
@@ -492,7 +632,7 @@ gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
 
 gulp.task('_shred-clean-api', function(cb) {
   var cleanPath = path.join(_apiShredOptions.fragmentsDir, '**/*.*')
-  return delPromise([ cleanPath, '!**/*.ovr.*' ]);
+  return del([ cleanPath, '!**/*.ovr.*' ]);
 });
 
 gulp.task('_zip-examples', function() {
@@ -504,7 +644,15 @@ gulp.task('_zip-examples', function() {
 // Linting
 
 gulp.task('lint', function() {
-  return gulp.src(['./public/docs/_examples/style-guide/ts/**/*.ts', '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts'])
+  return gulp.src([
+      './public/docs/_examples/**/*.ts',
+      '!./public/docs/_examples/**/ts-snippets/*.ts',
+      '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts',
+      '!./public/docs/_examples/**/node_modules/**/*',
+      '!./public/docs/_examples/_protractor/**/*',
+      '!./public/docs/_examples/**/typings/**/*',
+      '!./public/docs/_examples/**/typings-ng1/**/*'
+    ])
     .pipe(tslint({
       rulesDirectory: ['node_modules/codelyzer'],
       configuration: require('./tslint.json')
@@ -566,7 +714,7 @@ function linkChecker(options) {
   var handlers = {
     robots: function(robots, customData){},
     html: function(tree, robots, response, pageUrl, customData){
-      //gutil.log('Scanning ' + pageUrl);docs/ts/latest/api/core/
+      // gutil.log('Scanning ' + pageUrl);
     },
     junk: function(result, customData){},
 
@@ -583,8 +731,8 @@ function linkChecker(options) {
       }
       var msg = '\n  [' + result.html.location.line + ', ' + result.brokenReason + '] ' + result.url.resolved;
       fs.appendFileSync(outputFile, msg);
-      //gutil.log(msg);
-      //gutil.log(result);
+      // gutil.log(msg);
+      // gutil.log(result);
     },
 
     page: function(error, pageUrl, customData){},
@@ -612,8 +760,11 @@ function linkChecker(options) {
   var startTime = new Date().getTime();
 
   try {
+    gutil.log('link checker started');
     siteChecker.enqueue(siteUrl, customData);
   } catch (err) {
+    gutil.log('link checker died');
+    console.error('link checker died', err);
     deferred.reject(err);
   }
   return deferred.promise;
@@ -670,7 +821,7 @@ function deleteFiles(baseFileNames, destPaths) {
 // TODO: filter out all paths that are subdirs of another
 // path in the result.
 function getE2eSpecPaths(basePath) {
-  var paths = getPaths(basePath, '*e2e-spec.js', true);
+  var paths = getPaths(basePath, '*e2e-spec.+(js|ts)', true);
   return _.uniq(paths);
 }
 
@@ -775,7 +926,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function apiSourceWatch(postBuildAction) {
-  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/src/**/*.*')];
+  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/src/**/*.*')];
   gulp.watch(srcPattern, {readDelay: 500}, function (event, done) {
     gutil.log('API source changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
@@ -786,7 +937,7 @@ function apiSourceWatch(postBuildAction) {
 }
 
 function apiExamplesWatch(postShredAction) {
-  var examplesPath = path.join(ANGULAR_PROJECT_PATH, 'modules/angular2/examples/**');
+  var examplesPath = path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples/**');
   var includePattern = path.join(examplesPath, '**/*.*');
   var excludePattern = '!' + path.join(examplesPath, '**/node_modules/**/*.*');
   var cleanPath = [path.join(_apiShredOptions.fragmentsDir, '**/*.*'), '!**/*.ovr.*'];
@@ -796,7 +947,7 @@ function apiExamplesWatch(postShredAction) {
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
 
-    return delPromise(cleanPath).then(function() {
+    return del(cleanPath).then(function() {
       return docShredder.shred(_apiShredOptions);
     }).then(postShredAction);
   });
@@ -807,7 +958,9 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_fragments/**']});
+  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**',
+                      '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
+  var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
@@ -936,7 +1089,7 @@ function getChangedExamplesForCommit(commit, relativePath) {
   return commit.getDiff().then(function(diffList) {
     var filePaths = [];
     diffList.forEach(function (diff) {
-      diff.patches().forEach(function (patch) {
+      diff.patches().then(function (patch) {
         if (patch.isAdded() || patch.isModified) {
           var filePath = path.normalize(patch.newFile().path());
           var isExample = filePath.indexOf(relativePath) >= 0;

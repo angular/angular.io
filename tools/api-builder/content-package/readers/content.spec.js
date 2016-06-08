@@ -1,7 +1,6 @@
 var mockPackage = require('../mocks/mockPackage');
 var Dgeni = require('dgeni');
 var path = require('canonical-path');
-var _ = require('lodash');
 
 describe('contentFileReader', function() {
   var dgeni, injector, fileReader;

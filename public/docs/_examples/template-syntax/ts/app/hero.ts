@@ -1,22 +1,4 @@
 export class Hero {
-  public id:number
-
-  constructor(
-    public firstName:string,
-    public lastName?:string,
-    public birthdate?:Date,
-    public url?:string,
-    public rate:number = 100,
-    id?:number) {
-      this.id = id != null ? id : Hero.nextId++;
-    }
-
-  static clone({firstName, lastName, birthdate, url, rate, id} : Hero){
-    return new Hero (firstName, lastName, birthdate, url, rate, id );
-  }
-
-  get fullName() {return `${this.firstName} ${this.lastName}`;}
-
   static nextId = 1;
 
   static MockHeroes = [
@@ -32,4 +14,23 @@ export class Hero {
     new Hero('Miny', 'Toe'),
     new Hero('Moe', 'Toe')
   ];
+
+  public id: number;
+
+  static clone({firstName, lastName, birthdate, url, rate, id}: Hero) {
+    return new Hero(firstName, lastName, birthdate, url, rate, id);
+  }
+
+  constructor(
+    public firstName: string,
+    public lastName?: string,
+    public birthdate?: Date,
+    public url?: string,
+    public rate = 100,
+    id?: number) {
+
+    this.id = id != null ? id : Hero.nextId++;
+  }
+
+  get fullName() { return `${this.firstName} ${this.lastName}`; }
 }

@@ -1,5 +1,5 @@
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 // #docregion example
 /* avoid */
 
@@ -8,7 +8,7 @@ import { Component } from 'angular2/core';
   template: `<button>OK<button>`
 })
 export class HeroButtonComponent {
-  onInit() { // mispelled
+  onInit() { // misspelled
     console.log('The component is initialized');
   }
 }

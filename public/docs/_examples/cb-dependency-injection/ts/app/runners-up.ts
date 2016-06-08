@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
-import {OpaqueToken} from 'angular2/core';
-import {Hero}        from './hero';
-import {HeroService} from './hero.service';
+import { OpaqueToken } from '@angular/core';
+
+import { Hero }        from './hero';
+import { HeroService } from './hero.service';
 
 // #docregion runners-up
 export const RUNNERS_UP = new OpaqueToken('RunnersUp');

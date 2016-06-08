@@ -1,8 +1,9 @@
 // #docplaster
 // #docregion
 // #docregion first, final
-import {Component} from 'angular2/core';
-import {NgForm}    from 'angular2/common';
+import { Component } from '@angular/core';
+import { NgForm }    from '@angular/common';
+
 import { Hero }    from './hero';
 
 @Component({
@@ -40,7 +41,7 @@ export class HeroFormComponent {
     this.model = new Hero(42, '', '');
   // #enddocregion new-hero-v1
     this.active = false;
-    setTimeout(()=> this.active=true, 0);
+    setTimeout(() => this.active = true, 0);
   // #docregion new-hero-v1
   }
   // #enddocregion new-hero-v1
@@ -50,7 +51,7 @@ export class HeroFormComponent {
 
   // Reveal in html:
   //   Name via form.controls = {{showFormControls(heroForm)}}
-  showFormControls(form:NgForm){
+  showFormControls(form: NgForm) {
 
     return form && form.controls['name'] &&
     // #docregion form-controls

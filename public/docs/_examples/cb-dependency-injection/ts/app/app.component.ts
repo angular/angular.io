@@ -1,8 +1,8 @@
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 
 import { HeroBiosComponent,
-         HeroBiosAndContactsComponent} from './hero-bios.component';
+         HeroBiosAndContactsComponent } from './hero-bios.component';
 import { HeroOfTheMonthComponent }     from './hero-of-the-month.component';
 import { HeroesBaseComponent,
          SortedHeroesComponent }       from './sorted-heroes.component';
@@ -24,7 +24,7 @@ import { UserService }        from './user.service';
 
 @Component({
   selector: 'my-app',
-  templateUrl:'app/app.component.html',
+  templateUrl: 'app/app.component.html',
   directives: DIRECTIVES,
 // #docregion providers
   providers: [LoggerService, UserContextService, UserService]
@@ -33,10 +33,10 @@ import { UserService }        from './user.service';
 export class AppComponent {
 // #enddocregion import-services
 
-  private userId:number = 1;
+  private userId: number = 1;
 
   // #docregion ctor
-  constructor(logger:LoggerService, public userContext:UserContextService) {
+  constructor(logger: LoggerService, public userContext: UserContextService) {
     userContext.loadUser(this.userId);
     logger.logInfo('AppComponent initialized');
   }

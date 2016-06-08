@@ -1,67 +1,51 @@
 // #docplaster
-
 // #docregion
+// Observable Version
 // #docregion v1
-import {Injectable}     from 'angular2/core';
-import {Http, Response} from 'angular2/http';
+import { Injectable }     from '@angular/core';
+import { Http, Response } from '@angular/http';
 // #enddocregion v1
 // #docregion import-request-options
-import {Headers, RequestOptions} from 'angular2/http';
+import { Headers, RequestOptions } from '@angular/http';
 // #enddocregion import-request-options
 // #docregion v1
-import {Hero}           from './hero';
-import {Observable}     from 'rxjs/Observable';
+
+import { Hero }           from './hero';
+import { Observable }     from 'rxjs/Observable';
 
 @Injectable()
 export class HeroService {
+  // #docregion ctor
   constructor (private http: Http) {}
-// #enddocregion
-// #enddocregion v1
-
-  /*
-  // #docregion endpoint-json
-  private _heroesUrl = 'app/heroes.json'; // URL to JSON file
-  // #enddocregion endpoint-json
-  */
-// #docregion
-// #docregion v1
+  // #enddocregion ctor
 
   // #docregion endpoint
-  private _heroesUrl = 'app/heroes';  // URL to web api
+  private heroesUrl = 'app/heroes';  // URL to web API
   // #enddocregion endpoint
 
-  // #docregion methods
-  // #docregion error-handling, http-get
+  // #docregion methods, error-handling, http-get
   getHeroes (): Observable<Hero[]> {
-    return this.http.get(this._heroesUrl)
+    return this.http.get(this.heroesUrl)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
-  // #enddocregion error-handling, http-get
-  // #enddocregion v1
+  // #enddocregion error-handling, http-get, v1
 
-  // #docregion addhero
-  addHero (name: string): Observable<Hero>  {
-
+  // #docregion addhero, addhero-sig
+  addHero (name: string): Observable<Hero> {
+  // #enddocregion addhero-sig
     let body = JSON.stringify({ name });
-    // #docregion headers
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
-    return this.http.post(this._heroesUrl, body, options)
-    // #enddocregion headers
+    return this.http.post(this.heroesUrl, body, options)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
   // #enddocregion addhero
 
-  // #docregion v1
-
-  // #docregion extract-data
+  // #docregion v1, extract-data
   private extractData(res: Response) {
-    if (res.status < 200 || res.status >= 300) {
-      throw new Error('Bad response status: ' + res.status);
-    }
     let body = res.json();
     return body.data || { };
   }
@@ -69,12 +53,19 @@ export class HeroService {
 
   // #docregion error-handling
   private handleError (error: any) {
-    // In a real world app, we might send the error to remote logging infrastructure
-    let errMsg = error.message || 'Server error';
+    // In a real world app, we might use a remote logging infrastructure
+    // We'd also dig deeper into the error to get a better message
+    let errMsg = (error.message) ? error.message :
+      error.status ? `${error.status} - ${error.statusText}` : 'Server error';
     console.error(errMsg); // log to console instead
     return Observable.throw(errMsg);
   }
-  // #enddocregion error-handling
-  // #enddocregion methods
+  // #enddocregion error-handling, methods
 }
 // #enddocregion
+
+/*
+  // #docregion endpoint-json
+  private heroesUrl = 'app/heroes.json'; // URL to JSON file
+  // #enddocregion endpoint-json
+*/

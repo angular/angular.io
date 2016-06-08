@@ -4,7 +4,7 @@ import {
   ContentChild,
   QueryList,
   Input
-} from 'angular2/core';
+} from '@angular/core';
 
 @Component({
   selector: 'active-label',
@@ -14,7 +14,7 @@ import {
   </span>`
 })
 class ActiveLabelComponent {
-  active:boolean;
+  active: boolean;
 
   activate() {
     this.active = true;
@@ -30,11 +30,11 @@ class ActiveLabelComponent {
   </h2>`
 })
 class HeroComponent {
-  @Input() hero:any;
-  active:boolean;
+  @Input() hero: any;
+  active: boolean;
 
   @ContentChild(ActiveLabelComponent)
-  label:ActiveLabelComponent
+  label: ActiveLabelComponent;
 
   activate() {
     this.active = true;
@@ -68,7 +68,7 @@ export class HeroesQueriesComponent {
   ];
 
   @ViewChildren(HeroComponent)
-  heroCmps:QueryList<HeroComponent>;
+  heroCmps: QueryList<HeroComponent>;
 
   activate() {
     this.heroCmps.forEach(

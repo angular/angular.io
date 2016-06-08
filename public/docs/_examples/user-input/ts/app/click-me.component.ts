@@ -5,7 +5,7 @@
 */
 
 // #docregion
-import {Component} from 'angular2/core';
+import { Component } from '@angular/core';
 
 // #docregion click-me-component
 @Component({
@@ -17,8 +17,8 @@ import {Component} from 'angular2/core';
 export class ClickMeComponent {
   clickMessage = '';
 
-  onClickMe(){
-    this.clickMessage ='You are my hero!';
+  onClickMe() {
+    this.clickMessage = 'You are my hero!';
   }
 }
 // #enddocregion click-me-component

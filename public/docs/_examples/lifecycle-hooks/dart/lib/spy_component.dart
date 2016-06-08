@@ -6,48 +6,35 @@ import 'spy_directive.dart';
 
 @Component(
     selector: 'spy-parent',
-    template: '''
-    <div class="parent">
-      <h2>Spy Directive</h2>
-
-      <input [(ngModel)]="newName" (keyup.enter)="addHero()">
-      <button (click)="addHero()">Add Hero</button>
-      <button (click)="reset()">Reset Heroes</button>
-
-      <p></p>
-      <div *ngFor="let hero of heroes" mySpy class="heroes">
-      {{hero}}
-      </div>
-
-      <h4>-- Spy Lifecycle Hook Log --</h4>
-      <div *ngFor="let msg of spyLog">{{msg}}</div>
-    </div>
-    ''',
+    templateUrl: 'spy_component.html',
     styles: const [
-      '.parent {background: khaki; padding: 10px; margin:100px 8px}',
+      '.parent {background: khaki}',
       '.heroes {background: LightYellow; padding: 0 8px}'
     ],
     directives: const [Spy],
     providers: const [LoggerService])
 class SpyParentComponent {
+  final LoggerService _logger;
   String newName = 'Herbie';
   List<String> heroes = ['Windstorm', 'Magneta'];
-  List<String> spyLog;
-  LoggerService _logger;
 
-  SpyParentComponent(this._logger) {
-    spyLog = _logger.logs;
-  }
+  SpyParentComponent(this._logger);
+
+  List<String> get logs => _logger.logs;
 
   addHero() {
     if (newName.trim().isNotEmpty) {
       heroes.add(newName.trim());
       newName = '';
+      _logger.tick();
     }
   }
 
-  reset() {
+  // removeHero(String hero) { } is not used.
+  
+  void reset() {
     _logger.log('-- reset --');
     heroes.clear();
+    _logger.tick();
   }
 }

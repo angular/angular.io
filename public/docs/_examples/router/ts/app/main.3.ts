@@ -1,7 +1,7 @@
 // #docregion
-import {bootstrap}        from 'angular2/platform/browser';
-import {ROUTER_PROVIDERS} from 'angular2/router';
+import { bootstrap }        from '@angular/platform-browser-dynamic';
+import { ROUTER_PROVIDERS } from '@angular/router';
 
-import {AppComponent}     from './app.component.3';
+import { AppComponent }     from './app.component.3';
 
 bootstrap(AppComponent, [ROUTER_PROVIDERS]);

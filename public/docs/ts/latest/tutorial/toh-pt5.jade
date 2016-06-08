@@ -15,10 +15,11 @@ figure.image-display
   We'll add Angular’s *Component Router* to our app to satisfy these requirements.
 .l-sub-section
   :marked
-    The [Routing and Navigation](../guide/router.html) chapter covers the router in more detail
+    The [Routing and Navigation](../guide/router-deprecated.html) chapter covers the router in more detail
     than we will in this tour.  
-:marked
-  [Run the live example](/resources/live-examples/toh-5/ts/plnkr.html). 
+
+p Run the #[+liveExampleLink2('', 'toh-5')] for this part.
+
 .l-sub-section
   img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
   :marked
@@ -46,6 +47,8 @@ figure.image-display
     .file typings ...      
     .file index.html
     .file package.json
+    .file styles.css
+    .file systemjs.config.js
     .file tsconfig.json
     .file typings.json
 :marked
@@ -53,7 +56,7 @@ figure.image-display
   Open a terminal/console window and enter the following command to
   start the TypeScript compiler, start the server, and watch for changes:
 
-code-example(format="." language="bash").
+code-example(language="bash").
   npm start
 
 :marked
@@ -137,19 +140,13 @@ code-example(format="." language="bash").
   
   We'll need the Angular *Component Router*.
   
-  ### Include the Router Library
-  Not all apps need routing which is why the Angular *Component Router* is in a separate, optional module library.
-
-  Our Tour of Heroes needs routing, 
-  so we load the library in the `index.html` in a script tag immediately *after* the angular script itself.
-+makeExample('toh-5/ts/index.html', 'router', 'index.html (router)')(format=".")
-:marked
-  While we're in `index.html`, we add `<base href="/">` at the top of the `<head>` section. 
+  ### Set the base tag
+  Open the `index.html` and add `<base href="/">` at the top of the `<head>` section. 
 +makeExample('toh-5/ts/index.html', 'base-href', 'index.html (base href)')(format=".")
 .callout.is-important
   header base href is essential
   :marked
-    See the *base href* section of the [Router](../guide/router.html#!#base-href) chapter to learn why this matters.
+    See the *base href* section of the [Router](../guide/router-deprecated.html#!#base-href) chapter to learn why this matters.
 :marked
   ### Make the router available.
   The *Component Router* is a service. Like any service, we have to import it and make it
@@ -189,7 +186,7 @@ code-example(format="." language="bash").
 
 .l-sub-section
   :marked
-    Learn more about defining routes with @RouteConfig in the [Routing](../guide/router.html) chapter.
+    Learn more about defining routes with @RouteConfig in the [Routing](../guide/router-deprecated.html) chapter.
 :marked
   ### Router Outlet
 
@@ -217,7 +214,7 @@ code-example(format="." language="bash").
   Looking back at the route configuration, we confirm that `'Heroes'` is the name of the route to the `HeroesComponent`.
 .l-sub-section
   :marked
-    Learn about the *link parameters array* in the [Routing](../guide/router.html#link-parameters-array) chapter.
+    Learn about the *link parameters array* in the [Routing](../guide/router-deprecated.html#link-parameters-array) chapter.
 :marked
   Refresh the browser.  We see only the app title. We don't see the heroes list. 
 .l-sub-section
@@ -286,7 +283,9 @@ code-example(format="." language="bash").
 +makeExample('toh-5/ts/app/dashboard.component.ts', 'template-url', 'app/dashboard.component.ts (templateUrl)')(format=".")
 .l-sub-section
   :marked
-    We specify the path _all the way back to the application root_. Angular doesn't support module-relative paths.
+    We specify the path _all the way back to the application root_ &mdash; `app/` in this case &mdash; 
+    because Angular doesn't support relative paths _by default_.
+    We _can_ switch to [component-relative paths](../cookbook/component-relative-paths.html) if we prefer.
 :marked
   Create that file with these contents:
 +makeExample('toh-5/ts/app/dashboard.component.html', null, 'dashboard.component.html')(format=".")
@@ -320,7 +319,7 @@ code-example(format="." language="bash").
 :marked
   We saw this kind of logic before in the `HeroesComponent`.
   * create a `heroes` array property
-  * inject the `HeroService` in the constructor and hold it in a private `_heroService` field.
+  * inject the `HeroService` in the constructor and hold it in a private `heroService` field.
   * call the service to get heroes inside the Angular `ngOnInit` lifecycle hook.
   
   The noteworthy differences: we cherry-pick four heroes (2nd, 3rd, 4th, and 5th) with *slice*
@@ -429,7 +428,7 @@ code-example(format='').
   The problem with this bit of code is that `HeroService` doesn't have a `getHero` method!
   We better fix that quickly before someone notices that we broke the app.
   
-  Open `HeroService` and add the `getHero` method. It's trivial given that we're still faking data access:
+  Open `HeroService` and add a `getHero` method that filters the heroes list from `getHeroes` by `id`:
 +makeExample('toh-5/ts/app/hero.service.ts', 'get-hero', 'app/hero.service.ts (getHero)')(format=".")
 :marked
   Return to the `HeroDetailComponent` to clean up loose ends.
@@ -548,7 +547,11 @@ figure.image-display
   1. *Cut-and-paste* the styles contents into a new `heroes.component.css` file.
   1. *Set* the component metadata's `templateUrl` and `styleUrls` properties to refer to both files.
   
-  The revised component data looks like this:
+  We no longer display the `HeroDetailComponent` in the `HeroesComponent` template because we're navigating to it.
+  So we can remove it from the metadata `directives` array. The `directives` array is now empty so we delete it.
+  We might as well delete the `HeroDetailComponent` import statement too.
+  
+  The revised component metadata looks like this:
 +makeExample('toh-5/ts/app/heroes.component.ts', 'metadata', 'app/heroes.component.ts (revised metadata)')(format=".")
 :marked
   Now we can see what's going on as we update the component class along the same lines as the dashboard:
@@ -644,10 +647,11 @@ figure.image-display
 .l-main-section
 :marked
   ## Application structure and code
-  
-  Review the sample source code [in the live example for this chapter](/resources/live-examples/toh-5/ts/plnkr.html).
+p.
+  Review the sample source code in the #[+liveExampleLink2('', 'toh-5')] for this part.
   Verify that we have the following structure:
 
+:marked
 .filetree
   .file angular2-tour-of-heroes
   .children
@@ -673,6 +677,7 @@ figure.image-display
     .file index.html
     .file package.json
     .file styles.css
+    .file systemjs.config.json
     .file tsconfig.json
     .file typings.json
 :marked

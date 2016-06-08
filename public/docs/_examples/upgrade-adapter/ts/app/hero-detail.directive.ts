@@ -1,6 +1,7 @@
 // #docregion
 export function heroDetailDirective() {
   return {
+    restrict: 'E',
     scope: {},
     bindToController: {
       hero: '=',
@@ -17,5 +18,5 @@ export function heroDetailDirective() {
       };
     },
     controllerAs: 'ctrl'
-  }
+  };
 }

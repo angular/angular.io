@@ -10,6 +10,9 @@ include ../_util-fns
   
   This chapter covers some aspects of TypeScript configuration and the TypeScript environment
   that are important to Angular developers.
+  
+  * [tsconfig.json](#tsconfig) - TypeScript compiler configuration.
+  * [typings](#typings) - TypesScript declaration files.
 
 a(id="tsconfig")
 .l-main-section
@@ -73,11 +76,11 @@ a(id="typings")
   
   Many libraries include their definition files in their npm packages where both the TypeScript compiler and editors
   can find them. Angular is one such library. 
-  Peek into the `node_modules/angular2/` folder of any Angular application to see several `...d.ts` files that describe parts of Angular.
+  Peek into the `node_modules/@angular/core/` folder of any Angular application to see several `...d.ts` files that describe parts of Angular.
   
-  **We do nothing to get *typings* files for library packages with bundled *d.ts* files.**
+  **We need do nothing to get *typings* files for library packages which include *d.ts* files &mdash; as all Angular packages do.**
   
-  ### Manual typings
+  ### Installable typings files
   Sadly, many libraries &mdash; jQuery, Jasmine, and Lodash among them &mdash; do *not* include `d.ts` files in their npm packages.
   Fortunately, either their authors or community contributors have created separate *d.ts* files for these libraries and 
   published them in well-known locations.
@@ -88,67 +91,41 @@ a(id="typings")
   to run that tool automatically after *npm* installation completes.
 +makeJson('quickstart/ts/package.1.json', {paths: 'scripts.postinstall'}, 'package.json (postinstall)')(format=".")
 :marked
-  This *typings* tool command installs the *d.ts* files that we identify in a `typings.json` file 
-  such as this one from the [QuickStart](../quickstart.html):
+  This *typings* tool command installs the *d.ts* files that we identify in a `typings.json` file into the **typings** folder.
+  We created a `typings.json` file in the [QuickStart](../quickstart.html):
 +makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
 :marked
-  We identified two *typings* file in the QuickStart, the *d.ts* file for 
-  [es6-shim](https://github.com/paulmillr/es6-shim/blob/master/README.md)
-  that brings ES2015/ES6 capabilities to our ES5 browsers and for the
-  [jasmine](http://jasmine.github.io/) test framework.
+  We identified three *typings* file in the QuickStart, the *d.ts* files for
   
-  QuickStart itself doesn't require these shims but many of the documentation samples do
-  and most of us would be disappointed if typical ES2015 features didn't work out-of-the-box
-  or we didn't support testing.
+  * [core-js](https://github.com/zloirock/core-js/blob/master/README.md)
+  that brings ES2015/ES6 capabilities to our ES5 browsers
+  
+  * [jasmine](http://jasmine.github.io/) typings for the Jasmine test framework
+  
+  * [node](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/node/node.d.ts) for code that references objects in the nodejs environment; 
+  see the [webpack](./webpack.html) chapter for an example.
+  
+  QuickStart itself doesn't require these typings but many of the documentation samples do.
+  Most of us would be disappointed if we couldn't code against 
+  typical ES2015 features or support testing right out-of-the-box.
 
-  We can also run the *typings* tool ourselves. The following command lists the locally installed typings files.
+  We can also run the *typings* tool ourselves.
+  The following command (re)installs the typings files, as is sometimes necessary when the `postInstall` hook fails to do so.
 code-example(format="").
-  npm run typings -- list
+  npm run typings install
 :marked
-    The following command installs the typings file for the Jasmine test library and updates the `typings.config` 
-    so we that we get it automatically the next time.
+  This command lists the installed typings files:
 code-example(format="").
-  npm run typings -- install jasmine --ambient --save
+  npm run typings list
+:marked
+  The following command installs or updates the typings file for the Jasmine test library from the *DefinitelyTyped* repository
+  and updates the `typings.config` so we that we get it automatically the next time we install typings.
+code-example(format="").
+  npm run typings -- install dt~jasmine --save --global
 .l-sub-section
   :marked
     The [&ndash;&ndash; option](https://docs.npmjs.com/cli/run-script) is important; 
     it tells npm to pass all arguments to the right of `--` to the *typings* command.
     
     Learn about the features of the *typings* tool at its [site on github](https://github.com/typings/typings/blob/master/README.md).
-:marked
-  #### Typing file collisions
-  
-  The TypeScript compiler does not tolerate redefinition of a type. For example, it throws an error if it's given two definitions for
-  the `Promise` type.
-  
-  Double definitions are common. In fact, the `typings` tool deliberately creates
-  duplicate sets of typings (for reasons best explained elsewhere). 
-  Look in the project structure for the *typings folder* where we should find something like:
-.filetree
-  .file typings
-  .children
-    .file browser
-    .children
-      .file ambient
-        .children
-          .file es6-shim
-          .children
-            .file es6-shim.d.ts
-  .children
-    .file main
-    .children
-      .file ambient
-        .children
-          .file es6-shim
-          .children
-            .file es6-shim.d.ts          
-  .children
-     .file browser.d.ts
-     .file main.d.ts
-:marked
-  The `es6-shim` typings are duplicated and the `browser.d.ts` and `main.d.ts` have overlapping content.
-  
-  We must tell the compiler to ignore one or the other. 
-  We removed the `main` set from consideration in the `exclude` section of our `tsconfig.json` file:
-+makeJson('quickstart/ts/tsconfig.1.json', {paths: 'exclude'}, 'tsconfig.json (exclude)')(format=".")
-:marked
+

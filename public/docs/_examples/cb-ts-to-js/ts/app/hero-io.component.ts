@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from 'angular2/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 // #docregion
 @Component({
@@ -13,8 +13,8 @@ import {Component, EventEmitter, Input, Output} from 'angular2/core';
   `
 })
 export class ConfirmComponent {
-  @Input() okMsg:string;
-  @Input('cancelMsg') notOkMsg:string;
+  @Input() okMsg: string;
+  @Input('cancelMsg') notOkMsg: string;
   @Output() ok =
     new EventEmitter();
   @Output('cancel') notOk =
@@ -44,8 +44,8 @@ export class ConfirmComponent {
   directives: [ConfirmComponent]
 })
 export class AppComponent {
-  okClicked:boolean;
-  cancelClicked:boolean;
+  okClicked: boolean;
+  cancelClicked: boolean;
 
   onOk() {
     this.okClicked = true;

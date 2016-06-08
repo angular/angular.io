@@ -1,9 +1,14 @@
+// #docplaster
 // #docregion
-import { Component } from 'angular2/core';
+import { Component } from '@angular/core';
 
 // #docregion example
 @Component({
-  selector: 'toh-hero-button'
+  // #enddocregion example
+  moduleId: module.id,
+  // #docregion example
+  selector: 'toh-hero-button',
+  templateUrl: 'hero-button.component.html'
 })
 export class HeroButtonComponent {}
 // #enddocregion example

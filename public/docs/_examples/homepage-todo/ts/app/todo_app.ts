@@ -1,8 +1,9 @@
 // #docregion
-import {Component} from 'angular2/core';
-import {Todo}      from './todo';
-import {TodoList}  from './todo_list';
-import {TodoForm}  from './todo_form';
+import { Component } from '@angular/core';
+
+import { Todo }      from './todo';
+import { TodoList }  from './todo_list';
+import { TodoForm }  from './todo_form';
 
 @Component({
   selector: 'todo-app',
@@ -13,7 +14,7 @@ import {TodoForm}  from './todo_form';
 
     <todo-list [todos]="todos"></todo-list>
     <todo-form (newTask)="addTask($event)"></todo-form>`,
-  styles:['a { cursor: pointer; cursor: hand; }'],
+  styles: ['a { cursor: pointer; cursor: hand; }'],
   directives: [TodoList, TodoForm]
 })
 export class TodoApp {

@@ -1,6 +1,6 @@
 // #docregion
-import {Component, Input, Output, EventEmitter} from 'angular2/core';
-import {Hero} from '../hero';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Hero } from '../hero';
 
 @Component({
   selector: 'hero-detail',
@@ -11,7 +11,7 @@ import {Hero} from '../hero';
   `
 })
 export class HeroDetailComponent {
-  @Input() hero:Hero
+  @Input() hero: Hero;
   @Output() deleted = new EventEmitter<Hero>();
   onDelete() {
     this.deleted.emit(this.hero);

@@ -1,11 +1,11 @@
 // #docregion
-import {QuestionBase} from './question-base';
+import { QuestionBase } from './question-base';
 
-export class TextboxQuestion extends QuestionBase<string>{
+export class TextboxQuestion extends QuestionBase<string> {
   controlType = 'textbox';
-  type:string;
+  type: string;
 
-  constructor(options:{} = {}){
+  constructor(options: {} = {}) {
     super(options);
     this.type = options['type'] || '';
   }
