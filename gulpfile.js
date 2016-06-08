@@ -958,8 +958,9 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_fragments/**',
-                                                         '**/dart/build/**' ]});
+  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**',
+                      '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
+  var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
