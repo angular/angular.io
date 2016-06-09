@@ -12,8 +12,8 @@ export class HeroService {
   getHeroes() {
     return Promise.resolve(HEROES);
   }
-  // #enddocregion get-heroes
-  // #enddocregion just-get-heroes
+  // #enddocregion get-heroes, just-get-heroes
+  // #enddocregion
   // See the "Take it slow" appendix
   // #docregion get-heroes-slowly
   getHeroesSlowly() {
@@ -22,7 +22,6 @@ export class HeroService {
     );
   }
   // #enddocregion get-heroes-slowly
+  // #docregion
   // #docregion just-get-heroes
 }
-// #enddocregion just-get-heroes
-// #enddocregion
