@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { Component } from '@angular/core';
-import { OnActivate, Router, RouteSegment } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
 
@@ -17,20 +17,34 @@ import { Crisis, CrisisService } from './crisis.service';
   `,
   // #enddocregion template
 })
-export class CrisisListComponent implements OnActivate {
+export class CrisisListComponent implements OnInit, OnDestroy {
   crises: Crisis[];
+  selectedId: number;
+  private sub: any;
 
   constructor(
     private service: CrisisService,
+    private route: ActivatedRoute,
     private router: Router) {}
 
-  routerOnActivate(curr: RouteSegment): void {
-    this.service.getCrises().then(crises => this.crises = crises);
+  ngOnInit() {
+    this.sub = this.route
+      .params
+      .subscribe(params => {
+        this.selectedId = +params['id'];
+        this.service.getCrises()
+          .then(crises => this.crises = crises);
+      });
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   // #docregion select
   onSelect(crisis: Crisis) {
-    this.router.navigateByUrl( `/crisis-list/${crisis.id}`);
+    // Absolute link
+    this.router.navigate(['/crisis-center', crisis.id]);
   }
   // #enddocregion select
 }

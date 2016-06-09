@@ -1,16 +1,14 @@
 /* First version */
 // #docplaster
-
 // #docregion
 import { Component } from '@angular/core';
-import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
-
-import { CrisisListComponent } from './crisis-list.component';
-import { HeroListComponent }   from './hero-list.component';
+// #docregion import-router
+import { ROUTER_DIRECTIVES } from '@angular/router';
+// #enddocregion import-router
 
 @Component({
   selector: 'my-app',
-// #docregion template
+  // #docregion template
   template: `
     <h1>Component Router</h1>
     <nav>
@@ -19,24 +17,10 @@ import { HeroListComponent }   from './hero-list.component';
     </nav>
     <router-outlet></router-outlet>
   `,
-// #enddocregion template
+  // #enddocregion template
+  // #docregion directives
   directives: [ROUTER_DIRECTIVES]
+  // #enddocregion directives
 })
-// #enddocregion
-/*
- // #docregion route-config
- @Component({ ... })
- // #enddocregion route-config
- */
-// #docregion
-// #docregion route-config
-@Routes([
-// #docregion route-defs
-  {path: '/crisis-center', component: CrisisListComponent},
-  {path: '/heroes',        component: HeroListComponent},
-  {path: '*',        component: CrisisListComponent}
-// #enddocregion route-defs
-])
+
 export class AppComponent { }
-// #enddocregion route-config
-// #enddocregion
