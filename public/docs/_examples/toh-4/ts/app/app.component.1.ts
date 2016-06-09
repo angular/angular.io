@@ -61,5 +61,3 @@ export class AppComponent implements OnInit {
   onSelect(hero: Hero) { this.selectedHero = hero; }
   // #docregion on-init
 }
-// #enddocregion on-init
-// #enddocregion

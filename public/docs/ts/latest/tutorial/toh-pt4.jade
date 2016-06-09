@@ -13,7 +13,7 @@ include ../_util-fns
   It also makes it easier to unit test the component with a mock service.
   
   Because data services are invariably asynchronous, 
-  we'll finish the chapter with a promise-based version of the data service.
+  we'll finish the chapter with a **!{_Promise}**-based version of the data service.
 
 p Run the #[+liveExampleLink2('', 'toh-4')] for this part.
 
@@ -64,7 +64,7 @@ code-example(language="bash").
   First, defining heroes is not the component's job. 
   Second, we can't easily share that list of heroes with other components and views. 
 
-  We can refactor this hero data acquisition business to a single service that provides heroes and 
+  We can refactor this hero data acquisition business to a single service that provides heroes, and 
   share that service with all components that need heroes.
 
   ### Create the HeroService
@@ -72,12 +72,12 @@ code-example(language="bash").
 .l-sub-section
   :marked
     We've adopted a convention in which we spell the name of a service in lowercase followed by `.service`.
-    If the service name were multi-word, we'd spell the base filename with lower dash case (AKA "kebab-case").
+    If the service name were multi-word, we'd spell the base filename in lower [dash-case](../guide/glossary.html#!#dash-case).
     The `SpecialSuperHeroService` would be defined in the `special-super-hero.service.ts` file.
 :marked
   We name the class `HeroService` and export it for others to import.
 
-+makeExample('toh-4/ts/app/hero.service.1.ts', 'empty-class', 'hero.service.ts (exported class)')(format=".")
++makeExample('toh-4/ts/app/hero.service.1.ts', 'empty-class', 'app/hero.service.ts (starting point)')(format=".")
 
 :marked
   ### Injectable Services
@@ -96,7 +96,7 @@ code-example(language="bash").
 :marked
   ### Getting Heroes
   Add a `getHeroes` method stub.
-+makeExample('toh-4/ts/app/hero.service.1.ts', 'getHeroes-stub', 'hero.service.ts ( getHeroes stub)')(format=".")
++makeExample('toh-4/ts/app/hero.service.1.ts', 'getHeroes-stub', 'app/hero.service.ts (getHeroes stub)')(format=".")
 :marked
   We're holding back on the implementation for a moment to make an important point.
   
@@ -117,30 +117,30 @@ code-example(language="bash").
   Cut the `HEROES` array from `app.component.ts` and paste it to a new file in the `app` folder named `mock-heroes.ts`.
   We copy the `import {Hero} ...` statement as well because the heroes array uses the `Hero` class.
 
-+makeExample('toh-4/ts/app/mock-heroes.ts', null, 'mock-heroes.ts (Heroes array)')
++makeExample('toh-4/ts/app/mock-heroes.ts', null, 'app/mock-heroes.ts')
 :marked
   We export the `HEROES` constant so we can import it elsewhere &mdash; such as our `HeroService`.
 
   Meanwhile, back in `app.component.ts` where we cut away the `HEROES` array, 
   we leave behind an uninitialized `heroes` property:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'heroes-prop', 'app.component.ts (heroes property)')(format=".")
++makeExample('toh-4/ts/app/app.component.1.ts', 'heroes-prop', 'app/app.component.ts (heroes property)')(format=".")
 :marked
   ### Return Mocked Heroes
   Back in the `HeroService`  we import the mock `HEROES` and return it from the `getHeroes` method.
   Our `HeroService` looks like this:
-+makeExample('toh-4/ts/app/hero.service.1.ts', null, 'hero.service.ts')(format=".")
++makeExample('toh-4/ts/app/hero.service.1.ts', null, 'app/hero.service.ts')(format=".")
 :marked
   ### Use the Hero Service
   We're ready to use the `HeroService` in other components starting with our `AppComponent`.
 
   We begin, as usual, by importing the thing we want to use, the `HeroService`.
-+makeExample('toh-4/ts/app/app.component.ts', 'hero-service-import', 'app.component.ts (import HeroService)')
++makeExcerpt('toh-4/ts/app/app.component.ts', 'hero-service-import')
 :marked
   Importing the service allows us to *reference* it in our code. 
   How should the `AppComponent` acquire a runtime concrete `HeroService` instance?
   
   ### Do we *new* the *HeroService*? No way!
-  We could create a new instance  of the `HeroService` with "new" like this:
+  We could create a new instance  of the `HeroService` with `new` like this:
 +makeExample('toh-4/ts/app/app.component.1.ts', 'new-service')(format=".")
 :marked
   That's a bad idea for several reasons including
@@ -150,7 +150,7 @@ code-example(language="bash").
   we'll have to find every place we create the service and fix it.
   Running around patching code is error prone and adds to the test burden.
     
-  * We create a new service each time we use "new". 
+  * We create a new service each time we use `new`. 
   What if the service should cache heroes and share that cache with others?
   We couldn't do that.
   
@@ -168,11 +168,11 @@ code-example(language="bash").
   ### Inject the *HeroService*
   
   Two lines replace the one line that created with *new*:
-  1. we add a constructor.
-  1. we add to the component's `providers` metadata
+  1. We add a constructor that also defines a private property.
+  1. We add to the component's `providers` metadata.
   
   Here's the constructor:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'app.component.ts (constructor)')
++makeExample('toh-4/ts/app/app.component.1.ts', 'ctor', 'app/app.component.ts (constructor)')
 :marked
   The constructor itself does nothing. The parameter simultaneously 
   defines a private `heroService` property and identifies it as a `HeroService` injection site.
@@ -185,14 +185,14 @@ code-example(language="bash").
 :marked
   The *injector* does not know yet how to create a `HeroService`. 
   If we ran our code now, Angular would fail with an error:
-code-example(format="." language="html").
+code-example(format="nocode").
     EXCEPTION: No provider for HeroService! (AppComponent -> HeroService)
 :marked
   We have to teach the *injector* how to make a `HeroService` by registering a `HeroService` **provider**.
   Do that by adding the following `providers` array property to the bottom of the component metadata
   in the `@Component` call.
 
-+makeExample('toh-4/ts/app/app.component.1.ts', 'providers', 'app.component.ts (providing HeroService)')
++makeExcerpt('toh-4/ts/app/app.component.1.ts', 'providers')
 :marked
   The `providers` array  tells Angular to create a fresh instance of the `HeroService` when it creates a new `AppComponent`.
   The `AppComponent` can use that service to get heroes and so can every child component of its component tree.
@@ -205,7 +205,7 @@ a#child-component
 +makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
 :marked
   We don't really need a dedicated method to wrap one line.  We write it anyway:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'getHeroes', 'app.component.ts (getHeroes)')(format=".")
++makeExcerpt('toh-4/ts/app/app.component.1.ts', 'getHeroes')
 
 <a id="oninit"></a>
 :marked
@@ -232,18 +232,19 @@ a#child-component
     Learn more about lifecycle hooks in the [Lifecycle Hooks](../guide/lifecycle-hooks.html) chapter.
 :marked
   Here's the essential outline for the `OnInit` interface:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'on-init', 'app.component.ts (OnInit protocol)')(format=".")
++makeExample('toh-4/ts/app/app.component.1.ts', 'on-init', 'app/app.component.ts (ngOnInit stub)')(format=".")
 :marked
   We write an `ngOnInit` method with our initialization logic inside and leave it to Angular to call it
   at the right time. In our case, we initialize by calling `getHeroes`.
-+makeExample('toh-4/ts/app/app.component.1.ts', 'ng-on-init', 'app.component.ts (OnInit protocol)')(format=".")
++makeExcerpt('toh-4/ts/app/app.component.1.ts', 'ng-on-init')
 :marked
   Our application should be running as expected, showing a list of heroes and a hero detail view
   when we click on a hero name.
   
   We're getting closer. But something isn't quite right.
 
-  ## Async Services and Promises
+  <a id="async"></a>
+  ## Async Services and !{_Promise}s
   Our `HeroService` returns a list of mock heroes immediately. 
   Its `getHeroes` signature is synchronous
 +makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
@@ -257,34 +258,34 @@ a#child-component
   
   We'll have to use some kind of asynchronous technique and that will change the signature of our `getHeroes` method.
   
-  We'll use  *promises*.
+  We'll use *!{_Promise}s*.
   
-  ### The Hero Service makes a promise  
+  ### The Hero Service makes a !{_Promise}  
 
-  A **promise** is ... well it's a promise to call us back later when the results are ready. 
+  A **!{_Promise}** is ... well it's a promise to call us back later when the results are ready. 
   We ask an asynchronous service to do some work and give it a callback function. 
   It does that work (somewhere) and eventually it calls our function with the results of the work or an error.
 .l-sub-section
   :marked
     We are simplifying. Learn about ES2015 Promises [here](http://exploringjs.com/es6/ch_promises.html) and elsewhere on the web.
 :marked
-  Update the `HeroService` with this promise-returning `getHeroes` method:
-+makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes', 'hero.service.ts (getHeroes)')(format=".")
+  Update the `HeroService` with this !{_Promise}-returning `getHeroes` method:
++makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes', 'app/hero.service.ts (excerpt)')(format=".")
 :marked
   We're still mocking the data. We're simulating the behavior of an ultra-fast, zero-latency server,
-  by returning an **immediately resolved promise** with our mock heroes as the result.
+  by returning an **immediately resolved !{_Promise}** with our mock heroes as the result.
   
-  ### Act on the Promise
+  ### Act on the !{_Promise}
   Returning to the `AppComponent` and its `getHeroes` method, we see that it still looks like this:
-+makeExample('toh-4/ts/app/app.component.1.ts', 'getHeroes', 'app.component.ts (getHeroes - old)')(format=".")
++makeExample('toh-4/ts/app/app.component.1.ts', 'getHeroes', 'app/app.component.ts (getHeroes - old)')(format=".")
 :marked
-  As a result of our change to `HeroService`, we're now setting `this.heroes` to a promise rather than an array of heroes. 
+  As a result of our change to `HeroService`, we're now setting `this.heroes` to a !{_Promise} rather than an array of heroes. 
   
-  We have to change our implementation to *act on the promise when it resolves*.
-  When the promise resolves successfully, *then* we will have heroes to display.
+  We have to change our implementation to *act on the !{_Promise} when it resolves*.
+  When the !{_Promise} resolves successfully, *then* we will have heroes to display.
   
-  We pass our callback function as an argument to the promise's **then** method:
-+makeExample('toh-4/ts/app/app.component.ts', 'get-heroes', 'app.component.ts (getHeroes - revised)')(format=".")
+  We pass our callback function as an argument to the !{_Promise}'s **then** method:
++makeExample('toh-4/ts/app/app.component.ts', 'get-heroes', 'app/app.component.ts (getHeroes - revised)')(format=".")
 .l-sub-section
   :marked
     The [ES2015 arrow function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions)
@@ -316,6 +317,8 @@ a#child-component
     .file typings ...      
     .file index.html
     .file package.json
+    .file styles.css
+    .file systemjs.config.js
     .file tsconfig.json
     .file typings.json
 :marked
@@ -334,11 +337,11 @@ a#child-component
   ## The Road We’ve Travelled
   Let’s take stock of what we’ve built.
 
-  * We created a service class that can be shared by many components
-  * We used the `ngOnInit` Lifecycle Hook to get our heroes when our `AppComponent` activates
-  * We defined our `HeroService` as a provider for our `AppComponent`
-  * We created mock hero data and imported them into our service
-  * We designed our service to return a promise and our component to get our data from the promise
+  * We created a service class that can be shared by many components.
+  * We used the `ngOnInit` Lifecycle Hook to get our heroes when our `AppComponent` activates.
+  * We defined our `HeroService` as a provider for our `AppComponent`.
+  * We created mock hero data and imported them into our service.
+  * We designed our service to return a !{_Promise} and our component to get our data from the !{_Promise}.
 
 p Run the #[+liveExampleLink2('', 'toh-4')] for this part.
 :marked
@@ -357,10 +360,10 @@ p Run the #[+liveExampleLink2('', 'toh-4')] for this part.
   We can simulate a slow connection.
   
   Import the `Hero` symbol and add the following `getHeroesSlowly` method to the `HeroService`
-+makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes-slowly', 'hero.service.ts (getHeroesSlowly)')(format=".")
++makeExample('toh-4/ts/app/hero.service.ts', 'get-heroes-slowly', 'app/hero.service.ts (getHeroesSlowly)')(format=".")
 :marked
-  Like `getHeroes`, it also returns a promise. 
-  But this promise waits 2 seconds before resolving the promise with mock heroes.
+  Like `getHeroes`, it also returns a !{_Promise}. 
+  But this !{_Promise} waits 2 seconds before resolving the !{_Promise} with mock heroes.
   
   Back in the `AppComponent`, replace `heroService.getHeroes` with `heroService.getHeroesSlowly`
   and see how the app behaves.
