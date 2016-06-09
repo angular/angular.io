@@ -1,14 +1,11 @@
 // #docplaster
 // #docregion
-import { Component } from '@angular/core';
-import { OnActivate, Router, RouteSegment } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
-// #docregion routerCanDeactivate
-// import { CanDeactivate } from '@angular/router';
 import { DialogService } from '../dialog.service';
 
-// #enddocregion routerCanDeactivate
 @Component({
   // #docregion template
   template: `
@@ -29,49 +26,52 @@ import { DialogService } from '../dialog.service';
   // #enddocregion template
   styles: ['input {width: 20em}']
 })
-// #docregion routerCanDeactivate, cancel-save
-export class CrisisDetailComponent implements OnActivate {// , CanDeactivate {
+// #docregion cancel-save
+export class CrisisDetailComponent implements OnInit, OnDestroy {
 
   crisis: Crisis;
   editName: string;
+  // #enddocregion ngOnDestroy
+  private sub: any;
+  // #enddocregion ngOnDestroy
 
-// #enddocregion routerCanDeactivate, cancel-save
+// #enddocregion cancel-save
   constructor(
     private service: CrisisService,
     private router: Router,
+    private route: ActivatedRoute,
     private dialog: DialogService
-    ) { }
+  ) { }
 
-  // #docregion ngOnActivate
-  routerOnActivate(curr: RouteSegment): void {
-    let id = +curr.getParam('id');
-    this.service.getCrisis(id).then(crisis => {
-      if (crisis) {
-        this.editName = crisis.name;
-        this.crisis = crisis;
-      } else { // id not found
-        this.gotoCrises();
-      }
-    });
+  // #docregion ngOnInit
+  ngOnInit() {
+    this.sub = this.route
+      .params
+      .subscribe(params => {
+        let id =+ params['id'];
+        this.service.getCrisis(id)
+          .then(crisis => {
+            if (crisis) {
+              this.editName = crisis.name;
+              this.crisis = crisis;
+            } else { // id not found
+              this.gotoCrises();
+            }
+          });
+      });
   }
-  // #enddocregion ngOnActivate
+  // #enddocregion ngOnInit
 
-  // #docregion routerCanDeactivate
-  // NOT IMPLEMENTED YET
-  routerCanDeactivate(): any {
-    // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
-    if (!this.crisis || this.crisis.name === this.editName) {
-      return true;
+  // #enddocregion ngOnDestroy
+  ngOnDestroy() {
+    if (this.sub) {
+      this.sub.unsubscribe();
     }
-    // Otherwise ask the user with the dialog service and return its
-    // promise which resolves to true or false when the user decides
-    return this.dialog.confirm('Discard changes?');
   }
-  // #enddocregion routerCanDeactivate
+  // #enddocregion ngOnDestroy
 
   // #docregion cancel-save
   cancel() {
-    this.editName = this.crisis.name;
     this.gotoCrises();
   }
 
@@ -83,11 +83,14 @@ export class CrisisDetailComponent implements OnActivate {// , CanDeactivate {
 
   // #docregion gotoCrises
   gotoCrises() {
-    // Like <a [routerLink]="[/crisis-center/]">Crisis Center</a
-    this.router.navigateByUrl('/crisis-center/'); // absolute url
+    let crisisId = this.crisis ? this.crisis.id : null;
+    // Pass along the hero id if available
+    // so that the CrisisListComponent can select that hero.
+    // Add a totally useless `foo` parameter for kicks.
+    this.router.navigate(['/crisis-center', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
   }
   // #enddocregion gotoCrises
-// #docregion routerCanDeactivate, cancel-save
+// #docregion cancel-save
 }
-// #enddocregion routerCanDeactivate, cancel-save
+// #enddocregion cancel-save
 // #enddocregion
