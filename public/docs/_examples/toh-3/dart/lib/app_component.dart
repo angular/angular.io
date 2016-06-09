@@ -10,7 +10,7 @@ import 'hero_detail_component.dart';
 
 @Component(
     selector: 'my-app',
-// #docregion hero-detail-template
+    // #docregion hero-detail-template
     template: '''
       <h1>{{title}}</h1>
       <h2>My Heroes</h2>
@@ -23,8 +23,9 @@ import 'hero_detail_component.dart';
       </ul>
       <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     ''',
-// #enddocregion hero-detail-template
-    styles: const ['''
+    // #enddocregion hero-detail-template
+    styles: const [
+      '''
       .selected {
         background-color: #CFD8DC !important;
         color: white;
@@ -73,17 +74,16 @@ import 'hero_detail_component.dart';
       }
     '''
     ],
-// #docregion directives
-    directives: const [
-      HeroDetailComponent
-    ])
-// #enddocregion directives
+    // #docregion directives
+    directives: const [HeroDetailComponent]
+    // #enddocregion directives
+    )
 class AppComponent {
   final String title = 'Tour of Heroes';
   final List<Hero> heroes = mockHeroes;
   Hero selectedHero;
 
-  onSelect(Hero hero) {
+  void onSelect(Hero hero) {
     selectedHero = hero;
   }
 }

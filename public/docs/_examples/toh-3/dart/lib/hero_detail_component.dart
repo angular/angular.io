@@ -11,29 +11,26 @@ import 'hero.dart';
 // #docregion v1
 @Component(
     selector: 'my-hero-detail',
-// #enddocregion v1
+    // #enddocregion v1
     // #docregion template
     template: '''
-    <div *ngIf="hero != null">
-      <h2>{{hero.name}} details!</h2>
-      <div><label>id: </label>{{hero.id}}</div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="hero.name" placeholder="name">
-      </div>
-    </div>
-  '''
+      <div *ngIf="hero != null">
+        <h2>{{hero.name}} details!</h2>
+        <div><label>id: </label>{{hero.id}}</div>
+        <div>
+          <label>name: </label>
+          <input [(ngModel)]="hero.name" placeholder="name">
+        </div>
+      </div>'''
     // #enddocregion template
-// #docregion v1
+    // #docregion v1
     )
 class HeroDetailComponent {
-// #enddocregion v1
-// #docregion inputs
+  // #enddocregion v1
+  // #docregion inputs
   @Input()
-// #docregion hero
+  // #docregion hero
   Hero hero;
-// #enddocregion hero
-// #enddocregion inputs
-// #docregion v1
+  // #enddocregion hero, inputs
+  // #docregion v1
 }
-// #enddocregion v1

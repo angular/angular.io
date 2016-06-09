@@ -5,4 +5,3 @@ class Hero {
 
   Hero(this.id, this.name);
 }
-// #enddocregion
