@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-variable */
 import { AppComponent } from './app.component';
 
-import { By }                     from '@angular/platform-browser';
+import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
 import {

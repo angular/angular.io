@@ -2,10 +2,9 @@
 // #docplaster
 
 // #docregion
-import { Component, OnInit }   from '@angular/core';
-import { Router, ROUTER_DIRECTIVES, Routes } from '@angular/router';
+import { Component }                 from '@angular/core';
+import { Router, ROUTER_DIRECTIVES } from '@angular/router';
 
-import { CrisisListComponent } from './crisis-list.component';
 // #enddocregion
 /*
  // Apparent Milestone 2 imports
@@ -18,8 +17,6 @@ import { CrisisListComponent } from './crisis-list.component';
  // #enddocregion
  */
 // Actual Milestone 2 imports
-import { HeroDetailComponent }   from './heroes/hero-detail.component.1';
-import { HeroListComponent }     from './heroes/hero-list.component.1';
 import { HeroService }           from './heroes/hero.service';
 // #docregion
 
@@ -37,28 +34,7 @@ import { HeroService }           from './heroes/hero.service';
   directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion
-/*
- // #docregion route-config
- @Component({ ... })
- // #enddocregion route-config
- */
-// #docregion
-// #docregion route-config
-@Routes([
-// #docregion route-defs
-  {path: '/crisis-center', component: CrisisListComponent},
-  {path: '/heroes',        component: HeroListComponent},
-  // #docregion hero-detail-route
-  {path: '/hero/:id',      component: HeroDetailComponent}
-  // #enddocregion hero-detail-route
-// #enddocregion route-defs
-])
-export class AppComponent  implements OnInit {
-  constructor(private router: Router) {}
-
-  ngOnInit() {
-    this.router.navigate(['/crisis-center']);
-  }
+export class AppComponent {
 }
 // #enddocregion route-config
 // #enddocregion

@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 import { Component }          from '@angular/core';
 import { ROUTER_DIRECTIVES }  from '@angular/router';
@@ -15,7 +14,6 @@ import { HeroService }    from './heroes/hero.service';
       <a [routerLink]="['/crisis-center']">Crisis Center</a>
       <a [routerLink]="['/heroes']">Heroes</a>
       <a [routerLink]="['/crisis-center/admin']">Crisis Admin</a>
-      <a [routerLink]="['/login']">Login</a>
     </nav>
     <router-outlet></router-outlet>
   `,
