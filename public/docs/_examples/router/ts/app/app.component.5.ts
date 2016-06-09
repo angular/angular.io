@@ -11,6 +11,11 @@ import { CrisisDetailGuard }                from './crisis-center/crisis-detail.
 import { DialogService }                    from './dialog.service';
 import { HeroService }                      from './heroes/hero.service';
 
+// Add these symbols to override the `LocationStrategy`
+import { LocationStrategy,
+         HashLocationStrategy } from '@angular/common';
+
+
 @Component({
   selector: 'my-app',
 // #docregion template
@@ -27,7 +32,9 @@ import { HeroService }                      from './heroes/hero.service';
     HeroService,
     DialogService,
     provideRouter(routes),
-    CrisisDetailGuard
+    CrisisDetailGuard,
+    { provide: LocationStrategy,
+      useClass: HashLocationStrategy } // .../#/crisis-center/
   ],
   directives: [ROUTER_DIRECTIVES]
 })

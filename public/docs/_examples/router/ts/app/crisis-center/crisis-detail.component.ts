@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { Component } from '@angular/core';
-import { CanDeactivate, OnActivate, Router, RouteSegment } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
 import { DialogService } from '../dialog.service';
@@ -25,43 +25,42 @@ import { DialogService } from '../dialog.service';
   styles: ['input {width: 20em}']
 })
 
-export class CrisisDetailComponent implements OnActivate, CanDeactivate {
+export class CrisisDetailComponent implements OnInit, OnDestroy {
   crisis: Crisis;
   editName: string;
-  private curSegment: RouteSegment;
+  private sub: any;
 
   constructor(
     private service: CrisisService,
+    private route: ActivatedRoute,
     private router: Router,
     private dialog: DialogService
     ) { }
 
-  routerOnActivate(curr: RouteSegment) {
-    this.curSegment = curr;
-
-    let id = +curr.getParam('id');
-    this.service.getCrisis(id).then(crisis => {
-      if (crisis) {
-        this.editName = crisis.name;
-        this.crisis = crisis;
-      } else { // id not found
-        this.gotoCrises();
-      }
-    });
+  ngOnInit() {
+    this.sub = this.route
+      .params
+      .subscribe(params => {
+        let id = + params['id'];
+        this.service.getCrisis(id)
+          .then(crisis => {
+            if (crisis) {
+              this.editName = crisis.name;
+              this.crisis = crisis;
+            } else { // id not found
+              this.gotoCrises();
+            }
+          });
+      });
   }
 
-  routerCanDeactivate(): any {
-    // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.
-    if (!this.crisis || this.crisis.name === this.editName) {
-      return true;
+  ngOnDestroy() {
+    if (this.sub) {
+      this.sub.unsubscribe();
     }
-    // Otherwise ask the user with the dialog service and return its
-    // promise which resolves to true or false when the user decides
-    return this.dialog.confirm('Discard changes?');
   }
 
   cancel() {
-    this.editName = this.crisis.name;
     this.gotoCrises();
   }
 
@@ -79,9 +78,6 @@ export class CrisisDetailComponent implements OnActivate, CanDeactivate {
     // #docregion gotoCrises-navigate
     // Absolute link
     this.router.navigate(['/crisis-center', {id: crisisId, foo: 'foo'}]);
-
-    // Relative link
-    // this.router.navigate(['../', {id: crisisId, foo: 'foo'}], this.curSegment);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

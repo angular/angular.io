@@ -1,9 +1,7 @@
-import { Component }     from '@angular/core';
-import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
+import { Component }            from '@angular/core';
+import { ROUTER_DIRECTIVES }    from '@angular/router';
 
-import { CrisisDetailComponent } from './crisis-detail.component.1';
-import { CrisisListComponent }   from './crisis-list.component.1';
-import { CrisisService }         from './crisis.service';
+import { CrisisService }        from './crisis.service';
 
 // #docregion minus-imports
 @Component({
@@ -16,13 +14,5 @@ import { CrisisService }         from './crisis.service';
   providers:  [CrisisService]
 // #enddocregion providers
 })
-// #docregion route-config
-@Routes([
-  // #docregion default-route
-  {path: '/',    component: CrisisListComponent}, // , useAsDefault: true}, // coming soon
-  // #enddocregion default-route
-  {path: '/:id', component: CrisisDetailComponent}
-])
-// #enddocregion route-config
 export class CrisisCenterComponent { }
 // #enddocregion  minus-imports
