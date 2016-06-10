@@ -24,4 +24,3 @@ export class HeroService {
   }
   // #enddocregion get-hero
 }
-// #enddocregion

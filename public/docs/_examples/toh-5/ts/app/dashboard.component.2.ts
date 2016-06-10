@@ -24,4 +24,3 @@ export class DashboardComponent implements OnInit {
 
   gotoDetail() { /* not implemented yet */}
 }
-// #enddocregion component
