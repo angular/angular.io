@@ -1,6 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion v2
+import 'dart:async';
 import 'dart:html';
 
 // #docregion import-oninit
@@ -20,37 +21,35 @@ import 'hero_service.dart';
     selector: 'my-hero-detail',
     // #docregion template-url
     templateUrl: 'hero_detail_component.html',
-    // #enddocregion template-url
-// #enddocregion v2
+    // #enddocregion template-url, v2
     styleUrls: const ['hero_detail_component.css']
-// #docregion v2
-)
+    // #docregion v2
+    )
 // #enddocregion extract-template
 // #docregion implement
 class HeroDetailComponent implements OnInit {
-// #enddocregion implement
+  // #enddocregion implement
   Hero hero;
-// #docregion ctor
+  // #docregion ctor
   final HeroService _heroService;
   final RouteParams _routeParams;
 
   HeroDetailComponent(this._heroService, this._routeParams);
-// #enddocregion ctor
+  // #enddocregion ctor
 
-// #docregion ng-oninit
-  ngOnInit() async {
+  // #docregion ng-oninit
+  Future<Null> ngOnInit() async {
     // #docregion get-id
-    var id = int.parse(_routeParams.get('id'));
+    var idString = _routeParams.get('id');
+    var id = int.parse(idString, onError: (_) => null);
     // #enddocregion get-id
-    hero = await (_heroService.getHero(id));
+    if (id != null) hero = await (_heroService.getHero(id));
   }
-// #enddocregion ng-oninit
+  // #enddocregion ng-oninit
 
-// #docregion go-back
-  goBack() {
+  // #docregion go-back
+  void goBack() {
     window.history.back();
   }
-// #enddocregion go-back
+  // #enddocregion go-back
 }
-// #enddocregion v2
-// #enddocregion

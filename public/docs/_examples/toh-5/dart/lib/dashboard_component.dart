@@ -1,5 +1,7 @@
 // #docplaster
 // #docregion
+import 'dart:async';
+
 import 'package:angular2/core.dart';
 // #docregion import-router
 import 'package:angular2/router.dart';
@@ -16,22 +18,25 @@ import 'hero_service.dart';
     // #docregion css
     styleUrls: const ['dashboard_component.css']
     // #enddocregion css
-)
+    )
 // #docregion component
 class DashboardComponent implements OnInit {
   List<Hero> heroes;
-// #docregion ctor
+
+  // #docregion ctor
   final Router _router;
   final HeroService _heroService;
 
   DashboardComponent(this._heroService, this._router);
-// #enddocregion ctor
 
-  ngOnInit() async =>
-      heroes = (await _heroService.getHeroes()).getRange(1, 5).toList();
+  // #enddocregion ctor
+
+  Future<Null> ngOnInit() async {
+    heroes = (await _heroService.getHeroes()).getRange(1, 5).toList();
+  }
 
   // #docregion goto-detail
-  gotoDetail(Hero hero) {
+  void gotoDetail(Hero hero) {
     var link = [
       'HeroDetail',
       {'id': hero.id.toString()}
@@ -40,4 +45,3 @@ class DashboardComponent implements OnInit {
   }
 // #enddocregion goto-detail
 }
-// #enddocregion

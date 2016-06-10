@@ -15,12 +15,11 @@ import 'heroes_component.dart';
       <my-heroes></my-heroes>''',
     directives: const [HeroesComponent],
     providers: const [
-// #enddocregion
+      // #enddocregion
       ROUTER_PROVIDERS,
-// #docregion
+      // #docregion
       HeroService
     ])
 class AppComponent {
   String title = 'Tour of Heroes';
 }
-// #enddocregion
