@@ -10,14 +10,14 @@ import { HeroesComponent } from './heroes.component';
 
 @Component({
   selector: 'my-app',
-// #docregion template
+  // #docregion template
   template: `
     <h1>{{title}}</h1>
     <a [routerLink]="['Heroes']">Heroes</a>
     <router-outlet></router-outlet>
   `,
-// #enddocregion template
-// #docregion directives-and-providers
+  // #enddocregion template
+  // #docregion directives-and-providers
   directives: [ROUTER_DIRECTIVES],
   providers: [
     ROUTER_PROVIDERS,
@@ -37,4 +37,3 @@ import { HeroesComponent } from './heroes.component';
 export class AppComponent {
   title = 'Tour of Heroes';
 }
-// #enddocregion

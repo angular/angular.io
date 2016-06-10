@@ -11,7 +11,6 @@ import { HeroesComponent } from './heroes.component';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 
 // #docregion
-
 @Component({
   selector: 'my-app',
   template: `
@@ -20,13 +19,12 @@ import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/route
   `,
   directives: [HeroesComponent],
   providers: [
-// #enddocregion
+    // #enddocregion
    ROUTER_PROVIDERS,
-// #docregion
+    // #docregion
     HeroService
   ]
 })
 export class AppComponent {
   title = 'Tour of Heroes';
 }
-// #enddocregion

@@ -1,7 +1,6 @@
 // #docplaster
 // #docregion
-// #docregion v2
-// #docregion import-oninit
+// #docregion import-oninit, v2
 import { Component, OnInit } from '@angular/core';
 // #enddocregion import-oninit
 // #docregion import-route-params
@@ -18,25 +17,24 @@ import { HeroService } from './hero.service';
   selector: 'my-hero-detail',
   // #docregion template-url
   templateUrl: 'app/hero-detail.component.html',
-  // #enddocregion template-url
-// #enddocregion v2
+  // #enddocregion template-url, v2
   styleUrls: ['app/hero-detail.component.css']
-// #docregion v2
+  // #docregion v2
 })
 // #enddocregion extract-template
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
-// #enddocregion implement
+  // #enddocregion implement
   hero: Hero;
 
-// #docregion ctor
+  // #docregion ctor
   constructor(
     private heroService: HeroService,
     private routeParams: RouteParams) {
   }
-// #enddocregion ctor
+  // #enddocregion ctor
 
-// #docregion ng-oninit
+  // #docregion ng-oninit
   ngOnInit() {
     // #docregion get-id
     let id = +this.routeParams.get('id');
@@ -44,13 +42,11 @@ export class HeroDetailComponent implements OnInit {
     this.heroService.getHero(id)
       .then(hero => this.hero = hero);
   }
-// #enddocregion ng-oninit
+  // #enddocregion ng-oninit
 
-// #docregion go-back
+  // #docregion go-back
   goBack() {
     window.history.back();
   }
 // #enddocregion go-back
 }
-// #enddocregion v2
-// #enddocregion

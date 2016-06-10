@@ -22,12 +22,12 @@ export class DashboardComponent implements OnInit {
 
   heroes: Hero[] = [];
 
-// #docregion ctor
+  // #docregion ctor
   constructor(
     private router: Router,
     private heroService: HeroService) {
   }
-// #enddocregion ctor
+  // #enddocregion ctor
 
   ngOnInit() {
     this.heroService.getHeroes()
@@ -41,4 +41,3 @@ export class DashboardComponent implements OnInit {
   }
   // #enddocregion goto-detail
 }
-// #enddocregion

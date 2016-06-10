@@ -6,21 +6,18 @@ import { Router } from '@angular/router-deprecated';
 import { Hero } from './hero';
 import { HeroService } from './hero.service';
 
-// #docregion metadata
-// #docregion heroes-component-renaming
+// #docregion heroes-component-renaming, metadata
 @Component({
   selector: 'my-heroes',
-// #enddocregion heroes-component-renaming
+  // #enddocregion heroes-component-renaming
   templateUrl: 'app/heroes.component.html',
   styleUrls:  ['app/heroes.component.css']
-// #docregion heroes-component-renaming
+  // #docregion heroes-component-renaming
 })
-// #enddocregion heroes-component-renaming
-// #enddocregion metadata
-// #docregion class
-// #docregion heroes-component-renaming
+// #enddocregion heroes-component-renaming, metadata
+// #docregion class, heroes-component-renaming
 export class HeroesComponent implements OnInit {
-// #enddocregion heroes-component-renaming
+  // #enddocregion heroes-component-renaming
   heroes: Hero[];
   selectedHero: Hero;
 
@@ -41,8 +38,5 @@ export class HeroesComponent implements OnInit {
   gotoDetail() {
     this.router.navigate(['HeroDetail', { id: this.selectedHero.id }]);
   }
-// #docregion heroes-component-renaming
+  // #docregion heroes-component-renaming
 }
-// #enddocregion heroes-component-renaming
-// #enddocregion class
-// #enddocregion
