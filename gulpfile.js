@@ -89,6 +89,16 @@ var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
 ];
 
+function isDartPath(path) {
+  // Testing via indexOf() for now. If we need to match only paths with folders
+  // named 'dart' vs 'dart*' then try: path.match('/dart(/|$)') != null;
+  return path.indexOf('/dart') > -1;
+}
+
+function excludeDartPaths(paths) {
+  return paths.filter(function (p) { return !isDartPath(p); });
+}
+
 /**
  * Run Protractor End-to-End Specs for Doc Samples
  * Alias for 'run-e2e-tests'
@@ -165,7 +175,6 @@ function runE2e() {
 // with the corresponding apps that they should run under. Then run
 // each app/spec collection sequentially.
 function findAndRunE2eTests(filter, outputFile) {
-
   // create an output file with header.
   var lang = (argv.lang || '(ts|js)').toLowerCase();
   if (lang === 'all') { lang = '(ts|js|dart)'; }
@@ -203,8 +212,7 @@ function findAndRunE2eTests(filter, outputFile) {
   var status = { passed: [], failed: [] };
   return examplePaths.reduce(function (promise, examplePath) {
     return promise.then(function () {
-      var isDart = examplePath.indexOf('/dart') > -1;
-      var runTests = isDart ? runE2eDartTests : runE2eTsTests;
+      var runTests = isDartPath(examplePath) ? runE2eDartTests : runE2eTsTests;
       return runTests(examplePath, outputFile).then(function(ok) {
         var arr = ok ? status.passed : status.failed;
         arr.push(examplePath);
@@ -375,7 +383,7 @@ gulp.task('add-example-boilerplate', function() {
   });
 
   realPath = path.join(EXAMPLES_PATH, '/typings');
-  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
+  var typingsPaths = excludeDartPaths(getTypingsPaths(EXAMPLES_PATH));
   typingsPaths.forEach(function(linkPath) {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
     fsUtils.addSymlink(realPath, linkPath);
@@ -398,16 +406,18 @@ function copyExampleBoilerplate() {
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
     return path.join(EXAMPLES_PATH, fn);
   });
-  var examplePaths = getExamplePaths(EXAMPLES_PATH);
+  var examplePaths = excludeDartPaths(getExamplePaths(EXAMPLES_PATH));
 
   var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
     return path.join(EXAMPLES_PATH, fn);
   });
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
-  return copyFiles(sourceFiles, examplePaths)
+  // Make boilerplate files read-only to avoid that they be edited by mistake.
+  var destFileMode = '444'; 
+  return copyFiles(sourceFiles, examplePaths, destFileMode)
     .then(function() {
-      return copyFiles(dartWebSourceFiles, dartExampleWebPaths);
+      return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
     })
     // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
     .then(function() {
@@ -415,7 +425,7 @@ function copyExampleBoilerplate() {
         _exampleProtractorBoilerplateFiles
           .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return copyFiles(protractorSourceFiles, e2eSpecPaths);
+      return copyFiles(protractorSourceFiles, e2eSpecPaths, destFileMode);
     });
 }
 
@@ -789,16 +799,23 @@ function showHideExampleNodeModules(showOrHide) {
   }
 }
 
-
+// Copies fileNames into destPaths, setting the mode of the
+// files at the destination as optional_destFileMode if given.
 // returns a promise
-function copyFiles(fileNames, destPaths) {
+function copyFiles(fileNames, destPaths, optional_destFileMode) {
   var copy = Q.denodeify(fsExtra.copy);
+  var chmod = Q.denodeify(fsExtra.chmod);
   var copyPromises = [];
   destPaths.forEach(function(destPath) {
     fileNames.forEach(function(fileName) {
       var baseName = path.basename(fileName);
       var destName = path.join(destPath, baseName);
       var p = copy(fileName, destName, { clobber: true});
+      if(optional_destFileMode !== undefined) {
+        p = p.then(function () {
+          return chmod(destName, optional_destFileMode);
+        });
+      }
       copyPromises.push(p);
     });
   });
