@@ -89,6 +89,8 @@ var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
 ];
 
+var _exampleConfigFilename = 'example-config.json';
+
 /**
  * Run Protractor End-to-End Specs for Doc Samples
  * Alias for 'run-e2e-tests'
@@ -221,17 +223,18 @@ function findAndRunE2eTests(filter, outputFile) {
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
 function runE2eTsTests(appDir, outputFile) {
-  // spawn tasks to start the app
-  var appBuildSpawnInfo;
-  var appRunSpawnInfo;
-
-  if (fs.existsSync(path.join(appDir, 'angular-cli.json'))) {
-    appBuildSpawnInfo = spawnExt('npm', ['run', 'build:cli'], { cwd: appDir });
-    appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:cli', '--', '-s'], { cwd: appDir });
-  } else {
-    appBuildSpawnInfo = spawnExt('npm',['run','tsc'], { cwd: appDir });
-    appRunSpawnInfo = spawnExt('npm',['run','http-server:e2e', '--', '-s' ], { cwd: appDir });
+  // Grab protractor configuration or defaults to systemjs config.
+  try {
+    var exampleConfig = fs.readJsonSync(`${appDir}/${_exampleConfigFilename}`);
+  } catch (e) {
+    exampleConfig = {
+      build: 'tsc',
+      run: 'http-server:e2e'
+    };
   }
+
+  var appBuildSpawnInfo = spawnExt('npm', ['run', exampleConfig.build], { cwd: appDir });
+  var appRunSpawnInfo = spawnExt('npm', ['run', exampleConfig.run, '--', '-s'], { cwd: appDir });
 
   return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
 }
@@ -841,7 +844,7 @@ function getTypingsPaths(basePath) {
 
 function getExamplePaths(basePath, includeBase) {
   // includeBase defaults to false
-  return getPaths(basePath, "example-config.json", includeBase)
+  return getPaths(basePath, _exampleConfigFilename, includeBase)
 }
 
 function getDartExampleWebPaths(basePath) {
