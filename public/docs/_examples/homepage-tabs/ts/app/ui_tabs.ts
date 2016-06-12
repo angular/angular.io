@@ -3,9 +3,9 @@ import { Component, Directive, Input, QueryList,
         ViewContainerRef, TemplateRef, ContentChildren } from '@angular/core';
 
 @Directive({
-  selector: '[ui-pane]'
+  selector: '[uiPane]'
 })
-export class UiPane {
+export class UiPaneDirective {
   @Input() title: string;
   private _active: boolean = false;
 
@@ -41,11 +41,11 @@ export class UiPane {
     `,
     styles: ['a { cursor: pointer; cursor: hand; }']
 })
-export class UiTabs {
-  @ContentChildren(UiPane) panes: QueryList<UiPane>;
+export class UiTabsComponent {
+  @ContentChildren(UiPaneDirective) panes: QueryList<UiPaneDirective>;
 
-  select(pane: UiPane) {
-    this.panes.toArray().forEach((p: UiPane) => p.active = p === pane);
+  select(pane: UiPaneDirective) {
+    this.panes.toArray().forEach((p: UiPaneDirective) => p.active = p === pane);
   }
 }
 

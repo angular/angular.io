@@ -1,7 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { UiTabs, UiPane } from './ui_tabs';
+import { UiTabsComponent, UiPaneDirective } from './ui_tabs';
 
 class Detail {
   title: string;
@@ -13,23 +13,23 @@ class Detail {
   template: `
     <h4>Tabs Demo</h4>
     <ui-tabs>
-      <template ui-pane title='Overview' active="true">
+      <template uiPane title='Overview' active="true">
         You have {{details.length}} details.
       </template>
-      <template *ngFor="let detail of details" ui-pane [title]="detail.title">
+      <template *ngFor="let detail of details" uiPane [title]="detail.title">
         {{detail.text}} <br><br>
         <button class="btn" (click)="removeDetail(detail)">Remove</button>
       </template>
-      <template ui-pane title='Summary'>
+      <template uiPane title='Summary'>
         Next last ID is {{id}}.
       </template>
     </ui-tabs>
     <hr>
     <button class="btn" (click)="addDetail()">Add Detail</button>
     `,
-    directives: [UiTabs, UiPane]
+    directives: [UiTabsComponent, UiPaneDirective]
 })
-export class DiDemo {
+export class DiDemoComponent {
   details: Detail[] = [];
   id: number = 0;
 

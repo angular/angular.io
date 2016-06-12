@@ -5,16 +5,6 @@ export class Hero {
   constructor(public id: number, public name: string) { }
 }
 
-@Injectable()
-export class HeroService {
-  getHeroes() { return heroesPromise; }
-
-  getHero(id: number | string) {
-    return heroesPromise
-      .then(heroes => heroes.filter(h => h.id === +id)[0]);
-  }
-}
-
 let HEROES = [
   new Hero(11, 'Mr. Nice'),
   new Hero(12, 'Narco'),
@@ -25,3 +15,13 @@ let HEROES = [
 ];
 
 let heroesPromise = Promise.resolve(HEROES);
+
+@Injectable()
+export class HeroService {
+  getHeroes() { return heroesPromise; }
+
+  getHero(id: number | string) {
+    return heroesPromise
+      .then(heroes => heroes.filter(h => h.id === +id)[0]);
+  }
+}

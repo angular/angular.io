@@ -1,3 +1,4 @@
+/* tslint:disable no-unused-variable */
 // #docregion ng2import
 import { bootstrap }
   from '@angular/platform-browser-dynamic';

@@ -15,7 +15,7 @@
 
   // #docregion content
   var HeroComponent = ng.core.Component({
-    selector: 'hero',
+    selector: 'a-hero',
     template: '<h2 [class.active]=active>' +
       '{{hero.name}} ' +
       '<ng-content></ng-content>' +
@@ -38,10 +38,10 @@
   var AppComponent = ng.core.Component({
     selector: 'heroes-queries',
     template:
-      '<hero *ngFor="let hero of heroData"' +
+      '<a-hero *ngFor="let hero of heroData"' +
             '[hero]="hero">' +
         '<active-label></active-label>' +
-      '</hero>' +
+      '</a-hero>' +
       '<button (click)="activate()">' +
         'Activate' +
       '</button>',

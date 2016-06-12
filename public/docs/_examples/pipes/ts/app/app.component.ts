@@ -5,11 +5,11 @@ import { HTTP_PROVIDERS }    from '@angular/http';
 import { FlyingHeroesComponent,
         FlyingHeroesImpureComponent } from './flying-heroes.component';
 import { HeroAsyncMessageComponent } from './hero-async-message.component';
-import { HeroBirthday } from './hero-birthday1.component';
-import { HeroBirthday2 } from './hero-birthday2.component';
+import { HeroBirthdayComponent } from './hero-birthday1.component';
+import { HeroBirthday2Component } from './hero-birthday2.component';
 import { HeroListComponent } from './hero-list.component';
-import { PowerBooster } from './power-booster.component';
-import { PowerBoostCalculator } from './power-boost-calculator.component';
+import { PowerBoosterComponent } from './power-booster.component';
+import { PowerBoostCalculatorComponent } from './power-boost-calculator.component';
 
 @Component({
   selector: 'my-app',
@@ -17,10 +17,10 @@ import { PowerBoostCalculator } from './power-boost-calculator.component';
   directives: [
     FlyingHeroesComponent, FlyingHeroesImpureComponent,
     HeroAsyncMessageComponent,
-    HeroBirthday,
-    HeroBirthday2,
+    HeroBirthdayComponent,
+    HeroBirthday2Component,
     HeroListComponent,
-    PowerBooster, PowerBoostCalculator
+    PowerBoosterComponent, PowerBoostCalculatorComponent
   ],
   providers: [HTTP_PROVIDERS]
 })

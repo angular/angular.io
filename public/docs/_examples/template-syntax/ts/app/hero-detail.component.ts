@@ -1,9 +1,8 @@
+/* tslint:disable use-input-property-decorator use-output-property-decorator */
 // #docplaster
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { Hero } from './hero';
-
-let nextHeroDetailId = 1;
 
 // #docregion input-output-2
 @Component({

@@ -19,6 +19,6 @@ import { Todo } from './todo';
       </li>
     </ul>`
 })
-export class TodoList {
+export class TodoListComponent {
   @Input() todos: Todo[];
 }

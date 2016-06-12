@@ -25,7 +25,7 @@ if (!/e2e/.test(location.search)) {
 }
 
 @Component({
-  selector: 'app',
+  selector: 'my-app',
   templateUrl: 'app/app.component.html',
   directives: directives
 })

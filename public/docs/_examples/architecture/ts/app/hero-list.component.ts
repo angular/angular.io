@@ -24,12 +24,12 @@ export class HeroesComponent { ... }
 */
 // #docregion class
 export class HeroListComponent implements OnInit {
+  heroes: Hero[];
+  selectedHero: Hero;
+
 // #docregion ctor
   constructor(private service: HeroService) { }
 // #enddocregion ctor
-
-  heroes: Hero[];
-  selectedHero: Hero;
 
   ngOnInit() {
     this.heroes = this.service.getHeroes();

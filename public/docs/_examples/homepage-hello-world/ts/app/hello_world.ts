@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
   // Location of the template for this component
   templateUrl: 'app/hello_world.html'
 })
-export class HelloWorld {
+export class HelloWorldComponent {
 
   // Declaring the variable for binding with initial value
   yourName: string = '';

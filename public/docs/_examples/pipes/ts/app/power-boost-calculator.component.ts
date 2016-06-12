@@ -15,7 +15,7 @@ import { ExponentialStrengthPipe } from './exponential-strength.pipe';
   `,
   pipes: [ExponentialStrengthPipe]
 })
-export class PowerBoostCalculator {
+export class PowerBoostCalculatorComponent {
   power = 5;
   factor = 1;
 }

@@ -23,7 +23,7 @@ class ActiveLabelComponent {
 
 // #docregion content
 @Component({
-  selector: 'hero',
+  selector: 'a-hero',
   template: `<h2 [class.active]=active>
     {{hero.name}}
     <ng-content></ng-content>
@@ -48,10 +48,10 @@ class HeroComponent {
 @Component({
   selector: 'heroes-queries',
   template: `
-    <hero *ngFor="let hero of heroData"
+    <a-hero *ngFor="let hero of heroData"
           [hero]="hero">
       <active-label></active-label>
-    </hero>
+    </a-hero>
     <button (click)="activate()">
       Activate
     </button>

@@ -10,7 +10,7 @@ import { APP_CONFIG, AppConfig,
          HERO_DI_CONFIG }    from './app.config';
 import { Logger }            from './logger.service';
 
-import { User, UserService } from './user.service';
+import { UserService } from './user.service';
 // #enddocregion imports
 import { InjectorComponent } from './injector.component';
 import { TestComponent }     from './test.component';

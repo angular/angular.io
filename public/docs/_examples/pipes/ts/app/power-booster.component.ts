@@ -11,4 +11,4 @@ import { ExponentialStrengthPipe } from './exponential-strength.pipe';
   `,
   pipes: [ExponentialStrengthPipe]
 })
-export class PowerBooster { }
+export class PowerBoosterComponent { }

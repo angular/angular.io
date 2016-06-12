@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
     <button (click)="onClickMe2($event)">No! .. Click me!</button>
     {{clickMessage}}`
 })
-export class ClickMeComponent2 {
+export class ClickMe2Component {
   clickMessage = '';
   clicks = 1;
 

@@ -59,7 +59,7 @@ describe('TypeScript to Javascript tests', function () {
 
   it('should support content and view queries', function() {
     let app = element(by.css('heroes-queries'));
-    let windstorm = app.element(by.css('hero:first-child'));
+    let windstorm = app.element(by.css('a-hero:first-child'));
 
     app.element(by.buttonText('Activate')).click();
     expect(windstorm.element(by.css('h2')).getAttribute('class')).toBe('active');

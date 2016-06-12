@@ -12,7 +12,7 @@ import { DynamicFormQuestionComponent } from './dynamic-form-question.component'
   directives: [DynamicFormQuestionComponent],
   providers:  [QuestionControlService]
 })
-export class DynamicForm {
+export class DynamicFormComponent implements OnInit {
 
   @Input() questions: QuestionBase<any>[] = [];
   form: ControlGroup;

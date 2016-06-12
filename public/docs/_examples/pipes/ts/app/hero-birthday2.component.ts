@@ -11,7 +11,7 @@ import { Component } from '@angular/core';
   // #enddocregion template
 })
 // #docregion class
-export class HeroBirthday2 {
+export class HeroBirthday2Component {
   birthday = new Date(1988, 3, 15); // April 15, 1988
   toggle = true; // start with true == shortDate
 

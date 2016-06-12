@@ -1,7 +1,7 @@
 /* tslint:disable:one-line:check-open-brace*/
 // Examples of provider arrays
 // #docplaster
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, OnInit } from '@angular/core';
 
 import { APP_CONFIG, AppConfig,
          HERO_DI_CONFIG }       from './app.config';
@@ -21,7 +21,7 @@ let template = '{{log}}';
   providers: [Logger]
   // #enddocregion providers-1, providers-logger
 })
-export class ProviderComponent1 {
+export class Provider1Component {
   log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with Logger class');
@@ -38,7 +38,7 @@ export class ProviderComponent1 {
     [{ provide: Logger, useClass: Logger }]
     // #enddocregion providers-3
 })
-export class ProviderComponent3 {
+export class Provider3Component {
   log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useClass:Logger');
@@ -57,7 +57,7 @@ class BetterLogger extends Logger {}
     [{ provide: Logger, useClass: BetterLogger }]
     // #enddocregion providers-4
 })
-export class ProviderComponent4 {
+export class Provider4Component {
   log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useClass:BetterLogger');
@@ -87,7 +87,7 @@ class EvenBetterLogger extends Logger {
       { provide: Logger, useClass: EvenBetterLogger }]
     // #enddocregion providers-5
 })
-export class ProviderComponent5 {
+export class Provider5Component {
   log: string;
   constructor(logger: Logger) {
     logger.log('Hello from EvenBetterlogger');
@@ -114,7 +114,7 @@ class OldLogger {
       { provide: OldLogger, useClass: NewLogger}]
     // #enddocregion providers-6a
 })
-export class ProviderComponent6a {
+export class Provider6aComponent {
   log: string;
   constructor(newLogger: NewLogger, oldLogger: OldLogger) {
     if (newLogger === oldLogger){
@@ -137,7 +137,7 @@ export class ProviderComponent6a {
       { provide: OldLogger, useExisting: NewLogger}]
     // #enddocregion providers-6b
 })
-export class ProviderComponent6b {
+export class Provider6bComponent {
   log: string;
   constructor(newLogger: NewLogger, oldLogger: OldLogger) {
     if (newLogger !== oldLogger){
@@ -165,7 +165,7 @@ let silentLogger = {
     [{ provide: Logger, useValue: silentLogger }]
     // #enddocregion providers-7
 })
-export class ProviderComponent7 {
+export class Provider7Component {
   log: string;
   constructor(logger: Logger) {
     logger.log('Hello from logger provided with useValue');
@@ -179,13 +179,13 @@ export class ProviderComponent7 {
   template: template,
   providers: [heroServiceProvider, Logger, UserService]
 })
-export class ProviderComponent8 {
+export class Provider8Component {
+  // must be true else this component would have blown up at runtime
+  log = 'Hero service injected successfully via heroServiceProvider';
+
   // #docregion provider-8-ctor
   constructor(heroService: HeroService) { }
   // #enddocregion provider-8-ctor
-
-  // must be true else this component would have blown up at runtime
-  log = 'Hero service injected successfully via heroServiceProvider';
 }
 
 /////////////////
@@ -202,7 +202,7 @@ export class ProviderComponent8 {
   providers: [{ provide: APP_CONFIG, useValue: HERO_DI_CONFIG }]
   // #enddocregion providers-9
 })
-export class ProviderComponent9 {
+export class Provider9Component implements OnInit {
   log: string;
   /*
    // #docregion provider-9-ctor-interface
@@ -225,13 +225,13 @@ export class ProviderComponent9 {
 import { Optional } from '@angular/core';
 // #enddocregion import-optional
 
-let some_message: string = 'Hello from the injected logger';
+let some_message = 'Hello from the injected logger';
 
 @Component({
   selector: 'provider-10',
   template: template
 })
-export class ProviderComponent10 {
+export class Provider10Component implements OnInit {
   log: string;
   // #docregion provider-10-ctor
   constructor(@Optional() private logger: Logger) {
@@ -263,16 +263,16 @@ export class ProviderComponent10 {
   <div id="p10"><provider-10></provider-10></div>
   `,
   directives: [
-    ProviderComponent1,
-    ProviderComponent3,
-    ProviderComponent4,
-    ProviderComponent5,
-    ProviderComponent6a,
-    ProviderComponent6b,
-    ProviderComponent7,
-    ProviderComponent8,
-    ProviderComponent9,
-    ProviderComponent10,
+    Provider1Component,
+    Provider3Component,
+    Provider4Component,
+    Provider5Component,
+    Provider6aComponent,
+    Provider6bComponent,
+    Provider7Component,
+    Provider8Component,
+    Provider9Component,
+    Provider10Component,
   ],
 })
 export class ProvidersComponent { }

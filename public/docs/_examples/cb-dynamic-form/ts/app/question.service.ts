@@ -2,7 +2,6 @@
 import { Injectable }       from '@angular/core';
 
 import { QuestionBase }     from './question-base';
-import { DynamicForm }      from './dynamic-form.component';
 import { TextboxQuestion }  from './question-textbox';
 import { DropdownQuestion } from './question-dropdown';
 

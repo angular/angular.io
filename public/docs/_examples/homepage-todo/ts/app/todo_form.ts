@@ -11,7 +11,7 @@ import { Todo } from './todo';
       <input class="btn-primary" type="submit" value="add">
     </form>`
 })
-export class TodoForm {
+export class TodoFormComponent {
   @Output() newTask = new EventEmitter<Todo>();
   task: string = '';
 

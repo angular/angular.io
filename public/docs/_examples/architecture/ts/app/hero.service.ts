@@ -7,13 +7,13 @@ import { Logger } from './logger.service';
 @Injectable()
 // #docregion class
 export class HeroService {
+  private heroes: Hero[] = [];
+
   // #docregion ctor
   constructor(
     private backend: BackendService,
     private logger: Logger) { }
   // #enddocregion ctor
-
-  private heroes: Hero[] = [];
 
   getHeroes() {
     this.backend.getAll(Hero).then( (heroes: Hero[]) => {

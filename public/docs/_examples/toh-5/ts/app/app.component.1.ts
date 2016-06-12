@@ -1,3 +1,4 @@
+/* tslint:disable no-unused-variables */
 // #docplaster
 // #docregion
 import { Component }       from '@angular/core';

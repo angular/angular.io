@@ -1,4 +1,4 @@
-/* tslint:disable:member-ordering forin */
+/* tslint:disable forin */
 // #docplaster
 
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';

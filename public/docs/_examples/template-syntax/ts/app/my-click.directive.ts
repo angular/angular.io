@@ -1,3 +1,4 @@
+/* tslint:disable use-output-property-decorator */
 // #docplaster
 import { Directive, ElementRef, EventEmitter, Output } from '@angular/core';
 

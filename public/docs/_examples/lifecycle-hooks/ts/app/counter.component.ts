@@ -4,7 +4,7 @@ import {
   OnChanges, SimpleChange,
 } from '@angular/core';
 
-import { Spy } from './spy.directive';
+import { SpyDirective } from './spy.directive';
 import { LoggerService }  from './logger.service';
 
 @Component({
@@ -18,9 +18,9 @@ import { LoggerService }  from './logger.service';
   </div>
   `,
   styles: ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}'],
-  directives: [Spy]
+  directives: [SpyDirective]
 })
-export class MyCounter implements OnChanges {
+export class MyCounterComponent implements OnChanges {
   @Input() counter: number;
   changeLog: string[] = [];
 
@@ -59,7 +59,7 @@ export class MyCounter implements OnChanges {
    </div>
   `,
   styles: ['.parent {background: gold;}'],
-  directives: [MyCounter],
+  directives: [MyCounterComponent],
   providers: [LoggerService]
 })
 export class CounterParentComponent {

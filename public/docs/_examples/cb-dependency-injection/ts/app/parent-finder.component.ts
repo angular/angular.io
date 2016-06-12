@@ -1,5 +1,5 @@
-/* tslint:disable:no-unused-variable */
-/* tslint:disable:one-line:check-open-brace*/
+/* tslint:disable:no-unused-variable component-selector-name one-line check-open-brace */
+/* tslint:disable:*/
 // #docplaster
 // #docregion
 import { Component, forwardRef, Optional, provide, SkipSelf } from '@angular/core';
@@ -23,7 +23,7 @@ const provideParent =
 // #enddocregion provide-parent, provide-the-parent
 // #docregion provide-parent
   (component: any, parentType?: any) => {
-    return { provide: parentType || Parent, useExisting: forwardRef(() => component) };
+    return { provide: parentType || Parent, useExisting: forwardRef(() => component) };
   };
 // #enddocregion provide-parent
 

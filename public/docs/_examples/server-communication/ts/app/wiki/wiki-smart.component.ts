@@ -1,4 +1,3 @@
-/* tslint:disable:member-ordering */
 // #docregion
 import { Component }        from '@angular/core';
 import { JSONP_PROVIDERS }  from '@angular/http';

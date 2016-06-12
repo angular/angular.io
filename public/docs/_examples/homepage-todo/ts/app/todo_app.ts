@@ -2,8 +2,8 @@
 import { Component } from '@angular/core';
 
 import { Todo }      from './todo';
-import { TodoList }  from './todo_list';
-import { TodoForm }  from './todo_form';
+import { TodoListComponent }  from './todo_list';
+import { TodoFormComponent }  from './todo_form';
 
 @Component({
   selector: 'todo-app',
@@ -15,9 +15,9 @@ import { TodoForm }  from './todo_form';
     <todo-list [todos]="todos"></todo-list>
     <todo-form (newTask)="addTask($event)"></todo-form>`,
   styles: ['a { cursor: pointer; cursor: hand; }'],
-  directives: [TodoList, TodoForm]
+  directives: [TodoListComponent, TodoFormComponent]
 })
-export class TodoApp {
+export class TodoAppComponent {
   todos: Todo[] = [
       {text: 'learn angular',        done: true},
       {text: 'build an angular app', done: false}

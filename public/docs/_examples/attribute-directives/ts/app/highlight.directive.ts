@@ -1,13 +1,9 @@
 // #docplaster
 // #docregion full
-import { Directive, ElementRef, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
-  selector: '[myHighlight]',
-  host: {
-    '(mouseenter)': 'onMouseEnter()',
-    '(mouseleave)': 'onMouseLeave()'
-  }
+  selector: '[myHighlight]'
 })
 // #docregion class-1
 export class HighlightDirective {
@@ -29,9 +25,13 @@ export class HighlightDirective {
   // #enddocregion color
 
   // #docregion mouse-enter
-  onMouseEnter() { this.highlight(this.highlightColor || this._defaultColor); }
+  @HostListener('mouseenter') onMouseEnter() {
+    this.highlight(this.highlightColor || this._defaultColor);
+  }
   // #enddocregion mouse-enter
-  onMouseLeave() { this.highlight(null); }
+  @HostListener('mouseleave') onMouseLeave() {
+    this.highlight(null);
+  }
 
   private highlight(color: string) {
     this.el.style.backgroundColor = color;

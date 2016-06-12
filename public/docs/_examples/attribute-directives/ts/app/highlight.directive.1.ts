@@ -1,3 +1,4 @@
+/* tslint:disable:no-unused-variable */
 // #docregion
 import { Directive, ElementRef, Input } from '@angular/core';
 

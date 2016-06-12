@@ -1,3 +1,4 @@
+/* tslint:disable use-pipe-transform-interface */
 // #docregion
 // #docregion pure
 import { Pipe, PipeTransform } from '@angular/core';
