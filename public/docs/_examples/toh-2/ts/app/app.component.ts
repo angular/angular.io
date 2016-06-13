@@ -1,4 +1,4 @@
-// #docregion pt2
+// #docregion
 import { Component } from '@angular/core';
 
 export class Hero {
@@ -42,7 +42,7 @@ const HEROES: Hero[] = [
       </div>
     </div>
   `,
-// #docregion styles-1
+  // #docregion styles
   styles: [`
     .selected {
       background-color: #CFD8DC !important;
@@ -92,18 +92,16 @@ const HEROES: Hero[] = [
       border-radius: 4px 0 0 4px;
     }
   `]
-// #enddocregion styles-1
+  // #enddocregion styles
 })
 export class AppComponent {
   title = 'Tour of Heroes';
   heroes = HEROES;
-// #docregion selected-hero-1
+  // #docregion selected-hero
   selectedHero: Hero;
-// #enddocregion selected-hero-1
+  // #enddocregion selected-hero
 
-// #docregion on-select-1
+  // #docregion on-select
   onSelect(hero: Hero) { this.selectedHero = hero; }
-// #enddocregion on-select-1
+  // #enddocregion on-select
 }
-
-// #enddocregion pt2
