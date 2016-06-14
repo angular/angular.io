@@ -5,10 +5,9 @@ import {
   state,
   style,
   animate,
-  transition,
-  group
+  transition
 } from '@angular/core';
-import { Hero, Heroes } from './hero.service';
+import { Heroes } from './hero.service';
 
 @Component({
   moduleId: module.id,
@@ -46,5 +45,5 @@ import { Hero, Heroes } from './hero.service';
   // #enddocregion animationdef
 })
 export class HeroListEnterLeaveComponent {
-  @Input() heroes:Heroes;
+  @Input() heroes: Heroes;
 }

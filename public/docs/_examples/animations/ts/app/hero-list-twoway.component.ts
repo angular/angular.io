@@ -10,7 +10,7 @@ import {
  animate
 } from '@angular/core';
 // #enddocregion imports
-import { Hero, Heroes } from './hero.service';
+import { Heroes } from './hero.service';
 
 @Component({
  moduleId: module.id,
@@ -52,5 +52,5 @@ import { Hero, Heroes } from './hero.service';
  // #enddocregion animationdef
 })
 export class HeroListTwowayComponent {
- @Input() heroes:Heroes;
+ @Input() heroes: Heroes;
 }

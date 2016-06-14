@@ -5,10 +5,9 @@ import {
   state,
   style,
   animate,
-  transition,
-  group
+  transition
 } from '@angular/core';
-import { Hero, Heroes } from './hero.service';
+import { Heroes } from './hero.service';
 
 @Component({
   moduleId: module.id,
@@ -24,7 +23,7 @@ import { Hero, Heroes } from './hero.service';
   `,
   // #enddocregion template
   styleUrls: ['hero-list.component.css'],
-  
+
   /* When the element leaves (transition "in => void" occurs),
    * get the element's current computed height and animate
    * it down to 0.
@@ -42,5 +41,5 @@ import { Hero, Heroes } from './hero.service';
   // #enddocregion animationdef
 })
 export class HeroListAutoComponent {
-  @Input() heroes:Heroes;
+  @Input() heroes: Heroes;
 }
