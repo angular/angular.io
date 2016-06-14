@@ -37,10 +37,12 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.1);
       expect(li.getCssValue('backgroundColor')).toBe(ACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.0);
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
     });
@@ -49,7 +51,7 @@ describe('Animation Tests', () => {
 
   describe('styles inline in transitions', () => {
 
-    var host: protractor.ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(function() {
       host = element(by.css('hero-list-inline-styles'));
@@ -58,9 +60,10 @@ describe('Animation Tests', () => {
     it('are not kept after animation', () => {
       addHero();
 
-      var li = host.element(by.css('li'));
+      let li = host.element(by.css('li'));
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.0);
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
     });
@@ -84,10 +87,12 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.1);
       expect(li.getCssValue('backgroundColor')).toBe(ACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.0);
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
     });
@@ -111,10 +116,12 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.1);
       expect(li.getCssValue('backgroundColor')).toBe(ACTIVE_COLOR);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.0);
       expect(li.getCssValue('backgroundColor')).toBe(INACTIVE_COLOR);
     });
@@ -157,9 +164,11 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
 
       li.click();
+      browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.1);
 
       li.click();
+      browser.driver.sleep(300);
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
 
       removeHero();
@@ -232,7 +241,7 @@ describe('Animation Tests', () => {
 
   describe('parallel groups', () => {
 
-    var host: protractor.ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-groups'));
@@ -253,10 +262,12 @@ describe('Animation Tests', () => {
 
   function addHero() {
     element(by.buttonText('Add hero')).click();
+    browser.driver.sleep(500);
   }
 
   function removeHero() {
     element(by.buttonText('Remove hero')).click();
+    browser.driver.sleep(500);
   }
 
   function getScaleX(el: protractor.ElementFinder) {
