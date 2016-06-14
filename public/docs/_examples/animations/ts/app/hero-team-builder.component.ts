@@ -7,11 +7,7 @@ import { HeroListEnterLeaveStatesComponent } from './hero-list-enter-leave-state
 import { HeroListCombinedTransitionsComponent } from './hero-list-combined-transitions.component';
 import { HeroListTwowayComponent } from './hero-list-twoway.component';
 import { HeroListAutoComponent } from './hero-list-auto.component';
-// Enable when CSS parser integration has been added
-// import {HeroListClassesComponent} from './hero-list-classes.component';
 import { HeroListGroupsComponent } from './hero-list-groups.component';
-// Enable when CSS parser integration has been added
-// import {HeroListKeyframesComponent} from './hero-list-keyframes.component';
 import { HeroListMultistepComponent } from './hero-list-multistep.component';
 import { HeroListTimingsComponent } from './hero-list-timings.component';
 
@@ -78,20 +74,6 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
         <p>Enter and leave animations with multiple properties animated in parallel with different timings.</p>
         <hero-list-groups [heroes]=heroes></hero-list-groups>
       </div>
-      <!--div class="column">
-        <h4>CSS Classes</h4>
-        <p>Switch between active/inactive on click. Pull the actual CSS styles in from component stylesheet.</p>
-        <hero-list-classes [heroes]=heroes></hero-list-classes>
-      </div-->
-      <!--div class="column">
-        <h4>CSS Keyframes</h4>
-        <p>
-          Enter and leave animations with three keyframes in each, to give the transition some bounce.
-          Pull in the actual keyframes from CSS keyframes in component stylesheet.
-        </p>
-        <hero-list-multistep [heroes]=heroes></hero-list-multistep>
-        <hero-list-keyframes [heroes]=heroes></hero-list-keyframes>
-      </div-->
     </div>
   `,
   styles: [`
@@ -122,8 +104,6 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
     HeroListEnterLeaveStatesComponent,
     HeroListAutoComponent,
     HeroListTimingsComponent,
-    // HeroListClassesComponent,
-    // HeroListKeyframesComponent,
     HeroListMultistepComponent,
     HeroListGroupsComponent
   ],
