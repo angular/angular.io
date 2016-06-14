@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Hero, Heroes } from './hero.service';
+import { Heroes } from './hero.service';
 import { HeroListBasicComponent } from './hero-list-basic.component';
 import { HeroListInlineStylesComponent } from './hero-list-inline-styles.component';
 import { HeroListEnterLeaveComponent } from './hero-list-enter-leave.component';
@@ -52,7 +52,10 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
     <div class="columns">
       <div class="column">
         <h4>Enter & Leave & States</h4>
-        <p>Enter and leave animations combined with active/inactive state animations. Different enter and leave transitions depending on state.</p>
+        <p>
+          Enter and leave animations combined with active/inactive state animations.
+          Different enter and leave transitions depending on state.
+        </p>
         <hero-list-enter-leave-states [heroes]=heroes></hero-list-enter-leave-states>
       </div>
       <div class="column">
@@ -82,7 +85,10 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
       </div-->
       <!--div class="column">
         <h4>CSS Keyframes</h4>
-        <p>Enter and leave animations with three keyframes in each, to give the transition some bounce. Pull in the actual keyframes from CSS keyframes in component stylesheet.</p>
+        <p>
+          Enter and leave animations with three keyframes in each, to give the transition some bounce.
+          Pull in the actual keyframes from CSS keyframes in component stylesheet.
+        </p>
         <hero-list-multistep [heroes]=heroes></hero-list-multistep>
         <hero-list-keyframes [heroes]=heroes></hero-list-keyframes>
       </div-->
@@ -124,5 +130,5 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
   providers: [Heroes]
 })
 export class HeroTeamBuilderComponent {
-  constructor(private heroes:Heroes) { }
+  constructor(private heroes: Heroes) { }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
-export class Hero {
-  constructor(public name:string,
+class Hero {
+  constructor(public name: string,
               public state = 'inactive') {
   }
 
@@ -9,6 +9,22 @@ export class Hero {
     this.state = (this.state === 'active' ? 'inactive' : 'active');
   }
 }
+
+let ALL_HEROES = [
+  'Wolverine',
+  'Magneto',
+  'Emma Frost',
+  'Thing',
+  'Kitty Pryde',
+  'Nightcrawler',
+  'Juggernaut',
+  'Beast',
+  'Captain America',
+  'Spider-Man',
+  'Puck',
+  'Alex Wilder',
+  'Doctor Strange'
+].map(name => new Hero(name));
 
 @Injectable()
 export class Heroes implements Iterable<Hero> {
@@ -36,19 +52,3 @@ export class Heroes implements Iterable<Hero> {
   }
 
 }
-
-var ALL_HEROES = [
-  'Wolverine',
-  'Magneto',
-  'Emma Frost',
-  'Thing',
-  'Kitty Pryde',
-  'Nightcrawler',
-  'Juggernaut',
-  'Beast',
-  'Captain America',
-  'Spider-Man',
-  'Puck',
-  'Alex Wilder',
-  'Doctor Strange'
-].map(name => new Hero(name));
