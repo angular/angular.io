@@ -15,12 +15,12 @@ describe('Tutorial part 1', () => {
   });
 
   it(`should have '${expectedH2}'`, () => {
-    var text = element(by.css('h2')).getText()
+    let text = element(by.css('h2')).getText();
     expect(text).toEqual(expectedH2);
   });
 
   it(`should have input name '${hero.name}'`, () => {
-    var name = element(by.css('input')).getAttribute('value');
+    let name = element(by.css('input')).getAttribute('value');
     expect(name).toEqual(hero.name);
   });
 });
