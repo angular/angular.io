@@ -4,6 +4,7 @@ var del = require('del');
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 var globby = require('globby');
+var ignoreDirs = ['**/node_modules/**', '**/dist/**', '**/typings/**'];
 
 var shred = function(shredOptions) {
   try {
@@ -20,6 +21,23 @@ var shred = function(shredOptions) {
     console.log(err.stack);
     throw err;
   }
+}
+
+var shredSingleExampleDir = function(shredOptions, fileDir) {
+  shredOptions = resolveShredOptions(shredOptions);
+  var relativePath = path.relative(shredOptions.examplesDir, fileDir);
+  var examplesDir = path.join(shredOptions.examplesDir, relativePath);
+  var fragmentsDir = path.join(shredOptions.fragmentsDir, relativePath);
+  var options = {
+    includeSubdirs: true,
+    examplesDir: examplesDir,
+    fragmentsDir: fragmentsDir
+  }
+  var cleanPath = path.join(fragmentsDir, '*.*')
+  return del([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
+    // console.log('Deleted files/folders:\n', paths.join('\n'));
+    return shred(options);
+  });
 }
 
 var shredSingleDir = function(shredOptions, filePath) {
@@ -72,6 +90,7 @@ var buildShredMap = function(shredMapOptions) {
 
 module.exports = {
   shred: shred,
+  shredSingleExampleDir: shredSingleExampleDir,
   shredSingleDir: shredSingleDir,
   shredSingleJadeDir: shredSingleJadeDir,
   buildShredMap: buildShredMap
@@ -107,13 +126,14 @@ function createShredExamplePackage(shredOptions) {
 
       // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
       // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
-      var nmPattern = '**/node_modules/**';
-      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+      var includeFiles = globby.sync( includeFiles, { ignore: ignoreDirs } );
+
+      console.log(`Shredding ${includeFiles.length} files inside ${shredOptions.examplesDir}`);
 
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles ,
-        exclude: [ '**/node_modules/**', '**/typings/**', '**/packages/**', '**/build/**'],
+        exclude: [ '**/node_modules/**', '**/dist/**', '**/typings/**', '**/packages/**', '**/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.examplesDir
@@ -159,8 +179,7 @@ function createShredJadePackage(shredOptions) {
 
       // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
       // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
-      var nmPattern = '**/node_modules/**';
-      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+      var includeFiles = globby.sync( includeFiles, { ignore: ignoreDirs } );
 
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
@@ -212,8 +231,7 @@ var createShredMapPackage = function(mapOptions) {
 
       // HACK ( next two lines) because the glob function that dgeni uses internally isn't good at removing 'node_modules' early
       // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
-      var nmPattern = '**/node_modules/**';
-      var includeFiles = globby.sync( includeFiles, { ignore: [nmPattern] } );
+      var includeFiles = globby.sync( includeFiles, { ignore: ignoreDirs } );
 
 
       readFilesProcessor.sourceFiles = [ {

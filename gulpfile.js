@@ -615,7 +615,13 @@ gulp.task('_harp-compile', function() {
 });
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
-  return docShredder.shred( _devguideShredOptions);
+  // Split big shredding task into partials 2016-06-14
+  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/', '_protractor/']});
+  var promise = Promise.resolve(true);
+  examplePaths.forEach(function (examplePath) {
+    promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));
+  });
+  return promise;
 });
 
 gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade', '_copy-example-boilerplate'],  function() {
@@ -978,7 +984,7 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**',
+  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**', '**/typings/**',
                       '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
   var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {
@@ -994,7 +1000,7 @@ function devGuideSharedJadeWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_fragments/**']});
+  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_examples/**', '**/_fragments/**']});
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide jade file changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
