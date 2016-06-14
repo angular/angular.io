@@ -74,15 +74,15 @@ describe('Lifecycle hooks', function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
       return changeLogEles.count();
     }).then(function (count) {
-      // two more for each keystroke except the 1st
-      expect(count).toEqual(logCount + 9, 'should add 9 more messages');
+      // one more for each keystroke
+      expect(count).toEqual(logCount + 5, 'should add 5 more messages');
       logCount = count;
       // return powerInputEle.sendKeys('-bar-');
       return sendKeys(powerInputEle, '-bar-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
       // 7 == 2 previously + length of '-bar-'
-      expect(changeLogEles.count()).toEqual(logCount + 15, 'should add 15 more messages');
+      expect(changeLogEles.count()).toEqual(logCount + 11, 'should add 11 more messages');
     });
   });
 
@@ -106,7 +106,7 @@ describe('Lifecycle hooks', function () {
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 10).toEqual(count, '10 additional log messages should have been added');
+      expect(logCount + 6).toEqual(count, '6 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
     }).then(function() {
@@ -135,7 +135,7 @@ describe('Lifecycle hooks', function () {
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
     }).then(function(count) {
-      expect(logCount + 10).toEqual(count, '10 additional log messages should have been added');
+      expect(logCount + 5).toEqual(count, '5 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
     }).then(function() {
