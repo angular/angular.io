@@ -51,6 +51,9 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '___esModule',
     '___core_private_types__',
     '___platform_browser_private__',
+    '___platform_browser_private_types__',
+    '___platform_browser_dynamic_private__',
+    '___platform_browser_dynamic_private_types__',
     '___compiler_private__',
     '__core_private__',
     '___core_private__'
