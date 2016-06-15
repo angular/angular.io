@@ -378,7 +378,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 // requires admin access because it adds symlinks
 gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
-  var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
+  var nodeModulesPaths = excludeDartPaths(getNodeModulesPaths(EXAMPLES_PATH));
 
   nodeModulesPaths.forEach(function(linkPath) {
     gutil.log("symlinking " + linkPath + ' -> ' + realPath)
