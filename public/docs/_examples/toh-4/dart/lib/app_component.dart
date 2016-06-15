@@ -8,7 +8,6 @@ import 'hero.dart';
 import 'hero_detail_component.dart';
 // #docregion hero-service-import
 import 'hero_service.dart';
-
 // #enddocregion hero-service-import
 
 @Component(
@@ -92,17 +91,17 @@ class AppComponent implements OnInit {
 
   AppComponent(this._heroService);
 
-// #docregion get-heroes
-  getHeroes() async {
+  // #docregion get-heroes
+  Future<Null> getHeroes() async {
     heroes = await _heroService.getHeroes();
   }
-// #enddocregion get-heroes
+  // #enddocregion get-heroes
 
-  ngOnInit() {
+  void ngOnInit() {
     getHeroes();
   }
 
-  onSelect(Hero hero) {
+  void onSelect(Hero hero) {
     selectedHero = hero;
   }
 }

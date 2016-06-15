@@ -14,8 +14,8 @@ import 'hero.dart';
           <input [(ngModel)]="hero.name" placeholder="name"/>
         </div>
       </div>
-    ''',
-    inputs: const ['hero'])
+    ''')
 class HeroDetailComponent {
+  @Input()
   Hero hero;
 }

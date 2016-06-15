@@ -10,19 +10,13 @@ import 'mock_heroes.dart';
 // #docregion getHeroes-stub
 @Injectable()
 class HeroService {
-// #enddocregion getHeroes-stub
-// #enddocregion empty-class
-// #enddocregion final
+  // #enddocregion getHeroes-stub, empty-class, final
   /*
-// #docregion getHeroes-stub
+  // #docregion getHeroes-stub
   List<Hero> getHeroes() {}
-// #enddocregion getHeroes-stub
-   */
-// #docregion final
+  // #enddocregion getHeroes-stub
+  */
+  // #docregion final
   List<Hero> getHeroes() => mockHeroes;
-// #docregion empty-class
-// #docregion getHeroes-stub
+  // #docregion empty-class, getHeroes-stub
 }
-// #enddocregion getHeroes-stub
-// #enddocregion empty-class
-// #enddocregion final
