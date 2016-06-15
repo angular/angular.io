@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
-import { Heroes } from './hero.service';
+
+import { Heroes } from './hero.service';
 import { HeroListBasicComponent } from './hero-list-basic.component';
-import { HeroListInlineStylesComponent } from './hero-list-inline-styles.component';
+import { HeroListInlineStylesComponent } from './hero-list-inline-styles.component';
 import { HeroListEnterLeaveComponent } from './hero-list-enter-leave.component';
 import { HeroListEnterLeaveStatesComponent } from './hero-list-enter-leave-states.component';
 import { HeroListCombinedTransitionsComponent } from './hero-list-combined-transitions.component';
