@@ -10,12 +10,12 @@ import 'heroes_component.dart';
 
 @Component(
     selector: 'my-app',
-// #docregion template
+    // #docregion template
     template: '''
       <h1>{{title}}</h1>
       <a [routerLink]="['Heroes']">Heroes</a>
       <router-outlet></router-outlet>''',
-// #enddocregion template
+    // #enddocregion template
     // #docregion directives-and-providers
     directives: const [ROUTER_DIRECTIVES],
     providers: const [ROUTER_PROVIDERS, HeroService]
@@ -29,4 +29,3 @@ import 'heroes_component.dart';
 class AppComponent {
   String title = 'Tour of Heroes';
 }
-// #enddocregion

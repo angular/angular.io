@@ -27,20 +27,19 @@ import 'package:angular2_tour_of_heroes/hero_detail_component.dart';
     directives: const [ROUTER_DIRECTIVES],
     providers: const [HeroService, ROUTER_PROVIDERS])
 @RouteConfig(const [
-// #docregion dashboard-route
+  // #docregion dashboard-route
   const Route(
       path: '/dashboard',
       name: 'Dashboard',
       component: DashboardComponent,
       useAsDefault: true),
-// #enddocregion dashboard-route
-// #docregion hero-detail-route
+  // #enddocregion dashboard-route
+  // #docregion hero-detail-route
   const Route(
       path: '/detail/:id', name: 'HeroDetail', component: HeroDetailComponent),
-// #enddocregion hero-detail-route
+  // #enddocregion hero-detail-route
   const Route(path: '/heroes', name: 'Heroes', component: HeroesComponent)
 ])
 class AppComponent {
   String title = 'Tour of Heroes';
 }
-// #enddocregion

@@ -1,6 +1,6 @@
 import 'hero.dart';
 
-final List<Hero> HEROES = [
+final List<Hero> mockHeroes = [
   new Hero(11, 'Mr. Nice'),
   new Hero(12, 'Narco'),
   new Hero(13, 'Bombasto'),

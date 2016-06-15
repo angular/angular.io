@@ -1,5 +1,7 @@
 // #docplaster
 // #docregion imports
+import 'dart:async';
+
 import 'package:angular2/core.dart';
 
 import 'hero.dart';
@@ -9,17 +11,16 @@ import 'hero_service.dart';
 // #docregion component
 @Component(
   selector: 'my-dashboard',
-  templateUrl: 'dashboard_component.html'
-)
+  templateUrl: 'dashboard_component.html')
 class DashboardComponent implements OnInit {
   List<Hero> heroes;
   final HeroService _heroService;
 
   DashboardComponent(this._heroService);
 
-  ngOnInit() async =>
-      heroes = (await _heroService.getHeroes()).getRange(1, 5).toList();
+  Future<Null> ngOnInit() async {
+    heroes = (await _heroService.getHeroes()).getRange(1, 5).toList();
+  }
 
-  gotoDetail(){ /* not implemented yet */}
+  gotoDetail() {/* not implemented yet */}
 }
-// #enddocregion component

@@ -13,6 +13,7 @@ import 'hero_service.dart';
 
 @Component(
     selector: 'my-app',
+    // #docregion template
     template: '''
       <h1>{{title}}</h1>
       <h2>My Heroes</h2>
@@ -25,6 +26,7 @@ import 'hero_service.dart';
       </ul>
       <my-hero-detail [hero]="selectedHero"></my-hero-detail>
     ''',
+    // #enddocregion template
     styles: const [
     '''
       .selected {
