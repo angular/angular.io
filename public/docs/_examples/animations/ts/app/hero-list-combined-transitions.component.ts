@@ -1,16 +1,17 @@
 // #docregion
 // #docregion imports
 import {
- Component,
- Input,
- trigger,
- state,
- style,
- transition,
- animate
+  Component,
+  Input,
+  trigger,
+  state,
+  style,
+  transition,
+  animate
 } from '@angular/core';
 // #enddocregion imports
-import { Heroes } from './hero.service';
+
+import { Heroes } from './hero.service';
 
 @Component({
  moduleId: module.id,

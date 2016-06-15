@@ -7,7 +7,8 @@ import {
   animate,
   transition
 } from '@angular/core';
-import { Heroes } from './hero.service';
+
+import { Heroes } from './hero.service';
 
 @Component({
   moduleId: module.id,
