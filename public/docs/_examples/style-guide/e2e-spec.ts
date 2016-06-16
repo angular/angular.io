@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Style Guide', function () {
   it('01-01', function () {
     browser.get('#/01-01');

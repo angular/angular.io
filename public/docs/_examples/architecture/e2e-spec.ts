@@ -1,4 +1,5 @@
 /// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Architecture', function () {
 
   let title = 'Hero List';

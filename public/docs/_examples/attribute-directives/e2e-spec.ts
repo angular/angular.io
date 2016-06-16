@@ -1,4 +1,5 @@
 /// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Attribute directives', function () {
 
   let _title = 'My First Attribute Directive';

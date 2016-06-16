@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describeIf(browser.appIsTs || browser.appIsJs, 'Forms Tests', function () {
 
   beforeEach(function () {

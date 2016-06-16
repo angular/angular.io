@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 /* tslint:disable:quotemark */
 describe('Dynamic Form', function () {
 
