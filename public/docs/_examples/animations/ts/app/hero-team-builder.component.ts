@@ -16,7 +16,8 @@ import { HeroListTimingsComponent } from './hero-list-timings.component';
   selector: 'hero-team-builder',
   template: `
     <div class="buttons">
-      <button [disabled]="!heroes.canAdd()" (click)="heroes.add()">Add hero</button>
+      <button [disabled]="!heroes.canAdd()" (click)="heroes.addInactive()">Add inactive hero</button>
+      <button [disabled]="!heroes.canAdd()" (click)="heroes.addActive()">Add active hero</button>
       <button [disabled]="!heroes.canRemove()" (click)="heroes.remove()">Remove hero</button>
     </div>
     <div class="columns">

@@ -11,19 +11,17 @@ class Hero {
 }
 
 let ALL_HEROES = [
-  'Wolverine',
-  'Magneto',
-  'Emma Frost',
-  'Thing',
-  'Kitty Pryde',
-  'Nightcrawler',
-  'Juggernaut',
-  'Beast',
-  'Captain America',
-  'Spider-Man',
-  'Puck',
-  'Alex Wilder',
-  'Doctor Strange'
+  'Windstorm',
+  'RubberMan',
+  'Bombasto',
+  'Magneta',
+  'Dynama',
+  'Narco',
+  'Celeritas',
+  'Dr IQ',
+  'Magma',
+  'Tornado',
+  'Mr. Nice'
 ].map(name => new Hero(name));
 
 @Injectable()
@@ -43,8 +41,16 @@ export class Heroes implements Iterable<Hero> {
     return this.currentHeroes.length > 0;
   }
 
-  add() {
-    this.currentHeroes.push(ALL_HEROES[this.currentHeroes.length]);
+  addActive() {
+    let hero = ALL_HEROES[this.currentHeroes.length];
+    hero.state = 'active';
+    this.currentHeroes.push(hero);
+  }
+
+  addInactive() {
+    let hero = ALL_HEROES[this.currentHeroes.length];
+    hero.state = 'inactive';
+    this.currentHeroes.push(hero);
   }
 
   remove() {
