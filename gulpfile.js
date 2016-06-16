@@ -988,7 +988,7 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
   var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**', '**/typings/**',
-                      '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**', '**/.#*'];
+                      '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**', '**/.?*'];
   var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
