@@ -1,86 +1,66 @@
 block includes
   include ../_util-fns
 :marked
-  # Securing Content
-  Application security is a big, rich topic. 
-  In this chapter we focus on an important part of the security story: 
-  ensuring the safety and security of the **content we display** and the **user input we accept**.
+  # Security
+  Web application security has many aspects. This documentation describes Angular's built in
+  protections against common web application vulnerabilities and attacks, such as Cross Site
+  Scripting Attacks. It does not cover application level security, such as authentication (_Who is
+  this user?_) or authorization (_What can this user do?_).
 
-l-sub-section
-  :marked
-    This chapter covers the Angular features and techniques related to the security of application _content_. 
-    It does not cover authentication (_Who is this user?_) or authorization (_What can this user do?_).
-
-.callout.is-important
-  header Ask a Security Professional
-  :marked
-    Security threats and mitigations are complex and server configuration is particularly tricky.
-    Security is not for amateurs and homebrew solutions offer at best the _illusion of protection_. 
-    We strongly recommend consulting a security expert at strategic moments in the project timeline.
+  The [Open Web Application Security Project (OWASP)](https://www.owasp.org/index.php/Category:OWASP_Guide_Project)
+  has further information on the attacks and mitigations described below.
 
 l-main-section
 :marked
   # Table Of Contents
 
-  * [Follow industry security standards](#industry-standards)
-  * [Report issues](#special-selectors)
+  * [Reporting vulnerabilities](#special-selectors)
   * [Follow best practices](#best-practices)
-  * [Hold regular security code reviews](#code-review)  
-  * [Prevent Cross-site Scripting (XSS)](#xss)
+  * [Cross-site Scripting (XSS)](#xss)
+  * [HTTP-level vulnerabilities](#http)
   * [Beware of *ElementRef* and *Renderer* Services](#element-ref)
-  * [HTTP best practices](#http)
+  * [Hold regular security code reviews](#code-review)
 
 p Try the #[+liveExampleLink2()] of the code shown in this chapter.
 
 .l-main-section
-h2#industry-standards Follow Industry Security Standards
+h2#report-issues Reporting vulnerabilities
 :marked
-  We should continually refresh our knowledge and awareness of security best practices.
-  The [Open Web Application Security Project (OWASP)](https://www.owasp.org/index.php/Category:OWASP_Guide_Project) is an excellent resource
-  with content and links to many important security topics.
+  Email us at [security@angularjs.org](mailto:security@angularjs.org) to report vulnerabilities in
+  Angular itself.
 
-.l-main-section
-h2#report-issues Report Angular Security Issues
-:marked
-  Email us at [security@angularjs.org](mailto:security@angularjs.org) to report all potential security defects in Angular itself.
-
-  For further details on how Google handles security issues please refer to [Google's security philosophy](https://www.google.com/about/appsecurity/).
+  For further details on how Google handles security issues please refer to [Google's security
+  philosophy](https://www.google.com/about/appsecurity/).
 
 .l-main-section
 h2#best-practices Best Practices (High Level)
 :marked
-  * **Keep current with the latest Angular library releases.** 
-  We regularly update our Angular libraries and these updates may fix security defects discovered in previous version. 
+  * **Keep current with the latest Angular library releases.**
+  We regularly update our Angular libraries and these updates may fix security defects discovered in previous version.
   Check the Angular [change log](https://github.com/angular/angular/blob/master/CHANGELOG.md) for security-related updates.
 
   * **Don't modify your copy of Angular.**
-  Private, customized versions of Angular tend to fall behind the current version and may neglect important 
+  Private, customized versions of Angular tend to fall behind the current version and may neglect important
   security fixes and enhancements.
   Instead, share your Angular improvements with the community and make a pull request.
 
   <a id="offline-template-compiler"></a>
-  * **Use the offline template compiler for production deployments.** 
-  The offline template compiler improves performance by dramatically reducing the size of the application.
-  Among other things, it turns html templates into inlined code 
-  so that the application no longer requests HTML templates at runtime.
-  This both reduces network traffic and eliminates the risk of an HTML template injection attack.
-    
-  * **Do not dynamically generate templates** as such templates increase the risk of HTML template injection attacks.
-  This is one major reason why Angular makes it difficult to create dynamic templates.
+  * **Use the offline template compiler for production deployments.**
+  The offline template compiler prevents a whole class of vulnerabilities called template injection, and also greatly
+  improves application performance.
 
-  * **Avoid Angular APIs marked in the documentation as “[_Security Risk_](#bypass-security-apis)”.** 
+  * **Do not dynamically generate templates.** Constructing templates dynamically risks HTML template injection attacks,
+  and prevents using the offline template compiler (see point above).
 
-  * **Minimize interaction with the DOM**. 
-  Every direct access of the DOM is an opportunity to inject dangerous HTML.
-  Angular's own DOM-manipulation APIs protect the application from this source of mischief.
-  Prefer those APIs to direct manipulation of DOM elements in raw JavaScript or with 3rd party libraries such as jQuery.
+  * **Avoid Angular APIs marked in the documentation as “[_Security Risk_](#bypass-security-apis)”.**
 
-  * **Always encrypt with Transport Level Security (TLS/SSL)**. 
-  Every exchange between a production client and server should be encrypted with [SSL](https://en.wikipedia.org/wiki/HTTPS),
-  supported by a trusted certificate. 
-  
+  * **Avoid direct use of the DOM APIs**.
+  The browser DOM APIs, for example `document`, but also the node available through `ElementRef` and many third party
+  APIs such as jQuery, do not automatically protect your from security vulnerabilities. Prefer using Angular templates
+  over interacting with the DOM programmatically.
+
   * **Set up a [Content Security Policy (CSP)](https://developer.mozilla.org/en-US/docs/Web/Security/CSP/Introducing_Content_Security_Policy)** on the server.
-  A Content Security Policy is a [W3C Standard](https://w3c.github.io/webappsec-csp/) 
+  A Content Security Policy is a [W3C Standard](https://w3c.github.io/webappsec-csp/)
   _defense-in-depth_ technique that helps identify and prevent common security attacks like [XSS](#xss).
   Modern browsers offer native support for CSP while older browsers simply ignore it.
   Enabling CSP involves configuring the web server to return the `Content-Security-Policy` HTTP header.
@@ -88,27 +68,9 @@ h2#best-practices Best Practices (High Level)
   and [OWASP](https://www.owasp.org/index.php/Content_Security_Policy).
 
   * **Use a secure, auto-encoding template language on the server**.
-  HTML constructed on the server is vulnerable to content injected from infected database data.
-  Angular applications have low risk from this attack vector because they generally construct HTML on the _client_.<br><br>
-  But developers often build the application-hosting web page with the help of a templating language and 
-  they sometimes pre-populate that page with data. Therein lies the risk. Consider [Angular Universal](https://github.com/angular/universal)
-  for this task or use a well-known, commercially-proven templating engine from a reliable source.
-
-  * **Never store sensitive information in browser local storage**. 
-  Don't cache sensitive data in the browser. 
-  Attackers with local access can retrieve data from cache even when users are not authenticated.<br><br>
-  For instance in a long running Single Page Application (SPA), one user may "log out", 
-  but then another user may access the same application in the same browser without refreshing, 
-  in which case all the cached data is still available.<br><br>
-  It's trivially easy for anyone with access to the user's machine to open the browser's developer tools and
-  read data held in any form of browser storage
-  including [local storage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage),
-  [indexDb](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API), and 
-  [Web SQL](https://en.wikipedia.org/wiki/Web_SQL_Database).
-  And don't expect encrypting/decrypting data on the client with an 
-  [in-browser JavaScript solution](https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/august/javascript-cryptography-considered-harmful/)
-  to deter a determined attacker.<br><br>
-  For more information please visit [Web Storage Security](https://www.whitehatsec.com/blog/web-storage-security/).
+  HTML constructed on the server is vulnerable to injection attacks. When generating server side
+  HTML, e.g. for the initial page load of the Angular application, make sure to use a templating
+  language that automatically encodes values.
 
 .l-main-section
 h2#code-review Hold Regular Security Code Reviews
@@ -121,23 +83,23 @@ h2#code-review Hold Regular Security Code Reviews
   all references to [ElementRef](#element-ref) and  [Renderer](#element-ref).
   These are **red flags**.
 
-  Automate the search and review process. 
+  Automate the search and review process.
 
-  Document every use of these APIs. Record what they do, why they are necessary, and who approved them. 
-  Pay attention when someone adds a new call to these APIs. 
+  Document every use of these APIs. Record what they do, why they are necessary, and who approved them.
+  Pay attention when someone adds a new call to these APIs.
   Pay as much attention when someone removes a call to these APIs.
 
 .l-main-section
 h2#xss Prevent Cross-site Scripting (XSS)
 :marked
-  [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting) 
-  enables attackers to inject their own malicious code into web pages. 
-  Such code can trick users into entering passwords or other sensitive information which it captures and sends 
+  [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting)
+  enables attackers to inject their own malicious code into web pages.
+  Such code can trick users into entering passwords or other sensitive information which it captures and sends
   to its own servers for subsequent exploitation.
 
-  This is one of the most common attacks on the web. 
+  This is one of the most common attacks on the web.
   Fortunately, Angular protects us from most attacks ... unless we intentionally defeat those protections.
-  
+
   ### Angular’s Cross-site Scripting Security Model
 
   To block XSS attacks, we must prevent malicious code from entering the DOM.
@@ -147,8 +109,8 @@ h2#xss Prevent Cross-site Scripting (XSS)
   Anything that updates the DOM with data from a server should be viewed with _extreme_ suspicion.
 
   #### Data Binding
-  Angular data binding is a way to display server data in the DOM. 
-  
+  Angular data binding is a way to display server data in the DOM.
+
   Fortunately, Angular data binding is on alert for dangerous HTML.
   It **will not** allow HTML with script tags to leak into the browser, neither with interpolation
   nor property binding.
@@ -156,9 +118,9 @@ h2#xss Prevent Cross-site Scripting (XSS)
   Imagine a component property that had been set with the following malicious content,
   either retrieved from the server or entered by a user,
   and a template bound to that property with both _interpolation_ and _property bindings_.
-+makeExample('content-security/ts/app/evil-binding.component.ts', 'evil-title')(format=".")    
++makeExample('content-security/ts/app/evil-binding.component.ts', 'evil-title')(format=".")
 
-+makeExample('content-security/ts/app/evil-binding.component.html', 'property-binding-vs-interpolation-sanitization')(format=".")    
++makeExample('content-security/ts/app/evil-binding.component.html', 'property-binding-vs-interpolation-sanitization')(format=".")
 :marked
   Interpolation handles the script tags differently than property binding but both approaches render the
   content harmlessly.
@@ -166,17 +128,17 @@ figure.image-display
   img(src='/resources/images/devguide/content-security/evil-title.png' alt="evil title made safe" width='500px')
 :marked
   #### Avoid dynamic template html
-  Angular relies on HTML templates to present data. 
+  Angular relies on HTML templates to present data.
   We should do our best to ensure that the HTML templates we use come from a secure source and cannot be compromised.
 
   #### Use the Offline Template Compiler
   The safest approach is not to download the templates at all.
   Consider compiling the application with the [Offline Template Compiler](#offline-template-compiler).
-  That compiler transforms templates to code that is _inlined_ with the component class. 
+  That compiler transforms templates to code that is _inlined_ with the component class.
   There is no template to download and the inline view code can't easily be tampered with.
 
   #### Angular scrubs templates
-  Not everyone can or will use the _Offline Template Compiler_. 
+  Not everyone can or will use the _Offline Template Compiler_.
   What happens if a _bad guy_ sneaks some dangerous code into a downloaded template?
 
   Consider this component template:
@@ -184,11 +146,11 @@ figure.image-display
 :marked
   We'd expect an alert box to pop up to tell us about evil doing.
   But Angular scrubs that script out of the template and displays pure happiness.
-  
-  This also means that we can't embed _any_ JavaScript in our HTML templates 
+
+  This also means that we can't embed _any_ JavaScript in our HTML templates
   &mdash; not even "_good_" JavaScript.
 
-  A determined developer might try to compose an _inline_ template dynamically out of strings 
+  A determined developer might try to compose an _inline_ template dynamically out of strings
   that might come from anywhere.  Let's try doing that with some fixed strings imported from a file:
 
 +makeExample('content-security/ts/app/strings.ts', null, 'app/strings.ts')(format=".")
@@ -205,7 +167,7 @@ figure.image-display
     Many applications require some kind of data-driven view generation in which the
     appearance of the page changes in response to data and metadata inputs.
 
-    We can do that in Angular. 
+    We can do that in Angular.
     See the [Dynamic Forms Cookbook](../cookbook/dynamic-form.html) for ideas in that direction.
 
     We can't do it by concatenating dangerous strings together or loading templates with embedded JavaScript.
@@ -213,8 +175,8 @@ figure.image-display
 .l-main-section
 h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
 :marked
-  In the rare case where we need to disable Angular's automatic input sanitization, 
-  we may turn to the `bypassSecurityTrust` methods within the `DomSanitizationService`. 
+  In the rare case where we need to disable Angular's automatic input sanitization,
+  we may turn to the `bypassSecurityTrust` methods within the `DomSanitizationService`.
 .callout.is-critical
   header Beware of the <i>bypassSecurityTrust</i> APIs
   :marked
@@ -243,7 +205,7 @@ h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
   1. Search the code base for the word _bypassSecurity_
   1. Demand an explanation and a justification for every usage
   1. Minimize the exposure by calling the method close to the data source.
-   
+
   #### Call close to the data source
   We can't assess the risk unless we understand how data flow into the unsafe method.
   Where do the data come from? Can they be tampered with on their way to the unsafe method?
@@ -252,9 +214,9 @@ h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
 +makeExcerpt('content-security/ts/app/bypass-security.component.ts', 'distant-source', 'app/bypass-security.component.ts')
 :marked
   We're bypassing Angular's sanitization of URLs and displaying an image that comes from ... where?
-  Some service gets a url string from an unknown source. 
+  Some service gets a url string from an unknown source.
   The `Observable` tells us that the url is likely to change during the user session for reasons unknown.
-  
+
   We could find the service and vet it. But that's harder and
   this injected service could be replaced at runtime by an intermediate provider
   that we haven't verified. This code is difficult to review with any confidence.
@@ -263,61 +225,18 @@ h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
 +makeExcerpt('content-security/ts/app/bypass-security.component.ts', 'user-input', 'app/bypass-security.component.ts')
   Everything we need to review is in front of us.
   We can trace the source of unsafe data to a data-bound variable in this same file.
-  We know how the data arrive. 
+  We know how the data arrive.
   We locked down the base path so that only a portion of the URL is at risk (it is still a risk!).
 
-  In sum, make this exceptional code easier to review by 
+  In sum, make this exceptional code easier to review by
   *keeping the source of unsafe data as close as possible to the unsafe method call*.
 
 .l-main-section
-h2#element-ref Beware of <i>ElementRef</i> and <i>Renderer</i> Services
+h2#http HTTP-level vulnerabilities
 :marked
-  The property, attribute  and class bindings described in the [Template Syntax](template-syntax.html) chapter 
-  give us a lot of power to manipulate DOM safely.
-  Sometimes we can't achieve essential visual effects with these preferred mechanisms. 
-  Angular offers other, riskier ways to dig into the DOM when necessary.
+  Angular has built in support to help prevent two common HTTP vulnerabilities, Cross-site Request
+  Forgery (XSRF) and Cross-site Script Inclusion (XSSI).
 
-  We can inject an the [ElementRef](../api/core/index/Renderer-class.html) into a component or directive and
-  access a native DOM element directly.
-
-  The [Renderer](../api/core/index/Renderer-class.html) service offers similar capabilites 
-  over an abstraction of the DOM so we can accomplish the same DOM manipulations indirectly in environments
-  where direct DOM access is impossible (e.g., on the server or in a web worker).
-  
-  Use these powerful APIs with great caution! 
-  When setting DOM properties know where the values come from. 
-  Sanitize user input and data from the server before inserting them into the DOM.
-  The Angular [DomSanitizationService.sanitize](../api/platform-browser/index/DomSanitizationService-class.html#!#sanitize-anchor) 
-  method can help.
-
-  Let's riff on the highlighting example from the [Attribute Directives chapter](attribute-directives.html).
-  Setting the backgroundColor of an element isn't an especially vulnerable task.
-  But for demonstration purposes will accept a color name from the user and sanitize it.
-figure.image-display
-  img(src='/resources/images/devguide/content-security/highlight.png' alt="highlight directives" width='500px')
-:marked
-  Here are the `highlight` method implementation from two directive classes, `BareHighlightDirective` and `SaferHighlightDirective`,
-  that take the input color value and apply it to the background of the element.
-+makeTabs(
-  'content-security/ts/app/highlight-bare.directive.ts, content-security/ts/app/highlight-safer.directive.ts', 
-  'highlight, highlight', 
-  'app/highlight-bare.directive.ts (highlight), app/highlight-safer.directive.ts (highlight)')(format=".")
-:marked
-  And here are the complete class implementations
-+makeTabs(
-  'content-security/ts/app/highlight-bare.directive.ts, content-security/ts/app/highlight-safer.directive.ts', 
-  null, 
-  'app/highlight-bare.directive.ts, app/highlight-safer.directive.ts')
-
-  #### Review every usage
-  We should conduct a security review of every `ElementRef` and `Renderer` reference
-  just [as we do with _bypassSecurity_](#review-dangerous-method).
-
-.l-main-section
-h2#http HTTP Best Practices
-:marked
-  The server and client must cooperate to secure server communication.
-  Angular clients are ready to do their part if the server takes the necessary steps to
 
   * encrypt information on the wire with SSL
   * configure [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
@@ -341,26 +260,26 @@ h3#xsrf Cross-site Request Forgery (XSRF)
   The kitten page could forge silent requests to the server that mimic requests from the real application.
   The server honors those requests because it can't tell the difference between the real and hostile requests.
   The browser sent the same security cookie with both requests.
-  
-  The successful attacker can make any change that the user can make: transfer money, change a password, alter permissions, etc. 
-  
+
+  The successful attacker can make any change that the user can make: transfer money, change a password, alter permissions, etc.
+
   An XSRF attack succeeds even when communications are encrypted by SSL.
 
-  All of the mitigation techniques require action by the server. 
+  All of the mitigation techniques require action by the server.
   For example, the server might refuse all requests that lack a referrer header whose origin is on a whitelist ("strict referrer policy").
   The CORS `Access-Control-Origin` header can play a similar role in cross-origin requests.
   The client application is the passive beneficiary of these techniques.
 
   In another approach, the server sends the client a request validation token.
   The client must include that token in subsequent requests to that server.
-  
+
   The Angular `http` client has built-in support for this technique in its customizable `XSRFStrategy`.
   The default `CookieXSRFStrategy` looks for a **secure** cookie called `'XSRF-TOKEN'` and sets
   an HTTP request header called `'X-XSRF-TOKEN'` with the value of that cookie as part of *every* request.
   It's the server's job to set and maintain the `'XSRF-TOKEN'` cookie.
 
   Learn about Cross Site Request Forgery (XSRF) at the Open Web Application Security Project (OWASP)
-  [here](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)) and 
+  [here](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)) and
   [here](https://www.owasp.org/index.php/CSRF_Prevention_Cheat_Sheet).
   This [Stanford University paper](https://seclab.stanford.edu/websec/csrf/csrf.pdf) is a rich source of detail.
 
@@ -368,12 +287,12 @@ h3#xssi Cross-site Script Inclusion (XSSI)
 :marked
   An attacker may include our application scripts in its exploit web page.
   If any of our scripts can access a user secret and the attacker can trick us into loading
-  its trap page, we risk exposing those secrets to the attacker. 
+  its trap page, we risk exposing those secrets to the attacker.
   This is one form of _Cross-site script inclusion (XSSI)_.
 
   **Don't bury secrets in JavaScript files!**
 
-  That may seem obvious. 
+  That may seem obvious.
   But did you know that attackers can make requests for JSON data in the guise of script file requests?
 
 code-example(format="." language="javascript").
@@ -386,8 +305,8 @@ code-example(format="." language="javascript").
   That prefix prevents the browser from executing such a response within the attacker's script tags.
 
   We can still access this endpoint with Angular's `http` client.
-  Angular looks for this `")]}',\n"` prefix in the response data and removes it 
+  Angular looks for this `")]}',\n"` prefix in the response data and removes it
   before returning the real data to the caller.
 
-  Learn more in the XSSI section of this 
+  Learn more in the XSSI section of this
   [google web security post](https://security.googleblog.com/2011/05/website-security-for-webmasters.html)
