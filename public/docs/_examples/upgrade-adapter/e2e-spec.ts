@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Upgrade Tests', function () {
 
   // Protractor doesn't support the UpgradeAdapter's asynchronous

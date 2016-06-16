@@ -1,4 +1,5 @@
 /// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 /**
  * The tests here basically just checking that the end styles
  * of each animation are in effect.
@@ -274,7 +275,9 @@ describe('Animation Tests', () => {
     return protractor.promise.all([
       getBoundingClientWidth(el),
       getOffsetWidth(el)
-    ]).then(function([clientWidth, offsetWidth]) {
+    ]).then(function(promiseResolutions) {
+      let clientWidth = promiseResolutions[0];
+      let offsetWidth = promiseResolutions[1];
       return clientWidth / offsetWidth;
     });
   }

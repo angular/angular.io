@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Documentation StyleGuide E2E Tests', function() {
 
   let expectedMsg = 'My First Angular 2 App';

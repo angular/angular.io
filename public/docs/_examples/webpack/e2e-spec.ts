@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('QuickStart E2E Tests', function () {
 
   let expectedMsg = 'Hello from Angular 2 App with Webpack';

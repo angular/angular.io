@@ -1,4 +1,5 @@
-/// <reference path="../_protractor/e2e.d.ts" />
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 // gulp run-e2e-tests --filter=cb-set-document-title
 describe('Set Document Title', function () {
 

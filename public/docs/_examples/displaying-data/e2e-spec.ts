@@ -1,4 +1,5 @@
 /// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Displaying Data Tests', function () {
   let _title = 'Tour of Heroes';
   let _defaultHero = 'Windstorm';

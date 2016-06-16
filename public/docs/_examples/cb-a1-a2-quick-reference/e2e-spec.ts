@@ -1,4 +1,5 @@
 /// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Angular 1 to 2 Quick Reference Tests', function () {
 
   beforeAll(function () {
