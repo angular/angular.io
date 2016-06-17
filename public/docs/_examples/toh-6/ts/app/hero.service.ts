@@ -12,11 +12,11 @@ import { Hero } from './hero';
 @Injectable()
 export class HeroService {
 
+  // #docregion getHeroes
   private heroesUrl = 'app/heroes';  // URL to web api
 
   constructor(private http: Http) { }
 
-  // #docregion get-heroes
   getHeroes(): Promise<Hero[]> {
     return this.http.get(this.heroesUrl)
     // #docregion to-promise
@@ -29,7 +29,7 @@ export class HeroService {
                .catch(this.handleError);
     // #enddocregion catch
   }
-  // #enddocregion get-heroes
+  // #enddocregion getHeroes
 
   getHero(id: number) {
     return this.getHeroes()
@@ -45,7 +45,7 @@ export class HeroService {
   }
   // #enddocregion save
 
-  // #docregion delete-hero
+  // #docregion delete
   delete(hero: Hero) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
@@ -57,9 +57,9 @@ export class HeroService {
                .toPromise()
                .catch(this.handleError);
   }
-  // #enddocregion delete-hero
+  // #enddocregion delete
 
-  // #docregion post-hero
+  // #docregion post
   // Add new Hero
   private post(hero: Hero): Promise<Hero> {
     let headers = new Headers({
@@ -71,9 +71,9 @@ export class HeroService {
                .then(res => res.json().data)
                .catch(this.handleError);
   }
-  // #enddocregion post-hero
+  // #enddocregion post
 
-  // #docregion put-hero
+  // #docregion put
   // Update existing Hero
   private put(hero: Hero) {
     let headers = new Headers();
@@ -87,13 +87,13 @@ export class HeroService {
                .then(() => hero)
                .catch(this.handleError);
   }
-  // #enddocregion put-hero
+  // #enddocregion put
 
-  // #docregion error-handler
+  // #docregion handleError
   private handleError(error: any) {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
-  // #enddocregion error-handler
+  // #enddocregion handleError
 }
-// #enddocregion
+
