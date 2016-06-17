@@ -6,7 +6,7 @@
 (function(global) {
 
   var ngVer = '@2.0.0-rc.2'; // lock in the angular package version; do not let it float to current!
-  var routerVer = '@3.0.0-alpha.3'; // lock router version
+  var routerVer = '@3.0.0-alpha.7'; // lock router version
 
   //map tells the System loader where to look for things
   var  map = {
@@ -31,6 +31,7 @@
     'common',
     'compiler',
     'core',
+    'forms',
     'http',
     'platform-browser',
     'platform-browser-dynamic',
