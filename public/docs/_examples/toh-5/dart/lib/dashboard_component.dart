@@ -32,7 +32,7 @@ class DashboardComponent implements OnInit {
   // #enddocregion ctor
 
   Future<Null> ngOnInit() async {
-    heroes = (await _heroService.getHeroes()).getRange(1, 5).toList();
+    heroes = (await _heroService.getHeroes()).skip(1).take(4).toList();
   }
 
   // #docregion goto-detail
