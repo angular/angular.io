@@ -1,9 +1,9 @@
 // #docregion
 import { Injectable }       from '@angular/core';
 
-import { DropdownQuestion } from './question-dropdown';
 import { QuestionBase }     from './question-base';
 import { TextboxQuestion }  from './question-textbox';
+import { DropdownQuestion } from './question-dropdown';
 
 @Injectable()
 export class QuestionService {
