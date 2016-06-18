@@ -9,8 +9,8 @@ import { HeroListComponent }    from './hero-list.component';
 
 // #docregion route-config
 export const routes: RouterConfig = [
-  { path: '/crisis-center', component: CrisisListComponent },
-  { path: '/heroes', component: HeroListComponent }
+  { path: 'crisis-center', component: CrisisListComponent },
+  { path: 'heroes', component: HeroListComponent }
 ];
 
 export const APP_ROUTER_PROVIDERS = [

@@ -7,7 +7,7 @@ import { HeroesRoutes }        from './heroes/heroes.routes';
 
 export const routes = [
   ...HeroesRoutes,
-  { path: '/crisis-center', component: CrisisListComponent }
+  { path: 'crisis-center', component: CrisisListComponent }
 ];
 
 export const APP_ROUTER_PROVIDERS = [
