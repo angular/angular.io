@@ -16,11 +16,11 @@ import { HeroDetailComponent } from './heroes/hero-detail.component';
 // #docregion route-config
 export const routes: RouterConfig = [
   // #docregion route-defs
-  { path: '/crisis-center', component: CrisisCenterComponent },
-  { path: '/heroes', component: HeroListComponent },
+  { path: 'crisis-center', component: CrisisCenterComponent },
+  { path: 'heroes', component: HeroListComponent },
   // #enddocregion route-defs
   // #docregion hero-detail-route
-  { path: '/hero/:id', component: HeroDetailComponent }
+  { path: 'hero/:id', component: HeroDetailComponent }
   // #enddocregion hero-detail-route
 ];
 

@@ -24,14 +24,18 @@ describe('Router', function () {
       heroDetail: element(by.css('my-app > undefined > div')),
       heroDetailTitle: element(by.css('my-app > undefined > div > h3')),
 
+      adminHref: hrefEles.get(2),
+      loginHref: hrefEles.get(3)
     };
   }
 
   it('should be able to see the start screen', function () {
     let page = getPageStruct();
-    expect(page.hrefs.count()).toEqual(2, 'should be two dashboard choices');
+    expect(page.hrefs.count()).toEqual(4, 'should be two dashboard choices');
     expect(page.crisisHref.getText()).toEqual('Crisis Center');
     expect(page.heroesHref.getText()).toEqual('Heroes');
+    expect(page.adminHref.getText()).toEqual('Crisis Admin');
+    expect(page.loginHref.getText()).toEqual('Login');
   });
 
   it('should be able to see crises center items', function () {
