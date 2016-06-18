@@ -63,14 +63,14 @@ h2#best-practices Best Practices (High Level)
   A Content Security Policy is a [W3C Standard](https://w3c.github.io/webappsec-csp/)
   _defense-in-depth_ technique that helps identify and prevent common security attacks like [XSS](#xss).
   Modern browsers offer native support for CSP while older browsers simply ignore it.
-  Enabling CSP involves configuring the web server to return the `Content-Security-Policy` HTTP header.
+  Enabling CSP involves configuring the web server to return the `security-Policy` HTTP header.
   Learn more at [Wikipedia](https://en.wikipedia.org/wiki/Content_Security_Policy)
   and [OWASP](https://www.owasp.org/index.php/Content_Security_Policy).
 
   * **Use a secure, auto-encoding template language on the server**.
   HTML constructed on the server is vulnerable to injection attacks. When generating server side
   HTML, e.g. for the initial page load of the Angular application, make sure to use a templating
-  language that automatically encodes values.
+  language that automatically encodes values to avoid [XSS](#xss) on the server.
 
 .l-main-section
 h2#code-review Hold Regular Security Code Reviews
@@ -92,75 +92,77 @@ h2#code-review Hold Regular Security Code Reviews
 .l-main-section
 h2#xss Prevent Cross-site Scripting (XSS)
 :marked
-  [Cross-site scripting](https://en.wikipedia.org/wiki/Cross-site_scripting)
-  enables attackers to inject their own malicious code into web pages.
-  Such code can trick users into entering passwords or other sensitive information which it captures and sends
-  to its own servers for subsequent exploitation.
+  [Cross-site scripting (XSS)](https://en.wikipedia.org/wiki/Cross-site_scripting) enables attackers
+  to inject malicious code into web pages. Such code can then for example steal user's data (in
+  particular their login data), or perform actions impersonating the user. This is one of the most
+  common attacks on the web.
 
-  This is one of the most common attacks on the web.
-  Fortunately, Angular protects us from most attacks ... unless we intentionally defeat those protections.
+  To block XSS attacks, we must prevent malicious code from entering the DOM. For example, if an
+  attacker can trick us into inserting a `<script>` tag in the DOM, they can run arbitrary code on
+  our website. The attack is not limited to `<script>` tags - many elements and properties in the
+  DOM allow code execution, for example `<img onerror="...">`, `<a href="javascript:...">`. If
+  attacker controlled data enters the DOM, we have to expect security vulnerabilities.
 
   ### Angular’s Cross-site Scripting Security Model
 
-  To block XSS attacks, we must prevent malicious code from entering the DOM.
-  If someone can trick us into displaying something between `<script>` tags, we're in serious trouble.
+  To systematically block XSS bugs, Angular treats all values as untrusted by default. When a value
+  is inserted into the DOM from a template, via property, attribute, style, or class binding, or via
+  interpolation, Angular will sanitize and escape untrusted values.
 
-  Anything that updates the DOM is a potential point of attack and should be viewed with suspicion.
-  Anything that updates the DOM with data from a server should be viewed with _extreme_ suspicion.
+  ### Sanitization and security contexts
 
-  #### Data Binding
-  Angular data binding is a way to display server data in the DOM.
+  Sanitization inspects an untrusted value and turns it into a value that is safe to insert into
+  the DOM. In many cases, values do not get changed by this at all. Sanitization depends on context
+  - a value that is harmless in CSS is potentially dangerous in a URL.
 
-  Fortunately, Angular data binding is on alert for dangerous HTML.
-  It **will not** allow HTML with script tags to leak into the browser, neither with interpolation
-  nor property binding.
+  Angular defines four security contexts: HTML, style, URL, and resource URL.
 
-  Imagine a component property that had been set with the following malicious content,
-  either retrieved from the server or entered by a user,
-  and a template bound to that property with both _interpolation_ and _property bindings_.
-+makeExample('content-security/ts/app/evil-binding.component.ts', 'evil-title')(format=".")
+  * HTML is used when interpreting a value as HTML, e.g. when binding to `innerHtml`
+  * style is used when binding CSS into the `style` property
+  * URL is used for URL properties such as `<a href>`
+  * Resource URLs are URLs that will be loaded and executed as code, e.g. in `<script src>`
 
-+makeExample('content-security/ts/app/evil-binding.component.html', 'property-binding-vs-interpolation-sanitization')(format=".")
-:marked
-  Interpolation handles the script tags differently than property binding but both approaches render the
-  content harmlessly.
+  Angular sanitizes untrusted values for the first three items; sanitizing resource URLs is not
+  possible as they contain arbitrary code. In development mode, Angular prints a console warning
+  when it has to change a value during sanitization.
+
+  ### TODO binding/sanitization example
+
+  need example that shows a value and also binds [innerHTML]. Users should maybe pass in
+  values though a URL parameter, and put e.g. <script> into it, see it being stripped.
+
++makeExample('security/ts/app/inner-html-binding.component.ts', 'evil-title')(format=".")
++makeExample('security/ts/app/inner-html-binding.component.html', 'property-binding-vs-interpolation-sanitization')(format=".")
 figure.image-display
-  img(src='/resources/images/devguide/content-security/evil-title.png' alt="evil title made safe" width='500px')
+  img(src='/resources/images/devguide/security/evil-title.png' alt="evil title made safe" width='500px')
 :marked
-  #### Avoid dynamic template html
-  Angular relies on HTML templates to present data.
-  We should do our best to ensure that the HTML templates we use come from a secure source and cannot be compromised.
 
-  #### Use the Offline Template Compiler
-  The safest approach is not to download the templates at all.
-  Consider compiling the application with the [Offline Template Compiler](#offline-template-compiler).
-  That compiler transforms templates to code that is _inlined_ with the component class.
-  There is no template to download and the inline view code can't easily be tampered with.
-
-  #### Angular scrubs templates
-  Not everyone can or will use the _Offline Template Compiler_.
-  What happens if a _bad guy_ sneaks some dangerous code into a downloaded template?
-
-  Consider this component template:
-+makeExample('content-security/ts/app/evil-template.component.html', null, 'app/evil-template.component.html')(format=".")
+.l-main-section
+h2#bypass-security-apis Trusting safe values
 :marked
-  We'd expect an alert box to pop up to tell us about evil doing.
-  But Angular scrubs that script out of the template and displays pure happiness.
+  Sometimes applications genuinely need to include executable code, display an `<iframe>` from some
+  URL, or construct potentially dangerous URLs. You can tell Angular that you inspected a value,
+  checked how it is generated, and made sure it is always secure. But **be careful**! If you trust a
+  value that can be malicious, you will likely introduce a security vulnerability into your
+  application. If in doubt, find a professional security reviewer.
 
-  This also means that we can't embed _any_ JavaScript in our HTML templates
-  &mdash; not even "_good_" JavaScript.
+  You can mark a value as trusted by injecting `DomSanitizationService`, and calling one of the
+  following methods.
 
-  A determined developer might try to compose an _inline_ template dynamically out of strings
-  that might come from anywhere.  Let's try doing that with some fixed strings imported from a file:
+  * `bypassSecurityTrustHtml`
+  * `bypassSecurityTrustScript`
+  * `bypassSecurityTrustStyle`
+  * `bypassSecurityTrustUrl`
+  * `bypassSecurityTrustResourceUrl`
 
-+makeExample('content-security/ts/app/strings.ts', null, 'app/strings.ts')(format=".")
+  Remember, whether a value is safe depends on context, so you need to choose the right context for
+  your intended use of the value.
 
-+makeExample('content-security/ts/app/evil-string.component.ts', null, 'app/evil-string.component.ts')(format=".")
++makeExample('security/ts/app/bypass-security.component.ts', 'evil-title')(format=".")
++makeExample('security/ts/app/bypass-security.component.html', 'property-binding-vs-interpolation-sanitization')(format=".")
+
 :marked
-  We'd might again expect an alert box to pop up to tell us about more evil doing.
-  But Angular scrubs that script out of the template too and life is beautiful once more.
-
-  Angular does its best to steer us clear of the dangers of dynamic templates.
+  ### MARKER
 
 .l-sub-section
   :marked
@@ -211,7 +213,7 @@ h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
   Where do the data come from? Can they be tampered with on their way to the unsafe method?
 
   Consider this example excerpt:
-+makeExcerpt('content-security/ts/app/bypass-security.component.ts', 'distant-source', 'app/bypass-security.component.ts')
++makeExcerpt('security/ts/app/bypass-security.component.ts', 'distant-source', 'app/bypass-security.component.ts')
 :marked
   We're bypassing Angular's sanitization of URLs and displaying an image that comes from ... where?
   Some service gets a url string from an unknown source.
@@ -222,7 +224,7 @@ h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
   that we haven't verified. This code is difficult to review with any confidence.
 
   Compare it to this example:
-+makeExcerpt('content-security/ts/app/bypass-security.component.ts', 'user-input', 'app/bypass-security.component.ts')
++makeExcerpt('security/ts/app/bypass-security.component.ts', 'user-input', 'app/bypass-security.component.ts')
   Everything we need to review is in front of us.
   We can trace the source of unsafe data to a data-bound variable in this same file.
   We know how the data arrive.
@@ -237,7 +239,7 @@ h2#http HTTP-level vulnerabilities
   Angular has built in support to help prevent two common HTTP vulnerabilities, Cross-site Request
   Forgery (XSRF) and Cross-site Script Inclusion (XSSI).
 
-
+  In general:
   * encrypt information on the wire with SSL
   * configure [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS)
   on servers so that application clients can make cross-domain web api calls safely
