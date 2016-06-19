@@ -1,11 +1,11 @@
 // #docplaster
 // #docregion
 // #docregion import-oninit, v2
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 // #enddocregion import-oninit
-// #docregion import-route-params
-import { RouteParams } from '@angular/router-deprecated';
-// #enddocregion import-route-params
+// #docregion import-activated-route
+import { ActivatedRoute } from '@angular/router';
+// #enddocregion import-activated-route
 
 import { Hero } from './hero';
 // #docregion import-hero-service
@@ -23,26 +23,35 @@ import { HeroService } from './hero.service';
 })
 // #enddocregion extract-template
 // #docregion implement
-export class HeroDetailComponent implements OnInit {
+export class HeroDetailComponent implements OnInit, OnDestroy {
   // #enddocregion implement
   hero: Hero;
+  sub: any;
 
   // #docregion ctor
   constructor(
     private heroService: HeroService,
-    private routeParams: RouteParams) {
+    private route: ActivatedRoute) {
   }
   // #enddocregion ctor
 
   // #docregion ng-oninit
   ngOnInit() {
     // #docregion get-id
-    let id = +this.routeParams.get('id');
+    this.sub = this.route.params.subscribe(params => {
+      let id = +params['id'];
+      this.heroService.getHero(id)
+        .then(hero => this.hero = hero);
+    });
     // #enddocregion get-id
-    this.heroService.getHero(id)
-      .then(hero => this.hero = hero);
   }
   // #enddocregion ng-oninit
+
+  // #docregion ng-ondestroy
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+  // #enddocregion ng-ondestroy
 
   // #docregion go-back
   goBack() {
