@@ -96,6 +96,9 @@ Look at the scripts in `package.json` for other options.
 Also, open any `plunkr.no-link.html` to see the code execute in plunker
 (you may have to run `gulp build-plunkers` first to create/update).
 
+You may want to check that your example is free of lint errors.
+- `gulp lint`
+
 ### Sample end-to-end tests
 
 All samples should be covered to some degree by end-to-end tests:
