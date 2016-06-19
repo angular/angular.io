@@ -2,7 +2,7 @@
 // #docregion
 import { Component, OnInit } from '@angular/core';
 // #docregion import-router
-import { Router } from '@angular/router-deprecated';
+import { Router } from '@angular/router';
 // #enddocregion import-router
 
 import { Hero } from './hero';
@@ -36,7 +36,7 @@ export class DashboardComponent implements OnInit {
 
   // #docregion goto-detail
   gotoDetail(hero: Hero) {
-    let link = ['HeroDetail', { id: hero.id }];
+    let link = ['/detail', hero.id];
     this.router.navigate(link);
   }
   // #enddocregion goto-detail

@@ -11,8 +11,10 @@ import { HeroService } from './hero.service';
   template: `
     <h1>{{title}}</h1>
     <nav>
+      // #docregion router-link-active
       <a [routerLink]="['/dashboard']" routerLinkActive="active">Dashboard</a>
       <a [routerLink]="['/heroes']" routerLinkActive="active">Heroes</a>
+      // #enddocregion router-link-active
     </nav>
     <router-outlet></router-outlet>
   `,
@@ -28,3 +30,4 @@ import { HeroService } from './hero.service';
 export class AppComponent {
   title = 'Tour of Heroes';
 }
+// #enddocregion

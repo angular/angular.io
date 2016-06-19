@@ -8,7 +8,7 @@ import { HeroesComponent } from './heroes.component';
 // #enddocregion
 
 // For testing only
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import { ROUTER_DIRECTIVES } from '@angular/router';
 
 // #docregion
 @Component({
@@ -20,7 +20,6 @@ import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/route
   directives: [HeroesComponent],
   providers: [
     // #enddocregion
-   ROUTER_PROVIDERS,
     // #docregion
     HeroService
   ]
