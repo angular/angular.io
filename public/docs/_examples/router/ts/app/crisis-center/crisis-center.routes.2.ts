@@ -6,17 +6,20 @@ import { CrisisCenterComponent } from './crisis-center.component';
 
 // #docregion routes
 export const CrisisCenterRoutes: RouterConfig = [
+  // #docregion redirect
   {
-    path: '/crisis-center',
+    path: '',
+    redirectTo: '/crisis-center',
+    terminal: true
+  },
+  // #enddocregion redirect
+  {
+    path: 'crisis-center',
     component: CrisisCenterComponent,
-    index: true,
     children: [
-      { path: '/:id',  component: CrisisDetailComponent },
-      { path: '/',     component: CrisisListComponent,
-        index: true
-      }
+      { path: ':id',  component: CrisisDetailComponent },
+      { path: '',     component: CrisisListComponent }
     ]
   }
 ];
 // #enddocregion routes
-

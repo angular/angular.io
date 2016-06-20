@@ -7,11 +7,11 @@ import { CrisisCenterComponent } from './crisis-center.component';
 // #docregion routes
 export const CrisisCenterRoutes: RouterConfig = [
   {
-    path: '/crisis-center',
+    path: 'crisis-center',
     component: CrisisCenterComponent,
     children: [
-      { path: '/',    component: CrisisListComponent },
-      { path: '/:id', component: CrisisDetailComponent }
+      { path: ':id',  component: CrisisDetailComponent },
+      { path: '',     component: CrisisListComponent }
     ]
   }
 ];

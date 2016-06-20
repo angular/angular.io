@@ -4,7 +4,6 @@ import { Router }      from '@angular/router';
 import { AuthService } from './auth.service';
 
 @Component({
-  selector: 'login',
   template: `
     <h2>LOGIN</h2>
     <p>{{message}}</p>
@@ -25,7 +24,7 @@ export class LoginComponent {
   }
 
   login() {
-    this.message = "Trying to log in ...";
+    this.message = 'Trying to log in ...';
 
     this.authService.login().subscribe(() => {
       this.setMessage();

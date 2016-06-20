@@ -10,25 +10,29 @@ import { AuthGuard }             from '../auth.guard';
 
 export const CrisisCenterRoutes: RouterConfig = [
   {
-    path: '/crisis-center',
+    path: '',
+    redirectTo: '/crisis-center',
+    terminal: true
+  },
+  {
+    path: 'crisis-center',
     component: CrisisCenterComponent,
-    index: true,
     children: [
       // #docregion admin-route
       {
-        path: '/admin',
+        path: 'admin',
         component: CrisisAdminComponent,
         canActivate: [AuthGuard]
       },
       // #enddocregion admin-route
       {
-        path: '/:id',
+        path: ':id',
         component: CrisisDetailComponent,
         canDeactivate: [CanDeactivateGuard]
       },
-      { path: '/',
-        component: CrisisListComponent,
-        index: true
+      {
+        path: '',
+        component: CrisisListComponent
       }
     ]
   }
