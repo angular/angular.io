@@ -37,7 +37,7 @@ var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
 var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
-var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*');
+var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
 
@@ -989,6 +989,7 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
   var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**', '**/typings/**',
                       '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
+  ignoreThese = ignoreThese.concat(_exampleBoilerplateFiles.map((file) => `public/docs/_examples/*/*/${file}`));
   var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide example changed')
@@ -1003,7 +1004,8 @@ function devGuideSharedJadeWatch(shredOptions, postShredAction) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var files = globby.sync( [includePattern], { ignore: [ '**/node_modules/**', '**/_examples/**', '**/_fragments/**']});
+  var ignoreThese = [ '**/node_modules/**', '**/_examples/**', '**/_fragments/**', '**/latest/api/**' ];
+  var files = globby.sync( [includePattern], { ignore: ignoreThese});
   gulp.watch([files], {readDelay: 500}, function (event, done) {
     gutil.log('Dev Guide jade file changed')
     gutil.log('Event type: ' + event.type); // added, changed, or deleted
