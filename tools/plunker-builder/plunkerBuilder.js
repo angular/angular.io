@@ -143,6 +143,10 @@ function initConfigAndCollectFileNames(configFileName) {
     '!**/tslint.json',
     '!**/.editorconfig',
     '!**/systemjs.config.js',
+    '!**/wallaby.js',
+    '!**/karma-test-shim.js',
+    '!**/karma.conf.js',
+    '!**/spec.js'
    ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
