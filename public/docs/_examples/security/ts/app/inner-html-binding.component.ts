@@ -6,8 +6,9 @@ import {Component} from '@angular/core';
   selector: 'inner-html-binding',
   templateUrl: 'inner-html-binding.component.html',
 })
+// #docregion inner-html-controller
 export class InnerHtmlBindingComponent {
-  // #docregion evil-title
-  htmlSnippet = 'Template <script>alert("0wned")</script>Syntax';
-  // #enddocregion evil-title
+  // E.g. a user/attacker controlled value from a URL.
+  htmlSnippet = 'Template <script>alert("0wned")</script> <b>Syntax</b>';
 }
+// #enddocregion inner-html-controller
