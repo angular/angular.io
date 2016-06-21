@@ -1,6 +1,7 @@
 block includes
   include ../_util-fns
 :marked
+  # Security
   Web application security has many aspects. This documentation describes Angular's built in
   protections against common web application vulnerabilities and attacks, such as Cross Site
   Scripting Attacks. It does not cover application level security, such as authentication (_Who is
@@ -66,6 +67,13 @@ h2#xss Preventing Cross-Site Scripting (XSS)
   is inserted into the DOM from a template, via property, attribute, style, or class binding, or via
   interpolation, Angular will sanitize and escape untrusted values.
 
+  **Angular templates are the same as executable code**: HTML, attributes, and binding expressions
+  (but not the values bound!) in templates are trusted to be safe. That means applications must
+  prevent potentially attacker controlled values from ever making it into the source code of a
+  template. Never generate template source code by concatenating user input and templates! Using
+  the [offline template compiler](#offline-template-compiler) is an effective way to prevent these
+  vulnerabilities, also known as template injection.
+
   ### Sanitization and security contexts
 
   Sanitization inspects an untrusted value and turns it into a value that is safe to insert into
@@ -114,11 +122,10 @@ figure.image-display
 
   ### Content Security Policy
 
-  A [Content Security Policy (CSP)](https://developer.mozilla.org/en-
-  US/docs/Web/Security/CSP/Introducing_Content_Security_Policy) is a defense-in-depth technique to
-  prevent XSS. To enable CSP, configure your web server to return an appropriate
-  `Content-Security-Policy` HTTP header. Learn more at
-  [OWASP](https://www.owasp.org/index.php/Content_Security_Policy).
+  A [Content Security Policy (CSP)]
+  (http://www.html5rocks.com/en/tutorials/security/content-security-policy/) is a defense-in-depth
+  technique to prevent XSS. To enable CSP, configure your web server to return an appropriate
+  `Content-Security-Policy` HTTP header.
 
   <a id="offline-template-compiler"></a>
   ### Use the Offline Template Compiler
@@ -132,11 +139,12 @@ figure.image-display
 
   ### Server side XSS protection
 
-  HTML constructed on the server is vulnerable to injection attacks. When generating server side
-  HTML, e.g. for the initial page load of the Angular application, make sure to use a templating
-  language that automatically escapes values to prevent XSS vulnerabilities on the server. Do not
-  generate Angular templates on the server side using a templating language, this carries a high
-  risk of introducing template injection vulnerabilities.
+  HTML constructed on the server is vulnerable to injection attacks. Injecting template code into an
+  Angular application is the same as injecting executable code (e.g. JavaScript) into the
+  application; it gives the attacker full control over the application. To prevent this, make sure
+  to use a templating language that automatically escapes values to prevent XSS vulnerabilities on
+  the server. Do not generate Angular templates on the server side using a templating language, this
+  carries a high risk of introducing template injection vulnerabilities.
 
 .l-main-section
 h2#bypass-security-apis Trusting Safe Values
@@ -173,10 +181,10 @@ figure.image-display
 :marked
   If we need to convert user input into a trusted value, it can be convenient to do so in a
   controller method. The template below allows users to enter a YouTube video ID, and load the
-  corresponding video in an `<iframe>`. `<iframe src>` is a resource URL, because an untrusted
-  source can e.g. smuggle in file downloads that unsuspecting users would execute. So we call a
-  method on the controller to construct a new, trusted video URL, which is then bound to the
-  `<iframe src>`.
+  corresponding video in an `<iframe>`. The `<iframe src>` attribute is a resource URL security
+  context, because an untrusted source can e.g. smuggle in file downloads that unsuspecting users
+  would execute. So we call a method on the controller to construct a trusted video URL, which
+  Angular then allows binding into `<iframe src>`.
 
 +makeExample('security/ts/app/bypass-security.component.html', 'iframe-videoid')(format=".")
 +makeExample('security/ts/app/bypass-security.component.ts', 'trust-video-url')(format=".")
@@ -213,7 +221,9 @@ h3#xsrf Cross-site Request Forgery (XSRF)
 
   Angular applications can customize cookie and header names by binding their own
   `CookieXSRFStrategy` value, or implement an entirely custom `XSRFStrategy` by providing a custom
-  binding for that type.
+  binding for that type, by adding
+  `provide(XSRFStrategy, {useValue: new CookieXSRFStrategy('myCookieName', 'My-Header-Name')})` or
+  `provide(XSRFStrategy, {useClass: MyXSRFStrategy})` to your providers list.
 
   Learn about Cross Site Request Forgery (XSRF) at the Open Web Application Security Project (OWASP)
   [here](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_%28CSRF%29) and
