@@ -63,7 +63,7 @@ h2#best-practices Best Practices (High Level)
   A Content Security Policy is a [W3C Standard](https://w3c.github.io/webappsec-csp/)
   _defense-in-depth_ technique that helps identify and prevent common security attacks like [XSS](#xss).
   Modern browsers offer native support for CSP while older browsers simply ignore it.
-  Enabling CSP involves configuring the web server to return the `security-Policy` HTTP header.
+  Enabling CSP involves configuring the web server to return the `Content-Security-Policy` HTTP header.
   Learn more at [Wikipedia](https://en.wikipedia.org/wiki/Content_Security_Policy)
   and [OWASP](https://www.owasp.org/index.php/Content_Security_Policy).
 
@@ -173,65 +173,6 @@ h2#bypass-security-apis Trusting safe values
     See the [Dynamic Forms Cookbook](../cookbook/dynamic-form.html) for ideas in that direction.
 
     We can't do it by concatenating dangerous strings together or loading templates with embedded JavaScript.
-
-.l-main-section
-h2#bypass-security-apis The <i>bypassSecurityTrust</i> APIs
-:marked
-  In the rare case where we need to disable Angular's automatic input sanitization,
-  we may turn to the `bypassSecurityTrust` methods within the `DomSanitizationService`.
-.callout.is-critical
-  header Beware of the <i>bypassSecurityTrust</i> APIs
-  :marked
-    We are about to describe APIs that defeat Angular's automatic template and expression sanitization guards.
-    These APIs are manifestly dangerous and should almost never be used.
-    Be skeptical of all exceptions to this rule.
-:marked
-  The `DomSanitizationService`provides the following methods:
-
-  * `bypassSecurityTrustHtml`
-  * `bypassSecurityTrustScript`
-  * `bypassSecurityTrustStyle`
-  * `bypassSecurityTrustUrl`
-  * `bypassSecurityTrustResourceUrl`
-
-  Read the [Angular API guide](../api/platform-browser/index/DomSanitizationService-class.html)
-  to learn what they do and why you _might_ use them.
-
-  #### Review every usage
-  The name _bypassSecurity_ is supposed to grab our attention.
-  It cries out for a security review.
-  Shame on us if we ignore the warning.
-
-  <a id="review-dangerous-method"></a>
-  What does it mean to do a review?
-  1. Search the code base for the word _bypassSecurity_
-  1. Demand an explanation and a justification for every usage
-  1. Minimize the exposure by calling the method close to the data source.
-
-  #### Call close to the data source
-  We can't assess the risk unless we understand how data flow into the unsafe method.
-  Where do the data come from? Can they be tampered with on their way to the unsafe method?
-
-  Consider this example excerpt:
-+makeExcerpt('security/ts/app/bypass-security.component.ts', 'distant-source', 'app/bypass-security.component.ts')
-:marked
-  We're bypassing Angular's sanitization of URLs and displaying an image that comes from ... where?
-  Some service gets a url string from an unknown source.
-  The `Observable` tells us that the url is likely to change during the user session for reasons unknown.
-
-  We could find the service and vet it. But that's harder and
-  this injected service could be replaced at runtime by an intermediate provider
-  that we haven't verified. This code is difficult to review with any confidence.
-
-  Compare it to this example:
-+makeExcerpt('security/ts/app/bypass-security.component.ts', 'user-input', 'app/bypass-security.component.ts')
-  Everything we need to review is in front of us.
-  We can trace the source of unsafe data to a data-bound variable in this same file.
-  We know how the data arrive.
-  We locked down the base path so that only a portion of the URL is at risk (it is still a risk!).
-
-  In sum, make this exceptional code easier to review by
-  *keeping the source of unsafe data as close as possible to the unsafe method call*.
 
 .l-main-section
 h2#http HTTP-level vulnerabilities
