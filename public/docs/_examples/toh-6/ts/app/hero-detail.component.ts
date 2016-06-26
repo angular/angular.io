@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion, variables-imports
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 
 // #enddocregion variables-imports
-import { RouteParams } from '@angular/router-deprecated';
+import { ActivatedRoute } from '@angular/router';
 
 import { Hero }        from './hero';
 import { HeroService } from './hero.service';
@@ -14,31 +14,39 @@ import { HeroService } from './hero.service';
   styleUrls: ['app/hero-detail.component.css']
 })
 // #docregion variables-imports
-export class HeroDetailComponent implements OnInit {
+export class HeroDetailComponent implements OnInit, OnDestroy {
   @Input() hero: Hero;
   @Output() close = new EventEmitter();
   error: any;
+  sub: any;
   navigated = false; // true if navigated here
   // #enddocregion variables-imports
 
   constructor(
     private heroService: HeroService,
-    private routeParams: RouteParams) {
+    private route: ActivatedRoute) {
   }
 
   // #docregion ngOnInit
   ngOnInit() {
-    if (this.routeParams.get('id') !== null) {
-      let id = +this.routeParams.get('id');
-      this.navigated = true;
-      this.heroService.getHero(id)
-          .then(hero => this.hero = hero);
-    } else {
-      this.navigated = false;
-      this.hero = new Hero();
-    }
+    this.sub = this.route.params.subscribe(params => {
+      if (params['id'] !== undefined) {
+        let id = +params['id'];
+        this.navigated = true;
+        this.heroService.getHero(id)
+            .then(hero => this.hero = hero);
+      } else {
+        this.navigated = false;
+        this.hero = new Hero();
+      }
+    });
   }
   // #enddocregion ngOnInit
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
   // #docregion save
   save() {
     this.heroService
@@ -57,4 +65,3 @@ export class HeroDetailComponent implements OnInit {
   }
   // #enddocregion goBack
 }
-
