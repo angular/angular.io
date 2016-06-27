@@ -1,4 +1,4 @@
-// #docregion
+// #docregion , init
 export class InMemoryDataService {
   createDb() {
     let heroes = [

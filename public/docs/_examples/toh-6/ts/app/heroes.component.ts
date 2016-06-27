@@ -18,7 +18,9 @@ export class HeroesComponent implements OnInit {
   heroes: Hero[];
   selectedHero: Hero;
   addingHero = false;
+  // #docregion error
   error: any;
+  // #enddocregion error
 
   constructor(
     private router: Router,
@@ -28,10 +30,10 @@ export class HeroesComponent implements OnInit {
     this.heroService
         .getHeroes()
         .then(heroes => this.heroes = heroes)
-        .catch(error => this.error = error); // TODO: Display error message
+        .catch(error => this.error = error);
   }
 
-  // #docregion add
+  // #docregion addHero
   addHero() {
     this.addingHero = true;
     this.selectedHero = null;
@@ -41,10 +43,10 @@ export class HeroesComponent implements OnInit {
     this.addingHero = false;
     if (savedHero) { this.getHeroes(); }
   }
-  // #enddocregion add
+  // #enddocregion addHero
 
-  // #docregion delete
-  delete(hero: Hero, event: any) {
+  // #docregion deleteHero
+  deleteHero(hero: Hero, event: any) {
     event.stopPropagation();
     this.heroService
         .delete(hero)
@@ -52,9 +54,9 @@ export class HeroesComponent implements OnInit {
           this.heroes = this.heroes.filter(h => h !== hero);
           if (this.selectedHero === hero) { this.selectedHero = null; }
         })
-        .catch(error => this.error = error); // TODO: Display error message
+        .catch(error => this.error = error);
   }
-  // #enddocregion delete
+  // #enddocregion deleteHero
 
   ngOnInit() {
     this.getHeroes();

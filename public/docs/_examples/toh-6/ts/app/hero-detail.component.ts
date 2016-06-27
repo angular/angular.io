@@ -50,11 +50,11 @@ export class HeroDetailComponent implements OnInit {
         .catch(error => this.error = error); // TODO: Display error message
   }
   // #enddocregion save
-  // #docregion goback
+  // #docregion goBack
   goBack(savedHero: Hero = null) {
     this.close.emit(savedHero);
     if (this.navigated) { window.history.back(); }
   }
-  // #enddocregion goback
+  // #enddocregion goBack
 }
 
