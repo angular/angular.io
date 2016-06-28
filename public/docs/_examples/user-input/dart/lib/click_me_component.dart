@@ -1,3 +1,9 @@
+/* FOR DOCS ... MUST MATCH ClickMeComponent template
+// #docregion click-me-button
+  <button (click)="onClickMe()">Click me!</button>
+// #enddocregion click-me-button
+*/
+
 // #docregion
 import 'package:angular2/core.dart';
 
@@ -5,15 +11,12 @@ import 'package:angular2/core.dart';
 @Component(
     selector: 'click-me',
     template: '''
-    // #docregion click-me-button
-    <button (click)="onClickMe()">Click me!</button>
-    // #enddocregion click-me-button
-    {{clickMessage}}''')
+      <button (click)="onClickMe()">Click me!</button>
+      {{clickMessage}}''')
 class ClickMeComponent {
   String clickMessage = '';
 
-  onClickMe() {
+  void onClickMe() {
     clickMessage = 'You are my hero!';
   }
 }
-// #enddocregion click-me-component
