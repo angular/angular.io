@@ -17,8 +17,8 @@ import 'spy_directive.dart';
     styles: const [
       '.counter {background: LightYellow; padding: 8px; margin-top: 8px}'
     ],
-    directives: const [Spy])
-class MyCounter implements OnChanges {
+    directives: const [SpyDirective])
+class MyCounterComponent implements OnChanges {
   @Input() num counter;
   List<String> changeLog = [];
 
@@ -53,7 +53,7 @@ class MyCounter implements OnChanges {
     </div>
     ''',
     styles: const ['.parent {background: gold;}'],
-    directives: const [MyCounter],
+    directives: const [MyCounterComponent],
     providers: const [LoggerService])
 class CounterParentComponent {
   final LoggerService _logger;

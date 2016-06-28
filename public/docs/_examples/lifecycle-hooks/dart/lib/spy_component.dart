@@ -11,7 +11,7 @@ import 'spy_directive.dart';
       '.parent {background: khaki}',
       '.heroes {background: LightYellow; padding: 0 8px}'
     ],
-    directives: const [Spy],
+    directives: const [SpyDirective],
     providers: const [LoggerService])
 class SpyParentComponent {
   final LoggerService _logger;
@@ -31,7 +31,7 @@ class SpyParentComponent {
   }
 
   // removeHero(String hero) { } is not used.
-  
+
   void reset() {
     _logger.log('-- reset --');
     heroes.clear();

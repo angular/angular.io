@@ -22,16 +22,16 @@ class ChildViewComponent {
     <div>-- child view begins --</div>
       <my-child></my-child>
     <div>-- child view ends --</div>
-    <p *ngIf="comment != null" class="comment">{{comment}}</p>''',
+    <p *ngIf="comment.isNotEmpty" class="comment">{{comment}}</p>''',
 // #enddocregion template
   directives: const [ChildViewComponent])
 // #docregion hooks
 class AfterViewComponent implements AfterViewChecked, AfterViewInit {
   var _prevHero = '';
-  
+
   // Query for a VIEW child of type `ChildViewComponent`
   @ViewChild(ChildViewComponent) ChildViewComponent viewChild;
-  
+
 // #enddocregion hooks
   final LoggerService _logger;
 
