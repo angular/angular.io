@@ -4,8 +4,6 @@ import 'package:angular2/core.dart';
 
 import 'hero.dart';
 
-var nextHeroDetailId = 1;
-
 // #docregion input-output-2
 @Component(
 // #enddocregion input-output-2
