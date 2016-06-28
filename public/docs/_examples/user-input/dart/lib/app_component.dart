@@ -2,7 +2,7 @@
 import 'package:angular2/core.dart';
 
 import 'click_me_component.dart';
-import 'click_me_component_2.dart';
+import 'click_me2_component.dart';
 import 'keyup_components.dart';
 import 'little_tour_component.dart';
 import 'loop_back_component.dart';
@@ -12,7 +12,7 @@ import 'loop_back_component.dart';
     templateUrl: 'app_component.html',
     directives: const [
       ClickMeComponent,
-      ClickMeComponent2,
+      ClickMe2Component,
       KeyUpComponentV1,
       KeyUpComponentV2,
       KeyUpComponentV3,
