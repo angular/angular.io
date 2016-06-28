@@ -1,5 +1,4 @@
 /* tslint:disable:no-unused-variable */
-// #docplaster
 // #docregion
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
@@ -8,9 +7,9 @@ import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 })
 
 export class HighlightDirective {
-
   // #docregion ctor
   private el: HTMLElement;
+
   constructor(el: ElementRef) { this.el = el.nativeElement; }
   // #enddocregion ctor
 
