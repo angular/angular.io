@@ -13,7 +13,7 @@ import 'exponential_strength_pipe.dart';
       </p>
     ''',
     pipes: const [ExponentialStrengthPipe])
-class PowerBoostCalculator {
+class PowerBoostCalculatorComponent {
   num power = 5;
   num factor = 1;
 }
