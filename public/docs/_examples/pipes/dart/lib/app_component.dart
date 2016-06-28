@@ -16,11 +16,11 @@ import 'power_booster_component.dart';
       FlyingHeroesComponent,
       FlyingHeroesImpureComponent,
       HeroAsyncMessageComponent,
-      HeroBirthday,
-      HeroBirthday2,
+      HeroBirthdayComponent,
+      HeroBirthday2Component,
       HeroListComponent,
-      PowerBoostCalculator,
-      PowerBooster,
+      PowerBoostCalculatorComponent,
+      PowerBoosterComponent,
     ])
 class AppComponent {
   DateTime birthday = new DateTime(1988, 4, 15); // April 15, 1988

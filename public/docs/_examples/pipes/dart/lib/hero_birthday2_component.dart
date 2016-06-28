@@ -11,7 +11,7 @@ import 'package:angular2/angular2.dart';
     // #enddocregion template
     )
 // #docregion class
-class HeroBirthday2 {
+class HeroBirthday2Component {
   DateTime birthday = new DateTime(1988, 4, 15); // April 15, 1988
 
   bool toggle = true;

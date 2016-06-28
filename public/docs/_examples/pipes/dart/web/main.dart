@@ -5,5 +5,5 @@ import 'package:pipe_examples/hero_birthday1_component.dart';
 
 main() {
   bootstrap(AppComponent);
-  bootstrap(HeroBirthday);
+  bootstrap(HeroBirthdayComponent);
 }
