@@ -62,8 +62,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   readTypeScriptModules.sourceFiles = [
     '@angular/common/index.ts',
     '@angular/common/testing.ts',
-    '@angular/compiler/index.ts',
-    '@angular/compiler/testing.ts',
     '@angular/core/index.ts',
     '@angular/core/testing.ts',
     '@angular/http/index.ts',
