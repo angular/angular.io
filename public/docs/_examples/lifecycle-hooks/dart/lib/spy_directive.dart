@@ -9,10 +9,10 @@ int _nextId = 1;
 // Spy on any element to which it is applied.
 // Usage: <div mySpy>...</div>
 @Directive(selector: '[mySpy]')
-class Spy implements OnInit, OnDestroy {
+class SpyDirective implements OnInit, OnDestroy {
   final LoggerService _logger;
 
-  Spy(this._logger);
+  SpyDirective(this._logger);
 
   ngOnInit() => _logIt('onInit');
 
