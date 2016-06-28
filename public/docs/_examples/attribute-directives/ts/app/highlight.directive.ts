@@ -5,20 +5,20 @@ import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 @Directive({
   selector: '[myHighlight]'
 })
-// #docregion class-1
+// #docregion class
 export class HighlightDirective {
   private _defaultColor = 'red';
   private el: HTMLElement;
 
   constructor(el: ElementRef) { this.el = el.nativeElement; }
-  // #enddocregion class-1
+  // #enddocregion class
 
   // #docregion defaultColor
   @Input() set defaultColor(colorName: string){
     this._defaultColor = colorName || this._defaultColor;
   }
   // #enddocregion defaultColor
-  // #docregion class-1
+  // #docregion class
 
   // #docregion color
   @Input('myHighlight') highlightColor: string;
@@ -37,7 +37,7 @@ export class HighlightDirective {
     this.el.style.backgroundColor = color;
   }
 }
-// #enddocregion class-1
+// #enddocregion class
 // #enddocregion full
 /*
 // #docregion highlight
