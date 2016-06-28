@@ -18,10 +18,10 @@ const template = '{{log}}';
     providers: const [Logger]
     // #enddocregion providers-1, providers-logger
 )
-class ProviderComponent1 {
+class Provider1Component {
   String log;
 
-  ProviderComponent1(Logger logger) {
+  Provider1Component(Logger logger) {
     logger.log('Hello from logger provided with Logger class');
     log = logger.logs[0];
   }
@@ -31,15 +31,15 @@ class ProviderComponent1 {
 @Component(
   selector: 'provider-3',
   template: '{{log}}',
-  providers: 
+  providers:
     // #docregion providers-3
     const [const Provider(Logger, useClass: Logger)]
     // #enddocregion providers-3
 )
-class ProviderComponent3 {
+class Provider3Component {
   String log;
 
-  ProviderComponent3(Logger logger) {
+  Provider3Component(Logger logger) {
     logger.log('Hello from logger provided with useClass:Logger');
     log = logger.logs[0];
   }
@@ -56,10 +56,10 @@ class BetterLogger extends Logger {}
       const [const Provider(Logger, useClass: BetterLogger)]
       // #enddocregion providers-4
 )
-class ProviderComponent4 {
+class Provider4Component {
   String log;
 
-  ProviderComponent4(Logger logger) {
+  Provider4Component(Logger logger) {
     logger.log('Hello from logger provided with useClass:BetterLogger');
     log = logger.logs[0];
   }
@@ -87,10 +87,10 @@ class EvenBetterLogger extends Logger {
       const [UserService, const Provider(Logger, useClass: EvenBetterLogger)]
       // #enddocregion providers-5
 )
-class ProviderComponent5 {
+class Provider5Component {
   String log;
 
-  ProviderComponent5(Logger logger) {
+  Provider5Component(Logger logger) {
     logger.log('Hello from EvenBetterlogger');
     log = logger.logs[0];
   }
@@ -116,10 +116,10 @@ class OldLogger extends Logger {
         const Provider(OldLogger, useClass: NewLogger)]
       // #enddocregion providers-6a
 )
-class ProviderComponent6a {
+class Provider6aComponent {
   String log;
 
-  ProviderComponent6a(NewLogger newLogger, OldLogger oldLogger) {
+  Provider6aComponent(NewLogger newLogger, OldLogger oldLogger) {
     if (newLogger == oldLogger) {
       throw new Exception('expected the two loggers to be different instances');
     }
@@ -140,10 +140,10 @@ class ProviderComponent6a {
         const Provider(OldLogger, useExisting: NewLogger)]
       // #enddocregion providers-6b
 )
-class ProviderComponent6b {
+class Provider6bComponent {
   String log;
 
-  ProviderComponent6b(NewLogger newLogger, OldLogger oldLogger) {
+  Provider6bComponent(NewLogger newLogger, OldLogger oldLogger) {
     if (newLogger != oldLogger) {
       throw new Exception('expected the two loggers to be the same instance');
     }
@@ -178,10 +178,10 @@ const silentLogger = const SilentLogger();
     const [const Provider(Logger, useValue: silentLogger)]
     // #enddocregion providers-7
 )
-class ProviderComponent7 {
+class Provider7Component {
   String log;
 
-  ProviderComponent7(Logger logger) {
+  Provider7Component(Logger logger) {
     logger.log('Hello from logger provided with useValue');
     log = logger.logs[0];
   }
@@ -191,13 +191,13 @@ class ProviderComponent7 {
   selector: 'provider-8',
   template: '{{log}}',
   providers: const [heroServiceProvider, Logger, UserService])
-class ProviderComponent8 {
-  // #docregion provider-8-ctor
-  ProviderComponent8(HeroService heroService);
-  // #enddocregion provider-8-ctor
-
+class Provider8Component {
   // must be true else this component would have blown up at runtime
   var log = 'Hero service injected successfully via heroServiceProvider';
+
+  // #docregion provider-8-ctor
+  Provider8Component(HeroService heroService);
+  // #enddocregion provider-8-ctor
 }
 
 @Component(
@@ -208,12 +208,12 @@ class ProviderComponent8 {
     const Provider(APP_CONFIG, useValue: heroDiConfig)]
   // #enddocregion providers-9
 )
-class ProviderComponent9 implements OnInit {
+class Provider9Component implements OnInit {
   Map _config;
   String log;
 
   // #docregion provider-9-ctor
-  ProviderComponent9(@Inject(APP_CONFIG) this._config);
+  Provider9Component(@Inject(APP_CONFIG) this._config);
   // #enddocregion provider-9-ctor
 
   @override
@@ -225,7 +225,7 @@ class ProviderComponent9 implements OnInit {
 // Sample providers 1 to 7 illustrate a required logger dependency.
 // Optional logger, can be null.
 @Component(selector: 'provider-10', template: '{{log}}')
-class ProviderComponent10 implements OnInit {
+class Provider10Component implements OnInit {
   final Logger _logger;
   String log;
 
@@ -234,11 +234,10 @@ class ProviderComponent10 implements OnInit {
   HeroService(@Optional() this._logger) {
   // #enddocregion provider-10-ctor
    */
-  ProviderComponent10(@Optional() this._logger) {
+  Provider10Component(@Optional() this._logger) {
     const someMessage = 'Hello from the injected logger';
     // #docregion provider-10-ctor
-    if (_logger != null)
-      _logger.log(someMessage);
+    _logger?.log(someMessage);
   }
   // #enddocregion provider-10-ctor
 
@@ -263,15 +262,15 @@ class ProviderComponent10 implements OnInit {
       <div id="p9"><provider-9></provider-9></div>
       <div id="p10"><provider-10></provider-10></div>''',
     directives: const [
-      ProviderComponent1,
-      ProviderComponent3,
-      ProviderComponent4,
-      ProviderComponent5,
-      ProviderComponent6a,
-      ProviderComponent6b,
-      ProviderComponent7,
-      ProviderComponent8,
-      ProviderComponent9,
-      ProviderComponent10
+      Provider1Component,
+      Provider3Component,
+      Provider4Component,
+      Provider5Component,
+      Provider6aComponent,
+      Provider6bComponent,
+      Provider7Component,
+      Provider8Component,
+      Provider9Component,
+      Provider10Component
     ])
 class ProvidersComponent {}
