@@ -671,9 +671,9 @@ gulp.task('lint', function() {
       '!./public/docs/_examples/_protractor/**/*',
       '!./public/docs/_examples/**/typings/**/*',
       '!./public/docs/_examples/**/typings-ng1/**/*',
+      '!./public/docs/_examples/**/build/**/*',
       // temporary until codelyzer is fixed mgechev/codelyzer#60
       '!./public/docs/_examples/animations/ts/app/hero.service.ts'
-
     ])
     .pipe(tslint({
       rulesDirectory: ['node_modules/codelyzer'],
