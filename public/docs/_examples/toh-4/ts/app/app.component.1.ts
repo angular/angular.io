@@ -34,9 +34,11 @@ export class AppComponent implements OnInit {
   // #enddocregion heroes-prop
   selectedHero: Hero;
 
+  /*
   // #docregion new-service
   heroService = new HeroService(); // don't do this
   // #enddocregion new-service
+  */
   // #docregion ctor
   constructor(private heroService: HeroService) { }
   // #enddocregion ctor

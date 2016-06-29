@@ -1,27 +1,40 @@
 /// <reference path='../_protractor/e2e.d.ts' />
 'use strict';
+
+import { addToHeroName, Hero, itHasProperTitleAndHeadings, nameSuffix } from './toh-spec-shared';
+
 describe('Tutorial part 1', () => {
 
-  let expectedH1 = 'Tour of Heroes';
-  let expectedTitle = `Angular 2 ${expectedH1}`;
-  let hero = { id: 1, name: 'Windstorm' };
-  let expectedH2 = `${hero.name} details!`;
+  const expectedHero = { id: 1, name: 'Windstorm' };
 
-  beforeEach(() => {
-    return browser.get('');
+  beforeAll(() => browser.get(''));
+
+  itHasProperTitleAndHeadings();
+
+  it(`shows initial hero details`, async () => {
+    let page = getPageElts();
+    let hero = await Hero.fromDetail(page.heroDetail);
+    expect(hero.id).toEqual(expectedHero.id);
+    expect(hero.name).toEqual(expectedHero.name);
   });
 
-  it(`should have title '${expectedTitle}'`, () => {
-    expect(browser.getTitle()).toEqual(expectedTitle);
+  it(`can update hero name`, () => {
+    addToHeroName(nameSuffix);
+    // Nothing specific to expect other than lack of exceptions.
   });
 
-  it(`should have '${expectedH2}'`, () => {
-    let text = element(by.css('h2')).getText();
-    expect(text).toEqual(expectedH2);
+  it(`shows updated hero name`, async () => {
+    let page = getPageElts();
+    let hero = await Hero.fromDetail(page.heroDetail);
+    let newName = expectedHero.name + nameSuffix;
+    expect(hero.id).toEqual(expectedHero.id);
+    expect(hero.name).toEqual(newName);
   });
 
-  it(`should have input name '${hero.name}'`, () => {
-    let name = element(by.css('input')).getAttribute('value');
-    expect(name).toEqual(hero.name);
-  });
 });
+
+function getPageElts() {
+  return {
+    heroDetail: element(by.css('my-app'))
+  };
+}
