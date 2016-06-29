@@ -4,7 +4,7 @@ import { HeroesComponent } from './heroes.component';
 
 const routes: RouterConfig = [
   {
-    path: '/heroes',
+    path: 'heroes',
     component: HeroesComponent
   }
 ];
