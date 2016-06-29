@@ -1,4 +1,6 @@
 # Angular.io
+[![Build Status][travis-badge]][travis-badge-url]
+
 Angular.io is site for Angular 2 **documentation** . 
 
 This site also includes links to other helpful angular resources including 
@@ -125,3 +127,6 @@ Any combination of options is possible.
 
 ## License
 Powered by Google ©2010-2016. Code licensed under an [MIT-style License](https://github.com/angular.io/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
+
+[travis-badge]: https://travis-ci.org/angular/angular.io.svg?branch=master
+[travis-badge-url]: https://travis-ci.org/angular/angular.io
