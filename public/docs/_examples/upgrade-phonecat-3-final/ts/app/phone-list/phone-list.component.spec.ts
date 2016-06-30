@@ -1,25 +1,27 @@
 // #docregion routestuff
-import { ApplicationRef } from '@angular/core';
-import { LocationStrategy } from '@angular/common';
+import { Directive } from '@angular/core';
 import { HTTP_PROVIDERS } from '@angular/http';
 import {
-  ROUTER_PROVIDERS,
+  Router,
+  RouterLink,
+  RootRouter,
+  RouteRegistry,
   ROUTER_PRIMARY_COMPONENT
 } from '@angular/router-deprecated';
 import { Observable } from 'rxjs/Rx';
 import {
   describe,
-  beforeEachProviders,
+  addProviders,
   inject,
   it,
   expect,
-  MockApplicationRef
+  // MockApplicationRef
 } from '@angular/core/testing';
-import { MockLocationStrategy } from '@angular/common/testing';
+import { SpyLocation } from '@angular/common/testing';
 import {
   TestComponentBuilder,
   ComponentFixture
-} from '@angular/compiler/testing';
+} from '@angular/core/testing';
 
 import { AppComponent } from '../app.component';
 import { PhoneListComponent } from './phone-list.component';
@@ -27,6 +29,11 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 
 // #enddocregion routestuff
 
+@Directive({
+  selector: '[routerLink]',
+  inputs: ['routeParams: routerLink', 'target: target']
+})
+class RouterLinkMock {}
 
 class MockPhone extends Phone {
   query(): Observable<PhoneData[]> {
@@ -41,19 +48,22 @@ describe('PhoneList', () => {
 
   // #docregion routestuff
 
-  beforeEachProviders(() => [
-    { provide: Phone, useClass: MockPhone},
-    HTTP_PROVIDERS,
-    ROUTER_PROVIDERS,
-    { provide: ApplicationRef, useClass: MockApplicationRef },
+  addProviders([
+    RouteRegistry,
+    { provide: Router, useClass: RootRouter },
     { provide: ROUTER_PRIMARY_COMPONENT, useValue: AppComponent },
-    { provide: LocationStrategy, useClass: MockLocationStrategy},
+    { provide: Location, useClass: SpyLocation},
+    { provide: Phone, useClass: MockPhone},
+    HTTP_PROVIDERS
   ]);
   // #enddocregion routestuff
 
   it('should create "phones" model with 2 phones fetched from xhr',
       inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-    return tcb.createAsync(PhoneListComponent)
+    return tcb
+    .overrideDirective(AppComponent, RouterLink, RouterLinkMock)
+    .overrideDirective(PhoneListComponent, RouterLink, RouterLinkMock)
+    .createAsync(PhoneListComponent)
         .then((fixture: ComponentFixture<PhoneListComponent>) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
@@ -69,7 +79,10 @@ describe('PhoneList', () => {
 
   it('should set the default value of orderProp model',
       inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-    return tcb.createAsync(PhoneListComponent)
+    return tcb
+      .overrideDirective(AppComponent, RouterLink, RouterLinkMock)
+      .overrideDirective(PhoneListComponent, RouterLink, RouterLinkMock)
+      .createAsync(PhoneListComponent)
         .then((fixture: ComponentFixture<PhoneListComponent>) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
