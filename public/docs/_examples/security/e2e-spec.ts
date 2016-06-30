@@ -1,7 +1,8 @@
 /// <reference path="../_protractor/e2e.d.ts" />
 'use strict';
+
 describe('Security E2E Tests', () => {
-  beforeAll(function() { browser.get(''); });
+  beforeAll(() => browser.get(''));
 
   it('sanitizes innerHTML', () => {
     let interpolated = element(By.className('e2e-inner-html-interpolated'));
@@ -13,13 +14,23 @@ describe('Security E2E Tests', () => {
     expect(bold.getText()).toContain('Syntax');
   });
 
+  it('escapes untrusted URLs', () => {
+    let untrustedUrl = element(By.className('e2e-dangerous-url'));
+    expect(untrustedUrl.getAttribute('href')).toMatch(/^unsafe:javascript/);
+  });
+
   it('binds trusted URLs', () => {
-    let dangerousUrl = element(By.className('e2e-dangerous-url'));
-    expect(dangerousUrl.getAttribute('href')).toMatch(/^javascript:alert/);
+    let trustedUrl = element(By.className('e2e-trusted-url'));
+    expect(trustedUrl.getAttribute('href')).toMatch(/^javascript:alert/);
+  });
+
+  it('escapes untrusted resource URLs', () => {
+    let iframe = element(By.className('e2e-iframe-untrusted-src'));
+    expect(iframe.getAttribute('src')).toBe('');
   });
 
   it('binds trusted resource URLs', () => {
-    let iframe = element(By.className('e2e-iframe'));
+    let iframe = element(By.className('e2e-iframe-trusted-src'));
     expect(iframe.getAttribute('src')).toMatch(/^https:\/\/www.youtube.com\//);
   });
 });
