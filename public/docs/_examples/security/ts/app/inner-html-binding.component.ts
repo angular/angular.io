@@ -11,4 +11,3 @@ export class InnerHtmlBindingComponent {
   // E.g. a user/attacker controlled value from a URL.
   htmlSnippet = 'Template <script>alert("0wned")</script> <b>Syntax</b>';
 }
-// #enddocregion inner-html-controller
