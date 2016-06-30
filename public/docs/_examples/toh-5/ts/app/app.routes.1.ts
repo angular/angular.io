@@ -11,7 +11,7 @@ export const routes: RouterConfig = [
   {
     path: '',
     redirectTo: '/dashboard',
-    terminal: true
+    pathMatch: 'full'
   },
   // #enddocregion redirect-route
   // #docregion dashboard-route

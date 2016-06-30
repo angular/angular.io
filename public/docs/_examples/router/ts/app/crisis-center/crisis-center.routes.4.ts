@@ -13,7 +13,7 @@ export const CrisisCenterRoutes: RouterConfig = [
   {
     path: '',
     redirectTo: '/crisis-center',
-    terminal: true
+    pathMatch: 'full'
   },
   {
     path: 'crisis-center',
