@@ -1,3 +1,4 @@
+/* tslint:disable */
 // #docregion routestuff
 import { Directive } from '@angular/core';
 import { HTTP_PROVIDERS } from '@angular/http';
