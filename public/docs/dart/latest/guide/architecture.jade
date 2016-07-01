@@ -1,451 +1,72 @@
-include ../_util-fns
+extends ../../../ts/latest/guide/architecture.jade
+
+block includes
+  include ../_util-fns
+  - var _library_module = 'library'
+  - var _at_angular = 'angular2'
 
 :marked
   Angular 2 is a framework to help us build client applications in HTML and
   either JavaScript or a language (like Dart or TypeScript) that compiles to JavaScript.
-  Angular 2 for Dart is published as the `angular2` package, which
-  (like many other Dart packages) is available via the Pub tool.
 
-  With Angular, we write applications by composing HTML *templates* with Angularized markup,
-  writing *component* classes to manage those templates, adding application logic in *services*,
-  and handing the top root component to Angular's *bootstrapper*.
-
-  Angular takes over, presenting our application content in a browser and responding to user interactions
-  according to the instructions we provided.
-
-<!-- figure img(src="/resources/images/devguide/architecture/airplane.png" alt="Us" align="left" style="width:200px; margin-left:-40px;margin-right:10px" ) -->
-:marked
-  Of course there is more to it than this.
-  We're cruising at high altitude in this overview.
-  We're looking for landmarks. We should expect the object below to be fuzzy and obscured by occasional clouds.
-  Details become more clear and precise when we land in the chapters themselves.
-<br clear="all">
-
-:marked
-  An Angular 2 for Dart application rests on seven main building blocks:
-  1. [Components](#component)
-  1. [Templates](#template)
-  1. [Metadata](#metadata)
-  1. [Data binding](#data-binding)
-  1. [Directives](#directive)
-  1. [Services](#service)
-  1. [Dependency injection](#dependency-injection)
-
-figure
-  img(src="/resources/images/devguide/architecture/overview.png" alt="overview" style="margin-left:-40px;" width="700")
-:marked
-  Learn these seven and we're on our way.
-
-.l-main-section
-<a id="component"></a>
-:marked
-  ## Components
-figure
-  img(src="/resources/images/devguide/architecture/hero-component.png" alt="Component" align="left" style="width:200px; margin-left:-40px;margin-right:10px" )
-:marked
-  A **component** controls a patch of screen real estate that we could call a *view*.
-  A set of navigation links, a list of heroes, a hero editor ...
-  they're all views controlled by components.
-
-  We define a component's application logic — what it does to support the view — inside a class.
-  The class interacts with the view through an API of properties and methods.
-
-  <a id="component-code"></a>
-  A `HeroListComponent`, for example, might have a `heroes` property that returns an array of heroes
-  that it acquired from a service.
-  It might have a `selectHero()` method that sets a `selectedHero` property when the user clicks to choose a hero from that list.
-  The component might be a class like this:
-
-+makeExample('architecture/dart/lib/hero_list_component.dart', 'class', 'lib/hero_list_component.dart')
-:marked
-  Angular creates, updates, and destroys components as the user moves through the application.
-  The developer can take action at each moment in this lifecycle through optional lifecycle hooks.
-  <!-- PENDING: What was that supposed to link to? -->
-
-.l-sub-section
+block angular-parts
   :marked
-    We may wonder who is calling the component's constructor? Who provides the service parameter?
-    For the moment, have faith that Angular will call the constructor and deliver an
-    appropriate `HeroService` when we need it.
+    Angular 2 for Dart is published as the `angular2` package, which
+    (like many other Dart packages) is available via the Pub tool.
 
-.l-main-section
-<a id="template"></a>
-:marked
-  ## Templates
-figure
-  img(src="/resources/images/devguide/architecture/template.png" alt="Template" align="left" style="width:200px; margin-left:-40px;margin-right:10px" )
-:marked
-  We define a component's view with its companion **template**. A template is a form of HTML
-  that tells Angular how to render the component.
+block modules-in-dart
+  .callout.is-helpful
+    header Dart difference: Modules are compilation units or packages
+    :marked
+      In this guide, the term _module_ refers to a Dart compilation unit, such
+      as a library, or a package. (If a Dart file has no `library` or `part`
+      directive, then that file itself is a library and thus a compilation
+      unit.) For more information about compilation units, see
+      the chapter on "Libraries and Scripts" in the
+      [Dart Language Specification](https://www.dartlang.org/docs/spec/).
 
-  A template looks like regular HTML much of the time ... and then it gets a bit strange. Here is a
-  template for our `HeroListComponent`:
-+makeExample('architecture/dart/lib/hero_list_component.html', null, 'lib/hero_list_component.html')
-:marked
-  This template features typical HTML elements like `<h2>` and  `<div>`.
-  But what are `*ngFor`, <code>{&zwnj;{hero.name}}</code>, `(click)`, `[hero]`, and `<hero-detail>`?
-  They're examples of Angular's template syntax. <!-- TODO: link to template-syntax.html -->
-  We'll grow accustomed to that syntax and may even learn to love it.
+block modules-are-optional
+  //- N/A
 
-  Take a look at the last line,
-  which has the `<hero-detail>` tag.
-  That tag adds a custom element representing a component we haven't seen yet,
-  a `HeroDetailComponent`.
+block export-qualifier
+  .callout.is-helpful
+    header Dart difference: Public names are exported by default
+    :marked
+      Contrary to TypeScript, a Dart library always exports all names and
+      declarations in its **public** namespace, making explicit `export`
+      qualifiers unnecessary.
+      
+      When we say that a module _exports_ a declaration, we mean that the
+      declaration is _public_. For more details about name spaces and export
+      statements, see the section on "Exports" in the
+      [Dart Language Specification](https://www.dartlang.org/docs/spec/).
 
-  The `HeroDetailComponent` is a *different* component than the `HeroListComponent` we've seen.
-  The `HeroDetailComponent` (code not shown) presents facts about a particular hero, the
-  hero that the user selects from the list presented by the `HeroListComponent`.
-  The `HeroDetailComponent` is a **child** of the `HeroListComponent`.
+block ts-import
+  //- N/A
 
-figure
-  img(src="/resources/images/devguide/architecture/component-tree.png" alt="Metadata" align="left" style="width:300px; margin-left:-40px;margin-right:10px" )
-:marked
-  Notice how `<hero-detail>` rests comfortably among native HTML elements.
-  We can and _will_ mix our custom components with native HTML in the same layouts.
-
-  In this manner we'll compose complex component trees to build out our richly featured application.
-<br clear="all">
-
-.l-main-section
-<a id="metadata"></a>
-:marked
-  ## Metadata
-figure
-  img(src="/resources/images/devguide/architecture/metadata.png" alt="Metadata" align="left" style="width:150px; margin-left:-40px;margin-right:10px" )
-:marked
-<p style="padding-top:10px">Metadata tells Angular how to process a class.</p>
-<br clear="all">
-:marked
-  [Looking back at the code](#component-code) for `HeroListComponent`, we see that it's just a class.
-  There is no evidence of a framework, no "Angular" in it at all.
-
-  In fact, it really is *just a class*. It's not a component until we *tell Angular about it*.
-
-  We tell Angular that `HeroListComponent` is a component by attaching **metadata** to the class.
-
-  In Dart, we attach metadata by using an **annotation**.
-  Here's some metadata for `HeroListComponent`:
-
-+makeExample('architecture/dart/lib/hero_list_component.dart', 'metadata', 'lib/hero_list_component.dart')
-:marked
-  Here we see the `@Component` annotation, which (no surprise) identifies the class
-  immediately below it as a component class.
-
-  Annotations often have configuration parameters.
-  The `@Component` annotation takes parameters to provide the
-  information Angular needs to create and present the component and its view.
-
-  Here we see a few of the possible `@Component` parameters:
-
-  * `selector`: A CSS selector that tells Angular to create and insert an instance of this component
-  where it finds a `<hero-list>` tag in *parent* HTML.
-  For example, if an app's  HTML contains `<hero-list></hero-list>`, then
-  Angular inserts an instance of the `HeroListComponent` view between those tags.
-
-  * `templateUrl`: The address of this component's template, which we showed [above](#the-template).
-
-  * `directives`: An array of the components or directives that *this* template requires.
-  We saw in the last line of our template that we expect Angular to insert a `HeroDetailComponent`
-  in the space indicated by `<hero-detail>` tags.
-  Angular will do so only if we mention the `HeroDetailComponent` in this `directives` array.
-
-  * `providers`: An array of **dependency injection providers** for services that the component requires.
-  This is one way to tell Angular that our component's constructor requires a `HeroService`
-  so it can get the list of heroes to display. We'll get to dependency injection later.
-figure
-  img(src="/resources/images/devguide/architecture/template-metadata-component.png" alt="Metadata" align="left" style="height:200px; margin-left:-40px;margin-right:10px" )
-
-:marked
-  At runtime, Angular discovers the metadata specified by the `@Component`
-  annotation. That's how Angular learns how to do "the right thing".
-
-  The template, metadata, and component together describe the view.
-
-  We apply other metadata annotations in a similar fashion to guide Angular behavior.
-  `@Injectable`, `@Input`, `@Output`, and `@RouterConfig` are a few of the more popular annotations
-  we'll master as our Angular knowledge grows.
-<br clear="all">
-:marked
-  The architectural takeaway is that we must add metadata to our code
-  so that Angular knows what to do.
-
-.l-main-section
-<a id="data-binding"></a>
-:marked
-  ## Data binding
-  Without a framework, we would be responsible for pushing data values into the HTML controls and turning user responses
-  into actions and value updates. Writing such push/pull logic by hand is tedious, error-prone, and a nightmare to
-  read as any experienced jQuery programmer can attest.
-figure
-  img(src="/resources/images/devguide/architecture/databinding.png" alt="Data Binding" style="width:220px; float:left; margin-left:-40px;margin-right:20px" )
-:marked
-  Angular supports **data binding**,
-  a mechanism for coordinating parts of a template with parts of a component.
-  We add binding markup to the template HTML to tell Angular how to connect both sides.
-
-  There are four forms of data binding syntax. Each form has a direction — to the DOM, from the DOM, or in both directions —
-  as indicated by the arrows in the diagram.
-<br clear="all">
-:marked
-  We saw three forms of data binding in our [example](#template) template:
-+makeExample('architecture/dart/lib/hero_list_component_1.html', 'binding')(format=".")
-:marked
-  * The <code>{&zwnj;{hero.name}}</code> [interpolation](displaying-data.html#interpolation)
-  displays the component's `hero.name` property value within the `<div>` tags.
-
-  * The `[hero]` property binding <!-- TODO: link to template-syntax.html#property-binding-->
-  passes the value of `selectedHero` from
-  the parent `HeroListComponent` to the `hero` property of the child `HeroDetailComponent`.
-
-  * The `(click)` [event binding](user-input.html#click) calls the component's `selectHero` method when the user clicks a hero's name.
-
-  **Two-way data binding** is an important fourth form
-  that combines property and event binding in a single notation, using the `ngModel` directive.
-  We didn't have a two-way binding in the `HeroListComponent` template;
-  here's an example from the `HeroDetailComponent` template:
-
-+makeExample('architecture/dart/lib/hero_detail_component.html', 'ng-model', 'lib/hero_detail_component.html (excerpt)')(format=".")
-:marked
-  In two-way binding, a data property value flows to the input box from the component as with property binding.
-  The user's changes also flow back to the component, resetting the property to the latest value,
-  as with event binding.
-
-  Angular processes *all* data bindings once per JavaScript event cycle,
-  depth-first from the root of the application component tree.
-  <!-- PENDING: clarify what "depth-first from the root" really means,
-  or reassure that they'll learn it soon. -->
-figure
-  img(src="/resources/images/devguide/architecture/component-databinding.png" alt="Data Binding" style="float:left; width:300px; margin-left:-40px;margin-right:10px" )
-:marked
-  We don't know all the details yet,
-  but it's clear from these examples that data binding plays an important role in communication
-  between a template and its component.
-<br clear="all">
-figure
-  img(src="/resources/images/devguide/architecture/parent-child-binding.png" alt="Parent/Child binding" style="float:left; width:300px; margin-left:-40px;margin-right:10px" )
-:marked
-  Data binding is also important for communication between parent and child components.
-<br clear="all">
-
-.l-main-section
-<a id="directive"></a>
-:marked
-  ## Directives
-figure
-  img(src="/resources/images/devguide/architecture/directive.png" alt="Parent child" style="float:left; width:150px; margin-left:-40px;margin-right:10px" )
-:marked
-  Angular templates are *dynamic*. When Angular renders them, it transforms the DOM
-  according to the instructions given by **directives**.
-
-  A directive is a class with directive metadata. In Dart we apply the `@Directive` annotation
-  to attach metadata to the class.
-<br clear="all">
-:marked
-  We already met one form of directive: the component. A component is a *directive-with-a-template*;
-  a `@Component` annotation is actually a `@Directive` annotation extended with template-oriented features.
-
-.l-sub-section
+block angular-library-modules
   :marked
-    While **a component is technically a directive**,
-    components are so distinctive and central to Angular applications that we chose
-    to separate components from directives in this architectural overview.
-:marked
-  Two *other* kinds of directives exist: _structural_ and _attribute_ directives.
+    Angular ships as a collection of libraries within the
+    [**angular2**](https://pub.dartlang.org/packages/angular2) package.
 
-  They tend to appear within an element tag like attributes,
-  sometimes by name but more often as the target of an assignment or a binding.
+block angular-imports
+  +makeExcerpt('app/app.component.ts', 'import')
 
-  **Structural** directives alter layout by adding, removing, and replacing elements in DOM.
-
-  Our [example](#template) template uses two built-in structural directives:
-+makeExample('architecture/dart/lib/hero_list_component_1.html', 'structural')(format=".")
-:marked
-  * [`*ngFor`](displaying-data.html#ng-for) tells Angular to stamp out one `<div>` per hero in the `heroes` list.
-  * [`*ngIf`](displaying-data.html#ng-if) includes the `HeroDetail` component only if a selected hero exists.
-
-.l-sub-section
+block ts-decorator
   :marked
-    In Dart, **the only value that is true is the boolean value `true`**; all
-    other values are false. JavaScript and TypeScript, in contrast, treat values
-    such as 1 and most non-null objects as true. For this reason, the JavaScript
-    and TypeScript versions of this app can use just `selectedHero` as the value
-    of the `*ngIf` expression. The Dart version must use a boolean operator such
-    as `!=` instead.
+    Annotations often have configuration parameters.
+    The `@Component` annotation takes parameters to provide the
+    information Angular needs to create and present the component and its view.
 
-:marked
-  **Attribute** directives alter the appearance or behavior of an existing element.
-  In templates they look like regular HTML attributes, hence the name.
+    Here are a few of the possible `@Component` parameters:
 
-  The `ngModel` directive, which implements two-way data binding, is
-  an example of an attribute directive. `ngModel` modifies the behavior of
-  an existing element (typically an `<input>`)
-  by setting its display value property and responding to change events.
-
-+makeExample('architecture/dart/lib/hero_detail_component.html', 'ng-model')(format=".")
-:marked
-  Angular ships with a small number of other directives that either alter the layout structure
-  (for example, `ngSwitch`) <!-- TODO: link to template-syntax.html#ng-switch -->
-  or modify aspects of DOM elements and components
-  (for example, `ngStyle` and `ngClass`).
-  <!-- PENDING: link to template-syntax.html#ng-style template-syntax.html#ng-class-->
-
-  Of course, we can also write our own directives. Components such as
-  `HeroListComponent` are one kind of custom directive.
-  <!-- PENDING: link to where to learn more about other kinds! -->
-
-.l-main-section
-<a id="service"></a>
-:marked
-  ## Services
-figure
-  img(src="/resources/images/devguide/architecture/service.png" alt="Service" style="float:left; margin-left:-40px;margin-right:10px" )
-:marked
-  _Services_ is a broad category encompassing any value, function, or feature that our application needs.
-
-  Almost anything can be a service.
-  A service is typically a class with a narrow, well-defined purpose. It should do something specific and do it well.
-<br clear="all">
-:marked
-  Examples include:
-  * logging service
-  * data service
-  * message bus
-  * tax calculator
-  * application configuration
-
-  There is nothing specifically _Angular_ about services. Angular itself has no definition of a service.
-  There is no service base class, and no place to register a service.
-
-  Yet services are fundamental to any Angular application. Our components are big consumers of services.
-
-  We prefer our component classes lean. Our components don't fetch data from the server,
-  they don't validate user input, and they don't log directly to console. They delegate such tasks to services.
-
-  A component's job is to enable the user experience and nothing more. It mediates between the view (rendered by the template)
-  and the application logic (which often includes some notion of a _model_).
-  A good component presents properties and methods for data binding.
-  It delegates everything nontrivial to services.
-
-  Angular doesn't *enforce* these principles.
-  It won't complain if we write a "kitchen sink" component with 3000 lines.
-
-  Angular does help us *follow* these principles by making it easy to factor our
-  application logic into services and make those services available to components through *dependency injection*.
-
-.l-main-section
-<a id="dependency-injection"></a>
-:marked
-  ## Dependency injection
-figure
-  img(src="/resources/images/devguide/architecture/dependency-injection.png" alt="Service" style="float:left; width:200px; margin-left:-40px;margin-right:10px" )
-:marked
-  Dependency injection is a way to supply a new instance of a class
-  with the fully-formed dependencies it requires. Most dependencies are services.
-  Angular uses dependency injection to provide new components with the services they need.
-<br clear="all">
-:marked
-  Angular can tell which services a component needs by looking at the types of its constructor parameters.
-  For example, the constructor of our `HeroListComponent` needs a `HeroService`:
-+makeExample('architecture/dart/lib/hero_list_component.dart', 'ctor', 'lib/hero_list_component.dart (excerpt)')(format='.')
-:marked
-  When Angular creates a component, it first asks an **injector** for
-  the services that the component requires.
-
-  An injector maintains a container of service instances that it has previously created.
-  If a requested service instance is not in the container, the injector makes one and adds it to the container
-  before returning the service to Angular.
-  When all requested services have been resolved and returned,
-  Angular can call the component's constructor with those services as arguments.
-  This is what we mean by *dependency injection*.
-
-  The process of `HeroService` injection looks a bit like this:
-figure
-  img(src="/resources/images/devguide/architecture/injector-injects.png" alt="Service" )
-:marked
-  If the injector doesn't have a `HeroService`, how does it know how to make one?
-
-  In brief, we must have previously registered a **provider** of the `HeroService` with the injector.
-  A provider is something that can create or return a service, typically  the service class itself.
-
-  We can register providers at any level of the application component tree.
-  We often do so at the root when we bootstrap the application so that
-  the same instance of a service is available everywhere.
-+makeExample('architecture/dart/web/main.dart', 'bootstrap', 'web/main.dart (excerpt)')(format='.')
-:marked
-  Alternatively, we might register at a component level:
-+makeExample('architecture/dart/lib/hero_list_component.dart', 'providers', 'lib/hero_list_component.dart (excerpt)')(format='.')
-:marked
-  Registering at a component level means we get a new instance of the
-  service with each new instance of that component.
-
-  <!-- We've vastly oversimplified dependency injection for this overview.
-  The full story is in the [Dependency Injection](dependency-injection.html) chapter. -->
-
-  Points to remember about dependency injection:
-
-  * Dependency injection is wired into the Angular framework and used everywhere.
-
-  * The *injector* is the main mechanism.
-    * An injector maintains a *container* of service instances that it created.
-    * An injector can create a new service instance from a *provider*.
-
-  * A *provider* is a recipe for creating a service.
-
-  * We register *providers* with injectors.
-
-<a id="other-stuff"></a>
-.l-main-section
-:marked
-  ## Other stuff
-
-  We've learned just a bit about the seven main building blocks of an Angular application:
-  1. [Components](#component)
-  1. [Templates](#template)
-  1. [Metadata](#metadata)
-  1. [Data binding](#data-binding)
-  1. [Directives](#directive)
-  1. [Services](#service)
-  1. [Dependency injection](#dependency-injection)
-
-  That's a foundation for everything else in an Angular application,
-  and it's more than enough to get going.
-  But it doesn't include everything we'll need or want to know.
-
-  Here is a brief, alphabetical list of other important Angular features and services.
-  Most of them are covered in this Developers Guide (or soon will be).
-
-  >**Animations:** A forthcoming animation library makes it easy for developers to animate component behavior
-  without deep knowledge of animation techniques or CSS.
-
-  >**Bootstrap:** A method to configure and launch the root application component.
-
-  >**Change detection:** Learn how Angular decides that a component property value has changed and
-  when to update the screen.
-  Learn how it uses **zones** to intercept asynchronous activity and run its change detection strategies.
-
-  >**Component router:** With the component Router service, users can navigate a multi-screen application
-  in a familiar web browsing style using URLs.
-
-  >**Events:** The DOM raises events. So can components and services. Angular offers mechanisms for
-  publishing and subscribing to events including an implementation of the [RxJS Observable](https://github.com/zenparsing/es-observable) proposal.
-
-  >**[Forms](forms.html):** Support complex data entry scenarios with HTML-based validation and dirty checking.
-
-  >**HTTP:** Communicate with a server to get data, save data, and invoke server-side actions with this Angular HTTP client.
-
-  >**Lifecycle hooks:** We can tap into key moments in the lifetime of a component, from its creation to its destruction,
-  by implementing the lifecycle hook interfaces.
-
-  >**Pipes:** Services that transform values for display.
-  We can put pipes in our templates to improve the user experience. Consider
-  this `currency` pipe expression:
-<div style="margin-left:40px">
-code-example(language="javascript" linenumbers=".").
-  price | currency:'USD':true'
-</div>
-:marked
-  >It displays a price of "42.33" as `$42.33`.
-
-  >**Testing:** Angular provides a
-  [testing library](https://pub.dartlang.org/packages/angular2_testing)
-  to run unit tests on our application parts as they interact with the Angular framework.
+block dart-bool
+  .callout.is-helpful
+    header Dart difference: Only true is true
+    :marked
+      In Dart, **the only value that is true is the boolean value `true`**; all
+      other values are false. JavaScript and TypeScript, in contrast, treat values
+      such as 1 and most non-null objects as true. For this reason, the JavaScript
+      and TypeScript versions of this app can use just `selectedHero` as the value
+      of the `*ngIf` expression. The Dart version must use a boolean operator such
+      as `!=` instead.

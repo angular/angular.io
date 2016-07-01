@@ -1,63 +1,99 @@
 /// <reference path='../_protractor/e2e.d.ts' />
 'use strict';
-describe('Architecture', function () {
 
-  let title = 'Hero List';
+const nameSuffix = 'X';
 
-  beforeAll(function () {
-    browser.get('');
+class Hero {
+  id: number;
+  name: string;
+}
+
+describe('Architecture', () => {
+
+  const expectedTitle = 'Architecture of Angular 2';
+  const expectedH2 = ['Hero List', 'Sales Tax Calculator'];
+
+  beforeAll(() => browser.get(''));
+
+  it(`has title '${expectedTitle}'`, () => {
+    expect(browser.getTitle()).toEqual(expectedTitle);
   });
 
-  function itReset(name: string, func: () => any) {
-    it(name, function() {
-      browser.get('').then(func);
-    });
-  }
-
-  it(`should display correct title: ${title}`, function () {
-    expect(element(by.css('h2')).getText()).toEqual(title);
+  it(`has h2 '${expectedH2}'`, () => {
+    let h2 = element.all(by.css('h2')).map((elt) => elt.getText());
+    expect(h2).toEqual(expectedH2);
   });
 
-  it('should display correct detail after selection', function() {
-    let detailView = element(by.css('hero-detail'));
-    expect(detailView.isPresent()).toBe(false);
-    // select the 2nd element
-    let selectEle = element.all(by.css('hero-list > div')).get(1);
-    selectEle.click().then(function() {
-      return selectEle.getText();
-    }).then(function(selectedHeroName) {
-      // works but too specific if we change the app
-      // expect(selectedHeroName).toEqual('Mr. Nice');
-      expect(detailView.isDisplayed()).toBe(true);
-      let detailTitleEle = element(by.css('hero-detail > h4'));
-      expect(detailTitleEle.getText()).toContain(selectedHeroName);
-    });
-  });
-
-  itReset('should display correct detail after modification', function() {
-    let detailView = element(by.css('hero-detail'));
-    expect(detailView.isPresent()).toBe(false);
-    // select the 2nd element
-    let selectEle = element.all(by.css('hero-list > div')).get(1);
-    selectEle.click().then(function () {
-      return selectEle.getText();
-    }).then(function (selectedHeroName) {
-      let detailTitleEle = element(by.css('hero-detail > h4'));
-      expect(detailTitleEle.getText()).toContain(selectedHeroName);
-      let heroNameEle = element.all(by.css('hero-detail input')).get(0);
-
-      // check that both the initial selected item and the detail title reflect changes
-      // made to the input box.
-      // heroNameEle.sendKeys('foo');
-      sendKeys(heroNameEle, 'foo');
-      expect(detailTitleEle.getText()).toContain('foo');
-      expect(selectEle.getText()).toContain('foo');
-
-      // getText on an input element always returns null
-      // http://stackoverflow.com/questions/20310442/how-to-gettext-on-an-input-in-protractor
-      // expect(heroNameEle.getText()).toEqual(selectedHeroName);
-      expect(heroNameEle.getAttribute('value')).toEqual(selectedHeroName + 'foo');
-    });
-  });
-
+  describe('Hero', heroTests);
+  describe('Salex tax', salesTaxTests);
 });
+
+function heroTests() {
+
+  const targetHero: Hero = { id: 2, name: 'Mr. Nice' };
+
+  it('has the right number of heroes', () => {
+    let page = getPageElts();
+    expect(page.heroes.count()).toEqual(3);
+  });
+
+  it('has no hero details initially', function () {
+    let page = getPageElts();
+    expect(page.heroDetail.isPresent()).toBeFalsy('no hero detail');
+  });
+
+  it('shows selected hero details', async () => {
+    await element(by.cssContainingText('li', targetHero.name)).click();
+    let page = getPageElts();
+    let hero = await heroFromDetail(page.heroDetail);
+    expect(hero.id).toEqual(targetHero.id);
+    expect(hero.name).toEqual(targetHero.name);
+  });
+
+  it(`shows updated hero name in details`, async () => {
+    let input = element.all(by.css('input')).first();
+    await sendKeys(input, nameSuffix);
+    let page = getPageElts();
+    let hero = await heroFromDetail(page.heroDetail);
+    let newName = targetHero.name + nameSuffix;
+    expect(hero.id).toEqual(targetHero.id);
+    expect(hero.name).toEqual(newName);
+  });
+}
+
+function salesTaxTests() {
+  it('has no sales tax initially', function () {
+    let page = getPageElts();
+    expect(page.salesTaxDetail.isPresent()).toBeFalsy('no sales tax info');
+  });
+
+  it('shows sales tax', async function () {
+    let page = getPageElts();
+    await sendKeys(page.salesTaxAmountInput, '10');
+    // Note: due to Dart bug USD is shown instead of $
+    let re = /The sales tax is (\$|USD)1.00/;
+    expect(page.salesTaxDetail.getText()).toMatch(re);
+  });
+}
+
+// Helper functions
+
+function getPageElts() {
+  return {
+    heroes: element.all(by.css('my-app li')),
+    heroDetail: element(by.css('my-app hero-detail')),
+    salesTaxAmountInput: element(by.css('my-app sales-tax input')),
+    salesTaxDetail: element(by.css('my-app sales-tax div'))
+  };
+}
+
+async function heroFromDetail(detail: protractor.ElementFinder): Promise<Hero> {
+  // Get hero id from the first <div>
+  let _id = await detail.all(by.css('div')).first().getText();
+  // Get name from the h2
+  let _name = await detail.element(by.css('h4')).getText();
+  return {
+    id: +_id.substr(_id.indexOf(' ') + 1),
+    name: _name.substr(0, _name.lastIndexOf(' '))
+  };
+}

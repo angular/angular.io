@@ -1,20 +1,14 @@
-// #docregion
 import { Injectable } from '@angular/core';
 
 import { TaxRateService } from './tax-rate.service';
 
-// #docregion class
 @Injectable()
 export class SalesTaxService {
   constructor(private rateService: TaxRateService) { }
+
   getVAT(value: string | number) {
-    let amount: number;
-    if (typeof value === 'string') {
-      amount = parseFloat(value);
-    } else {
-      amount = value;
-    }
+    let amount = (typeof value === 'string') ?
+      parseFloat(value) : value;
     return (amount || 0) * this.rateService.getRate('VAT');
   }
 }
-// #enddocregion class

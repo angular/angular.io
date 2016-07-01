@@ -1,14 +1,9 @@
-// #docplaster
-// #docregion
 import { Component }       from '@angular/core';
 
 import { SalesTaxService } from './sales-tax.service';
 import { TaxRateService }  from './tax-rate.service';
 
-// #docregion metadata
-// #docregion providers
 @Component({
-// #enddocregion providers
   selector:    'sales-tax',
   template: `
     <h2>Sales Tax Calculator</h2>
@@ -19,24 +14,12 @@ import { TaxRateService }  from './tax-rate.service';
      {{ getTax(amountBox.value) | currency:'USD':true:'1.2-2' }}
     </div>
   `,
-// #docregion providers
   providers:   [SalesTaxService, TaxRateService]
 })
-// #enddocregion providers
-// #enddocregion metadata
-/*
-// #docregion metadata, providers
-export class SalesTaxComponent { ... }
-// #enddocregion metadata, providers
-*/
-// #docregion class
 export class SalesTaxComponent {
-// #docregion ctor
   constructor(private salesTaxService: SalesTaxService) { }
-// #enddocregion ctor
 
   getTax(value: string | number) {
     return this.salesTaxService.getVAT(value);
   }
 }
-// #enddocregion class
