@@ -1,5 +1,4 @@
-// #docregion
-// #docregion import
+// #docregion , import
 import 'package:angular2/core.dart';
 // #enddocregion import
 
