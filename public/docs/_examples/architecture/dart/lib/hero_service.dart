@@ -4,16 +4,20 @@ import 'backend_service.dart';
 import 'hero.dart';
 import 'logger_service.dart';
 
-// #docregion class
 @Injectable()
+// #docregion class
 class HeroService {
   final BackendService _backendService;
   final Logger _logger;
-  HeroService(Logger this._logger, BackendService this._backendService);
+  final List<Hero> heroes = [];
+
+  HeroService(this._logger, this._backendService);
+
   List<Hero> getHeroes() {
-    List<Hero> heroes = _backendService.getAll(Hero);
-    _logger.log('Got ${heroes.length} heroes from the server.');
+    _backendService.getAll(Hero).then((heroes) {
+      _logger.log('Fetched ${heroes.length} heroes.');
+      this.heroes.addAll(heroes); // fill cache
+    });
     return heroes;
   }
 }
-// #enddocregion class

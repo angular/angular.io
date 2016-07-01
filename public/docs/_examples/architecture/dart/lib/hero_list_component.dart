@@ -1,37 +1,34 @@
-// #docplaster
 import 'package:angular2/core.dart';
 
 import 'hero.dart';
 import 'hero_detail_component.dart';
 import 'hero_service.dart';
 
-// #docregion metadata
-// #docregion providers
+// #docregion metadata, providers
 @Component(
-// #enddocregion providers
+    // #enddocregion providers
     selector: 'hero-list',
     templateUrl: 'hero_list_component.html',
     directives: const [HeroDetailComponent],
-// #docregion providers
+    // #docregion providers
     providers: const [HeroService])
-// #enddocregion providers
-// #enddocregion metadata
-/*
-// #docregion metadata, providers
-class HeroListComponent { ... }
-// #enddocregion metadata, providers
-*/
 // #docregion class
-class HeroListComponent {
+class HeroListComponent implements OnInit {
+  // #enddocregion metadata, providers
+  final HeroService _heroService;
   List<Hero> heroes;
   Hero selectedHero;
-// #docregion ctor
-  HeroListComponent(HeroService heroService) {
-    heroes = heroService.getHeroes();
+
+  // #docregion ctor
+  HeroListComponent(this._heroService);
+  // #enddocregion ctor
+
+  void ngOnInit() {
+    heroes = _heroService.getHeroes();
   }
-// #enddocregion ctor
-  selectHero(Hero hero) {
+
+  void selectHero(Hero hero) {
     selectedHero = hero;
   }
+  // #docregion metadata, providers
 }
-// #enddocregion class
