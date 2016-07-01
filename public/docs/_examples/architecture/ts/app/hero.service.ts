@@ -9,11 +9,9 @@ import { Logger } from './logger.service';
 export class HeroService {
   private heroes: Hero[] = [];
 
-  // #docregion ctor
   constructor(
     private backend: BackendService,
     private logger: Logger) { }
-  // #enddocregion ctor
 
   getHeroes() {
     this.backend.getAll(Hero).then( (heroes: Hero[]) => {
@@ -23,4 +21,3 @@ export class HeroService {
     return this.heroes;
   }
 }
-// #enddocregion class
