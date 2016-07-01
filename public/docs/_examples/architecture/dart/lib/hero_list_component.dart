@@ -15,11 +15,11 @@ import 'hero_service.dart';
 // #docregion class
 class HeroListComponent implements OnInit {
   // #enddocregion metadata, providers
-  final HeroService _heroService;
   List<Hero> heroes;
   Hero selectedHero;
-
   // #docregion ctor
+  final HeroService _heroService;
+
   HeroListComponent(this._heroService);
   // #enddocregion ctor
 
