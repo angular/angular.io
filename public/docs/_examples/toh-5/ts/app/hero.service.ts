@@ -20,7 +20,7 @@ export class HeroService {
   // #docregion get-hero
   getHero(id: number) {
     return this.getHeroes()
-               .then(heroes => heroes.filter(hero => hero.id === id)[0]);
+               .then(heroes => heroes.find(hero => hero.id === id));
   }
   // #enddocregion get-hero
 }

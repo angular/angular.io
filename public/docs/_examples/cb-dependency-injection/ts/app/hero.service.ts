@@ -13,7 +13,7 @@ export class HeroService {
  ];
 
   getHeroById(id: number): Hero {
-    return this.heroes.filter(hero => hero.id === id)[0];
+    return this.heroes.find(hero => hero.id === id);
   }
 
   getAllHeroes(): Array<Hero> {

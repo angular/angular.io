@@ -20,7 +20,7 @@ export class HeroService {
   // #docregion get-hero
   getHero(id: number) {
     return Promise.resolve(HEROES).then(
-      heroes => heroes.filter(hero => hero.id === id)[0]
+      heroes => heroes.find(hero => hero.id === id)
     );
   }
   // #enddocregion get-hero

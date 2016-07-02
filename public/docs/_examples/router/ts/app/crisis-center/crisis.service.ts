@@ -25,7 +25,7 @@ export class CrisisService {
 
   getCrisis(id: number | string) {
     return crisesPromise
-      .then(crises => crises.filter(c => c.id === +id)[0]);
+      .then(crises => crises.find(crisis => crisis.id === +id));
   }
 
 // #enddocregion

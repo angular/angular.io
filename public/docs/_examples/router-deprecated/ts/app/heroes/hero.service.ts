@@ -22,6 +22,6 @@ export class HeroService {
 
   getHero(id: number | string) {
     return heroesPromise
-      .then(heroes => heroes.filter(h => h.id === +id)[0]);
+      .then(heroes => heroes.find(h => h.id === +id));
   }
 }
