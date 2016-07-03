@@ -9,7 +9,7 @@ import 'package:angular2/platform/browser.dart';
 // #docregion final
 import 'package:displaying_data/app_component.dart';
 
-main() {
+void main() {
 // #enddocregion final
 // pick one
 //  bootstrap(v1.AppComponent);

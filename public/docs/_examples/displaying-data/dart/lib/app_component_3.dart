@@ -1,35 +1,34 @@
 // #docregion
 import 'package:angular2/core.dart';
-// #docregion heroes
+// #docregion import
 import 'hero.dart';
-
-final List<Hero> _heroes = [
-  new Hero(1, 'Windstorm'),
-  new Hero(13, 'Bombasto'),
-  new Hero(15, 'Magneta'),
-  new Hero(20, 'Tornado')
-];
-// #enddocregion heroes
+// #enddocregion import
 
 @Component(
     selector: 'my-app',
-// #docregion template
+    // #docregion template
     template: '''
-<h1>{{title}}</h1>
-<h2>My favorite hero is: {{myHero.name}}</h2>
-<p>Heroes:</p>
-<ul>
-  <li *ngFor="let hero of heroes">
-    {{ hero.name }}
-  </li>
-</ul>'''
-// #enddocregion template
+      <h1>{{title}}</h1>
+      <h2>My favorite hero is: {{myHero.name}}</h2>
+      <p>Heroes:</p>
+      <ul>
+        <li *ngFor="let hero of heroes">
+          {{ hero.name }}
+        </li>
+      </ul>
+    '''
+    // #enddocregion template
     )
-// #docregion heroes
+// #docregion class
 class AppComponent {
   String title = 'Tour of Heroes';
-  List<Hero> heroes = _heroes;
-  Hero myHero = _heroes[0];
+  // #docregion heroes
+  List<Hero> heroes = [
+    new Hero(1, 'Windstorm'),
+    new Hero(13, 'Bombasto'),
+    new Hero(15, 'Magneta'),
+    new Hero(20, 'Tornado')
+  ];
+  Hero get myHero => heroes.first;
+  // #enddocregion heroes
 }
-// #enddocregion heroes
-// #enddocregion
