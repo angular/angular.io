@@ -9,20 +9,18 @@ import { Component } from '@angular/core';
     <h2>My favorite hero is: {{myHero}}</h2>
     <p>Heroes:</p>
     <ul>
-  // #docregion li-repeater
+  // #docregion li
       <li *ngFor="let hero of heroes">
         {{ hero }}
       </li>
-  // #enddocregion li-repeater
+  // #enddocregion li
     </ul>
   `
   // #enddocregion template
 })
-// #docregion mock-heroes
+// #docregion class
 export class AppComponent {
   title = 'Tour of Heroes';
   heroes = ['Windstorm', 'Bombasto', 'Magneta', 'Tornado'];
   myHero = this.heroes[0];
 }
-// #enddocregion mock-heroes
-// #enddocregion
