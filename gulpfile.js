@@ -46,22 +46,27 @@ var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZip
 var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
+const isSilent = !!argv.silent;
+if (isSilent) gutil.log = gutil.noop;
+const _dgeniLogLevel = argv.dgeniLog || (isSilent ? 'error' : 'info');
 
 var _devguideShredOptions =  {
   examplesDir: path.join(DOCS_PATH, '_examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments'),
-  zipDir: path.join(RESOURCES_PATH, 'zips')
+  zipDir: path.join(RESOURCES_PATH, 'zips'),
+  logLevel: _dgeniLogLevel
 };
 
 var _devguideShredJadeOptions =  {
-  jadeDir: DOCS_PATH
-
+  jadeDir: DOCS_PATH,
+  logLevel: _dgeniLogLevel
 };
 
 var _apiShredOptions =  {
   examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
-  zipDir: path.join(RESOURCES_PATH, 'zips/api')
+  zipDir: path.join(RESOURCES_PATH, 'zips/api'),
+  logLevel: _dgeniLogLevel
 };
 
 var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
@@ -625,7 +630,7 @@ gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-b
 });
 
 gulp.task('_shred-devguide-shared-jade', ['_shred-clean-devguide-shared-jade', '_copy-example-boilerplate'],  function() {
-  return docShredder.shred( _devguideShredJadeOptions);
+  return docShredder.shred(_devguideShredJadeOptions);
 });
 
 gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
@@ -646,7 +651,7 @@ gulp.task('_shred-clean-devguide', function(cb) {
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
   checkAngularProjectPath();
-  return docShredder.shred( _apiShredOptions);
+  return docShredder.shred(_apiShredOptions);
 });
 
 gulp.task('_shred-clean-api', function(cb) {
@@ -1023,7 +1028,8 @@ function buildApiDocs(targetLanguage) {
   try {
     // Build a specialized package to generate different versions of the API docs
     var package = new Package('apiDocs', [require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
-    package.config(function(targetEnvironments, writeFilesProcessor, readTypeScriptModules) {
+    package.config(function(log, targetEnvironments, writeFilesProcessor, readTypeScriptModules) {
+      log.level = _dgeniLogLevel;
       ALLOWED_LANGUAGES.forEach(function(target) { targetEnvironments.addAllowed(target); });
       if (targetLanguage) {
         targetEnvironments.activate(targetLanguage);
@@ -1058,7 +1064,8 @@ function buildShredMaps(shouldWrite) {
     fragmentsDir: _devguideShredOptions.fragmentsDir,
     jadeDir: './public/docs',
     outputDir: './public/docs',
-    writeFilesEnabled: shouldWrite
+    writeFilesEnabled: shouldWrite,
+    logLevel: _dgeniLogLevel
   };
   return docShredder.buildShredMap(options).then(function(docs) {
     return docs;
