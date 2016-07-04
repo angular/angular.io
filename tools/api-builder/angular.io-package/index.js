@@ -155,8 +155,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   ]));
 })
 
-.config(function(filterUnwantedDecorators, log) {
-  log.level = 'info';
+.config(function(filterUnwantedDecorators) {
   filterUnwantedDecorators.decoratorsToIgnore = [
     'CONST',
     'IMPLEMENTS',

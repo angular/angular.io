@@ -6,6 +6,8 @@ var _ = require('lodash');
 var globby = require('globby');
 var ignoreDirs = ['**/node_modules/**', '**/dist/**', '**/typings/**'];
 
+var _getLogLevel = function (options) { return options.logLevel || 'info'; }
+
 var shred = function(shredOptions) {
   try {
     var pkg;
@@ -14,7 +16,7 @@ var shred = function(shredOptions) {
     } else {
       pkg = createShredExamplePackage(shredOptions);
     }
-    var dgeni = new Dgeni([ pkg]);
+    var dgeni = new Dgeni([pkg]);
     return dgeni.generate();
   } catch(err) {
     console.log(err);
@@ -31,7 +33,8 @@ var shredSingleExampleDir = function(shredOptions, fileDir) {
   var options = {
     includeSubdirs: true,
     examplesDir: examplesDir,
-    fragmentsDir: fragmentsDir
+    fragmentsDir: fragmentsDir,
+    logLevel: _getLogLevel(shredOptions)
   }
   var cleanPath = path.join(fragmentsDir, '*.*')
   return del([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
@@ -49,7 +52,8 @@ var shredSingleDir = function(shredOptions, filePath) {
   var options = {
     includeSubdirs: false,
     examplesDir: examplesDir,
-    fragmentsDir: fragmentsDir
+    fragmentsDir: fragmentsDir,
+    logLevel: _getLogLevel(shredOptions)
   }
   var cleanPath = path.join(fragmentsDir, '*.*')
   return del([ cleanPath, '!**/*.ovr.*']).then(function(paths) {
@@ -66,7 +70,8 @@ var shredSingleJadeDir = function(shredOptions, filePath) {
 
   var options = {
     includeSubdirs: false,
-    jadeDir: jadeDir
+    jadeDir: jadeDir,
+    logLevel: _getLogLevel(shredOptions)
   }
   // var cleanPath = path.join(jadeDir, '_.*.jade')
   //return delPromise([ cleanPath]).then(function(paths) {
@@ -105,12 +110,12 @@ function createShredExamplePackage(shredOptions) {
   initializePackage(pkg)
     .factory(require('./fileReaders/regionFileReader'))
     .processor(require('./processors/renderAsMarkdownProcessor'))
-
     .config(function(readFilesProcessor, regionFileReader) {
       readFilesProcessor.fileReaders = [regionFileReader];
     })
     // default configs - may be overridden
-    .config(function(readFilesProcessor) {
+    .config(function(log, readFilesProcessor) {
+      log.level = _getLogLevel(shredOptions);
       // Specify the base path used when resolving relative paths to source and output files
       readFilesProcessor.basePath = "/";
 
@@ -128,7 +133,7 @@ function createShredExamplePackage(shredOptions) {
       // this just uses globby to 'preglob' the include files ( and  exclude the node_modules).
       var includeFiles = globby.sync( includeFiles, { ignore: ignoreDirs } );
 
-      console.log(`Shredding ${includeFiles.length} files inside ${shredOptions.examplesDir}`);
+      log.info(`Shredding ${includeFiles.length} files inside ${shredOptions.examplesDir}`);
 
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
@@ -159,7 +164,8 @@ function createShredJadePackage(shredOptions) {
     .factory(require('./fileReaders/regionFileReader'))
     .processor(require('./processors/renderAsJadeProcessor'))
 
-    .config(function(readFilesProcessor, regionFileReader) {
+    .config(function(log, readFilesProcessor, regionFileReader) {
+      log.level = _getLogLevel(shredOptions);
       readFilesProcessor.fileReaders = [regionFileReader];
     })
     // default configs - may be overridden
@@ -281,8 +287,6 @@ var createShredMapPackage = function(mapOptions) {
       //});
     });
 
-
-
   return pkg;
 }
 
@@ -334,8 +338,4 @@ function initializePackage(pkg) {
     .processor({ name: 'docs-rendered', $runAfter: ['rendering-docs'] })
     .processor({ name: 'writing-files', $runAfter: ['docs-rendered'] })
     .processor({ name: 'files-written', $runAfter: ['writing-files'] })
-    .config(function(log) {
-      // Set logging level
-      log.level = 'info';
-    })
 }
