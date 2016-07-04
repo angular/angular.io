@@ -2,7 +2,7 @@
 // #docregion
 // #docregion first, final
 import { Component } from '@angular/core';
-import { NgForm }    from '@angular/common';
+import { NgForm }    from '@angular/forms';
 
 import { Hero }    from './hero';
 
