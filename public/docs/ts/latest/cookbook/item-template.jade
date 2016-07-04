@@ -1,0 +1,98 @@
+include ../_util-fns
+
+a( id='top' )
+:marked
+  If a component needs to render a collection of items, we can keep the component generic
+  by providing the component with a `TemplateRef` that the component can use to render 
+  the individual items. This way, the component's scope of responsibility is limited 
+  while its reusability is enhanced. The `TemplateRef` can be explicitly injected into 
+  the component as an input property; or, the `TemplateRef` can be implicitly provided as
+  part of the component's content.
+
+:marked
+  To explore this concept, we'll create a simple Select menu component that takes an 
+  `items` input collection and uses an externally-provided `TemplateRef` to render each
+  item in the menu options list. Then, we'll instantiate the Select menu component twice 
+  in order to demonstrate the various ways in which we can provide the `TemplateRef`.
+
+:marked
+  In the following root-component meta-data, each Select menu (selector: `simple-select`)
+  is rendering the same collection of color `items`; and, each select menu is binding to 
+  the same `value`. The only difference between the two instances is in how the 
+  `TemplateRef` is being defined:
+
+:marked
+  **See the [live example](/resources/live-examples/cb-item-template/ts/plnkr.html)**.
+
++makeExample('cb-item-template/ts/app/app.component.ts', 'metadata', 'app/app.component.ts (metadata)')(format='.')
+
+:marked
+  In the first `<simple-select>`, the `TemplateRef` is being defined as a child of the 
+  `<simple-select>` element. In the second `<simple-select>`, the `TemplateRef` is being 
+  defined as a sibling element and is then being passed-in as the `[template]` property.
+
+.l-sub-section
+  :marked
+    There's no requirement that a component must accept a `TemplateRef` from multiple 
+    sources. It does make the component more flexible; but, we're only doing it for 
+    demonstrative purposes in this cookbook.
+    
+:marked
+  Since the component is capable of accepting a `TemplateRef` by two different means, 
+  we're going to define two setter methods &mdash; one for the `[template]` input and one
+  for the content query &mdash; that coalesce the two sources into a single `TemplateRef`
+  property.
+
++makeExample('cb-item-template/ts/app/simple-select.component.ts', 'setters', 'app/simple-select.component.ts (TemplateRef setters')(format='.')
+
+:marked
+  Once the two `TemplateRef` sources have been coalesced into a single `itemTemplateRef`
+  property, we can then use it to render both the menu items and the menu root.
+
++makeExample('cb-item-template/ts/app/simple-select.component.ts', 'metadata', 'app/simple-select.component.ts (metadata')(format='.')
+
+:marked
+  When we use the `<template>` directive to render our externally-provided `TemplateRef`,
+  we supply both the `[ngTemplateOutlet]` and the `[ngOutletContext]` property. The 
+  former is the template reference; the latter is the collection of local variables that
+  can be accessed in the calling context. For example, since our "context" object 
+  includes a property named `item`, our root component can access this property in its 
+  `<template>` element via `let`:
+
+code-example(format='')
+ &lt;template let-item='item'&gt; ... &lt;/template&gt;
+
+:marked
+  Bringing it all together, we now have a component that can accept an externally-
+  provided `TemplateRef` and use it to render multiple aspects of its own internal
+  component template.
+
+figure.image-display
+   img(src="/resources/images/cookbooks/item-template/item-template-animation.gif" alt="Item Template")
+
+:marked
+  The complete code:
+
++makeTabs( 
+  `
+    cb-item-template/ts/app/main.ts,
+    cb-item-template/ts/app/app.component.ts,
+    cb-item-template/ts/app/simple-select.component.ts
+  `, 
+  '',
+  `
+    app/main.ts,
+    app/app.component.ts,
+    app/simple-select.component.ts
+  `
+)
+
+.l-sub-section
+  :marked
+    **Did you know:** The `ngFor` directive can accept an externally-provided 
+    `TemplateRef` which can be used to render the items in the `[ngForOf]` collection:
+
+    `<template ngFor ... [ngForTemplate]='yourTemplateRef'></template>`
+
+:marked
+  [Back to top](#top)
