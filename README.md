@@ -27,7 +27,7 @@ This site relies heavily on node and npm.
 1. Make sure you are using the latest node and npm; 
 if not install [nvm](https://github.com/creationix/nvm) to get node going on your machine.
 
-1. install these npm packages *globally*: `npm install -g harp gulp protractor`
+1. install these npm packages *globally*: `npm install -g harp gulp`
 
 1. clone this repo and the [angular source code repo](https://github.com/angular/angular) to the same parent directory.
 The two cloned repo directories must be sibling.
@@ -98,7 +98,7 @@ Look at the scripts in `package.json` for other options.
 Also, open any `plunkr.no-link.html` to see the code execute in plunker
 (you may have to run `gulp build-plunkers` first to create/update).
 
-You may want to check that your example is free of lint errors.
+You must check that your example is free of lint errors.
 - `gulp lint`
 
 ### Sample end-to-end tests
@@ -111,6 +111,15 @@ All samples should be covered to some degree by end-to-end tests:
 - `gulp run-e2e-tests --fast` to ignore npm install, webdriver update and boilerplate copy
 
 Any combination of options is possible.
+
+### Resetting the project
+This project generates a lot of untracked files, if you wish to reset it to a mint state, you can run:
+
+- `git clean -xdf`
+
+Also, there is a script available for Linux and OSX users that will setup the project using the steps shown in this section:
+
+- `./scripts/install.sh`
 
 
 ## Technology Used
