@@ -19,41 +19,41 @@ block includes
   The !{_Angular_http_library} simplifies application programming of the **XHR** and **JSONP** APIs
   as we'll learn in this chapter covering:
 
-ul
-  li #[a(href="#http-client") HTTP client sample overview]
-  li #[a(href="#fetch-data") Fetch data with http.get]
-  +ifDocsFor('ts')
-    li #[a(href="#rxjs") RxJS Observable of HTTP Responses]
-    li #[a(href="#enable-rxjs-operators") Enabling RxJS Operators]
-  li #[a(href="#extract-data") Extract JSON data]
-  li #[a(href="#error-handling") Error handling]
-  li #[a(href="#update") Send data to the server]
-  +ifDocsFor('ts')
-    li #[a(href="#promises") Promises instead of observables]
-  li #[a(href="#cors") Cross-origin requests: Wikipedia example]
-  +ifDocsFor('ts')
-    ul
-      li #[a(href="#search-parameters") Set query string parameters]
-      li #[a(href="#more-observables") Debounce search term input]
-  li #[a(href="#in-mem-web-api") Appendix: the in-memory web api service]
-p.
-  We illustrate these topics with code that you can 
-  #[+liveExampleLink2('run live in a browser')].
+  - [HTTP client sample overview](#http-client)
+  - [Fetch data with http.get](#fetch-data)
+  <li if-docs="ts"> [RxJS Observable of HTTP Responses](#rxjs)</li>
+  <li if-docs="ts"> [Enabling RxJS Operators](#enable-rxjs-operators)</li>
+  - [Extract JSON data](#extract-data)
+  - [Error handling](#error-handling)
+  - [Send data to the server](#update)
+  <li if-docs="ts"> [Promises instead of observables](#promises)</li>
+  - [Cross-origin requests: Wikipedia example](#cors)
+    <ul if-docs="ts"> 
+      <li> [Set query string parameters](#search-parameters)</li>
+      <li> [Debounce search term input](#more-observables)</li>
+    </ul>
+  - [Appendix: the in-memory web api service](#in-mem-web-api)
+
+  We illustrate these topics with code that you can <live-example>run live</live-example>.
   
 .l-main-section
-h1 Demos
-p  This chapter describes server communication with the help of the following demos
-ul
-  block demos-list
-    li #[a(href="#http-client") HTTP client: Tour of Heroes with Observables]
-    li #[a(href="#promises") HTTP client: Tour of Heroes with #{_Promise}s]
-    li #[a(href="#cors") JSONP client: Wikipedia to fetch data from a service that does not support CORS]
-    li #[a(href="#more-observables") JSONP client: Wikipedia using observable operators to reduce server calls]
+:marked
+  # Demos
+
+  This chapter describes server communication with the help of the following demos
+
+block demos-list
+  :marked
+    - [HTTP client: Tour of Heroes with Observables](#http-client)
+    - [HTTP client: Tour of Heroes with !{_Promise}s](#promises)
+    - [JSONP client: Wikipedia to fetch data from a service that does not support CORS](#cors)
+    - [JSONP client: Wikipedia using observable operators to reduce server calls](#more-observables)
+
 :marked
   These demos are orchestrated by the root `AppComponent`
 +makeExample('server-communication/ts/app/app.component.ts', null, 'app/app.component.ts')
 
-block rxjs-import
++ifDocsFor('ts')
   :marked
     There is nothing remarkable here _except_ for the import of RxJS operators.
   +makeExample('server-communication/ts/app/app.component.ts', 'import-rxjs')(format='.')
@@ -62,23 +62,30 @@ block rxjs-import
 :marked
   First, we have to configure our application to use server communication facilities.
 
-.l-main-section
-h1#http-providers Providing HTTP Services
+.l-main-section#http-providers
 :marked
+  # Providing HTTP Services
+
   We use the !{_Angular_Http} client to communicate with a server using a familiar HTTP request/response protocol.
-  The `#{_Http}` client is one of a family of services in the !{_Angular_http_library}.
-block system-config-of-http
+  The `!{_Http}` client is one of a family of services in the !{_Angular_http_library}.
+
++ifDocsFor('ts')
   .l-sub-section
     :marked
       SystemJS knows how to load services from the !{_Angular_http_library} when we import from the `@angular/http` module
       because we registered that module name in the `system.config` file.
+
 :marked
-  Before we can use the `#{_Http}` client , we'll have to register it as a service provider with the Dependency Injection system.
+  Before we can use the `!{_Http}` client , we'll have to register it as a service provider with the Dependency Injection system.
+
 .l-sub-section
   :marked
     Learn about providers in the [Dependency Injection](dependency-injection.html) chapter.
 
-p In this demo, we register providers in the #[code bootstrap] method of #[code #[+adjExPath('app/main.ts')]].
+:marked
+  In this demo, we register providers in the `bootstrap()` method of 
+  <span ngio-ex>app/main.ts</span>.
+
 +makeExample('server-communication/ts/app/main.ts', 'v1', 'app/main.ts (v1)')(format='.')
 
 block http-providers
@@ -104,9 +111,10 @@ block http-providers
     Such sleight-of-hand is something the root application component should *not* know about.
     For this reason, and this reason *only*, we hide it *above* the `AppComponent` in `main.ts`.
 
-.l-main-section
-h1#http-client The Tour of Heroes #[i HTTP] Client Demo
+.l-main-section#http-client
 :marked
+  # The Tour of Heroes _HTTP_ Client Demo
+
   Our first demo is a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
   This version gets some heroes from the server, displays them in a list, lets us add new heroes, and saves them to the server.
   We use the !{_Angular_Http} client to communicate via `XMLHttpRequest (XHR)`.
@@ -168,10 +176,11 @@ block getheroes-and-addhero
 :marked
   With our basic intuitions about the component squared away, we're ready to look inside the `HeroService`.
 
-.l-main-section
 a#HeroService
-h2#fetch-data Fetch data with the #[b HeroService]
+.l-main-section#fetch-data
 :marked
+  ## Fetch data with the **HeroService**
+
   In many of our previous samples we faked the interaction with the server by
   returning mock heroes in a service like this one:
 +makeExample('toh-4/ts/app/hero.service.ts', 'just-get-heroes')(format=".")
@@ -184,7 +193,7 @@ h2#fetch-data Fetch data with the #[b HeroService]
   [injected](dependency-injection.html) into the `HeroService` constructor.
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'ctor')
 :marked
-  Look closely at how we call `#{_priv}http.get`
+  Look closely at how we call `!{_priv}http.get`
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get', 'app/toh/hero.service.ts (getHeroes)')(format=".")
 :marked
   We pass the resource URL to `get` and it calls the server which should return heroes.
@@ -195,7 +204,7 @@ h2#fetch-data Fetch data with the #[b HeroService]
     Alternatively, we can (temporarily) target a JSON file by changing the endpoint URL:
   +makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint-json')(format=".")
 
-block rxjs
++ifDocsFor('ts')
   :marked
     <a id="rxjs"></a>
     The return value may surprise us. 
@@ -253,7 +262,7 @@ l-main-section
 a#extract-data
 :marked
   ## Process the response object
-  Remember that our `getHeroes()` method mapped the `#{_priv}http.get` response object to heroes with an `#{_priv}extractData` helper method:
+  Remember that our `getHeroes()` method mapped the `!{_priv}http.get` response object to heroes with an `!{_priv}extractData` helper method:
 +makeExample('server-communication/ts/app/toh/hero.service.ts', 'extract-data', 'app/toh/hero.service.ts (excerpt)')(format=".")
 :marked
   The `response` object does not hold our data in a form we can use directly. 
@@ -274,7 +283,7 @@ block parse-json
 
 .l-sub-section
   :marked
-    We shouldn't expect the decoded JSON to be the heroes #{_array} directly.
+    We shouldn't expect the decoded JSON to be the heroes !{_array} directly.
     The server we're calling always wraps JSON results in an object with a `data`
     property. We have to unwrap it to get the heroes.
     This is conventional web api behavior, driven by 
@@ -296,7 +305,7 @@ block parse-json
   .callout.is-important
     header HTTP GET is delayed 
     :marked
-      The `#{_priv}http.get` does **not send the request just yet!** This observable is
+      The `!{_priv}http.get` does **not send the request just yet!** This observable is
       [*cold*](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/creating.md#cold-vs-hot-observables)
       which means the request won't go out until something *subscribes* to the observable.
       That *something* is the [HeroListComponent](#subscribe).
@@ -328,7 +337,7 @@ a#hero-list-component
 h4 #[b HeroListComponent] error handling
 block hlc-error-handling
   :marked
-    Back in the `HeroListComponent`, where we called `#{_priv}heroService.getHeroes()`, 
+    Back in the `HeroListComponent`, where we called `!{_priv}heroService.getHeroes()`, 
     we supply the `subscribe` function with a second function parameter to handle the error message.
     It sets an `errorMessage` variable which we've bound conditionally in the `HeroListComponent` template.
 
@@ -401,7 +410,7 @@ code-example(format="." language="javascript").
   ### JSON results
 
   As with `getHeroes()`, we [extract the data](#extract-data) from the response using the
-  `#{_priv}extractData()` helper.
+  `!{_priv}extractData()` helper.
 
 block hero-list-comp-add-hero
   :marked
@@ -409,7 +418,7 @@ block hero-list-comp-add-hero
     When the data, arrive it pushes the new hero object into its `heroes` array for presentation to the user.
 +makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'addHero', 'app/toh/hero-list.component.ts (addHero)')(format=".")
 
-block promises
++ifDocsFor('ts')
   h2#promises Fall back to Promises
   :marked
     Although the Angular `http` client API returns an `Observable<Response>` we can turn it into a 
@@ -490,7 +499,7 @@ figure.image-display
 block wikipedia-jsonp+
   :marked
     Wikipedia offers a modern `CORS` API and a legacy `JSONP` search API. Let's use the latter for this example.
-    The Angular `Jsonp` service both extends the `#{_Http}` service for JSONP and restricts us to `GET` requests. 
+    The Angular `Jsonp` service both extends the `!{_Http}` service for JSONP and restricts us to `GET` requests. 
     All other HTTP methods throw an error because JSONP is a read-only facility. 
 
     As always, we wrap our interaction with an Angular data access client service inside a dedicated service, here called `WikipediaService`.
@@ -665,9 +674,9 @@ a#in-mem-web-api
     registered for module loading by SystemJS (see `systemjs.config.js`)
 
 :marked
-  The in-memory web API gets its data from #{_a_ca_class_with} a `createDb()`
+  The in-memory web API gets its data from !{_a_ca_class_with} a `createDb()`
   method that returns a map whose keys are collection names and whose values 
-  are #{_array}s of objects in those collections.
+  are !{_array}s of objects in those collections.
   
   Here's the class we created for this sample based on the JSON data:
 +makeExample('server-communication/ts/app/hero-data.ts', null, 'app/hero-data.ts')(format=".")
@@ -684,8 +693,10 @@ block redirect-to-web-api
     To enable our server simulation, we replace the default `XHRBackend` service with 
     the in-memory web API service using standard Angular provider registration techniques. 
     We initialize the in-memory web API with *seed data* from the mock hero dataset at the same time.
+:marked
+  Here is the revised (and final) version of <span ngio-ex>app/main.ts></span> demonstrating these steps.
 
-p Here is the revised (and final) version of the #[code #[+adjExPath('app/main.ts')]] demonstrating these steps.
-+makeExample('server-communication/ts/app/main.ts', 'final', 'app/main.ts (final)')(format=".")
++makeExcerpt('app/main.ts', 'final')
 
-p See the full source code in the #[+liveExampleLink2()].
+:marked
+  See the full source code in the <live-example></live-example>.
