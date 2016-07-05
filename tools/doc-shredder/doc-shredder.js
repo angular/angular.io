@@ -217,7 +217,8 @@ var createShredMapPackage = function(mapOptions) {
     .config(function(shredMapProcessor) {
       shredMapProcessor.options = options;
     })
-    .config(function(readFilesProcessor, extractPathsReader ) {
+    .config(function(log, readFilesProcessor, extractPathsReader ) {
+      log.level = _getLogLevel(mapOptions);
       readFilesProcessor.fileReaders = [ extractPathsReader];
     })
     // default configs - may be overridden
