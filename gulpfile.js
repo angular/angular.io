@@ -46,7 +46,9 @@ var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZip
 var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
-var _dgeniLogLevel = argv.dgeniLog || 'info'; // doc gen log level (dgeni)
+const isSilent = !!argv.silent;
+if (isSilent) gutil.log = gutil.noop;
+const _dgeniLogLevel = argv.dgeniLog || (isSilent ? 'error' : 'info');
 
 var _devguideShredOptions =  {
   examplesDir: path.join(DOCS_PATH, '_examples'),
