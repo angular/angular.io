@@ -52,7 +52,7 @@ export class AppComponent implements OnInit {
   // #docregion on-init
   ngOnInit() {
     // #enddocregion on-init
-    this.getHeroes();
+    this.heroes = this.heroService.getHeroes();
     // #docregion on-init
   }
   // #enddocregion on-init
