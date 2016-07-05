@@ -64,6 +64,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '@angular/common/testing.ts',
     '@angular/core/index.ts',
     '@angular/core/testing.ts',
+    '@angular/forms/index.ts',
     '@angular/http/index.ts',
     '@angular/http/testing.ts',
     '@angular/platform-browser/index.ts',
