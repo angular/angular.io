@@ -7,7 +7,7 @@ import 'tax_rate_service.dart';
     selector: 'sales-tax',
     template: '''
       <h2>Sales Tax Calculator</h2>
-      Amount: <input #amountBox (input)="0" type="number">
+      Amount: <input #amountBox (change)="0">
 
       <div *ngIf="amountBox.value != ''">
       The sales tax is

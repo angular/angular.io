@@ -4,17 +4,18 @@ import 'hero.dart';
 import 'hero_detail_component.dart';
 import 'hero_service.dart';
 
-// #docregion metadata, providers
+// #docregion metadata
 @Component(
-    // #enddocregion providers
     selector: 'hero-list',
     templateUrl: 'hero_list_component.html',
     directives: const [HeroDetailComponent],
     // #docregion providers
-    providers: const [HeroService])
+    providers: const [HeroService]
+    // #enddocregion providers
+    )
 // #docregion class
 class HeroListComponent implements OnInit {
-  // #enddocregion metadata, providers
+  // #enddocregion metadata
   List<Hero> heroes;
   Hero selectedHero;
   // #docregion ctor
@@ -30,5 +31,5 @@ class HeroListComponent implements OnInit {
   void selectHero(Hero hero) {
     selectedHero = hero;
   }
-  // #docregion metadata, providers
+  // #docregion metadata
 }

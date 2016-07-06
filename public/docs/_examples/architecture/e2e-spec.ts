@@ -2,7 +2,6 @@
 'use strict';
 
 const nameSuffix = 'X';
-type WPromise<T> = webdriver.promise.Promise<T>;
 
 class Hero {
   id: number;
@@ -43,25 +42,17 @@ function heroTests() {
     expect(page.heroDetail.isPresent()).toBeFalsy('no hero detail');
   });
 
-  it(`selects ${targetHero.name} from hero list`, function () {
-    let hero = element(by.cssContainingText('li', targetHero.name));
-    hero.click();
-    // Nothing specific to expect other than lack of exceptions.
-  });
-
   it('shows selected hero details', async () => {
+    await element(by.cssContainingText('li', targetHero.name)).click();
     let page = getPageElts();
     let hero = await heroFromDetail(page.heroDetail);
     expect(hero.id).toEqual(targetHero.id);
     expect(hero.name).toEqual(targetHero.name);
   });
 
-  it(`can update hero name`, () => {
-    addToHeroName(nameSuffix);
-    // Nothing specific to expect other than lack of exceptions.
-  });
-
   it(`shows updated hero name in details`, async () => {
+    let input = element.all(by.css('input')).first();
+    await sendKeys(input, nameSuffix);
     let page = getPageElts();
     let hero = await heroFromDetail(page.heroDetail);
     let newName = targetHero.name + nameSuffix;
@@ -94,11 +85,6 @@ function getPageElts() {
     salesTaxAmountInput: element(by.css('my-app sales-tax input')),
     salesTaxDetail: element(by.css('my-app sales-tax div'))
   };
-}
-
-function addToHeroName(text: string): WPromise<void> {
-    let input = element.all(by.css('input')).first();
-    return sendKeys(input, text);
 }
 
 async function heroFromDetail(detail: protractor.ElementFinder): Promise<Hero> {

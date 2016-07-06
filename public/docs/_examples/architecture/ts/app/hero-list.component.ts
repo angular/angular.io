@@ -4,18 +4,18 @@ import { Hero }                from './hero';
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService }         from './hero.service';
 
-// #docregion metadata, providers
+// #docregion metadata
 @Component({
-  // #enddocregion providers
   selector:    'hero-list',
   templateUrl: 'app/hero-list.component.html',
   directives:  [HeroDetailComponent],
   // #docregion providers
   providers:   [HeroService]
+  // #enddocregion providers
 })
 // #docregion class
 export class HeroListComponent implements OnInit {
-  // #enddocregion metadata, providers
+  // #enddocregion metadata
   heroes: Hero[];
   selectedHero: Hero;
 
@@ -28,5 +28,5 @@ export class HeroListComponent implements OnInit {
   }
 
   selectHero(hero: Hero) { this.selectedHero = hero; }
-  // #docregion metadata, providers
+  // #docregion metadata
 }
