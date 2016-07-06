@@ -596,7 +596,18 @@ gulp.task('test-api-builder', function (cb) {
 //   angular.io:  gulp link-checker
 //   local site:  gulp link-checker --url=http://localhost:3000
 gulp.task('link-checker', function(done) {
-  return linkChecker();
+  var method = 'get'; // the default 'head' fails for some sites
+  var exclude = [
+    // Dart API docs aren't working yet; ignore them
+    '*/dart/latest/api/*',
+    // Somehow the link checker sees ng1 {{...}} in the resource page; ignore it
+    'resources/%7B%7Bresource.url%7D%7D',
+    // API docs have links directly into GitHub repo sources; these can 
+    // quickly become invalid, so ignore them for now:
+    '*/angular/tree/*'
+  ];
+  var blcOptions = { requestMethod: method, excludedKeywords: exclude};
+  return linkChecker({ blcOptions: blcOptions });
 });
 
 
@@ -727,12 +738,8 @@ function linkChecker(options) {
   var blcOptions = options.blcOptions || {};
   var customData = options.customData || {};
 
-  var excludeBad; // don't bother reporting bad links matching this RegExp
-  if (argv.excludeBad) {
-    excludeBad = new RegExp(argv.excludeBad);
-  } else {
-    excludeBad = options.excludeBad === undefined ? /docs\/dart\/latest\/api/ : '';
-  }
+  // don't bother reporting bad links matching this RegExp
+  var excludeBad = argv.excludeBad ? new RegExp(argv.excludeBad) : (options.excludeBad || '');
 
   var previousPage;
   var siteUrl = argv.url || options.url || 'https://angular.io/';
@@ -779,7 +786,8 @@ function linkChecker(options) {
   var outputFile = path.join(process.cwd(), 'link-checker-results.txt');
   var header = 'Link checker results for: ' + siteUrl +
                '\nStarted: ' + (new Date()).toLocaleString() +
-               '\nSkipping bad links matching regex: ' +excludeBad.toString() + '\n\n';
+               '\nExcluded links (blc file globs): ' + blcOptions.excludedKeywords + 
+               '\nExcluded links (custom --exclude-bad regex): ' + excludeBad.toString() + '\n\n';
   gutil.log(header);
   fs.writeFileSync(outputFile, header);
 
