@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import { ROUTER_DIRECTIVES } from '@angular/router';
 
 import { MovieListComponent } from './movie-list.component';
 import { MovieService } from './movie.service';
@@ -12,11 +12,8 @@ import { StringSafeDatePipe } from './date.pipe';
   styleUrls: ['app/app.component.css'],
   directives: [MovieListComponent, ROUTER_DIRECTIVES],
   pipes: [StringSafeDatePipe],
-  providers: [MovieService, ROUTER_PROVIDERS]
+  providers: [MovieService]
 })
-@RouteConfig([
-  {path: '/movies', name: 'Movies', component: MovieListComponent, useAsDefault: true}
-])
 export class AppComponent {
 
   angularDocsUrl = 'https://angular.io/';

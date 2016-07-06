@@ -12,20 +12,20 @@ import { bootstrap }      from '@angular/platform-browser-dynamic';
 import { HTTP_PROVIDERS } from '@angular/http';
 
 import { AppComponent }         from './app.component';
-import { APP_ROUTER_PROVIDERS } from './app.routes';
+import { appRouterProviders }   from './app.routes';
 
 // #enddocregion v1, final
 /*
 // #docregion v1
 bootstrap(AppComponent, [
-  APP_ROUTER_PROVIDERS,
+  appRouterProviders,
   HTTP_PROVIDERS
 ]);
 // #enddocregion v1
 */
 // #docregion final
 bootstrap(AppComponent, [
-    APP_ROUTER_PROVIDERS,
+    appRouterProviders,
     HTTP_PROVIDERS,
     { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server
     { provide: SEED_DATA, useClass: InMemoryDataService }      // in-mem server data

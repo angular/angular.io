@@ -14,7 +14,7 @@ import { HeroDetailComponent }   from './heroes/hero-detail.component';
 
 // #docregion
 // #docregion route-config
-export const routes: RouterConfig = [
+const routes: RouterConfig = [
   // #docregion route-defs
   { path: 'crisis-center', component: CrisisCenterComponent },
   { path: 'heroes', component: HeroListComponent },

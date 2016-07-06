@@ -6,7 +6,7 @@ import { HeroesComponent } from './heroes.component';
 import { HeroDetailComponent } from './hero-detail.component';
 // #enddocregion hero-detail-import
 
-export const routes: RouterConfig = [
+const routes: RouterConfig = [
   // #docregion redirect-route
   {
     path: '',
@@ -32,6 +32,6 @@ export const routes: RouterConfig = [
   }
 ];
 
-export const APP_ROUTER_PROVIDERS = [
+export const appRouterProviders = [
   provideRouter(routes)
 ];
