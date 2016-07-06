@@ -4,13 +4,11 @@ import { DashboardComponent } from './dashboard.component';
 import { By }       from '@angular/platform-browser';
 
 import {
-  beforeEach, beforeEachProviders,
-  describe, ddescribe, xdescribe,
-  expect, it, iit, xit,
+  addProviders,
   async, inject
 } from '@angular/core/testing';
 
-import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
+import { ComponentFixture, TestComponentBuilder } from '@angular/core/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 import { Router, MockRouter } from './mock-router';
@@ -70,13 +68,13 @@ describe('DashboardComponent', () => {
     let comp: DashboardComponent;
     let mockHeroService: MockHeroService;
 
-    beforeEachProviders(() => {
+    beforeEach(() => {
       mockHeroService = new MockHeroService();
-      return [
+      addProviders([
         { provide: Router,      useClass: MockRouter},
         { provide: MockRouter,  useExisting: Router},
         { provide: HeroService, useValue: mockHeroService }
-      ];
+      ]);
     });
 
     it('can instantiate it',
@@ -138,8 +136,8 @@ describe('DashboardComponent', () => {
             expect(heroNames.length).toEqual(4, 'should display 4 heroes');
 
             // the 4th displayed hero should be the 5th mock hero
-            expect(heroNames[3].nativeElement)
-              .toHaveText(mockHeroService.mockHeroes[4].name);
+            expect(heroNames[3].nativeElement.textContent)
+              .toContain(mockHeroService.mockHeroes[4].name);
           });
 
       });

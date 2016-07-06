@@ -1,12 +1,10 @@
 /* tslint:disable:no-unused-variable */
 import {
-  beforeEach, beforeEachProviders,
-  describe, ddescribe, xdescribe,
-  expect, it, iit, xit,
+  addProviders,
   async, inject, withProviders
 } from '@angular/core/testing';
 
-import { TestComponentBuilder } from '@angular/compiler/testing';
+import { TestComponentBuilder } from '@angular/core/testing';
 
 import {
   MockBackend,
@@ -42,10 +40,12 @@ const makeResponseData = (data: {}) => {return { data }; };
 ////////  SPECS  /////////////
 describe('Http-HeroService (mockBackend)', () => {
 
-  beforeEachProviders(() => [
-    HTTP_PROVIDERS,
-    { provide: XHRBackend, useClass: MockBackend }
-  ]);
+  beforeEach(() => {
+    addProviders([
+      HTTP_PROVIDERS,
+      { provide: XHRBackend, useClass: MockBackend }
+    ]);
+  });
 
   it('can instantiate service when inject service',
     withProviders(() => [HeroService])

@@ -19,13 +19,11 @@ import { DebugElement } from '@angular/core';
 import { By }           from '@angular/platform-browser';
 
 import {
-  beforeEach, beforeEachProviders,
-  describe, ddescribe, xdescribe,
-  expect, it, iit, xit,
+  addProviders,
   async, inject
 } from '@angular/core/testing';
 
-import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
+import { ComponentFixture, TestComponentBuilder } from '@angular/core/testing';
 
 import { ViewMetadata }   from '@angular/core';
 import { Observable }     from 'rxjs/Rx';
@@ -143,20 +141,20 @@ xdescribe('async & inject testing errors', () => {
     restoreJasmineIt();
   }, 10000);
 
-  describe('using beforeEachProviders', () => {
-    beforeEachProviders(() => [{ provide: FancyService, useValue: new FancyService() }]);
+  describe('using addProviders', () => {
+    addProviders([{ provide: FancyService, useValue: new FancyService() }]);
 
     beforeEach(
         inject([FancyService], (service: FancyService) => { expect(service.value).toEqual('real value'); }));
 
-    describe('nested beforeEachProviders', () => {
+    describe('nested addProviders', () => {
 
       it('should fail when the injector has already been used', () => {
         patchJasmineBeforeEach();
         expect(() => {
-          beforeEachProviders(() => [{ provide: FancyService, useValue: new FancyService() }]);
+          addProviders([{ provide: FancyService, useValue: new FancyService() }]);
         })
-        .toThrowError('beforeEachProviders was called after the injector had been used ' +
+        .toThrowError('addProviders was called after the injector had been used ' +
                       'in a beforeEach or it block. This invalidates the test injector');
         restoreJasmineBeforeEach();
       });
