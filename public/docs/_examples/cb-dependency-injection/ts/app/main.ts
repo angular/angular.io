@@ -1,7 +1,7 @@
 // #docregion
-import { bootstrap }        from '@angular/platform-browser-dynamic';
-import { XHRBackend }       from '@angular/http';
-import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
+import { bootstrap }            from '@angular/platform-browser-dynamic';
+import { XHRBackend }           from '@angular/http';
+import { appRouterProviders }   from './app.routes';
 import { LocationStrategy,
          HashLocationStrategy } from '@angular/common';
 
@@ -13,7 +13,7 @@ import { AppComponent }     from './app.component';
 
 // #docregion bootstrap
 bootstrap(AppComponent, [
-  ROUTER_PROVIDERS,
+  appRouterProviders,
   { provide: LocationStrategy, useClass: HashLocationStrategy },
 
   { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server

@@ -56,6 +56,6 @@ const routes: RouterConfig = [
   { path: '09-01', component: S0901 },
 ];
 
-export const APP_ROUTER_PROVIDERS = [
+export const appRouterProviders = [
   provideRouter(routes)
 ];

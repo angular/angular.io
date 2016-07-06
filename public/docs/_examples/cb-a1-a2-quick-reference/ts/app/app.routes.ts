@@ -1,12 +1,11 @@
 // #docregion
 import { provideRouter, RouterConfig }  from '@angular/router';
-import { HeroesComponent } from './heroes.component';
+
+import { MovieListComponent } from './movie-list.component';
 
 const routes: RouterConfig = [
-  {
-    path: 'heroes',
-    component: HeroesComponent
-  }
+  { path: '', redirectTo: '/movies', pathMatch: 'full' },
+  { path: 'movies', component: MovieListComponent }
 ];
 
 export const appRouterProviders = [
