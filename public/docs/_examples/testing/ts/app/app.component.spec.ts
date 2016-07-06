@@ -5,13 +5,10 @@ import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
 import {
-  beforeEach, beforeEachProviders,
-  describe, ddescribe, xdescribe,
-  expect, it, iit, xit,
   async, inject
 } from '@angular/core/testing';
 
-import { ComponentFixture, TestComponentBuilder } from '@angular/compiler/testing';
+import { ComponentFixture, TestComponentBuilder } from '@angular/core/testing';
 
 import { Hero, HeroService, MockHeroService } from './mock-hero.service';
 
@@ -45,7 +42,7 @@ describe('AppComponent', () => {
   it('can get title from template', () => {
     fixture.detectChanges();
     let titleEl = fixture.debugElement.query(By.css('h1')).nativeElement;
-    expect(titleEl).toHaveText(comp.title);
+    expect(titleEl.textContent).toContain(comp.title);
   });
 
   it('can get RouterLinks from template', () => {
