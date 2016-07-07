@@ -1,5 +1,4 @@
 // #docregion
-// #docregion example
-export const HEROES_URL = 'api/heroes';
-export const VILLAINS_URL = 'api/villains';
-// #enddocregion example
+export const mockHeroes   = ['Sam', 'Jill']; // prefer
+export const heroesUrl    = 'api/heroes';    // prefer
+export const VILLAINS_URL = 'api/villains';  // tolerate

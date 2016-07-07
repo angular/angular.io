@@ -1,15 +1,19 @@
 import { Component } from '@angular/core';
 
-import { HEROES_URL, VILLAINS_URL } from './shared';
+import { heroesUrl, mockHeroes, VILLAINS_URL } from './shared';
 
 @Component({
   selector: 'sg-app',
   template: `
     <div>Heroes url: {{heroesUrl}}</div>
     <div>Villains url: {{villainsUrl}}</div>
-  `,
+
+    <h4>Mock Heroes</h4>
+    <div *ngFor="let hero of heroes">{{hero}}</div>
+  `
 })
 export class AppComponent {
-  heroesUrl = HEROES_URL;
-  villainsUrl = VILLAINS_URL;
+  heroes      = mockHeroes;   // prefer
+  heroesUrl   = heroesUrl;    // prefer
+  villainsUrl = VILLAINS_URL; // tolerate
 }
