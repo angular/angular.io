@@ -255,7 +255,7 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
       expect(li.getCssValue('opacity')).toMatch('1');
 
-      removeHero();
+      removeHero(700);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -289,19 +289,22 @@ describe('Animation Tests', () => {
     });
   });
 
-  function addActiveHero() {
+  function addActiveHero(sleep?: number) {
+    sleep = sleep || 500;
     element(by.buttonText('Add active hero')).click();
-    browser.driver.sleep(500);
+    browser.driver.sleep(sleep);
   }
 
-  function addInactiveHero() {
+  function addInactiveHero(sleep?: number) {
+    sleep = sleep || 500;
     element(by.buttonText('Add inactive hero')).click();
-    browser.driver.sleep(500);
+    browser.driver.sleep(sleep);
   }
 
-  function removeHero() {
+  function removeHero(sleep?: number) {
+    sleep = sleep || 500;
     element(by.buttonText('Remove hero')).click();
-    browser.driver.sleep(500);
+    browser.driver.sleep(sleep);
   }
 
   function getScaleX(el: protractor.ElementFinder) {
