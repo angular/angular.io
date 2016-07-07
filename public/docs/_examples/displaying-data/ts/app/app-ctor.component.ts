@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
     <h2>My favorite hero is: {{myHero}}</h2>
     `
 })
-// #docregion app-ctor
+// #docregion class
 export class AppCtorComponent {
   title: string;
   myHero: string;
@@ -17,4 +17,3 @@ export class AppCtorComponent {
     this.myHero = 'Windstorm';
   }
 }
-// #enddocregion app-ctor
