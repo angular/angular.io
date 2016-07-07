@@ -89,6 +89,14 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
 .config(function(getLinkInfo) {
   getLinkInfo.useFirstAmbiguousLink = false;
+  // TODO(chalin): remove once the deprecated angular modules are dropped.
+  getLinkInfo.resolveAmbiguityForDeprecatedModules = true;
+  // TODO(chalin): remove the following once this issue is fixed:
+  // https://github.com/angular/dgeni-packages/issues/192
+  getLinkInfo.isInvalidLinkOk = function (url, doc) {
+    return (url === 'CanActivateAnnotation' || url === 'RouteConfigAnnotation') &&
+      doc && doc.path.includes('router-deprecated');
+  }
 })
 
 
