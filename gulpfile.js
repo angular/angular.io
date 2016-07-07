@@ -242,12 +242,12 @@ function runE2eTsTests(appDir, outputFile) {
   } catch (e) {
     exampleConfig = {
       build: 'tsc',
-      run: 'http-server:e2e'
+      run: 'lite-server:e2e'
     };
   }
 
   var appBuildSpawnInfo = spawnExt('npm', ['run', exampleConfig.build], { cwd: appDir });
-  var appRunSpawnInfo = spawnExt('npm', ['run', exampleConfig.run, '--', '-s'], { cwd: appDir });
+  var appRunSpawnInfo = spawnExt('npm', ['run', exampleConfig.run], { cwd: appDir });
 
   return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
 }
@@ -302,7 +302,7 @@ function runE2eDartTests(appDir, outputFile) {
   gutil.log('AppDir for Dart e2e: ' + appDir);
   gutil.log('Deploying from: ' + deployDir);
 
-  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: EXAMPLES_PATH });
+  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:dart', '--', deployDir, '-s'], { cwd: EXAMPLES_PATH });
   if (!appRunSpawnInfo.proc.pid) {
     gutil.log('http-server failed to launch over ' + deployDir);
     return false;

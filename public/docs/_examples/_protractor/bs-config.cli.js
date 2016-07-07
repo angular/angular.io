@@ -1,0 +1,11 @@
+module.exports = {
+  open: false,
+  logLevel: "silent",
+  port: 8080,
+  server: {
+    baseDir: './dist',
+    middleware: {
+      0: null
+    }
+  }
+};
