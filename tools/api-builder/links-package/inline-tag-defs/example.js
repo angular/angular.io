@@ -40,18 +40,8 @@ module.exports = function exampleInlineTagDef(getLinkInfo, parseArgString, getAp
   };
 };
 
-//  Examples of what @example and @exampleTabs markup looks like in the angular/angular source.
-//*
-//* {@example core/application_spec.ts hello-app -title='Sample component' }
-//*
-//* {@exampleTabs core/application_spec.ts,core/application_spec.ts "hello-app,hello-app2" -titles="Hello app1, Hello app2" }
-//*
-
-
 function quote(str) {
   if (str == null || str.length === 0) return str;
   str = str.replace("'","'\'");
   return "'" + str + "'";
 }
-
-
