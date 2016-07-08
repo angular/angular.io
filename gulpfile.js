@@ -403,7 +403,9 @@ gulp.task('add-example-boilerplate', function() {
 
 // copies boilerplate files to locations
 // where an example app is found
-gulp.task('_copy-example-boilerplate', copyExampleBoilerplate);
+gulp.task('_copy-example-boilerplate', function () {
+  if (!argv.fast) copyExampleBoilerplate();
+});
 
 
 // copies boilerplate files to locations
@@ -1066,7 +1068,7 @@ function buildApiDocs(targetLanguage) {
   try {
     // Build a specialized package to generate different versions of the API docs
     var package = new Package('apiDocs', [require(path.resolve(TOOLS_PATH, 'api-builder/angular.io-package'))]);
-    package.config(function(log, targetEnvironments, writeFilesProcessor, readTypeScriptModules) {
+    package.config(function(log, targetEnvironments, writeFilesProcessor, readTypeScriptModules, linkDocsInlineTagDef) {
       log.level = _dgeniLogLevel;
       ALLOWED_LANGUAGES.forEach(function(target) { targetEnvironments.addAllowed(target); });
       if (targetLanguage) {
@@ -1076,7 +1078,9 @@ function buildApiDocs(targetLanguage) {
           // Don't read TypeScript modules if we are not generating API docs - Dart I am looking at you!
           readTypeScriptModules.$enabled = false;
         }
-        writeFilesProcessor.outputFolder  = targetLanguage + '/latest/api';
+        linkDocsInlineTagDef.lang = targetLanguage;
+        linkDocsInlineTagDef.vers = 'latest';
+        writeFilesProcessor.outputFolder  = path.join(targetLanguage, linkDocsInlineTagDef.vers, 'api');
       }
     });
 
