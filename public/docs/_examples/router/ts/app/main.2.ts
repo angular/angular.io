@@ -11,7 +11,7 @@ import { LocationStrategy,
          HashLocationStrategy } from '@angular/common';
 
 import { AppComponent }         from './app.component';
-import { APP_ROUTER_PROVIDERS } from './app.routes';
+import { appRouterProviders }   from './app.routes';
 
 // #enddocregion
 
@@ -25,7 +25,7 @@ import { AppComponent as ac } from './app.component.ts'; // './app.component.2';
 
 bootstrap(ac, [
 // #docregion
-  APP_ROUTER_PROVIDERS,
+  appRouterProviders,
   { provide: LocationStrategy, useClass: HashLocationStrategy } // .../#/crisis-center/
 
 ])

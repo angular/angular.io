@@ -1,22 +1,22 @@
 // #docregion
 import { provideRouter, RouterConfig }  from '@angular/router';
 
-import { CrisisCenterRoutes } from './crisis-center/crisis-center.routes';
-import { HeroesRoutes }       from './heroes/heroes.routes';
+import { crisisCenterRoutes } from './crisis-center/crisis-center.routes';
+import { heroesRoutes }       from './heroes/heroes.routes';
 
-import { LoginRoutes,
-         AUTH_PROVIDERS }     from './login.routes';
+import { loginRoutes,
+         authProviders }      from './login.routes';
 
 import { CanDeactivateGuard } from './interfaces';
 
 export const routes: RouterConfig = [
-  ...HeroesRoutes,
-  ...LoginRoutes,
-  ...CrisisCenterRoutes
+  ...heroesRoutes,
+  ...loginRoutes,
+  ...crisisCenterRoutes
 ];
 
-export const APP_ROUTER_PROVIDERS = [
+export const appRouterProviders = [
   provideRouter(routes),
-  AUTH_PROVIDERS,
+  authProviders,
   CanDeactivateGuard
 ];

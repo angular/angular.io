@@ -13,7 +13,7 @@ export const routes: RouterConfig = [
   { path: 'heroes', component: HeroListComponent }
 ];
 
-export const APP_ROUTER_PROVIDERS = [
+export const appRouterProviders = [
   provideRouter(routes)
 ];
 // #enddocregion route-config
