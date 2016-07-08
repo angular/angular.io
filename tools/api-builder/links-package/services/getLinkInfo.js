@@ -10,10 +10,17 @@ var path = require('canonical-path');
  * @return {Object}       The link information
  *
  * @property {boolean} relativeLinks Whether we expect the links to be relative to the originating doc
+ * @property {array<function(url, title, currentDoc, ambiguousDocs) : array} disambiguators a collection of functions
+ *           that attempt to resolve ambiguous links. Each disambiguator returns a new collection of docs with
+ *           unwanted ambiguous docs removed (see moduleScopeLinkDisambiguator service for an example).
  */
 module.exports = function getLinkInfo(getDocFromAlias, encodeCodeBlock, log) {
 
-  return function getLinkInfoImpl(url, title, currentDoc) {
+  getLinkInfoImpl.disambiguators = [];
+
+  return getLinkInfoImpl;
+
+  function getLinkInfoImpl(url, title, currentDoc) {
     var linkInfo = {
       url: url,
       type: 'url',
@@ -26,6 +33,11 @@ module.exports = function getLinkInfo(getDocFromAlias, encodeCodeBlock, log) {
     }
 
     var docs = getDocFromAlias(url, currentDoc);
+
+    // Give each disambiguator a chance to reduce the number of ambiguous docs
+    docs = getLinkInfoImpl.disambiguators.reduce(function(docs, disambiguator) {
+      return disambiguator(url, title, currentDoc, docs);
+    }, docs);
 
     if ( !getLinkInfoImpl.useFirstAmbiguousLink && docs.length > 1 ) {
 
@@ -68,4 +80,5 @@ module.exports = function getLinkInfo(getDocFromAlias, encodeCodeBlock, log) {
 
     return linkInfo;
   };
+
 };
