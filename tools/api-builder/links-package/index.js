@@ -10,6 +10,8 @@ module.exports = new Package('links', [])
 .factory(require('dgeni-packages/links/services/getDocFromAlias'))
 .factory(require('./services/getLinkInfo'))
 .factory(require('./services/parseArgString'))
+.factory(require('./services/moduleScopeLinkDisambiguator'))
+.factory(require('./services/deprecatedDocsLinkDisambiguator'))
 .factory(require('./services/getApiFragmentFileName'))
 
 .config(function(inlineTagProcessor, linkInlineTagDef, linkDocsInlineTagDef, exampleInlineTagDef, exampleTabsInlineTagDef) {
@@ -17,4 +19,9 @@ module.exports = new Package('links', [])
   inlineTagProcessor.inlineTagDefinitions.push(linkDocsInlineTagDef);
   inlineTagProcessor.inlineTagDefinitions.push(exampleInlineTagDef);
   inlineTagProcessor.inlineTagDefinitions.push(exampleTabsInlineTagDef);
+})
+
+.config(function(getLinkInfo, moduleScopeLinkDisambiguator, deprecatedDocsLinkDisambiguator) {
+  getLinkInfo.disambiguators.push(moduleScopeLinkDisambiguator);
+  getLinkInfo.disambiguators.push(deprecatedDocsLinkDisambiguator);
 });
