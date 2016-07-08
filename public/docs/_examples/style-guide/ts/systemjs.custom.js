@@ -29,7 +29,16 @@
     '07-01', '07-01/app', '07-01/app/heroes', '07-01/app/heroes/shared',
     '07-03', '07-03/app', '07-03/app/heroes', '07-03/app/heroes/hero-list', '07-03/app/heroes/shared',
     '07-04', '07-04/app', '07-04/app/heroes', '07-04/app/heroes/shared',
-    '09-01', '09-01/app', '09-01/app/heroes', '09-01/app/heroes/shared', '09-01/app/heroes/shared/hero-button'
+    '09-01', '09-01/app', '09-01/app/heroes', '09-01/app/heroes/shared', '09-01/app/heroes/shared/hero-button',
+    '11-01', '11-01/app',
+    '11-02', '11-02/app',
+    '11-03', '11-03/app',
+    '11-05', '11-05/app',
+    '11-06', '11-06/app','11-06/app/heroes', '11-06/app/heroes/shared',
+    '11-07', '11-07/app',
+    '11-08', '11-08/app', '11-08/app/heroes', '11-08/app/heroes/shared',
+    '11-09', '11-09/app',
+    '11-11', '11-11/app'
   ];
 
   var packages = {};

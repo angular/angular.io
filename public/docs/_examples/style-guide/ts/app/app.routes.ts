@@ -26,6 +26,15 @@ import { AppComponent as S0701 } from '../07-01/app';
 import { AppComponent as S0703 } from '../07-03/app';
 import { AppComponent as S0704 } from '../07-04/app';
 import { AppComponent as S0901 } from '../09-01/app';
+import { AppComponent as S1101 } from '../11-01/app';
+import { AppComponent as S1102 } from '../11-02/app';
+import { AppComponent as S1103 } from '../11-03/app';
+import { AppComponent as S1105 } from '../11-05/app';
+import { AppComponent as S1106 } from '../11-06/app';
+import { AppComponent as S1107 } from '../11-07/app';
+import { AppComponent as S1108 } from '../11-08/app';
+import { AppComponent as S1109 } from '../11-09/app';
+import { AppComponent as S1111 } from '../11-11/app';
 
 const routes: RouterConfig = [
   { path: '', redirectTo: '/01-01', pathMatch: 'full' },
@@ -55,6 +64,15 @@ const routes: RouterConfig = [
   { path: '07-03', component: S0703 },
   { path: '07-04', component: S0704 },
   { path: '09-01', component: S0901 },
+  { path: '11-01', component: S1101 },
+  { path: '11-02', component: S1102 },
+  { path: '11-03', component: S1103 },
+  { path: '11-05', component: S1105 },
+  { path: '11-06', component: S1106 },
+  { path: '11-07', component: S1107 },
+  { path: '11-08', component: S1108 },
+  { path: '11-09', component: S1109 },
+  { path: '11-11', component: S1111 },
 ];
 
 export const appRouterProviders = [
