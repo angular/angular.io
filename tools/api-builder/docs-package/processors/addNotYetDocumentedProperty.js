@@ -23,8 +23,7 @@ module.exports = function addNotYetDocumentedProperty(EXPORT_DOC_TYPES, log, cre
         }
 
         if (doc.notYetDocumented) {
-          // TODO: (ericjim) should I remove this?
-          log.warn(createDocMessage("Not yet documented", doc));
+          log.info(createDocMessage("Not yet documented", doc));
         }
       });
 
