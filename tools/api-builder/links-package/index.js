@@ -11,6 +11,7 @@ module.exports = new Package('links', [])
 .factory(require('./services/getLinkInfo'))
 .factory(require('./services/parseArgString'))
 .factory(require('./services/moduleScopeLinkDisambiguator'))
+.factory(require('./services/deprecatedDocsLinkDisambiguator'))
 .factory(require('./services/getApiFragmentFileName'))
 
 .config(function(inlineTagProcessor, linkInlineTagDef, linkDevGuideInlineTagDef, exampleInlineTagDef, exampleTabsInlineTagDef) {
@@ -20,6 +21,7 @@ module.exports = new Package('links', [])
   inlineTagProcessor.inlineTagDefinitions.push(exampleTabsInlineTagDef);
 })
 
-.config(function(getLinkInfo, moduleScopeLinkDisambiguator) {
+.config(function(getLinkInfo, moduleScopeLinkDisambiguator, deprecatedDocsLinkDisambiguator) {
   getLinkInfo.disambiguators.push(moduleScopeLinkDisambiguator);
+  getLinkInfo.disambiguators.push(deprecatedDocsLinkDisambiguator);
 });
