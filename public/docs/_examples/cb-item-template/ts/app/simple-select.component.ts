@@ -20,21 +20,21 @@ interface ItemContext {
   selector: 'simple-select',
   template:
   `
-    <button (click)='toggleItems()' class='select-root'>
+    <button (click)="toggleItems()" class="select-root">
       
       <template 
-        [ngTemplateOutlet]='itemTemplateRef'
-        [ngOutletContext]='{ item: value, index: -1 }'>
+        [ngTemplateOutlet]="itemTemplateRef"
+        [ngOutletContext]="{ item: value, index: -1 }">
       </template>
 
     </button>
   
-    <ul *ngIf='isShowingItems' class='select-items'>
-      <li *ngFor='let item of items ; let index = index ;' (click)='selectItem( item )'>
+    <ul *ngIf="isShowingItems" class="select-items">
+      <li *ngFor="let item of items ; let index = index ;" (click)="selectItem( item )">
         
         <template 
-          [ngTemplateOutlet]='itemTemplateRef'
-          [ngOutletContext]='{ item: item, index: index }'>
+          [ngTemplateOutlet]="itemTemplateRef"
+          [ngOutletContext]="{ item: item, index: index }">
         </template>
 
       </li>

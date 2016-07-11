@@ -15,24 +15,24 @@ interface Color {
   template:
   `
     <p>
-      Selected color: {{ selectedColor?.name || 'None selected' }}.
+      Selected color: {{ selectedColor?.name || "None selected" }}.
     </p>
 
-    <simple-select [items]='colors' [(value)]='selectedColor'>
-      <template let-item='item'>
-        <span class='swatch' [style.backgroundColor]='item.hex'></span>
-        <span class='name'>{{ item.hex }} &mdash; {{ item.name }}</span>
+    <simple-select [items]="colors" [(value)]="selectedColor">
+      <template let-item="item">
+        <span class="swatch" [style.backgroundColor]="item.hex"></span>
+        <span class="name">{{ item.hex }} &mdash; {{ item.name }}</span>
       </template>
     </simple-select>
 
     <simple-select 
-      [items]='colors'
-      [(value)]='selectedColor'
-      [template]='externalTemplate'>
+      [items]="colors"
+      [(value)]="selectedColor"
+      [template]="externalTemplate">
     </simple-select>
 
-    <template #externalTemplate let-item='item'>
-      <span class='name' [style.color]='item.hex'>
+    <template #externalTemplate let-item="item">
+      <span class="name" [style.color]="item.hex">
         {{ item.hex }} &mdash; {{ item.name }}
       </span>
     </template>
