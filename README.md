@@ -117,9 +117,9 @@ This project generates a lot of untracked files, if you wish to reset it to a mi
 
 - `git clean -xdf`
 
-Also, there is a script available for Linux and OSX users that will setup the project using the steps shown in this section:
+Also, there is a script available for Linux, OSX and Windows Gitbash users that will setup the project using the steps shown in this section:
 
-- `./scripts/install.sh`
+- `npm install --no-optional && ./scripts/examples-install.sh`
 
 
 ## Technology Used
