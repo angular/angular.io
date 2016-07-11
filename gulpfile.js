@@ -594,16 +594,16 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
+gulp.task('harp-compile', ['build-docs'], function() {
+  return harpCompile();
+});
+
 gulp.task('check-deploy', ['build-docs'], function() {
   return harpCompile().then(function() {
     gutil.log('compile ok');
-    if(argv.dryRun) {
-      return false;
-    } else {
-      gutil.log('running live server ...');
-      execPromise('npm run live-server ./www');
-      return askDeploy();
-    }
+    gutil.log('running live server ...');
+    execPromise('npm run live-server ./www');
+    return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
       gutil.log('deploying...');
