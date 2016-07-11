@@ -1,11 +1,13 @@
 // #docplaster
 // #docregion
-import { Component } from '@angular/core';
-import { ContentChild } from '@angular/core';
-import { EventEmitter } from '@angular/core';
-import { Input } from '@angular/core';
-import { Output } from '@angular/core';
-import { TemplateRef } from '@angular/core';
+import {
+  Component,
+  ContentChild,
+  EventEmitter,
+  Input,
+  Output,
+  TemplateRef
+} from '@angular/core';
 
 interface ItemContext {
   item: any;
@@ -58,26 +60,26 @@ export class SimpleSelectComponent {
 
   // #docregion setters
   @Input()
-  set template( newTemplate: TemplateRef<ItemContext> ) {
-    if ( newTemplate ) {
+  set template(newTemplate: TemplateRef<ItemContext>) {
+    if (newTemplate) {
       this.itemTemplateRef = newTemplate;
     }
   }
 
-  @ContentChild( TemplateRef )
-  set contentChildTemplateRef( newTemplate: TemplateRef<ItemContext> ) {
-    if ( newTemplate ) {
+  @ContentChild(TemplateRef)
+  set contentChildTemplateRef(newTemplate: TemplateRef<ItemContext>) {
+    if (newTemplate) {
       this.itemTemplateRef = newTemplate;
     }
   }
   // #enddocregion setters
 
-  public selectItem( item: any ): void {
-    this.valueChange.emit( item );
+  public selectItem(item: any) {
+    this.valueChange.emit(item);
     this.toggleItems();
   }
 
-  public toggleItems(): void {
+  public toggleItems() {
     this.isShowingItems = ! this.isShowingItems;
   }
 
