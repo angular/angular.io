@@ -496,7 +496,7 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 // Stop zipping examples Feb 28, 2016
 //gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-api-docs']);
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
@@ -510,12 +510,12 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
-gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
-  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
+gulp.task('build-dart-api-docs', ['_shred-api-examples'], function() {
+  return buildApiDocs('dart');
 });
 
-gulp.task('build-dart-cheatsheet', [], function() {
-  return buildApiDocs('dart');
+gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
+  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
@@ -974,7 +974,7 @@ function apiSourceWatch(postBuildAction) {
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
     gutil.log('Event path: ' + event.path); // The path of the modified file
 
-    return Q.all([buildApiDocs('ts'), buildApiDocs('js')]).then(postBuildAction);
+    return Q.all([buildApiDocs('ts'), buildApiDocs('js'), buildApiDocs('dart')]).then(postBuildAction);
   });
 }
 
@@ -1031,7 +1031,7 @@ function devGuideSharedJadeWatch(shredOptions, postShredAction) {
 // Generate the API docs for the specified language, if not specified then it defaults to ts
 function buildApiDocs(targetLanguage) {
   var ALLOWED_LANGUAGES = ['ts', 'js', 'dart'];
-  var GENERATE_API_LANGUAGES = ['ts', 'js'];
+  var GENERATE_API_LANGUAGES = ['ts', 'js', 'dart'];
   checkAngularProjectPath();
   try {
     // Build a specialized package to generate different versions of the API docs
