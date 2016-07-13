@@ -1,0 +1,1651 @@
+block includes
+  include ../_util-fns
+
+// TODO
+  Images
+  Confirm plunkers
+
+:marked
+  **Angular Modules** help organize an application into cohesive blocks of functionality.
+
+  An Angular Module _class_ is adorned with the **NgModule** decorator that defines metadata about the module. 
+
+  This chapter explains how to **create** `NgModule` classes and how to load them, 
+  either immediately when the application launches or later, as needed, via the Router.  
+
+  ## Contents
+  * [Angular modularity](#angular-modularity "Add structure to the app with NgModule")
+  * [The application root module](#root-module "The startup module that every app requires")
+  * [Bootstrap](#bootstrap "Launch the app in a browser with the root module as the entry point") the root module
+  * [Declarations](#declarations "Declare the components, directives, and pipes that belong to a module")
+  * [Providers](#providers "Extend the app with additional services")
+  * [Imports](#imports "Import components, directives, and pipes for use in component templates")
+  * [Resolve conflicts](#resolve-conflicts "When two directives have the same selector ...")
+  * [Feature modules](#feature-modules "Partition the app into feature modules")
+  * [Lazy loaded modules](#lazy-load "Load modules asynchronously") with the Router
+  * [Shared modules](#shared-module "Create a module for commonly used components, directives, pipes and services") 
+  * [NgModule metadata properties](#ngmodule-properties "A technical summary of the @NgModule metadata properties")
+  * [FAQ](#faq "Frequently asked questions")
+
+a#angular-modularity  
+.l-main-section
+:marked
+  ## Angular Modularity
+  
+  Modules are a great way to organize the application and extend it with capabilities from external libraries.
+  
+  Many Angular libraries are modules (e.g, `FormsModule`, `HttpModule`, `RouterModule`). 
+  Many third party libraries are available as Angular modules (e.g., 
+  <a href="https://material.angular.io/" target="_blank">Material Design</a>,
+  <a href="http://ionicframework.com/" target="_blank">Ionic</a>,
+  <a href="https://github.com/angular/angularfire2" target="_blank">AngularFire2</a>).
+
+  Angular modules consolidate components, directives and pipes into
+  cohesive blocks of functionality, each focused on a 
+  feature area, application business domain, workflow, or common collection of utilities.
+  
+  Modules can also add services to the application.
+  Such services might be internally-developed such as the application logger.
+  They can come from outside sources such as the Angular router and Http client.
+
+  Modules can be loaded eagerly when the application starts.
+  They can also be _lazy loaded_ asynchronously by the router.
+  
+  An Angular module is a class decorated with `@NgModule` metadata. The metadata:
+
+  * declare which components, directives and pipes  _belong together_.
+  * make some of those classes public so that other component templates can use them.
+  * hide other classes as implementation details.
+  * import other modules with the components, directives and pipes it needs.
+  * provide services at the application level that any application component can use.
+
+  Every Angular app has at least one module class, the _root module_. 
+  We bootstrap that module to launch the application.
+
+  The _root module_ is all we need in a simple application with a few components.
+  As the app grows, we refactor the _root module_ into **feature modules** 
+  that represent collections of related functionality. 
+  We then import these modules into the _root module_.
+
+  We'll see how later in the chapter. Let's start with the _root module_.
+
+a#root_module 
+.l-main-section
+:marked
+  ## _AppModule_ - the application root module
+  
+  Every Angular app has a **root module** class. 
+  By convention it's a class called `AppModule` in a file named `app.module.ts`.
+
+  This `AppModule` is about as minimal as it gets:
++makeExample('ngmodule/ts/app/app.module.0.ts', '', 'app/app.module.ts (minimal)')(format=".")
+:marked
+  The `@NgModel` decorator defines the metadata for the module. 
+  We'll take an intuitive approach to understanding the metadata and fill in details as we go.
+
+  This metadata imports a single helper module, `BrowserModule`, the module every browser app must import.
+  
+  `BrowserModule` registers critical application service providers.
+  It also includes common directives like `NgIf` and `NgFor` which become immediately visible and usable
+  in any of this modules component templates. 
+  
+  The `declarations` list identifies the application's only component, 
+  the _root component_, the top of this app's rather bare component tree.
+
+  The example `AppComponent` simply displays a data-bound title:
++makeExample('ngmodule/ts/app/app.component.0.ts', '', 'app/app.component.ts (minimal)')(format=".")
+:marked
+  Lastly, the `@NgModule.bootstrap` property identifies this `AppComponent` as the _bootstrap component_. 
+  When Angular launches the app, it places the HTML rendering of `AppComponent` in the DOM,
+  inside the `<my-app>` element tags of the `index.html`
+
+a#bootstrap
+.l-main-section
+:marked
+  ## Bootstrapping in _main.ts_
+  We launch the application by bootstrapping the `AppModule` in the `main.ts` file.
+  
+  Angular offers a variety of bootstrapping options, targeting multiple platforms. 
+  In this chapter we consider two options, both targeting the browser.
+
+  ### Dynamic bootstrapping with the Just-In-Time (JIT) compiler
+  In the first, _dynamic_ option, the [Angular compiler](#q-angular-compiler "About the Angular Compiler") 
+  compiles the application in the browser and then launches the app.
+
++makeExample('ngmodule/ts/app/main.ts', '', 'app/main.ts (dynamic)')(format=".")
+:marked
+  The samples in this chapter demonstrate the dynamic bootstrapping approach. 
+
+  <live-example plnkr="minimal.0">Try the live example.</live-example>
+  
+
+  ### Static bootstrapping with the Ahead-Of-Time (AOT) compiler
+
+  Consider the static alternative which can produce a much smaller application that
+  launches faster, especially on mobile devices and high latency networks.
+
+  In the _static_ option, the Angular compiler runs ahead of time as part of the build process,
+  producing a collection of class factories in their own files. 
+  Among them is the `AppModuleNgFactory`.
+
+  The syntax for bootstrapping the pre-compiled `AppModuleNgFactory` is similar to 
+  the dynamic version that bootstraps the `AppModule` class.
+
++makeExample('ngmodule/ts/app/main-static.ts', '', 'app/main.ts (static)')(format=".")
+:marked
+  Because the entire application was pre-compiled, 
+  we don't ship the _Angular Compiler_ to the browser and we don't compile in the browser.
+  
+  The application code downloaded to the browser is much smaller than the dynamic equivalent
+  and it is ready to execute immediately. The performance boost can be significant.
+
+  Both the JIT and AOT compilers generate an `AppModuleNgFactory` class from the same `AppModule` source code.
+  The JIT compiler creates that factory class on the fly, in memory, in the browser.
+  The AOT compiler outputs the factory to a physical file
+  that we're importing here in the static version of `main.ts`.
+
+  In general, the `AppModule` should neither know nor care how it is bootstrapped.
+
+  Although the `AppModule` evolves as the app grows, the bootstrap code in `main.ts` doesn't change.
+  This is the last time we'll look at `main.ts`.
+
+.l-hr
+
+a#declarations
+.l-main-section
+:marked
+  ## Declare directives and components
+  The app evolves. 
+  The first addition is a `HighlightDirective`, an [attribute directive](attribute-directives.html)
+  that sets the background color of the attached element.
++makeExample('ngmodule/ts/app/highlight.directive.ts', '', 'app/highlight.directive.ts')(format=".")
+:marked
+  We update the `AppComponent` template to attach the directive to the title:
++makeExample('ngmodule/ts/app/app.component.1.ts', 'template')(format=".")
+:marked
+  If we ran the app now, Angular would report an error in the console because
+  it doesn't recognize the `highlight` binding. 
+  
+  We must declare the directive in `AppModule`.
+  Import the `HighlightDirective` class and add it to the module's `declarations` like this:
++makeExample('ngmodule/ts/app/app.module.1.ts', 'directive')(format=".")
+
+:marked
+  ### Add a component
+
+  We decide to refactor the title into its own `TitleComponent`. 
+  The component's template binds to the component's `title` and `subtitle` properties like this:
++makeExample('ngmodule/ts/app/title.component.html', 'v1', 'app/title.component.html')(format=".")
+
++makeExample('ngmodule/ts/app/title.component.ts', 'v1', 'app/title.component.ts')(format=".")
+
+:marked
+  We rewrite the `AppComponent` to display the new `TitleComponent` in the `<app-title>` element,
+  using an input binding to set the `subtitle`.
++makeExample('ngmodule/ts/app/app.component.1.ts', '', 'app/app.component.ts (v1)')(format=".")
+:marked
+  Angular won't recognize the `<app-title>` tag until we declare it in `AppModule`. 
+  Import the `TitleComponent` class and add it to the module's `declarations`:
++makeExample('ngmodule/ts/app/app.module.1.ts', 'component')(format=".")
+
+a#providers
+.l-main-section
+:marked
+  ## Service Providers
+
+  Modules are a great way to provide services for all of the module's components.
+
+  The [Dependency Injection](dependency-injection.html) chapter describes
+  the Angular hierarchical dependency injection system and how to configure that system
+  with [providers](dependency-injection.html#providers) at different levels of the
+  application's component tree.
+
+  A module can add providers to the application's root dependency injector, making those services
+  available everywhere in the application.
+
+  Many applications capture information about the currently logged-in user and make that information 
+  accessible through a user service. 
+  This sample application has a dummy implementation of such a `UserService`.
+
++makeExample('ngmodule/ts/app/user.service.ts', '', 'app/user.service.ts')(format=".")
+:marked
+  The sample application should display a welcome message to the logged in user just below the application title.
+  Update the `TitleComponent` template to show the welcome message below the application title.
++makeExample('ngmodule/ts/app/title.component.html', '', 'app/title.component.html')(format=".")
+:marked
+  Update the `TitleComponent` class with a constructor that injects the `UserService`
+  and sets the component's `user` property from the service.
++makeExample('ngmodule/ts/app/title.component.ts', '', 'app/title.component.ts')(format=".")
+:marked
+  We've _defined_ and _used_ the service. Now we _provide_ it for all components to use by
+  adding it to a `providers` property in the `AppModule` metadata:
++makeExample('ngmodule/ts/app/app.module.1.ts', 'providers', 'app/app.module.ts (providers)')(format=".")
+
+a#imports
+.l-main-section
+:marked
+  ## Import supporting modules
+
+  The app shouldn't welcome a user if there is no user.
+  
+  Notice in the revised `TitleComponent` that an `*ngIf` directive guards the message.
+  There is no message if there is no user.
++makeExample('ngmodule/ts/app/title.component.html', 'ngIf', 'app/title.component.html (ngIf)')(format=".")
+:marked
+  Although `AppModule` doesn't declare `NgIf`, the application still compiles and runs.
+  How can that be? The Angular compiler should either ignore or complain about unrecognized HTML.
+  
+  Angular _does_ recognize `NgIf` because we imported it earlier. 
+  The initial version of `AppModule` imports `BrowserModule`.
++makeExample('ngmodule/ts/app/app.module.0.ts', 'imports', 'app/app.module.ts (imports)')(format=".")
+:marked
+  Importing `BrowserModule` made all of its public components, directives and pipes visible 
+  to the component templates in `AppModule`. They are ready to use without further ado.
+.l-sub-section
+  :marked
+    More accurately, `NgIf` is declared in `CommonModule` from `@angular/common`.
+
+    `CommonModule` contributes many of the common directives that applications need including `ngIf` and `ngFor`.
+    
+    `BrowserModule` imports `CommonModule` and _re-exports_ it.
+    We'll cover re-exporting a module [later](#q-re-export) in the chapter.
+    The net effect is that an importer of `BrowserModule` gets `CommonModule` directives automatically.
+:marked
+  Many familiar Angular directives do not belong to`CommonModule`. 
+  For example,  `NgModel` and `RouterLink` belong to Angular's `FormsModule` and `RouterModule` respectively.
+  We must _import_ those modules before we can use their directives.
+
+  To illustrate this point, we extend the sample app with `ContactComponent`, 
+  a form component that imports form support from the Angular `FormsModule`.
+
+  ### Add the _ContactComponent_
+
+  [Angular Forms](forms.html) are a great way to manage user data entry.
+
+  The `ContactComponent` presents a "contact editor", 
+  implemented with _Angular Forms_ in the [_template-driven form_](forms.html) style.
+
+.l-sub-section
+  :marked
+    #### Angular Form Styles
+    
+    We write Angular form components in either the
+    [_template-driven form_](forms.html) style or 
+    the [_reactive form_](../cookbook/dynamic-form.html) style.
+
+    This sample is about to import the `FormsModule` from `@angular/forms` because
+    the `ContactComponent` is written in the _template-driven_ style.
+    Modules with components written in the _reactive_ style,
+    should import the `ReactiveFormsModule` instead.
+
+:marked
+  The `ContactComponent` selector matches an element named `<app-contact>`. 
+  Add an element with that name to the `AppComponent` template just below the `<app-title>`:
++makeExample('ngmodule/ts/app/app.component.1b.ts', 'template', 'app/app.component.ts (template)')(format=".")
+
+:marked
+  The `ContactComponent` has a lot going on. 
+  Form components are often complex anyway and this one has its own `ContactService`, 
+  its own [custom pipe](#pipes.html#custom-pipes) called `Awesome`,
+  and an alternative version of the `HighlightDirective`.
+
+  To make it manageable, we place all contact-related material in an `app/contact` folder
+  and break the component into three constituent HTML, TypeScript, and css files:
++makeTabs(
+  `ngmodule/ts/app/contact/contact.component.html,
+  ngmodule/ts/app/contact/contact.component.ts,
+  ngmodule/ts/app/contact/contact.component.css,
+  ngmodule/ts/app/contact/contact.service.ts,
+  ngmodule/ts/app/contact/awesome.pipe.ts,
+  ngmodule/ts/app/contact/highlight.directive.ts
+  `, 
+  null,
+  `app/contact/contact.component.html,
+  app/contact/contact.component.ts,
+  app/contact/contact.component.css,
+  app/contact/contact.service.ts,
+  app/contact/awesome.pipe.ts,
+  app/contact/highlight.directive.ts
+  `)
+:marked
+  Focus on the component template.
+  Notice the two-way data binding `[(ngModel)]` in the middle of the template.
+  `ngModel` is the selector for the `NgModel` directive.
+
+  Although `NgModel` is an Angular directive, the _Angular Compiler_ won't recognize it
+  because (a) `AppModule` doesn't declare it and (b) it wasn't imported via `BrowserModule`.
+
+  Less obviously, even if Angular somehow recognized `ngModel`,
+  this `ContactComponent` would not behave like an Angular form because
+  form features such as validation are not yet available.
+
+  ### Import the FormsModule
+
+  Add the `FormsModule` to the `AppModule` metadata's `imports` list.
++makeExample('ngmodule/ts/app/app.module.1.ts', 'imports')(format=".")
+:marked
+  Now `[(ngModel)]` binding works and the user input is validated by Angular Forms.
+.alert.is-critical
+  :marked
+    **Do not** add `NgModel` &mdash; or the `FORMS_DIRECTIVES` &mdash; 
+    to the `AppModule` metadata's declarations!
+
+    These directives belong to the `FormsModule`.
+    Components, directives and pipes belong to one module &mdash; and _one module only_.
+
+    **Never re-declare classes that belong to another module.**
+
+a#declare-pipe
+:marked
+  ### Declare the contact component, directive and pipe
+
+  The application fails to compile until we declare the contact component, directive and pipe.
+  Update the `declarations` in the  `AppModule` accordingly:
++makeExample('ngmodule/ts/app/app.module.1.ts', 'declarations', 'app/app.module.ts (declarations)')(format=".")
+
+a#import-name-conflict
+.l-sub-section
+  :marked
+    There are two directives with the same name, both called `HighlightDirective`.
+
+    We work around it by creating an alias for the second, contact version using the `as` JavaScript import keyword:
+  +makeExample('ngmodule/ts/app/app.module.1b.ts', 'import-alias')(format=".")
+  :marked
+    This solves the immediate problem of referencing both directive _types_ in the same file but 
+    leaves another problem unresoved as we discuss [below](#resolve-conflicts).
+
+:marked
+  ### Provide the _ContactService_
+  The `ContactComponent` displays contacts retrieved by the `ContactService`
+  which Angular injects into its constructor. 
+  
+  We have to provide that service somewhere.
+  The `ContactComponent` _could_ provide it. 
+  But then it would be scoped to this component _only_. 
+  We want to share this service with other contact-related components that we will surely add later.
+
+  In this app we chose to add `ContactService` to the `AppModule` metadata's `providers` list:
++makeExample('ngmodule/ts/app/app.module.1b.ts', 'providers', 'app/app.module.ts (providers)')(format=".")
+:marked
+  Now `ContactService` (like `UserService`) can be injected into any component in the application.
+
+a#application-scoped-providers
+.l-sub-section
+  :marked
+    #### Application-scoped Providers
+      The `ContactService` provider is _application_-scoped because Angular 
+      registers a module's `providers` with the application's **root injector**.
+
+      Architecturally, the `ContactService` belongs to the Contact business domain. 
+      Classes in _other_ domains don't need the `ContactService` and shouldn't inject it.
+      
+      We might expect Angular to offer a _module_-scoping mechanism to enforce this design.
+      It doesn't. Angular module instances, unlike components, do not have their own injectors
+      so they can't have their own provider scopes.
+
+      This omission is intentional. 
+      Angular modules are designed primarily to extend an application, 
+      to enrich the entire app with the module's capabilities.
+      
+      Service scoping is rarely a problem in practice.
+      Non-contact components can't inject the `ContactService` by accident.
+      To inject `ContactService`, you must first import its _type_.
+      Only Contact components should import the `ContactService` _type_.
+
+      [An FAQ below](#q-component-scoped-providers) pursues this issue and its mitigations in greater detail.
+
+:marked
+  ### Run the app
+  Everything is now in place to run the application with its contact editor.
+
+  The app file structure looks like this:
+.filetree
+  .file app
+  .children
+    .file app.component.ts
+    .file app.module.ts
+    .file highlight.directive.ts
+    .file main.ts
+    .file title.component.(html|ts)
+    .file user.service.ts
+    .file contact
+    .children
+      .file awesome.pipe.ts
+      .file contact.component.(css|html|ts)
+      .file contact.service.ts
+      .file highlight.directive.ts
+
+:marked
+  <live-example plnkr="contact.1b">Try the live example.</live-example>
+  
+a#resolve-conflicts
+.l-main-section
+:marked
+  ## Resolve directive conflicts
+
+  We ran into trouble [above](#import-name-conflict) when we declared the contact's `HighlightDirective` because
+  we already had a `HighlightDirective` class at the application level.
+
+  That both directives have the same name smells of trouble.
+
+  A look at their selectors reveals that they both highlight the attached element with a different color.
++makeTabs(
+  `ngmodule/ts/app/highlight.directive.ts,
+   ngmodule/ts/app/contact/highlight.directive.ts`,
+   '',
+  `app/highlight.directive.ts,
+   app/contact/highlight.directive.ts`)
+
+:marked
+  Will Angular use only one of them? No. 
+  Both directives are declared in this module so _both directives are active_.
+  
+  When the two directives compete to color the same element, 
+  the directive declared later wins because its DOM changes overwrite the first.
+  In this case, the contact's `HighlightDirective` colors the application title text blue
+  when it should stay gold.
+
+.l-sub-section
+  :marked
+    The real problem is that there are _two different classes_ trying to do the same thing.
+
+    It's OK to import the _same_ directive class multiple times. 
+    Angular removes duplicate classes and only registers one of them.
+
+    But these are actually two different classes, defined in different files, that happen to have the same name.
+
+    They're not duplicates from Angular's perspective. Angular keeps both directives and
+    they take turns modifying the same HTML element.
+
+:marked
+  At least the app still compiles. 
+  If we define two different component classes with the same selector specifying the same element tag, 
+  the compiler reports an error. It can't insert two components in the same DOM location.
+
+  What a mess! 
+  
+  We can eliminate component and directive conflicts by creating feature modules
+  that insulate the declarations in one module from the declarations in another.
+
+a#feature-modules
+.l-main-section
+:marked
+  ## Feature Modules
+
+  This application isn't big yet. But it's already suffering structural problems.
+
+  * The root `AppModule` grows larger with each new application class and shows no signs of stopping.
+
+  * We have conflicting directives. 
+  The `HighlightDirective` in contact is re-coloring the work done by the `HighlightDirective` declared in `AppModule`.
+  And it's coloring the application title text when it should only color the `ContactComponent`.
+
+  * A change to a contact class could break an application part in some unrelated section of the app.
+  The app is brittle and hard to test.  
+
+  * The app lacks clear boundaries between contact functionality and other application features.
+  That lack of clarity makes it harder to assign development responsibilities to different teams.
+
+  We mitigate these problems with _feature modules_.
+
+  ### _Feature Module_
+
+  A _feature module_ is a class adorned by the `@NgModule` decorator and its metadata,
+  just like a root module. 
+  Feature module metadata have the same properties as the metadata for a root module.
+
+  The root module and the feature module share the same execution context.
+  They share the same dependency injector which means the services in one module
+  are available to all.
+
+  There are two significant technical differences:
+
+  1. We _boot_ the root module to _launch_ the app;
+  we _import_ a feature module to _extend_ the app.
+
+  2. A feature module can expose or hide its implementation from other modules.
+
+  Otherwise, a feature module is distinguished primarily by its intent.
+
+  A feature module delivers a cohesive set of functionality. 
+  focused on an application business domain, a user workflow, a facility (forms, http, routing), 
+  or a collection of related utilities.
+  
+  While we can do everything within the root module,
+  feature modules help us partition the app into areas of specific interest and purpose.
+
+  A feature module collaborates with the root module and with other modules 
+  through the services it provides and 
+  the components, directives, and pipes that it chooses to share.
+ 
+  In the next section, we carve the contact functionality out of the root module
+  and into a dedicated feature module.
+
+  ### Make _Contact_ a feature module
+
+  It's easy to refactor the contact material into a contact feature module.
+
+  1. Create the `ContactModule` in the `app/contact` folder.
+  1. Move the contact material from `AppModule` to `ContactModule`.
+  1. Replace the imported  `BrowserModule` with `CommonModule`.
+  1. Import the `ContactModule` into the `AppModule`.
+
+  `AppModule` is the only _existing_ class that changes. But we do add one new file.
+  
+  ### Add the _ContactModule_
+  
+  Here's the new `ContactModule`
++makeExample('ngmodule/ts/app/contact/contact.module.2.ts', '', 'app/contact/contact.module.ts')
+:marked
+  We copy from `AppModule` the contact-related import statements and the `@NgModule` properties
+  that concern the contact and paste them in `ContactModule`.
+  
+  We _import_ the `FormsModule` because the contact component needs it. 
+.alert.is-important
+  :marked
+    Modules do not inherit access to the components, directives or pipes that are declared in other modules.
+    The fact that `AppModule` imports `FormsModule` is irrelevant.
+    The `ContactModule` must import `FormsModule` explicitly so that
+    `ContactComponent` can data bind with `ngModel`.
+:marked
+  We also swapped `CommonModule` for `BrowserModule` for reasons we explain [soon](#root-vs-feature-module).
+
+  We _declare_ the contact component, directive, and pipe in the module `declarations`.
+
+  We _export_ the `ContactComponent` so
+  other modules that import the `ContactModule` can include it in their component templates.
+
+  All other declared contact classes are private by default.
+  The `AwesomePipe` and `HighlightDirective` are hidden from the rest of the application. 
+  The `HighlightDirective` can no longer color the `AppComponent` title text.
+
+:marked
+ ### Refactor the _AppModule_
+ Return to the `AppModule` and remove everything specific to the contact feature set.
+
+ Delete the contact import statements.
+ Delete the contact declarations and contact providers.
+ Remove the `FormsModule` from the `imports` list (`AppComponent` doesn't need it).
+ Leave only the classes required at the application root level.
+
+ Then import the `ContactModule` so the app can continue to display the exported `ContactComponent`.
+
+ Here's the refactored version of the `AppModule` side-by-side with the previous version.
++makeTabs(
+  `ngmodule/ts/app/app.module.2.ts,
+   ngmodule/ts/app/app.module.1b.ts`,
+   '', 
+  `app/app.module.ts (v2),
+   app/app.module.ts (v1)`)
+:marked
+ ### Improvements
+:marked
+  There's a lot to like in the revised `AppModule`
+  * It does not change as the _Contact_ domain grows.
+  * It only changes when we add new modules.
+  * It's simpler:
+    * Fewer import statements
+    * No `FormsModule` import
+    * No contact-specific declarations
+    * No `ContactService` provider
+    * No `HighlightDirective` conflict
+
+  <live-example plnkr="contact.2">Try the live example of version 2.</live-example>
+
+a#lazy-load
+.l-main-section
+:marked
+  ## Lazy loading modules with the Router
+
+  The Heroic Staffing Agency sample app has evolved. 
+  It has two more modules, one for managing the heroes-on-staff and another for matching crises to the heroes.
+  Both modules are in the early stages of development. 
+  Their specifics aren't important to the story and we won't discuss every line of code.
+.l-sub-section
+  :marked
+    Examine and download the complete source for this version from the <live-example plnkr="pre-shared.3">live example.</live-example>
+:marked
+  Some facets of the current application merit discussion.
+
+  * The app has three feature modules: Contact, Hero, and Crisis.
+  * The Angular router helps users navigate among these modules.
+  * The `ContactComponent` is the default destination when the app starts.
+  * The `ContactModule` continues to be "eagerly" loaded when the application starts.
+  * `HeroModule` and the `CrisisModule` are lazy loaded.
+
+  <a id="app-component-template"></a>
+  Let's start at the top with the new `AppComponent` template:
+  a title, three links, and a `<router-outlet>`.
++makeExample('ngmodule/ts/app/app.component.3.ts', 'template', 'app/app.component.ts (v3 - Template)')(format='.')
+:marked
+  The `<app-contact>` element is gone; we're routing to the _Contact_ page now.
+
+  The `AppModule` has changed modestly:
++makeExample('ngmodule/ts/app/app.module.3.ts', '', 'app/app.module.ts (v3)')
+.l-sub-section
+  :marked
+    Some file names bear a `.3` extension indicating
+    a difference with prior or future versions.
+    We'll explain differences that matter in due course.
+    
+:marked
+  The module still imports `ContactModule` so that its routes and components are mounted when the app starts. 
+
+  The module does _not_ import `HeroModule` or `CrisisModule`. 
+  They'll be fetched and mounted asynchronously when the user navigates to one of their routes.
+  
+  The significant change from version 2 is the addition of a ***routing*** object to the `imports`.
+  The routing object, which provides a configured `Router` service, is defined in the `app.routing.ts` file.
+
+  ### App routing
++makeExample('ngmodule/ts/app/app.routing.ts', '', 'app/app.routing.ts')(format='.')
+:marked
+  The router is the subject of [its own chapter](router.html) so we'll skip lightly over the details and 
+  concentrate on the intersection of Angular modules and routing.
+
+  This file defines three routes. 
+  
+  The first redirects the empty URL (e.g., `http://host.com/`) 
+  to another route whose path is `contact` (e.g., `http://host.com/contact`).
+  
+  The `contact` route isn't defined here.
+  It's defined in the _Contact_ feature's _own_ routing file, `contact.routing.ts`.
+  It's standard practice for feature modules with routing components to define their own routes.
+  We'll get to that file in a moment.
+
+  The remaining two routes use lazy loading syntax to tell the router where to find the modules:
++makeExample('ngmodule/ts/app/app.routing.ts', 'lazy-routes')(format='.')
+.l-sub-section
+  :marked
+    Note that the module location is a _string_, not a _type_. 
+
+    To reference the _type_ we'd have to import the module,
+    which loads the module loads immediately,
+    defeating our intent to load the module later. 
+    A string, on the other hand, is just a string. 
+    It has no side-effects.
+:marked
+  The module location strings in this app identify module _files_, not module _classes_.
+  That works because each module class is marked as the default export in its file.
++makeExample('ngmodule/ts/app/crisis/crisis.module.ts', 'export-default', '/app/crisis/crisis.module.ts (export default)')(format='.')
+:marked
+    _Remember to use_ `export default`_, not just_ `export`.
+
+:marked
+  ### RouterModule.forRoot
+
+  The last line calls the `forRoot` static class method of the `RouterModule`, passing in the configuration.
++makeExample('ngmodule/ts/app/app.routing.ts', 'forRoot')(format='.')
+:marked
+  The returned `routing` object is a `ModuleWithProviders` containing both the `RouterModule` directives
+  and the Dependency Injection providers that produce a configured `Router`. 
+
+  This `routing` object is intended for the app _root_ module _only_.
+
+.alert.is-critical
+  :marked
+    Never call `RouterModule.forRoot` in a feature module.
+:marked
+  Back in the root `AppModule`, we add this `routing` object to its `imports` list, 
+  and the app is ready to navigate.
++makeExample('ngmodule/ts/app/app.module.3.ts', 'imports', 'app/app.module.ts (imports)')(format='.')
+
+:marked
+  ### Routing to a feature module
+  The `app/contact` folder holds a new file, `contact.routing.ts`.
+  It defines the `contact` route we mentioned a bit earlier and also creates a `routing` object like so:
++makeExample('ngmodule/ts/app/contact/contact.routing.ts', 'routing', 'app/contact/contact.routing.ts (routing)')(format='.')
+:marked
+  This time we pass the route list to the `forChild` method of the `RouterModule`.
+  It produces a different kind of object intended for feature modules.
+
+.alert.is-important
+  :marked
+    Always call `RouterModule.forChild` in a feature module.
+
+.alert.is-helpful
+  :marked
+    **_forRoot_** and **_forChild_** are conventional names for methods that
+    deliver different `import` values to root and feature modules.
+    Angular doesn't recognize them but Angular developers do.
+    [Follow the convention](#shared-module-for-root) when you write similar modules for your application.
+
+:marked
+  `ContactModule` has changed in two small but important details
++makeTabs(
+  `ngmodule/ts/app/contact/contact.module.3.ts,
+   ngmodule/ts/app/contact/contact.module.2.ts`,
+   'class, class', 
+  `app/contact/contact.module.3.ts,
+   app/contact/contact.module.2.ts`)
+:marked
+  1. It imports the `routing` object from `contact.routing.ts`
+  1. It no longer exports `ContactComponent`
+
+  Now that we navigate to `ContactComponent` with the router there's no reason to make it public.
+  Nor does it need a selector. 
+  No template will ever again reference this `ContactComponent`.
+  It's gone from the [_AppComponent_ template](#app-component-template).
+
+a#hero-module
+:marked
+  ### Lazy loaded routing to a module
+
+  The lazy loaded `HeroModule` and `CrisisModule` follow the same principles as any feature module.
+  They don't look different from the eagerly loaded `ContactModule`.
+
+  The `HeroModule` is a bit more complex than the `CrisisModule` which makes it 
+  a more interesting and useful example. Here's its file structure:
+
+.filetree
+  .file hero
+  .children
+    .file hero-detail.component.ts
+    .file hero-list.component.ts
+    .file hero.component.ts
+    .file hero.module.ts
+    .file hero.routing.ts
+    .file hero.service.ts
+    .file highlight.directive.ts
+:marked
+  This is the child routing scenario familiar to readers of [Router](router.html#child-routing-component) chapter.
+  The `HeroComponent` is the feature's top component and routing host. 
+  Its template has a `<router-outlet>` that displays either a list of heroes (`HeroList`) 
+  or an editor of a selected hero (`HeroDetail`).
+  Both components delegate to the `HeroService` to fetch and save data.
+
+  There's yet _another_ `HighlightDirective` that colors elements in yet a different shade.
+  We should [do something](#shared-module "Shared modules") about the repetition and inconsistencies.
+  We endure for now.
+
+  The `HeroModule` is a feature module like any other.
++makeExample('ngmodule/ts/app/hero/hero.module.3.ts', 'class', 'app/hero/hero.module.ts (class)')(format='.')
+:marked
+  It imports the `FormsModule` because the `HeroDetailComponent` template binds with `[(ngModel)]`. 
+  It imports a `routing` object from `hero.routing.ts` just as `ContractModule` and `CrisisModule` do.
+
+  The `CrisisModule` is much the same. There's nothing more to say that's new. 
+
+  <live-example plnkr="pre-shared.3">Try the live example.</live-example>
+
+a#shared-module
+.l-main-section
+:marked
+  ## Shared modules
+  
+  The app is shaping up. 
+  One thing we don't like is carrying three different versions of the `HighlightDirective`.
+  And there's a bunch of other stuff cluttering the app folder level that could be tucked away.
+
+  Let's add a `SharedModule` to hold the common components, directives, pipes and services
+  and share them with the modules that need them.
+
+  * create an `app/shared` folder
+  * move the `AwesomePipe` and `HighlightDirective` from `app/contact` to `app/shared`.
+  * move the `UserService` and `TitleComponent` from `app/` to `app/shared`
+  * delete the `HighlightDirective` classes from `app/` and `app/hero`
+  * create a `SharedModule` class to own the shared material
+  * updata all other modules to  import `SharedModule`
+
+  Most of this is familiar blocking and tackling. 
+.l-sub-section
+  :marked
+    Examine and download the complete source for this version from the <live-example>live example.</live-example>
+
+:marked
+  Let's focus on the effects on three modules: the new `SharedModule`, the `ContactModule`, and the root `AppModule`. 
+
+  ### _SharedModule_
+  Here it is
++makeExample('ngmodule/ts/app/shared/shared.module.ts', '', 'app/app/shared/shared.module.ts')
+:marked
+  Some highlights
+  * It imports the `CommonModule` because its component needs common directives.
+  * It declares and exports the utility pipe, directive, and component classes as expected.
+  * It re-exports the `CommonModule`
+  * It re-exports the `FormsModule` which it didn't even import.
+  * There's a strange, static class method call `forRoot` that we should talk about.
+
+  But first a few words about module `exports`.
+
+  We noticed that all of our feature modules import `CommonModule`.
+  We can reduce this repetition when they import the `Shared` module by sending `CommonModule` along for the ride.
+
+  Many of our application components two-way bind with `[(ngModel)]`, a directive in the `FormsModule`,
+  We export that too so that other modules don't have to import it themselves
+
+  The `SharedModule` didn't import `FormsModule` because its components don't need it.
+  Angular lets us [re-export a module](#q-re-export) even if we don't import it.
+
+  <a id="shared-module-for-root"></a>
+  ### Adding services with _forRoot_
+
+  Recall that the `UserService` contains information about the logged-in user.
+  The app should only have one instance of the `UserService`. It's an application-wide singleton.
+  
+  We'll ask the `SharedModule` to register the singleton `UserService` when the application starts.
+
+.l-sub-section
+  :marked
+    This scenario is somewhat contrived. 
+    The root `AppModule` can register the `UserService` itself,
+    as it does now, even after moving the `UserService` file to the `app/shared` folder.
+    That's much simpler than the technique we're about to demonstrate.
+
+    That won't always be the case. 
+    Many real world modules have internally complex, multi-service configurations.
+    They hide the gory details behind a simple, unified API that's easy for developers to use.
+
+    The `RouterModule` is a good example of this strategy.
+    We pass some routes into `RouterModule.forRoot` and it registers the configured router services
+    in the application root injector for us.
+    
+    The `SharedModule` registers the `UserService` with a `forRoot` method
+    so that we learn how to do it this way when we need to do it.
+:marked
+  The obvious approach is to add the `UserService` to the `providers` list of the `SharedModule`.
+  
+  *That is a mistake, especially in an application with lazy loaded routes!*
+  
+  In this app, every module imports the `SharedModule` in order to benefit from its public declaration classes.
+  That means every module tries to provide the `UserService`, including the lazy loaded modules.
+
+.alert.is-critical
+  :marked
+    Do **not** specify `providers` for modules that might be imported by a lazy loaded module.
+.l-sub-section
+  :marked
+    See ["Why is it bad if _SharedModule_ provides the _UserService_ to every app module?"](#q-why-it-is-bad)
+
+:marked
+  The `SharedModule` should only provide the `UserService` when imported by the root `AppModule`.
+  The `SharedModule.forRoot` method helps us meet this challenge.
+
+  Look again at the `SharedModule`. It does not have `providers`.
+  When a feature module imports the `SharedModule`, it benefits from the exported classes alone.
+
+  When we add the `SharedModule` to the `imports` of the `AppModule`, we call `forRoot`.
+  In doing so, the `AppModule` gains the exported classes _and_ 
+  the `SharedModule` delivers the singleton `UserService` provider at the same time.
+   
+  Look again at the static `forRoot` method to see how that works
+
++makeExample('ngmodule/ts/app/shared/shared.module.ts', 'for-root', 'app/app/shared/shared.module.ts (forRoot)')(format='.')
+:marked
+  The `forRoot` method returns an object of type `ModuleWithProviders`, consisting of
+  the pure, provider-less `SharedModule` _plus_ the `UserService` provider.
+
+  The `@NgModule` knows what to do with this specialized import.  It's that simple.
+  
+  ### A trimmer _AppModule_
+  Here is the updated `AppModule` paired with version 3 for comparison:
++makeTabs(
+  `ngmodule/ts/app/app.module.ts,
+   ngmodule/ts/app/app.module.3.ts`,
+   '',
+  `app/app.module.ts,
+   app/app.module.ts (v3)`)
+
+:marked
+  Notice that
+  * It's smaller and cleaner because many `app/root` classes have moved to the `SharedModule`.
+  * We're calling `SharedModule.forRoot()`in the `imports` list as [discussed above](#shared-module-for-root).
+  * `AppModule` no longer provides the `UserService`; thats the job of the `SharedModule`.
+
+  ### A trimmer _ContactModule_
+  Here is the new `ContactModule` paired with version 3:
++makeTabs(
+  `ngmodule/ts/app/contact/contact.module.ts,
+   ngmodule/ts/app/contact/contact.module.3.ts`,
+   '',
+  `app/contact/contact.module.ts,
+   app/contact/contact.module.ts (v3)`)
+
+:marked
+  Notice that
+  * The new version is leaner and cleaner.
+  * The `AwesomePipe` and `HighlightDirective` are gone.
+  * The imports include `SharedModule` instead of `CommonModule` and `FormsModule`
+
+.l-hr
+
+a#ngmodule-properties  
+.l-main-section
+:marked
+  ## *NgModule* properties
+
+  The following chart summarizes the `NgModule` metadata properties.
+//
+  export interface NgModuleMetadataType {
+    providers?: any[];
+    declarations?: Array<Type|any[]>;
+    imports?: Array<Type|ModuleWithProviders|any[]>;
+    exports?: Array<Type|any[]>;
+    entryComponents?: Array<Type|any[]>;
+    bootstrap?: Array<Type|any[]>;
+    schemas?: Array<SchemaMetadata|any[]>;
+  }
+
+table
+  tr
+    th Property
+    th Description
+  tr
+    td(style="vertical-align: top") <code>declarations</code>
+    td
+      :marked
+        A list of the **component**, **directive** and **pipe** classes that _belong to this module_.
+
+        These declared classes are visible within the module but invisible to
+        components in a different module unless (a) they are _exported_ from this module and 
+        (b) that other module _imports_ this one.
+
+        Components, directives and pipes must belong to _exactly_ one module.
+        The compiler emits an error if we try to declare the same class in more than one module.
+
+        **Do not re-declare a class imported from another module.**
+
+  tr
+    td(style="vertical-align: top") <code>providers</code>
+    td
+      :marked
+        A list of dependency injection providers.
+        
+        Angular registers these providers with the root injector of the module's execution context.
+        That's the application's root injector for all modules loaded when the application starts.
+
+        Angular can inject one of these provider services into any component in the application.
+        If this module provides the `HeroService`, or any module loaded at launch provides the `HeroService`,
+        Angular can inject the same `HeroService` intance into any app component.
+        
+        A lazy loaded module has its own sub-root injector which typically 
+        is a direct child of the application root injector.
+
+        Lazy loaded services are scoped to the lazy module's injector.
+        If a lazy loaded module also provides the `HeroService`, 
+        any component created within that module's context (e.g., by router navigation)
+        gets the local instance of the service, not the instance in the root application injector.
+
+        Components in external modules continue to receive the instance created for the application root. 
+
+  tr
+    td(style="vertical-align: top") <code>imports</code>
+    td
+      :marked
+        A list of supporting modules.
+        
+        Specifically, the list of modules whose exported components, directives or pipes 
+        are referenced by the component templates declared in this module.
+        
+        A component template can [reference](#q-template-reference) another component, directive or pipe
+        on two conditions: either the referenced class is declared in this module
+        or the class was imported from another module. 
+
+        A component can use the `NgIf` and `NgFor` directives only because its parent module 
+        imported the Angular `CommonModule` (perhaps indirectly by importing `BrowserModule`).
+       
+        We can import many standard directives with the `CommonModule`.
+        But some familiar directives belong to other modules.
+        A component template can bind with `[(ngModel)]` only after importing the Angular `FormsModule`.
+  tr
+    td(style="vertical-align: top") <code>exports</code>
+    td
+      :marked
+        A list of declarations &mdash; **component**, **directive**, and **pipe** classes &mdash; that 
+        an importing module can use.
+
+        Exported declarations are the module's _public API_. 
+        A component in another module can [reference](#q-template-reference) _this_ module's `HeroComponent` 
+        if (a) it imports this module and (b) this module exports `HeroComponent`.
+        
+        Declarations are private by default.
+        If this module does _not_ export `HeroComponent`, no other module can see it.
+
+        Importing a module does _not_ automatically re-export the imported module's exports.
+        Module 'B' can't use `ngIf` just because it imported module `A` which imported `CommonModule`.
+        Module 'B' must import `CommonModule` itself.
+
+        A module can list another module among its `exports` in which case
+        all of that module's public components, directives, and pipes are exported.
+
+        [Re-export](#q-re-export) makes module transitivity explicit.
+        If Module 'A' re-exports `CommonModule` and Module 'B' imports Module 'A',
+        Module 'B' components can use `ngIf` even though 'B' itself didn't import `CommonModule`.
+
+  tr
+    td(style="vertical-align: top") <code>bootstrap</code>
+    td
+      :marked
+        A list of components that can be [bootstrapped](#bootstrap).
+
+        Usually there is only one component in this list, the _root component_ of the application.
+        
+        Angular can launch with multiple bootstrap components, 
+        each with its own location in the host web page.
+
+        A bootstrap component is automatically an `entryComponent` 
+
+  tr
+    td(style="vertical-align: top") <code>entryComponents</code>
+    td
+      :marked
+        A list of components that are _not_ [referenced](#q-template-reference) in a reachable component template.
+
+        Most developers will never set this property. Here's why.
+
+        The [_Angular Compiler_](#q-angular-compiler) must know about every component actually used in the application.
+        The compiler can discover most components by walking the tree of references 
+        from one component template to another.
+
+        But there's always at least one component that is not referenced in any template:
+        the root component, `AppComponent`, that we bootstrap to launch the app.
+        That's why it's called an _entry component_.
+
+        Routed components are also _entry components_ because they aren't referenced in a template either.
+        The router creates them and drops them into the DOM near a `<router-outlet>`.
+
+        While the bootstrapped and routed components are _entry components_, 
+        we usally don't have to add them to a module's `entryComponents` list.
+
+        Angular automatically adds components in the module's `bootstrap` list to the `entryComponents` list.
+        The `RouterModule` adds routed components to that list.
+
+        That leaves only two sources of undiscoverable components.
+        1. Components bootstrapped using one of the imperative techniques.
+        1. Components dynamically loaded into the DOM by some means other than the router.
+        
+        Both are advanced techniques that few developers will ever employ. 
+        If you are one of those few, you'll have to add these components to the 
+        `entryComponents` list yourself, either programmatically or by hand.
+
+a#faq 
+.l-main-section
+:marked
+  ## FAQ: Frequently Asked Questions
+
+  Declarations
+  * [What classes should I add to _declarations_?](#q-what-to-declare)
+  * [What classes should I *not* add to _declarations_?](#q-what-not-to-declare)
+  * [Why list the same component in multiple module properties?](#q-why-multiple-mentions)
+  * [What does "_Can't bind to 'x' since it isn't a known property of 'y'_" mean?](q-why-cant-bind-to)
+
+  Imports and Exports
+  * [What should I import?](#q-what-to-import)
+  * [What if I import the same module twice?](#q-reimport)
+  * [What should I export?](#q-what-to-export)
+  * [What should I *not* export?](#q-what-not-to-export)
+  * [Can I re-export imported classes and modules?](#q-re-export)
+
+  Service Providers  
+  * [Why is a service provided in a feature module visible everywhere?](#q-module-provider-visibility)
+  * [Why is a service provided in a _lazy loaded_ module visible only to that module?](q-lazy-loaded-module-provider-visibility) 
+  * [What if two modules provide the _same_ service?](#q-module-provider-duplicates)
+  * [How do I restrict service scope to a module?](#q-component-scoped-providers)
+  * [Should I add providers to the root _AppModule_ or the root _AppComponent_?](#q-root-component-or-module)
+  * [Why is it bad if _SharedModule_ provides the _UserService_ to every app module?](#q-why-it-is-bad)
+
+  Entry Components
+  * [What is an _entry component_?](#q-entry-component-defined)
+  * [What is the difference between a _bootstrap_ component and an _entry component_?](#q-bootstrap_vs_entry_component)
+  * [When do I add components to _entryComponents_?](#q-when-entry-components)
+  * [Why does Angular need _entryComponents_?](#q-why-entry-components)
+
+  Miscellaneous
+  * [What is a "template reference"?](#q-template-reference)
+  * [How does Angular find components, directives, and pipes in a template?](#q-template-reference)  
+  * [What is the Angular Compiler?](#q-angular-compiler)  
+  * [What's the difference between Angular and JavaScript Modules?](#q-ng-vs-js-modules)
+
+.l-hr
+
+a#q-what-to-declare
+.l-main-section
+:marked
+  ### What classes should I add to _declarations_?
+
+  Add components, directives, and pipes to a `declarations` list.
+
+  These kinds of classes must be declared in _exactly one_ module of the application.
+  Declare them in _this_ module if they _belong_ to this module.
+
+.l-hr
+
+a#q-what-not-to-declare
+.l-main-section
+:marked
+  ### What classes should I _not_ add to _declarations_?
+
+  Do *not* declare 
+  * a class that is already declared in another module, whether an app module, @angular module, or 3rd party module
+
+  * an array of directives imported from another module. 
+  For example, do not declare FORMS_DIRECTIVES from `@angular/forms`.
+
+  * service classes
+
+  * non-Angular classes and objects such as 
+  strings, numbers, functions, entity models, configurations, business logic, and helper classes.
+
+.l-hr
+
+a#q-why-multiple-mentions
+.l-main-section
+:marked
+  ### Why list the same component in multiple module properties?
+
+  For example, we often see `AppComponent` listed in both `declarations` and `bootstrap`.
+  We might see `HeroComponent` listed in `declarations`, `exports`, and `entryComponents`.
+  
+  That _feels_ redundant but these properties have different functions 
+  and we can't infer that membership in one list implies membership in another list.
+
+  * `AppComponent` could be declared in this module but not bootstrapped.
+  * `AppComponent` could be bootstrapped in this module but declared in a different feature module.
+  * `HeroComponent` could be imported from another app module (so we can't declare it) and re-exported by this module.
+  * `HeroComponent` could be exported for inclusion in an external component's template and also dynamically loaded in a pop-up dialog.
+
+.l-hr
+
+a#q-why-cant-bind-to
+.l-main-section
+:marked
+  ### What does "_Can't bind to 'x' since it isn't a known property of 'y'_" mean?
+
+  This error usually means either that you neglected to declare the directive "x" 
+  or you haven't imported the module to which "x" belongs.
+
+  For example, if "x" is `ngModel`, you probably haven't imported the `FormsModule` from `@angular/forms`.
+
+  Perhaps you declared "x" in an application sub-module but forgot to export it? 
+  The "x" class won't be visible to other modules until you add it to the `exports` list.
+
+.l-hr
+
+a#q-what-to-import
+.l-main-section
+:marked
+  ### What should I import?
+
+  The **root application module** (`AppModule`) of almost every browser application
+  should import `BrowserModule` from `@angular/core`.
+  
+  `BrowserModule` provides services that are essential to launch and run a browser app.
+
+  It also re-exports `CommonModule` from `@angular/common`
+  which means that `AppModule` module components have access to
+  that common directives almost every app needs such as `NgIf` and `NgFor`.
+  
+  Application *feature modules* and *lazy loaded modules* should import `CommonModule` instead.
+  
+  ***They should not import `BrowserModule`***.
+  
+  A feature module that imports `BrowserModule` could redefine the platform providers 
+  that were originally registered in a previously imported module.
+  
+  The risk is greater with lazy loaded modules because they have their own injector.
+  Importing `BrowserModule` could block access to the corresponding service instances in the root injector. 
+
+  Importing `CommonModule` also frees feature modules for use on _any_ target platform, not just browsers,
+  a fact of some interest to authors of cross-platform libraries.
+
+.l-hr 
+a#q-reimport
+.l-main-section
+:marked
+  ### What if I import the same module twice?
+  
+  That's not a problem. When three modules all import Module 'A', 
+  Angular evaluates Module 'A' once, the first time it encounters it, and does not do so again. 
+
+  That's true at whatever level `A` appears in a hierarchy of imported modules.
+  When Module 'B' imports Module 'A', Module 'C' imports 'B', and Module 'D' imports `[C, B, A]`,
+  then 'D' triggers the evaluation of 'C' which triggers the evaluation of 'B' which evaluates 'A'.
+  When Angular gets to the 'B' and 'A' in 'D', they're already cached and ready to go.
+
+  Angular does not like modules with circular references so don't let Module 'A' import Module 'B' which imports Module 'A'.
+
+.l-hr 
+a#q-what-to-export
+.l-main-section
+:marked
+  ### What should I export?
+
+  Only export "public classes", the classes that external components should be allowed to incorporate in their templates.
+
+  You _can_ export any declarable class &mdash; components, directives, and pipes &mdash; 
+  whether declared in this module or in an imported module.
+
+  You _can_ re-export entire imported modules which effectively re-exports all of their exported classes.
+  A module can even export a module that it doesn't import as long as it doesn't need anything from that module. 
+
+.l-hr
+
+a#q-what-not-to-export
+.l-main-section
+:marked
+  ### What should I *not* export?
+
+  Do *not* export
+
+  *  The components, directives, and pipes that should be used privately, 
+  strictly within templates of the components declared in this module.
+
+  *  Non-declarable objects such as services, functions, configurations, entity models, etc.
+  
+  *  Components that are only loaded dynamically by the router or by bootstrapping.
+  Such [entry components](#q-entry-component-defined) can never be selected in another component's template.
+  There's no harm in exporting them but no benefit either. 
+
+.l-hr
+
+a#q-reexport
+a#q-re-export
+.l-main-section
+:marked
+  ### Can I re-export classes and modules?
+
+  Absolutely!
+
+  Modules are a great way to selectively aggregate classes from other modules and
+  re-export them in a consolidated, convenience module.
+
+  A module can re-export entire modules which effectively re-exports all of their exported classes.
+  Angular's own `BrowserModule` exports a couple of modules like this:
+code-example.
+  exports: [CommonModule, ApplicationModule]
+
+:marked
+  A module can export a combination of its own declarations, selected imported classes, and imported modules.
+
+.l-hr
+
+a#q-module-provider-visibility
+.l-main-section
+:marked
+  ### Why is a service provided in a feature module visible everywhere?
+
+  Providers listed in the `@NgModule.providers` of a bootstrapped module have **application scope**.
+  Adding a service provider to `@NgModule.providers` effectively publishes the service to the entire application.
+
+  When we import a module,
+  Angular adds the module's service providers (the contents of its `providers` list)
+  to the application _root injector_.
+
+  This makes the provider visible to every class in the application that knows the provider's lookup token.
+
+  This is by design. 
+  Extensibility through module imports is a primary goal of the Angular module system.
+  Merging module providers into the application injector
+  makes it easy for a module library to enrich the entire application with new services.
+  By adding the `HttpModule` once, every application component can make http requests. 
+  
+  However, this can feel like an unwelcome surprise if you are expecting the module's services 
+  to be visible only to the components declared by that feature module.
+  If the `HeroModule` provides the `HeroService` and the root `AppModule` imports `HeroModule`, 
+  any class that knows the `HeroService` _type_ can inject that service, 
+  not just the classes declared in the `HeroModule`.
+
+.l-hr
+
+a#q-lazy-loaded-module-provider-visibility
+.l-main-section
+:marked
+  ### Why is a service provided in a lazy loaded module visible only to that module?
+  
+  Unlike providers of the modules loaded at launch, 
+  providers of lazy loaded modules are *module-scoped*.
+
+  When the Angular router lazy-loads a module, it creates a new execution context.
+  That context has its own injector which is a direct child of the application injector.
+
+  The router adds the lazy module's own providers and the providers of its imported modules to this child injector.
+
+  These providers are insulated from changes to application providers with the same lookup token.
+  When the router creates a component within the lazy loaded context,
+  Angular prefers service instances created from these providers to the service instances of the application root injector.
+
+.l-hr
+
+a#q-module-provider-duplicates
+.l-main-section
+:marked
+  ### What if two modules provide the _same_ service?
+  
+  When two imported modules, loaded at the same time, list a provider with the same token, 
+  the second module's provider "wins". That's because both providers are added to the same injector.
+
+  When Angular looks to inject a service for that token, 
+  it creates and delivers the instance created by the second provider.
+
+  _Every_ class that injects this service gets the instance created by the second provider.
+  Even classes declared within the first module get the instance created by the second provider.
+  _This can be an unwelcome surprise_.
+
+  If Module A provides a service for token 'X' and imports a module B
+  that also provides a service for token 'X', then Module A's service definition "wins".
+
+  The service provided by the root `AppModule` takes precedence over services provided by imported modules.
+  The `AppModule` always wins.
+
+.l-hr
+
+a#q-component-scoped-providers
+.l-main-section
+:marked
+  ### How do I restrict service scope to a module?
+
+  When a module is loaded at application launch,
+  its `@NgModule.providers` have ***application-wide scope***.
+  They are visible throughout the application as discussed [above](#application-scoped-providers).
+  
+  Imported providers are easily replaced by providers from another imported module.
+  Such replacement may be by design. It could be unintentional and have adverse consequences.
+
+.alert.is-important
+  :marked
+    As a general rule, import modules with providers _exactly once_, preferably in the application's _root module_.
+    That's also usually the best place to configure, wrap, and override them.
+
+:marked
+  Suppose a module requires a customized `HttpBackend` that adds a special header for all Http requests.
+  If another module elsewhere in the application also customizes `HttpBackend`
+  or merely imports the `HttpModule`, it could override this module's `HttpBackend` provider, 
+  losing the special header. The server will reject http requests from this module.
+
+.alert.is-important
+  :marked
+    Avoid this problem by importing the `HttpModule` only in the `AppModule`, the application _root module_.
+
+:marked
+  If you must guard against this kind of "provider corruption", *don't rely on a launch-time module's `providers`.*
+
+  Load the module lazily if you can. 
+  Angular gives a [lazy-loaded module](#q-lazy-loaded-module-provider-visibility) its own child injector.
+  The module's providers are visible only within the component tree created with this injector.
+
+  If you must load the module eagerly, when the application starts,
+  ***provide the service in a component instead.***
+  
+  Continuing with the same example, suppose the components of a module truly require a private, custom `HttpBackend`.
+
+  Create a "top component" that acts as the root for all of the module's components. 
+  Add the custom `HttpBackend` provider to the top component's `providers` list rather than the module's `providers`.
+  Recall that Angular creates a child injector for each component instance and populates the injector
+  with the component's own providers.
+  
+  When a child of this component _asks_ for the `HttpBackend` service,
+  Angular provides the local `HttpBackend` service, 
+  not the version provided in the application root injector.
+  Child components will make proper http requests no matter what other modules do to `HttpBackend`.
+  
+  Be sure to create module components as children of this module's top component.
+
+  You can embed the child components in the top component's template.
+  Alternatively, make the top component a routing host by giving it a `<router-outlet>`.
+  Define child routes and let the router load module components into that outlet.
+
+.l-hr
+
+a#q-root-component-or-module
+.l-main-section
+:marked
+  ### Should I add providers to the root _AppModule_ or the root _AppComponent_?
+
+  Most apps launch with an initial set of service providers. 
+  Should we register those providers on the root `AppModule` (`@NgModel.providers`) or
+  the root `AppComponent` (`@Component.providers`)?
+
+  **_List such providers in the root_ `AppModule` _unless you have a compelling reason to do otherwise_**.
+  
+  Angular registers all startup module providers with the application root injector.
+  The services created from root injector providers are available to the entire application. 
+  They are _application-scoped_.
+  
+  Certain services (e.g., the `Router`) only work when registered in the application root injector.
+
+  By contrast, Angular registers `AppComponent` providers with the `AppComponent`'s own injector.
+  `AppComponent`services are available to that component and its component tree. 
+  They are _component-scoped_.
+
+  The `AppComponent`'s injector is a _child_ of the root injector, one down in the injector hierarchy.
+  That is _almost_ the entire application for apps that don't use the router.
+  But "almost" isn't good enough for routed applications.
+
+  `AppComponent` services don't exist at the root level where routing operates. 
+  Lazy loaded modules can't reach them.
+  In this sample applications, if we had registered `UserService` in the `AppComponent`, 
+  the `HeroComponent` couldn't inject it.
+  The application  would fail the moment a user navigated to "Heroes".
+
+  We _can_ register a service in `AppComponent` providers if the app doesn't use routing.
+  We _should_ register a service in `AppComponent` providers if the service must be hidden
+  from components outside the `AppComponent` tree. 
+  
+  These are special cases.
+  When in doubt, register with the `AppModule`.
+
+.l-hr
+  
+a#q-why-it-is-bad
+.l-main-section
+:marked
+  ### Why is it bad if _SharedModule_ provides the _UserService_ to every app module?
+
+  This question arose when we described the [_SharedModule.forRoot_](#shared-module-for-root) method.
+
+  Suppose we had listed the service in the module's `providers` (which we did not).
+  Suppose every module imports this `SharedModule` (which they all do).
+
+  When the app starts, Angular loads the `AppModule` and the `ContactModule`.
+  Both instances of the imported `SharedModule` provide the `UserService`. 
+  Angular registers one of them in the root app injector.
+  A component requests it and we have our app-wide singleton `UserService`. No problem. 
+
+  But the `HeroModule` is lazy loaded! 
+  When the router lazy loads the `HeroModule`, it creates a child injector and registers the `UserService`
+  with that child injector. The child injector is _not_ the root injector. 
+  When Angular injects the `UserService` into the `HeroComponent`, 
+  it creates and injects a new instance of the `UserService`.
+  That's a disaster.
+.l-sub-section
+  :marked
+    Prove it for yourself.
+    Run the <live-example>live example</live-example>.
+    Modify the `SharedModule` so that it provides the `UserService`.
+    Then toggle between the "Contact" and "Heroes" links a few times.
+    The username goes bonkers as the Angular creates a new `UserService` instance each time.
+
+.l-hr
+
+a#q-entry-component-defined
+.l-main-section
+:marked
+  ### What is an _entry component_?
+
+  Any component that Angular loads _imperatively_ by type is an _entry component_,
+  
+  A component loaded _declaratively_ via its selector is _not_ an entry component.
+
+  Most application components are loaded declaratively. 
+  Angular uses the component's selector to locate the element in the template. 
+  It then creates the HTML representation of the component and inserts it into the DOM at the selected element.
+  These are not entry components.
+
+  A few components are only loaded dynamically and are _never_ referenced in a component template. 
+
+  The bootstrapped root `AppComponent` is an _entry component_.
+  True, its selector matches an element tag in `index.html`.
+  But `index.html` is not a component template and the `AppComponent` 
+  selector doesn't match an element in any component template.
+  
+  Angular loads `AppComponent` dynamically either because we listed it _by type_ in `@NgModule.bootstrap` 
+  or because we boostrapped it imperatively with the module's `ngDoBootstrap` method.
+
+  Components in route definitions are also _entry components_.
+  A route definition refers to a component by its _type_. 
+  The router ignores a routed component's selector (if it even has one) and 
+  loads the component dynamically into a `RouterOutlet`. 
+
+  The compiler can't discover these _entry components_ by looking for them in other component templates. 
+  We must tell it about them ... by adding them to the `entryComponents` list.
+  
+  Angular automatically adds two kinds of components to the module's `entryComponents`:
+  1. the component in the `@NgModel.bootstrap` list
+  1. components referenced in router configuration
+
+  We don't have to mention these components explicitly although it does not harm to do so.
+
+.l-hr
+
+a#q-bootstrap_vs_entry_component
+.l-main-section
+:marked
+  ### What's the difference between a _bootstrap_ component and an _entry component_?
+
+  A bootstrapped component _is_ an [entry component](#entry-component-defined).
+  It's an entry component that Angular loads into the DOM during the bootstrap (application launch) process.
+  Other entry components are loaded by dynamically by other means such as with the router.
+
+  The `@NgModule.bootstrap` property tells the compiler _both_ that this is an entry_component _and_
+  that it should generate code to bootstrap the application with this component.
+
+  There is no need to list a component in both the `bootstrap` and `entryComponent` lists 
+  although it is harmless to do so.
+
+.l-hr
+
+a#q-when-entry-components
+.l-main-section
+:marked
+  ### When do I add components to _entryComponents_?
+  
+  Most application developers won't need to add components to the `_entryComponents_`.
+
+  Angular adds certain components to _entry components_ automatically.
+  Components listed in `@NgModule.bootstrap` are added automatically.
+  Components referenced in router configuration are added automatically.
+  These two mechanisms account for almost all entry components.
+  
+  If your app happens to bootstrap or dynamically load a component _by type_ in some other manner, 
+  you'll have to add it to `entryComponents` explicitly.
+
+  Although it's harmless to add components to this list,
+  it's best to add only the components that are truly _entry components_.
+  Don't include components that [are referenced](#q-template-reference) 
+  in the templates of other components.
+
+.l-hr
+
+a#q-why-entry-components
+.l-main-section
+:marked
+  ### Why does Angular need _entryComponents_?
+  _Entry components_ are also declared.
+  Why doesn't the Angular compiler generate code for every component in `@NgModule.declarations`?
+  Then we wouldn't need entry components.
+  
+  The reason is _tree shaking_. For production apps we want to load the smallest, fastest code possible.
+  The code should contain only the classes that we actually need.
+  It should exclude a component that's never used, whether or not that component is declared.
+
+  In fact, many libraries declare and export components we'll never use.
+  The _tree shaker_ will drop these components from the final code package
+  if we don't reference them. 
+
+  If the [Angular compiler](#angular-compilar) generated code for every declared component, 
+  it would defeat the purpose of the tree shaker.
+  
+  Instead, the compiler adopts a recursive strategy that generates code only for the components we use.
+  
+  It starts with the entry components, 
+  then it generates code for the declared components it [finds](#q-template-reference) in an entry component's template,
+  then for the declared components it discovers in the templates of previously compiled components,
+  and so on. At the end of the process, it has generated code for every  entry component
+  and every component reachable from an entry component.
+
+  If a component isn't an _entry component_ or wasn't found in a template, 
+  the compiler omits it. 
+
+.l-hr
+
+a#q-template-reference
+.l-main-section
+h4.
+  How does Angular find components, directives, and pipes in a template?<br>What is a <i><b>template reference</b></i>?
+:marked
+  The [Angular compiler](#q-angular-compiler) looks inside component templates 
+  for other components, directives, and pipes. When it finds one, that's a "template reference".
+
+  The Angular compiler finds a component or directive in a template when it can match the **selector** of that 
+  component or directive to some HTML in that template. 
+
+  The compiler finds a pipe if the pipe's **name** appears within the pipe syntax of the template HTML.
+
+  Angular only matches selectors and pipe names for classes that are declared by this module
+  or exported by a module that this module imports.
+
+.l-hr
+
+a#q-angular-compiler  
+.l-main-section
+:marked
+  ### What is the Angular Compiler?
+
+  The _Angular Compiler_ converts the application code we write into highly performant JavaScript code.
+  The `@NgModule` metadata play an important role in guiding the compilation process.
+
+  The code we write is not immediately executable.
+  Consider **components**.
+  Components have templates that contain custom elements, attribute directives, Angular binding declarations, 
+  and some peculiar syntax that clearly isn't native HTML.
+  
+  The _Angular Compiler_ reads the template markup, 
+  combines it with the corresponding component class code, and emits _component factories_.
+  
+  A component factory creates a pure, 100% JavaScript representation
+  of the component that incorporates everything described in its `@Component` metadata: 
+  the HTML, the binding instructions, the attached styles ... everything.
+
+  Because **directives** and **pipes** appear in component templates, 
+  the _Angular Compiler_ incorporates them into compiled component code too.
+
+  `@NgModule` metadata tells the _Angular Compiler_ what components to compile for this module and 
+  how to link this module with other modules.
+
+.l-hr
+
+a#q-ng-vs-js-modules
+.l-main-section
+:marked
+  ### What's the difference between Angular and JavaScript Modules?
+
+  Angular and JavaScript are two different yet complementary module systems.
+
+  In modern JavaScript, [every file is a _module_](http://exploringjs.com/es6/ch_modules.html).
+  Within each file we write an `export` statement to make parts of the module public:
+
+code-example(format='.').
+  export class AppComponent { ... }
+
+:marked
+  Then we `import` a part in another module:
+
+code-example(format='.').
+  import { AppComponent }  from './app.component';
+
+:marked
+  This kind of modularity is a feature of the _JavaScript language_.
+
+  An _Angular Module_ is a feature of _Angular_ itself.
+  It describes entire blocks of the application to the [Angular Compiler](#q-angular-compiler).
+
+  The _Angular Module_ also has `imports` and `exports` and they serve a similar purpose.
+  But it is has other capabilities that are specific to Angular.
+  For example, it _declares_ the components, directives, and pipes that belong to the module in a `declarations` list.
+
+  Here's an _Angular Module_ class with imports, exports, and declarations.
++makeExample('ngmodule/ts/app/contact/contact.module.2.ts', 'class')(format=".")
+:marked
+  Of course we use _JavaScript_ modules to write _Angular_ modules as seen in the complete `contact.module.ts` file:
++makeExample('ngmodule/ts/app/contact/contact.module.2.ts', '', 'app/contact/contact.module.ts')(format=".")
+:marked

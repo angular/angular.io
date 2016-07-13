@@ -1,15 +1,21 @@
-/*
+/**
 * Angular.io Live Example Directive
 *
 * Renders a link to a live/host example of the doc chapter
 * app this directive is contained in.
-* 
+*
 * Usage:
-*   <live-example [name="..."] [noSource] [srcText="..."]>text</live-example>
+*   <live-example [name="..."] [plnkr='...'] [noSource] [srcText="..."]>text</live-example>
 * Example:
-*   <p>Run <live-example name="toh-1">this chapter's example</live-example></p>.
+*   <p>Run <live-example>Try the live example</live-example></p>.
+*   // ~/resources/live-examples/{chapter}/ts/plnkr.html
+*
+*   <p>Run <live-example name="toh-1">this example</live-example></p>.
+*   // ~/resources/live-examples/toh-1/ts/minimal.plnkr.html
+*
+*   <p>Run <live-example plnkr="minimal"></live-example></p>.
+*   // ~/resources/live-examples/{chapter}/ts/minimal.plnkr.html
 */
-
 angularIO.directive('liveExample', ['$location', function ($location) {
 
   function a(text, attrs) {
@@ -26,6 +32,7 @@ angularIO.directive('liveExample', ['$location', function ($location) {
     compile: function (tElement, attrs) {
       var text = tElement.text() || 'live example';
       var ex = attrs.name || NgIoUtil.getExampleName($location);
+      var plnkr = attrs.plnkr || '';
       var href, template;
 
       var isForDart = attrs.lang === 'dart' || NgIoUtil.isDoc($location, 'dart');
