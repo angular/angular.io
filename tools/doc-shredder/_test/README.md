@@ -1,2 +1,1 @@
-Files in the `test_source` dir may not pass current coding conventions (such as missing EOF new lines).  This is deliberate so that we can test 
-the doc-shredder with edge conditions.  
+`test_source` 폴더 안 파일들은 아마도 현재의 코딩규칙을 통과할 수 없습니다 (누란된 EOF, 줄 바꿈 등). 이것은 경계 조건에서 문서분쇄기를 테스트 할 수 있도록 의도적인 것입니다.
