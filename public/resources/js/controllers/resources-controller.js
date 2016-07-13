@@ -39,3 +39,18 @@ angularIO.controller('ResourcesCtrl', ['$scope', '$element', '$window', '$fireba
   };
 
 }]);
+
+angularIO.filter('orderObjectByOfTypeString', function() {
+  return function(items, field, reverse) {
+    var filtered = [];
+    angular.forEach(items, function(item) {
+      filtered.push(item);
+    });
+    filtered.sort(function (a, b) {
+      // normalize sort by uppercasing values.
+      return (a[field].toUpperCase() > b[field].toUpperCase() ? 1 : -1);
+    });
+    if(reverse) filtered.reverse();
+    return filtered;
+  };
+});
