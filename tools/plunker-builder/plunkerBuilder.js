@@ -9,7 +9,7 @@ var mkdirp = require('mkdirp');
 
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
-var COPYRIGHT, COPYRIGHT_JS, COPYRIGHT_HTML;
+var COPYRIGHT, COPYRIGHT_JS_CSS, COPYRIGHT_HTML;
 var SYSTEMJS_CONFIG; // content of systemjs.config.js for plunkers that use systemjs
 var TSCONFIG;  // content of tsconfig.json for plunkers that use systemjs
 
@@ -32,11 +32,8 @@ function buildCopyrightStrings() {
 function buildPlunkers(basePath, destPath, options) {
   getSystemJsConfigPlunker(basePath);
   var errFn = options.errFn || function(e) { console.log(e); };
-  var configExtns = ['plnkr.json', '*plnkr.json'];
-  var gpaths = configExtns.map(function(extn) {
-    return path.join(basePath, '**/' + extn);
-  });
-  var fileNames = globby.sync(gpaths, { ignore: "**/node_modules/**"});
+  var plunkerPaths = path.join(basePath, '**/*plnkr.json');
+  var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
   fileNames.forEach(function(configFileName) {
     try {
       buildPlunkerFrom(configFileName, basePath, destPath);
@@ -51,7 +48,7 @@ function buildPlunkers(basePath, destPath, options) {
 //   description: optional string - description of this plunker - defaults to the title in the index.html page.
 //   tags: [] - optional array of strings
 //   main: string - filename of what will become index.html in the plunker - defaults to index.html
-function buildPlunkerFrom(configFileName, basePath, destPath ) {
+function buildPlunkerFrom(configFileName, basePath, destPath) {
   // replace ending 'plnkr.json' with 'plnkr.no-link.html' to create output file name;
   var outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.json'.length) + 'plnkr.no-link.html';
   var altFileName;
@@ -90,8 +87,7 @@ function buildPlunkerFrom(configFileName, basePath, destPath ) {
 function addSystemJsConfig(config, postData){
   if (config.basePath.indexOf('/ts') > -1) {
      // uses systemjs.config.js so add plunker version
-     var relativeFileName = 'systemjs.config.js';
-     postData['files[' + relativeFileName + ']'] = SYSTEMJS_CONFIG;
+     postData['files[systemjs.config.js]'] = SYSTEMJS_CONFIG;
      postData['files[tsconfig.json]'] = TSCONFIG;
   }
 }
