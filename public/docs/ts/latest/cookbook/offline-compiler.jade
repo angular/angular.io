@@ -1,0 +1,126 @@
+include ../_util-fns
+
+:marked
+    Angular component templates consist of standard html mixed with Angular expression syntax. Since this syntax is specific to Angular, there is no way for the browser to execute it directly.
+    
+    Before the browser can render the application, the templates have to be processed and turned into executable JavaScript. We typically refer to this step as template compilation.
+
+    By default template compilation is executed by the browser at runtime, but this is not ideal since it delays the rendering of our templates.
+
+    In this cookbook we show a different approach where we do template compilation "offline" before it even gets to the browser.
+
+<a id="toc"></a>
+:marked
+   ## Table of contents   
+
+   [Offline Compilation](#offline-compilation)
+
+   [Performance](#performance)
+
+   [Offline Compiling the Application](#compiling-application)
+
+   [Tree Shaking](#tree-shaking)
+
+.l-main-section
+<a id="object-model"></a>
+:marked
+    ## Offline Compilation
+
+    Offline compilation doesn't change the concept of template compilation. It just changes when it takes place. 
+
+    Instead of compiling templates at runtime, we make template compilation part of building the application.
+
+    Conceptually this is no different from how TypeScript code is compiled to ES5 JavaScript during build time.
+
+    Basically the offline compiler converts html templates with Angular specific syntax to regular JavaScript during a build step.
+
+.l-main-section
+<a id="performance"></a>
+:marked
+    ## Performance
+
+    The motivation for doing offline template compilation is performance.
+
+    If we do offline compilation, the browser can start rendering the application immediately since we no longer have any Angular specific syntax in our templates that needs interpretation. 
+    
+    The offline compiler will convert all Angular specific expressions in our templates (e.g. `NgFor` and `NgIf`) to standard JavaScript that any browser can understand directly. 
+
+    Also, since the templates have been pre-compiled, the browser no longer needs to download the template compiler. 
+    
+    This leads to an additional performance benefit since the download size of Angular is reduced. 
+
+.l-main-section
+<a id="compiling-application"></a>
+:marked
+    ## Offline Compiling the Application
+
+    ### Prepare for offline compilation
+
+    To make offline compilation easier the Angular team has provided an Offline Compiler CLI.
+    
+    In the following example we will show how to use the Offline Compiler CLI to compile a very simple application. 
+
+    First we have to install the Offline Compiler CLI by running: 
+    
+    `npm install @angular/compiler-cli @angular/platform-server`
+
+    Next we will look at a few tweaks we have to make to our application in order to prepare it for offline compilation.
+
++makeTabs(
+  `cb-offline-compiler/ts/app/app.component.html,
+   cb-offline-compiler/ts/app/app.component.ts`,
+  null,
+  `app.component.html,
+   app.component.ts`
+)
+
+:marked
+    As we can tell from the template in `app.component.html` there are no changes to the template syntax.
+
+    If we look at the component code in `AppComponent` we notice that we are importing `NgFor` and `NgIf` and registering them as directives.
+
+    This might be surprising since we generally don't have to register built-in directives like `NgFor` and `NgIf`.
+
+    However, when doing offline compilation it's required to register any directive referenced in the template. 
+    
+    Being explicit about what to include is important since it enables us to create a very optimized application where we only include dependencies that are actually used by our application.
+
+    In our trivial sample we are opting into using `NgFor` and `NgIf`, but our application does not require `NgSwitch`, or any other built-in directive, so we can safely skip any unused directives when generating our application bundle. 
+
+    We will discuss the details of how to reduce the size of our application in the next section when we talk about Tree shaking.
+
+    ### Compiling
+
+    Now that our application is written with offline compilation in mind, it's time to compile the application.
+
+    As we mentioned earlier, template compilation is similar to TypeScript compilation. In fact the Offline Complier CLI combines them into one step.
+
+    Instead of using the regular `tsc` Typescript compiler, we use a different compiler called `ngc`, provided by the Offline Complier CLI.
+
+    `ngc` will convert TypeScript, templates and css into executable JavaScript. We previously installed the compiler as an npm package, so we can start compilation by calling
+
+    `node_modules/.bin/ngc -p [path to source code]`
+
+    The `-p` command line parameter points to where the source code is located, so in our example we call:
+
+    `node_modules/.bin/ngc -p cb-offline-compiler/ts/app`
+
+    From our original TypeScript files the compiler will generate a set of new files with the suffix `ngfactory`. 
+
+    The generated `NgFactory` files are the offline compiled versions of the original source. If we inspect the files we will see that any external html templates or css files have been inlined and converted to executable JavaScript.   
+
+    We should never edit these files directly since our edits will be lost the next time we compile the application.
+
+    ### Bootstrapping
+
+    Next we will discuss how offline compilation affects bootstraping of the application.
+
++makeExample('cb-offline-compiler/ts/app/main.ts','','main.ts')
+
+:marked
+    `main.ts` is still the entry point of our application, but notice that we are no longer bootstrapping `AppComponent` directly. Instead we are referencing something called `AppComponentNgFactory`.
+
+    `AppComponentNgFactory` is the offline compiled version of the original `AppComponent`, generated by the compiler.
+
+    
+
