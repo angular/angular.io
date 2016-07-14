@@ -464,10 +464,12 @@ function installExampleAngular() {
   var libs = [
     'core', 'common', 'compiler',
     'platform-browser', 'platform-browser-dynamic',
-    'forms', 'http', 'router'];
+    'forms', 'http', 'router', 'upgrade'];
 
   // Like: "angular/core-builds" or "@angular/core"
   sources = libs.map( lib => argv.build ? `angular/${lib}-builds` : `@angular/${lib}`);
+
+  sources.push('@angular/router-deprecated');
 
   gutil.log(`Installing Angular npm packages from ${argv.build ? 'BUILD' : 'RELEASE'}`);
 
