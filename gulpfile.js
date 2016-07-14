@@ -451,6 +451,34 @@ gulp.task('remove-example-boilerplate', function() {
   deleteExampleBoilerPlate();
 });
 
+// Npm install Angular libraries into examples/node_modules,
+// either release or current build packages
+// Examples:
+//   gulp install-example-angular --build  // use current build packages
+//   gulp install-example-angular          // restore release packages
+gulp.task('install-example-angular', installExampleAngular);
+
+function installExampleAngular() {
+  var sources;
+  var template;
+  var libs = [
+    'core', 'common', 'compiler',
+    'platform-browser', 'platform-browser-dynamic',
+    'forms', 'http', 'router'];
+
+  // Like: "angular/core-builds" or "@angular/core"
+  sources = libs.map( lib => argv.build ? `angular/${lib}-builds` : `@angular/${lib}`);
+
+  gutil.log(`Installing Angular npm packages from ${argv.build ? 'BUILD' : 'RELEASE'}`);
+
+  var spawnInfo = spawnExt('rm', ['-rf', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
+  return spawnInfo.promise
+    .then(() =>  {
+      spawnInfo = spawnExt('npm', ['install', ...sources], {cwd: EXAMPLES_PATH});
+      return spawnInfo.promise
+    });
+}
+
 // deletes boilerplate files that were added by copyExampleBoilerplate
 // from locations where an example app is found
 gulp.task('_delete-example-boilerplate', deleteExampleBoilerPlate);
@@ -602,7 +630,7 @@ gulp.task('link-checker', function(done) {
     '*/dart/latest/api/*',
     // Somehow the link checker sees ng1 {{...}} in the resource page; ignore it
     'resources/%7B%7Bresource.url%7D%7D',
-    // API docs have links directly into GitHub repo sources; these can 
+    // API docs have links directly into GitHub repo sources; these can
     // quickly become invalid, so ignore them for now:
     '*/angular/tree/*'
   ];
@@ -786,7 +814,7 @@ function linkChecker(options) {
   var outputFile = path.join(process.cwd(), 'link-checker-results.txt');
   var header = 'Link checker results for: ' + siteUrl +
                '\nStarted: ' + (new Date()).toLocaleString() +
-               '\nExcluded links (blc file globs): ' + blcOptions.excludedKeywords + 
+               '\nExcluded links (blc file globs): ' + blcOptions.excludedKeywords +
                '\nExcluded links (custom --exclude-bad regex): ' + excludeBad.toString() + '\n\n';
   gutil.log(header);
   fs.writeFileSync(outputFile, header);

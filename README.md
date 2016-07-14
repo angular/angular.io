@@ -121,6 +121,21 @@ Also, there is a script available for Linux and OSX users that will setup the pr
 
 - `./scripts/install.sh`
 
+### Run with current build instead of release packages
+Can switch the `@angular` packages in `~/public/docs/_examples/node_modules` to the current build packages with
+```
+gulp install-example-angular --build
+```
+Restore to RELEASE packages with
+```
+gulp install-example-angular
+```
+>These commands will fail if something is locking any of the packages ... as an IDE often does.
+>
+>The symptom typically is an error trying to `rm -rf node_modules/@angular`.
+>
+>_Solution_: unlock the hold on the package(s). In VS Code, re-load the window (`cmd-P` then enter `>relow`).
+
 
 ## Technology Used
 - Angular 1.x: The production ready version of Angular
