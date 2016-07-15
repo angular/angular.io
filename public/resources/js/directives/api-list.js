@@ -26,6 +26,8 @@ angularIO.directive('apiList', function () {
     controller: function($scope, $attrs, $http, $location) {
       var $ctrl = this;
 
+      var isForDart = $attrs.lang === 'dart';
+
       $ctrl.apiTypes = [
         { cssClass: 'stable', title: 'Stable', matches: ['stable']},
         { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
@@ -36,6 +38,9 @@ angularIO.directive('apiList', function () {
         { cssClass: 'enum', title: 'Enum', matches: ['enum'] },
         { cssClass: 'const', title: 'Const', matches: ['var', 'let', 'const'] }
       ];
+
+      if (isForDart) $ctrl.apiTypes = $ctrl.apiTypes.filter((t) => 
+        !t.cssClass.match(/^(stable|directive|decorator|interface|enum)$/));
 
       $ctrl.apiFilter = getApiFilterFromLocation();
       $ctrl.apiType = getApiTypeFromLocation();

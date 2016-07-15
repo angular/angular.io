@@ -30,6 +30,7 @@ var tslint = require('gulp-tslint');
 //  2. Think about using spawn instead of exec in case of long error messages.
 
 var TOOLS_PATH = './tools';
+var ANGULAR_IO_PROJECT_PATH = path.resolve('.');
 var ANGULAR_PROJECT_PATH = '../angular';
 var PUBLIC_PATH = './public';
 var TEMP_PATH = './_temp';
@@ -63,7 +64,16 @@ var _devguideShredJadeOptions =  {
 };
 
 var _apiShredOptions =  {
+  lang: 'ts',
   examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples'),
+  fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
+  zipDir: path.join(RESOURCES_PATH, 'zips/api'),
+  logLevel: _dgeniLogLevel
+};
+
+var _apiShredOptionsForDart =  {
+  lang: 'dart',
+  examplesDir: path.resolve(ngPathFor('dart'), 'examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api'),
   logLevel: _dgeniLogLevel
@@ -95,6 +105,14 @@ var _exampleProtractorBoilerplateFiles = [
 ];
 
 var _exampleConfigFilename = 'example-config.json';
+
+var lang, langs;
+function configLangs(langOption) {
+  lang = (langOption || 'all').toLowerCase();
+  if (lang === 'all') { lang = '(ts|js|dart)'; }
+  langs = lang.match(/\w+/g); // the languages in `lang` as an array
+}
+configLangs(argv.lang);
 
 function isDartPath(path) {
   // Testing via indexOf() for now. If we need to match only paths with folders
@@ -131,6 +149,7 @@ gulp.task('run-e2e-tests', runE2e);
  *     all means (ts|js|dart)
  */
 function runE2e() {
+  if (!argv.lang) configLangs('ts|js'); // Exclude dart by default
   var promise;
   if (argv.fast) {
     // fast; skip all setup
@@ -183,8 +202,6 @@ function runE2e() {
 // each app/spec collection sequentially.
 function findAndRunE2eTests(filter, outputFile) {
   // create an output file with header.
-  var lang = (argv.lang || '(ts|js)').toLowerCase();
-  if (lang === 'all') { lang = '(ts|js|dart)'; }
   var startTime = new Date().getTime();
   var header = `Doc Sample Protractor Results for ${lang} on ${new Date().toLocaleString()}\n`;
   header += argv.fast ?
@@ -528,7 +545,9 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 // Stop zipping examples Feb 28, 2016
 //gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']);
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs',
+  // On TRAVIS? Skip building the Dart API docs for now. 
+  ...(process.env.TRAVIS ? [] : ['build-dart-api-docs'])]);
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
@@ -542,12 +561,40 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
   return buildApiDocs('js');
 });
 
+gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() {
+  // TODO(chalin): also build build-dart-cheatsheet
+  return buildApiDocsForDart();
+});
+
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
-  return buildApiDocs('dart');
+  gutil.log('build-dart-cheatsheet - NOT IMPLEMENTED YET');
+  // return buildApiDocsForDart();
+});
+
+gulp.task('dartdoc', ['pub upgrade'], function() {
+  const ngRepoPath = ngPathFor('dart');
+  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'doc'))) {
+    gutil.log('Skipping dartdoc: --fast flag enabled and "doc" dir exists');
+    return true;
+  }
+  checkAngularProjectPath(ngRepoPath);
+  const dartdoc = spawnExt('dartdoc', ['--output', 'doc/api', '--add-crossdart'], { cwd: ngRepoPath});
+  return dartdoc.promise;
+});
+
+gulp.task('pub upgrade', [], function() {
+  const ngRepoPath = ngPathFor('dart');
+  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'packages'))) {
+    gutil.log('Skipping pub upgrade: --fast flag enabled and "packages" dir exists');
+    return true;
+  }
+  checkAngularProjectPath(ngRepoPath);
+  const pubUpgrade = spawnExt('pub', ['upgrade'], { cwd: ngRepoPath});
+  return pubUpgrade.promise;
 });
 
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
@@ -596,8 +643,33 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
-gulp.task('harp-compile', ['build-docs'], function() {
+gulp.task('harp-compile', [], function() {
+  return harpCompile()
+});
+
+gulp.task('serve', [], function() {
+  // Harp will serve files from workspace.
+  const cmd = 'npm run harp -- server .';
+  gutil.log('Launching harp server (over project files)');
+  gutil.log(`  > ${cmd}`);
+  gutil.log('Note: issuing this command directly from the command line will show harp comiple warnings.');
+  return execPromise(cmd);
+});
+
+gulp.task('serve-www', [], function() {
+  // Serve generated site.
+  return execPromise('npm run live-server ./www');
+});
+
+gulp.task('build-compile', ['build-docs'], function() {
   return harpCompile();
+});
+
+gulp.task('check-serve', ['build-docs'], function() {
+  return harpCompile().then(function() {
+    gutil.log('Launching live-server over ./www');
+    return execPromise('npm run live-server ./www');
+  });
 });
 
 gulp.task('check-deploy', ['build-docs'], function() {
@@ -693,8 +765,15 @@ gulp.task('_shred-clean-devguide', function(cb) {
 });
 
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
-  checkAngularProjectPath();
-  return docShredder.shred(_apiShredOptions);
+  const promises = [];
+  gutil.log('Shredding API examples for languages: ' + langs.join(', '));
+  langs.forEach((lang) => {
+    if (lang === 'js') return; // JS is handled via TS.
+    checkAngularProjectPath(ngPathFor(lang));
+    const options = lang == 'dart' ? _apiShredOptionsForDart : _apiShredOptions;
+    promises.push(docShredder.shred(options));
+  });
+  return Q.all(promises);
 });
 
 gulp.task('_shred-clean-api', function(cb) {
@@ -1087,8 +1166,8 @@ function buildApiDocs(targetLanguage) {
     var dgeni = new Dgeni([package]);
     return dgeni.generate();
   } catch(err) {
-    gutil.log(err);
-    gutil.log(err.stack);
+    console.error(err);
+    console.error(err.stack);
     throw err;
   }
 
@@ -1096,6 +1175,48 @@ function buildApiDocs(targetLanguage) {
     // Make a copy of the JS API docs to the TS folder
     return gulp.src([path.join(DOCS_PATH, 'ts/latest/api/**/*.*'), '!' + path.join(DOCS_PATH, 'ts/latest/api/index.jade')])
       .pipe(gulp.dest('./public/docs/js/latest/api'));
+  }
+}
+
+
+function buildApiDocsForDart() {
+  const apiDir = 'api';
+  const vers = 'latest';
+  const dab = require('./tools/dart-api-builder/dab')(ANGULAR_IO_PROJECT_PATH);
+  const log = dab.log;
+
+  log.level = _dgeniLogLevel;
+  const dabInfo = dab.dartPkgConfigInfo;
+  dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, apiDir);
+  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), 'doc', apiDir);
+  // Exclude API entries for developer/internal libraries. Also exclude entries for
+  // the top-level catch all "angular2" library (otherwise every entry appears twice).
+  dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
+
+  try {
+    checkAngularProjectPath('dart');
+    var destPath = dabInfo.ngIoDartApiDocPath;
+    var sourceDirs = fs.readdirSync(dabInfo.ngDartDocPath)
+      .filter((name) => !name.match(/^index/))
+      .map((name) => path.join(dabInfo.ngDartDocPath, name));
+    log.info(`Building Dart API pages for ${sourceDirs.length} libraries`);
+
+    return copyFiles(sourceDirs, [destPath]).then(() => {
+      log.debug('Finished copying', sourceDirs.length, 'directories from', dabInfo.ngDartDocPath, 'to', destPath);
+
+      const apiEntries = dab.loadApiDataAndSaveToApiListFile();
+      const tmpDocsPath = path.resolve(path.join(process.env.HOME, 'tmp/docs.json'));
+      if (argv.dumpDocsJson) fs.writeFileSync(tmpDocsPath, JSON.stringify(apiEntries, null, 2));
+      dab.createApiDataAndJadeFiles(apiEntries);
+
+    }).catch((err) => {
+      console.log(err);    
+    });
+
+  } catch(err) {
+    console.error(err);
+    console.error(err.stack);
+    throw err;
   }
 }
 
@@ -1270,8 +1391,13 @@ function execCommands(cmds, options, cb) {
   });
 }
 
-function checkAngularProjectPath() {
-  if (!fs.existsSync(ANGULAR_PROJECT_PATH)) {
-    throw new Error('API related tasks require the angular2 repo to be at ' + path.resolve(ANGULAR_PROJECT_PATH));
+function ngPathFor(lang) {
+  return ANGULAR_PROJECT_PATH + (lang === 'dart' ? '-dart' : '');
+}
+
+function checkAngularProjectPath(lang) {
+  var ngPath = path.resolve(ngPathFor(lang || 'ts'));
+  if (!fs.existsSync(ngPath)) {
+    throw new Error('API related tasks require the angular2 repo to be at ' + ngPath);
   }
 }
