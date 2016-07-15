@@ -22,7 +22,7 @@ var globby = require("globby");
 // - because childProcess.kill does not work properly on windows
 var treeKill = require("tree-kill");
 var blc = require("broken-link-checker");
-
+var less = require('gulp-less');
 var tslint = require('gulp-tslint');
 
 // TODO:
@@ -41,6 +41,7 @@ var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
+var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
@@ -86,6 +87,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
+  'a2docs.css',
   '.editorconfig',
   'karma.conf.js',
   'karma-test-shim.js',
@@ -105,6 +107,8 @@ var _exampleProtractorBoilerplateFiles = [
 ];
 
 var _exampleConfigFilename = 'example-config.json';
+
+var _styleLessName = 'a2docs.less';
 
 // Gulp flags:
 //
@@ -431,16 +435,26 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  return copyExampleBoilerplate();
+  return buildStyles(copyExampleBoilerplate);
 });
 
 
 // copies boilerplate files to locations
 // where an example app is found
 gulp.task('_copy-example-boilerplate', function () {
-  if (!argv.fast) copyExampleBoilerplate();
+  if (!argv.fast) buildStyles(copyExampleBoilerplate);
 });
 
+//Builds Angular 2 Docs CSS file from Bootstrap npm LESS source
+//and copies the result to the _examples folder to be included as
+//part of the example boilerplate.
+function buildStyles(cb){
+  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
+    .pipe(less())
+    .pipe(gulp.dest(EXAMPLES_PATH)).on('finish', function(){
+      return cb();
+  });
+}
 
 // copies boilerplate files to locations
 // where an example app is found
@@ -1244,7 +1258,7 @@ function buildApiDocsForDart() {
       dab.createApiDataAndJadeFiles(apiEntries);
 
     }).catch((err) => {
-      console.log(err);    
+      console.log(err);
     });
 
   } catch(err) {
