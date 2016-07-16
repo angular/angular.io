@@ -545,9 +545,9 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 // Stop zipping examples Feb 28, 2016
 //gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs',
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']
   // On TRAVIS? Skip building the Dart API docs for now. 
-  ...(process.env.TRAVIS ? [] : ['build-dart-api-docs'])]);
+  .concat(process.env.TRAVIS ? [] : ['build-dart-api-docs']));
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
@@ -570,9 +570,11 @@ gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
-gulp.task('build-dart-cheatsheet', [], function() {
-  gutil.log('build-dart-cheatsheet - NOT IMPLEMENTED YET');
-  // return buildApiDocsForDart();
+gulp.task('build-dart-cheatsheet', ['build-ts-api-docs'], function() {
+  gutil.log('build-dart-cheatsheet - NOT IMPLEMENTED YET - copying TS cheatsheet data');
+  const src = './public/docs/ts/latest/guide/cheatsheet.json';
+  fs.copy(src, './public/docs/dart/latest/guide/cheatsheet.json', {clobber: true},
+    (err) => { if(err) throw err });
 });
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
@@ -1169,12 +1171,6 @@ function buildApiDocs(targetLanguage) {
     console.error(err);
     console.error(err.stack);
     throw err;
-  }
-
-  function copyApiDocsToJsFolder() {
-    // Make a copy of the JS API docs to the TS folder
-    return gulp.src([path.join(DOCS_PATH, 'ts/latest/api/**/*.*'), '!' + path.join(DOCS_PATH, 'ts/latest/api/index.jade')])
-      .pipe(gulp.dest('./public/docs/js/latest/api'));
   }
 }
 
