@@ -119,7 +119,7 @@ This project generates a lot of untracked files, if you wish to reset it to a mi
 
 Also, there is a script available for Linux, OSX and Windows Gitbash users that will setup the project using the steps shown in this section:
 
-- `npm install --no-optional && ./scripts/examples-install.sh`
+- `./scripts/install.sh`
 
 ### Run with current build instead of release packages
 Can switch the `@angular` packages in `~/public/docs/_examples/node_modules` to the current build packages with
