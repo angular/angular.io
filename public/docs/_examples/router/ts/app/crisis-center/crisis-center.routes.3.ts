@@ -6,7 +6,7 @@ import { CrisisListComponent }   from './crisis-list.component';
 import { CrisisCenterComponent } from './crisis-center.component';
 import { CrisisAdminComponent }  from './crisis-admin.component';
 
-import { CanDeactivateGuard }    from '../interfaces';
+import { CanDeactivateGuard }    from '../can-deactivate-guard.service';
 
 export const crisisCenterRoutes: RouterConfig = [
   {
