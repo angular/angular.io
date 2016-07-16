@@ -3,7 +3,7 @@
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
 import { Component, OnInit, OnDestroy } from '@angular/core';
 // #docregion import-router
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 // #enddocregion import-router
 
 import { Hero, HeroService }   from './hero.service';
@@ -31,13 +31,13 @@ export class HeroListComponent implements OnInit, OnDestroy {
 
   constructor(
     private service: HeroService,
+    private route: ActivatedRoute,
     private router: Router) {}
   // #enddocregion ctor
 
   ngOnInit() {
-    this.sub = this.router
-      .routerState
-      .queryParams
+    this.sub = this.route
+      .params
       .subscribe(params => {
         this.selectedId = +params['id'];
         this.service.getHeroes()

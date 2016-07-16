@@ -29,9 +29,12 @@ export class LoginComponent {
     this.authService.login().subscribe(() => {
       this.setMessage();
       if (this.authService.isLoggedIn) {
-        // Todo: capture where the user was going and nav there.
-        // Meanwhile redirect the user to the crisis admin
-        this.router.navigate(['/crisis-center/admin']);
+        // Get the redirect URL from our auth service
+        // If no redirect has been set, use the default
+        let redirect = this.authService.redirectUrl ? this.authService.redirectUrl : '/crisis-center/admin';
+
+        // Redirect the user
+        this.router.navigate([redirect]);
       }
     });
   }

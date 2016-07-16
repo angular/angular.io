@@ -45,13 +45,16 @@ include ../_util-fns
   * the [link parameters array](#link-parameters-array) that propels router navigation
   * navigating when the user clicks a data-bound [RouterLink](#router-link)
   * navigating under [program control](#navigate)
+  * toggling css classes for the [active router link](#router-link-active)
   * embedding critical information in the URL with [route parameters](#route-parameters)
   * add [child routes](#child-routing-component) under a feature section
   * [redirecting](#redirect) from one route to another
   * confirming or canceling navigation with [guards](#guards)
     * [CanActivate](#can-activate-guard) to prevent navigation to a route
-    * [CanDeactivate](#can-deactivate-deactivate) to prevent navigation away from the current route
+    * [CanDeactivate](#can-deactivate-guard) to prevent navigation away from the current route
   * passing optional information in [query parameters](#query-parameters)
+  * persisting information across routes with [global query parameters](#global-query-parameters)
+  * jumping to anchor elements using a [fragment](#fragment)
   * choosing the "HTML5" or "hash" [URL style](#browser-url-styles)
 
   We proceed in phases marked by milestones building from a simple two-pager with placeholder views
@@ -92,7 +95,7 @@ include ../_util-fns
   A router has no routes until we configure it.
   The preferred way is to bootstrap our application with an array of routes using the **`provideRouter`** function.
 
-  In the following example, we configure our application with three route definitions.
+  In the following example, we configure our application with four route definitions.
 +makeExample('router/ts/app/app.routes.1.ts','route-config','app/app.routes.ts')(format='.')
 
 .l-sub-section
@@ -107,6 +110,10 @@ include ../_util-fns
     is the value of the `id` parameter. The corresponding `HeroDetailComponent`
     will use that value to find and present the hero whose `id` is 42.
     We'll learn more about route parameters later in this chapter.
+
+    The `**` in the fourth route denotes a **wildcard** path for our route. The router will match this route
+    if the URL requested doesn't match any paths for routes defined in our configuration. This is useful for
+    displaying a 404 page or redirecting to another route.
 
     We pass the configuration array to the `provideRouter()` function which returns
     (among other things) a configured *Router* [service provider](dependency-injection.html#!#injector-providers).
@@ -132,20 +139,42 @@ code-example(format="", language="html").
   But most of the time we navigate as a result of some user action such as the click of
   an anchor tag.
 
-  We add a **`RouterLink`** directive to the anchor tag and bind it to a template expression that
+  We add a **`RouterLink`** directive to the anchor tag. Since
+  we know our link doesn't contain any dynamic information, we can use a one-time binding to our route *path*.
+
+  If our `RouterLink` needed to be more dynamic we could bind to a template expression that
   returns an array of route link parameters (the **link parameters array**). The router ultimately resolves that array
   into a URL and a component view.
+
+  We also add a **`RouterLinkActive`** directive to each anchor tag to add or remove CSS classes to the
+  element when the associated *RouterLink* becomes active. The directive can be added directly on the element
+  or on its parent element.
 
   We see such bindings in the following `AppComponent` template:
 +makeExample('router/ts/app/app.component.1.ts', 'template')(format=".")
 .l-sub-section
  :marked
-   We're adding two anchor tags with `RouterLink` directives.
-   We bind each `RouterLink` to an array containing the path of a route.
+   We're adding two anchor tags with `RouterLink` and `RouterLinkActive` directives.
+   We bind each `RouterLink` to a string containing the path of a route.
    '/crisis-center' and '/heroes' are the paths of the `Routes` we configured above.
 
-   We'll learn to write more complex link expressions &mdash; and why they are arrays &mdash;
+   We'll learn to write link expressions &mdash; and why they are arrays &mdash;
    [later](#link-parameters-array) in the chapter.
+
+   We define `active` as the CSS class we want toggled to each `RouterLink` when they become
+   the current route using the `RouterLinkActive ` directive. We could add multiple classes to
+   the `RouterLink` if we so desired.
+:marked
+  ### Router State
+  After the end of each successful navigation lifecycle, the router builds a tree of `ActivatedRoute`s,
+  which make up the current state of the router. We can access the current `RouterState` from anywhere in our
+  application using the `Router` service and the `routerState` property.
+
+  The router state provides us with methods to traverse up and down the route tree from any activated route
+  to get information we may need from parent, child and sibling routes. It also contains the URL *fragment*
+  and *query parameters* which are **global** to all routes. We'll use the `RouterState` to access
+  [Query Parameters](#query-parameters).
+
 :marked
   ### Let's summarize
 
@@ -181,7 +210,18 @@ table
     td.
       The directive for binding a clickable HTML element to
       a route. Clicking an anchor tag with a <code>routerLink</code> directive
-      that is bound to a <i>Link Parameters Array</i> triggers a navigation.
+      that is bound to a <i>string</i> or a <i>Link Parameters Array</i> triggers a navigation.
+  tr
+    td <code>RouterLinkActive</code>
+    td.
+      The directive for adding/removing classes from an HTML element when an associated
+      routerLink contained on or inside the element becomes active/inactive.
+  tr
+    td <code>RouterState</code>
+    td.
+      The current state of the router including a tree of the currently activated
+      activated routes in our application along with the URL query params, fragment
+      and convenience methods for traversing the route tree.
   tr
     td <code><i>Link Parameters Array</i></code>
     td.
@@ -432,23 +472,37 @@ h3#router-outlet <i>RouterOutlet</i>
 h3#router-link <i>RouterLink</i> binding
 :marked
   Above the outlet, within the anchor tags, we see [Property Bindings](template-syntax.html#property-binding) to
-  the `RouterLink` directive that look like `[routerLink]="[...]"`. We imported `RouterLink` from the router library.
+  the `RouterLink` directive that look like `routerLink="..."`. We imported `RouterLink` from the router library.
 
-  The template expression to the right of the equals (=) returns a *link parameters array*.
-
-  A link parameters array holds the ingredients for router navigation:
-  * the *path* of the route to the destination component
-  * optional route and query parameters that go into the route URL
-
-  The arrays in this example each have a single string parameter, the path of a route that
+  The links in this example each have a string path, the path of a route that
   we configured earlier. We don't have route parameters yet.
+
+  We can also add more contextual information to our `RouterLink` by providing query string parameters
+  or a URL fragment for jumping to different areas on our page. Query string parameters
+  are provided through the `[queryParams]` binding which takes an object (e.g. `{ name: 'value' }`), while the URL fragment
+  takes a single value bound to the `[fragment]` input binding.
 .l-sub-section
   :marked
-    Learn more about the link parameters array in the [appendix below](#link-parameters-array).
+    Learn about the how we can also use the **link parameters array** in the [appendix below](#link-parameters-array).
+
+a#router-link-active
+h3#router-link <i>RouterLinkActive</i> binding
+:marked
+  On each anchor tag, we also see [Property Bindings](template-syntax.html#property-binding) to
+  the `RouterLinkActive` directive that look like `routerLinkActive="..."`.
+
+  The template expression to the right of the equals (=) contains our space-delimited string of CSS classes.
+  We can also bind to the `RouterLinkActive` directive using an array of classes
+  such as `[routerLinkActive]="['...']"`.
+
+  The `RouterLinkActive` directive toggles css classes for active `RouterLink`s based on the current `RouterState`.
+  This cascades down through each level in our route tree, so parent and child router links can be active at the same time.
+  To override this behavior, we can bind to the `[routerLinkActiveOptions]` input binding with the `{ exact: true }` expression.
+  By using `{ exact: true }`, a given `RouterLink` will only be active if its URL is an exact match to the current URL.
 
 h3#router-directives <i>ROUTER_DIRECTIVES</i>
 :marked
-  `RouterLink` and `RouterOutlet` are directives in the `ROUTER_DIRECTIVES` collection.
+  `RouterLink`, `RouterLinkActive` and `RouterOutlet` are directives in the `ROUTER_DIRECTIVES` collection.
   Remember to add them to the `directives` array of the `@Component` metadata.
 +makeExample('router/ts/app/app.component.1.ts','directives')(format=".")
 :marked
@@ -463,7 +517,7 @@ h3#router-directives <i>ROUTER_DIRECTIVES</i>
 
   We've learned how to
   * load the router library
-  * add a nav bar to the shell template with anchor tags and `routerLink` directives
+  * add a nav bar to the shell template with anchor tags, `routerLink`  and `routerLinkActive` directives
   * added a `router-outlet` to the shell template where views will be displayed
   * configure the router with `provideRouter`
   * set the router to compose "HTML 5" browser URLs.
@@ -647,9 +701,8 @@ h3#navigate Navigate to hero detail imperatively
   which we implement as follows:
 +makeExample('router/ts/app/heroes/hero-list.component.1.ts','select')(format=".")
 :marked
-  It calls the router's **`navigate`** method with a **Link Parameters Array**.
-  This array is similar to the  *link parameters array* we met [earlier](#shell-template) in an anchor tag while
-  binding to the `RouterLink` directive. This time we see it in code rather than in HTML.
+  It calls the router's **`navigate`** method with a **Link Parameters Array**. We can use this same syntax
+  with a `RouterLink` if we want to use it HTML rather than code.
 
 h3#route-parameters Setting the route parameters in the list view
 :marked
@@ -755,7 +808,7 @@ h3#nav-to-list Navigating back to the list component
   back to the `HeroListComponent`.
 
   The router `navigate` method takes the same one-item *link parameters array*
-  that we bound to the application shell's *Heroes* `[routerLink]` directive.
+  that we can bind to a `[routerLink]` directive.
   It holds the **path to the `HeroListComponent`**:
 +makeExample('router/ts/app/heroes/hero-detail.component.1.ts','gotoHeroes')(format=".")
 :marked
@@ -926,10 +979,10 @@ h3#child-routing-component Child Routing Component
   It has its own `RouterOutlet` and its own child routes.
 
   We create a `crisis-center.routes.ts` file as we did the `heroes.routes.ts` file.
-  But this time we define **child routes** *within* the parent `/crisis-center` route.
+  But this time we define **child routes** *within* the parent `crisis-center` route.
 +makeExample('router/ts/app/crisis-center/crisis-center.routes.1.ts', 'routes', 'app/crisis-center/crisis-center.routes.ts (Routes)' )(format='.')
 :marked
-  Notice that the parent `/crisis-center` route has a `children` property
+  Notice that the parent `crisis-center` route has a `children` property
   with an array of two routes.
   These two routes navigate to the two *Crisis Center* child components,
   `CrisisListComponent` and `CrisisDetailComponent`.
@@ -1079,13 +1132,21 @@ h3#can-activate-guard <i>CanActivate</i>: requiring authentication
   We intend to extend the Crisis Center with some new *administrative* features.
   Those features aren't defined yet. So we add the following placeholder component.
 
-+makeExample('router/ts/app/crisis-center/crisis-admin.component.ts', '', 'crisis-admin.component.ts')(format=".")
++makeExample('router/ts/app/crisis-center/crisis-admin.component.1.ts', '', 'crisis-admin.component.ts')(format=".")
 :marked
   Next, we add a child route to the `crisis-center.routes` with the path, `/admin`.
 +makeExample('router/ts/app/crisis-center/crisis-center.routes.3.ts', 'admin-route-no-guard', 'crisis-center.routes.ts (admin route)')(format=".")
 :marked
   And we add a link to the `AppComponent` shell that users can click to get to this feature.
 +makeExample('router/ts/app/app.component.4.ts', 'template', 'app/app.component.ts (template)')(format=".")
+
+.l-sub-section
+  :marked
+    Since our admin `RouterLink` is a child route of our `Crisis Center`, we only want the `Crisis Center`
+    link to be active when we visit that route. We've added an additional binding to our `/crisis-center` routerLink,
+    `[routerLinkActiveOptions]="{ exact: true }"` which will only mark the `/crisis-center` link as active when
+    we navigate the to `/crisis-center` URL and not when we navigate to one its child routes.
+
 :marked
   #### Guard the admin feature
   Currently every route within our *Crisis Center* is open to everyone.
@@ -1096,11 +1157,11 @@ h3#can-activate-guard <i>CanActivate</i>: requiring authentication
   Instead we'll write a `CanActivate` guard to redirect anonymous users to the login page when they try to reach the admin component.
 
   This is a general purpose guard &mdash; we can imagine other features that require authenticated users &mdash;
-  so we create an `auth.guard.ts` in the application root folder.
+  so we create an `auth-guard.service.ts` in the application root folder.
 
   At the moment we're interested in seeing how guards work so our first version does nothing useful.
   It simply logs to console and `returns` true immediately, allowing navigation to proceed:
-+makeExample('router/ts/app/auth.guard.1.ts', '', 'app/auth.guard.ts')(format=".")
++makeExample('router/ts/app/auth-guard.service.1.ts', '', 'app/auth-guard.service.ts')(format=".")
 :marked
   Next we open `crisis-center.routes.ts `, import the `AuthGuard` class, and
   update the admin route with a `CanActivate` guard property that references it:
@@ -1117,9 +1178,10 @@ h3#can-activate-guard <i>CanActivate</i>: requiring authentication
   Although it doesn't actually log in, it has what we need for this discussion.
   It has an `isLoggedIn` flag to tell us whether the user is authenticated.
   Its `login` method simulates an API call to an external service by returning an observable that resolves successfully after a short pause.
+  The `redirectUrl` property will store our attempted URL so we can navigate to it after authenticating.
 
   Let's revise our `AuthGuard` to call it.
-+makeExample('router/ts/app/auth.guard.ts', '', 'app/auth.guard.ts (v.2)')(format=".")
++makeExample('router/ts/app/auth-guard.service.2.ts', '', 'app/auth-guard.service.ts (v.2)')(format=".")
 :marked
   Notice that we *inject* the `AuthService` and the `Router` in the constructor.
   We haven't provided the `AuthService` yet but it's good to know that we can inject helpful services into our routing guards.
@@ -1127,11 +1189,16 @@ h3#can-activate-guard <i>CanActivate</i>: requiring authentication
   This guard returns a synchronous boolean result.
   If the user is logged in, it returns true and the navigation continues.
 
-  If the user is not logged in, we tell the router to navigate to a login page &mdash; a page we haven't created yet.
-  This secondary navigation automatically  cancels the current navigation; we return `false` just to be clear about that.
+  The `ActivatedRouteSnapshot` contains the _future_ route that will be activated and the `RouterStateSnapshot`
+  contains the _future_ `RouterState` of our application, should we pass through our guard check.
+
+  If the user is not logged in, we store the attempted URL the user came from using the `RouterStateSnapshot.url` and
+  tell the router to navigate to a login page &mdash; a page we haven't created yet.
+  This secondary navigation automatically cancels the current navigation; we return `false` just to be clear about that.
 
   #### Add the *LoginComponent*
-  We need a `LoginComponent` for the user to log in to the app.
+  We need a `LoginComponent` for the user to log in to the app. After logging in, we'll redirect
+  to our stored URL if available, or use the default URL.
   There is nothing new about this component or the way we wire it into the router configuration.
   Here is the pertinent code, offered without comment:
 +makeTabs(
@@ -1212,7 +1279,7 @@ h3#can-deactivate-guard <i>CanDeactivate</i>: handling unsaved changes
   We create a `Guard` that will check for the presence of a `canDeactivate` function in our component, in this
   case being `CrisisDetailComponent`. We don't need to know the details of how our `CrisisDetailComponent` confirms deactivation.
   This makes our guard reusable, which is an easy win for us.
-+makeExample('router/ts/app/interfaces.ts', '', 'interfaces.ts')
++makeExample('router/ts/app/can-deactivate-guard.service.ts', '', 'can-deactivate-guard.service.ts')
 :marked
   Looking at our `CrisisDetailComponent`, we have implemented our confirmation workflow for unsaved changes.
 
@@ -1245,23 +1312,23 @@ h3#can-deactivate-guard <i>CanDeactivate</i>: handling unsaved changes
 
 +makeTabs(
    `router/ts/app/app.component.ts,
-   router/ts/app/auth.guard.ts,
+   router/ts/app/auth-guard.service.2.ts,
+   router/ts/app/can-deactivate-guard.service.ts,
    router/ts/app/crisis-center/crisis-center.component.ts,
    router/ts/app/crisis-center/crisis-center.routes.ts,
    router/ts/app/crisis-center/crisis-list.component.1.ts,
    router/ts/app/crisis-center/crisis-detail.component.1.ts,
-   router/ts/app/crisis-center/crisis.service.ts,
-   router/ts/app/interfaces.ts
+   router/ts/app/crisis-center/crisis.service.ts
   `,
   null,
    `app.component.ts,
-   auth.guard.ts,
+   auth-guard.service.ts,
+   can-deactivate-guard.service.ts,
    crisis-center.component.ts,
    crisis-center.routes.ts,
    crisis-list.component.ts,
    crisis-detail.component.ts,
-   crisis.service.ts,
-   interfaces.ts
+   crisis.service.ts
   `)
 
 
@@ -1297,7 +1364,7 @@ figure.image-display
   Almost anything serializable can appear in a query string.
 
   The Component Router supports navigation with query strings as well as route parameters.
-  We define query string parameters in the *route parameters object* just like we do with route parameters.
+  We define _optional_ query string parameters in an *object* after we define our required route parameters.
 
   <a id="route-or-query-parameter"></a>
   ### Route Parameters or Query Parameters?
@@ -1332,7 +1399,7 @@ figure.image-display
   Now we have a reason. We'd like to send the id of the current hero with the navigation request so that the
   `HeroListComponent` can highlight that hero in its list.
 
-  We do that with a `NavigationExtras` object with `queryParams`.
+  We do that with an object that contains our optional `id` parameter.
   We also defined a junk parameter (`foo`) that the `HeroListComponent` should ignore.
   Here's the revised navigation statement:
 +makeExample('router/ts/app/heroes/hero-detail.component.ts','gotoHeroes-navigate')(format=".")
@@ -1347,15 +1414,27 @@ figure.image-display
 :marked
  It should look something like this, depending on where you run it:
 code-example(format="." language="bash").
-  localhost:3000/heroes?id=15&foo=foo
+  localhost:3000/heroes;id=15&foo=foo
 :marked
-  The `id` value appears in the query string (`?id=15&foo=foo`), not in the URL path.
+  The `id` value appears in the query string (`;id=15&foo=foo`), not in the URL path.
   The path for the "Heroes" route doesn't have an `:id` token.
-
-// .alert.is-helpful
+:marked
+  The query string parameters are not separated by "?" and "&".
+  They are **separated by semicolons (;)**
+  This is *matrix URL* notation &mdash; something we may not have seen before.
+.l-sub-section
   :marked
-    The router replaces route path tokens with corresponding values from the route parameters object.
-    **Every parameter _not_ consumed by a route path goes in the query string.**
+    *Matrix URL* notation is an idea first floated
+    in a [1996 proposal](http://www.w3.org/DesignIssues/MatrixURIs.html) by the founder of the web, Tim Berners-Lee.
+
+    Although matrix notation never made it into the HTML standard, it is legal and
+    it became popular among browser routing systems as a way to isolate parameters
+    belonging to parent and child routes. The Angular Component Router is such a system.
+
+    The syntax may seem strange to us but users are unlikely to notice or care
+    as long as the URL can be emailed and pasted into a browser address bar
+    as this one can.
+
 :marked
   ### Query parameters in the *ActivatedRoute* service
 
@@ -1375,12 +1454,11 @@ code-example(format="." language="bash").
   in the `ActivatedRoute` service. We injected that service in the constructor of the `HeroDetailComponent`.
 
   This time we'll be navigating in the opposite direction, from the `HeroDetailComponent` to the `HeroListComponent`.
-  This time we'll inject the `Router` service in the constructor of the `HeroListComponent`.
 
   First we extend the router import statement to include the `ActivatedRoute` service symbol;
 +makeExample('router/ts/app/heroes/hero-list.component.ts','import-router', 'hero-list.component.ts (import)')(format=".")
 :marked
-  Then we use the `routerState` to access the globally available query parameters `Observable` so we can subscribe
+  Then we use the `ActivatedRoute` to access the `params` _Observable_ so we can subscribe
   and extract the `id` parameter as the `selectedId`:
 +makeExample('router/ts/app/heroes/hero-list.component.ts','ctor', 'hero-list.component.ts (constructor)')(format=".")
 .l-sub-section
@@ -1402,52 +1480,49 @@ figure.image-display
 :marked
   The `foo` query string parameter is harmless and continues to be ignored.
 
-  ### Child Routers and Query Parameters
+<a id="global-query-parameters"></a>
+<a id="fragment"></a>
+:marked
+  ### Global Query parameters and Fragments
+:marked
+  In our [query parameters](#query-parameters) example, we only dealt with parameters specific to
+  our route, but what if we wanted optional parameters available to all routes? This is where our
+  query parameters come into play and serve a special purpose in our application.
 
-  We can define query parameters for child routers too.
+  Traditional query string parameters (?name=value) **persist** across route navigations. This means we can pass these query params
+  around without having to specify them in each navigation method whether it be declaratively or imperatively.
 
-  The technique is precisely the same.
-  In fact, we made exactly the same changes to the *Crisis Center* feature.
-  Confirm the similarities in these *Hero* and *CrisisCenter* components,
-  arranged side-by-side for easy comparison:
-+makeTabs(
-    `router/ts/app/heroes/hero-list.component.ts,
-    router/ts/app/crisis-center/crisis-list.component.ts,
-    router/ts/app/heroes/hero-detail.component.ts,
-    router/ts/app/crisis-center/crisis-detail.component.ts
-    `,
-    null,
-    `hero-list.component.ts,
-    crisis-list.component.ts,
-    hero-detail.component.ts,
-    crisis-detail.component.ts
-    `)
+  [Fragments](https://en.wikipedia.org/wiki/Fragment_identifier) refer to certain elements on the page
+  identified with an `id` attribute.
+
+  We'll update our `AuthGuard` to provide a `session_id` query that will remain after navigating to another route.
+
+  We'll also provide an arbitrary `anchor` fragment, which we would use to jump to a certain point on our page.
+
+  We'll add the extra navigation object to our `router.navigate` method that navigates us to our `/login` route.
++makeExample('router/ts/app/auth-guard.service.ts','', 'auth-guard.service.ts (v.3)')
 :marked
-  When we navigate back from a `CrisisDetailComponent` that is showing the *Asteroid* crisis,
-  we see that crisis properly selected in the list like this:
-figure.image-display
-  img(src='/resources/images/devguide/router/selected-crisis.png' alt="Selected crisis" )
+  Since we'll be navigating to our *Crisis Admin* route after logging in, we'll update it to handle our global
+  query parameters and fragment.
+
++makeExample('router/ts/app/crisis-center/crisis-admin.component.ts','', 'crisis-admin.component.ts (v.2)')
 :marked
-  **Look at the browser address bar again**. It's *different*. It looks something like this:
-code-example(format="." language="bash").
-  localhost:3000/crisis-center/;id=3;foo=foo
-:marked
-  The query string parameters are no longer separated by "?" and "&".
-  They are **separated by semicolons (;)**
-  This is *matrix URL* notation &mdash; something we may not have seen before.
+  *Query Parameters* and *Fragments* are available through the `routerState` property in our `Router` service.
+  Just like our *route parameters*, global query parameters and fragments are provided as an `Observable`.
+  For our updated *Crisis Admin* component we'll feed the `Observable` directly into our template using the `AsyncPipe`, which
+  will handle _unsubscribing_ from the `Observable` for us when the component is destroyed.
+
 .l-sub-section
+  img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
   :marked
-    *Matrix URL* notation is an idea first floated
-    in a [1996 proposal](http://www.w3.org/DesignIssues/MatrixURIs.html) by the founder of the web, Tim Berners-Lee.
+    When running in plunker, pop out the preview window by clicking the blue 'X' button in the upper right corner.
 
-    Although matrix notation never made it into the HTML standard, it is legal and
-    it became popular among browser routing systems as a way to isolate parameters
-    belonging to parent and child routes. The Angular Component Router is such a system.
-
-    The syntax may seem strange to us but users are unlikely to notice or care
-    as long as the URL can be emailed and pasted into a browser address bar
-    as this one can.
-
+:marked
+  Following the steps in this process, we can click on the *Crisis Admin* button, that takes us to the *Login*
+  page with our provided `query params` and `fragment`. After we click the login button, we notice that
+  we have been redirected to the `Crisis Admin` page with our `query params` and `fragment` still intact. We can use
+  these persistent bits of information for things that need to be provided with every page interaction like
+  authentication tokens or session ids.
 
 <a id="final-app"></a>
 .l-main-section
@@ -1472,13 +1547,20 @@ code-example(format="." language="bash").
   ## Appendix: Link Parameters Array
   We've mentioned the *Link Parameters Array* several times. We've used it several times.
 
-  We've bound the `RouterLink` directive to such an array like this:
+  A link parameters array holds the ingredients for router navigation:
+  * the *path* of the route to the destination component
+  * required route parameters and optional query parameters that go into the route URL
+
+  We can bind the `RouterLink` directive to such an array like this:
 +makeExample('router/ts/app/app.component.3.ts', 'h-anchor')(format=".")
 :marked
   We've written a two element array when specifying a route parameter like this
 +makeExample('router/ts/app/heroes/hero-list.component.1.ts', 'nav-to-detail')(format=".")
 :marked
-  These two examples cover our needs for an app with one level routing.
+  We can provide optional query parameters in an object like this:
++makeExample('router/ts/app/app.component.3.ts', 'cc-query-params')(format=".")
+:marked
+  These three examples cover our needs for an app with one level routing.
   The moment we add a child router, such as the *Crisis Center*, we create new link array possibilities.
 
   Recall that we specified a default child route for *Crisis Center* so this simple `RouterLink` is fine.
@@ -1499,7 +1581,7 @@ code-example(format="." language="bash").
   * There are no parameters for this parent route so we're done with it.
   * The second item identifies the child route for details about a particular crisis ('/:id').
   * The details child route requires an `id` route parameter
-  * We add `id` of the *Dragon Crisis* as the third item in the array (`1`)
+  * We add `id` of the *Dragon Crisis* as the second item in the array (`1`)
 
   It looks like this!
 +makeExample('router/ts/app/app.component.3.ts', 'Dragon-anchor')(format=".")

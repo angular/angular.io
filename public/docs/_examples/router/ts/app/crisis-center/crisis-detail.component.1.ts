@@ -5,8 +5,8 @@ import { ActivatedRoute, Router }       from '@angular/router';
 import { Observable }                   from 'rxjs/Observable';
 import 'rxjs/add/observable/fromPromise';
 
-import { Crisis, CrisisService } from './crisis.service';
-import { DialogService } from '../dialog.service';
+import { Crisis, CrisisService }  from './crisis.service';
+import { DialogService }          from '../dialog.service';
 
 
 

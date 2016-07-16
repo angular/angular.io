@@ -7,7 +7,7 @@ import { heroesRoutes }       from './heroes/heroes.routes';
 import { loginRoutes,
          authProviders }      from './login.routes';
 
-import { CanDeactivateGuard } from './interfaces';
+import { CanDeactivateGuard } from './can-deactivate-guard.service';
 
 export const routes: RouterConfig = [
   ...heroesRoutes,
