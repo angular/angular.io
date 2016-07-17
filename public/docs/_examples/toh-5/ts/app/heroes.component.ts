@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ROUTER_DIRECTIVES } from '@angular/router';
 
 import { Hero } from './hero';
 import { HeroService } from './hero.service';
@@ -11,8 +11,9 @@ import { HeroService } from './hero.service';
   selector: 'my-heroes',
   // #enddocregion heroes-component-renaming
   templateUrl: 'app/heroes.component.html',
-  styleUrls:  ['app/heroes.component.css']
-  // #docregion heroes-component-renaming
+  styleUrls:  ['app/heroes.component.css'],
+  // #docregion heroes-component-renaming,
+  directives: [ROUTER_DIRECTIVES]
 })
 // #enddocregion heroes-component-renaming, metadata
 // #docregion class, heroes-component-renaming
@@ -20,6 +21,7 @@ export class HeroesComponent implements OnInit {
   // #enddocregion heroes-component-renaming
   heroes: Hero[];
   selectedHero: Hero;
+  redirect: string = encodeURIComponent('/heroes');
 
   constructor(
     private router: Router,
@@ -35,8 +37,5 @@ export class HeroesComponent implements OnInit {
 
   onSelect(hero: Hero) { this.selectedHero = hero; }
 
-  gotoDetail() {
-    this.router.navigate(['/detail', this.selectedHero.id]);
-  }
   // #docregion heroes-component-renaming
 }

@@ -7,6 +7,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 // #enddocregion import-activated-route
 
+import { Router } from '@angular/router';
+
 import { Hero } from './hero';
 // #docregion import-hero-service
 import { HeroService } from './hero.service';
@@ -27,12 +29,14 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
   // #enddocregion implement
   hero: Hero;
   sub: any;
+  redirect: any;
 
   // #docregion ctor
-  constructor(
-    private heroService: HeroService,
-    private route: ActivatedRoute) {
+  constructor(private heroService: HeroService,
+              private route: ActivatedRoute,
+              private router: Router) {
   }
+
   // #enddocregion ctor
 
   // #docregion ng-oninit
@@ -44,18 +48,26 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
         .then(hero => this.hero = hero);
     });
     // #enddocregion get-id
+
   }
+
   // #enddocregion ng-oninit
 
   // #docregion ng-ondestroy
   ngOnDestroy() {
     this.sub.unsubscribe();
   }
+
   // #enddocregion ng-ondestroy
 
   // #docregion go-back
   goBack() {
-    window.history.back();
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
+
 // #enddocregion go-back
 }

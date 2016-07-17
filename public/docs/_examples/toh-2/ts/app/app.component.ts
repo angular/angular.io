@@ -28,25 +28,33 @@ const HEROES: Hero[] = [
     <h2>My Heroes</h2>
     <ul class="heroes">
       <li *ngFor="let hero of heroes"
+        role="button"
         [class.selected]="hero === selectedHero"
-        (click)="onSelect(hero)">
+        [attr.aria-pressed]="hero === selectedHero"
+        (click)="onSelect(hero)"
+        (keydown.enter)="onSelect(hero)"
+        tabindex="0">
         <span class="badge">{{hero.id}}</span> {{hero.name}}
       </li>
     </ul>
     <div *ngIf="selectedHero">
-      <h2>{{selectedHero.name}} details!</h2>
-      <div><label>id: </label>{{selectedHero.id}}</div>
-      <div>
-        <label>name: </label>
-        <input [(ngModel)]="selectedHero.name" placeholder="name"/>
-      </div>
+    <h3>{{selectedHero.name}} details!</h3>
+    <dl>
+      <dt>id:</dt>
+      <dd>{{selectedHero.id}}</dd>
+    </dl>
+    <div>
+      <label>name: 
+        <input [(ngModel)]="selectedHero.name" placeholder="name">
+      </label>
+    </div>
     </div>
   `,
   // #docregion styles
   styles: [`
     .selected {
       background-color: #CFD8DC !important;
-      color: white;
+      color: black;
     }
     .heroes {
       margin: 0 0 2em 0;
@@ -64,13 +72,15 @@ const HEROES: Hero[] = [
       height: 1.6em;
       border-radius: 4px;
     }
-    .heroes li.selected:hover {
+    .heroes li.selected:hover,
+    .heroes li.selected:focus{
       background-color: #BBD8DC !important;
-      color: white;
+      color: black;
     }
-    .heroes li:hover {
-      color: #607D8B;
-      background-color: #DDD;
+    .heroes li:hover,
+    .heroes li:focus{
+      color: white;
+      background-color: #6469dd;
       left: .1em;
     }
     .heroes .text {
@@ -82,7 +92,7 @@ const HEROES: Hero[] = [
       font-size: small;
       color: white;
       padding: 0.8em 0.7em 0 0.7em;
-      background-color: #607D8B;
+      background-color: #4E6570;
       line-height: 1em;
       position: relative;
       left: -1px;
