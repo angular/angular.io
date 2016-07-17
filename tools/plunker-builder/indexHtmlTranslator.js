@@ -63,10 +63,47 @@ var _rxData = [
     from: 'node_modules/angular/in-memory-web-api/web-api.js',
     to:   'https://npmcdn.com/angular/in-memory-web-api/web-api.js'
   },
+
+  // Test libraries
+  {
+    pattern: 'script',
+    from: 'node_modules/zone.js/dist/async-test.js',
+    to:   'https://npmcdn.com/zone.js@0.6.12/dist/async-test.js?main=browser'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/zone.js/dist/fake-async-test.js',
+    to:   'https://npmcdn.com/zone.js@0.6.12/dist/fake-async-test.js?main=browser'
+  },
+
+  // Plunker recommends getting jasmine from cloudfare
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine-html.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/boot.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/boot.js'
+  },
+  {
+    pattern: 'link',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.css'
+  },
+
+
   {
     pattern: 'link',
     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    to:   'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css'
+    // Official source per http://getbootstrap.com/getting-started/
+    to:   'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
   },
   {
     pattern: 'angular_pkg',

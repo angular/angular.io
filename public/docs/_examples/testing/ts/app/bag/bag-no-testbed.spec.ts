@@ -1,0 +1,132 @@
+// #docplaster
+import { DependentService, FancyService } from './bag';
+
+///////// Fakes /////////
+import { Injectable } from '@angular/core';
+@Injectable()
+export class FakeFancyService extends FancyService {
+  value: string = 'faked value';
+}
+////////////////////////
+// #docregion FancyService
+// Straight Jasmine - no imports from Angular test libraries
+
+describe('FancyService without the TestBed', () => {
+  let service: FancyService;
+
+  beforeEach(() => { service = new FancyService(); });
+
+  it('#getValue should return real value', () => {
+    expect(service.getValue()).toEqual('real value');
+  });
+
+  it('#getAsyncValue should return async value', done => {
+    service.getAsyncValue().then(value => {
+      expect(value).toEqual('async value');
+      done();
+    });
+  });
+
+  // #docregion getTimeoutValue
+  it('#getTimeoutValue should return timeout value',  done => {
+    service = new FancyService();
+    service.getTimeoutValue().then(value => {
+      expect(value).toEqual('timeout value');
+      done();
+    });
+  });
+  // #enddocregion getTimeoutValue
+
+  it('#getObservableValue should return observable value', done => {
+    service.getObservableValue().subscribe(value => {
+      expect(value).toEqual('observable value');
+      done();
+    });
+  });
+
+});
+// #enddocregion FancyService
+
+// DependentService requires injection of a FancyService
+// #docregion DependentService
+describe('DependentService without the TestBed', () => {
+  let service: DependentService;
+
+  it('#getValue should return real value by way of the real FancyService', () => {
+    service = new DependentService(new FancyService());
+    expect(service.getValue()).toEqual('real value');
+  });
+
+  it('#getValue should return faked value by way of a fakeService', () => {
+    service = new DependentService(new FakeFancyService());
+    expect(service.getValue()).toEqual('faked value');
+  });
+
+  it('#getValue should return faked value from a fake object', () => {
+    let fake =  { getValue: () => 'fake value' };
+    service = new DependentService(fake as FancyService);
+    expect(service.getValue()).toEqual('fake value');
+  });
+
+  it('#getValue should return stubbed value from a FancyService spy', () => {
+    let fancy = new FancyService();
+    let stubValue = 'stub value';
+    let spy = spyOn(fancy, 'getValue').and.returnValue(stubValue);
+    service = new DependentService(fancy);
+
+    expect(service.getValue()).toEqual(stubValue, 'service returned stub value');
+    expect(spy.calls.count()).toEqual(1, 'stubbed method was called once');
+    expect(spy.calls.mostRecent().returnValue).toEqual(stubValue);
+  });
+});
+// #enddocregion DependentService
+
+// #docregion ReversePipe
+import { ReversePipe } from './bag';
+
+describe('ReversePipe', () => {
+  let pipe: ReversePipe;
+
+  beforeEach(() => { pipe = new ReversePipe(); });
+
+  it('transforms "abc" to "cba"', () => {
+    expect(pipe.transform('abc')).toEqual('cba');
+  });
+
+  it('no change to palindrome: "able was I ere I saw elba"', () => {
+    let palindrome = 'able was I ere I saw elba';
+    expect(pipe.transform(palindrome)).toEqual(palindrome);
+  });
+
+});
+// #enddocregion ReversePipe
+
+
+import { ButtonComp } from './bag';
+// #docregion ButtonComp
+describe('ButtonComp', () => {
+  let comp: ButtonComp;
+  beforeEach(() => comp = new ButtonComp());
+
+  it('#isOn should be false initially', () => {
+    expect(comp.isOn).toEqual(false);
+  });
+
+  it('#clicked() should set #isOn to true', () => {
+    comp.clicked();
+    expect(comp.isOn).toEqual(true);
+  });
+
+  it('#clicked() should set #message to "is on"', () => {
+    comp.clicked();
+    expect(comp.message).toMatch(/is on/i);
+  });
+
+  it('#clicked() should toggle #isOn', () => {
+    comp.clicked();
+    expect(comp.isOn).toEqual(true);
+    comp.clicked();
+    expect(comp.isOn).toEqual(false);
+  });
+});
+// #enddocregion ButtonComp

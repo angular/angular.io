@@ -1,5 +1,6 @@
 /**
- * PLUNKER VERSION (based on systemjs.config.js in angular.io)
+ * PLUNKER VERSION
+ * (based on systemjs.config.js in angular.io)
  * System configuration for Angular 2 samples
  * Adjust as necessary for your application needs.
  */
@@ -15,8 +16,8 @@
     'app':                        'app',
 
     '@angular':                   'https://npmcdn.com/@angular', // sufficient if we didn't pin the version
-    '@angular/router':            'https://npmcdn.com/@angular/router' + routerVer,
     '@angular/forms':             'https://npmcdn.com/@angular/forms' + formsVer,
+    '@angular/router':            'https://npmcdn.com/@angular/router' + routerVer,
     '@angular/router-deprecated': 'https://npmcdn.com/@angular/router-deprecated' + routerDeprecatedVer,
     'angular2-in-memory-web-api': 'https://npmcdn.com/angular2-in-memory-web-api', // get latest
     'rxjs':                       'https://npmcdn.com/rxjs@5.0.0-beta.6',

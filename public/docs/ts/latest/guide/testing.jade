@@ -1,102 +1,538 @@
-.alert.is-important
-  :marked
-    We are still preparing the testing guide with all the new testing features
-    introduced in RC5 and will update it very soon.
+block includes
+  include ../_util-fns
+  - var _JavaScript = 'JavaScript';
+  //- Double underscore means don't escape var, use !{__var}.
+  - var __chaining_op = '<code>;</code> or <code>,</code>';
+  - var __new_op = '<code>new</code>';
+  - var __objectAsMap = 'object';
 
 :marked
-  We write **unit tests** to explore and confirm the **behavior** of parts of our application.
+  In this chapter we learn to test Angular applications. 
+  Along the way we'll learn some general testing principles and techniques but our focus is on
+  Angular testing.
 
-  1. They **guard** against breaking existing code (“regressions”) when we make changes.
-  1. They **clarify** what  the code does both when used as intended and when faced with deviant conditions.
-  1. They **reveal** mistakes in design and implementation. Tests force us to look at our code from many angles. When a part of our application seems hard to test, we may have discovered a design flaw, something we can cure now rather than later when it becomes expensive to fix.
-    
-a(id="top")
+.alert.is-important
+  :marked
+    The testing chapter is still under development.
+    Please bear with us as we both update and complete it.
+
+a#top
 :marked
   # Table of Contents
 
-  1. [Jasmine Testing 101](#jasmine-101)
-    - setup to run Jasmine tests in the browser
-    - basic Jasmine testing skills
-    - write simple Jasmine tests in TypeScript
-    - debug a test in the browser
-  
-  1. [The Application Under Test](#aut)
-  
-  1. [First app test](#first-app-tests)
-    - test a simple application interface outside of Angular
-    - where to put the test file
-    - load a test file with systemJS
-  
-  1. [Pipe driven development](#pipe-testing)
-    - create a test before creating a class
-    - load multiple test files in our test harness, using system.js
-    - add the Angular 2 library to our test harness
-    - watch the new test fail, and fix it
-  
-  1. Test an Asynchronous Service (forthcoming)
-    - test an asynchronous service class outside of Angular
-    - write a test plan in code
-    - fake a dependency
-    - master the `catch(fail).then(done)` pattern
-    - move setup to `beforeEach`
-    - test when a dependency fails
-    - control async test timeout
-  
-  1. The Angular Test Environment (forthcoming)
-    - the Angular test environment and why we need help
+  1. [Introduction to Angular Testing](#testing-101)
+
+  1. [Setup](#setup)
+
+  1. [The first karma test](#1st-karma-test)
+    - write a simple Jasmine test in TypeScript
+    - learn the test file conventions    
+    - run with karma
+    - view test output in the browser
+    - debug a test
+
+  1. [The Angular TestBed](#testbed-intro)
+
+  1. The Angular TestBed (forthcoming)
+    - the Angular test TestBed and why we need help
     - add the Angular Test libraries to the  test harness
     - test the same async service using Angular Dependency Injection
-    - reduce friction with test helpers
-    - introducing spies
   
   1. Test a Component (forthcoming)
-     - test the component outside of Angular
-    - mock the dependent asynchronous service
-    - simulate interaction with the view (no DOM)
-    - use a spy-promise to control asynchronous test flow
-  
-  1. Test a Component in the DOM (forthcoming
-    - test the component inside the Angular test environment
     - use the `TestComponentBuilder`
     - more test helpers
     - interact with the DOM
-    - bind to a mock dependent asynchronous service
-  
-  1. Run the tests with karma (forthcoming)
+
+  1. [Testing an application](#aut)
+
+  1. [Testing without the TestBed](#testing-without-testbed)
+     - Why test without the TestBed
+     - testing services, pipes, and components
+
+  1. End-to-end (e2e) testing (forthcoming)
 
   It’s a big agenda. Fortunately, you can learn a little bit at a time and put each lesson to use.
 
 a(href="#top").to-top Back to top
 
 .l-hr
-a(id="jasmine-101")
+a#testing-101
 :marked
-  # Jasmine Testing 101
-!= partial("../testing/jasmine-testing-101")
-a(href="#top").to-top Back to top
+  # Introduction to Angular Testing
 
-.l-hr
-a(id="aut")
-:marked
-  # The Application to Test
-!= partial("../testing/application-under-test")
-a(href="#top").to-top Back to top
+  We write tests to explore and confirm the behavior of parts of our application.
 
-.l-hr
-a(id="first-app-tests")
-:marked
-  # First app test
-!= partial("../testing/first-app-tests")
-a(href="#top").to-top Back to top
+  1. They **guard** against breaking existing code (“regressions”) when we make changes.
 
-.l-hr
-a(id="pipe-testing")
-:marked
-  # Pipe driven development
-!= partial("../testing/testing-an-angular-pipe")
-a(href="#top").to-top Back to top
+  1. They **clarify** what  the code does both when used as intended and when faced with deviant conditions.
 
-.alert.is-important
+  1. They **reveal** mistakes in design and implementation. Tests force us to look at our code from many angles. When a part of our application seems hard to test, we may have discovered a design flaw, something we can cure now rather than later when it becomes expensive to fix.
+
+  We'll assume that you know something about testing. Don't worry if you don't. 
+  There are plenty of books and online resources to get up to speed.
+  We'll give a whirlwind introduction here as we set up the test environment for this chapter.
+
+  <!-- TODO
   :marked
-    The testing chapter is still under development.
-    Please bear with us as we both update and complete it.
+  ## Learn more
+  Learn more about basic Jasmine testing here
+  [Resources TBD](./#)
+  -->
+
+
+  ## Tools and Technologies
+
+  We can write and run Angular tests with a variety of tools and technologies. 
+  We'll use a specific set of them in this chapter.
+  
+table(width="100%")
+  col(width="20%")
+  col(width="80%") 
+  tr
+    th Technology
+    th Purpose
+  tr(style=top)
+    td(style="vertical-align: top") Jasmine
+    td
+      :marked
+        We write test code in the [Jasmine test framework](http://jasmine.github.io/2.4/introduction.html).
+        Jasmine provides everything we need to write basic tests. 
+        It has an HTML test runner that we'll use to execute tests in the browser.
+  tr(style=top)
+    td(style="vertical-align: top") Angular TestBed
+    td
+      :marked
+        The Angular TestBed is a collection of libraries
+        that create an Angular environment where we can 
+        condition and control parts of our application as they 
+        interact _within_ the Angular environment.
+  tr(style=top)
+    td(style="vertical-align: top") Karma
+    td
+      :marked
+        We prefer to write and run tests as we develop the application. 
+        We also like to run tests as part of the application build process.
+        We recommend the [karma test runner](https://karma-runner.github.io/1.0/index.html)
+        for these purposes and we'll see how to setup and run tests with karma in this chapter.
+  tr(style=top)
+    td(style="vertical-align: top") Protractor
+    td
+      :marked
+        We use protractor to write and run _end-to-end_ (e2e) tests.
+        End-to-end tests help us explore our application _as users experience it_.
+        In e2e testing, we launch the real application in one process and 
+        then simulate user behavior in a different process, 
+        watching how the application responds in the browser.
+
+.l-hr
+a#setup
+:marked
+  # Setup
+
+  Many of us think writing tests is fun. 
+  Few of us enjoy setting up the test environment.
+  We'll postpone the details of setup until later in the chapter so we can get to the fun as quickly as possible.
+
+  There are two fast paths to getting started.
+  1. Start a new project following the instructions in the 
+  [QuickStart github repository](https://github.com/angular/quickstart/blob/master/README.md).
+
+  1. Start a new project with the 
+  [Angular CLI](https://github.com/angular/angular-cli/blob/master/README.md).
+
+  Both approaches install **npm packages, files, and scripts** pre-configured for applications
+  built in their respective modalities. 
+  Their artifacts and procedures differ slightly but their essentials are the same 
+  and there are no differences in the test code.
+
+  In this chapter, the application and its tests were built based on the QuickStart repo.
+
+.alert.is-helpful
+  :marked
+    You can skip the rest of this section and get on with your first test
+    if you're application was based on the QuickStart repository.
+
+:marked
+  Here's brief description of the setup files; we'll drill into them later.
+ 
+table(width="100%")
+  col(width="20%")
+  col(width="80%") 
+  tr
+    th File
+    th Description
+  tr(style=top)
+    td(style="vertical-align: top") <code>karma.conf.js</code>
+    td
+      :marked
+        The karma configuration file that specifies which plug-ins to use, 
+        which application and test files to load, which browser(s) to use,
+        and how to report test results.
+
+        It loads two other setup files, `system.config.js` and `karma-test-shim.js`.
+  tr(style=top)
+    td(style="vertical-align: top") <code>karma-test-shim.js</code>
+    td
+      :marked
+        This shim prepares karma specifically for the Angular test environment 
+        and launches karma itself. 
+        It loads the `system.config.js` file as part of that process.
+  tr(style=top)
+    td(style="vertical-align: top") <code>system.config.js</code>
+    td
+      :marked
+        [SystemJS](https://github.com/systemjs/systemjs/blob/master/README.md) 
+        loads the application and test modules.
+        This script tells SystemJS where to find the module files and how to load them.
+        It's the same file we use in our QuickStart-based applications,
+        as described in the [QuickStart](../quickstart.html#systemjs)
+        chapter.
+
+:marked
+  ### npm packages
+
+  We need Jasmine and karma code to run our tests.
+  The two "fast path" setups added the following npm packages to the 
+  `devDependencies` section of the `package.json`.
+
+code-example(format="." language="json").
+  "jasmine-core": "^2.4.1",
+  "karma": "^0.13.22",
+  "karma-chrome-launcher": "^1.0.1",
+  "karma-cli": "^1.0.0",
+  "karma-htmlfile-reporter": "^0.3.1",
+  "karma-jasmine": "^1.0.2",
+  "karma-phantomjs-launcher": "^1.0.0",
+  "karma-sourcemap-loader": "^0.3.7",
+  "karma-webpack": "^1.7.0",
+
+:marked
+  They were installed when we ran `npm install`.
+
+.l-hr
+a#1st-karma-test
+:marked
+  # The first karma test
+
+  We'll write a simple test to make sure we're setup properly.
+
+  Create a new file called `1st.spec.ts` in the application root folder, `app/`
+
+  **Notice the `.spec` in the filename.**
+  Tests written in Jasmine are called _specs_ and we add  `.spec` to the filename by convention. 
+  The `karma.conf.js` configuration expects this convention and will not detect your
+  test files unless you adopt it.
+
+  **Put spec files somewhere within the `app/` folder.**
+  The `karma.conf.js` tells karma to look for spec files there.
+  We explain why [below](#spec-file-location).
+
+  Add the following code to `app/1st.spec.ts`.
++makeExample('testing/ts/app/1st.spec.ts', '', 'app/1st.spec.ts')(format='.')
+:marked
+  ## Run karma
+  Let's run it in karma from the command line.
+
+.l-sub-section
+  :marked
+    The QuickStart repo adds the following command to the `scripts` section in  `package.json`.
+
+  code-example(format="." language="bash").
+    "test": "tsc && concurrently \"tsc -w\" \"karma start karma.conf.js\"",
+  :marked
+    Add that to your `package.json` if it's not there already.
+
+:marked
+  Open a terminal or command window and enter
+code-example(format="." language="bash").
+  npm test
+:marked
+  The command compiles our application and test code once. 
+  The test run aborts if the compile fails.
+
+  If it succeeds, the command re-compiles (this time in watch mode) in one process
+  and starts karma in another.
+  Both processes watch pertinent files and re-run when they detect changes.
+
+  After a few moments, karma opens a browser ...
+figure.image-display
+  img(src='/resources/images/devguide/testing/karma-browser.png' style="width:400px;" alt="Karma browser")
+:marked
+  ... and starts writing to the console.
+
+  Hide (don't close) the browser and focus on the console output which should look something like this.
+
+code-example(format="." language="bash").
+  > npm test
+  > tsc && concurrently "tsc -w" "karma start karma.conf.js"
+
+  [0] 1:37:03 PM - Compilation complete. Watching for file changes.
+  [1] 24 07 2016 13:37:09.310:WARN [karma]: No captured browser, open http://localhost:9876/
+  [1] 24 07 2016 13:37:09.361:INFO [karma]: Karma v0.13.22 server started at http://localhost:9876/
+  [1] 24 07 2016 13:37:09.370:INFO [launcher]: Starting browser Chrome
+  [1] 24 07 2016 13:37:10.974:INFO [Chrome 51.0.2704]: Connected on socket /#Cf6A5PkvMzjbbtn1AAAA with id 24600087
+  [1] Chrome 51.0.2704: Executed 0 of 0 SUCCESS  
+      Chrome 51.0.2704: Executed 1 of 1 SUCCESS
+      SUCCESS (0.005 secs / 0.005 secs)
+
+:marked
+  Both the compiler and karma continue to run. The compiler output is preceeded by `[0]`; 
+  the karma output by `[1]`.
+
+  Change the expectation from `true` to `false`.
+
+  The _compiler_ watcher detects the change and recompiles.
+
+code-example(format="." language="bash").
+  [0] 1:49:21 PM - File change detected. Starting incremental compilation...
+  [0] 1:49:25 PM - Compilation complete. Watching for file changes.
+
+:marked
+  The _karma_ watcher detects the change to the compilation output and re-runs the test.
+code-example(format="." language="bash").
+  [1] Chrome 51.0.2704: Executed 0 of 1 SUCCESS
+      Chrome 51.0.2704 1st tests true is true FAILED
+  [1] Expected false to equal true.
+  [1] Chrome 51.0.2704: Executed 1 of 1 (1 FAILED) (0.005 secs / 0.005 secs)
+
+:marked
+  It failed of course.
+
+  Restore the expectation from `false` back to `true`.
+  Both processes detect the change, re-run, and karma reports complete success.
+:marked
+  ## Friendlier output with the _HTML reporter_
+
+  Console output is a fine choice when running tests in background. 
+  It can be a bit hard to read when there are lots of tests and one fails in the middle of the pack.
+
+  The `karma.conf.js` is configured with two reporters: 
+  the _progress_ reporter that displays in the console and the _html_ reporter that
+  records the same results to the `tests.html` in the `_test-output` folder.
+
+  Open `tests.html` in a browser and expect to see something like this:
+figure.image-display
+  img(src='/resources/images/devguide/testing/karma-1st-spec-output.png' style="width:400px;" alt="Karma HTML reporter")
+
+:marked
+  ## Test debugging
+  
+  Debug specs in the browser in the same way we debug our application.
+
+    - Reveal the karma browser window (we hid it earlier).
+    - Open the browser's “Developer Tools” (F12 or Ctrl-Shift-I).
+    - Pick the “sources” section
+    - Open the `1st.spec.ts` test file (Ctrl-P, then start typing the name of the file).
+    - Set a breakpoint in the test
+    - Refresh the browser … and it stops at our breakpoint.
+ 
+figure.image-display
+  img(src='/resources/images/devguide/testing/karma-1st-spec-debug.png' style="width:700px;" alt="Karma debugging")
+
+a(href="#top").to-top Back to top
+
+
+.l-hr
+a#testbed-intro
+:marked
+  # The Angular TestBed
+
+a(href="#top").to-top Back to top
+
+.l-hr
+a#component-tests
+:marked
+  # Test a component
+
+a(href="#top").to-top Back to top
+
+.l-hr
+a#aut
+:marked
+  # Testing an application
+  Eventually we need to step away from toy test components and test an application.
+  That moment has arrived.
+
+  This chapter tests a cut-down version of the _Tour of Heroes_ [tutorial app](../tutorial).
+  Here's a reminder of how that app works:
+ 
+figure.image-display
+  img(src='/resources/images/devguide/testing/app.anim.gif' style="width:300px;" alt="Tour of Heroes")
+:marked
+  We'll test a subset of the app with our new-found skills:
+table(width="100%")
+  col(width="20%")
+  col(width="80%") 
+  tr
+    th Spec File
+    th Description
+  tr(style=top)
+    td app.component.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td dashboard.component.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td http-hero-service.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td upper-case-pipe.spec.ts
+    td
+      :marked
+        TBD
+
+a#spec-file-location
+:marked
+  ## Why specs are in the app folder.
+  We recommend putting unit test spec files in the same folder 
+  as the application source code that they test because
+  - Such tests are easy to find
+  - We see at a glance if a part of our application lacks tests.
+  - Nearby tests can teach us about how the part works in context. 
+  - When we move the source (inevitable), we remember to move the test.
+  - When we rename the source file (inevitable), we remember to rename the test file.
+
+a(href="#top").to-top Back to top
+
+.l-hr
+a#testing-without-testbed
+:marked
+  # Testing without the TestBed
+
+  Testing Angular applications with the help of the Angular TestBed is the main focus of this chapter.
+
+  But we can can often explore the inner logic of application classes
+  with _unit tests_ that don't use the TestBed.
+  Such tests are often smaller, easier to read,
+  and easier to write and maintain.
+
+  They don't
+  * import from the Angular test libraries
+  * configure a module
+  * prepare dependency injection `providers`
+  * call `inject` or `async` or `fakeAsync`
+
+  They do
+  * exhibit standard, Angular-agnostic testing techniques
+  * create instances directly with `new`
+  * use stubs, spys, and mocks to fake dependencies.
+
+.callout.is-important
+  header Write both kinds of tests
+  :marked
+    We write both kinds of tests for the same application part, often in the same spec file.
+    Write simple _unit tests_ to validate the part in isolation.
+    Write TestBed _integration tests_ to validate the part as it collaborates with the rest of the application,
+    updates the DOM, or interacts with the Angular framework.
+
+:marked
+  ## Services
+  Services are good candidates for simple unit testing. 
+  Here are some synchronous and asynchronous unit tests of the `FancyService` writen without the TestBed.
+
++makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'FancyService', 'app/bag-no-testbed.spec.ts')
+:marked
+  A rough line count suggests that these tests are about 25% smaller than equivalent TestBed tests. 
+  That's telling but not decisive. 
+  The real benefit comes from reduced setup and less call depth.
+
+  Compare these tests of `FancyService.getTimeoutValue`.
++makeTabs(
+  `testing/ts/app/bag-no-testbed.spec.ts, testing/ts/app/bag.spec.ts`, 
+  'getTimeoutValue, getTimeoutValue', 
+  `app/bag-no-testbed.spec.ts (no TestBed), app/bag.spec.ts (with TestBed)`)
+:marked
+  They have about the same line-count. 
+  The TestBed version has three helpers and more indentation.
+  That may not bother you.
+  Both work. Pick the approach that suits you.
+
+  ### Services with dependencies
+
+  Services often depend on other services that Angular will inject into the constructor.
+  We can still test these services _without_ the testbed.
+  We don't always need Angular to inject dependencies. 
+  In many cases, it's easier to create and _inject_ them by hand.
+
+  The `DependentService` is a simple example
++makeExample('testing/ts/app/bag.ts', 'DependentService', 'app/bag.ts')(format='.')
+:marked
+  It delegates it's only method, `getValue`, to the injected `FancyService`.
+
+  Here are several ways we could test it.
++makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'DependentService', 'app/bag-no-testbed.spec.ts')
+:marked
+  In the first test we create a `FancyService` with `new` and pass it to the `DependentService` constructor.
+  
+  It's rarely that simple. The injected service can be difficult to create or control.
+  So we mock the dependency, or use a fake value, or stub the pertinent service method
+  with substitute method that we can easily control.
+
+  These standard _unit testing_ techniques are great for exploring the inner logic of a service in isolation.
+  We still need the TestBed when writing _integration tests_ that validate how a service interacts with components.
+
+  ## Pipes
+  Pipes are easy to test without the Angular TestBed.
+
+  A pipe class has one method, `transform`, that turns an input to an output. 
+  The `transform` implementation rarely interacts with the DOM.
+  Most pipes have no dependence on Angular other than the `@Pipe`
+  metadata and an interface.
+  
+  Consider a `TitleCasePipe` that capitalizes the first letter of each word.
+  Here's a naive implementation implemented with a regular expression.
++makeExample('testing/ts/app/bag.ts', 'TitleCasePipe', 'app/bag.ts (TitleCasePipe)')(format='.')
+:marked
+  Anything that uses a regular expression is worth testing thoroughly.
+  We only need simple Jasmine to explore the expected cases and the edge cases.
++makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'TitleCasePipe', 'app/bag-no-testbed.spec.ts (TitleCasePipe)')
+:marked
+  **Important:** These are tests of the pipe _in isolation_.
+  They can't tell us if we're using the `TitleCasePipe` properly 
+  in all of the right application components.
+
+  For that purpose we need TestBed component tests such as this one.
++makeExample('testing/ts/app/bag.spec.ts', 'TitleCasePipeComp', 'app/bag.spec.ts (TitleCasePipeComp)')
+:marked
+  While this test confirms that the pipe is being used by the `TitleCasePipeComp`,
+  we'd rather not write a lot of these tests to validate the pipe itself.
+
+  That's why we test pipes in isolation, without the aid of the Angular TestBed.
+
+  ## Components and directives
+
+  Component tests typically examine how a component class interacts with its own template or with collaborating components.
+  Directive tests look at how a directive modifies the look and behavior of a component. 
+  The Angular TestBed is specifically designed to facilitate these _integration tests_.
+
+  Consider this a `ButtonComp` component.
++makeExample('testing/ts/app/bag.ts', 'ButtonComp', 'app/bag.ts (ButtonComp)')(format='.')
+:marked
+  The following TestBed test demonstrates that clicking a button in the template triggers a
+  change in `ButtonComp`, resulting in an on-screen message update.
++makeExample('testing/ts/app/bag.spec.ts', 'ButtonComp', 'app/bag.spec.ts (ButtonComp)')(format='.')
+:marked
+  That demonstrates a data binding flow from an HTML control (the `<button>`) to the component and from the component
+  back to a different HTML control (the `<span>`). 
+  A passing test means the component and its template are wired up correctly.
+
+  Tests without the TestBed can rapidly probe a component or directive class at its API boundary.
+  Here are a set of _unit tests_ that verify component outputs in the face of a variety of
+  component inputs.
++makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'ButtonComp', 'app/bag-no-testbed.spec.ts (ButtonComp)')(format='.')
+:marked
+  Clearly we're able to get a lot of test coverage with very little effort and almost no setup.
+  This advantage is even more pronounced with more complex components that would otherwise require meticulous preparation 
+  with the TestBed.
+
+  On the other hand, these tests can't confirm that the `ButtonComp` is properly bound to its template
+  or even data bound at all. Only TestBed tests can do that.
+
+a(href="#top").to-top Back to top
+
