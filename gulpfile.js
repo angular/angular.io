@@ -116,13 +116,14 @@ var _exampleConfigFilename = 'example-config.json';
 //
 var lang, langs, buildDartApiDocs = false;
 function configLangs(langOption) {
-  // TODO(chalin): temporary dependence on process.env.TRAVIS until #1910 lands.
-  const buildAllDocs = argv['_'] && argv['_'].indexOf('check-deploy' ) >= 0;
-  const langDefault = (!buildAllDocs || process.env.TRAVIS) ? '(ts|js)' : 'all';
+  const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
+  const buildAllDocs = argv['_'] && 
+    fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
+  const langDefault = buildAllDocs ? 'all' : '(ts|js)';
   lang = (langOption || langDefault).toLowerCase();
   if (lang === 'all') lang = '(ts|js|dart)';
   langs = lang.match(/\w+/g); // the languages in `lang` as an array
-  gutil.log('Build docs for: ' + lang);
+  gutil.log('Building docs for: ' + lang);
   if (langs.indexOf('dart') >= 0) {
     buildDartApiDocs = true;
     // For Dart, be proactive about checking for the repo

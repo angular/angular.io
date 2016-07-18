@@ -11,23 +11,26 @@ env:
     - DISPLAY=:99.0
     - CHROME_BIN=chromium-browser
     - LATEST_RELEASE=2.0.0-rc.4
+    - TASK_FLAGS="--dgeni-log=warn"
+    # - TASK_FLAGS=""
   matrix:
     - TASK=lint
     - TASK="run-e2e-tests --fast" SCRIPT=examples-install.sh
     - TASK="run-e2e-tests --fast" SCRIPT=examples-install-preview.sh
-    - TASK=build-compile SCRIPT=deploy-install.sh
-    - TASK=build-compile SCRIPT=deploy-install-preview.sh
+    - TASK=build-compile SCRIPT=deploy-install.sh WAIT="travis_wait 50"
+    - TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50"
 matrix:
   fast_finish: true
   allow_failures:
-    - env: "TASK=\"run-e2e-tests --fast\" SCRIPT=examples-install-preview.sh"
-    - env: "TASK=build-compile SCRIPT=deploy-install-preview.sh"
+    - env: TASK="run-e2e-tests --fast" SCRIPT=examples-install-preview.sh
+    - env: TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50"
 before_install:
-  - npm install -g gulp --no-optional
+  - source ./scripts/env-set.sh
+  - ./scripts/before-install.sh
 install:
   - npm install --no-optional
-  - if [[ $SCRIPT ]]; then ./scripts/$SCRIPT; fi
+  - if [[ -n "$SCRIPT" ]]; then echo "EXTRA INSTALL $SCRIPT"; ./scripts/$SCRIPT; fi
 before_script:
   - sh -e /etc/init.d/xvfb start
 script:
-  - gulp $TASK
+  - $WAIT gulp $TASK $TASK_FLAGS
