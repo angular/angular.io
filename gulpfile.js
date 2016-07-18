@@ -106,11 +106,28 @@ var _exampleProtractorBoilerplateFiles = [
 
 var _exampleConfigFilename = 'example-config.json';
 
-var lang, langs;
+// Gulp flags:
+//
+//   --lang=[all | ts | js | dart | (ts|js) | (ts|js|dart) | ...]
+//
+//    This affects which language API docs and E2E tests are run. Can be 'all',
+//    or a regex pattern to match any one of 'ts', 'js', or 'dart'.
+//    Default: '(ts|js)' except for check-deploy for which it is 'all'.
+//
+var lang, langs, buildDartApiDocs = false;
 function configLangs(langOption) {
-  lang = (langOption || 'all').toLowerCase();
-  if (lang === 'all') { lang = '(ts|js|dart)'; }
+  // TODO(chalin): temporary dependence on process.env.TRAVIS until #1910 lands.
+  const buildAllDocs = argv['_'] && argv['_'].indexOf('check-deploy' ) >= 0;
+  const langDefault = (!buildAllDocs || process.env.TRAVIS) ? '(ts|js)' : 'all';
+  lang = (langOption || langDefault).toLowerCase();
+  if (lang === 'all') lang = '(ts|js|dart)';
   langs = lang.match(/\w+/g); // the languages in `lang` as an array
+  gutil.log('Build docs for: ' + lang);
+  if (langs.indexOf('dart') >= 0) {
+    buildDartApiDocs = true;
+    // For Dart, be proactive about checking for the repo
+    checkAngularProjectPath(ngPathFor('dart'));
+  }
 }
 configLangs(argv.lang);
 
@@ -149,7 +166,6 @@ gulp.task('run-e2e-tests', runE2e);
  *     all means (ts|js|dart)
  */
 function runE2e() {
-  if (!argv.lang) configLangs('ts|js'); // Exclude dart by default
   var promise;
   if (argv.fast) {
     // fast; skip all setup
@@ -545,9 +561,8 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 // Stop zipping examples Feb 28, 2016
 //gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-dart-cheatsheet']
-  // On TRAVIS? Skip building the Dart API docs for now. 
-  .concat(process.env.TRAVIS ? [] : ['build-dart-api-docs']));
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']
+    .concat(buildDartApiDocs ? ['build-dart-api-docs', 'build-dart-cheatsheet'] : []));
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
   return buildShredMaps(true);
@@ -1190,7 +1205,7 @@ function buildApiDocsForDart() {
   dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
 
   try {
-    checkAngularProjectPath('dart');
+    checkAngularProjectPath(ngPathFor('dart'));
     var destPath = dabInfo.ngIoDartApiDocPath;
     var sourceDirs = fs.readdirSync(dabInfo.ngDartDocPath)
       .filter((name) => !name.match(/^index/))
@@ -1391,9 +1406,8 @@ function ngPathFor(lang) {
   return ANGULAR_PROJECT_PATH + (lang === 'dart' ? '-dart' : '');
 }
 
-function checkAngularProjectPath(lang) {
-  var ngPath = path.resolve(ngPathFor(lang || 'ts'));
-  if (!fs.existsSync(ngPath)) {
-    throw new Error('API related tasks require the angular2 repo to be at ' + ngPath);
-  }
+function checkAngularProjectPath(_ngPath) {
+  var ngPath = path.resolve(_ngPath || ngPathFor('ts'));
+  if (fs.existsSync(ngPath)) return;
+  throw new Error('API related tasks require the angular2 repo to be at ' + ngPath);
 }
