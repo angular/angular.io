@@ -15,7 +15,7 @@ import { Hero } from './hero';
 })
 export class HeroSearchComponent implements OnInit {
   // #docregion search
-  heroes: Observable<Hero>;
+  heroes: Observable<Hero[]>;
   // #enddocregion search
   // #docregion searchSubject
   searchSubject = new Subject<string>();
@@ -45,7 +45,7 @@ export class HeroSearchComponent implements OnInit {
       .catch(error => {
         // Todo: real error handling
         console.log(error);
-        return Observable.throw(error);
+        return Observable.of<Hero[]>([]);
       });
   }
   // #enddocregion search
