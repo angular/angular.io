@@ -577,7 +577,6 @@ gulp.task('build-js-api-docs', ['_shred-api-examples'], function() {
 });
 
 gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() {
-  // TODO(chalin): also build build-dart-cheatsheet
   return buildApiDocsForDart();
 });
 
@@ -585,11 +584,8 @@ gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
-gulp.task('build-dart-cheatsheet', ['build-ts-api-docs'], function() {
-  gutil.log('build-dart-cheatsheet - NOT IMPLEMENTED YET - copying TS cheatsheet data');
-  const src = './public/docs/ts/latest/guide/cheatsheet.json';
-  fs.copy(src, './public/docs/dart/latest/guide/cheatsheet.json', {clobber: true},
-    (err) => { if(err) throw err });
+gulp.task('build-dart-cheatsheet', [], function() {
+  return buildDartCheatsheet();
 });
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
@@ -1181,6 +1177,32 @@ function buildApiDocs(targetLanguage) {
     });
 
     var dgeni = new Dgeni([package]);
+    return dgeni.generate();
+  } catch(err) {
+    console.error(err);
+    console.error(err.stack);
+    throw err;
+  }
+}
+
+
+function buildDartCheatsheet() {
+  'use strict';
+  const ALLOWED_LANGUAGES = ['ts', 'js', 'dart'];
+  const lang = 'dart';
+  const vers = 'latest';
+  checkAngularProjectPath(ngPathFor(lang));
+  try {
+    const pkg = new Package('dartApiDocs', [require(path.resolve(TOOLS_PATH, 'dart-api-builder'))]);
+    pkg.config(function(log, targetEnvironments, writeFilesProcessor) {
+      log.level = _dgeniLogLevel;
+      ALLOWED_LANGUAGES.forEach(function(target) { targetEnvironments.addAllowed(target); });
+      targetEnvironments.activate(lang);
+      const outputPath = path.join(lang, vers, 'can-be-any-name-read-comment-below');
+      // Note: cheatsheet data gets written to: outputPath + '/../guide';
+      writeFilesProcessor.outputFolder  = outputPath;
+    });
+    var dgeni = new Dgeni([pkg]);
     return dgeni.generate();
   } catch(err) {
     console.error(err);
