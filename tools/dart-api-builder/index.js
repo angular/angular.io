@@ -37,8 +37,7 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
       parseTagsProcessor.tagDefinitions.concat(getInjectables(tagDefs));
   })
 
-  .config(function (readTypeScriptModules, writeFilesProcessor, readFilesProcessor) {
-
+  .config(function (readFilesProcessor) {
     // confirm that the angular repo is actually there.
     if (!fs.existsSync(ANGULAR_REPO_PATH)) {
       throw new Error('dart-api-and-cheatsheet-builder task requires the angular2 repo to be at ' + ANGULAR_REPO_PATH);
