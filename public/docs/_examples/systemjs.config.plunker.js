@@ -6,7 +6,7 @@
 (function(global) {
 
   var ngVer = '@2.0.0-rc.4'; // lock in the angular package version; do not let it float to current!
-  var routerVer = '@3.0.0-beta.1'; // lock router version
+  var routerVer = '@3.0.0-beta.2'; // lock router version
   var formsVer = '@0.2.0'; // lock forms version
   var routerDeprecatedVer = '@2.0.0-rc.2'; // temporarily until we update all the guides
 
