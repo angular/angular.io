@@ -1,3 +1,4 @@
+// #docplaster
 // #docregion
 import { Component, OnInit } from '@angular/core';
 import { Router }            from '@angular/router';
@@ -13,25 +14,40 @@ import { Hero } from './hero';
   providers: [HeroSearchService]
 })
 export class HeroSearchComponent implements OnInit {
+  // #docregion subject
   search = new Subject<string>();
-  heroes: Hero[] = [];
+  // #enddocregion subject
+  // #docregion search
+  heroes: Observable<Hero>;
+  // #enddocregion search
 
-  constructor(private _heroSearchService: HeroSearchService, private _router: Router) {}
+  constructor(
+    private heroSearchService: HeroSearchService,
+    private router: Router) {}
 
-  gotoDetail(hero: Hero) {
-    let link = ['/detail', hero.id];
-    this._router.navigate(link);
-  }
 
   // #docregion search
   ngOnInit() {
-    this.search.asObservable()
-               .debounceTime(300)
-               .distinctUntilChanged()
-               .switchMap(term => term ? this._heroSearchService.search(term)
-                                       : Observable.of([]))
-               .subscribe(result => this.heroes = result,
-                                    error => console.log(error));
+    this.heroes = this.search
+      .asObservable()           // "cast" as Observable
+      .debounceTime(300)        // wait for 300ms pause in events
+      .distinctUntilChanged()   // ignore if next search term is same as previous
+      .switchMap(term => term   // switch to new observable each time
+        // return the http search observable
+        ? this.heroSearchService.search(term)
+        // or the observable of empty heroes if no search term
+        : Observable.of<Hero[]>([]))
+
+      .catch(error => {
+        // Todo: real error handling
+        console.log(error);
+        return Observable.throw(error);
+      });
   }
   // #enddocregion search
+
+  gotoDetail(hero: Hero) {
+    let link = ['/detail', hero.id];
+    this.router.navigate(link);
+  }
 }

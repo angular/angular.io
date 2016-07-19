@@ -2,16 +2,18 @@
 import { Injectable }     from '@angular/core';
 import { Http, Response } from '@angular/http';
 
+import { Hero }           from './hero';
+
 @Injectable()
 export class HeroSearchService {
 
-  constructor(private _http: Http) {}
+  constructor(private http: Http) {}
 
   // #docregion observable-search
   search(term: string) {
-    return this._http
+    return this.http
                .get(`app/heroes/?name=${term}+`)
-               .map((r: Response) => r.json().data);
+               .map((r: Response) => r.json().data as Hero[]);
   }
   // #enddocregion observable-search
 }
