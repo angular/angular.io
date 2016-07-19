@@ -6,29 +6,58 @@ set -e -o pipefail
 
 if  [[ -z "$(type -t dart)" ]]; then
     travis_fold start install.dart
-    # curl https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip > $TMP/dartsdk.zip
+    echo INSTALLING Dart SDK and Dartium ...
     
+    # URLs for sdk and dartium:
+    # https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip
+    # https://storage.googleapis.com/dart-archive/channels/stable/release/latest/dartium/dartium-macos-x64-release.zip
+
     DART_ARCHIVE=https://storage.googleapis.com/dart-archive/channels
-    ARCH=x64
-    VERS=stable/release/latest/sdk
-    OS_ZIP=dartsdk-$_OS_NAME-$ARCH-release.zip
-    URL=$DART_ARCHIVE/$VERS/$OS_ZIP
+    VERS=stable/release/latest
 
-    echo "Installing Dart SDK from:"
-    echo "  $URL"
+    mkUrl() {
+        local dir=$1
+        local pkg=$2
+        local arch=$3
+        local zip=$pkg-$_OS_NAME-$arch-release.zip
+        echo "$DART_ARCHIVE/$VERS/$dir/$zip";
+    }
 
-    [[ ! -d "$TMP" ]] && mkdir "$TMP"
-    [[ ! -d "$PKG" ]] && mkdir "$PKG"
+    getAndInstall() {
+        local dir=$1
+        local pkg=${2:-$dir};
+        local arch=${3:-x64}
+        local URL=$(mkUrl $dir $pkg $arch)
+        local exitStatus=0;
+        local zip=$(basename $URL)
 
-    curl $URL > "$TMP/$OS_ZIP" 2> /dev/null
+        echo "Getting $pkg from:"
+        echo "  $URL"
 
-    if [[ "1000" -lt "$(wc -c $TMP/$OS_ZIP | awk '{print $1}')" ]]; then
-        unzip "$TMP/$OS_ZIP" -d "$PKG" > /dev/null
-        rm -f "$TMP/$OS_ZIP"
-        # PATH is set in ./scripts/env-set.sh
+        [[ ! -d "$TMP" ]] && mkdir "$TMP"
+        [[ ! -d "$PKG" ]] && mkdir "$PKG"
+
+        curl $URL > "$TMP/$zip" # 2> /dev/null
+
+        if [[ "1000" -lt "$(wc -c $TMP/$zip | awk '{print $1}')" ]]; then
+            unzip "$TMP/$zip" -d "$PKG" > /dev/null
+            rm -f "$TMP/$zip"
+            # PATH is set in ./scripts/env-set.sh
+        else
+            echo FAILED to download Dart $pkg. Check URL.
+            exitStatus=1;
+        fi
+    }
+
+    if getAndInstall sdk dartsdk; then
+        # Install Dartium
+        if [[ "$_OS_NAME" == "macos" ]]; then
+            getAndInstall dartium dartium ia32
+        else
+            getAndInstall dartium
+        fi
+        echo
         dart --version
-    else
-        echo FAILED to download Dart SDK. Check URL.
     fi
     travis_fold end install.dart
 else

@@ -25,12 +25,14 @@ if [[ -z "$NGIO_ENV_DEFS" ]]; then
     esac
     export _OS_NAME
 
-    export TMP=$HOME/tmp
-    export PKG=$TMP/pkg
+    : ${TMP:=$HOME/tmp}
+    : ${PKG:=$TMP/pkg}
+    export TMP
+    export PKG
 
-    export DART_SDK="$PKG/dart-sdk"
-    if [[ ! $PATH =~ */dart-sdk/* ]]; then
-        echo Updating PATH
+    if [[ -z "$(type -t dart)" && ! $PATH =~ */dart-sdk/* ]]; then
+        export DART_SDK="$PKG/dart-sdk"
+        # echo Updating PATH to include access to Dart bin.
         export PATH="$DART_SDK/bin:$PATH"
         export PATH="$HOME/.pub-cache/bin:$PATH"
     fi
