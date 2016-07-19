@@ -407,39 +407,37 @@ block review
   The component template is simple - just a textbox and a list of matching search results.
 +makeExample('toh-6/ts/app/hero-search.component.html', null,'hero-search.component.html')
 :marked
-  As the user types in the search box, a *keyup* event binding calls `search.next` with the new search box value.
-  
-  The component's data bound `search` property returns a `Subject`. 
-  A `Subject` is a producer of an _observable_ event stream.
-  Each call to `search.next` puts a new string into this subject's _observable_ stream.
+  As the user types in the search box, a *keyup* event binding calls the component's `search` with the new search box value.
 
   The `*ngFor` repeats *hero* objects from the component's `heroes` property. No surprise there.
 
-  But `heroes` is an `Observable` of heroes, not an array of heroes.
-  The `*ngFor` can't do anything with that until we flow it through the `AsyncPipe` (`heroes | async`).
+  But, as we'll soon see, the `heroes` property returns an `Observable` of heroes, not an array of heroes.
+  The `*ngFor` can't do anything with an observable until we flow it through the `AsyncPipe` (`heroes | async`).
   The `AsyncPipe` subscribes to the observable and produces the array of heroes to `*ngFor`.
 
   Time to create the `HeroSearchComponent` class and metadata.
 +makeExample('toh-6/ts/app/hero-search.component.ts', null,'hero-search.component.ts')
 :marked
-  Scroll down to where we create the `search` subject.
-+makeExample('toh-6/ts/app/hero-search.component.ts', 'subject')
+  Focus on the `searchSubject`.
++makeExample('toh-6/ts/app/hero-search.component.ts', 'searchSubject')(format=".")
 :marked
-  We're binding to that `search` subject in our template.
-  The user is sending it a stream of strings, the filter criteria for the name search.
+  A `Subject` is a producer of an _observable_ event stream. 
+  This `searchSubject` produces an `Observable` of strings, the filter criteria for the name search.
+
+  Each call to `search` puts a new string into this subject's _observable_ stream by calling `next`.
   
   A `Subject` is also an `Observable`. 
-  We're going to access that `Observable` and append operators to it that turn the stream
-  of strings into a stream of `Hero[]` arrays.
+  We're going to access that `Observable` and turn the stream
+  of strings into a stream of `Hero[]` arrays, the `heroes` property.
 
-  Each user keystroke could result in a new http request returning a new Observable array of heroes.
-  
-  This could be a very chatty, taxing our server resources and burning up our cellular network data plan.
-  Fortunately we can chain `Observable` operators to reduce the request flow
-  and still get timely results. Here's how:
-  
 +makeExample('toh-6/ts/app/hero-search.component.ts', 'search')(format=".")
 :marked
+  If we passed every user keystroke directly to the `HeroSearchService`, we'd unleash a storm of http requests.
+  Bad idea. We don't want to tax our server resources and burn through our cellular network data plan.
+
+  Fortunately we can chain `Observable` operators to the string `Observable` that reduce the request flow.
+  We'll make fewer calls to the `HeroSearchService` and still get timely results. Here's how:
+
   * The `asObservable` operator casts the `Subject` as an `Observable` of filter strings.
   
   * `debounceTime(300)` waits until the flow of new string events pauses for 300 milliseconds 
@@ -449,7 +447,7 @@ block review
   There's no point in repeating a request for the same search term.
   
   * `switchMap` calls our search service for each search term that makes it through the `debounce` and `distinctUntilChanged` gauntlet.
-  It discards previous search observables, returning only the latest search service observable.
+  It cancels and discards previous search observables, returning only the latest search service observable.
 
 .l-sub-section
   :marked
@@ -462,10 +460,14 @@ block review
     
     `switchMap` preserves the original request order while returning
      only the observable from the most recent http call. 
-    Results from prior calls will be discarded.  
+    Results from prior calls are canceled and discarded.
   
     We also short-circuit the http call and return an observable containing an empty array 
     if the search text is empty.
+
+    Note that _canceling_ the `HeroSearchService` observable won't actually abort a pending http request
+    until the service supports that feature, a topic for another day.
+    We are content for now to discard unwanted results.
 :marked
   * `catch` intercepts a failed observable. 
   Our simple example prints the error to the console; a real life application should do better.
