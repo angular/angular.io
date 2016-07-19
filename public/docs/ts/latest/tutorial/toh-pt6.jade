@@ -359,147 +359,148 @@ block review
   figure.image-display
     img(src='/resources/images/devguide/toh/toh-http.anim.gif' alt="Heroes List Editting w/ HTTP")
 
-:marked
-  ## Observables
-
-  Each `Http` method  returns an `Observable` of HTTP `Response` objects.
-
-  Our `HeroService` converts that `Observable` into a `Promise` and returns the promise to the caller.
-  In this section we learn to return the `Observable` directly and discuss when and why that might be 
-  a good thing to do.
-
-  ### Background
-  An *observable* is a stream of events that we can process with array-like operators.
-
-  Angular core has basic support for observables. We developers augment that support with
-  operators and extensions from the [RxJS Observables](http://reactivex.io/rxjs/) library.
-  We'll see how shortly.
-
-  Recall that our `HeroService` quickly chained the `toPromise` operator to the `Observable` result of `http.get`.
-  That operator converted the `Observable` into a `Promise` and we passed that promise back to the caller.
-  
-  Converting to a promise is often a good choice. We typically ask `http` to fetch a single chunk of data. 
-  When we receive the data, we're done.
-  A single result in the form of a promise is easy for the calling component to consume 
-  and it helps that promises are widely understood by JavaScript programmers.
-
-  But requests aren't always "one and done". We may start one request, 
-  then cancel it, and make a different request ... before the server has responded to the first request.
-  Such a _request-cancel-new-request_ sequence is difficult to implement with *promises*. 
-  It's easy with *observables* as we'll see.
-  
-  ### Search-by-name
-  We're going to add a *hero search* feature to the Tour of Heroes.
-  As the user types a name into a search box, we'll make repeated http requests for heroes filtered by that name.
-
-  We start by creating `HeroSearchService` that sends search queries to our server's web api.
- 
-+makeExample('toh-6/ts/app/hero-search.service.ts', null, 'app/hero-search.service.ts')(format=".")
-
-:marked
-  The `http.get` call in `HeroSearchService` is similar to the `http.get` call in the `HeroService`.
-  The notable difference: we no longer call `toPromise`. 
-  We simply return the *observable* instead.
- 
-  ### HeroSearchComponent
-  Let's create a new `HeroSearchComponent` that calls this new `HeroSearchService`. 
-
-  The component template is simple - just a textbox and a list of matching search results.
-+makeExample('toh-6/ts/app/hero-search.component.html', null,'hero-search.component.html')
-:marked
-  As the user types in the search box, a *keyup* event binding calls the component's `search` with the new search box value.
-
-  The `*ngFor` repeats *hero* objects from the component's `heroes` property. No surprise there.
-
-  But, as we'll soon see, the `heroes` property returns an `Observable` of heroes, not an array of heroes.
-  The `*ngFor` can't do anything with an observable until we flow it through the `AsyncPipe` (`heroes | async`).
-  The `AsyncPipe` subscribes to the observable and produces the array of heroes to `*ngFor`.
-
-  Time to create the `HeroSearchComponent` class and metadata.
-+makeExample('toh-6/ts/app/hero-search.component.ts', null,'hero-search.component.ts')
-:marked
-  Focus on the `searchSubject`.
-+makeExample('toh-6/ts/app/hero-search.component.ts', 'searchSubject')(format=".")
-:marked
-  A `Subject` is a producer of an _observable_ event stream. 
-  This `searchSubject` produces an `Observable` of strings, the filter criteria for the name search.
-
-  Each call to `search` puts a new string into this subject's _observable_ stream by calling `next`.
-  
-  A `Subject` is also an `Observable`. 
-  We're going to access that `Observable` and turn the stream
-  of strings into a stream of `Hero[]` arrays, the `heroes` property.
-
-+makeExample('toh-6/ts/app/hero-search.component.ts', 'search')(format=".")
-:marked
-  If we passed every user keystroke directly to the `HeroSearchService`, we'd unleash a storm of http requests.
-  Bad idea. We don't want to tax our server resources and burn through our cellular network data plan.
-
-  Fortunately we can chain `Observable` operators to the string `Observable` that reduce the request flow.
-  We'll make fewer calls to the `HeroSearchService` and still get timely results. Here's how:
-
-  * The `asObservable` operator casts the `Subject` as an `Observable` of filter strings.
-  
-  * `debounceTime(300)` waits until the flow of new string events pauses for 300 milliseconds 
-  before passing along the latest string. We'll never make requests more frequently than 300ms.
-  
-  * `distinctUntilChanged` ensures that we only send a request if the filter text changed.
-  There's no point in repeating a request for the same search term.
-  
-  * `switchMap` calls our search service for each search term that makes it through the `debounce` and `distinctUntilChanged` gauntlet.
-  It cancels and discards previous search observables, returning only the latest search service observable.
-
-.l-sub-section
+block observables-section
   :marked
-    The [switchMap operator](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
-    (formerly known as "flatMapLatest") is very clever.
-    
-    Every qualifying key event can trigger an http call.
-    Even with a 300ms pause between requests, we could have multiple http requests in flight 
-    and they may not return in the order sent.
-    
-    `switchMap` preserves the original request order while returning
-     only the observable from the most recent http call. 
-    Results from prior calls are canceled and discarded.
-  
-    We also short-circuit the http call and return an observable containing an empty array 
-    if the search text is empty.
+    ## Observables
 
-    Note that _canceling_ the `HeroSearchService` observable won't actually abort a pending http request
-    until the service supports that feature, a topic for another day.
-    We are content for now to discard unwanted results.
-:marked
-  * `catch` intercepts a failed observable. 
-  Our simple example prints the error to the console; a real life application should do better.
-  Then it re-throws the failed observable so that downstream processes know it failed.
-  The `AsyncPipe` in the template is downstream. It sees the failure and ignores it.
+    Each `Http` method  returns an `Observable` of HTTP `Response` objects.
 
-  ### Import RxJS operators
-  The RxJS operators are not available in Angular's base `Observable` implementation.
-  We have to extend  `Observable` by *importing* them.
-  
-  We could extend `Observable` with just the operators we need here by
-  including the pertinent `import` statements at the top of this file.
+    Our `HeroService` converts that `Observable` into a `Promise` and returns the promise to the caller.
+    In this section we learn to return the `Observable` directly and discuss when and why that might be 
+    a good thing to do.
 
-.l-sub-section
+    ### Background
+    An *observable* is a stream of events that we can process with array-like operators.
+
+    Angular core has basic support for observables. We developers augment that support with
+    operators and extensions from the [RxJS Observables](http://reactivex.io/rxjs/) library.
+    We'll see how shortly.
+
+    Recall that our `HeroService` quickly chained the `toPromise` operator to the `Observable` result of `http.get`.
+    That operator converted the `Observable` into a `Promise` and we passed that promise back to the caller.
+
+    Converting to a promise is often a good choice. We typically ask `http` to fetch a single chunk of data. 
+    When we receive the data, we're done.
+    A single result in the form of a promise is easy for the calling component to consume 
+    and it helps that promises are widely understood by JavaScript programmers.
+
+    But requests aren't always "one and done". We may start one request, 
+    then cancel it, and make a different request ... before the server has responded to the first request.
+    Such a _request-cancel-new-request_ sequence is difficult to implement with *promises*. 
+    It's easy with *observables* as we'll see.
+
+    ### Search-by-name
+    We're going to add a *hero search* feature to the Tour of Heroes.
+    As the user types a name into a search box, we'll make repeated http requests for heroes filtered by that name.
+
+    We start by creating `HeroSearchService` that sends search queries to our server's web api.
+
+  +makeExample('toh-6/ts/app/hero-search.service.ts', null, 'app/hero-search.service.ts')(format=".")
+
   :marked
-    Many authorities say we should do just that.
-:marked
-  We take a different approach in this example. 
-  We combine all of the RxJS `Observable` extensions that _our entire app_ requires into a single RxJS imports file.
+    The `http.get` call in `HeroSearchService` is similar to the `http.get` call in the `HeroService`.
+    The notable difference: we no longer call `toPromise`. 
+    We simply return the *observable* instead.
 
-+makeExample('toh-6/ts/app/rxjs-extensions.ts', null, 'app/rxjs-extensions.ts')(format=".")
-:marked
-  We load them all at once by importing `rxjs-extensions` in `AppComponent`.
+    ### HeroSearchComponent
+    Let's create a new `HeroSearchComponent` that calls this new `HeroSearchService`. 
 
-+makeExample('toh-6/ts/app/app.component.ts', 'rxjs-extensions', 'app/app/app.component.ts')(format=".")  
-:marked
-  Finally, we add the `HeroSearchComponent` to the bottom of the `DashboardComponent`.
-  Run the app again, go to the *Dashboard*, and enter some text in the search box below the hero tiles.
-  At some point it might look like this.
+    The component template is simple - just a textbox and a list of matching search results.
+  +makeExample('toh-6/ts/app/hero-search.component.html', null,'hero-search.component.html')
+  :marked
+    As the user types in the search box, a *keyup* event binding calls the component's `search` with the new search box value.
 
-figure.image-display
-  img(src='/resources/images/devguide/toh/toh-hero-search.png' alt="Hero Search Component")
+    The `*ngFor` repeats *hero* objects from the component's `heroes` property. No surprise there.
+
+    But, as we'll soon see, the `heroes` property returns an `Observable` of heroes, not an array of heroes.
+    The `*ngFor` can't do anything with an observable until we flow it through the `AsyncPipe` (`heroes | async`).
+    The `AsyncPipe` subscribes to the observable and produces the array of heroes to `*ngFor`.
+
+    Time to create the `HeroSearchComponent` class and metadata.
+  +makeExample('toh-6/ts/app/hero-search.component.ts', null,'hero-search.component.ts')
+  :marked
+    Focus on the `searchSubject`.
+  +makeExample('toh-6/ts/app/hero-search.component.ts', 'searchSubject')(format=".")
+  :marked
+    A `Subject` is a producer of an _observable_ event stream. 
+    This `searchSubject` produces an `Observable` of strings, the filter criteria for the name search.
+
+    Each call to `search` puts a new string into this subject's _observable_ stream by calling `next`.
+
+    A `Subject` is also an `Observable`. 
+    We're going to access that `Observable` and turn the stream
+    of strings into a stream of `Hero[]` arrays, the `heroes` property.
+
+  +makeExample('toh-6/ts/app/hero-search.component.ts', 'search')(format=".")
+  :marked
+    If we passed every user keystroke directly to the `HeroSearchService`, we'd unleash a storm of http requests.
+    Bad idea. We don't want to tax our server resources and burn through our cellular network data plan.
+
+    Fortunately we can chain `Observable` operators to the string `Observable` that reduce the request flow.
+    We'll make fewer calls to the `HeroSearchService` and still get timely results. Here's how:
+
+    * The `asObservable` operator casts the `Subject` as an `Observable` of filter strings.
+
+    * `debounceTime(300)` waits until the flow of new string events pauses for 300 milliseconds 
+    before passing along the latest string. We'll never make requests more frequently than 300ms.
+
+    * `distinctUntilChanged` ensures that we only send a request if the filter text changed.
+    There's no point in repeating a request for the same search term.
+
+    * `switchMap` calls our search service for each search term that makes it through the `debounce` and `distinctUntilChanged` gauntlet.
+    It cancels and discards previous search observables, returning only the latest search service observable.
+
+  .l-sub-section
+    :marked
+      The [switchMap operator](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
+      (formerly known as "flatMapLatest") is very clever.
+
+      Every qualifying key event can trigger an http call.
+      Even with a 300ms pause between requests, we could have multiple http requests in flight 
+      and they may not return in the order sent.
+
+      `switchMap` preserves the original request order while returning
+       only the observable from the most recent http call. 
+      Results from prior calls are canceled and discarded.
+
+      We also short-circuit the http call and return an observable containing an empty array 
+      if the search text is empty.
+
+      Note that _canceling_ the `HeroSearchService` observable won't actually abort a pending http request
+      until the service supports that feature, a topic for another day.
+      We are content for now to discard unwanted results.
+  :marked
+    * `catch` intercepts a failed observable. 
+    Our simple example prints the error to the console; a real life application should do better.
+    Then it re-throws the failed observable so that downstream processes know it failed.
+    The `AsyncPipe` in the template is downstream. It sees the failure and ignores it.
+
+    ### Import RxJS operators
+    The RxJS operators are not available in Angular's base `Observable` implementation.
+    We have to extend  `Observable` by *importing* them.
+
+    We could extend `Observable` with just the operators we need here by
+    including the pertinent `import` statements at the top of this file.
+
+  .l-sub-section
+    :marked
+      Many authorities say we should do just that.
+  :marked
+    We take a different approach in this example. 
+    We combine all of the RxJS `Observable` extensions that _our entire app_ requires into a single RxJS imports file.
+
+  +makeExample('toh-6/ts/app/rxjs-extensions.ts', null, 'app/rxjs-extensions.ts')(format=".")
+  :marked
+    We load them all at once by importing `rxjs-extensions` in `AppComponent`.
+
+  +makeExample('toh-6/ts/app/app.component.ts', 'rxjs-extensions', 'app/app/app.component.ts')(format=".")  
+  :marked
+    Finally, we add the `HeroSearchComponent` to the bottom of the `DashboardComponent`.
+    Run the app again, go to the *Dashboard*, and enter some text in the search box below the hero tiles.
+    At some point it might look like this.
+
+  figure.image-display
+    img(src='/resources/images/devguide/toh/toh-hero-search.png' alt="Hero Search Component")
 
 .l-main-section
 :marked
@@ -554,7 +555,7 @@ block filetree
   - We extended HeroService to support post, put and delete calls.
   - We updated our components to allow adding, editing and deleting of heroes.
   - We configured an in-memory web API.
-  - We learned how to use Observables.
+  <li if-docs="ts"> We learned how to use Observables.</li>
   
   Below is a summary of the files we changed and added.
 
