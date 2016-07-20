@@ -1,5 +1,5 @@
 // #docregion ng-for
-<li *ngFor="#hero of heroes">
+<li *ngFor="let hero of heroes">
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 // #enddocregion ng-for
@@ -7,14 +7,14 @@
 // #docregion heroes-styled
 <h2>My Heroes</h2>
 <ul class="heroes">
-  <li *ngFor="#hero of heroes">
+  <li *ngFor="let hero of heroes">
     <span class="badge">{{hero.id}}</span> {{hero.name}}
   </li>
 </ul>
 // #enddocregion heroes-styled
 
 // #docregion selectedHero-click
-<li *ngFor="#hero of heroes" (click)="onSelect(hero)">
+<li *ngFor="let hero of heroes" (click)="onSelect(hero)">
   <span class="badge">{{hero.id}}</span> {{hero.name}}
 </li>
 // #enddocregion selectedHero-click
@@ -53,7 +53,7 @@ final List<Hero> heroes = mockHeroes;
 // #enddocregion heroes-template-1
 
 // #docregion heroes-ngfor-1
-<li *ngFor="#hero of heroes">
+<li *ngFor="let hero of heroes">
 // #enddocregion heroes-ngfor-1
 
 // #docregion class-selected-1
@@ -61,7 +61,7 @@ final List<Hero> heroes = mockHeroes;
 // #enddocregion class-selected-1
 
 // #docregion class-selected-2
-<li *ngFor="#hero of heroes"
+<li *ngFor="let hero of heroes"
   [class.selected]="hero == selectedHero"
   (click)="onSelect(hero)">
   <span class="badge">{{hero.id}}</span> {{hero.name}}

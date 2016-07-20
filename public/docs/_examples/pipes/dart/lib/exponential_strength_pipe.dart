@@ -13,13 +13,5 @@ import 'package:angular2/angular2.dart';
  */
 @Pipe(name: 'exponentialStrength')
 class ExponentialStrengthPipe extends PipeTransform {
-  num transform(dynamic _value, [List<dynamic> args]) {
-    var exponent = args.isEmpty
-        ? 1
-        : args.first is num
-            ? args.first
-            : num.parse(args.first.toString(), (_) => 1);
-    var value = _value is num ? _value : num.parse(_value.toString(), (_) => 0);
-    return math.pow(value, exponent);
-  }
+  num transform(num value, num exponent) => math.pow(value, exponent);
 }
