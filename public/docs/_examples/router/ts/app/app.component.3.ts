@@ -28,7 +28,7 @@ import { HeroService }           from './heroes/hero.service';
   */
   /* Crisis Center Detail link
   // #docregion Dragon-anchor
-  <a [routerLink]="['/crisis-center/1']">Dragon Crisis</a>
+  <a [routerLink]="['/crisis-center', 1]">Dragon Crisis</a>
   // #enddocregion Dragon-anchor
   */
   /* Crisis Center link with optional query params
