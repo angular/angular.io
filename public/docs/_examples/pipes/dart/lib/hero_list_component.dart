@@ -9,7 +9,7 @@ import 'fetch_json_pipe.dart';
     template: '''
       <h4>Heroes from JSON File</h4>
 
-      <div *ngFor="#hero of ('heroes.json' | fetch) ">
+      <div *ngFor="let hero of ('heroes.json' | fetch) ">
         {{hero['name']}}
       </div>
 
