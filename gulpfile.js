@@ -108,20 +108,21 @@ var _exampleConfigFilename = 'example-config.json';
 
 // Gulp flags:
 //
-//   --lang=[all | ts | js | dart | (ts|js) | (ts|js|dart) | ...]
+//   --lang=[all | ts | js | dart | 'ts|js' | 'ts|js|dart' | ...]
 //
 //    This affects which language API docs and E2E tests are run. Can be 'all',
 //    or a regex pattern to match any one of 'ts', 'js', or 'dart'.
-//    Default: '(ts|js)' except for check-deploy for which it is 'all'.
+//    Default: 'ts|js' except for the "full site build" tasks (see below),
+//    for which it is 'all'.
 //
 var lang, langs, buildDartApiDocs = false;
 function configLangs(langOption) {
   const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
   const buildAllDocs = argv['_'] && 
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
-  const langDefault = buildAllDocs ? 'all' : '(ts|js)';
+  const langDefault = buildAllDocs ? 'all' : 'ts|js';
   lang = (langOption || langDefault).toLowerCase();
-  if (lang === 'all') lang = '(ts|js|dart)';
+  if (lang === 'all') lang = 'ts|js|dart';
   langs = lang.match(/\w+/g); // the languages in `lang` as an array
   gutil.log('Building docs for: ' + lang);
   if (langs.indexOf('dart') >= 0) {
@@ -161,10 +162,8 @@ gulp.task('run-e2e-tests', runE2e);
  *    Use it for repeated test runs (but not the FIRST run)
  *    e.g. gulp e2e --fast
  *
- *   --lang to filter by code language
+ *   --lang to filter by code language (see above for details)
  *     e.g. gulp e2e --lang=ts  // only TypeScript apps
- *     default is (ts|js)
- *     all means (ts|js|dart)
  */
 function runE2e() {
   var promise;
@@ -596,8 +595,16 @@ gulp.task('dartdoc', ['pub upgrade'], function() {
     return true;
   }
   checkAngularProjectPath(ngRepoPath);
+  const topLevelLibFilePath = path.resolve(ngRepoPath, 'lib', 'angular2.dart');
+  const tmpPath = topLevelLibFilePath + '.disabled';
+  if (!fs.existsSync(topLevelLibFilePath)) throw new Error(`Missing file: ${topLevelLibFilePath}`);
+  fs.renameSync(topLevelLibFilePath, tmpPath);
+  gutil.log(`Hiding top-level angular2 library: ${topLevelLibFilePath}`);
   const dartdoc = spawnExt('dartdoc', ['--output', 'doc/api', '--add-crossdart'], { cwd: ngRepoPath});
-  return dartdoc.promise;
+  return dartdoc.promise.finally(() => {
+      gutil.log(`Restoring top-level angular2 library: ${topLevelLibFilePath}`);
+      fs.renameSync(tmpPath, topLevelLibFilePath);
+  })
 });
 
 gulp.task('pub upgrade', [], function() {
