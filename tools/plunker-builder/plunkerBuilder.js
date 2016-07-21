@@ -224,8 +224,7 @@ function encodeBase64(file) {
 }
 
 function createPlunkerHtml(postData) {
-  useNewWindow = false;
-  var baseHtml = createBasePlunkerHtml(useNewWindow);
+  var baseHtml = createBasePlunkerHtml(false);
   var doc = jsdom.jsdom(baseHtml);
   var form = doc.querySelector('form');
   _.forEach(postData, function(value, key) {
