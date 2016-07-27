@@ -39,8 +39,9 @@ angularIO.directive('apiList', function () {
         { cssClass: 'const', title: 'Const', matches: ['var', 'let', 'const'] }
       ];
 
-      if (isForDart) $ctrl.apiTypes = $ctrl.apiTypes.filter((t) => 
-        !t.cssClass.match(/^(stable|directive|decorator|interface|enum)$/));
+      if (isForDart) $ctrl.apiTypes = $ctrl.apiTypes.filter(function (t) {
+        return !t.cssClass.match(/^(stable|directive|decorator|interface|enum)$/);
+      });
 
       $ctrl.apiFilter = getApiFilterFromLocation();
       $ctrl.apiType = getApiTypeFromLocation();
