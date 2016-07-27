@@ -87,8 +87,8 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
-  'a2docs.css',
   '.editorconfig',
+  'a2docs.css',
   'karma.conf.js',
   'karma-test-shim.js',
   'package.json',
@@ -100,7 +100,7 @@ var _exampleBoilerplateFiles = [
   'wallaby.js'
  ];
 
-var _exampleDartWebBoilerPlateFiles = ['styles.css'];
+var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
 
 var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
@@ -121,7 +121,7 @@ var _styleLessName = 'a2docs.less';
 var lang, langs, buildDartApiDocs = false;
 function configLangs(langOption) {
   const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
-  const buildAllDocs = argv['_'] && 
+  const buildAllDocs = argv['_'] &&
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
   const langDefault = buildAllDocs ? 'all' : '(ts|js)';
   lang = (langOption || langDefault).toLowerCase();
@@ -442,18 +442,18 @@ gulp.task('add-example-boilerplate', function() {
 // copies boilerplate files to locations
 // where an example app is found
 gulp.task('_copy-example-boilerplate', function () {
-  if (!argv.fast) buildStyles(copyExampleBoilerplate);
+  if (!argv.fast) return buildStyles(copyExampleBoilerplate);
 });
 
 //Builds Angular 2 Docs CSS file from Bootstrap npm LESS source
 //and copies the result to the _examples folder to be included as
 //part of the example boilerplate.
 function buildStyles(cb){
-  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
+  return gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
     .pipe(less())
     .pipe(gulp.dest(EXAMPLES_PATH)).on('finish', function(){
       return cb();
-  });
+    });
 }
 
 // copies boilerplate files to locations
@@ -473,8 +473,10 @@ function copyExampleBoilerplate() {
 
   // Make boilerplate files read-only to avoid that they be edited by mistake.
   var destFileMode = '444';
+        gutil.log('*** example files copied')
   return copyFiles(sourceFiles, examplePaths, destFileMode)
     .then(function() {
+      gutil.log('*** example files copied')
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
     })
     // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
@@ -596,6 +598,7 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
 });
 
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
+  gutil.log('**** Building Plunkers')
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
