@@ -6,19 +6,19 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class HeroService {
-  getHeroes() {
+  getHeroes(): Promise<Hero[]> {
     return Promise.resolve(HEROES);
   }
 
   // See the "Take it slow" appendix
-  getHeroesSlowly() {
+  getHeroesSlowly(): Promise<Hero[]> {
     return new Promise<Hero[]>(resolve =>
       setTimeout(() => resolve(HEROES), 2000) // 2 seconds
     );
   }
 
   // #docregion getHero
-  getHero(id: number) {
+  getHero(id: number): Promise<Hero> {
     return this.getHeroes()
                .then(heroes => heroes.find(hero => hero.id === id));
   }

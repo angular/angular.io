@@ -16,7 +16,7 @@ import { HeroService } from './hero.service';
 })
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
-  // #enddocregion implement
+// #enddocregion implement
   hero: Hero;
 
   // #docregion ctor
@@ -27,7 +27,7 @@ export class HeroDetailComponent implements OnInit {
   // #enddocregion ctor
 
   // #docregion ngOnInit
-  ngOnInit() {
+  ngOnInit(): void {
     this.route.params.forEach((params: Params) => {
       let id = +params['id'];
       this.heroService.getHero(id)
@@ -37,7 +37,7 @@ export class HeroDetailComponent implements OnInit {
   // #enddocregion ngOnInit
 
   // #docregion goBack
-  goBack() {
+  goBack(): void {
     window.history.back();
   }
 // #enddocregion goBack
