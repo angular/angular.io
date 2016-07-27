@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
 import { Injectable }    from '@angular/core';
-import { Headers, Http } from '@angular/http';
+import { Headers, Http, Response } from '@angular/http';
 
 // #docregion rxjs
 import 'rxjs/add/operator/toPromise';
@@ -17,7 +17,7 @@ export class HeroService {
 
   constructor(private http: Http) { }
 
-  getHeroes() {
+  getHeroes(): Promise<Hero[]> {
     return this.http.get(this.heroesUrl)
     // #docregion to-promise
                .toPromise()
@@ -31,7 +31,7 @@ export class HeroService {
   }
   // #enddocregion getHeroes
 
-  getHero(id: number) {
+  getHero(id: number): Promise<Hero> {
     return this.getHeroes()
                .then(heroes => heroes.find(hero => hero.id === id));
   }
@@ -46,7 +46,7 @@ export class HeroService {
   // #enddocregion save
 
   // #docregion delete
-  delete(hero: Hero) {
+  delete(hero: Hero): Promise<Response> {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
@@ -75,7 +75,7 @@ export class HeroService {
 
   // #docregion put
   // Update existing Hero
-  private put(hero: Hero) {
+  private put(hero: Hero): Promise<Hero> {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
@@ -90,7 +90,7 @@ export class HeroService {
   // #enddocregion put
 
   // #docregion handleError
-  private handleError(error: any) {
+  private handleError(error: any): Promise<any> {
     console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }

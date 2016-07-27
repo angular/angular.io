@@ -10,10 +10,7 @@ import { HEROES } from './mock-heroes';
 @Injectable()
 export class HeroService {
   // #enddocregion empty-class
-  getHeroes() {
-    // #enddocregion getHeroes-stub
-    return HEROES;
-    // #docregion getHeroes-stub
+  getHeroes(): void {
   }
   // #docregion empty-class
 }

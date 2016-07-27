@@ -27,7 +27,7 @@ export class HeroDetailComponent implements OnInit {
   }
 
   // #docregion ngOnInit
-  ngOnInit() {
+  ngOnInit(): void {
     this.route.params.forEach((params: Params) => {
       if (params['id'] !== undefined) {
         let id = +params['id'];
@@ -43,7 +43,7 @@ export class HeroDetailComponent implements OnInit {
   // #enddocregion ngOnInit
 
   // #docregion save
-  save() {
+  save(): void {
     this.heroService
         .save(this.hero)
         .then(hero => {
@@ -54,7 +54,7 @@ export class HeroDetailComponent implements OnInit {
   }
   // #enddocregion save
   // #docregion goBack
-  goBack(savedHero: Hero = null) {
+  goBack(savedHero: Hero = null): void {
     this.close.emit(savedHero);
     if (this.navigated) { window.history.back(); }
   }

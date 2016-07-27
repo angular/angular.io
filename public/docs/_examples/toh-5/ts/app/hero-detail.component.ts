@@ -35,7 +35,7 @@ export class HeroDetailComponent implements OnInit {
   // #enddocregion ctor
 
   // #docregion ng-oninit
-  ngOnInit() {
+  ngOnInit(): void {
     // #docregion get-id
     this.route.params.forEach((params: Params) => {
       let id = +params['id'];
@@ -47,7 +47,7 @@ export class HeroDetailComponent implements OnInit {
   // #enddocregion ng-oninit
 
   // #docregion go-back
-  goBack() {
+  goBack(): void {
     window.history.back();
   }
 // #enddocregion go-back
