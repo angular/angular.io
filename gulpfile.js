@@ -195,7 +195,7 @@ function runE2e() {
         return spawnInfo.promise;
       })
       .then(function() {
-        copyExampleBoilerplate();
+        buildStyles(copyExampleBoilerplate, _.noop);
         gutil.log('runE2e: update webdriver');
         spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PROTRACTOR_PATH});
         return spawnInfo.promise;
@@ -419,7 +419,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access because it adds symlinks
-gulp.task('add-example-boilerplate', function() {
+gulp.task('add-example-boilerplate', function(done) {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = excludeDartPaths(getNodeModulesPaths(EXAMPLES_PATH));
 
@@ -435,24 +435,24 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  return buildStyles(copyExampleBoilerplate);
+  return buildStyles(copyExampleBoilerplate, done);
 });
 
 
 // copies boilerplate files to locations
 // where an example app is found
-gulp.task('_copy-example-boilerplate', function () {
-  if (!argv.fast) return buildStyles(copyExampleBoilerplate);
+gulp.task('_copy-example-boilerplate', function (done) {
+  if (!argv.fast) buildStyles(copyExampleBoilerplate, done);
 });
 
 //Builds Angular 2 Docs CSS file from Bootstrap npm LESS source
 //and copies the result to the _examples folder to be included as
 //part of the example boilerplate.
-function buildStyles(cb){
-  return gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
+function buildStyles(cb, done){
+  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
     .pipe(less())
-    .pipe(gulp.dest(EXAMPLES_PATH)).on('finish', function(){
-      return cb();
+    .pipe(gulp.dest(EXAMPLES_PATH)).on('end', function(){
+      cb().then(function() { done(); });
     });
 }
 
