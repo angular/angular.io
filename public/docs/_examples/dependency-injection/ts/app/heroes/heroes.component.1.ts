@@ -6,11 +6,11 @@ import { Component }          from '@angular/core';
 import { HeroListComponent }  from './hero-list.component.2';
 import { HeroService }        from './hero.service.1';
 /*
-// #docregion full
+// #docregion full, v1
 import { HeroListComponent }  from './hero-list.component';
-// #docregion v1
+// #enddocregion v1
 import { HeroService }        from './hero.service';
-// #enddocregion full, v1
+// #enddocregion full
 */
 // #docregion full, v1
 
