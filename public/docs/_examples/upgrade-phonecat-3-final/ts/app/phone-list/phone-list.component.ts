@@ -1,14 +1,13 @@
 // #docplaster
 // #docregion top
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router-deprecated';
+
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
   moduleId: module.id,
   selector: 'phone-list',
   templateUrl: 'phone-list.template.html',
-  directives: [ RouterLink ]
 })
 // #enddocregion top
 export class PhoneListComponent {
@@ -41,20 +40,20 @@ export class PhoneListComponent {
   }
 
   private sortPhones(phones: PhoneData[]) {
-      if (phones && this.orderProp) {
-          return phones
-            .slice(0) // Make a copy
-            .sort((a, b) => {
-               if (a[this.orderProp] < b[this.orderProp]) {
-                 return -1;
-               } else if ([b[this.orderProp] < a[this.orderProp]]) {
-                 return 1;
-               } else {
-                 return 0;
-               }
-            });
-      }
-      return phones;
+    if (phones && this.orderProp) {
+      return phones
+        .slice(0) // Make a copy
+        .sort((a, b) => {
+          if (a[this.orderProp] < b[this.orderProp]) {
+            return -1;
+          } else if ([b[this.orderProp] < a[this.orderProp]]) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+    }
+    return phones;
   }
   // #enddocregion getphones
   // #docregion initialclass
