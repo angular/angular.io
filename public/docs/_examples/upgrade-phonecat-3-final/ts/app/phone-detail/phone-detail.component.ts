@@ -1,7 +1,8 @@
 // #docplaster
 // #docregion
 import { Component } from '@angular/core';
-import { RouteParams } from '@angular/router-deprecated';
+import { ActivatedRoute } from '@angular/router';
+
 import { Phone, PhoneData } from '../core/phone/phone.service';
 import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
@@ -14,8 +15,8 @@ export class PhoneDetailComponent {
   phone: PhoneData;
   mainImageUrl: string;
 
-  constructor(routeParams: RouteParams, phone: Phone) {
-    phone.get(routeParams.get('phoneId')).subscribe(phone => {
+  constructor(activatedRoute: ActivatedRoute, phone: Phone) {
+    phone.get(activatedRoute.snapshot.params['phoneId']).subscribe(phone => {
       this.phone = phone;
       this.setImage(phone.images[0]);
     });

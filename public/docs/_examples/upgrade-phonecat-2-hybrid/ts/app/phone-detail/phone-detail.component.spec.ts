@@ -3,11 +3,8 @@ import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
 import {
-  describe,
-  beforeEachProviders,
+  addProviders,
   inject,
-  it,
-  expect
 } from '@angular/core/testing';
 import {
   TestComponentBuilder,
@@ -33,11 +30,13 @@ class MockPhone extends Phone {
 
 describe('PhoneDetailComponent', () => {
 
-  beforeEachProviders(() => [
-    { provide: Phone, useClass: MockPhone },
-    { provide: '$routeParams', useValue: {phoneId: 'xyz'}},
-    HTTP_PROVIDERS
-  ]);
+  beforeEach(() => {
+      addProviders([
+      { provide: Phone, useClass: MockPhone },
+      { provide: '$routeParams', useValue: {phoneId: 'xyz'} },
+      HTTP_PROVIDERS
+    ]);
+  });
 
   it('should fetch phone detail',
       inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
@@ -45,7 +44,7 @@ describe('PhoneDetailComponent', () => {
         .then((fixture: ComponentFixture<PhoneDetailComponent>) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('h1')).toHaveText(xyzPhoneData().name);
+      expect(compiled.querySelector('h1').textContent).toContain(xyzPhoneData().name);
     });
   }));
 

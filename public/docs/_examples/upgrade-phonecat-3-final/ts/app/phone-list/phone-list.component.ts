@@ -1,13 +1,13 @@
 // #docplaster
 // #docregion top
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router-deprecated';
+import { RouterLinkWithHref } from '@angular/router';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
   selector: 'phone-list',
   templateUrl: 'phone-list/phone-list.template.html',
-  directives: [ RouterLink ]
+  directives: [ RouterLinkWithHref ]
 })
 // #enddocregion top
 export class PhoneListComponent {

@@ -1,9 +1,7 @@
 // #docregion
 import {
-  describe,
+  addProviders,
   beforeEach,
-  beforeEachProviders,
-  it,
   inject
 } from '@angular/core/testing';
 import {
@@ -24,29 +22,26 @@ describe('Phone', function() {
   ];
   let mockBackend: MockBackend;
 
-  beforeEachProviders(() => [
-    Phone,
-    MockBackend,
-    BaseRequestOptions,
-    { provide: Http,
-      useFactory: (backend: MockBackend, options: BaseRequestOptions) =>
-                    new Http(backend, options),
-      deps: [MockBackend, BaseRequestOptions]
-    }
-  ]);
+  beforeEach(() => {
+    addProviders([
+      Phone,
+      MockBackend,
+      BaseRequestOptions,
+      { provide: Http,
+        useFactory: (backend: MockBackend, options: BaseRequestOptions) => new Http(backend, options),
+        deps: [MockBackend, BaseRequestOptions]
+      }
+    ]);
+  });
 
-  beforeEach(inject([MockBackend, Phone],
-                    (_mockBackend_: MockBackend, _phone_: Phone) => {
+  beforeEach(inject([MockBackend, Phone], (_mockBackend_: MockBackend, _phone_: Phone) => {
     mockBackend = _mockBackend_;
     phone = _phone_;
   }));
 
-  it('should fetch the phones data from `/phones/phones.json`',
-    (done: () => void) => {
+  it('should fetch the phones data from `/phones/phones.json`', (done: () => void) => {
     mockBackend.connections.subscribe((conn: MockConnection) => {
-      conn.mockRespond(new Response(new ResponseOptions({
-        body: JSON.stringify(phonesData)
-      })));
+      conn.mockRespond(new Response(new ResponseOptions({ body: JSON.stringify(phonesData) })));
     });
     phone.query().subscribe(result => {
       expect(result).toEqual(phonesData);
@@ -55,3 +50,4 @@ describe('Phone', function() {
   });
 
 });
+

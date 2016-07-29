@@ -2,11 +2,8 @@
 import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 import {
-  describe,
-  beforeEachProviders,
+  addProviders,
   inject,
-  it,
-  expect
 } from '@angular/core/testing';
 import {
   TestComponentBuilder,
@@ -18,7 +15,6 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 
 class MockPhone extends Phone {
   query(): Observable<PhoneData[]> {
-    console.log('mocking here');
     return Observable.of(
       [
         {name: 'Nexus S', snippet: '', images: []},
@@ -30,10 +26,12 @@ class MockPhone extends Phone {
 
 describe('PhoneList', () => {
 
-  beforeEachProviders(() => [
-    { provide: Phone, useClass: MockPhone },
-    HTTP_PROVIDERS
-  ]);
+  beforeEach(() => {
+    addProviders([
+      { provide: Phone, useClass: MockPhone },
+      HTTP_PROVIDERS
+    ]);
+  });
 
   it('should create "phones" model with 2 phones fetched from xhr',
       inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {

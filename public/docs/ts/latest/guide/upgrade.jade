@@ -1362,8 +1362,7 @@ code-example(format="").
   Let's do the routing part first. Angular 2 comes with an [all-new router](router.html)
   that we can use for this.
 
-  Angular 2 applications all have a *root component*, which, among other
-  things, is where we should plug in the router. We don't yet have such a root
+  Before that, Angular 2 applications all have a *root component*. We don't yet have such a root
   component, because our app is still managed as an Angular 1 app.
   Let's change this now and add an `AppComponent` class into a new file
   `app.component.ts`:
@@ -1374,9 +1373,7 @@ code-example(format="").
   This is a component that plugs in to an `<phonecat-app>` element on the page,
   and has a simple template that only includes the router outlet component
   of the Angular router. This means that the component just renders the contents
-  of the current route and nothing else. The `@RouteConfig` decorator defines
-  the Angular 2 counterparts of our two routes. They refer directly to the
-  two components.
+  of the current route and nothing else.
 
   We should put this `<phonecat-app>` element in the HTML so that the root component
   has something to attach to. It replaces the old Angular 1 `ng-view` directive:
@@ -1384,9 +1381,19 @@ code-example(format="").
 +makeExample('upgrade-phonecat-3-final/ts/index.html', 'appcomponent', 'index.html')
 
 :marked
-  In the `PhoneDetail` component we now need to change how the phone id parameter
+  Speaking of routes, with the Angular 2 router we create a file, commonly named `app.routes.ts`
+  where we specify which routes we need:
+
++makeExample('upgrade-phonecat-3-final/ts/app/app.routes.ts', null, 'app/app.routes.ts')
+
+:marked
+  We create an array of `RouterConfig` objects which defines the Angular 2 counterparts of
+  our two routes. They refer directly to the two components.
+  Then we pass this array to `provideRouter` which returns (among other things) a configured router.
+
+  On the other hand, In the `PhoneDetail` component we now need to change how the phone id parameter
   is received. There will be no more `$routeParams` injection available, because
-  that comes from the Angular 1 router. Instead, what we have is a `RouteParams`
+  that comes from the Angular 1 router. Instead, what we have is an `ActivatedRoute`
   object provided by the Angular 2 router. We use it to obtain the `phoneId` from
   the params:
 
@@ -1395,7 +1402,7 @@ code-example(format="").
 :marked
   With that, we're ready to switch the bootstrap method of the application from that
   of the `UpgradeAdapter` to the main Angular 2 `bootstrap`. Let's import it together
-  with the router, the new app component, and everything else in `main.ts`
+  with the configured router, the new app component, and everything else in `main.ts`
 
 +makeExample('upgrade-phonecat-3-final/ts/app/main.ts', 'imports')
 
@@ -1405,8 +1412,7 @@ code-example(format="").
   application's root component `AppComponent`, and the second
   is an array of the Angular 2 providers that we want to make available for
   injection. In that array we include all the things we have been registering
-  with  `upgradeAdapter.addProvider` until now, as well as the providers and
-  directives of the router:
+  with  `upgradeAdapter.addProvider` until now, as well as the configured router we exported earlier:
 
 +makeExample('upgrade-phonecat-3-final/ts/app/main.ts', 'bootstrap')
 
@@ -1420,8 +1426,8 @@ code-example(format="").
   But there's actually one more cool thing we can do with the new router.
   We no longer have to hardcode the links to phone details from the phone
   list, because the Angular 2 router is able to generate them for us with
-  its `routerLink` directive. We just need to refer to the route names we
-  used in the `@RouteConfig`:
+  its `routerLink` directive. We just need to refer to the route paths we
+  defined earlier:
 
 +makeExample('upgrade-phonecat-3-final/ts/app/phone-list/phone-list.template.html', 'list', 'app/phone-list/phone-list.template.html')
 
@@ -1666,10 +1672,10 @@ code-example(format="").
 
 :marked
   Finally, we need to revisit both of the component tests when we switch to the Angular 2
-  router. For the details component we need to provide an Angular 2 `RouteParams` object
+  router. For the details component we need to provide a mock of Angular 2 `ActivatedRoute` object
   instead of using the Angular 1 `$routeParams`.
 
-+makeExample('upgrade-phonecat-3-final/ts/app/phone-detail/phone-detail.component.spec.ts', 'routeparams', 'app/phone-detail/phone-detail.component.spec.ts')
++makeExample('upgrade-phonecat-3-final/ts/app/phone-detail/phone-detail.component.spec.ts', 'activatedroute', 'app/phone-detail/phone-detail.component.spec.ts')
 
 :marked
   And for the phone list component we need to set up a few things for the router itself so that
