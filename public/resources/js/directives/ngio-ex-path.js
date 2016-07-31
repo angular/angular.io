@@ -23,7 +23,7 @@ angularIO.directive('ngioEx', ['$location', function ($location) {
 
     compile: function (tElement, attrs) {
       var examplePath = attrs.path || tElement.text();
-      if (NgIoUtil.isDartDoc($location) || attrs.lang === 'dart') {
+      if (NgIoUtil.isDoc($location, 'dart') || attrs.lang === 'dart') {
         examplePath = NgIoUtil.adjustTsExamplePathForDart(examplePath);
       }
       var template = '<code>' + examplePath + '</code>';

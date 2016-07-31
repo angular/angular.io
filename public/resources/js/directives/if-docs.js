@@ -17,7 +17,7 @@ angularIO.directive('ifDocs', ['ngIfDirective', '$location', function (ngIfDirec
     terminal: ngIf.terminal,
     restrict: ngIf.restrict,
     link: function (scope, element, attrs) {
-      var ngIfCond =  (attrs.ifDocs === 'dart') == !NgIoUtil.isDartDoc($location);
+      var ngIfCond =  (attrs.ifDocs === 'dart') == !NgIoUtil.isDoc($location, 'dart');
       attrs.ngIf = function () { return !ngIfCond; }
       ngIf.link.apply(ngIf, arguments);
     }
