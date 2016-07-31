@@ -1,0 +1,90 @@
+include ../_util-fns
+
+a(id='top')
+:marked
+  When Angular executes the vast majority of our application code, it does so within the
+  context of a `try-catch` block. And, when it catches errors, it sends them to the 
+  default `ExceptionHandler` which, in turn, logs them to the browser console. This is 
+  great for debugging in our development environment; but, in a production setting, it 
+  would be helpful to track these errors more explicitly. To do this, we can implement a
+  custom exception handler class.
+
+:marked
+  **See the [live example](/resources/live-examples/cb-exception-handler/ts/plnkr.html)**.
+
+:marked
+  First though, let's think about what we might want to do with errors in a production
+  environment. Perhaps we want to `POST` them, over HTTP, to our server for logging. Or,
+  maybe we're using a client-side error-tracking service like New Relic, TrackJS, or 
+  Raygun. We can create an `ErrorLoggingService` class that is responsible for routing 
+  errors to different destinations:
+
++makeExample('cb-exception-handler/ts/app/error-logging.service.ts', 'class', 'app/error-logging.service.ts')(format='.')
+
+:marked
+  Once we have this error-logging class, we can start piping errors into it through the
+  use of a custom exception handler. Since the entire Angular platform depends on proper
+  exception handling, we have to override the `ExceptionHandler` in the providers of our
+  **application module**. To do this, we have to associate our custom exception handler 
+  class &mdash; `CustomExceptionHandler` &mdash; with the core `ExceptionHandler` 
+  dependency-injection (DI) token. This way, when the Angular internals request an 
+  instance of `ExceptionHandler`, they will be provided with an instance of our
+  `CustomExceptionHandler`.
+
++makeExample('cb-exception-handler/ts/app/app.module.ts', '', 'app/app.module.ts (root module for bootstrapping)')(format='.')
+
+:marked
+  The default `ExceptionHandler` service only has one public method, `.call()`. As such,
+  our custom exception handler only has to implement the `.call()` method. Inside this 
+  `.call()` method, we're going to log the errors to the console and send them over to 
+  the `ErrorLoggingService` instance.
+
++makeExample('cb-exception-handler/ts/app/custom-exception-handler.ts', 'class', 'app/custom-exception-handler.ts')(format='.')
+
+:marked
+  When Angular passes an error into the application exception handler, it doesn't 
+  necessarily pass-in the raw error object &mdash; it may pass-in a wrapped error. This
+  is _not a documented behavior_; but, if we look at the source code for the core 
+  `ExceptionHandler` class, we can see that it does this. As such, in our custom 
+  exception handler, we attempt to unwrap the root error &mdash; traversing the 
+  `.originalException` object path &mdash; before sending it to the 
+  `ErrorLoggingService`. 
+
+:marked
+  At this point, we've overridden the core `ExceptionHandler` and laid the ground-work
+  for powerful error logging. Now, we just need to `throw()` an error in our application
+  and confirm that it's being seen by both the `CustomExceptionHandler` and the 
+  `ErrorLoggingService` classes
+
++makeExample('cb-exception-handler/ts/app/app.component.ts', 'component', 'app/app.component.ts')(format='.')
+
+:marked
+  When we run this application and trigger an error, we can see it getting logged to the
+  console by both the custom exception handler and our error-logging service:
+
+figure.image-display
+   img(src='/resources/images/cookbooks/custom-exception-handler/custom-exception-handler-animation.gif' alt='Custom exception handler in Angular2.')
+
+:marked
+  Here's the complete solution:
+
++makeTabs( 
+  `
+    cb-exception-handler/ts/app/main.ts,
+    cb-exception-handler/ts/app/app.module.ts,
+    cb-exception-handler/ts/app/custom-exception-handler.ts,
+    cb-exception-handler/ts/app/error-logging.service.ts,
+    cb-exception-handler/ts/app/app.component.ts
+  `,
+  '', 
+  `
+    main.ts,
+    app.module.ts,
+    custom-exception-handler.ts,
+    error-logging.service.ts,
+    app.component.ts
+  `
+)
+
+:marked
+  [Back to top](#top)
