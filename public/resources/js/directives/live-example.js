@@ -28,10 +28,12 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var href, template;
 
-      var isForDart = attrs.lang === 'dart' || NgIoUtil.isDartDoc($location);
+      var isForDart = attrs.lang === 'dart' || NgIoUtil.isDoc($location, 'dart');
+      var isForJs = attrs.lang === 'js' || NgIoUtil.isDoc($location, 'js');
+      var exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
       var href = isForDart
         ? 'http://angular-examples.github.io/' + ex
-        : '/resources/live-examples/' + ex + '/ts/plnkr.html';
+        : '/resources/live-examples/' + ex + '/' + exLang + '/plnkr.html';
 
       // Link to live example.
       var template = a(text, { href: href, target: '_blank' });
