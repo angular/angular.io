@@ -17,23 +17,22 @@ export class HeroSearchComponent implements OnInit {
   // #docregion search
   heroes: Observable<Hero[]>;
   // #enddocregion search
-  // #docregion searchSubject
-  searchSubject = new Subject<string>();
-  // #enddocregion searchSubject
+  // #docregion searchTerms
+  searchTerms = new Subject<string>();
+  // #enddocregion searchTerms
 
   constructor(
     private heroSearchService: HeroSearchService,
     private router: Router) {}
-  // #docregion searchSubject
+  // #docregion searchTerms
 
   // Push a search term into the observable stream.
-  search(term: string) { this.searchSubject.next(term); }
-  // #enddocregion searchSubject
+  search(term: string) { this.searchTerms.next(term); }
+  // #enddocregion searchTerms
   // #docregion search
 
   ngOnInit() {
-    this.heroes = this.searchSubject
-      .asObservable()           // cast as Observable
+    this.heroes = this.searchTerms
       .debounceTime(300)        // wait for 300ms pause in events
       .distinctUntilChanged()   // ignore if next search term is same as previous
       .switchMap(term => term   // switch to new observable each time
@@ -41,9 +40,8 @@ export class HeroSearchComponent implements OnInit {
         ? this.heroSearchService.search(term)
         // or the observable of empty heroes if no search term
         : Observable.of<Hero[]>([]))
-
       .catch(error => {
-        // Todo: real error handling
+        // TODO: real error handling
         console.log(error);
         return Observable.of<Hero[]>([]);
       });
