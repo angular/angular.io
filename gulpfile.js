@@ -473,10 +473,8 @@ function copyExampleBoilerplate() {
 
   // Make boilerplate files read-only to avoid that they be edited by mistake.
   var destFileMode = '444';
-        gutil.log('*** example files copied')
   return copyFiles(sourceFiles, examplePaths, destFileMode)
     .then(function() {
-      gutil.log('*** example files copied')
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
     })
     // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
@@ -598,7 +596,6 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
 });
 
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
-  gutil.log('**** Building Plunkers')
   return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
 });
 
