@@ -1,6 +1,4 @@
-// #docplaster
-// #docregion
-// #docregion hero-search-component
+// #docregion , search
 import { Component, OnInit } from '@angular/core';
 import { Router }           from '@angular/router';
 
@@ -14,9 +12,8 @@ import { HeroSearchComponent } from './hero-search.component';
   styleUrls: ['app/dashboard.component.css'],
   directives: [HeroSearchComponent]
 })
-// #enddocregion hero-search-component
+// #enddocregion search
 export class DashboardComponent implements OnInit {
-
   heroes: Hero[] = [];
 
   constructor(
