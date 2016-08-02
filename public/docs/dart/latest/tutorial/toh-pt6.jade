@@ -25,7 +25,8 @@ block http-library
 
     ### Pubspec updates
     
-    We need to add a package dependency for the !{_Angular_http_library}.
+    We need to add package dependencies for the 
+    `stream_transformers` and !{_Angular_http_library}s.
 
     We also need to add a `resolved_identifiers` entry, to inform the [angular2
     transformer][ng2x] that we'll be using `BrowserClient`. (For an explanation of why
@@ -37,7 +38,7 @@ block http-library
     [guide-http]: ../guide/server-communication.html#!#http-providers
     [ng2x]: https://github.com/angular/angular/wiki/Angular-2-Dart-Transformer
 
-  - var stylePattern = { pnk: /(http.*|resolved_identifiers:|Browser.*|Client.*)/gm };
+  - var stylePattern = { pnk: /(http.*|stream.*|resolved_identifiers:|Browser.*|Client.*)/gm };
   +makeExcerpt('pubspec.yaml', 'additions', null, stylePattern)
 
 block http-providers
@@ -55,7 +56,13 @@ block backend
     implementations.
 
 block dont-be-distracted-by-backend-subst
-  //- N/A
+  //- No backend substitution but we do need to comment on the changes to Hero.
+  :marked
+    As is common for web API services, our mock in-memory service will be
+    encoding and decoding heroes in JSON format, so we enhance the `Hero`
+    class with these capabilities:
+
+  +makeExample('lib/hero.dart')
 
 block get-heroes-details
   :marked
@@ -89,8 +96,42 @@ block heroes-comp-add
 block review
   //- Not showing animated gif due to differences between TS and Dart implementations.
 
-block observables-section
-  //- TBC
+block observables-section-intro
+  :marked
+    Recall that `HeroService.getHeroes()` awaits for an `http.get()`
+    response and yields a _Future_ `List<Hero>`, which is fine when we are only
+    interested in a single result.
+
+block search-criteria-intro
+  :marked
+    A [StreamController][], as its name implies, is a controller for a [Stream][] that allows us to
+    manipulate the underlying stream by adding data to it, for example.
+
+    In our sample, the underlying stream of strings (`_searchTerms.stream`) represents the hero
+    name search patterns entered by the user. Each call to `search` puts a new string into
+    the stream by calling `add` over the controller.
+
+    [Stream]: https://api.dartlang.org/stable/dart-async/Stream-class.html
+    [StreamController]: https://api.dartlang.org/stable/dart-async/StreamController-class.html
+
+block observable-transformers
+  :marked
+    Fortunately, there are stream transformers that will help us reduce the request flow.
+    We'll make fewer calls to the `HeroSearchService` and still get timely results. Here's how:
+
+    * `transform(new Debounce(... 300)))` waits until the flow of search terms pauses for 300
+    milliseconds before passing along the latest string. We'll never make requests more frequently
+    than 300ms.
+
+    * `distinct()` ensures that we only send a request if a search term has changed.
+    There's no point in repeating a request for the same search term.
+
+    * `transform(new FlatMapLatest(...))` applies a map-like transformer that (1) calls our search
+    service for each search term that makes it through the debounce and distinct gauntlet and (2)
+    returns only the most recent search service result, discarding any previous results.
+
+    * `handleError()` handles errors. Our simple example prints the error to the console; a real
+    life application should do better.
 
 block filetree
   .filetree
@@ -98,47 +139,65 @@ block filetree
     .children
       .file lib
       .children
-        .file app_component.dart
         .file app_component.css
+        .file app_component.dart
         .file dashboard_component.css
-        .file dashboard_component.html
         .file dashboard_component.dart
+        .file dashboard_component.html
         .file hero.dart
         .file hero_detail_component.css
-        .file hero_detail_component.html
         .file hero_detail_component.dart
+        .file hero_detail_component.html
+        .file hero_search_component.css (new)
+        .file hero_search_component.dart (new)
+        .file hero_search_component.html (new)
+        .file hero_search_service.dart (new)
         .file hero_service.dart
         .file heroes_component.css
-        .file heroes_component.html
         .file heroes_component.dart
-        .file main.dart
+        .file heroes_component.html
         .file in_memory_data_service.dart (new)
       .file web
       .children
         .file main.dart
         .file index.html
-        .file sample.css (new)
         .file styles.css
       .file pubspec.yaml
 
 block file-summary
   +makeTabs(
-    `toh-6/dart/lib/hero.dart,
+    `toh-6/dart/lib/dashboard_component.dart,
+     toh-6/dart/lib/dashboard_component.html,
+     toh-6/dart/lib/hero.dart,
      toh-6/dart/lib/hero_detail_component.dart,
      toh-6/dart/lib/hero_detail_component.html,
      toh-6/dart/lib/hero_service.dart,
-     toh-6/dart/lib/heroes_component.dart,
-     toh-6/dart/web/index.html,
-     toh-6/dart/web/main.dart,
-     toh-6/dart/web/sample.css`,
-    `,,,,,,final,`,
-    `lib/hero.dart,
+     toh-6/dart/lib/heroes_component.css,
+     toh-6/dart/lib/heroes_component.dart`,
+    null,
+    `lib/dashboard_component.dart,
+     lib/dashboard_component.html,
+     lib/hero.dart,
      lib/hero_detail_component.dart,
      lib/hero_detail_component.html,
      lib/hero_service.dart,
-     lib/heroes_component.dart,
-     web/index.html,
-     web/main.dart,
-     web/sample.css`)
+     lib/heroes_component.css,
+     lib/heroes_component.dart`)
 
-  +makeExample('pubspec.yaml')
+  +makeTabs(
+    `toh-6/dart/lib/hero_search_component.css,
+     toh-6/dart/lib/hero_search_component.dart,
+     toh-6/dart/lib/hero_search_component.html,
+     toh-6/dart/lib/hero_search_service.dart`,
+    null,
+    `lib/hero_search_component.css,
+     lib/hero_search_component.dart,
+     lib/hero_search_component.html,
+     lib/hero_search_service.dart`)
+     
+  +makeTabs(
+    `toh-6/dart/pubspec.yaml,
+     toh-6/dart/web/main.dart`,
+    `,final`,
+    `pubspec.yaml,
+     web/main.dart`)
