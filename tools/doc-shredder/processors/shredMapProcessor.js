@@ -43,7 +43,7 @@ module.exports = function shredMapProcessor(log, createDocMessage) {
             mixinPath = appProjDirName + '/' + lang + '/' + mixinPath;
             fragInfo = makeFragInfo(options.fragmentsDir, fullExamplePath, fragItem, mixinPath);
             if (fragInfo.exists) {
-              log.info('Ajusted example path (' + doc.fileInfo.baseName + '): ' + appProjRelPath + ' -> ' + mixinPath);
+              log.info('Adjusted example path (' + doc.fileInfo.baseName + '): ' + appProjRelPath + ' -> ' + mixinPath);
             } else {
                 fragInfo = savedFragInfo;
             }
