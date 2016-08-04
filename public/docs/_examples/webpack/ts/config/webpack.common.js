@@ -15,7 +15,7 @@ module.exports = {
 
   // #docregion resolve
   resolve: {
-    extensions: ['', '.js', '.ts']
+    extensions: ['', '.ts', '.js']
   },
   // #enddocregion resolve
 
