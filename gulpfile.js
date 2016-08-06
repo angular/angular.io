@@ -22,7 +22,7 @@ var globby = require("globby");
 // - because childProcess.kill does not work properly on windows
 var treeKill = require("tree-kill");
 var blc = require("broken-link-checker");
-
+var less = require('gulp-less');
 var tslint = require('gulp-tslint');
 
 // TODO:
@@ -41,6 +41,7 @@ var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
+var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
@@ -87,6 +88,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 
 var _exampleBoilerplateFiles = [
   '.editorconfig',
+  'a2docs.css',
   'karma.conf.js',
   'karma-test-shim.js',
   'package.json',
@@ -98,13 +100,15 @@ var _exampleBoilerplateFiles = [
   'wallaby.js'
  ];
 
-var _exampleDartWebBoilerPlateFiles = ['styles.css'];
+var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
 
 var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
 ];
 
 var _exampleConfigFilename = 'example-config.json';
+
+var _styleLessName = 'a2docs.less';
 
 // Gulp flags:
 //
@@ -118,7 +122,7 @@ var _exampleConfigFilename = 'example-config.json';
 var lang, langs, buildDartApiDocs = false;
 function configLangs(langOption) {
   const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
-  const buildAllDocs = argv['_'] && 
+  const buildAllDocs = argv['_'] &&
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
   const langDefault = buildAllDocs ? 'all' : 'ts|js';
   lang = (langOption || langDefault).toLowerCase();
@@ -190,7 +194,7 @@ function runE2e() {
         return spawnInfo.promise;
       })
       .then(function() {
-        copyExampleBoilerplate();
+        buildStyles(copyExampleBoilerplate, _.noop);
         gutil.log('runE2e: update webdriver');
         spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PROTRACTOR_PATH});
         return spawnInfo.promise;
@@ -414,7 +418,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access because it adds symlinks
-gulp.task('add-example-boilerplate', function() {
+gulp.task('add-example-boilerplate', function(done) {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = excludeDartPaths(getNodeModulesPaths(EXAMPLES_PATH));
 
@@ -430,16 +434,26 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  return copyExampleBoilerplate();
+  return buildStyles(copyExampleBoilerplate, done);
 });
 
 
 // copies boilerplate files to locations
 // where an example app is found
-gulp.task('_copy-example-boilerplate', function () {
-  if (!argv.fast) copyExampleBoilerplate();
+gulp.task('_copy-example-boilerplate', function (done) {
+  if (!argv.fast) buildStyles(copyExampleBoilerplate, done);
 });
 
+//Builds Angular 2 Docs CSS file from Bootstrap npm LESS source
+//and copies the result to the _examples folder to be included as
+//part of the example boilerplate.
+function buildStyles(cb, done){
+  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
+    .pipe(less())
+    .pipe(gulp.dest(EXAMPLES_PATH)).on('end', function(){
+      cb().then(function() { done(); });
+    });
+}
 
 // copies boilerplate files to locations
 // where an example app is found
@@ -1251,7 +1265,7 @@ function buildApiDocsForDart() {
       dab.createApiDataAndJadeFiles(apiEntries);
 
     }).catch((err) => {
-      console.log(err);    
+      console.log(err);
     });
 
   } catch(err) {
