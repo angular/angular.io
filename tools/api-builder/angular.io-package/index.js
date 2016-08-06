@@ -54,6 +54,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '___platform_browser_private_types__',
     '___platform_browser_dynamic_private__',
     '___platform_browser_dynamic_private_types__',
+    '___core_private_testing_types__',
     '___compiler_private__',
     '__core_private__',
     '___core_private__'
@@ -135,7 +136,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     pathTemplate: 'api-list.json',
     outputPathTemplate: '${path}'
   });
-  
+
   computePathsProcessor.pathTemplates.push({
     docTypes: ['api-list-data'],
     pathTemplate: 'api-list-audit.json',
