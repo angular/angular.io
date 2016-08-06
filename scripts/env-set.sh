@@ -3,7 +3,7 @@
 if [[ -z "$NGIO_ENV_DEFS" ]]; then
     export ANSI_YELLOW="\033[33;1m"
     export ANSI_RESET="\033[0m"
-    echo -e "${ANSI_YELLOW}Setting environment variables from scripts/env.sh${ANSI_RESET}"
+    echo -e "${ANSI_YELLOW}Setting environment variables from scripts/env-set.sh${ANSI_RESET} "
 
     export NGIO_ENV_DEFS=1
 
@@ -12,7 +12,7 @@ if [[ -z "$NGIO_ENV_DEFS" ]]; then
 
     if [ ! $(type -t travis_fold) ]; then
         # In case this is being run locally. Turn travis_fold into a noop.
-        travis_fold () { return; }
+        travis_fold () { true; }
         # Alternative definition:
         # travis_fold () { echo -en "travis_fold:${1}:${2}"; }
     fi
