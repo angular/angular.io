@@ -88,7 +88,6 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 
 var _exampleBoilerplateFiles = [
   '.editorconfig',
-  'a2docs.css',
   'karma.conf.js',
   'karma-test-shim.js',
   'package.json',
@@ -100,7 +99,7 @@ var _exampleBoilerplateFiles = [
   'wallaby.js'
  ];
 
-var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
+var _exampleDartWebBoilerPlateFiles = ['styles.css'];
 
 var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
@@ -108,7 +107,7 @@ var _exampleProtractorBoilerplateFiles = [
 
 var _exampleConfigFilename = 'example-config.json';
 
-var _styleLessName = 'a2docs.less';
+var _styleLessName = 'styles.less';
 
 // Gulp flags:
 //
