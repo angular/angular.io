@@ -46,25 +46,53 @@ module.exports = function dabFactory(ngIoProjPath) {
         log.info(containerName, 'wrote', Object.keys(dataMap).length, 'entries to', dataFilePath);
     }
 
+    function _adjustDocsRelativeLinks($, div) {
+        // Omit leading https://angular.io so links work for local test sites.
+        const urlToDocs = '/docs/dart/latest/';
+        const urlToExamples = 'http://angular-examples.github.io/';
+        const docsLinkList = div.find('a[href^="docs/"],a[href^="examples/"]');
+        docsLinkList.each((i, elt) => {
+            const href = $(elt).attr('href');
+            const matches = href.match(/(\w+)\/(.*)$/);
+            // TODO: support links to chapters of other languages, e.g., 'docs/ts/latest/...'.
+            const urlStart = matches[1] === 'docs' ? urlToDocs : urlToExamples;
+            const absHref = urlStart + matches[2];
+            log.info(`Found angular.io relative link: ${href} --> ${absHref}`);
+            $(elt).attr('href', absHref);
+        });
+    }
+
     function _insertExampleFragments(enclosedByName, eltId, $, div) {
-        const fragDir = path.join(dartPkgConfigInfo.ngIoDartApiDocPath, '../../../_fragments/_api');
+        const fragDirBase = path.join(dartPkgConfigInfo.ngIoDartApiDocPath, '../../../_fragments/');
         const exList = div.find('p:contains("{@example")');
         exList.each((i, elt) => {
             const text = $(elt).text();
             log.debug(`Found example: ${enclosedByName} ${eltId}`, text);
-            const matches = text.match(/{@example\s+([^\s]+)(\s+region=[\'\"]?(\w+)[\'\"]?)?\s*}/);
+            const matches = text.match(/^\s*{@example\s+([^\s]+)(\s+region=[\'\"]?([-\w]+)[\'\"]?)?\s*}([\s\S]*)$/);
             if (!matches) {
                 log.warn(enclosedByName, eltId, 'has an invalidly formed @example tag:', text);
                 return true;
             }
+            // const [, exRelPath, /*regionTagAndValue*/, region, rest] = matches;
+            const rest = matches[4].trim();
+            if (rest) log.warn(enclosedByName, eltId, '@example must be the only element in a paragraph, but found:', text);                
             const exRelPath = matches[1];
             const region = matches[3];
 
-            const dir = path.dirname(exRelPath)
+            let exRelPathParts = path.dirname(exRelPath).split(path.sep);
+            let fragDir;
+            if (exRelPathParts[0] === 'docs') {
+                // Path is to a docs example, not an API example.
+                const exampleName = exRelPathParts[1];
+                fragDir = path.join(fragDirBase, exampleName, 'dart');
+                exRelPathParts = exRelPathParts.slice(2);
+            } else {
+                fragDir = path.join(fragDirBase, '_api');
+            }
             const extn = path.extname(exRelPath);
             const baseName = path.basename(exRelPath, extn);
             const fileNameNoExt = baseName + (region ? `-${region}` : '')
-            const exFragPath = path.resolve(fragDir, dir, `${fileNameNoExt}${extn}.md`);
+            const exFragPath = path.resolve(fragDir, ...exRelPathParts, `${fileNameNoExt}${extn}.md`);
             if (!fs.existsSync(exFragPath)) {
                 log.warn('Fragment not found:', exFragPath);
                 return true;
@@ -80,7 +108,8 @@ module.exports = function dabFactory(ngIoProjPath) {
     function _extractAndWrapInCodeTags(md) {
         const lines = md.split('\n');
         // Drop first and last lines that are the code markdown tripple ticks (and last \n):
-        lines.shift(); lines.pop(); lines.pop();
+        lines.shift();
+        while (lines && lines.pop().trim() !== '```') {}
         const code = lines.map((line) => encoder.htmlEncode(line)).join('\n');
         // TS uses format="linenums"; removing that for now. 
         return `<code-example language="dart">${code}\n</code-example>`;
@@ -98,6 +127,7 @@ module.exports = function dabFactory(ngIoProjPath) {
         const div = $('div.body.container');
         $('div.sidebar-offcanvas-left').remove();
         const baseNameNoExtn = path.basename(e.path, '.html');
+        _adjustDocsRelativeLinks($, div);
         _insertExampleFragments(e.enclosedByQualifiedName, baseNameNoExtn, $, div);
 
         const outFileNoExtn = path.join(destDirPath, baseNameNoExtn);
