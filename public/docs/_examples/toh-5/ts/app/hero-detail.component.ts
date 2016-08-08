@@ -25,8 +25,11 @@ import { HeroService } from './hero.service';
 // #docregion implement
 export class HeroDetailComponent implements OnInit, OnDestroy {
   // #enddocregion implement
+  
+  // #docregion new-variables
   hero: Hero;
   sub: any;
+  // #enddocregion new-variables
 
   // #docregion ctor
   constructor(
