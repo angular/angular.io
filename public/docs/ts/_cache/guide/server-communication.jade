@@ -1,0 +1,702 @@
+block includes
+  include ../_util-fns
+  - var _Http = 'Http'; // Angular `Http` library name.
+  - var _Angular_Http = 'Angular <code>Http</code>'
+  - var _Angular_http_library = 'Angular HTTP library'
+
+:marked
+  [HTTP](https://tools.ietf.org/html/rfc2616) is the primary protocol for browser/server communication.
+.l-sub-section
+  :marked
+    The [`WebSocket`](https://tools.ietf.org/html/rfc6455) protocol is another important communication technology;
+    we won't cover it in this chapter.
+:marked
+  Modern browsers support two HTTP-based APIs: 
+  [XMLHttpRequest (XHR)](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) and 
+  [JSONP](https://en.wikipedia.org/wiki/JSONP). A few browsers also support
+  [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). 
+  
+  The !{_Angular_http_library} simplifies application programming of the **XHR** and **JSONP** APIs
+  as we'll learn in this chapter covering:
+
+  - [HTTP client sample overview](#http-client)
+  - [Fetch data with http.get](#fetch-data)
+  <li if-docs="ts"> [RxJS Observable of HTTP Responses](#rxjs)</li>
+  <li if-docs="ts"> [Enabling RxJS Operators](#enable-rxjs-operators)</li>
+  - [Extract JSON data](#extract-data)
+  - [Error handling](#error-handling)
+  - [Send data to the server](#update)
+  <li if-docs="ts"> [Promises instead of observables](#promises)</li>
+  - [Cross-origin requests: Wikipedia example](#cors)
+    <ul if-docs="ts"> 
+      <li> [Set query string parameters](#search-parameters)</li>
+      <li> [Debounce search term input](#more-observables)</li>
+    </ul>
+  - [Appendix: the in-memory web api service](#in-mem-web-api)
+
+  We illustrate these topics with code that you can <live-example>run live</live-example>.
+  
+.l-main-section
+:marked
+  # Demos
+
+  This chapter describes server communication with the help of the following demos
+
+block demos-list
+  :marked
+    - [HTTP client: Tour of Heroes with Observables](#http-client)
+    - [HTTP client: Tour of Heroes with !{_Promise}s](#promises)
+    - [JSONP client: Wikipedia to fetch data from a service that does not support CORS](#cors)
+    - [JSONP client: Wikipedia using observable operators to reduce server calls](#more-observables)
+
+:marked
+  These demos are orchestrated by the root `AppComponent`
++makeExample('server-communication/ts/app/app.component.ts', null, 'app/app.component.ts')
+
++ifDocsFor('ts')
+  :marked
+    There is nothing remarkable here _except_ for the import of RxJS operators.
+  +makeExample('server-communication/ts/app/app.component.ts', 'import-rxjs')(format='.')
+  :marked
+    We'll talk about that [below](#rxjs) when we're ready to explore observables.
+:marked
+  First, we have to configure our application to use server communication facilities.
+
+.l-main-section#http-providers
+:marked
+  # Providing HTTP Services
+
+  We use the !{_Angular_Http} client to communicate with a server using a familiar HTTP request/response protocol.
+  The `!{_Http}` client is one of a family of services in the !{_Angular_http_library}.
+
++ifDocsFor('ts')
+  .l-sub-section
+    :marked
+      SystemJS knows how to load services from the !{_Angular_http_library} when we import from the `@angular/http` module
+      because we registered that module name in the `system.config` file.
+
+:marked
+  Before we can use the `!{_Http}` client , we'll have to register it as a service provider with the Dependency Injection system.
+
+.l-sub-section
+  :marked
+    Learn about providers in the [Dependency Injection](dependency-injection.html) chapter.
+
+:marked
+  In this demo, we register providers in the `bootstrap()` method of 
+  <span ngio-ex>app/main.ts</span>.
+
++makeExample('server-communication/ts/app/main.ts', 'v1', 'app/main.ts (v1)')(format='.')
+
+block http-providers
+  :marked
+    We begin by importing the symbols we need, most of them familiar by now. The newcomer is `HTTP_PROVIDERS`, 
+    a collection of service providers from the !{_Angular_http_library}.
+ 
+    We register HTTP providers in the bootstrap method by passing them in an array as the second parameter after the root component.
+
+    ### Why register in *bootstrap*?
+    
+    We prefer to register application-wide providers in the metadata `providers` array
+    of the root `AppComponent` like this:
+  +makeExample('server-communication/ts/app/app.component.ts','http-providers')(format='.')
+  :marked
+    Here we register the providers in the `bootstrap` method in the `main.ts` file. Why?
+    
+    This is a *sample application* that doesn't talk to a real server.
+    We're going to reconfigure the (typically-hidden) `XhrBackend` service with a fake provider
+    that fetches and saves sample data from an in-memory data store.
+    This replacement service is called the [*in-memory web api*](#in-mem-web-api).
+    
+    Such sleight-of-hand is something the root application component should *not* know about.
+    For this reason, and this reason *only*, we hide it *above* the `AppComponent` in `main.ts`.
+
+.l-main-section#http-client
+:marked
+  # The Tour of Heroes _HTTP_ Client Demo
+
+  Our first demo is a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
+  This version gets some heroes from the server, displays them in a list, lets us add new heroes, and saves them to the server.
+  We use the !{_Angular_Http} client to communicate via `XMLHttpRequest (XHR)`.
+
+  It works like this.
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/http-toh.gif' alt="ToH mini app" width="250")
+:marked
+  This demo has a single component, the `HeroListComponent`.  Here's its template:
++makeExample('server-communication/ts/app/toh/hero-list.component.html', null, 'app/toh/hero-list.component.html (template)')
+:marked
+  It presents the list of heroes with an `ngFor`. 
+  Below the list is an input box and an *Add Hero* button where we can enter the names of new heroes
+  and add them to the database. 
+  We use a [template reference variable](template-syntax.html#ref-vars), `newHeroName`, to access the 
+  value of the input box in the `(click)` event binding.
+  When the user clicks the button, we pass that value to the component's `addHero` method and then
+  clear it to make it ready for a new hero name.
+  
+  Below the button is an area for an error message.
+
+a#oninit
+a#HeroListComponent
+:marked
+  ## The *HeroListComponent* class
+  Here's the component class:
++makeExample('server-communication/ts/app/toh/hero-list.component.ts','component', 'app/toh/hero-list.component.ts (class)')  
+:marked
+  Angular [injects](dependency-injection.html) a `HeroService` into the constructor
+  and the component calls that service to fetch and save data.
+
+  The component **does not talk directly to the !{_Angular_Http} client**!
+  The component doesn't know or care how we get the data. 
+  It delegates to the `HeroService`.
+  
+  This is a golden rule: **always delegate data access to a supporting service class**.
+
+  Although _at runtime_ the component requests heroes immediately after creation, 
+  we do **not** call the service's `get` method in the component's constructor.
+  We call it inside the `ngOnInit` [lifecycle hook](lifecycle-hooks.html) instead
+  and count on Angular to call `ngOnInit` when it instantiates this component. 
+.l-sub-section
+  :marked
+    This is a *best practice*. 
+    Components are easier to test and debug when their constructors are simple and all real work 
+    (especially calling a remote server) is handled in a separate method.
+block getheroes-and-addhero
+  :marked
+    The service's `getHeroes()` and `addHero()` methods return an `Observable` of hero data that the !{_Angular_Http} client fetched from the server.
+    
+    *Observables* are a big topic, beyond the scope of this chapter. 
+    But we need to know a little about them to appreciate what is going on here.
+    
+    We should think of an `Observable` as a stream of events published by some source.
+    We listen for events in this stream by ***subscribing*** to the `Observable`. 
+    In these subscriptions we specify the actions to take when the web request
+    produces a success event (with the hero data in the event payload) or a fail event (with the error in the payload).
+
+:marked
+  With our basic intuitions about the component squared away, we're ready to look inside the `HeroService`.
+
+a#HeroService
+.l-main-section#fetch-data
+:marked
+  ## Fetch data with the **HeroService**
+
+  In many of our previous samples we faked the interaction with the server by
+  returning mock heroes in a service like this one:
++makeExample('toh-4/ts/app/hero.service.ts', 'just-get-heroes')(format=".")
+:marked
+  In this chapter, we revise that `HeroService` to get the heroes from the server using the !{_Angular_Http} client service: 
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'v1', 'app/toh/hero.service.ts (revised)')
+
+:marked
+  Notice that the !{_Angular_Http} client service is
+  [injected](dependency-injection.html) into the `HeroService` constructor.
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'ctor')
+:marked
+  Look closely at how we call `!{_priv}http.get`
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'http-get', 'app/toh/hero.service.ts (getHeroes)')(format=".")
+:marked
+  We pass the resource URL to `get` and it calls the server which should return heroes.
+.l-sub-section
+  :marked
+    It *will* return heroes once we've set up the [in-memory web api](#in-mem-web-api)
+    described in the appendix below.
+    Alternatively, we can (temporarily) target a JSON file by changing the endpoint URL:
+  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint-json')(format=".")
+
++ifDocsFor('ts')
+  :marked
+    <a id="rxjs"></a>
+    The return value may surprise us. 
+    Many of us who are familiar with asynchronous methods in modern JavaScript would expect the `get` method to return a 
+    [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+    We'd expect to chain a call to `then()` and extract the heroes.
+    Instead we're calling a `map()` method. 
+    Clearly this is not a promise.
+
+    In fact, the `http.get` method returns an **Observable** of HTTP Responses (`Observable<Response>`) from the RxJS library
+    and `map` is one of the RxJS *operators*.
+
+  .l-main-section
+  :marked
+    # RxJS Library
+    [RxJS](https://github.com/ReactiveX/RxJS) ("Reactive Extensions") is a 3rd party library, endorsed by Angular,
+    that implements the [*asynchronous observable*](https://www.youtube.com/watch?v=UHI0AzD_WfY "Rob Wormald on observables") pattern.
+
+    All of our Developer Guide samples have installed the RxJS npm package and loaded via `system.js`
+    because observables are used widely in Angular applications.
+    We certainly need it now when working with the HTTP client.
+    And we must take a critical extra step to make RxJS observables usable.
+
+    ### Enable RxJS Operators
+    The RxJS library is quite large. 
+    Size matters when we build a production application and deploy it to mobile devices.
+    We should include only those features that we actually need.
+
+    Accordingly, Angular exposes a stripped down version of `Observable` in the `rxjs/Observable` module, 
+    a version that lacks most of the operators including some we'd like to use here
+    such as the `map` method we called above in `getHeroes`.
+
+    It's up to us to add the operators we need. 
+    
+    We could add _every_ RxJS operators with a single import statement. 
+    While that is the easiest thing to do, we'd pay a penalty in extended launch time and application size
+    because the full library is so big. We only use a few operators in our app.
+    
+    Instead, we'll import each `Observable` operator and static class method, one-by-one, until we have a custom *Observable* implementation tuned
+    precisely to our requirements. We'll put the `import` statements in one `app/rxjs-operators.ts` file.
+  +makeExample('server-communication/ts/app/rxjs-operators.ts', null, 'app/rxjs-operators.ts')(format=".")
+  :marked
+    If we forget an operator, the TypeScript compiler will warn that it's missing and we'll update this file.
+  .l-sub-section
+    :marked
+      We don't need _all_ of these particular operators in the `HeroService` &mdash; just `map`, `catch` and `throw`.
+      We'll need the other operators later, in a *Wiki* example [below](#more-observables).
+  :marked
+    Finally, we import `rxjs-operator`_itself_ in our `app.component.ts`:
+  +makeExample('server-communication/ts/app/app.component.ts', 'import-rxjs', 'app/app.component.ts (import rxjs)')(format=".")
+  :marked
+    Let's return to our study of the `HeroService`.
+    
+l-main-section
+a#extract-data
+:marked
+  ## Process the response object
+  Remember that our `getHeroes()` method mapped the `!{_priv}http.get` response object to heroes with an `!{_priv}extractData` helper method:
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'extract-data', 'app/toh/hero.service.ts (excerpt)')(format=".")
+:marked
+  The `response` object does not hold our data in a form we can use directly. 
+  To make it useful in our application we must parse the response data into a JSON object
+
+  #### Parse to JSON
+block parse-json
+  :marked
+    The response data are in JSON string form.
+    We must parse that string into JavaScript objects which we do by calling `response.json()`.
+
+  .l-sub-section
+    :marked
+      This is not Angular's own design. 
+      The Angular HTTP client follows the ES2015 specification for the
+      [response object](https://fetch.spec.whatwg.org/#response-class) returned by the `Fetch` function.
+      That spec defines a `json()` method that parses the response body into a JavaScript object.
+
+.l-sub-section
+  :marked
+    We shouldn't expect the decoded JSON to be the heroes !{_array} directly.
+    The server we're calling always wraps JSON results in an object with a `data`
+    property. We have to unwrap it to get the heroes.
+    This is conventional web api behavior, driven by 
+    [security concerns](https://www.owasp.org/index.php/OWASP_AJAX_Security_Guidelines#Always_return_JSON_with_an_Object_on_the_outside).
+.alert.is-important
+  :marked
+     Make no assumptions about the server API. 
+     Not all servers return an object with a `data` property.
+:marked
+  ### Do not return the response object
+  Our `getHeroes()` could have returned the HTTP response. Bad idea! 
+  The point of a data service is to hide the server interaction details from consumers.
+  The component that calls the `HeroService` wants heroes. 
+  It has no interest in what we do to get them.
+  It doesn't care where they come from.
+  And it certainly doesn't want to deal with a response object.
+
++ifDocsFor('ts')
+  .callout.is-important
+    header HTTP GET is delayed 
+    :marked
+      The `!{_priv}http.get` does **not send the request just yet!** This observable is
+      [*cold*](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/creating.md#cold-vs-hot-observables)
+      which means the request won't go out until something *subscribes* to the observable.
+      That *something* is the [HeroListComponent](#subscribe).
+
+a#error-handling
+:marked
+  ### Always handle errors
+
+  Whenever we deal with I/O we must be prepared for something to go wrong as it surely will. 
+  We should catch errors in the `HeroService` and do something with them. 
+  We may also pass an error message back to the component for presentation to the user
+  but only if we can say something the user can understand and act upon.
+
+  In this simple app we provide rudimentary error handling in both the service and the component.
+block error-handling
+  :marked
+    The eagle-eyed reader may have spotted our use of the `catch` operator in conjunction with a `handleError` method.
+    We haven't discussed so far how that actually works. 
+
+    We use the Observable `catch` operator on the service level.
+    It takes an error handling function with an error object as the argument.
+    Our service handler, `handleError`, logs the response to the console, 
+    transforms the error into a user-friendly message, and returns the message in a new, failed observable via `Observable.throw`.
+
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'error-handling', 'app/toh/hero.service.ts (excerpt)')(format=".")
+
+a#subscribe
+a#hero-list-component
+h4 #[b HeroListComponent] error handling
+block hlc-error-handling
+  :marked
+    Back in the `HeroListComponent`, where we called `!{_priv}heroService.getHeroes()`, 
+    we supply the `subscribe` function with a second function parameter to handle the error message.
+    It sets an `errorMessage` variable which we've bound conditionally in the `HeroListComponent` template.
+
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'getHeroes', 'app/toh/hero-list.component.ts (getHeroes)')(format=".")
+  
+.l-sub-section
+  :marked
+    Want to see it fail? Reset the api endpoint in the `HeroService` to a bad value. Remember to restore it!
+
+  
+<a id="update"></a>
+<a id="post"></a>
+.l-main-section
+:marked
+  ## Send data to the server
+  
+  So far we've seen how to retrieve data from a remote location using an HTTP service. 
+  Let's add the ability to create new heroes and save them in the backend.
+
+  We'll create an easy method for the `HeroListComponent` to call, an `addHero()` method that takes
+  just the name of a new hero:
+
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero-sig')(format=".")
+
+:marked
+  To implement it, we need to know some details about the server's api for creating heroes.
+  
+  [Our data server](#server) follows typical REST guidelines.
+  It expects a [`POST`](http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5) request
+  at the same endpoint where we `GET` heroes.
+  It expects the new hero data to arrive in the body of the request, 
+  structured like a `Hero` entity but without the `id` property.
+  The body of the request should look like this:
+  
+code-example(format="." language="javascript").
+  { "name": "Windstorm" }
+:marked
+  The server will generate the `id` and return the entire `JSON` representation
+  of the new hero including its generated id. The hero arrives tucked inside a response object
+  with its own `data` property.
+  
+  Now that we know how the API works, we implement `addHero()`like this:
+
++ifDocsFor('ts')
+  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'import-request-options', 'app/toh/hero.service.ts (additional imports)')(format=".")  
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
+
+:marked
+  ### Headers
+
+  The `Content-Type` header allows us to inform the server that the body will represent JSON.
+
++ifDocsFor('ts')
+  :marked
+    [Headers](../api/http/index/Headers-class.html) are one of the [RequestOptions](../api/http/index/RequestOptions-class.html).
+    Compose the options object and pass it in as the *third* parameter of the `post` method, as shown above.
+
+:marked
+  ### Body
+
+  Despite the content type being specified as JSON, the POST body must actually be a *string*.
+  Hence, we explicitly encode the JSON hero content before passing it in as the body argument.
+
++ifDocsFor('ts')
+  .l-sub-section
+    :marked
+      We may be able to skip the `JSON.stringify` step in the near future.
+
+:marked
+  ### JSON results
+
+  As with `getHeroes()`, we [extract the data](#extract-data) from the response using the
+  `!{_priv}extractData()` helper.
+
+block hero-list-comp-add-hero
+  :marked
+    Back in the `HeroListComponent`, we see that *its* `addHero()` method subscribes to the observable returned by the *service's* `addHero()` method.
+    When the data, arrive it pushes the new hero object into its `heroes` array for presentation to the user.
++makeExample('server-communication/ts/app/toh/hero-list.component.ts', 'addHero', 'app/toh/hero-list.component.ts (addHero)')(format=".")
+
++ifDocsFor('ts')
+  h2#promises Fall back to Promises
+  :marked
+    Although the Angular `http` client API returns an `Observable<Response>` we can turn it into a 
+    [Promise<Response>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) if we prefer.
+    It's easy to do and a promise-based version looks much like the observable-based version in simple cases.
+  .l-sub-section
+    :marked
+      While promises may be more familiar, observables have many advantages. 
+      Don't rush to promises until you give observables a chance.
+  :marked
+    Let's rewrite the `HeroService` using promises , highlighting just the parts that are different.
+  +makeTabs(
+    'server-communication/ts/app/toh/hero.service.promise.ts,server-communication/ts/app/toh/hero.service.ts', 
+    'methods, methods', 
+    'app/toh/hero.service.promise.ts (promise-based), app/toh/hero.service.ts (observable-based)')
+  :marked
+    Converting from an observable to a promise is as simple as calling `toPromise(success, fail)`.
+
+    We move the observable's `map` callback to the first *success* parameter and its `catch` callback to the second *fail* parameter
+    and we're done!
+    Or we can follow the promise `then.catch` pattern as we do in the second `addHero` example.
+
+    Our `errorHandler` forwards an error message as a failed promise instead of a failed Observable.
+
+    The diagnostic *log to console* is just one more `then` in the promise chain.
+
+    We have to adjust the calling component to expect a `Promise` instead of an `Observable`.
+
+  +makeTabs(
+    'server-communication/ts/app/toh/hero-list.component.promise.ts, server-communication/ts/app/toh/hero-list.component.ts', 
+    'methods, methods', 
+    'app/toh/hero-list.component.promise.ts (promise-based), app/toh/hero-list.component.ts (observable-based)')
+  :marked
+    The only obvious difference is that we call `then` on the returned promise instead of `subscribe`.
+    We give both methods the same functional arguments. 
+  .l-sub-section
+    :marked
+      The less obvious but critical difference is that these two methods return very different results!
+
+      The promise-based `then` returns another promise. We can keep chaining more `then` and `catch` calls, getting a new promise each time.
+
+      The `subscribe` method returns a `Subscription`. A `Subscription` is not another `Observable`. 
+      It's the end of the line for observables. We can't call `map` on it or call `subscribe` again.
+      The `Subscription` object has a different purpose, signified by its primary method, `unsubscribe`.
+
+      Learn more about observables to understand the implications and consequences of subscriptions.
+
+h2#cors Cross-origin requests: Wikipedia example
+:marked
+  We just learned how to make `XMLHttpRequests` using the !{_Angular_Http} service. 
+  This is the most common approach for server communication. 
+  It doesn't work in all scenarios.
+
+  For security reasons, web browsers block `XHR` calls to a remote server whose origin is different from the origin of the web page.
+  The *origin* is the combination of URI scheme, hostname and port number. 
+  This is called the [Same-origin Policy](https://en.wikipedia.org/wiki/Same-origin_policy).
+
+.l-sub-section
+  :marked
+    Modern browsers do allow `XHR` requests to servers from a different origin if the server supports the 
+    [CORS](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing) protocol.
+    If the server requires user credentials, we'll enable them in the [request headers](#headers).
+
+:marked
+  Some servers do not support CORS but do support an older, read-only alternative called [JSONP](https://en.wikipedia.org/wiki/JSONP).
+  Wikipedia is one such server.
+.l-sub-section
+  :marked
+    This [StackOverflow answer](http://stackoverflow.com/questions/2067472/what-is-jsonp-all-about/2067584#2067584) covers many details of JSONP.
+:marked
+  ### Search wikipedia
+  
+  Let's build a simple search that shows suggestions from wikipedia as we type in a text box.
+
+figure.image-display
+  img(src='/resources/images/devguide/server-communication/wiki-1.gif' alt="Wikipedia search app (v.1)" width="250")
+
+block wikipedia-jsonp+
+  :marked
+    Wikipedia offers a modern `CORS` API and a legacy `JSONP` search API. Let's use the latter for this example.
+    The Angular `Jsonp` service both extends the `!{_Http}` service for JSONP and restricts us to `GET` requests. 
+    All other HTTP methods throw an error because JSONP is a read-only facility. 
+
+    As always, we wrap our interaction with an Angular data access client service inside a dedicated service, here called `WikipediaService`.
+
+  +makeExample('server-communication/ts/app/wiki/wikipedia.service.ts',null,'app/wiki/wikipedia.service.ts')
+  :marked
+    The constructor expects Angular to inject its `jsonp` service. 
+    We register that service with `JSONP_PROVIDERS` in the  [component below](#wikicomponent) that calls our `WikipediaService`.
+
+  <a id="query-parameters"></a>
+  :marked
+    ### Search parameters
+    The [Wikipedia 'opensearch' API](https://www.mediawiki.org/wiki/API:Opensearch)
+    expects four parameters (key/value pairs) to arrive in the request URL's query string.
+    The keys are `search`, `action`, `format`, and `callback`.
+    The value of the `search` key is the user-supplied search term to find in Wikipedia.
+    The other three are the fixed values "opensearch", "json", and "JSONP_CALLBACK" respectively.
+  .l-sub-section
+    :marked
+      The `JSONP` technique requires that we pass a callback function name to the server in the query string: `callback=JSONP_CALLBACK`.
+      The server uses that name to build a JavaScript wrapper function in its response which Angular ultimately calls to extract the data.
+      All of this happens under the hood.
+  :marked
+    If we're looking for articles with the word "Angular", we could construct the query string by hand and call `jsonp` like this:
+  +makeExample('server-communication/ts/app/wiki/wikipedia.service.1.ts','query-string')(format='.')
+  :marked
+    In more parameterized examples we might prefer to build the query string with the Angular `URLSearchParams` helper as shown here:
+  +makeExample('server-communication/ts/app/wiki/wikipedia.service.ts','search-parameters','app/wiki/wikipedia.service.ts (search parameters)')(format=".")
+  :marked
+    This time we call `jsonp` with *two* arguments: the `wikiUrl` and an options object whose `search` property is the `params` object.
+  +makeExample('server-communication/ts/app/wiki/wikipedia.service.ts','call-jsonp','app/wiki/wikipedia.service.ts (call jsonp)')(format=".")
+  :marked
+    `Jsonp` flattens the `params` object into the same query string we saw earlier before putting the request on the wire.
+
+  <a id="wikicomponent"></a>
+  :marked
+    ### The WikiComponent
+
+    Now that we have a service that can query the Wikipedia API, 
+    we turn to the component that takes user input and displays search results.
+
+  +makeExample('server-communication/ts/app/wiki/wiki.component.ts', null, 'app/wiki/wiki.component.ts')
+  :marked
+    The `providers` array in the component metadata specifies the Angular `JSONP_PROVIDERS` collection that supports the `Jsonp` service.
+    We register that collection at the component level to make `Jsonp` injectable in the `WikipediaService`.
+
+    The component presents an `<input>` element *search box* to gather search terms from the user. 
+    and calls a `search(term)` method after each `keyup` event.
+
+    The `search(term)` method delegates to our `WikipediaService` which returns an observable array of string results (`Observable<string[]>`). 
+    Instead of subscribing to the observable inside the component as we did in the `HeroListComponent`, 
+    we forward the observable result to the template (via `items`) where the [async pipe](pipes.html#async-pipe)
+    in the `ngFor` handles the subscription.
+  .l-sub-section
+    :marked
+      We often use the [async pipe](pipes.html#async-pipe) in read-only components where the component has no need to interact with the data.
+      We couldn't use the pipe in the `HeroListComponent` because the "add hero" feature pushes newly created heroes into the list.
+
+  :marked
+    ## Our wasteful app
+
+    Our wikipedia search makes too many calls to the server. 
+    It is inefficient and potentially expensive on mobile devices with limited data plans.
+
+    ### 1. Wait for the user to stop typing
+    At the moment we call the server after every key stroke.
+    The app should only make requests when the user *stops typing* .
+    Here's how it *should* work &mdash; and *will* work  &mdash;  when we're done refactoring:
+  figure.image-display
+    img(src='/resources/images/devguide/server-communication/wiki-2.gif' alt="Wikipedia search app (v.2)" width="250")
+  :marked
+    ### 2. Search when the search term changes
+
+    Suppose the user enters the word *angular* in the search box and pauses for a while. 
+    The application issues a search request for *Angular*.
+
+    Then the user backspaces over the last three letters, *lar*, and immediately re-types *lar* before pausing once more.
+    The search term is still "angular". The app shouldn't make another request.
+
+    ### 3. Cope with out-of-order responses
+
+    The user enters *angular*, pauses, clears the search box, and enters *http*. 
+    The application issues two search requests, one for *angular* and one for *http*. 
+
+    Which response will arrive first? We can't be sure. 
+    A load balancer could dispatch the requests to two different servers with different response times.
+    The results from the first *angular* request might arrive after the later *http* results.
+    The user will be confused if we display the *angular* results to the *http* query.
+
+    When there are multiple requests in-flight, the app should present the responses
+    in the original request order. That won't happen if *angular* results arrive last.
+
+    <a id="more-observables"></a>
+    ## More fun with Observables
+    We can address these problems and improve our app with the help of some nifty observable operators. 
+
+    We could make our changes to the `WikipediaService`. 
+    But we sense that our concerns are driven by the user experience so we update the component class instead.
+
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', null, 'app/wiki/wiki-smart.component.ts')
+  :marked
+    We made no changes to the template or metadata, confining them all to the component class.
+    Let's review those changes.
+
+    ### Create a stream of search terms
+
+    We're binding to the search box `keyup` event and calling the component's `search` method after each keystroke.
+
+    We turn these events into an observable stream of search terms using a `Subject` 
+    which we import from the RxJS observable library:
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')
+  :marked
+    Each search term is a string, so we create a new `Subject` of type `string` called `searchTermStream`.
+    After every keystroke, the `search` method adds the search box value to that stream
+    via the subject's `next` method.
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
+  :marked
+    ### Listen for search terms
+
+    Earlier, we passed each search term directly to the service and bound the template to the service results.
+    Now we listen to the *stream of terms*, manipulating the stream before it reaches the `WikipediaService`.
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-operators')(format='.')
+  :marked
+    We wait for the user to stop typing for at least 300 milliseconds 
+    ([debounceTime](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
+    Only changed search values make it through to the service 
+    ([distinctUntilChanged](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
+
+    The `WikipediaService` returns a separate observable of string arrays (`Observable<string[]>`) for each request.
+    We could have multiple requests *in flight*, all awaiting the server's reply,
+    which means multiple *observables-of-strings* could arrive at any moment in any order.
+
+    The [switchMap](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
+    (formerly known as `flatMapLatest`) returns a new observable that combines these `WikipediaService` observables, 
+    re-arranges them in their original request order,
+    and delivers to subscribers only the most recent search results. 
+
+    The displayed list of search results stays in sync with the user's sequence of search terms.
+  .l-sub-section
+    :marked
+      We added the `debounceTime`, `distinctUntilChanged`, and `switchMap` operators to the RxJS `Observable` class
+      in `rxjs-operators` as [described above](#rxjs)
+
+a#in-mem-web-api
+.l-main-section
+:marked
+  ## Appendix: Tour of Heroes in-memory server
+
+  If we only cared to retrieve data, we could tell Angular to get the heroes from a `heroes.json` file like this one:
++makeJson('server-communication/ts/app/heroes.json', null, 'app/heroes.json')(format=".")
+.l-sub-section
+  :marked
+    We wrap the heroes array in an object with a `data` property for the same reason that a data server does:
+    to mitigate the [security risk](http://stackoverflow.com/questions/3503102/what-are-top-level-json-arrays-and-why-are-they-a-security-risk)
+    posed by top-level JSON arrays. 
+:marked
+  We'd set the endpoint to the JSON file like this:
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint-json')(format=".")
+
+- var _a_ca_class_with = _docsFor === 'ts' ? 'a custom application class with' : ''
+:marked
+  The *get heroes* scenario would work.
+  But we want to *save* data too. We can't save changes to a JSON file. We need a web API server.
+  We didn't want the hassle of setting up and maintaining a real server for this chapter.
+  So we turned to an *in-memory web API simulator* instead.
+
+.l-sub-section
+  :marked
+    The in-memory web api is not part of the Angular core. 
+    It's an optional service in its own `angular2-in-memory-web-api` library
+    that we installed with npm (see `package.json`) and 
+    registered for module loading by SystemJS (see `systemjs.config.js`)
+
+:marked
+  The in-memory web API gets its data from !{_a_ca_class_with} a `createDb()`
+  method that returns a map whose keys are collection names and whose values 
+  are !{_array}s of objects in those collections.
+  
+  Here's the class we created for this sample based on the JSON data:
++makeExample('server-communication/ts/app/hero-data.ts', null, 'app/hero-data.ts')(format=".")
+:marked
+  Ensure that the `HeroService` endpoint refers to the web API:
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'endpoint')(format=".")
+:marked
+  Finally, we need to redirect client HTTP requests to the in-memory web API.
+block redirect-to-web-api
+  :marked
+    This redirection is easy to configure because Angular's `http` service delegates the client/server communication tasks
+    to a helper service called the `XHRBackend`. 
+
+    To enable our server simulation, we replace the default `XHRBackend` service with 
+    the in-memory web API service using standard Angular provider registration techniques. 
+    We initialize the in-memory web API with *seed data* from the mock hero dataset at the same time.
+:marked
+  Here is the revised (and final) version of <span ngio-ex>app/main.ts></span> demonstrating these steps.
+
++makeExcerpt('app/main.ts', 'final')
+
+:marked
+  See the full source code in the <live-example></live-example>.
