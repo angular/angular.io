@@ -54,17 +54,15 @@ describe('User Input Tests', function () {
     });
   });
 
-  it('should be able to filter key events', function () {
+  it('should be able to filter key events', async () => {
     let mainEle = element(by.css('key-up3'));
     let inputEle = mainEle.element(by.css('input'));
     let outputTextEle = mainEle.element(by.css('p'));
     expect(outputTextEle.getText()).toEqual('');
-    return sendKeys(inputEle, 'abc').then(function() {
-      expect(outputTextEle.getText()).toEqual('', 'should be blank - have not sent enter yet');
-      return sendKeys(inputEle, protractor.Key.ENTER);
-    }).then(function() {
-      expect(outputTextEle.getText()).toEqual('abc');
-    });
+    await sendKeys(inputEle, 'abc');
+    expect(outputTextEle.getText()).toEqual('', 'should be blank - have not sent enter yet');
+    await sendKeys(inputEle, protractor.Key.ENTER);
+    expect(outputTextEle.getText()).toEqual('abc');
   });
 
   it('should be able to filter blur events', function () {
