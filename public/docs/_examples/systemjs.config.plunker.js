@@ -6,7 +6,8 @@
 (function(global) {
 
   var ngVer = '@2.0.0-rc.5'; // lock in the angular package version; do not let it float to current!
-  var routerVer = '@3.0.0-beta.2'; // lock router version
+  var routerVer = '@3.0.0-rc.1'; // lock router version
+  var formsVer = '@0.3.0'; // lock forms version
   var routerDeprecatedVer = '@2.0.0-rc.2'; // Locked a this version
 
   //map tells the System loader where to look for things
@@ -14,6 +15,7 @@
     'app':                        'app',
 
     '@angular':                   'https://npmcdn.com/@angular', // sufficient if we didn't pin the version
+    '@angular/forms':             'https://npmcdn.com/@angular/forms' + formsVer,
     '@angular/router':            'https://npmcdn.com/@angular/router' + routerVer,
     '@angular/router-deprecated': 'https://npmcdn.com/@angular/router-deprecated' + routerDeprecatedVer,
     'angular2-in-memory-web-api': 'https://npmcdn.com/angular2-in-memory-web-api', // get latest
