@@ -1,8 +1,8 @@
 // #docregion
 (function(app) {
   document.addEventListener('DOMContentLoaded', function() {
-    // #docregion import
-    ng.platformBrowserDynamic.bootstrap(app.AppComponent);
-    // #enddocregion import
+    ng.platformBrowserDynamic
+      .platformBrowserDynamic()
+      .bootstrapModule(app.AppModule);
   });
 })(window.app || (window.app = {}));

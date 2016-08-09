@@ -37,9 +37,10 @@ figure.image-display
   - [Step 1](#create-and-configure): Create the app’s project folder and
     define package dependencies and special project setup
   - [Step 2](#root-component): Create the app’s Angular root component
-  - [Step 3](#main): Add <span ngio-ex>main.ts</span>, identifying the root component to Angular
-  - [Step 4](#index): Add `index.html`, the web page that hosts the application
-  - [Step 5](#build-and-run): Build and run the app
+  - [Step 3](#ngmodule): Create an Angular Module
+  - [Step 4](#main): Add <span ngio-ex>main.ts</span>, identifying the root component to Angular
+  - [Step 5](#index): Add `index.html`, the web page that hosts the application
+  - [Step 6](#build-and-run): Build and run the app
   - [Make some changes to the app](#make-some-changes)
   - [Wrap up](#wrap-up)
 
@@ -112,7 +113,7 @@ block package-and-config-files
     li.
       #[b package.json] lists packages the QuickStart app depends on and
       defines some useful scripts.
-      See #[a(href="guide/npm-packages.html") Npm Package Configuration] for details.
+      See #[a(href="guide/npm-packages") Npm Package Configuration] for details.
     li.
       #[b tsconfig.json] is the TypeScript compiler configuration file.
       See #[a(href="#{_tsconfigUri}") TypeScript Configuration] for details.
@@ -177,7 +178,7 @@ block install-packages
       package manager to install the libraries and packages their apps require.
       The Angular team recommends the starter-set of packages specified in the
       `dependencies` and `devDependencies` sections.
-      See the [npm packages](guide/npm-packages.html) chapter for details.
+      See the [npm packages](guide/npm-packages) chapter for details.
 
       #### Helpful scripts
       We've included a number of npm scripts in our suggested `package.json` to handle common development tasks:
@@ -301,14 +302,47 @@ p.
   +ifDocsFor('ts')
     :marked
       We **export** `AppComponent` so that we can **import** it elsewhere in our application,
-      as we'll see when we create `main.ts`.
+      as we'll see when we create `app.module.ts`.
 
 .l-main-section
-h2#main Step 3: Add #[code #[+adjExPath('main.ts')]]
+h2#ngmodule Step 3: Our own #[code #[+adjExPath('app.module.ts')]]
+
+block create-ngmodule
+  :marked
+    We compose Angular apps into closely related blocks of functionality with [Angular Modules](guide/ngmodules.html).
+    Every app requires at least one module, the _root module_, that we call `AppModule` by convention.
+  p.  
+    Create the file #[code #[+adjExPath('app/app.module.ts')]] with the following content:
+
++makeExample('app/app.module.ts')(format='.')
+
+.l-verbose-section
+  :marked
+    We're passing metadata to the `NgModule` decorator function:
+
+    1. `imports` - the _other_ modules that export material we need in _this_ module. 
+    Almost every application's _root module_ should import the `BrowserModule`.
+
+    1. `declarations` - components and directives that belong to _this_ module.
+
+    1. `bootstrap` - identifies the _root component_ that Angular should _bootstrap_ when it starts the application. 
+
+    We import our lone `app.component.ts` and add it to both the `declarations` and `bootstrap` arrays.
+
+    ### Angular Modules import other modules
+    Notice that we also add the `BrowserModule` from `@angular/platform-browser` to the `imports` array. 
+    This is the Angular Module that contains all the needed Angular bits and pieces to run our app in the browser.
+
+    Angular itself is split into separate Angular Modules so we only need to import the ones we really use.
+    
+    One of the most common ones is `FormsModule`, and soon we'll also see `RouterModule` and `HttpModule`. 
+
+.l-main-section
+h2#main Step 4: Add #[code #[+adjExPath('main.ts')]]
 
 block create-main
   p.
-    Now we need something to tell Angular to load the root component.
+    Now we need something to tell Angular to load the app module.
     Create the file #[code #[+adjExPath('app/main.ts')]] with the following content:
 
 +makeExample('app/main.ts')
@@ -317,41 +351,40 @@ block create-main
   :marked
     We import the two things we need to launch the application:
 
-    1. Angular's browser `bootstrap` function
-    1. The application root component, `AppComponent`.
+    1. Angular's browser `platformBrowserDynamic` function
+    1. The application module, `AppModule`.
 
-    Then we call `bootstrap` with `AppComponent`.
+    Then we call `platformBrowserDynamic().bootstrapModule` with `AppComponent`.
 
     ### Bootstrapping is platform-specific
-    Notice that we import the `bootstrap` function from `#{_angular_browser_uri}`,
+    Notice that we import the `platformBrowserDynamic` function from `#{_angular_browser_uri}`,
     not `#{_angular_core_uri}`.
     Bootstrapping isn't core because there isn't a single way to bootstrap the app.
     True, most applications that run in a browser call the bootstrap function from
     this library.
 
-    But it is possible to load a component in a different environment.
+    But it is possible to load a module in a different environment.
     We might load it on a mobile device with [Apache Cordova](https://cordova.apache.org/) or [NativeScript](https://www.nativescript.org/).
     We might wish to render the first page of our application on the server
     to improve launch performance or facilitate
     [SEO](http://www.google.com/webmasters/docs/search-engine-optimization-starter-guide.pdf).
     These targets require a different kind of bootstrap function that we'd import from a different library.
 
-    ### Why create separate *<span ngio-ex>main.ts</span>* and app component files?
+    ### Why create separate *<span ngio-ex>main.ts</span>*, app module and app component files?
 
-    Both <span ngio-ex>main.ts</span> and the app component files are tiny.
+    Both <span ngio-ex>main.ts</span>, app module and the app component files are tiny.
     This is just a QuickStart.
-    We could have merged these two files into one
-    and spared ourselves some complexity.
+    We could have merged these three files into one and spared ourselves some complexity.
 
     We'd rather demonstrate the proper way to structure an Angular application.
-    App bootstrapping is a separate concern from presenting a view.
+    App bootstrapping is a separate concern from creating a module or presenting a view.
     Mixing concerns creates difficulties down the road.
-    We might launch the `AppComponent` in multiple environments with different bootstrappers.
+    We might launch the `AppModule` in multiple environments with different bootstrappers.
     Testing the component is much easier if it doesn't also try to run the entire application.
     Let's make the small extra effort to do it *the right way*.
 
 .l-main-section
-h2#index Step 4: Add #[code index.html]
+h2#index Step 5: Add #[code index.html]
 :marked
   In the *#{_indexHtmlDir}* folder
   create an `index.html` file and paste the following lines into it:
@@ -465,8 +498,9 @@ h2#index Step 4: Add #[code index.html]
 
   a(id="my-app")
   :marked
-    When Angular calls the `bootstrap` function in <span ngio-ex>main.ts</span>, it reads the `AppComponent`
-    metadata, finds the `my-app` selector, locates an element tag named `my-app`,
+    When Angular calls the `bootstrapModule` function in <span ngio-ex>main.ts</span>, 
+    it reads the `AppModule` metadata, sees that `AppComponent` is the bootstrap component, 
+    finds the `my-app` selector, locates an element tag named `my-app`,
     and renders our application's view between those tags.
 
 :marked
@@ -480,7 +514,7 @@ h2#index Step 4: Add #[code index.html]
 +makeExcerpt('styles.1.css')
 
 .l-main-section
-h2#build-and-run Step 5: Build and run the app!
+h2#build-and-run Step 6: Build and run the app!
 block run-app
   :marked
     Open a terminal window and enter this command:
@@ -528,6 +562,7 @@ block project-file-structure
       .file app
       .children
         .file app.component.ts
+        .file app.module.ts
         .file main.ts
       .file node_modules ...
       .file typings ...
@@ -543,6 +578,7 @@ block project-file-structure
 block project-files
   +makeTabs(`
       quickstart/ts/app/app.component.ts,
+      quickstart/ts/app/app.module.ts,
       quickstart/ts/app/main.ts,
       quickstart/ts/index.html,
       quickstart/ts/package.1.json,
@@ -550,8 +586,10 @@ block project-files
       quickstart/ts/typings.1.json,
       quickstart/ts/styles.1.css,
       quickstart/ts/systemjs.config.1.js`
-    ,null,
+    ,
+    ',,,,,,,,',
     `app/app.component.ts,
+    app/app.module.ts,
     app/main.ts,
     index.html,
     package.json,

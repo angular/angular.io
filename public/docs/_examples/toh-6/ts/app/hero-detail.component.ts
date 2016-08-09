@@ -1,9 +1,9 @@
 // #docplaster
 // #docregion, variables-imports
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 // #enddocregion variables-imports
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 import { Hero }        from './hero';
 import { HeroService } from './hero.service';
@@ -14,11 +14,10 @@ import { HeroService } from './hero.service';
   styleUrls: ['app/hero-detail.component.css']
 })
 // #docregion variables-imports
-export class HeroDetailComponent implements OnInit, OnDestroy {
+export class HeroDetailComponent implements OnInit {
   @Input() hero: Hero;
   @Output() close = new EventEmitter();
   error: any;
-  sub: any;
   navigated = false; // true if navigated here
   // #enddocregion variables-imports
 
@@ -29,7 +28,7 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.sub = this.route.params.subscribe(params => {
+    this.route.params.forEach((params: Params) => {
       if (params['id'] !== undefined) {
         let id = +params['id'];
         this.navigated = true;
@@ -42,10 +41,6 @@ export class HeroDetailComponent implements OnInit, OnDestroy {
     });
   }
   // #enddocregion ngOnInit
-
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
 
   // #docregion save
   save() {

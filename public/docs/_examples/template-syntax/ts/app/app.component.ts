@@ -2,11 +2,9 @@
 // #docplaster
 
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { NgForm } from '@angular/common';
+import { NgForm } from '@angular/forms';
 
 import { Hero } from './hero';
-import { HeroDetailComponent, BigHeroDetailComponent } from './hero-detail.component';
-import { MyClickDirective, MyClickDirective2 } from './my-click.directive';
 
 // Alerter fn: monkey patch during test
 export function alerter(msg?: string) {
@@ -20,11 +18,7 @@ export enum Color {Red, Green, Blue};
  */
 @Component({
   selector: 'my-app',
-  templateUrl: 'app/app.component.html',
-  directives: [
-    HeroDetailComponent, BigHeroDetailComponent,
-    MyClickDirective, MyClickDirective2
-  ]
+  templateUrl: 'app/app.component.html'
 })
 export class AppComponent implements AfterViewInit, OnInit {
 

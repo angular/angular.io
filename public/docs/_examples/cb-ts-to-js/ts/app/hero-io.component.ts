@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  NgModule
+} from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 
 // #docregion
 @Component({
@@ -12,7 +19,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     </button>
   `
 })
-export class ConfirmComponent {
+class ConfirmComponent {
   @Input() okMsg: string;
   @Input('cancelMsg') notOkMsg: string;
   @Output() ok =
@@ -40,10 +47,9 @@ export class ConfirmComponent {
     </my-confirm>
     <span *ngIf="okClicked">OK clicked</span>
     <span *ngIf="cancelClicked">Cancel clicked</span>
-  `,
-  directives: [ConfirmComponent]
+  `
 })
-export class AppComponent {
+class AppComponent {
   okClicked: boolean;
   cancelClicked: boolean;
 
@@ -54,3 +60,14 @@ export class AppComponent {
     this.cancelClicked = true;
   }
 }
+
+
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [
+    AppComponent,
+    ConfirmComponent
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class HeroesIOModule { }

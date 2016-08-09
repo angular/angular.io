@@ -1,8 +1,6 @@
-import { bootstrap }          from '@angular/platform-browser-dynamic';
-import { AppComponent }       from './app.component';
-import { ProvidersComponent } from './providers.component';
+import { browserDynamicPlatform } from '@angular/platform-browser-dynamic';
+import { AppModule }           from './app.module';
 
 // #docregion bootstrap
-bootstrap(AppComponent);
+browserDynamicPlatform().bootstrapModule(AppModule);
 // #enddocregion bootstrap
-bootstrap(ProvidersComponent);

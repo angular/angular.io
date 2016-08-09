@@ -1,6 +1,5 @@
 // #docregion
-import { bootstrap }  from '@angular/platform-browser-dynamic';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule } from './app.module';
 
-import { HelloWorldComponent } from './hello_world';
-
-bootstrap(HelloWorldComponent);
+platformBrowserDynamic().bootstrapModule(AppModule);

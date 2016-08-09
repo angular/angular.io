@@ -253,37 +253,37 @@ block ctor-syntax
   We do have to configure the injector by registering the **providers**
   that create the services our application requires.
   We'll explain what [providers](#providers) are later in this chapter.
-  Before we do, let's see an example of provider registration during bootstrapping:
 
-+makeExample('dependency-injection/ts/app/main.1.ts', 'bootstrap-discouraged')(format='.')
+  We can either register a provider within an [NgModule](ngmodule.html) or in application components
 
-:marked
-  The injector now knows about our `HeroService`.
-  An instance of our `HeroService` will be available for injection across our entire application.
+  ### Registering providers in an NgModule
+  Here's our AppModule where we register a `Logger`, an `UserService`, and an `APP_CONFIG` provider.
 
-  Of course we can't help wondering about that comment telling us not to do it this way.
-  It *will* work. It's just not a best practice.
-  The bootstrap provider option is intended for configuring and overriding Angular's own
-  preregistered services, such as its routing support.
-
-  The preferred approach is to register application providers in application components.
+- var stylePattern = { otl: /(providers)/ };
++makeExample('dependency-injection/ts/app/app.module.ts', 'ngmodule','app/app.module.ts', stylePattern)(format='.')
+  <!--The preferred approach is to register application providers in application components.
   Because the `HeroService` is used within the *Heroes* feature area &mdash;
-  and nowhere else &mdash; the ideal place to register it is in the top-level `HeroesComponent`.
+  and nowhere else &mdash; the ideal place to register it is in the top-level `HeroesComponent`.-->
 
 :marked
   ### Registering providers in a component
   Here's a revised `HeroesComponent` that registers the `HeroService`.
 
-- var stylePattern = { otl: /(providers:.*),/ };
 +makeExample('dependency-injection/ts/app/heroes/heroes.component.1.ts', 'full','app/heroes/heroes.component.ts', stylePattern)(format='.')
 
 :marked
-  Look closely at the `providers` part of the `@Component` metadata.
-  An instance of the `HeroService` is now available for injection in this `HeroesComponent`
-  and all of its child components.
+  ### When to use the NgModule and when an application component?
+  On the one hand, a provider in an NgModule is registered in the root injector. That means that every provider
+  registered within an NgModule will be accessible in the entire application.
 
-  The `HeroesComponent` itself doesn't happen to need the `HeroService`.
-  But its child `HeroListComponent` does, so we head there next.
+  On the other hand, a provider registered in an application component is available only on that component and all its children.
+
+  We want the `APP_CONFIG` service to be available all across the application, but a `HeroService` is only used within the *Heroes*
+  feature area &mdash; and nowhere else. &mdash;
+
+.l-sub-section
+  :marked
+    Read also **Should I add providers to the root AppModule or the root AppComponent?** at the [NgModule](ngmodule.html#q-root-component-or-module) chapter.
 
 :marked
   ### Preparing the HeroListComponent for injection
@@ -470,9 +470,9 @@ block real-logger
 :marked
   We're likely to need the same logger service everywhere in our application,
   so we put it in the project's `#{_appDir}` folder, and
-  we register it in the `providers` #{_array} of the metadata for our application root component, `AppComponent`.
+  we register it in the `providers` #{_array} of the metadata for our application module, `AppModule`.
 
-+makeExcerpt('app/providers.component.ts','providers-logger','app/app.component.ts (excerpt)')
++makeExcerpt('app/providers.component.ts','providers-logger','app/app.module.ts (excerpt)')
 
 :marked
   If we forget to register the logger, Angular throws an exception when it first looks for the logger:
@@ -497,7 +497,7 @@ code-example(format="nocode").
 
   We must register a service *provider* with the injector, or it won't know how to create the service.
 
-  Earlier we registered the `Logger` service in the `providers` #{_array} of the metadata for the `AppComponent` like this:
+  Earlier we registered the `Logger` service in the `providers` #{_array} of the metadata for the `AppModule` like this:
 
 +makeExample('dependency-injection/ts/app/providers.component.ts','providers-logger')
 
@@ -801,9 +801,9 @@ block what-should-we-use-as-token
 
 block dart-map-alternative
   :marked
-    Or we can provide and inject the configuration object in our top-level `AppComponent`.
+    Or we can provide and inject the configuration object in an ngModule like `AppModule`.
 
-  +makeExcerpt('app/app.component.ts','providers')
+  +makeExcerpt('app/app.module.ts','ngmodule-providers')
 
 #optional
 :marked

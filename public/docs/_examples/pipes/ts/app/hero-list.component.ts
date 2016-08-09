@@ -1,8 +1,6 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { FetchJsonPipe } from './fetch-json.pipe';
-
 @Component({
   selector: 'hero-list',
   // #docregion template
@@ -16,8 +14,7 @@ import { FetchJsonPipe } from './fetch-json.pipe';
     <p>Heroes as JSON:
     {{'heroes.json' | fetch | json}}
     </p>
-  `,
+  `
   // #enddocregion template
-  pipes: [FetchJsonPipe]
 })
 export class HeroListComponent { }

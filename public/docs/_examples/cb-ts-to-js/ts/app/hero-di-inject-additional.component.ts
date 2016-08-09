@@ -5,8 +5,10 @@ import {
   Inject,
   Optional,
   Query,
-  QueryList
+  QueryList,
+  NgModule
 } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 
 // #docregion
 @Component({
@@ -17,7 +19,7 @@ import {
     <ng-content></ng-content>
   `
 })
-export class TitleComponent {
+class TitleComponent {
   constructor(
     @Inject('titlePrefix')
     @Optional()
@@ -40,9 +42,16 @@ export class TitleComponent {
   selector: 'hero-di-inject-additional',
   template: `<hero-title title="Tour of Heroes">
     <span #okMsg class="ok-msg"></span>
-  </hero-title>`,
-  directives: [TitleComponent]
+  </hero-title>`
 })
-export class AppComponent {
+class AppComponent { }
 
-}
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [
+    AppComponent,
+    TitleComponent
+  ],
+  bootstrap: [ AppComponent ]
+})
+export class HeroesDIInjectAdditionalModule { }

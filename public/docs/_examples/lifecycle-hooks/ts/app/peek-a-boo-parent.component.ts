@@ -1,7 +1,6 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { PeekABooComponent } from './peek-a-boo.component';
 import { LoggerService } from './logger.service';
 
 @Component({
@@ -23,8 +22,7 @@ import { LoggerService } from './logger.service';
   </div>
   `,
   styles: ['.parent {background: moccasin}'],
-  directives: [PeekABooComponent],
-  providers: [LoggerService]
+  providers:  [ LoggerService ]
 })
 export class PeekABooParentComponent {
 

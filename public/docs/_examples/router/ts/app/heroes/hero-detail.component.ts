@@ -3,7 +3,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute }       from '@angular/router';
 
-import { Hero, HeroService } from './hero.service';
+import { Hero, HeroService }  from './hero.service';
+import { Subscription }       from 'rxjs/Subscription';
 
 @Component({
   template: `
@@ -20,13 +21,13 @@ import { Hero, HeroService } from './hero.service';
       <button (click)="gotoHeroes()">Back</button>
     </p>
   </div>
-  `,
+  `
 })
 export class HeroDetailComponent implements OnInit, OnDestroy  {
   hero: Hero;
 
   // #docregion ngOnInit
-  private sub: any;
+  private sub: Subscription;
 
   // #enddocregion ngOnInit
   // #docregion ctor

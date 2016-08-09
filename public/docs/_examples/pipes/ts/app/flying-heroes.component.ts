@@ -2,15 +2,12 @@
 // #docregion
 import { Component }              from '@angular/core';
 
-import { FlyingHeroesPipe,
-        FlyingHeroesImpurePipe }  from './flying-heroes.pipe';
 import { HEROES }                 from './heroes';
 
 @Component({
   selector: 'flying-heroes',
   templateUrl: 'app/flying-heroes.component.html',
-  styles: ['#flyers, #all {font-style: italic}'],
-  pipes: [FlyingHeroesPipe]
+  styles: ['#flyers, #all {font-style: italic}']
 })
 // #docregion v1
 export class FlyingHeroesComponent {
@@ -53,11 +50,10 @@ export class FlyingHeroesComponent {
 // #docregion impure-component
 @Component({
   selector: 'flying-heroes-impure',
-  templateUrl: 'app/flying-heroes.component.html',
+  templateUrl: 'app/flying-heroes-impure.component.html',
 // #enddocregion impure-component
   styles: ['.flyers, .all {font-style: italic}'],
 // #docregion impure-component
-  pipes: [FlyingHeroesImpurePipe]
 })
 export class FlyingHeroesImpureComponent extends FlyingHeroesComponent {
   title = 'Flying Heroes (impure pipe)';

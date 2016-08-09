@@ -80,7 +80,7 @@ include ../_util-fns
 .l-main-section
 :marked
   ## External module configuration
-  We can register _certain_ module providers when bootstrapping rather than in the root application component. 
+  We can register _certain_ module providers in the `NgModule` rather than in the root application component. 
   
   We'd do this when we expect to select or configure external modules that support our application
   but (a) aren't conceptually part of the application and (b) that we could change later without
@@ -95,10 +95,10 @@ include ../_util-fns
   We'll switch to the real backend in production. 
   The application shouldn't know or care one way or the other.
   
-  See both examples in the following `main.ts`
-  where we list their service providers in an array in the second parameter of the `bootstrap` method.
+  See both examples in the following `app.module.ts`
+  where we list their service providers in the `providers` array of the `NgModule` (AppModule).
   
-+makeExample('cb-dependency-injection/ts/app/main.ts','bootstrap','app/main.ts')(format='.') 
++makeExample('cb-dependency-injection/ts/app/app.module.ts','bootstrap','app/app.module.ts')(format='.') 
 
 a(id="injectable")
 a(id="nested-dependencies")
@@ -872,33 +872,12 @@ a(id="forwardref")
   
   The *Parent Finder* sample is full of circular class references that are impossible to break.
   
-  In the [*Alex/Cathy* example](#known-parent) above:
-  
-  * the `AlexComponent` lists the `CathyComponent` in its component metadata `directives` array
-  so it can display *Cathy* in its template.
-  
-  * the `CathyComponent` constructor injects the parent `AlexComponent` which means that the `alex` parameter
-  of its constructor has the `AlexComponent` type.
-  
-  *Alex* refers to *Cathy* and *Cathy* refers to *Alex*. We're stuck. We must define one of them first. 
-  
-  We defined *Alex* first and built its `C_DIRECTIVES` array with a forward reference to *Cathy*: 
-+makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','C_DIRECTIVES','parent-finder.component.ts (C_DIRECTIVES)')(format='.')
 :marked
-.l-sub-section
-  :marked
-    Defining *Alex* and *Cathy* in separate files won't help. 
-    *Alex* would have to import *Cathy* and *Cathy* would have to import *Alex*.
-    
-    We *had* to define *Alex* first because, 
-    while we can add `forwardRef(CathyComponent)` to *Alex*'s `directives` array,
-    we can't write `public alex: forwardRef(AlexComponent))` in *Cathy*'s constructor. 
-:marked
-  We face a similar dilemma when a class makes *a reference to itself*
+  We face this dilemma when a class makes *a reference to itself*
   as does the `AlexComponent` in its `providers` array. 
   The `providers` array is a property of the `@Component` decorator function which must
   appear *above* the class definition.
   
-  Again we break the circularity with `forwardRef`:
+  We break the circularity with `forwardRef`:
 +makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','alex-providers','parent-finder.component.ts (AlexComponent providers)')(format='.')
 :marked

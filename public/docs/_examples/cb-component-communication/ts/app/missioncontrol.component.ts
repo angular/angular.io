@@ -1,7 +1,6 @@
 // #docregion
 import { Component }          from '@angular/core';
 
-import { AstronautComponent } from './astronaut.component';
 import { MissionService }     from './mission.service';
 
 @Component({
@@ -17,7 +16,6 @@ import { MissionService }     from './mission.service';
       <li *ngFor="let event of history">{{event}}</li>
     </ul>
   `,
-  directives: [AstronautComponent],
   providers: [MissionService]
 })
 export class MissionControlComponent {

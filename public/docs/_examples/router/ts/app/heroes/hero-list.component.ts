@@ -6,7 +6,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 // #enddocregion import-router
 
-import { Hero, HeroService }   from './hero.service';
+import { Hero, HeroService }  from './hero.service';
+import { Subscription }       from 'rxjs/Subscription';
 
 @Component({
   // #docregion template
@@ -27,7 +28,7 @@ export class HeroListComponent implements OnInit, OnDestroy {
 
   // #docregion ctor
   private selectedId: number;
-  private sub: any;
+  private sub: Subscription;
 
   constructor(
     private service: HeroService,

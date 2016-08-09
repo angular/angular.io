@@ -29,11 +29,12 @@ figure.image-display
     .file app
     .children
       .file app.component.js
+      .file app.module.js
       .file main.js
     .file index.html
     .file styles.css
 :marked
-  Functionally, it's an `index.html`, `styles.css` and two JavaScript files in an `app/` folder.
+  Functionally, it's an `index.html`, `styles.css` and three JavaScript files in an `app/` folder.
   We can handle that!
   
   Of course we won't build  many apps that only run in plunker. 
@@ -41,6 +42,7 @@ figure.image-display
   
   1. Set up our development environment
   1. Write the Angular root component for our app
+  1. Add an Angular Module
   1. Bootstrap it to take control of the main web page
   1. Write the main page (`index.html`)
   1. Add some CSS (`styles.css`)
@@ -124,7 +126,7 @@ code-example(format="").
 '(component schema)')(format=".")
 
 :marked
-  The **`Component`** method takes a configuration object with two
+  The **`Component`** method takes a configuration object with three
   properties. The **`Class`** method is where we implement the component itself,
   giving it properties and methods that bind to the view and whatever
   behavior is appropriate for this part of the UI.
@@ -167,7 +169,7 @@ code-example(format="").
   provided by another module, we get it from the `app` object. 
   When another module needs to refer to `AppComponent`, it gets it from the `app.AppComponent` like this:
     
-+makeExample('quickstart/js/app/main.js', 'import','app/main.js (import)')(format=".")
++makeExample('quickstart/js/app/app.module.js', 'import', 'app/app.module.js (import)')(format=".")
 
 :marked
   Angular is also modular. It is a collection of library modules. 
@@ -210,22 +212,36 @@ code-example(format="").
   
   Now we need something to tell Angular to load this component.
 
+  ### Add an NgModule
+
+  Angular apps are composed of [Angular Modules](guide/ngmodules.html) that 
+  snuggly contain all our components and everything else we need for our app.
+
+  Create the `app/app.module.ts` file with the following content:
+
++makeExample('quickstart/js/app/app.module.js', null, 'app/app.module.js')
+
+.l-sub-section
+  :marked
+    Read more about the `NgModule` configuration in the [appendix below](#ngmodule).
+
+:marked
   ### Bootstrap it!
-  
+
   Add a new file , `main.js`, to the `app/` folder as follows:
 +makeExample('quickstart/js/app/main.js', null, 'app/main.js')(format=".")
 :marked
   We need two things to launch the application:
-  1. Angular's browser `bootstrap` function
-  1. The application root component that we just wrote.
+  1. Angular's `platformBrowserDynamic().bootstrapModule` function
+  1. The application root module that we just wrote.
   
   We have them both in our 'namespaces'. 
-  Then we call `bootstrap`, passing in the **root component type**, `AppComponent`.
+  Then we call `bootstrapModule`, passing in the **root app module**, `AppModule`.
  
 .l-sub-section
   :marked
-    Learn why we need `bootstrap` from `ng.platformBrowserDynamic`
-    and why we create a separate *main.js* file in the [appendix below](#main).
+    Learn why we need `bootstrapModule` from `ng.platformBrowserDynamic`
+    and why we create a separate js files in the [appendix below](#main).
 :marked
   We've asked Angular to launch the app in a browser with our component at the root.
   Where will Angular put it? 
@@ -250,13 +266,14 @@ code-example(format="").
 
   1. We load the JavaScript libraries we need; learn about them [below](#libraries).
 
-  2. We load our JavaScript files, paying attention to their order (`main.js` needs `app.component.js` to be there first).
+  2. We load our JavaScript files, paying attention to their order (`main.js` needs `app.module.js` to be there first, and `app.module.js` needs `app.component.js`).
 
   3. We add the `<my-app>` tag in the `<body>`. **This is where our app lives!**
   
-  When Angular calls the `bootstrap` function in `main.js`, it reads the `AppComponent`
-  metadata, finds the `my-app` selector, locates an element tag named `my-app`,
-  and loads our application between those tags.
+  When Angular calls the `bootstrapModule` function in `main.js`,
+  it reads the `AppModule` metadata, sees that `AppComponent` is the bootstrap component, 
+  finds the `my-app` selector, locates an element tag named `my-app`,
+  and renders our application's view between those tags.
 
 :marked
   ### Add some style
@@ -314,6 +331,7 @@ figure.image-display
     .file app
     .children
       .file app.component.js
+      .file app.module.js
       .file main.js
     .file index.html
     .file package.json
@@ -322,12 +340,18 @@ figure.image-display
   And here are the files:
 +makeTabs(`
     quickstart/js/app/app.component.js,
+    quickstart/js/app/app.module.js,
     quickstart/js/app/main.js,
     quickstart/js/index.html,
     quickstart/js/package.1.json,
     quickstart/js/styles.1.css
   `,null,
-  `app/app.component.js, app/main.js, index.html, package.json, styles.css`)
+  `app/app.component.js,
+  app/app.module.js,
+  app/main.js,
+  index.html,
+  package.json,
+  styles.css`)
 :marked
 
 .l-main-section
@@ -450,11 +474,30 @@ code-example(format="").
   
 .l-main-section
 :marked
+  <a id="ngmodule"></a>
+  ### Appendix: ***NgModule***
+  The `NgModule` decorator is listing:
+
+  1. What other Angular Modules ours uses
+  1. Which components and directives we declare in our components
+  1. The component to bootstrap at the start 
+
+  We import our lone `app.AppComponent` and add it to both `declaration` and `bootstrap` array.
+
+  Notice that we also add `ng.platformBrowser.BrowserModule` to the `imports` array. 
+  This is the Angular Module that contains all the needed Angular bits and pieces to run our app in the browser.
+
+  Angular itself is split into separate Angular Modules so we only need to import the ones we really use.
+  
+  One of the most common ones is `FormsModule`, and soon we'll also see `RouterModule` and `HttpModule`. 
+
+.l-main-section
+:marked
   <a id="main"></a>
   ### Appendix: ***main.js***
 
   #### Bootstrapping is platform-specific
-  We use the `bootstrap` function from `ng.platformBrowserDynamic`,
+  We use the `platformBrowserDynamic().bootstrapModule` function from `ng.platformBrowserDynamic`,
   not `ng.core`. There's a good reason.
   
   We only call "core" those capabilities that are the same across all platform targets.
@@ -469,11 +512,11 @@ code-example(format="").
 
   These targets require a different kind of bootstrap function that we'd import from a different library.
  
-  #### Why do we create a separate ***main.js*** file?
+  #### Why do we create a separate ***main.js***, ***app.module.js*** and ***app.component.js*** files?
   
   The *main.js* file is tiny. This is just a QuickStart.
-  We could have folded its few lines into the `app.component.js` file
-  and spared ourselves some complexity.
+  We could have folded its few lines into the `app.module.js` file, and that one into
+  `app.component.js` and spared ourselves some complexity.
   
   We didn't for what we believe to be good reasons:
   1. Doing it right is easy
@@ -485,7 +528,7 @@ code-example(format="").
   #### It's easy
   Sure it's an extra step and an extra file. How hard is that in the scheme of things?
   
-  We'll see that a separate `main.js` is beneficial for *most* apps 
+  We'll see that a separate `main.js` and `app.module.js` is beneficial for *most* apps 
   even if it isn't critical for the QuickStart.
   Let's develop good habits now while the cost is low.
   
@@ -493,32 +536,33 @@ code-example(format="").
   We should be thinking about testability from the beginning
   even if we know we'll never test the QuickStart. 
   
-  It is difficult to unit test a component when there is a call to `bootstrap` in the same file.
+  It is difficult to unit test a component when there is a call to `bootstrapModule` in the same file.
   As soon as we load the component file to test the component, 
-  the `bootstrap` function tries to load the application in the browser.
+  the `bootstrapModule` function tries to load the application in the browser.
   It throws an error because we're not expecting to run the entire application, 
   just test the component. 
   
-  Relocating the `bootstrap` function to `main.js` eliminates this spurious error
+  Relocating the `bootstrapModule` function to `main.js` eliminates this spurious error
   and leaves us with a clean component module file.
   
   #### Reusability
   We refactor, rename, and relocate files as our application evolves.
-  We can't do any of those things while the file calls `bootstrap`.
+  We can't do any of those things while the file calls `bootstrapModule`.
   we can't move it. 
   We can't reuse the component in another application. 
   We can't pre-render the component on the server for better performance.
   
   #### Separation of concerns
-  A component's responsibility is to present and manage a view.
+  A component's responsibility is to present and manage a view, and a NgModule's
+  reponsibility is to define the application context.
   
-  Launching the application has nothing to do with view management.
+  Launching the application has nothing to do with any of these.
   That's a separate concern. The friction we're encountering in testing and reuse
   stems from this unnecessary mix of responsibilities.
   
   #### Import/Export
   
-  While writing a separate `main.js` file we learned an essential Angular skill:
+  While writing a separate `main.js` and `app.module.js` files we learned an essential Angular skill:
   how to 'export' from one 'module' and 'import' into another via our simple
   namespace abstraction. 
   We'll do a lot of that as we learn more Angular.
