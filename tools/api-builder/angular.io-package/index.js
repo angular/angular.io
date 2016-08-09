@@ -138,7 +138,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   });
 
   computePathsProcessor.pathTemplates.push({
-    docTypes: ['api-list-data'],
+    docTypes: ['api-list-audit'],
     pathTemplate: 'api-list-audit.json',
     outputPathTemplate: '${path}'
   });

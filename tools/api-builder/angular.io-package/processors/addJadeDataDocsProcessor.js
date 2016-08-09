@@ -26,14 +26,25 @@ module.exports = function addJadeDataDocsProcessor() {
     $process: function(docs) {
       var extraDocs = [];
       var modules = [];
+      var data = {};
 
       var appDataDoc = {
         id: 'api-list-data',
         aliases: ['api-list-data'],
         docType: 'api-list-data',
-        data: {}
+        data: data
       };
       extraDocs.push(appDataDoc);
+
+      // create additional doc for auditing
+      var appDataAuditDoc = {
+        id: 'api-list-audit',
+        aliases: ['api-list-audit'],
+        docType: 'api-list-audit',
+        data: data
+      };
+      extraDocs.push(appDataAuditDoc);
+
 
       /*
       * Create Data for Modules
@@ -76,7 +87,7 @@ module.exports = function addJadeDataDocsProcessor() {
               stability = 'deprecated';
               exportDoc.showDeprecatedNotes = true;
             }
-            
+
             var howToUse = '';
             if(_.has(exportDoc, 'howToUse')) {
               var howToUseArray = exportDoc.tags.tags.filter(function(tag) {
@@ -135,7 +146,7 @@ module.exports = function addJadeDataDocsProcessor() {
           doc.childPages = modulePageInfo;
 
           // ADD TO APP DATA DOC
-          appDataDoc.data[doc.id] = modulePageInfo;
+          data[doc.id] = modulePageInfo;
 
           // COMBINE WITH INDEX PAGE DATA
           var allPageData = indexPageInfo.concat(modulePageInfo);
