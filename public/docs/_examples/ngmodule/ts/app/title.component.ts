@@ -7,9 +7,8 @@ import { UserService } from './user.service';
 // #docregion v1
 
 @Component({
-  moduleId: module.id,
   selector: 'app-title',
-  templateUrl: 'title.component.html',
+  templateUrl: 'app/title.component.html',
 })
 export class TitleComponent {
   @Input() subtitle = '';

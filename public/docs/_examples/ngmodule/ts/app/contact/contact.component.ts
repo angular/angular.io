@@ -6,10 +6,9 @@ import { Contact, ContactService } from './contact.service';
 import { UserService }    from '../shared/user.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'app-contact',
-  templateUrl: 'contact.component.html',
-  styleUrls: ['contact.component.css']
+  templateUrl: 'app/contact/contact.component.html',
+  styleUrls: ['app/contact/contact.component.css']
 })
 export class ContactComponent implements OnInit {
   contact:  Contact;
