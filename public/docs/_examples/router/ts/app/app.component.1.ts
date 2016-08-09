@@ -1,10 +1,6 @@
 /* First version */
-// #docplaster
 // #docregion
 import { Component } from '@angular/core';
-// #docregion import-router
-import { ROUTER_DIRECTIVES } from '@angular/router';
-// #enddocregion import-router
 
 @Component({
   selector: 'my-app',
@@ -16,11 +12,7 @@ import { ROUTER_DIRECTIVES } from '@angular/router';
       <a routerLink="/heroes" routerLinkActive="active">Heroes</a>
     </nav>
     <router-outlet></router-outlet>
-  `,
+  `
   // #enddocregion template
-  // #docregion directives
-  directives: [ROUTER_DIRECTIVES]
-  // #enddocregion directives
 })
-
 export class AppComponent { }

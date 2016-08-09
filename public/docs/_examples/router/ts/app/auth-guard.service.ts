@@ -2,7 +2,8 @@
 import { Injectable }             from '@angular/core';
 import { CanActivate, Router,
          ActivatedRouteSnapshot,
-         RouterStateSnapshot }    from '@angular/router';
+         RouterStateSnapshot,
+         NavigationExtras }       from '@angular/router';
 import { AuthService }            from './auth.service';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class AuthGuard implements CanActivate {
 
     // Set our navigation extras object
     // that contains our global query params and fragment
-    let navigationExtras = {
+    let navigationExtras: NavigationExtras = {
       queryParams: { 'session_id': sessionId },
       fragment: 'anchor'
     };

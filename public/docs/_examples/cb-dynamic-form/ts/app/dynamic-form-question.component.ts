@@ -1,13 +1,12 @@
 // #docregion
 import { Component, Input } from '@angular/core';
-import { FormGroup, REACTIVE_FORM_DIRECTIVES } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 
 import { QuestionBase }     from './question-base';
 
 @Component({
   selector: 'df-question',
-  templateUrl: 'app/dynamic-form-question.component.html',
-  directives: [REACTIVE_FORM_DIRECTIVES]
+  templateUrl: 'app/dynamic-form-question.component.html'
 })
 export class DynamicFormQuestionComponent {
   @Input() question: QuestionBase<any>;

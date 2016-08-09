@@ -1,17 +1,12 @@
 import { Component } from '@angular/core';
-import { ROUTER_DIRECTIVES } from '@angular/router';
 
-import { MovieListComponent } from './movie-list.component';
 import { MovieService } from './movie.service';
 import { IMovie } from './movie';
-import { StringSafeDatePipe } from './date.pipe';
 
 @Component({
   selector: 'my-app',
   templateUrl: 'app/app.component.html',
   styleUrls: ['app/app.component.css'],
-  directives: [MovieListComponent, ROUTER_DIRECTIVES],
-  pipes: [StringSafeDatePipe],
   providers: [MovieService]
 })
 export class AppComponent {

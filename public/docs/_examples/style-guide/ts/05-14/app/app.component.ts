@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 
-import { ToastComponent } from './shared';
-
 @Component({
   selector: 'sg-app',
-  template: `<toh-toast></toh-toast>`,
-  directives: [ToastComponent]
+  template: `<toh-toast></toh-toast>`
 })
 export class AppComponent { }

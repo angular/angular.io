@@ -1,6 +1,5 @@
 import { Component, HostBinding } from '@angular/core';
 import { Hero } from './hero';
-import { HeroAppMainComponent } from './hero-app-main.component';
 
 // #docregion
 @Component({
@@ -8,8 +7,7 @@ import { HeroAppMainComponent } from './hero-app-main.component';
   template: `
     <h1>Tour of Heroes</h1>
     <hero-app-main [hero]=hero></hero-app-main>`,
-  styles: ['h1 { font-weight: normal; }'],
-  directives: [HeroAppMainComponent]
+  styles: ['h1 { font-weight: normal; }']
 })
 export class HeroAppComponent {
 // #enddocregion

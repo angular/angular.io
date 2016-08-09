@@ -2,23 +2,7 @@
 // #docplaster
 
 // #docregion
-import { Component }                 from '@angular/core';
-import { ROUTER_DIRECTIVES } from '@angular/router';
-
-// #enddocregion
-/*
- // Apparent Milestone 2 imports
- // #docregion
- // #docregion hero-import
- import { HeroDetailComponent }   from './heroes/hero-detail.component';
- import { HeroListComponent }     from './heroes/hero-list.component';
- import { HeroService }           from './heroes/hero.service';
- // #enddocregion hero-import
- // #enddocregion
- */
-// Actual Milestone 2 imports
-import { HeroService }           from './heroes/hero.service';
-// #docregion
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
@@ -29,12 +13,7 @@ import { HeroService }           from './heroes/hero.service';
       <a routerLink="/heroes" routerLinkActive="active">Heroes</a>
     </nav>
     <router-outlet></router-outlet>
-  `,
-  providers:  [HeroService],
-  directives: [ROUTER_DIRECTIVES]
+  `
 })
-// #enddocregion
 export class AppComponent {
 }
-// #enddocregion route-config
-// #enddocregion

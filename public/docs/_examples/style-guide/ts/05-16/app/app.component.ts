@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
 
-import { HeroComponent } from './heroes';
-
 @Component({
   moduleId: module.id,
   selector: 'sg-app',
-  templateUrl: 'app.component.html',
-  directives: [HeroComponent]
+  templateUrl: 'app.component.html'
 })
 export class AppComponent { }

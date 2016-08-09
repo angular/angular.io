@@ -3,8 +3,7 @@
   app.AppComponent = ng.core
     .Component({
       selector: 'my-app',
-      template: '<hero-form></hero-form>',
-      directives: [app.HeroFormComponent]
+      template: '<hero-form></hero-form>'
     })
     .Class({
       constructor: function() {}

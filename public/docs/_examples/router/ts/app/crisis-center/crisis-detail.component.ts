@@ -1,12 +1,11 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute }       from '@angular/router';
-import { Observable }                   from 'rxjs/Observable';
-import 'rxjs/add/observable/fromPromise';
+import { Component, OnInit }      from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 
-import { Crisis, CrisisService }  from './crisis.service';
-import { DialogService }          from '../dialog.service';
+import { Crisis }         from './crisis.service';
+import { DialogService }  from '../dialog.service';
+import { Observable }     from 'rxjs/Observable';
 
 @Component({
   template: `
@@ -27,40 +26,24 @@ import { DialogService }          from '../dialog.service';
   styles: ['input {width: 20em}']
 })
 
-export class CrisisDetailComponent implements OnInit, OnDestroy {
+export class CrisisDetailComponent implements OnInit {
   crisis: Crisis;
   editName: string;
-  private sub: any;
 
   constructor(
-    private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialogService: DialogService
+    public dialogService: DialogService
     ) { }
 
+// #docregion crisis-detail-resolve
   ngOnInit() {
-    this.sub = this.route
-      .params
-      .subscribe(params => {
-        let id = +params['id'];
-        this.service.getCrisis(id)
-          .then(crisis => {
-            if (crisis) {
-              this.editName = crisis.name;
-              this.crisis = crisis;
-            } else { // id not found
-              this.gotoCrises();
-            }
-          });
-      });
+    this.route.data.forEach((data: { crisis: Crisis }) => {
+      this.editName = data.crisis.name;
+      this.crisis = data.crisis;
+    });
   }
-
-  ngOnDestroy() {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
-  }
+// #enddocregion crisis-detail-resolve
 
   cancel() {
     this.gotoCrises();
@@ -71,16 +54,14 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
     this.gotoCrises();
   }
 
-  canDeactivate(): Observable<boolean> | boolean {
+  canDeactivate(): Observable<boolean> | Promise<boolean> | boolean {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged
     if (!this.crisis || this.crisis.name === this.editName) {
       return true;
     }
     // Otherwise ask the user with the dialog service and return its
     // promise which resolves to true or false when the user decides
-    let p = this.dialogService.confirm('Discard changes?');
-    let o = Observable.fromPromise(p);
-    return o;
+    return this.dialogService.confirm('Discard changes?');
   }
 
   // #docregion gotoCrises
@@ -91,7 +72,7 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
     // Absolute link
-    this.router.navigate(['/crisis-center', {id: crisisId, foo: 'foo'}]);
+    this.router.navigate(['/crisis-center', { id: crisisId, foo: 'foo' }]);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

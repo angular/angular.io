@@ -30,7 +30,7 @@ function buildCopyrightStrings() {
 }
 
 function buildPlunkers(basePath, destPath, options) {
-  getPlunkerFiles(basePath);
+  getPlunkerFiles(basePath, options);
   var errFn = options.errFn || function(e) { console.log(e); };
   var plunkerPaths = path.join(basePath, '**/*plnkr.json');
   var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
@@ -101,10 +101,14 @@ function addReadme(config, postData) {
   }
 }
 
-function getPlunkerFiles(basePath) {
+function getPlunkerFiles(basePath, options) {
   // Assume plunker version is sibling of node_modules version
   README = fs.readFileSync(basePath +  '/plunker.README.md', 'utf-8');
-  SYSTEMJS_CONFIG = fs.readFileSync(basePath + '/systemjs.config.plunker.js', 'utf-8');
+  var systemJsConfigPath = '/systemjs.config.plunker.js';
+  if (options.build) {
+    systemJsConfigPath = '/systemjs.config.plunker.build.js';
+  }
+  SYSTEMJS_CONFIG = fs.readFileSync(basePath + systemJsConfigPath, 'utf-8');
   SYSTEMJS_CONFIG +=  COPYRIGHT_JS_CSS;
   TSCONFIG = fs.readFileSync(basePath + '/tsconfig.json', 'utf-8');
 }

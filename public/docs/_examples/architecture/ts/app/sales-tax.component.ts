@@ -14,7 +14,7 @@ import { TaxRateService }  from './tax-rate.service';
      {{ getTax(amountBox.value) | currency:'USD':true:'1.2-2' }}
     </div>
   `,
-  providers:   [SalesTaxService, TaxRateService]
+  providers: [SalesTaxService, TaxRateService]
 })
 export class SalesTaxComponent {
   constructor(private salesTaxService: SalesTaxService) { }

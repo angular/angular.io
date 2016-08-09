@@ -36,12 +36,22 @@
     selector: 'hero-di-inject-additional',
     template: '<hero-title title="Tour of Heroes">' +
       '<span #okMsg class="ok-msg"></span>' +
-    '</hero-title>',
-    directives: [TitleComponent]
+    '</hero-title>'
   }).Class({
     constructor: function() { }
   });
-
-  app.HeroDIInjectAdditionalComponent = AppComponent;
+ 
+  app.HeroesDIInjectAdditionalModule =
+    ng.core.NgModule({
+      imports: [ ng.platformBrowser.BrowserModule ],
+      declarations: [
+        AppComponent,
+        TitleComponent
+      ],
+      bootstrap: [ AppComponent ]
+    })
+    .Class({
+      constructor: function() {}
+    });
 
 })(window.app = window.app || {});

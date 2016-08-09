@@ -7,7 +7,7 @@
       'Active' +
     '</span>'
   }).Class({
-    constructor: function() { },
+    constructor: [function() { }],
     activate: function() {
       this.active = true;
     }
@@ -26,12 +26,13 @@
                    ActiveLabelComponent)
     }
   }).Class({
-    constructor: function() { },
+    constructor: [function() { }],
     activate: function() {
       this.active = true;
       this.label.activate();
     }
   });
+  app.HeroQueriesComponent = HeroComponent;
   // #enddocregion content
 
   // #docregion view
@@ -44,11 +45,7 @@
       '</a-hero>' +
       '<button (click)="activate()">' +
         'Activate' +
-      '</button>',
-    directives: [
-      HeroComponent,
-      ActiveLabelComponent
-    ],
+      '</button>',    
     queries: {
       heroCmps: new ng.core.ViewChildren(
                       HeroComponent)
@@ -68,6 +65,18 @@
   });
   // #enddocregion view
 
-  app.HeroesQueriesComponent = AppComponent;
+  app.HeroesQueriesModule =
+    ng.core.NgModule({
+      imports: [ ng.platformBrowser.BrowserModule ],
+      declarations: [
+        AppComponent,
+        HeroComponent,
+        ActiveLabelComponent
+      ],
+      bootstrap: [ AppComponent ]
+    })
+    .Class({
+      constructor: function() {}
+    });
 
 })(window.app = window.app || {});

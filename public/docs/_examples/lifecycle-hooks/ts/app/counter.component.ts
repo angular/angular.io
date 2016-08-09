@@ -4,7 +4,6 @@ import {
   OnChanges, SimpleChange,
 } from '@angular/core';
 
-import { SpyDirective } from './spy.directive';
 import { LoggerService }  from './logger.service';
 
 @Component({
@@ -17,8 +16,7 @@ import { LoggerService }  from './logger.service';
     <div *ngFor="let chg of changeLog" mySpy>{{chg}}</div>
   </div>
   `,
-  styles: ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}'],
-  directives: [SpyDirective]
+  styles: ['.counter {background: LightYellow; padding: 8px; margin-top: 8px}']
 })
 export class MyCounterComponent implements OnChanges {
   @Input() counter: number;
@@ -59,7 +57,6 @@ export class MyCounterComponent implements OnChanges {
    </div>
   `,
   styles: ['.parent {background: gold;}'],
-  directives: [MyCounterComponent],
   providers: [LoggerService]
 })
 export class CounterParentComponent {

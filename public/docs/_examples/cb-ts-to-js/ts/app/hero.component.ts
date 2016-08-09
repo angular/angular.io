@@ -16,3 +16,15 @@ export class HeroComponent {
 // #enddocregion class
 // #enddocregion appexport
 // #enddocregion metadata
+
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [ HeroComponent ],
+  bootstrap: [ HeroComponent ]
+})
+export class HeroesModule { }
+
+

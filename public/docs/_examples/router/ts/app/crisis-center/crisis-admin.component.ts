@@ -1,7 +1,7 @@
 // #docregion
-import { Component, OnInit } from '@angular/core';
-import { Router }            from '@angular/router';
-import { Observable }        from 'rxjs/Observable';
+import { Component, OnInit }  from '@angular/core';
+import { ActivatedRoute }     from '@angular/router';
+import { Observable }         from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -12,25 +12,22 @@ import 'rxjs/add/operator/map';
     <p>Session ID: {{ sessionId | async }}</p>
     <a id="anchor"></a>
     <p>Token: {{ token | async }}</p>
-  `,
-  directives: []
+  `
 })
 export class CrisisAdminComponent implements OnInit {
   sessionId: Observable<string>;
   token: Observable<string>;
 
-  constructor(private router: Router) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     // Capture the session ID if available
-    this.sessionId = this.router
-      .routerState
+    this.sessionId = this.route
       .queryParams
       .map(params => params['session_id'] || 'None');
 
     // Capture the fragment if available
-    this.token = this.router
-      .routerState
+    this.token = this.route
       .fragment
       .map(fragment => fragment || 'None');
   }

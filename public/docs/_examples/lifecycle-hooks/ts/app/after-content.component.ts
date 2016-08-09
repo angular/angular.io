@@ -97,8 +97,7 @@ export class AfterContentComponent implements AfterContentChecked, AfterContentI
   </div>
   `,
   styles: ['.parent {background: burlywood}'],
-  providers: [LoggerService],
-  directives: [AfterContentComponent, ChildComponent]
+  providers: [LoggerService]
 })
 export class AfterContentParentComponent {
   logs: string[];

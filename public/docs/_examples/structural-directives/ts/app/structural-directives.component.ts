@@ -1,14 +1,11 @@
 // #docplaster
 // #docregion
 import { Component } from '@angular/core';
-import { UnlessDirective }          from './unless.directive';
-import { HeavyLoaderComponent }     from './heavy-loader.component';
 
 @Component({
   selector: 'structural-directives',
   templateUrl: 'app/structural-directives.component.html',
-  styles: ['button { min-width: 100px; }'],
-  directives: [UnlessDirective, HeavyLoaderComponent]
+  styles: ['button { min-width: 100px; }']
 })
 export class StructuralDirectivesComponent {
   heroes = ['Mr. Nice', 'Narco', 'Bombasto'];

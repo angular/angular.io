@@ -19,8 +19,20 @@ app.AppComponent =
 // #enddocregion
 
 // #docregion bootstrap
+app.AppModule =
+  ng.core.NgModule({
+    imports: [ ng.platformBrowser.BrowserModule ],
+    declarations: [ app.AppComponent ],
+    bootstrap: [ app.AppComponent ]
+  })
+  .Class({
+    constructor: function() {}
+  });
+
 document.addEventListener('DOMContentLoaded', function() {
-  ng.platformBrowserDynamic.bootstrap(app.AppComponent);
+  ng.platformBrowserDynamic
+    .platformBrowserDynamic()
+    .bootstrapModule(app.AppModule);
 });
 // #enddocregion
 // #enddocregion

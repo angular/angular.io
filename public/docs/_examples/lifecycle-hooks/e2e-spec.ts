@@ -92,7 +92,7 @@ describe('Lifecycle hooks', function () {
     let buttonEle = parentEle.element(by.tagName('button')); // Reset
     let commentEle = parentEle.element(by.className('comment'));
     let logEles = parentEle.all(by.css('h4 ~ div'));
-    let childViewInputEle = parentEle.element(by.css('my-child input'));
+    let childViewInputEle = parentEle.element(by.css('my-child-view input'));
     let logCount: number;
 
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');

@@ -1,7 +1,6 @@
 // #docregion
 import { Component }       from '@angular/core';
 
-import { DynamicFormComponent }     from './dynamic-form.component';
 import { QuestionService } from './question.service';
 
 @Component({
@@ -12,7 +11,6 @@ import { QuestionService } from './question.service';
       <dynamic-form [questions]="questions"></dynamic-form>
     </div>
   `,
-  directives: [DynamicFormComponent],
   providers:  [QuestionService]
 })
 export class AppComponent {

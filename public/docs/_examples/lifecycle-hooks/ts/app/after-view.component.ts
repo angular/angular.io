@@ -7,7 +7,7 @@ import { LoggerService }  from './logger.service';
 //////////////////
 // #docregion child-view
 @Component({
-  selector: 'my-child',
+  selector: 'my-child-view',
   template: '<input [(ngModel)]="hero">'
 })
 export class ChildViewComponent {
@@ -21,15 +21,14 @@ export class ChildViewComponent {
 // #docregion template
   template: `
     <div>-- child view begins --</div>
-      <my-child></my-child>
+      <my-child-view></my-child-view>
     <div>-- child view ends --</div>`
 // #enddocregion template
    + `
     <p *ngIf="comment" class="comment">
       {{comment}}
     </p>
-  `,
-  directives: [ChildViewComponent]
+  `
 })
 // #docregion hooks
 export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
@@ -100,8 +99,7 @@ export class AfterViewComponent implements  AfterViewChecked, AfterViewInit {
   </div>
   `,
   styles: ['.parent {background: burlywood}'],
-  providers: [LoggerService],
-  directives: [AfterViewComponent]
+  providers: [LoggerService]
 })
 export class AfterViewParentComponent {
   logs: string[];

@@ -17,21 +17,20 @@
   // #enddocregion appimport
 
   document.addEventListener('DOMContentLoaded', function() {
-    bootstrap(HeroComponent);
-    bootstrap(app.HeroComponentDsl);
-    bootstrap(app.HeroLifecycleComponent);
-    bootstrap(app.HeroDIComponent, [app.DataService]);
-    bootstrap(app.HeroDIInlineComponent, [app.DataService]);
-    bootstrap(app.HeroDIInjectComponent, [
-      { provide: 'heroName', useValue: 'Windstorm' }
-    ]);
-    bootstrap(app.HeroDIInjectComponent2, [
-      { provide: 'heroName', useValue: 'Bombasto' }
-    ]);
-    bootstrap(app.HeroDIInjectAdditionalComponent);
-    bootstrap(app.HeroIOComponent);
-    bootstrap(app.HeroesHostBindingsComponent);
-    bootstrap(app.HeroesQueriesComponent);
+    var platformBrowserDynamic = ng.platformBrowserDynamic.platformBrowserDynamic();
+
+    platformBrowserDynamic.bootstrapModule(app.HeroesModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesDslModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesLifecycleModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesDIModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroDIInlineModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesDIInjectModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesDIInjectModule2);
+    platformBrowserDynamic.bootstrapModule(app.HeroesDIInjectAdditionalModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesIOModule);
+    platformBrowserDynamic.bootstrapModule(app.HeroesHostBindingsModule);
+
+    platformBrowserDynamic.bootstrapModule(app.HeroesQueriesModule);
   });
 
   // #docregion appimport
