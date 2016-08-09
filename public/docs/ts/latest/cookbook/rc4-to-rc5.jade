@@ -1,0 +1,119 @@
+include ../_util-fns
+
+:marked
+  # Angular Modules (NgModules) have landed in Angular RC5!
+
+  _Angular Modules_, also known as _NgModules_, are the powerful new way to organize and bootstrap your Angular application. 
+.l-sub-section
+  :marked
+    Read more in the ["RC5 and NgModules" announcement](https://angularjs.blogspot.com).
+
+    Learn the details of NgModule in the [Angular Module](../guide/ngmodule) chapter.
+:marked
+  The new  `@NgModule` decorator gives you module-level components, directives, and pipes without 
+  the need to specify them repeatedly in every component of your application. 
+  
+  The `@NgModule` metadata give the Angular compiler the context needed so that you can use the same code 
+  regardless of whether you are running Angular in [Ahead of Time](../glossary.html#aot) or [Just in Time](../glossary.html#jit) mode.
+
+  ## How do I use them?
+
+  If you were previously writing an Angular application, your app should continue to work in RC5. 
+  We’ve worked hard to ensure that applications that worked with RC4 continue to work while you migrate. 
+  For this to work, we’re doing 2 things automatically for you:
+
+  * We create an implicit `NgModule` for you as part of the `bootstrap()` command
+  * We automatically hoist your components, pipes, and directives
+
+  While your application will continue to work today, 
+  it’s important that you update your application to ensure future updates and deprecations don’t negatively affect you. 
+  To make it easier, you can think of the process as having 5 steps.
+
+  1. **Update to RC5** - Your application should continue to work without modification, but it’s important that you are running the latest version of Angular.
+  
+  2. **Create an _NgModule_** - Create the root `NgModule` that you’ll use to bootstrap your application.
+  
+  3. **Update your bootstrap** - Bootstrap that module instead of your root component
+  
+  4. **Update your 3rd party libraries** - Take advantage of the latest from Forms, Material, Http, and more
+  
+  5. **Cleanup** - Clean up your code. 
+  The deprecated classes, methods and properties will be removed from Angular very soon.
+
+  Prefer to look at code and diffs? 
+  Check out the upgrade in [one commit](https://github.com/StephenFluin/ngmodule-migration/commit/9f9c6ae099346e491fc31d77bf65ed440e1f164c).
+
+  ## 1. Update to RC5
+  If you use npm, you should be able to either update your package.json file and run npm install. 
+  Or alternatively you can run the following command:
+
+  ```bash
+  npm install @angular/{core,common,compiler,angular-cli,platform-browser,platform-browser-dynamic}@2.0.0-rc.5 --save
+  ```
+
+  You should also update any libraries you are using
+
+  ```bash
+  npm install @angular/router@3.0.0-rc.1
+  npm install @angular/forms@1.0.0-rc.1
+  npm install @angular2-material/{button,card,toolbar,etc}@experimental
+  ```
+
+  ## 2. Create an NgModule
+  Create a new file called app.module.ts. Populate it with your root component as follows:
+
+  ```javascript
+  import { NgModule }       from '@angular/core';
+  import { BrowserModule  } from '@angular/platform-browser';
+  import { AppComponent }   from './app.component';
+
+  @NgModule({
+      declarations: [AppComponent],
+      imports:      [BrowserModule],
+      bootstrap:    [AppComponent],
+  })
+  export class AppModule {}
+  ```
+
+
+  ## 3. Update your bootstrap
+  Update your `main.ts` file to bootstrap using the Just in Time compiler.
+
+  ```javascript
+  import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+  import { AppModule }              from './app/app.module';
+
+  platformBrowserDynamic().bootstrapModule(AppModule);
+  ```
+
+  ## 4. Update your 3rd party libraries
+  Remove any 3rd party libraries from you AppComponent’s providers. 
+  You’ll want to move these to your NgModule’s imports, while updating to use each library’s provided Module(s).
+
+  ```javascript
+  imports: [
+      BrowserModule, 
+      // Router
+      RouterModule.forRoot(config), 
+      // Forms
+      FormsModule, 
+      // Material Design
+      MdSlideToggleModule, 
+      MdButtonModule, 
+      MdToolbarModule, 
+      MdCardModule, 
+      MdInputModule,
+  ],
+  ```
+
+  ## 5. Cleanup
+  As of RC5, we allow you to leave `directives` and `pipes` in your `@Component` decorators.
+  In fact, we automatically hoist (add) them to the NgModule that they belong to.
+
+.alert.is-important
+  :marked
+    This behavior is provided temporarily for backward compatibility. It will soon be removed.
+
+    Stay ahead of this deprecation by removing them from your components and placing them into your `NgModule` declarations
+    as soon as possible.
+:marked
