@@ -10,7 +10,10 @@ import 'package:angular2_tour_of_heroes/in_memory_data_service.dart';
 
 void main() {
   bootstrap(AppComponent,
-      const [const Provider(Client, useClass: InMemoryDataService)]);
+    [provide(Client, useClass: InMemoryDataService)]
+    // Using a real back end? Import browser_client.dart and change the above to
+    // [provide(Client, useFactory: () => new BrowserClient(), deps: [])]
+  );
 }
 // #enddocregion final
 /*
@@ -23,7 +26,7 @@ void main() {
   ]);
   // Simplify bootstrap provider list to [BrowserClient]
   // once there is a fix for:
-  // https://github.com/angular/angular/issues/9673
+  // https://github.com/dart-lang/angular2/issues/37
 }
 // #enddocregion v1
 */
