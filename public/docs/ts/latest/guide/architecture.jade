@@ -12,10 +12,11 @@ block angular-parts
     The framework consists of several cooperating libraries, some of them core and some optional.
 
 :marked
-  With Angular, we write applications by composing HTML *templates* with Angularized-markup,
+  We write Angular applications by composing HTML *templates* with Angularized-markup,
   writing *component* classes to manage those templates, adding application logic in *services*,
-  and handing the top root component to Angular's *bootstrapper*.
-
+  and boxing components and services in *modules*.
+  
+  Then we launch the app by *bootstrapping* the top _root module_.
   Angular takes over, presenting our application content in a browser and
   responding to user interactions according to the instructions we provided.
 
@@ -49,118 +50,114 @@ figure
 figure
   img(src="/resources/images/devguide/architecture/module.png" alt="Component" align="left" style="width:240px; margin-left:-40px;margin-right:10px" )
 :marked
-  Angular apps are modular.
+  Angular apps are modular and Angular has its own modularity system called _Angular Modules_
+  or, occasionally, _NgModules_.
 
-  In general we assemble our application from many **modules**.
+  _Angular Modules_ are a big deal. 
+  We can only introduce them there; the [Angular Modules](ngmodule.html) chapter covers them in depth.
 
-  A typical module is a cohesive block of code dedicated to a single purpose.
-  A module **exports** something of value in that code, typically one thing such as a class.
-  <br clear="all"><br>
-
-block modules-in-dart
-  //- N/A
-
-block modules-are-optional
-  .l-sub-section
-    :marked
-       ### Modules are optional
-       We highly recommend modular design. TypeScript has great support for ES2015 module syntax and our chapters assume we're taking a modular
-       approach using that syntax. That's why we list *Module* among the basic building blocks.
-
-       Angular itself doesn't require a modular approach nor this particular syntax. Don't use it if you don't want it.
-       Each chapter has plenty to offer after you steer clear of the `import` and `export` statements.
-
-       Find setup and organization clues in the JavaScript track (select it from the combo-box at the top of this page)
-       which demonstrates Angular 2 development with plain old JavaScript and no module system.
-
-- var _app_comp_filename = _docsFor == 'dart' ? 'app_component.dart' : 'app.component.ts';
+<br clear="all"><br>
 :marked
-  Perhaps the first module we meet is a module that exports a *component* class.
-  The component is one of the basic Angular blocks, we write a lot of them,
-  and we'll talk about components in the next segment. For the moment it is enough to know that a
-  component class is the kind of thing we'd export from a module.
+  Every Angular app has at least one module, the _root module_, conventionally named `AppModule`.
 
-  Most applications have an `AppComponent`. By convention, we'll find it in a file named `!{_app_comp_filename}`.
-  Look inside such a file and we'll see a declaration such as this one.
+  While the _root_ module may be the only module in a small application, most apps have many more 
+  _feature_ modules, each a cohesive block of code dedicated to an application domain,
+  a workflow, or a closely-related set of capabilities. 
 
-+makeExcerpt('app/app.component.ts ()', 'export')
-
-block export-qualifier
+  An Angular module, whether a _root_ or _feature_, is a class with an `@NgModule` decorator.
+.l-sub-section
   :marked
-    The `export` statement tells TypeScript that this is a module whose
-    `AppComponent` class is public and accessible to other modules of the application.
-
+    Decorators are functions that modify JavaScript classes.
+    Angular has many decorators that attach metadata to classes so that it knows
+    what those classes mean and how they should work.
+    <a href="https://medium.com/google-developers/exploring-es7-decorators-76ecb65fb841#.x5c2ndtx0" target="_blank">
+    Learn more</a> about decorators on the web.
 :marked
-  When we need a reference to the `AppComponent`, we **import** it like this:
+  `NgModule` is a decorator function that takes a single metadata object whose properties describe the module. 
+  The most important are
+  * `declarations` - the _view classes_ that belong to this module.
+  Angular has three kinds of view classes: [components](#components), [directives](#directives) and [pipes](pipes.html).
 
-+makeExcerpt('app/main.ts', 'import')
+  * `exports` - subset of declarations that should be visible and usable in the component [templates](#templates) of other modules.
 
-block ts-import
+  * `imports` - other modules whose exported classes are needed by component templates declared in _this_ module.
+
+  * `providers` creators of [services](#services) that this module contributes to
+  the global collection of services; they become accessible in all parts of the app.
+
+  * `bootstrap` - identifies the main application view, called the _root component_, 
+  that hosts all other app views. Only the _root module_ should set this `bootstrap` property.
+
+  Here's a simple root module:
++makeExample('app/mini-app.ts', 'module', 'app/app.module.ts')(format='.')
+
+.l-sub-section
   :marked
-    The `import` statement tells the system it can get an `AppComponent` from a module named `app.component`
-    located in a neighboring file.
-    The **module name** (AKA module id) is often the same as the filename without its extension.
+    The `export` of `AppComponent` is just for show.
+    A root module has no reason to export anything because ... it's the root. 
+    We don't expect other modules to import the root module.
+
+    But if one did, it could use the `AppComponent` in its component templates.
+:marked
+  We launch an application by _bootstrapping_ its root module. 
+  During development we're likely to bootstrap the `AppModule` in a `main.ts` file like this one.
+    
++makeExample('app/main.ts', '', 'app/main.ts')(format='.')
 
 :marked
-  ### Libraries
+  ### Angular Modules vs. JavaScript Modules
+
+  The Angular module &mdash; a class decorated with `@NgModule` &mdash; is a fundamental feature of Angular itself.
+
+  JavaScript also has its own module system for managing collections of JavaScript objects.
+  It's completely different and unrelated to the Angular module system.
+  
+  In JavaScript each _file_ is a module and all objects defined in the file belong to that module.
+  The module declares some objects to be public by marking them with the `export` key word. 
+  Other JavaScript modules use *import statements* to access public objects from other modules.
+
++makeExample('app/app.module.ts', 'imports', '')(format='.')
++makeExample('app/app.module.ts', 'export', '')(format='.')
+  
+.l-sub-section
+  :marked
+    <a href="http://exploringjs.com/es6/ch_modules.html" target="_blank">Learn more about the JavaScript module system on the web.</a>
+:marked
+  These are two different and _complementary_ module systems. We use them both to write our apps.
+
+  ### Angular Libraries
 
 figure
   img(src="/resources/images/devguide/architecture/library-module.png" alt="Component" align="left" style="width:240px; margin-left:-40px;margin-right:10px" )
 
-block angular-library-modules
-  :marked
-    Some modules are _libraries_ of other modules.
-    Angular itself ships as a collection of library modules within several npm packages.
-    Their names begin with the `!{_at_angular}` prefix.
-
-    Each Angular library contains a [barrel](../glossary.html#barrel) module
-    that is actually a public façade over several logically-related private modules.
-
 :marked
-  `!{_at_angular}/core` is the primary Angular library from which we get most of what we need.
-  <br clear="all">
+  Angular itself ships as a collection of JavaScript modules. We can think of them as library modules. 
 
-  There are other important Angular libraries too, such as `!{_at_angular}/common`<span if-docs="ts">, 
-  `!{_at_angular}/http`</span> and `!{_at_angular}/router`.
-  We import what we need from an Angular !{_library_module}.
-
-block angular-imports
-  :marked
-    For example, we import the Angular **`Component` *function*** from `@angular/core` like this:
-  +makeExcerpt('app/app.component.ts', 'import')
-  :marked
-    Compare that syntax to our previous import of `AppComponent`.
-  +makeExcerpt('app/main.ts', 'import')
-
-  :marked
-    Notice the difference?
-    In the first case, when importing from an Angular library module,
-    the import statement refers to the bare module name, `@angular/core`, *without a path prefix*.
-
-    When we import from one of *our* own files, we prefix the module name with the file path.
-    In this example we specify  a relative file path (`./`). That means the
-    source module is in the same folder (`./`) as the module importing it.
-    We could path up and around the application folder structure if the source module were somewhere else.
-  .l-sub-section
-    :marked
-      We import and export in the ECMAScript 2015 (ES2015) module syntax.
-      Learn more about that syntax [here](http://www.2ality.com/2014/09/es6-modules-final.html)
-      and many other places on the web.
-
-      The infrastructure *behind* module loading and importing is an important subject.
-      But it's a subject outside the scope of this introduction to Angular.
-      While we're focused on our application, *import* and *export*
-      is about all we need to know.
-
-- var _export = _docsFor == 'dart' ? 'publicly declare' : 'export';
-- var _declare = _docsFor == 'dart' ? 'declare' : 'export';
+  Each Angular library name begin with the `!{_at_angular}` prefix.
+  
+  We install them with the **npm** package manager and import parts of them with JavaScript `import` statements.
+<br clear="all"><br>
 :marked
-  The key take-aways are:
-  * Angular apps are composed of modules.
-  * Modules !{_export} things &mdash; classes, function, values &mdash; that other modules import.
-  * We prefer to write our application as a collection of modules, each module exporting one thing.
+  For example, we import Angular's `Component` decorator from the `@angular/core` library like this:
++makeExample('app/app.component.ts', 'import', '')(format='.')
+:marked
+  We also import Angular _modules_ from Angular _libraries_ using JavaScript import statements:
++makeExample('app/mini-app.ts', 'import-browser-module', '')(format='.')
+:marked
+  Our application module needs material from within that `BrowserModule`
+  so we add it to the `@NgModule` metadata `imports` like this.
++makeExample('app/mini-app.ts', 'ngmodule-imports', '')(format='.')
+:marked
+  We're using both the Angular and JavaScript module systems _together_.
 
-  The first module we write will most likely !{_declare} a component.
+  It's easy to confuse the two systems because they share the common vocabulary of "imports" and "exports".
+  Hang in there. The confusion will yield to clarity with time and experience.
+
+.l-sub-section
+  :marked
+    Learn more in the [Angular Modules](ngmodule.html) chapter.
+
+.l-hr 
 
 .l-main-section
 :marked
@@ -191,6 +188,8 @@ figure
     We may wonder who is calling the component's constructor? Who provides the service parameter?
     For the moment, have faith that Angular will call the constructor and deliver an
     appropriate `HeroService` when we need it.
+
+.l-hr 
 
 .l-main-section
 :marked
@@ -231,6 +230,8 @@ figure
   In this manner we'll compose complex component trees to build out our richly featured application.
 <br clear="all">
 
+.l-hr 
+
 .l-main-section
 :marked
   ## Metadata
@@ -259,7 +260,6 @@ figure
 
 block ts-decorator
   :marked
-    A decorator is a function. Decorators often have a configuration parameter.
     The `@Component` decorator takes a required configuration object with the
     information Angular needs to create and present the component and its view.
 
@@ -298,6 +298,8 @@ figure
 :marked
   The architectural takeaway is that we must add metadata to our code
   so that Angular knows what to do.
+
+.l-hr 
 
 .l-main-section
 :marked
@@ -356,6 +358,8 @@ figure
 :marked
   Data binding is also important for communication between parent and child components.
 <br clear="all">
+
+.l-hr 
 
 .l-main-section
 :marked
@@ -417,6 +421,8 @@ block dart-bool
   `HeroListComponent` are one kind of custom directive.
   <!-- PENDING: link to where to learn more about other kinds! -->
 
+.l-hr 
+
 .l-main-section
 :marked
   ## Services
@@ -469,6 +475,8 @@ figure
   Angular does help us *follow* these principles by making it easy to factor our
   application logic into services and make those services available to components through *dependency injection*.
 
+.l-hr 
+
 .l-main-section
 :marked
   ## Dependency injection
@@ -503,18 +511,19 @@ figure
   If the injector doesn't have a `HeroService`, how does it know how to make one?
 
   In brief, we must have previously registered a **provider** of the `HeroService` with the injector.
-  A provider is something that can create or return a service, typically  the service class itself.
+  A provider is something that can create or return a service, typically the service class itself.
 
-  We can register providers at any level of the application component tree.
-  We often do so at the root when we bootstrap the application so that
-  the same instance of a service is available everywhere.
+  We can register providers in modules or in components.
   
-+makeExcerpt('app/main.ts', 'bootstrap')
+  We often add providers to the [root module](#module) so that
+  the same instance of a service is available everywhere.
+
++makeExample('app/app.module.ts', 'providers', 'app/app.module.ts (module providers)')(format='.')
 
 :marked
-  Alternatively, we might register at a component level, in the providers property of the `@Component` metadata:
+  Alternatively, we might register at a component level in the `providers` property of the `@Component` metadata:
 
-+makeExcerpt('app/hero-list.component.ts', 'providers')
++makeExample('app/hero-list.component.ts', 'providers', 'app/hero-list.component.ts (component providers)')(format='.')
 
 :marked
   Registering at a component level means we get a new instance of the
@@ -534,6 +543,8 @@ figure
   * A *provider* is a recipe for creating a service.
 
   * We register *providers* with injectors.
+
+.l-hr 
 
 .l-main-section
 :marked
@@ -560,14 +571,9 @@ figure
   > [**Animations**](animations.html): The animation library makes it easy for developers to animate component behavior
   without deep knowledge of animation techniques or CSS.
 
-  > **Bootstrap**: A method to configure and launch the root application component.
-
   > **Change detection**: Learn how Angular decides that a component property value has changed and
   when to update the screen.
   Learn how it uses **zones** to intercept asynchronous activity and run its change detection strategies.
-
-  > **Component router**: With the component Router service, users can navigate a multi-screen application
-  in a familiar web browsing style using URLs.
 
   > **Events**: The DOM raises events. So can components and services. Angular offers mechanisms for
   publishing and subscribing to events.

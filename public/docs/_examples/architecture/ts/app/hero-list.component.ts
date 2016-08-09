@@ -3,11 +3,13 @@ import { Component, OnInit }   from '@angular/core';
 import { Hero }                from './hero';
 import { HeroService }         from './hero.service';
 
-// #docregion metadata
+// #docregion metadata, providers
 @Component({
   selector:    'hero-list',
-  templateUrl: 'app/hero-list.component.html'
+  templateUrl: 'app/hero-list.component.html',
+  providers:   [ HeroService ]
 })
+// #enddocregion providers
 // #docregion class
 export class HeroListComponent implements OnInit {
   // #enddocregion metadata

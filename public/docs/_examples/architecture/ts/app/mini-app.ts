@@ -32,6 +32,7 @@ import { BrowserModule } from '@angular/platform-browser';
 // #enddocregion ngmodule-imports
   providers:    [ Logger ],
   declarations: [ AppComponent ],
+  exports:      [ AppComponent ],
   bootstrap:    [ AppComponent ]
 })
 // #docregion export
