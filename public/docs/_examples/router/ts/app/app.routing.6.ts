@@ -12,7 +12,7 @@ import { CanDeactivateGuard } from './can-deactivate-guard.service';
 const crisisCenterRoutes: Routes = [
   {
     path: '',
-    redirectTo: '/heroes',
+    redirectTo: '/crisis-center',
     pathMatch: 'full'
   },
   {
@@ -33,3 +33,14 @@ export const appRoutingProviders: any[] = [
 ];
 
 export const routing = RouterModule.forRoot(appRoutes);
+// #enddocregion
+
+/* A link parameters array
+// #docregion heroes-redirect
+{
+  path: '',
+  redirectTo: '/heroes',
+  pathMatch: 'full'
+},
+// #enddocregion heroes-redirect
+*/
