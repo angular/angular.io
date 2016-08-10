@@ -604,20 +604,19 @@ gulp.task('build-dart-cheatsheet', [], function() {
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
   const ngRepoPath = ngPathFor('dart');
-  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'doc'))) {
-    gutil.log('Skipping dartdoc: --fast flag enabled and "doc" dir exists');
+  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'docs', 'api'))) {
+    gutil.log('Skipping dartdoc: --fast flag enabled and "docs/api" dir exists');
     return true;
   }
   checkAngularProjectPath(ngRepoPath);
   const topLevelLibFilePath = path.resolve(ngRepoPath, 'lib', 'angular2.dart');
   const tmpPath = topLevelLibFilePath + '.disabled';
-  if (!fs.existsSync(topLevelLibFilePath)) throw new Error(`Missing file: ${topLevelLibFilePath}`);
-  fs.renameSync(topLevelLibFilePath, tmpPath);
+  renameIfExistsSync(topLevelLibFilePath, tmpPath);
   gutil.log(`Hiding top-level angular2 library: ${topLevelLibFilePath}`);
-  const dartdoc = spawnExt('dartdoc', ['--output', 'doc/api', '--add-crossdart'], { cwd: ngRepoPath});
+  const dartdoc = spawnExt('dartdoc', ['--output', 'docs/api', '--add-crossdart'], { cwd: ngRepoPath});
   return dartdoc.promise.finally(() => {
       gutil.log(`Restoring top-level angular2 library: ${topLevelLibFilePath}`);
-      fs.renameSync(tmpPath, topLevelLibFilePath);
+      renameIfExistsSync(tmpPath, topLevelLibFilePath);
   })
 });
 
@@ -1235,15 +1234,14 @@ function buildDartCheatsheet() {
 
 
 function buildApiDocsForDart() {
-  const apiDir = 'api';
   const vers = 'latest';
   const dab = require('./tools/dart-api-builder/dab')(ANGULAR_IO_PROJECT_PATH);
   const log = dab.log;
 
   log.level = _dgeniLogLevel;
   const dabInfo = dab.dartPkgConfigInfo;
-  dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, apiDir);
-  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), 'doc', apiDir);
+  dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, 'api');
+  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), 'docs', 'api');
   // Exclude API entries for developer/internal libraries. Also exclude entries for
   // the top-level catch all "angular2" library (otherwise every entry appears twice).
   dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
@@ -1454,4 +1452,12 @@ function checkAngularProjectPath(_ngPath) {
   var ngPath = path.resolve(_ngPath || ngPathFor('ts'));
   if (fs.existsSync(ngPath)) return;
   throw new Error('API related tasks require the angular2 repo to be at ' + ngPath);
+}
+
+function renameIfExistsSync(oldPath, newPath) {
+  if (fs.existsSync(oldPath)) {
+      fs.renameSync(oldPath, newPath);
+  } else {
+    gutil.log(`renameIfExistsSync cannot find file to rename: ${oldPath}`);
+  }
 }
