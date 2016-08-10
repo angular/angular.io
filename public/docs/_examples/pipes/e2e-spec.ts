@@ -64,7 +64,7 @@ describe('Pipes', function () {
   });
 
 
-  it('should support flying heroes (pure) ', function () {
+  xit('should support flying heroes (pure) ', function () {
     let nameEle = element(by.css('flying-heroes input[type="text"]'));
     let canFlyCheckEle = element(by.css('flying-heroes #can-fly'));
     let mutateCheckEle = element(by.css('flying-heroes #mutate'));
@@ -95,7 +95,7 @@ describe('Pipes', function () {
   });
 
 
-  it('should support flying heroes (impure) ', function () {
+  xit('should support flying heroes (impure) ', function () {
     let nameEle = element(by.css('flying-heroes-impure input[type="text"]'));
     let canFlyCheckEle = element(by.css('flying-heroes-impure #can-fly'));
     let mutateCheckEle = element(by.css('flying-heroes-impure #mutate'));
