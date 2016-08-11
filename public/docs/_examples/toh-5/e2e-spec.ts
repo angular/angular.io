@@ -170,7 +170,7 @@ describe('Tutorial part 5', () => {
     expect(hero.id).toEqual(targetHero.id);
     expect(hero.name).toEqual(newHeroName);
   }
-  
+
 });
 
 function addToHeroName(text: string): WPromise<void> {
