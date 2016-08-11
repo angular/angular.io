@@ -6,6 +6,7 @@ block includes
   - var _Angular_Http = 'Angular <code>Http</code>'
   - var _Angular_http_library = 'Angular HTTP library'
   - var _HTTP_PROVIDERS = 'HTTP_PROVIDERS'
+  - var _HttpModule = 'HttpModule'
   - var _JSON_stringify = 'JSON.stringify'
 
 :marked
@@ -53,25 +54,23 @@ block http-library
 block http-providers
   :marked
     Our app will depend upon the Angular `http` service which itself depends upon other supporting services.
-    The `HTTP_PROVIDERS` array from `@angular/http` library holds providers for the complete set of http services.
+    The `HttpModule` from `@angular/http` library holds providers for the complete set of http services.
 
 :marked
   We should be able to access `!{_Http}` services from anywhere in the application.
-  So we register them in the `bootstrap` call of <span ngio-ex>main.ts</span> where we
-  launch the application and its root `AppComponent`.
+  So we register them in the `imports` array of <span ngio-ex>app.module.ts</span> where we
+  bootstrap the application and its root `AppComponent`.
 
-+makeExcerpt('app/main.ts','v1')
++makeExample('app/app.module.2.ts','', 'app.module.ts (v.1)')
 
 :marked
-  Notice that we supply `!{_HTTP_PROVIDERS}` in !{_an} !{_array} as the second parameter to the `bootstrap` method.
-  This has the same effect as the `providers` !{_array} in `@Component` !{_decorator}.
+  Notice that we supply `!{_HttpModule}` as part of the *imports* !{_array} in root NgModule `AppModule`.
 
 .l-main-section
 :marked
   ## Simulating the web API
 
-  We generally recommend registering application-wide services in the root `AppComponent` *providers*.
-  Here we're registering in `main` for a special reason.
+  We recommend registering application-wide services in the root `NgModule` *providers*.
 
   Our application is in the early stages of development and far from ready for production.
   We don't even have a web server that can handle requests for heroes.
@@ -80,11 +79,8 @@ block http-providers
   We're going to *trick* the HTTP client into fetching and saving data from
   a mock service, the *in-memory web API*.
 
-  The application itself doesn't need to know and shouldn't know about this.
-  So we'll slip the in-memory web API into the configuration *above* the `AppComponent`.
-
-  Here is a version of `main` that performs this trick
-+makeExcerpt('app/main.ts', 'final')
+  Here is a version of `app.module.ts` that performs this trick
++makeExample('app/app.module.1.ts', '', 'app.module.ts (final)')
 
 block backend
   :marked
@@ -326,19 +322,6 @@ block add-new-hero-via-detail-comp
   Now let's fix-up the `HeroesComponent` to support the *add* and *delete* actions used in the template.
   Let's start with *add*.
 
-block heroes-comp-directives
-  :marked
-    We're using the `HeroDetailComponent` to capture the new hero information.
-    We have to tell Angular about that by importing the `HeroDetailComponent` and referencing it in the component metadata `directives` array.
-  +makeExcerpt('app/heroes.component.ts (HeroDetailComponent)', 'hero-detail-component')
-  .l-sub-section
-    :marked
-      These are the same lines that we removed in the previous [Routing](toh-pt5.html) chapter.
-      We didn't know at the time that we'd need the *HeroDetailComponent* again. So we tidied up.
-
-      Now we *must* put these lines back. If we don't, Angular will ignore the `<my-hero-detail>`
-      tag and pushing the *Add New Hero* button will have no visible effect.
-:marked
   Implement the click handler for the *Add New Hero* button.
 
 +makeExcerpt('app/heroes.component.ts', 'addHero')
@@ -528,9 +511,10 @@ block observable-transformers
 +makeExample('app/dashboard.component.html')
 
 :marked
-  And finally, we import the `HeroSearchComponent` and add it to the `directives` !{_array}.
+  And finally, we import the `HeroSearchComponent` and add it to the `declarations` !{_array} in
+  `app.module.ts`.
 
-+makeExcerpt('app/dashboard.component.ts', 'search')
++makeExcerpt('app/app.module.2.ts', 'hero-search-declaration')
 
 :marked
   Run the app again, go to the *Dashboard*, and enter some text in the search box.
@@ -554,7 +538,8 @@ block filetree
       .children
         .file app.component.ts
         .file app.component.css
-        .file app.routes.ts
+        .file app.module.ts
+        .file app.routing.ts
         .file dashboard.component.css
         .file dashboard.component.html
         .file dashboard.component.ts
@@ -599,6 +584,7 @@ block filetree
 block file-summary
   +makeTabs(
     `toh-6/ts/app/app.component.ts,
+     toh-6/ts/app/app.module.ts,
      toh-6/ts/app/heroes.component.ts,
      toh-6/ts/app/heroes.component.html,
      toh-6/ts/app/heroes.component.css,
@@ -606,8 +592,9 @@ block file-summary
      toh-6/ts/app/hero-detail.component.html,
      toh-6/ts/app/hero.service.ts,
      toh-6/ts/app/in-memory-data.service.ts`,
-    null,
+    ',,,,,,,,',
     `app.comp...ts,
+     app.mod...ts,
      heroes.comp...ts,
      heroes.comp...html,
      heroes.comp...css,
@@ -627,6 +614,7 @@ block file-summary
     `hero-search.service.ts,
     hero-search.component.ts,
     hero-search.service.html,
+    hero-search.component.css,
     hero-search.component.css,
     rxjs-operators.ts`
   )
