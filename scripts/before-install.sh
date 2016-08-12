@@ -2,13 +2,11 @@
 
 set -e -o pipefail
 
-./scripts/env-info-and-check.sh
+[[ -z "$NGIO_ENV_DEFS" ]] && . ./scripts/env-set.sh
+[[ -n "$TRAVIS" ]] && . ./scripts/env-info-and-check.sh
 
-if [[ 0 ]]; then
-    # Doesn't seem to be necessary. Disabling.
-    travis_fold start install.globals
+if [ -z "$TRAVIS" ]; then
     set -x
     npm install -g gulp --no-optional
     set +x
-    travis_fold end install.globals
 fi
