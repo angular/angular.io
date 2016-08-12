@@ -19,6 +19,7 @@ guide/security.jade
 guide/server-communication.jade
 guide/structural-directives.jade
 guide/template-syntax.jade
+glossary.jade
 quickstart.jade
 tutorial/toh-pt6.jade"
 
