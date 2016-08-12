@@ -1,13 +1,11 @@
-// #docplaster
 // #docregion
 import { TitlecasePipe } from './title-case.pipe';
 
 describe('TitlecasePipe', () => {
   let pipe: TitlecasePipe;
 
-  beforeEach(() => { pipe = new TitlecasePipe(); });
+  beforeEach(() => pipe = new TitlecasePipe() );
 
-  // #docregion expectations
   it('transforms "abc" to "Abc"', () => {
     expect(pipe.transform('abc')).toEqual('Abc');
   });

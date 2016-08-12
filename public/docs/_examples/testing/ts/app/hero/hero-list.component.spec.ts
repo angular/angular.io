@@ -20,38 +20,54 @@ import {
 } from '../../test/fake-router';
 
 let comp: HeroListComponent;
-let fixture: ComponentFixture<HeroListComponent>;
-let heroLIs: HTMLLIElement[];
-let heroService: FakeHeroService;
-let navSpy: jasmine.Spy;
-let router: FakeRouter;
+let page: Page;
 
+/////////// Helpers /////
+
+/** test variables  */
+interface Page {
+  /** Hero line elements */
+  heroLis: HTMLLIElement[];
+  /** Spy on router navigate method */
+  navSpy: jasmine.Spy;
+}
+
+/** Create the component and set the `page` test variables */
 function createComponent() {
-  fixture = TestBed.createComponent(HeroListComponent);
+  let fixture = TestBed.createComponent(HeroListComponent);
   comp = fixture.componentInstance;
-  navSpy = spyOn(router, 'navigate').and.callThrough();
+
 
   // change detection triggers ngOnInit which gets a hero
   fixture.detectChanges();
+
   return fixture.whenStable().then(() => {
     // got the heroes and updated component
     // change detection updates the view
     fixture.detectChanges();
-    heroLIs = fixture.debugElement.queryAll(By.css('li')).map(de => de.nativeElement);
+
+    // Get the component's injected router and spy on it
+    let router = fixture.debugElement.injector.get(Router);
+    let navSpy = spyOn(router, 'navigate').and.callThrough();
+
+    page = {
+      heroLis: fixture.debugElement.queryAll(By.css('li')).map(de => de.nativeElement),
+      navSpy: navSpy
+    };
   });
 }
+
+/////// Tests //////
 
 describe('HeroListComponent', () => {
 
   beforeEach( async(() => {
-    heroService = new FakeHeroService();
-    router = new FakeRouter;
 
     TestBed.configureTestingModule({
       declarations: [HeroListComponent],
       providers: [
-        { provide: HeroService, useValue: heroService },
-        { provide: Router,      useValue: router}
+        { provide: HeroService, useClass: FakeHeroService },
+        { provide: Router,      useClass: FakeRouter}
       ]
     })
     .compileComponents()
@@ -59,19 +75,19 @@ describe('HeroListComponent', () => {
   }));
 
   it('should display heroes', () => {
-    expect(heroLIs.length).toBeGreaterThan(0);
+    expect(page.heroLis.length).toBeGreaterThan(0);
   });
 
   it('1st hero should match 1st test hero', () => {
     let expectedHero = HEROES[0];
-    let actualHero = heroLIs[0].textContent;
+    let actualHero = page.heroLis[0].textContent;
     expect(actualHero).toContain(expectedHero.id, 'hero.id');
     expect(actualHero).toContain(expectedHero.name, 'hero.name');
   });
 
   it('should select hero on click', fakeAsync(() => {
     let expectedHero = HEROES[1];
-    let li = heroLIs[1];
+    let li = page.heroLis[1];
     li.dispatchEvent(newEvent('click'));
     tick();
     expect(comp.selectedHero).toEqual(expectedHero);
@@ -79,17 +95,17 @@ describe('HeroListComponent', () => {
 
   it('should navigate to selected hero detail on click', fakeAsync(() => {
     let expectedHero = HEROES[1];
-    let li = heroLIs[1];
+    let li = page.heroLis[1];
     li.dispatchEvent(newEvent('click'));
     tick();
 
     // should have navigated
-    expect(navSpy.calls.any()).toEqual(true, 'navigate called');
+    expect(page.navSpy.calls.any()).toEqual(true, 'navigate called');
 
     // composed hero detail will be URL like 'heroes/42'
     // expect link array with the route path and hero id
     // first argument to router.navigate is link array
-    let navArgs = navSpy.calls.first().args[0];
+    let navArgs = page.navSpy.calls.first().args[0];
     expect(navArgs[0]).toContain('heroes', 'nav to heroes detail URL');
     expect(navArgs[1]).toEqual(expectedHero.id, 'for expected hero.id');
 

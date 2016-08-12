@@ -6,6 +6,7 @@ import {
   FancyService,
   ExternalTemplateComp,
   InputComp,
+  IoComp, IoParentComp,
   MyIfComp, MyIfChildComp, MyIfParentComp,
   ParentComp,
   TestProvidersComp, TestViewProvidersComp,
@@ -13,10 +14,7 @@ import {
 } from './bag';
 
 import { By }          from '@angular/platform-browser';
-import {
-  ApplicationRef,
-  DebugElement
-} from '@angular/core';
+import { DebugElement} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import {
@@ -139,14 +137,12 @@ class FakeFancyService extends FancyService {
 
 /////////// Component Tests //////////////////
 
-describe('TestBed Component Tests', function() {
+describe('TestBed Component Tests', () => {
 
   beforeEach(async(() => {
     TestBed
       .configureTestingModule({
         imports: [BagModule],
-        // Disable module bootstrapping during testing
-        providers: [{provide: ApplicationRef, useValue: {bootstrap: () => {}}}]
       })
       // Compile everything in BagModule
       .compileComponents();
@@ -177,6 +173,23 @@ describe('TestBed Component Tests', function() {
     expect(fixture).toHaveText('MyIf(More)');
   });
 
+  it('should create a nested component bound to inputs/outputs', () => {
+    let fixture = TestBed.createComponent(IoParentComp);
+
+    fixture.detectChanges();
+    let heroes = fixture.debugElement.queryAll(By.css('.hero'));
+    expect(heroes.length).toBeGreaterThan(0, 'has heroes');
+
+    let comp = fixture.componentInstance;
+    let hero = comp.heroes[0];
+
+    heroes[0].triggerEventHandler('click', null);
+    fixture.detectChanges();
+
+    let selected = fixture.debugElement.query(By.css('p'));
+    expect(selected).toHaveText(hero.name);
+  });
+
   // #docregion ButtonComp
   it('should support clicking a button', () => {
     let fixture = TestBed.createComponent(ButtonComp);
@@ -192,8 +205,8 @@ describe('TestBed Component Tests', function() {
                .query(By.css('span'))
                .nativeElement as HTMLElement;
 
-    // btn.triggerEventHandler('click', null);
-    btn.nativeElement.dispatchEvent(newEvent('click'));
+    btn.triggerEventHandler('click', null);
+    // btn.nativeElement.dispatchEvent(newEvent('click')); // alternative
 
     fixture.detectChanges();
 
@@ -301,39 +314,39 @@ describe('TestBed Component Tests', function() {
   // #enddocregion ReversePipeComp
 });
 
-describe('TestBed Component Override Tests', function() {
+describe('TestBed Component Override Tests', () => {
 
-  beforeEach(() => {
+  beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [BagModule],
-      // Disable module bootstrapping during testing
-      providers: [{provide: ApplicationRef, useValue: {bootstrap: () => {}}}]
-    });
+    })
 
-    TestBed.overrideComponent(ChildComp, {
+    .overrideComponent(ChildComp, {
       set: { template: '<span>Fake</span>' }
-    });
+    })
 
-    TestBed.overrideComponent(TestProvidersComp, {
+    // .overrideComponent(IoComp, {
+    //   set: { template: '<div class="hero" (click)="click()">Fake {{hero.name}}</div>' }
+    // })
+
+    .overrideComponent(TestProvidersComp, {
       remove: { providers: [FancyService]},
       add:    { providers: [{ provide: FancyService, useClass: FakeFancyService }] },
 
       // Or replace them all (this component has only one provider)
       // set:    { providers: [{ provide: FancyService, useClass: FakeFancyService }] },
-    });
+    })
 
-    TestBed.overrideComponent(TestViewProvidersComp, {
+    .overrideComponent(TestViewProvidersComp, {
       // remove: { viewProviders: [FancyService]},
       // add:    { viewProviders: [{ provide: FancyService, useClass: FakeFancyService }] },
 
       // Or replace them all (this component has only one viewProvider)
       set:    { viewProviders: [{ provide: FancyService, useClass: FakeFancyService }] },
-    });
-  });
+    })
 
-  beforeEach(async(() => {
     // Fully configured ... time to async compile all components
-    TestBed.compileComponents();
+    .compileComponents();
   }));
 
   it('should override ChildComp\'s template', () => {
@@ -356,7 +369,8 @@ describe('TestBed Component Override Tests', function() {
 
 });
 
-describe('Nested (one-deep) component override', function() {
+describe('Nested (one-deep) component override', () => {
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ParentComp, FakeChildComp]
@@ -371,7 +385,8 @@ describe('Nested (one-deep) component override', function() {
   });
 });
 
-describe('Nested (two-deep) component override', function() {
+describe('Nested (two-deep) component override', () => {
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ParentComp, FakeChildWithGrandchildComp, FakeGrandchildComp]

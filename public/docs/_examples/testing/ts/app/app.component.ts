@@ -5,6 +5,4 @@ import { Component }   from '@angular/core';
   selector: 'my-app',
   templateUrl: 'app/app.component.html'
 })
-export class AppComponent {
-  title = 'Test Tour of Heroes';
-}
+export class AppComponent { }

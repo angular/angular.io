@@ -1,53 +1,44 @@
-import {
-  async, ComponentFixture, TestBed
+import { async, ComponentFixture, TestBed
 } from '@angular/core/testing';
 
-import { By }           from '@angular/platform-browser';
+import { By } from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
+import { AppComponent }    from './app.component';
+import { BannerComponent } from './banner.component';
 
-import {
-  HeroService,
-  FakeHeroService
-} from '../test/fake-hero.service';
-
-import {
-  Router,
-  FakeRouter,
-  FakeRouterLink,
-  FakeRouterOutlet
+import { Router, FakeRouter, FakeRouterLink, FakeRouterOutlet
 } from '../test/fake-router';
 
+let comp:    AppComponent;
+let fixture: ComponentFixture<AppComponent>;
+
 describe('AppComponent & TestModule', () => {
-  let comp:    AppComponent;
-  let fixture: ComponentFixture<AppComponent>;
 
   beforeEach( async(() => {
     TestBed.configureTestingModule({
-      declarations: [AppComponent, FakeRouterLink, FakeRouterOutlet],
-      providers:    [{ provide: Router, useClass: FakeRouter}]
+      declarations: [
+        AppComponent, BannerComponent,
+        FakeRouterLink, FakeRouterOutlet
+      ],
+      providers:    [{ provide: Router, useClass: FakeRouter }]
     })
 
-    .overrideComponent(AppComponent, {
-      set: {
-        providers: [{ provide: HeroService, useClass: FakeHeroService}]
-      }
-    })
+    .compileComponents()
 
-    .compileComponents().then(() => {
+    .then(() => {
       fixture = TestBed.createComponent(AppComponent);
-      comp = fixture.componentInstance;
+      comp    = fixture.componentInstance;
     });
+
   }));
+
+  tests();
+});
+
+function tests() {
 
   it('can instantiate it', () => {
     expect(comp).not.toBeNull();
-  });
-
-  it('can get title from template', () => {
-    fixture.detectChanges();
-    let titleEl = fixture.debugElement.query(By.css('h1')).nativeElement;
-    expect(titleEl.textContent).toContain(comp.title);
   });
 
   it('can get RouterLinks from template', () => {
@@ -82,4 +73,44 @@ describe('AppComponent & TestModule', () => {
     fixture.detectChanges();
     expect(link.navigatedTo).toEqual('/heroes');
   });
+}
+
+//////// Testing w/ real root module //////
+// Best to avoid
+// Tricky because we are disabling the router and its configuration
+import { AppModule }    from './app.module';
+
+describe('AppComponent & AppModule', () => {
+
+  beforeEach( async(() => {
+
+    TestBed.configureTestingModule({
+      imports:      [ AppModule ],
+    })
+
+    .overrideModule(AppModule, {
+      // Must get rid of `RouterModule.forRoot` to prevent attempt to configure a router
+      // Can't remove it because it doesn't have a known type (`forRoot` returns an object)
+      // therefore, must reset the entire `imports`
+      set: { imports: [ ]}
+    })
+
+    // Separate override because cannot both `set` and `add/remove` in same override
+    .overrideModule(AppModule, {
+      add: {
+        declarations: [ FakeRouterLink, FakeRouterOutlet ],
+        providers:    [{ provide: Router, useClass: FakeRouter }]
+      }
+    })
+
+    .compileComponents()
+
+    .then(() => {
+      fixture = TestBed.createComponent(AppComponent);
+      comp    = fixture.componentInstance;
+    });
+  }));
+
+  tests();
 });
+

@@ -49,6 +49,7 @@ function toHaveText(
     compare: function (actual: any, expected: string, expectationFailOutput?: any): jasmine.CustomMatcherResult {
       let message = '';
       let nativeElement = actual['nativeElement'];
+      // tslint:disable-next-line:triple-equals
       let pass = nativeElement != undefined;
       if (!pass) {
         message = 'Expected actual to be a native HTMLElement.';

@@ -1,10 +1,14 @@
-import { NgModule }        from '@angular/core';
-import { BrowserModule }   from '@angular/platform-browser';
-import { RouterModule }    from '@angular/router';
+import { NgModule }         from '@angular/core';
+import { BrowserModule }    from '@angular/platform-browser';
+import { RouterModule }     from '@angular/router';
 
-import { AppComponent }    from './app.component';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { HeroModule }      from './hero/hero.module';
+import { AppComponent }     from './app.component';
+import { BannerComponent }  from './banner.component';
+import { UserService }      from './shared/user.service';
+import { WelcomeComponent } from './welcome.component';
+
+import { DashboardModule }  from './dashboard/dashboard.module';
+import { HeroModule }       from './hero/hero.module';
 
 @NgModule({
   imports: [
@@ -15,7 +19,8 @@ import { HeroModule }      from './hero/hero.module';
       { path: '', redirectTo: 'dashboard', pathMatch: 'full'}
     ])
   ],
-  declarations: [ AppComponent ],
+  providers:    [ UserService ],
+  declarations: [ AppComponent, BannerComponent, WelcomeComponent ],
   bootstrap:    [ AppComponent ]
 })
 export class AppModule { }

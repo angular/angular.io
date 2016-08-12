@@ -9,6 +9,10 @@ import 'rxjs/add/operator/delay';
 
 ////////// The App: Services and Components for the tests. //////////////
 
+export class Hero {
+  name: string;
+}
+
 ////////// Services ///////////////
 // #docregion FancyService
 @Injectable()
@@ -120,6 +124,34 @@ export class ParentComp { }
 })
 export class ChildComp {
   childBinding = 'Child';
+}
+
+@Component({
+  selector: 'io-comp',
+  template: `<div class="hero" (click)="click()">Original {{hero.name}}</div>`
+})
+export class IoComp {
+  @Input() hero: Hero;
+  @Output() selected = new EventEmitter<Hero>();
+  click() { this.selected.emit(this.hero); }
+}
+
+@Component({
+  selector: 'io-parent-comp',
+  template: `
+  <p *ngIf="!selectedHero"><i>Click to select a hero</i></p>
+  <p *ngIf="selectedHero">The selected hero is {{selectedHero.name}}</p>
+  <io-comp
+    *ngFor="let hero of heroes"
+    [hero]=hero
+    (selected)="onSelect($event)">
+  </io-comp>
+  `
+})
+export class IoParentComp {
+  heroes: Hero[] = [ {name: 'Bob'}, {name: 'Carol'}, {name: 'Ted'}, {name: 'Alice'} ];
+  selectedHero: Hero;
+  onSelect(hero: Hero) { this.selectedHero = hero; }
 }
 
 @Component({
@@ -277,16 +309,18 @@ export class ReversePipeComp {
 }
 
 @Component({
-  moduleId: module.id,
   selector: 'bag-comp',
   template: `
     <h1>Bag-a-specs</h1>
     <my-if-parent-comp></my-if-parent-comp>
     <hr>
-    <h3>External Template Comp</h3>
+    <h3>Input/Output Component</h3>
+    <io-parent-comp></io-parent-comp>
+    <hr>
+    <h3>External Template Component</h3>
     <external-template-comp></external-template-comp>
     <hr>
-    <h3>Comp With External Template Comp</h3>
+    <h3>Component With External Template Component</h3>
     <comp-w-ext-comp></comp-w-ext-comp>
     <hr>
     <h3>TitleCase Pipe</h3>
@@ -295,13 +329,11 @@ export class ReversePipeComp {
     <h3>InputValueBinder Directive</h3>
     <input-value-comp></input-value-comp>
     <hr>
-    <h3>ButtonComp</h3>
+    <h3>Button Component</h3>
     <button-comp></button-comp>
   `
 })
-export class BagComponent {
-  title = 'Test Tour of Heroes';
-}
+export class BagComponent { }
 //////// Aggregations ////////////
 
 export const bagDeclarations = [
@@ -311,6 +343,7 @@ export const bagDeclarations = [
   ExternalTemplateComp, CompWithCompWithExternalTemplate,
   InputComp,
   InputValueBinderDirective, InputValueBinderComp,
+  IoComp, IoParentComp,
   MyIfComp, MyIfChildComp, MyIfParentComp,
   ParentComp,
   TestProvidersComp, TestViewProvidersComp,
@@ -321,19 +354,16 @@ export const bagProviders = [DependentService, FancyService];
 
 ////////////////////
 ////////////
-import { NgModule, ApplicationRef } from '@angular/core';
-import { BrowserModule }            from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { NgModule }      from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule }   from '@angular/forms';
 
 @NgModule({
   imports: [BrowserModule, FormsModule],
   declarations: bagDeclarations,
-  providers: bagProviders,
-  entryComponents: [BagComponent]
+  providers:    bagProviders,
+  entryComponents: [BagComponent],
+  bootstrap:       [BagComponent]
 })
-export class BagModule {
-  constructor(appRef: ApplicationRef) {
-    appRef.bootstrap(BagComponent);
-  }
-}
+export class BagModule { }
 

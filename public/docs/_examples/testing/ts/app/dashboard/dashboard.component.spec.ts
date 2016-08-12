@@ -67,25 +67,25 @@ describe('DashboardComponent: w/o Angular TestBed', () => {
 });
 
 //////  WITH ANGULAR TESTBED ///////
+// import { DashboardHeroComponent } from './dashboard-hero.component';
+import { DashboardModule } from './dashboard.module';
+
 describe('DashboardComponent: with TestBed', () => {
   let comp: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
 
-  let heroService: FakeHeroService;
-  let router: FakeRouter;
-
   beforeEach( async(() => {
-    heroService = new FakeHeroService();
-    router = new FakeRouter();
 
     TestBed.configureTestingModule({
-      declarations: [DashboardComponent],
+      imports:   [ DashboardModule ],
       providers: [
-        { provide: Router,      useValue: router},
-        { provide: HeroService, useValue: heroService }
+        { provide: HeroService, useClass: FakeHeroService },
+        { provide: Router,      useClass: FakeRouter }
       ]
     })
+
     .compileComponents()
+
     .then(() => {
       fixture = TestBed.createComponent(DashboardComponent);
       comp = fixture.componentInstance;
@@ -104,52 +104,46 @@ describe('DashboardComponent: with TestBed', () => {
       'should not have heroes until service promise resolves');
   });
 
-  it('should HAVE heroes after HeroService gets them', async(() => {
-    fixture.detectChanges();    // runs ngOnInit -> getHeroes
+  describe('after get dashboard heroes', () => {
 
-    // whenStable == No need for the `lastPromise` hack!
-    // fakeHeroService.lastPromise // the one from getHeroes
-    //   .then(() => {
-    //     expect(comp.heroes.length).toBeGreaterThan(0,
-    //       'should have heroes after service promise resolves');
-    //   });
+     // Trigger component so it gets heroes and binds to them
+     beforeEach(async(() => {
+        // runs ngOnInit -> getHeroes
+        fixture.detectChanges();
 
-    fixture.whenStable().then(() => {
+        // whenStable == No need for the `lastPromise` hack!
+        fixture.whenStable()
+          // 2nd detectChanges allows heroes to bind
+          .then(() => fixture.detectChanges());
+     }));
+
+    it('should HAVE heroes', () => {
       expect(comp.heroes.length).toBeGreaterThan(0,
         'should have heroes after service promise resolves');
     });
 
-  }));
-
-  it('should DISPLAY heroes after HeroService gets them', async(() => {
-    fixture.detectChanges();    // runs ngOnInit -> getHeroes
-
-    fixture.whenStable().then(() => {
-      fixture.detectChanges();      // update bindings
-
+    it('should DISPLAY heroes', () => {
       // Find and examine the displayed heroes
-      let heroNames = fixture.debugElement.queryAll(By.css('h4'));
-      expect(heroNames.length).toEqual(4, 'should display 4 heroes');
-
-      // the 4th displayed hero should be the 5th fake hero, piped to `uppercase`
-      // expect(heroNames[3].nativeElement.textContent)
-      //   .toContain(heroService.heroes[4].name.toUpperCase());
-
-      // custom 'toHaveText' matcher
-      expect(heroNames[3]).toHaveText(heroService.heroes[4].name.toUpperCase());
+      // Look for them in the DOM by css class
+      let heroes = fixture.debugElement.queryAll(By.css('.hero'));
+      expect(heroes.length).toEqual(4, 'should display 4 heroes');
     });
 
-  }));
+    it('should tell ROUTER to navigate when hero clicked', () => {
 
-  it('should tell ROUTER to navigate by hero id', () => {
+      // get the (fake) router injected into the component and spy on it
+      let router = fixture.debugElement.injector.get(Router);
+      let spy = spyOn(router, 'navigate');
 
-    let spy = spyOn(router, 'navigate');
+      let heroEl = fixture.debugElement.query(By.css('.hero')); // get first hero DebugElement
 
-    let hero: Hero = {id: 42, name: 'Abbracadabra' };
-    comp.gotoDetail(hero);
+      heroEl.triggerEventHandler('click', null);
 
-    let navArgs = spy.calls.mostRecent().args[0];
-    expect(navArgs[0]).toEqual('../heroes/42', 'should nav to HeroDetail for Hero 42');
+      let navArgs = spy.calls.first().args[0]; // args passed to router.navigate() == first args of the first call
+      let id = comp.heroes[0].id; // expecting to navigate to id of component's first hero
+
+      expect(navArgs[0]).toEqual('../heroes/' + id, 'should nav to HeroDetail for first hero');
+    });
   });
 
 });

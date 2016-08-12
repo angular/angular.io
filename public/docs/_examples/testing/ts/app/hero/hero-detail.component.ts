@@ -1,20 +1,20 @@
-import { Component, OnInit }     from '@angular/core';
-import { ActivatedRoute, Router} from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router}    from '@angular/router';
 
-import { Hero }        from './hero';
-import { HeroService } from './hero.service';
+import { Hero }              from './hero';
+import { HeroDetailService } from './hero-detail.service';
 
 @Component({
   selector: 'app-hero-detail',
   templateUrl: 'app/hero/hero-detail.component.html',
   styleUrls:  ['app/hero/hero-detail.component.css'],
-  inputs:     ['hero']
+  providers:  [ HeroDetailService ]
 })
 export class HeroDetailComponent implements OnInit {
-  hero: Hero;
+  @Input() hero: Hero;
 
   constructor(
-    private heroService: HeroService,
+    private heroDetailService: HeroDetailService,
     private route: ActivatedRoute,
     private router: Router) {
   }
@@ -27,7 +27,7 @@ export class HeroDetailComponent implements OnInit {
       // no id; act as if is new
       this.hero = {id: 0, name: ''};
     } else {
-      this.heroService.getHero(id).then(hero => {
+      this.heroDetailService.getHero(id).then(hero => {
         if (hero) {
           this.hero = hero;
         } else {
@@ -35,6 +35,10 @@ export class HeroDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  save() {
+    this.heroDetailService.saveHero(this.hero).then(() => this.gotoList());
   }
 
   gotoList() {

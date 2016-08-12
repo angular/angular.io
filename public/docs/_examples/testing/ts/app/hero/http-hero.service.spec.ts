@@ -8,8 +8,7 @@ import {
 } from '@angular/http/testing';
 
 import {
-  Http, HTTP_PROVIDERS,
-  XHRBackend, Response, ResponseOptions
+  HttpModule, Http, XHRBackend, Response, ResponseOptions
 } from '@angular/http';
 
 import { Observable } from 'rxjs/Observable';
@@ -29,14 +28,14 @@ const makeHeroData = () => [
   { id: 4, name: 'Tornado' }
 ] as Hero[];
 
-////////  SPECS  /////////////
+////////  Tests  /////////////
 describe('Http-HeroService (mockBackend)', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [ HttpModule ],
       providers: [
         HeroService,
-        HTTP_PROVIDERS,
         { provide: XHRBackend, useClass: MockBackend }
       ]
     })

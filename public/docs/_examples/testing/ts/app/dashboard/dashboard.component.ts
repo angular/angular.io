@@ -28,4 +28,10 @@ export class DashboardComponent implements OnInit {
     let link = `../heroes/${hero.id}`;
     this.router.navigate([link]);
   }
+
+  get title() {
+    let cnt = this.heroes.length;
+    return cnt === 0 ? 'No Heroes' :
+      cnt === 1 ? 'Top Hero' :  `Top ${cnt} Heroes`;
+  }
 }
