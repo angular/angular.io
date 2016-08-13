@@ -1,19 +1,19 @@
 // #docplaster
 // #docregion , v2
 import 'dart:async';
+// #docregion goBack
 import 'dart:html';
 
-// #docregion import-oninit
+// #enddocregion goBack
 import 'package:angular2/core.dart';
-// #enddocregion import-oninit
-// #docregion router
+// #docregion added-imports
 import 'package:angular2/router.dart';
-// #enddocregion router
 
+// #enddocregion added-imports
 import 'hero.dart';
-// #docregion import-hero-service
+// #docregion added-imports
 import 'hero_service.dart';
-// #enddocregion import-hero-service
+// #enddocregion added-imports
 
 @Component(
     selector: 'my-hero-detail',
@@ -23,9 +23,9 @@ import 'hero_service.dart';
     styleUrls: const ['hero_detail_component.css']
     // #docregion v2
     )
-// #docregion implement
+// #docregion goBack, implement
 class HeroDetailComponent implements OnInit {
-  // #enddocregion implement
+  // #enddocregion goBack, implement
   Hero hero;
   // #docregion ctor
   final HeroService _heroService;
@@ -36,17 +36,14 @@ class HeroDetailComponent implements OnInit {
 
   // #docregion ngOnInit
   Future<Null> ngOnInit() async {
-    // #docregion get-id
     var idString = _routeParams.get('id');
-    var id = int.parse(idString, onError: (_) => null);
-    // #enddocregion get-id
+    var id = int.parse(idString ?? '', onError: (_) => null);
     if (id != null) hero = await (_heroService.getHero(id));
   }
   // #enddocregion ngOnInit
-
   // #docregion goBack
+
   void goBack() {
     window.history.back();
   }
-  // #enddocregion goBack
 }

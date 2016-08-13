@@ -1,16 +1,10 @@
 // #docplaster
-// #docregion
-// #docregion import-oninit, v2
+// #docregion , v2
 import { Component, OnInit } from '@angular/core';
-// #enddocregion import-oninit
-// #docregion router
 import { ActivatedRoute, Params } from '@angular/router';
-// #enddocregion router
 
 import { Hero } from './hero';
-// #docregion import-hero-service
 import { HeroService } from './hero.service';
-// #enddocregion import-hero-service
 
 @Component({
   selector: 'my-hero-detail',
@@ -34,13 +28,11 @@ export class HeroDetailComponent implements OnInit {
 
   // #docregion ngOnInit
   ngOnInit() {
-    // #docregion get-id
     this.route.params.forEach((params: Params) => {
       let id = +params['id'];
       this.heroService.getHero(id)
         .then(hero => this.hero = hero);
     });
-    // #enddocregion get-id
   }
   // #enddocregion ngOnInit
 
