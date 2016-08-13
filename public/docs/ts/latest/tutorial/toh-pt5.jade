@@ -1,31 +1,45 @@
-include ../_util-fns
+- var _example = 'toh-5';
+
+block includes
+  include ../_util-fns
+  - var _appRoutingTsVsAppComp = 'app.routing.ts'
+  - var _declsVsDirectives = 'declarations'
+  - var _RoutesVsAtRouteConfig = 'Routes'
+  - var _RouterModuleVsRouterDirectives = 'RouterModule'
+  - var _redirectTo = 'redirectTo'
 
 :marked
   # Routing Around the App
+
   We received new requirements for our Tour of Heroes application:
+
   * Add a *Dashboard* view.
   * Navigate between the *Heroes* and *Dashboard* views.
   * Clicking on a hero in either view navigates to a detail view of the selected hero.
-  * Clicking a *deep link* in an email opens the detail view for a particular hero;
+  * Clicking a *deep link* in an email opens the detail view for a particular hero.
 
   When we’re done, users will be able to navigate the app like this:
+
 figure.image-display
   img(src='/resources/images/devguide/toh/nav-diagram.png' alt="View navigations")
+
 :marked
   We'll add Angular’s *Component Router* to our app to satisfy these requirements.
+
 .l-sub-section
   :marked
-    The [Routing and Navigation](../guide/router.html) chapter covers the router in more detail
-    than we will in this tutorial.
+    The [Routing and Navigation](../guide/router.html) chapter covers the router
+    in more detail than we will in this tutorial.
 
 :marked
   Run the <live-example></live-example> for this part.
 
-.l-sub-section
-  img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
-  :marked
-    To see the URL changes in the browser address bar,
-    pop out the preview window by clicking the blue 'X' button in the upper right corner:
++ifDocsFor('ts|js')
+  .l-sub-section
+    img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
+    :marked
+      To see the URL changes in the browser address bar,
+      pop out the preview window by clicking the blue 'X' button in the upper right corner:
 
 .l-main-section
 :marked
@@ -33,33 +47,36 @@ figure.image-display
   Before we continue with our Tour of Heroes, let’s verify that we have the following structure after adding our hero service
   and hero detail component. If not, we’ll need to go back and follow the previous chapters.
 
-.filetree
-  .file angular2-tour-of-heroes
-  .children
-    .file app
+block intro-file-tree
+  .filetree
+    .file angular2-tour-of-heroes
     .children
-      .file app.component.ts
-      .file app.module.ts
-      .file hero.ts
-      .file hero-detail.component.ts
-      .file hero.service.ts
-      .file main.ts
-      .file mock-heroes.ts
-    .file node_modules ...
-    .file typings ...
-    .file index.html
-    .file package.json
-    .file styles.css
-    .file systemjs.config.js
-    .file tsconfig.json
-    .file typings.json
-:marked
-  ### Keep the app transpiling and running
-  Open a terminal/console window and enter the following command to
-  start the TypeScript compiler, start the server, and watch for changes:
+      .file app
+      .children
+        .file app.component.ts
+        .file app.module.ts
+        .file hero.service.ts
+        .file hero.ts
+        .file hero-detail.component.ts
+        .file main.ts
+        .file mock-heroes.ts
+      .file node_modules ...
+      .file typings ...
+      .file index.html
+      .file package.json
+      .file styles.css
+      .file systemjs.config.js
+      .file tsconfig.json
+      .file typings.json
 
-code-example(language="bash").
-  npm start
+block keep-app-running
+  :marked
+    ### Keep the app transpiling and running
+    Open a terminal/console window and enter the following command to
+    start the TypeScript compiler, start the server, and watch for changes:
+
+  code-example(language="bash").
+    npm start
 
 :marked
   The application runs and updates automatically as we continue to build the Tour of Heroes.
@@ -89,50 +106,53 @@ code-example(language="bash").
   Let's move the display of *Heroes* out of `AppComponent` and into its own `HeroesComponent`.
 
   ### *HeroesComponent*
+
   `AppComponent` is already dedicated to *Heroes*.
   Instead of moving anything out of `AppComponent`, we'll just rename it `HeroesComponent`
   and create a new `AppComponent` shell separately.
 
   The steps are to rename:
-  * `app.component.ts` file to `heroes.component.ts`
+  * <span ngio-ex>app.component.ts</span> file to <span ngio-ex>heroes.component.ts</span>
   * `AppComponent` class to `HeroesComponent`
   * Selector `my-app` to `my-heroes`
 
-:marked
-+makeExample('toh-5/ts/app/heroes.component.ts', 'heroes-component-renaming', 'app/heroes.component.ts (showing renamings only)')(format=".")
++makeExcerpt('app/heroes.component.ts (showing renamings only)', 'heroes-component-renaming')
 
 :marked
   ## Create *AppComponent*
+
   The new `AppComponent` will be the application shell.
   It will have some navigation links at the top and a display area below for the pages we navigate to.
 
   The initial steps are:
 
-  * create a new file named `app.component.ts`.
-  * define an `AppComponent` class.
-  * `export` it so we can reference it during bootstrapping in `app.module.ts`.
-  * expose an application `title` property.
-  * add the `@Component` metadata decorator above the class with a `my-app` selector.
-  * add a template with `<h1>` tags surrounding a binding to the `title` property.
-  * add the `<my-heroes>` tags to the template so we still see the heroes.
-  * add the `HeroesComponent` to the root NgModule's `declarations` array so Angular recognizes the `<my-heroes>` tags.
-  * add the `HeroService` to the root NgModule's `providers` array because we'll need it in every other view.
-  * add the supporting `import` statements.
+  * Create a new file named <span ngio-ex>app.component.ts</span>.
+  * Define an `AppComponent` class.
+  * Export it so we can reference it during bootstrapping in <span ngio-ex>!{_appModuleTsVsMainTs}</span>.
+  * Expose an application `title` property.
+  * Add the `@Component` metadata !{_decorator} above the class with a `my-app` selector.
+  * Add a template with `<h1>` tags surrounding a binding to the `title` property.
+  * Add the `<my-heroes>` tags to the template so we still see the heroes.
+  * Add the `HeroesComponent` to the <span if-docs="ts">root NgModule's</span> `!{_declsVsDirectives}` !{_array} so Angular recognizes the `<my-heroes>` tags.
+  * Add the `HeroService` to the <span if-docs="ts">root NgModule's</span> `providers` !{_array} because we'll need it in every other view.
+  * Add the supporting `import` statements.
 
   Our first draft looks like this:
-+makeTabs(
-  `toh-5/ts/app/app.component.1.ts,
-  toh-5/ts/app/app.module.1.ts`,
-  ',',
-  `app/app.component.ts (v1),
-  app/app.module.ts (v1)`)
+
+block app-comp-v1
+  +makeTabs(
+    `toh-5/ts/app/app.component.1.ts,
+    toh-5/ts/app/app.module.1.ts`,
+    ',',
+    `app/app.component.ts (v1),
+    app/app.module.ts (v1)`)
 
 :marked
 .callout.is-critical
   header Remove <i>HeroService</i> from the <i>HeroesComponent</i> providers
   :marked
-    Go back to the `HeroesComponent` and **remove the `HeroService`** from its `providers` array.
-    We are *promoting* this service from the `HeroesComponent` to the root `NgModule`.
+    Go back to the `HeroesComponent` and **remove the `HeroService`** from its `providers` !{_array}.
+    We are *promoting* this service from the `HeroesComponent` to the <span if-docs="ts">root `NgModule`, </span>`!{_AppModuleVsAppComp}`.
     We ***do not want two copies*** of this service at two different levels of our app.
 :marked
   The app still runs and still displays heroes.
@@ -148,88 +168,110 @@ code-example(language="bash").
 
   We'll need the Angular *Component Router*.
 
-  ### Set the base tag
-  Open the `index.html` and add `<base href="/">` at the top of the `<head>` section.
-+makeExample('toh-5/ts/index.html', 'base-href', 'index.html (base href)')(format=".")
+  ### Add the base tag
+
+  Open `index.html` and add `<base href="/">` at the top of the `<head>` section.
+
++makeExcerpt('index.html', 'base-href')
+
 .callout.is-important
   header base href is essential
   :marked
     See the *base href* section of the [Router](../guide/router.html#!#base-href) chapter to learn why this matters.
+
+block router-config-intro
+  :marked
+    The Angular router is a combination of multiple provided services (`RouterModule`), multiple directives (`RouterOutlet,
+    RouterLink, RouterLinkActive`), and a configuration (`Routes`). We'll configure our routes first.
+
+    ### Configure the routes
+
+    The *Component Router* is an external, optional Angular NgModule called `RouterModule`.
+
+    Our application doesn't have any routes yet.
+    Start by creating a configuration file for the application routes.
+
 :marked
-  The Angular router is a combination of multiple provided services (`RouterModule`), multiple directives (`RouterOutlet,
-  RouterLink, RouterLinkActive`), and a configuration (`Routes`). We'll configure our routes first:
-
-  ### Configure the routes
-
-  The *Component Router* is an external, optional Angular NgModule called `RouterModule`.
-
-  Our application doesn't have any routes yet.
-  Start by creating a configuration file for the application routes.
   *Routes* tell the router which views to display when a user clicks a link or
   pastes a URL into the browser address bar.
 
-  Our first route goes to the `HeroesComponent`.
-+makeExample('toh-5/ts/app/app.routing.1.ts', 'routing-config', 'app/app.routing.ts (heroes route)')(format=".")
+  Let's define our first route, a route to the `HeroesComponent`.
+
+- var _routingFile = _docsFor == 'dart' ? 'app/app.component.2.ts' : 'app/app.routing.1.ts'
++makeExcerpt(_routingFile + ' (heroes route)', 'config')
+
+- var _are = _docsFor == 'dart' ? 'takes' : 'are'
 :marked
-  The `Routes` are an array of *route definitions*.
+  The `!{_RoutesVsAtRouteConfig}` !{_are} !{_an} !{_array} of *route definitions*.
   We have only one route definition at the moment but rest assured, we'll add more.
 
-  This *route definition* has two parts:
-  * **path**: the router matches this route's path to the URL in the browser address bar (`/heroes`).
+  This *route definition* has the following parts:
 
+  * **path**: the router matches this route's path to the URL in the browser address bar (`/heroes`).
+  <li if-docs="dart"> **name**: the official name of the route; it *must* begin with a capital letter to avoid confusion with the *path* (`Heroes`).</li>
   * **component**: the component that the router should create when navigating to this route (`HeroesComponent`).
 
 .l-sub-section
   :marked
-    Learn more about defining routes with Routes in the [Routing](../guide/router.html) chapter.
+    Learn more about defining routes with `!{_RoutesVsAtRouteConfig}` in the [Routing](../guide/router.html) chapter.
 
-:marked
-  We'll export the `routing` constant using the **RouterModule.forRoot** method with our array of routes.
-  This returns a configured router module we'll add to our root NgModule, `AppModule`.
-
-+makeExample('toh-5/ts/app/app.routing.1.ts', 'routing-export', 'app/app.routing.ts (routing export)')(format=".")
-.l-sub-section
++ifDocsFor('ts|js')
   :marked
-    We call the `forRoot` method because we're providing a configured router at the _root_ of the application.
-    The `forRoot` method gives us the Router service providers and directives needed for routing.
+    We'll export the `appRoutes` constant using the **RouterModule.forRoot** method with our !{_array} of routes.
+    This returns a configured router module we'll add to our root NgModule, `AppModule`.
 
-:marked
-  ### Make the router available.
-  We've setup our initial routes in our `app.routing.ts` file. Now we'll add it to our root NgModule.
+  +makeExcerpt('app/app.routing.1.ts', 'export')
 
-  We'll import our `routing` constant from our `app.routing.ts` file and add it root NgModule's `imports` array.
+  .l-sub-section
+    :marked
+      We call the `forRoot` method because we're providing a configured router at the _root_ of the application.
+      The `forRoot` method gives us the Router service providers and directives needed for routing.
 
-  We'll also import our `HeroesComponent` and add it to our `declarations` array.
+  :marked
+    ### Make the router available.
 
-+makeExample('toh-5/ts/app/app.module.2.ts', '', 'app/app.module.ts')(format=".")
+    We've setup our initial routes in our `app.routing.ts` file. Now we'll add it to our root NgModule.
 
+    We'll import our `routing` constant from our `app.routing.ts` file and add it root NgModule's `imports` !{_array}.
+
+    We'll also import our `HeroesComponent` and add it to our `declarations` !{_array}.
+
+  +makeExcerpt('app/app.module.2.ts')
+
+- var _heroesRoute = _docsFor == 'dart' ? "'Heroes'" : 'heroes'
 :marked
   ### Router Outlet
 
   If we paste the path, `/heroes`, into the browser address bar,
-  the router should match it to the `heroes` route and display the `HeroesComponent`.
+  the router should match it to the `!{_heroesRoute}` route and display the `HeroesComponent`.
   But where?
 
   We have to ***tell it where*** by adding `<router-outlet>` marker tags to the bottom of the template.
-  `RouterOutlet` is one of the directives provided by the `RouterModule`.
+  `RouterOutlet` is one of the <span if-docs="ts">directives provided by</span> the `!{_RouterModuleVsRouterDirectives}`.
   The router displays each component immediately below the `<router-outlet>` as we navigate through the application.
 
   ### Router Links
+
   We don't really expect users to paste a route URL into the address bar.
   We add an anchor tag to the template which, when clicked, triggers navigation to the `HeroesComponent`.
 
   The revised template looks like this:
-+makeExample('toh-5/ts/app/app.component.2.ts', 'template', 'app/app.component.ts (template v1)')(format=".")
-:marked
-  Notice the `routerLink` binding in the anchor tag.
-  We bind the `RouterLink` directive (another of the `RouterModule` directives) to a string
-  that tells the router where to navigate when the user clicks the link.
 
-  Since our link is not dynamic, we define a *routing instruction* with a **one-time binding** to our route **path**.
-  Looking back at the route configuration, we confirm that `'/heroes'` is the path of the route to the `HeroesComponent`.
-.l-sub-section
++makeExcerpt('app/app.component.2.ts (template v1)', 'template')
+
+block routerLink
   :marked
-    For more dynamic router links, learn about the *link parameters array* in the [Routing](../guide/router.html#link-parameters-array) chapter.
+    Notice the `routerLink` binding in the anchor tag.
+    We bind the `RouterLink` directive (another of the `RouterModule` directives) to a string
+    that tells the router where to navigate when the user clicks the link.
+
+    Since our link is not dynamic, we define a *routing instruction* with a **one-time binding** to our route **path**.
+    Looking back at the route configuration, we confirm that `'/heroes'` is the path of the route to the `HeroesComponent`.
+  .l-sub-section
+    :marked
+      For more dynamic router links, learn about the *link parameters array*
+      in the [Routing](../guide/router.html#link-parameters-array) chapter.
+
 :marked
   Refresh the browser.  We see only the app title. We don't see the heroes list.
 .l-sub-section
@@ -243,7 +285,9 @@ code-example(language="bash").
   and now we see the list of heroes. We are navigating at last!
 
   At this stage, our `AppComponent` looks like this.
-+makeExample('toh-5/ts/app/app.component.2.ts',null, 'app/app.component.ts (v2)')
+
++makeExample('app/app.component.2.ts', '', 'app/app.component.ts (v2)')
+
 :marked
   The  *AppComponent* is now attached to a router and displaying routed views.
   For this reason and to distinguish it from other kinds of components,
@@ -255,42 +299,52 @@ code-example(language="bash").
   Routing only makes sense when we have multiple views. We need another view.
 
   Create a placeholder `DashboardComponent` that gives us something to navigate to and from.
-+makeExample('toh-5/ts/app/dashboard.component.1.ts',null, 'app/dashboard.component.ts (v1)')(format=".")
+
++makeExcerpt('app/dashboard.component.1.ts (v1)', '')
+
 :marked
   We’ll come back and make it more useful later.
 
   ### Configure the dashboard route
-  Go back to `app.routing.ts` and teach it to navigate to the dashboard.
+
+  Go back to `!{_appRoutingTsVsAppComp}` and teach it to navigate to the dashboard.
 
   Import the `DashboardComponent` so we can reference it in the dashboard route definition.
 
-  Add the following `'Dashboard'` route definition to the `Routes` array of definitions.
-+makeExample('toh-5/ts/app/app.routing.2.ts','dashboard-route', 'app/app.routing.ts (Dashboard route)')(format=".")
+  Add the following `'Dashboard'` route definition to the `!{_RoutesVsAtRouteConfig}` !{_array} of definitions.
 
-:marked
-  We also need to add the `DashboardComponent` to our root NgModule's `declarations`.
+- var _file = _docsFor == 'dart' ? 'lib/app_component.dart' : 'app/app.routing.2.ts'
++makeExcerpt(_file + ' (Dashboard route)', 'dashboard-route')
 
-+makeExample('toh-5/ts/app/app.module.3.ts','dashboard-declaration', 'app/app.module.ts (Dashboard declaration)')(format=".")
++ifDocsFor('ts|js')
+  :marked
+    We also need to add the `DashboardComponent` to our root NgModule's `declarations`.
+
+  +makeExcerpt('app/app.module.3.ts (Dashboard declaration)', 'dashboard-declaration')
 
 .l-sub-section
   :marked
-    **Redirect**
+    #### !{_redirectTo}
 
     We want the app to show the dashboard when it starts and
     we want to see a nice URL in the browser address bar that says `/dashboard`.
     Remember that the browser launches with `/` in the address bar.
-    We can use a redirect route to make this happen.
 
-+makeExample('toh-5/ts/app/app.routing.2.ts','redirect-route', 'app/app.routing.ts (Redirect route)')(format=".")
+  block redirect-vs-use-as-default
+    :marked
+      We can use a redirect route to make this happen.
 
-.l-sub-section
-  :marked
-    Learn about the *redirects* in the [Routing](../guide/router.html#!#redirect) chapter.
+    +makeExcerpt('app/app.routing.2.ts (Redirect route)','redirect-route')
+
+    :marked
+      Learn about the *redirects* in the [Routing](../guide/router.html#!#redirect) chapter.
 
 :marked
   Finally, add a dashboard navigation link to the template, just above the *Heroes* link.
 
-+makeExample('toh-5/ts/app/app.component.3.ts','template', 'app/app.component.ts (template)')(format=".")
+- var _file = _docsFor == 'dart' ? 'app/app.component.ts' : 'app/app.component.3.ts'
++makeExcerpt(_file, 'template')
+
 .l-sub-section
   :marked
     We nestled the two links within `<nav>` tags.
@@ -305,15 +359,19 @@ code-example(language="bash").
   Replace the `template` metadata with a `templateUrl` property that points to a new
   template file.
 
-+makeExample('toh-5/ts/app/dashboard.component.ts', 'template-url', 'app/dashboard.component.ts (templateUrl)')(format=".")
++makeExcerpt('app/dashboard.component.ts', 'templateUrl')
+
 .l-sub-section
   :marked
-    We specify the path _all the way back to the application root_ &mdash; `app/` in this case &mdash;
+    We specify the path _all the way back to the application root_ &mdash;
+    <span if-docs="ts">`app/` in this case &mdash;</span>
     because Angular doesn't support relative paths _by default_.
     We _can_ switch to [component-relative paths](../cookbook/component-relative-paths.html) if we prefer.
 :marked
   Create that file with these contents:
-+makeExample('toh-5/ts/app/dashboard.component.html', null, 'app/dashboard.component.html')(format=".")
+
++makeExcerpt('app/dashboard.component.html')
+
 :marked
   We use `*ngFor` once again to iterate over a list of heroes and display their names.
   We added extra `<div>` elements to help with styling later in this chapter.
@@ -324,28 +382,32 @@ code-example(language="bash").
 
   ### Share the *HeroService*
 
-  We'd like to re-use the `HeroService` to populate the component's `heroes` array.
+  We'd like to re-use the `HeroService` to populate the component's `heroes` !{_array}.
 
-  Recall earlier in the chapter that we removed the `HeroService` from the `providers` array of the `HeroesComponent`
-  and added it to the `providers` array of the root `NgModule`.
+  Recall earlier in the chapter that we removed the `HeroService` from the `providers` !{_array} of the `HeroesComponent`
+  and added it to the `providers` !{_array} of `!{_AppModuleVsAppComp}`.
 
   That move created a singleton `HeroService` instance, available to *all* components of the application.
   Angular will inject `HeroService` and we'll use it here in the `DashboardComponent`.
 
   ### Get heroes
-  Open the `dashboard.component.ts` and add the requisite `import` statements.
-+makeExample('toh-5/ts/app/dashboard.component.2.ts','imports', 'app/dashboard.component.ts (imports)')(format=".")
+
+  Open the <span ngio-ex>dashboard.component.ts</span> and add the requisite `import` statements.
+
++makeExcerpt('app/dashboard.component.2.ts','imports')
+
 :marked
   We need `OnInit` interface because we'll initialize the heroes in the `ngOnInit` method as we've done before.
   We need the `Hero` and `HeroService` symbols in order to reference those types.
 
   Now implement the `DashboardComponent` class like this:
-+makeExample('toh-5/ts/app/dashboard.component.2.ts','component', 'app/dashboard.component.ts (class)')
+
++makeExcerpt('app/dashboard.component.2.ts (class)', 'component')
 
 :marked
   We saw this kind of logic before in the `HeroesComponent`.
-  * create a `heroes` array property
-  * inject the `HeroService` in the constructor and hold it in a private `heroService` field.
+  * create a `heroes` !{_array} property
+  * inject the `HeroService` in the constructor and hold it in a private `!{_priv}heroService` field.
   * call the service to get heroes inside the Angular `ngOnInit` lifecycle hook.
 
   The noteworthy differences: we cherry-pick four heroes (2nd, 3rd, 4th, and 5th) with *slice*
@@ -367,7 +429,7 @@ code-example(language="bash").
 
   ### Routing to a hero detail
 
-  We'll add a route to the `HeroDetailComponent` in the `app.routing.ts` where our other routes are configured.
+  We'll add a route to the `HeroDetailComponent` in the `!{_appRoutingTsVsAppComp}` where our other routes are configured.
 
   The new route is a bit unusual in that we must tell the `HeroDetailComponent` *which hero to show*.
   We didn't have to tell the `HeroesComponent` or the `DashboardComponent` anything.
@@ -390,18 +452,25 @@ code-example(format='').
   ### Configure a Route with a Parameter
 
   Here's the *route definition* we'll use.
-+makeExample('toh-5/ts/app/app.routing.2.ts','hero-detail-route', 'app/app.routing.ts (route to HeroDetailComponent)')(format=".")
+
+- var _file = _docsFor == 'dart' ? 'app/app.component.ts' : 'app/app.routing.2.ts'
++makeExcerpt(_file + ' (route to HeroDetailComponent)','hero-detail-route')
+
 :marked
   The colon (:) in the path indicates that `:id` is a placeholder to be filled with a specific hero `id`
   when navigating to the `HeroDetailComponent`.
 .l-sub-section
   :marked
     Of course we have to import the `HeroDetailComponent` before we create this route:
-  +makeExample('toh-5/ts/app/app.routing.2.ts','hero-detail-import')(format=".")
-:marked
-  Add the `HeroDetailComponent` to our root NgModule's `declarations`.
 
-+makeExample('toh-5/ts/app/app.module.3.ts','hero-detail-declaration', 'app/app.module.ts (Hero Detail declaration)')(format=".")
+  - var _file = _docsFor == 'dart' ? 'app/app.component.ts' : 'app/app.routing.2.ts'
+  +makeExcerpt(_file, 'hero-detail-import', '')
+
++ifDocsFor('ts|js')
+  :marked
+    Add the `HeroDetailComponent` to our root NgModule's `declarations`.
+
+  +makeExcerpt('app/app.module.3.ts (Hero Detail declaration)', 'hero-detail-declaration')
 
 :marked
   We're finished with the application routes.
@@ -421,48 +490,73 @@ code-example(format='').
   ## Revise the *HeroDetailComponent*
 
   Before we rewrite the `HeroDetailComponent`, let's review what it looks like now:
+
 +makeExample('toh-4/ts/app/hero-detail.component.ts', null, 'app/hero-detail.component.ts (current)')
+
 :marked
-  The template won't change. We'll display a hero the same way. The big changes are driven by how we get the hero.
+  The template won't change. We'll display a hero the same way.
+  The big changes are driven by how we get the hero.
 
-  We will no longer receive the hero in a parent component property binding.
-  The new `HeroDetailComponent` should take the `id` parameter from the `params` observable
-  in the `ActivatedRoute` service and use the `HeroService` to fetch the hero with that `id`.
+block route-params
+  :marked
+    We will no longer receive the hero in a parent component property binding.
+    The new `HeroDetailComponent` should take the `id` parameter from the `params` observable
+    in the `ActivatedRoute` service and use the `HeroService` to fetch the hero with that `id`.
 
-  We need an import statement to reference the `ActivatedRoute` and `Params` types.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'import-activated-route')(format=".")
+    We need an import statement to reference the `ActivatedRoute` and `Params` types.
+
++makeExcerpt('app/hero-detail.component.ts', 'router', '')
+
 :marked
   We import the `HeroService`so we can fetch a hero.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'import-hero-service')(format=".")
-:marked
-  We import the `OnInit` interface because we'll call the `HeroService` inside the `ngOnInit` component lifecycle hook.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'import-oninit')(format=".")
-:marked
-  We inject the both the `ActivatedRoute` service and the `HeroService` into the constructor as we've done before,
-  making private variables for both:
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'ctor', 'app/hero-detail.component.ts (constructor)')(format=".")
+
++makeExcerpt('app/hero-detail.component.ts', 'import-hero-service', '')
+
+block onInit
+  :marked
+    We import the `OnInit` interface because we'll call the `HeroService` inside the `ngOnInit` component lifecycle hook.
+
+  +makeExcerpt('app/hero-detail.component.ts', 'import-oninit', '')
+
+  :marked
+    We inject both the `ActivatedRoute` service and the `HeroService` into the constructor as we've done before,
+    making private variables for both:
+
++makeExcerpt('app/hero-detail.component.ts (constructor)', 'ctor')
+
 :marked
   We tell the class that we want to implement the `OnInit` interface.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'implement')(format=".")
-:marked
-  Inside the `ngOnInit` lifecycle hook, we use the `params` observable to
-  extract the `id` parameter value from the `ActivateRoute` service
-  and use the `HeroService` to fetch the hero with that `id`.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'ng-oninit', 'app/hero-detail.component.ts (ngOnInit)')(format=".")
-:marked
-  Notice how we extract the `id` by calling the `forEach` method
-  which will deliver our array of route parameters.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'get-id')(format=".")
+
++makeExcerpt('app/hero-detail.component.ts', 'implement', '')(format=".")
+
+block ngOnInit
+  :marked
+    Inside the `ngOnInit` lifecycle hook, we use the `params` observable to
+    extract the `id` parameter value from the `ActivateRoute` service
+    and use the `HeroService` to fetch the hero with that `id`.
+
++makeExcerpt('app/hero-detail.component.ts', 'ngOnInit')
+
+block extract-id
+  :marked
+    Notice how we extract the `id` by calling the `forEach` method
+    which will deliver our !{_array} of route parameters.
+
++makeExcerpt('app/hero-detail.component.ts', 'get-id', '')
+
+- var _str2int = _docsFor == 'dart' ? '<code>int.parse</code> static method' : 'JavaScript (+) operator'
 :marked
   The hero `id` is a number. Route parameters are *always strings*.
-  So we convert the route parameter value to a number with the JavaScript (+) operator.
+  So we convert the route parameter value to a number with the !{_str2int}.
 
   ### Add *HeroService.getHero*
   The problem with this bit of code is that `HeroService` doesn't have a `getHero` method!
   We better fix that quickly before someone notices that we broke the app.
 
   Open `HeroService` and add a `getHero` method that filters the heroes list from `getHeroes` by `id`:
-+makeExample('toh-5/ts/app/hero.service.ts', 'get-hero', 'app/hero.service.ts (getHero)')(format=".")
+
++makeExcerpt('app/hero.service.ts', 'getHero')
+
 :marked
   Return to the `HeroDetailComponent` to clean up loose ends.
 
@@ -474,25 +568,35 @@ code-example(format='').
   The user could click one of the two links in the `AppComponent`. Or click the browser's back button.
   We'll add a third option, a `goBack` method that navigates backward one step in the browser's history stack
 
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'go-back', 'app/hero-detail.component.ts (goBack)')(format=".")
++makeExcerpt('app/hero-detail.component.ts', 'goBack')
+
+- var _CanDeactivateGuard = _docsFor == 'dart' ? '<em>routerCanDeactivate</em> hook' : '<em>CanDeactivate</em> guard'
+- var _CanDeactivateGuardUri = _docsFor == 'dart' ? 'angular2.router/CanDeactivate-class' : 'router/index/CanDeactivate-interface'
 .l-sub-section
  :marked
    Going back too far could take us out of the application.
    That's acceptable in a demo. We'd guard against it in a real application,
-   perhaps with the [*CanDeactivate* guard](../api/router/index/CanDeactivate-interface.html).
+   perhaps with the [!{_CanDeactivateGuard}](../api/!{_CanDeactivateGuardUri}.html).
 :marked
   Then we wire this method with an event binding to a *Back* button that we add to the bottom of the component template.
-+makeExample('toh-5/ts/app/hero-detail.component.html', 'back-button')(format=".")
+
++makeExcerpt('app/hero-detail.component.html', 'back-button', '')
+
 :marked
   Modifing the template to add this button spurs us to take one more incremental improvement and migrate the template to its own file
-  called `hero-detail.component.html`
-+makeExample('toh-5/ts/app/hero-detail.component.html', '', 'app/hero-detail.component.html')(format=".")
+  called <span ngio-ex>hero-detail.component.html</span>
+
++makeExcerpt('app/hero-detail.component.html')
+
 :marked
   We update the component metadata with a `templateUrl` pointing to the template file that we just created.
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'template-url', 'app/hero-detail.component.ts (templateUrl)')(format=".")
+
++makeExcerpt('app/hero-detail.component.ts', 'templateUrl')
+
 :marked
   Here's the (nearly) finished `HeroDetailComponent`:
-+makeExample('toh-5/ts/app/hero-detail.component.ts', 'v2', 'app/hero-detail.component.ts (latest)')(format=".")
+
++makeExcerpt('app/hero-detail.component.ts (latest)', 'v2')
 
 .l-main-section
 :marked
@@ -500,30 +604,40 @@ code-example(format='').
   When a user selects a hero in the dashboard, the app should navigate to the `HeroDetailComponent` to view and edit the selected hero.
 
   In the dashboard template we bound each hero's click event to the `gotoDetail` method, passing along the selected `hero` entity.
-+makeExample('toh-5/ts/app/dashboard.component.html','click', 'app/dashboard.component.html (click binding)')(format=".")
+
++makeExcerpt('app/dashboard.component.html', 'click')
+
 :marked
   We stubbed the `gotoDetail` method when we rewrote the `DashboardComponent`.
   Now we give it a real implementation.
-+makeExample('toh-5/ts/app/dashboard.component.ts','goto-detail', 'app/dashboard.component.ts (gotoDetail)')(format=".")
+
++makeExcerpt('app/dashboard.component.ts','gotoDetail')
+
+- var _pathVsName = _docsFor == 'dart' ? 'name' : 'path'
 :marked
   The `gotoDetail` method navigates in two steps:
-  1. set a route *link parameters array*
-  1. pass the array to the router's navigate method.
+  1. set a route *link parameters !{_array}*
+  1. pass the !{_array} to the router's navigate method.
 
-  We wrote *link parameters arrays* in the `AppComponent` for the navigation links.
-  Those arrays had only one element, the path of the destination route.
+  We wrote *link parameters !{_array}s* in the `AppComponent` for the navigation links.
+  Those !{_array}s had only one element, the !{_pathVsName} of the destination route.
 
-  This array has two elements, the ***path*** of the destination route and a ***route parameter***
+  This !{_array} has two elements, the ***!{_pathVsName}*** of the destination route and a ***route parameter***
   with an `id` field set to the value of the selected hero's `id`.
 
-  The two array items align with the ***path*** and ***:id*** token in the parameterized `HeroDetail` route configuration we added to `app.routing.ts` earlier in the chapter.
-+makeExample('toh-5/ts/app/app.routing.2.ts','hero-detail-route', 'app/app.routing.ts (hero detail route)')(format=".")
+  The two !{_array} items align with the ***!{_pathVsName}*** and ***:id*** token in the parameterized `HeroDetail` route configuration we added to `!{_appRoutingTsVsAppComp}` earlier in the chapter.
+
+- var _file = _docsFor == 'dart' ? 'app/app.component.ts' : 'app/app.routing.2.ts'
++makeExcerpt(_file + ' (hero detail route)', 'hero-detail-route')
+
 :marked
   The `DashboardComponent` doesn't have the router yet. We obtain it in the usual way:
   import the `router` reference and inject it in the constructor (along with the `HeroService`):
 
-+makeExample('toh-5/ts/app/dashboard.component.ts','import-router', 'app/dashboard.component.ts (excerpts)')(format=".")
-+makeExample('toh-5/ts/app/dashboard.component.ts','ctor')(format=".")
++makeExcerpt('app/dashboard.component.ts ()','import-router')
+
++makeExcerpt('app/dashboard.component.ts','ctor', '')
+
 :marked
   Refresh the browser and select a hero from the dashboard; the app should navigate directly to that hero’s details.
 
@@ -534,7 +648,9 @@ code-example(format='').
 
   That component's current template exhibits a "master/detail" style with the list of heroes
   at the top and details of the selected hero below.
+
 +makeExample('toh-4/ts/app/app.component.ts','template', 'app/heroes.component.ts (current template)')(format=".")
+
 :marked
   Delete the last line of the template with the `<my-hero-detail>` tags.
 
@@ -547,7 +663,9 @@ code-example(format='').
 
   ### Add the *mini-detail*
   Add the following HTML fragment at the bottom of the template where the `<my-hero-detail>` used to be:
-+makeExample('toh-5/ts/app/heroes.component.html','mini-detail')(format=".")
+
++makeExcerpt('app/heroes.component.html', 'mini-detail', '')
+
 :marked
   After clicking a hero, the user should see something like this below the hero list:
 
@@ -558,7 +676,9 @@ figure.image-display
 
   Notice that the hero's name is displayed in CAPITAL LETTERS. That's the effect of the `UpperCasePipe`
   that we slipped into the interpolation binding. Look for it right after the pipe operator ( | ).
-+makeExample('toh-5/ts/app/heroes.component.html','pipe')(format=".")
+
++makeExcerpt('app/heroes.component.html', 'pipe', '')
+
 :marked
   Pipes are a good way to format strings, currency amounts, dates and other display data.
   Angular ships with several pipes and we can write our own.
@@ -574,20 +694,31 @@ figure.image-display
   It's difficult to find the component logic amidst the noise of HTML and CSS.
 
   Let's migrate the template and the styles to their own files before we make any more changes:
-  1. *Cut-and-paste* the template contents into a new `heroes.component.html` file.
-  1. *Cut-and-paste* the styles contents into a new `heroes.component.css` file.
+  1. *Cut-and-paste* the template contents into a new <span ngio-ex>heroes.component.html</span> file.
+  1. *Cut-and-paste* the styles contents into a new <span ngio-ex>heroes.component.css</span> file.
   1. *Set* the component metadata's `templateUrl` and `styleUrls` properties to refer to both files.
 
-+makeExample('toh-5/ts/app/heroes.component.ts', 'metadata', 'app/heroes.component.ts (revised metadata)')(format=".")
++ifDocsFor('dart')
+  :marked
+    Because the template for `HeroesComponent` no longer uses `HeroDetailComponent`
+    directly &mdash; instead using the router to _navigate_ to it &mdash; we can
+    remove `HeroDetailComponent` from the directives list. That
+    list is now empty, so we can remove the `directives` argument. The revised
+    `@Component` looks like this:
+
++makeExcerpt('app/heroes.component.ts (revised metadata)', 'metadata')
+
 :marked
   Now we can see what's going on as we update the component class along the same lines as the dashboard:
   1. Import the `router`
   1. Inject the `router` in the constructor (along with the `HeroService`)
   1. Implement the `gotoDetail` method by calling the `router.navigate` method
-  with a two-part `HeroDetail` *link parameters array*.
+  with a two-part `HeroDetail` *link parameters !{_array}*.
 
   Here's the revised component class:
-+makeExample('toh-5/ts/app/heroes.component.ts', 'class', 'app/heroes.component.ts (class)')
+
++makeExcerpt('app/heroes.component.ts', 'class')
+
 :marked
   Refresh the browser and start clicking.
   We can navigate around the app, from the dashboard to hero details and back,
@@ -610,47 +741,59 @@ figure.image-display
   they'll completely obscure the component logic.
   Let's not do that. It's easier to edit CSS in a separate `*.css` file anyway.
 
-  Add a `dashboard.component.css` file to the `app` folder and reference
-  that file in the component metadata's `styleUrls` array property like this:
-+makeExample('toh-5/ts/app/dashboard.component.ts', 'css', 'app/dashboard.component.ts (styleUrls)')(format=".")
+  Add a <span ngio-ex>dashboard.component.css</span> file to the `app` folder and reference
+  that file in the component metadata's `styleUrls` !{_array} property like this:
+
++makeExcerpt('app/dashboard.component.ts (styleUrls)', 'css')
+
 :marked
 .l-sub-section
   :marked
-    The `styleUrls` property is an array of style file names (with paths).
+    The `styleUrls` property is !{_an} !{_array} of style file names (with paths).
     We could list multiple style files from different locations if we needed them.
     As with `templateUrl`, we must specify the path _all the way back to the application root_.
 :marked
   ### Stylish Hero Details
   The designers also gave us CSS styles specifically for the `HeroDetailComponent`.
 
-  Add a `hero-detail.component.css` to the `app` folder and refer to that file inside
-  the `styleUrls` array as we did for `DashboardComponent`.
+  Add a <span ngio-ex>hero-detail.component.css</span> to the `app` folder and refer to that file inside
+  the `styleUrls` !{_array} as we did for `DashboardComponent`.
 
   Here's the content for the aforementioned component CSS files.
-+makeTabs(
-  `toh-5/ts/app/hero-detail.component.css,
-  toh-5/ts/app/dashboard.component.css`,
-  null,
-  `app/hero-detail.component.css,
-  app/dashboard.component.css`)
+
+block css-files
+  +makeTabs(
+    `toh-5/ts/app/hero-detail.component.css,
+    toh-5/ts/app/dashboard.component.css`,
+    null,
+    `app/hero-detail.component.css,
+    app/dashboard.component.css`)
+
 :marked
   ### Style the Navigation Links
   The designers gave us CSS to make the navigation links in our `AppComponent` look more like selectable buttons.
   We cooperated by surrounding those links in `<nav>` tags.
 
-  Add a `app.component.css` file to the `app` folder with the following content.
-+makeExample('toh-5/ts/app/app.component.css', '', 'app/app.component.css (navigation styles)')
-.l-sub-section
-  :marked
-    **The *routerLinkActive* directive**
+  Add a <span ngio-ex>app.component.css</span> file to the `app` folder with the following content.
 
-    The Angular Router provides a `routerLinkActive` directive we can use to
-    add a class to the HTML navigation element whose route matches the active route.
-    All we have to do is define the style for it. Sweet!
-+makeExample('toh-5/ts/app/app.component.ts', 'template', 'app/app.component.ts (active router links)')(format=".")
++makeExcerpt('app/app.component.css (navigation styles)', '')
+
+.l-sub-section
+  block router-link-active
+    :marked
+      **The *routerLinkActive* directive**
+
+      The Angular Router provides a `routerLinkActive` directive we can use to
+      add a class to the HTML navigation element whose route matches the active route.
+      All we have to do is define the style for it. Sweet!
+
+  +makeExcerpt('app/app.component.ts (active router links)', 'template')
+
 :marked
   Set the `AppComponent`’s `styleUrls` property to this CSS file.
-+makeExample('toh-5/ts/app/app.component.ts','style-urls', 'app/app.component.ts (styleUrls)')(format=".")
+
++makeExcerpt('app/app.component.ts','styleUrls')
+
 :marked
   ### Global application styles
   When we add styles to a component, we're keeping everything a component needs
@@ -665,7 +808,7 @@ figure.image-display
   [QuickStart, "Add some style"](../quickstart.html#!#add-some-style)).
   Here is an excerpt.
 
-+makeExample('toh-5/ts/styles.1.css', 'toh-excerpt', 'styles.css (app styles excerpt)')(format=".")
++makeExcerpt('styles.css (excerpt)', 'toh')
 
 - var styles_css = 'https://raw.githubusercontent.com/angular/angular.io/master/public/docs/_examples/styles.css'
 
@@ -674,9 +817,11 @@ figure.image-display
   Ensure that it contains the [master styles given here](!{styles_css}).
 
   If necessary, also edit `index.html` to refer to this stylesheet.
-+makeExample('toh-5/ts/index.html','css', 'index.html (link ref)')(format=".")
+
++makeExcerpt('index.html (link ref)', 'css')
+
 :marked
- Look at the app now. Our dashboard, heroes, and navigation links are styling!
+  Look at the app now. Our dashboard, heroes, and navigation links are styling!
 
 figure.image-display
   img(src='/resources/images/devguide/toh/dashboard-top-heroes.png' alt="View navigations")
@@ -688,43 +833,46 @@ figure.image-display
   Review the sample source code in the <live-example></live-example> for this chapter.
   Verify that we have the following structure:
 
-.filetree
-  .file angular2-tour-of-heroes
-  .children
-    .file app
+block file-tree-end
+  .filetree
+    .file angular2-tour-of-heroes
     .children
-      .file app.component.ts
-      .file app.component.css
-      .file app.module.ts
-      .file app.routing.ts
-      .file dashboard.component.css
-      .file dashboard.component.html
-      .file dashboard.component.ts
-      .file hero.ts
-      .file hero-detail.component.css
-      .file hero-detail.component.html
-      .file hero-detail.component.ts
-      .file hero.service.ts
-      .file heroes.component.css
-      .file heroes.component.html
-      .file heroes.component.ts
-      .file main.ts
-      .file mock-heroes.ts
-    .file node_modules ...
-    .file typings ...
-    .file index.html
-    .file package.json
-    .file styles.css
-    .file systemjs.config.json
-    .file tsconfig.json
-    .file typings.json
+      .file app
+      .children
+        .file app.component.css
+        .file app.component.ts
+        .file app.module.ts
+        .file app.routing.ts
+        .file dashboard.component.css
+        .file dashboard.component.html
+        .file dashboard.component.ts
+        .file hero.service.ts
+        .file hero.ts
+        .file hero-detail.component.css
+        .file hero-detail.component.html
+        .file hero-detail.component.ts
+        .file heroes.component.css
+        .file heroes.component.html
+        .file heroes.component.ts
+        .file main.ts
+        .file mock-heroes.ts
+      .file node_modules ...
+      .file typings ...
+      .file index.html
+      .file package.json
+      .file styles.css
+      .file systemjs.config.json
+      .file tsconfig.json
+      .file typings.json
 
 .l-main-section
 :marked
   ## Recap
 
   ### The Road Behind
-  We travelled a great distance in this chapter.
+
+  We travelled a great distance in this chapter
+
   - We added the Angular *Component Router* to navigate among different components.
   - We learned how to create router links to represent navigation menu items.
   - We used router parameters to navigate to the details of user selected hero.

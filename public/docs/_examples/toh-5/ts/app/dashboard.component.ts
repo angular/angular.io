@@ -10,9 +10,9 @@ import { HeroService } from './hero.service';
 
 @Component({
   selector: 'my-dashboard',
-  // #docregion template-url
+  // #docregion templateUrl
   templateUrl: 'app/dashboard.component.html',
-  // #enddocregion template-url
+  // #enddocregion templateUrl
   // #docregion css
   styleUrls: ['app/dashboard.component.css']
   // #enddocregion css
@@ -34,10 +34,10 @@ export class DashboardComponent implements OnInit {
       .then(heroes => this.heroes = heroes.slice(1, 5));
   }
 
-  // #docregion goto-detail
+  // #docregion gotoDetail
   gotoDetail(hero: Hero) {
     let link = ['/detail', hero.id];
     this.router.navigate(link);
   }
-  // #enddocregion goto-detail
+  // #enddocregion gotoDetail
 }

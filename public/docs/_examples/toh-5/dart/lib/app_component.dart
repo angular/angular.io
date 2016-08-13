@@ -21,9 +21,9 @@ import 'package:angular2_tour_of_heroes/hero_detail_component.dart';
       </nav>
       <router-outlet></router-outlet>''',
     // #enddocregion template
-    // #docregion style-urls
+    // #docregion styleUrls
     styleUrls: const ['app_component.css'],
-    // #enddocregion style-urls
+    // #enddocregion styleUrls
     directives: const [ROUTER_DIRECTIVES],
     providers: const [HeroService, ROUTER_PROVIDERS])
 @RouteConfig(const [

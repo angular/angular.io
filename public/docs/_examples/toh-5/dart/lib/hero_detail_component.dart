@@ -6,25 +6,23 @@ import 'dart:html';
 // #docregion import-oninit
 import 'package:angular2/core.dart';
 // #enddocregion import-oninit
-// #docregion import-route-params
+// #docregion router
 import 'package:angular2/router.dart';
-// #enddocregion import-route-params
+// #enddocregion router
 
 import 'hero.dart';
 // #docregion import-hero-service
 import 'hero_service.dart';
 // #enddocregion import-hero-service
 
-// #docregion extract-template
 @Component(
     selector: 'my-hero-detail',
-    // #docregion template-url
+    // #docregion templateUrl
     templateUrl: 'hero_detail_component.html',
-    // #enddocregion template-url, v2
+    // #enddocregion templateUrl, v2
     styleUrls: const ['hero_detail_component.css']
     // #docregion v2
     )
-// #enddocregion extract-template
 // #docregion implement
 class HeroDetailComponent implements OnInit {
   // #enddocregion implement
@@ -36,7 +34,7 @@ class HeroDetailComponent implements OnInit {
   HeroDetailComponent(this._heroService, this._routeParams);
   // #enddocregion ctor
 
-  // #docregion ng-oninit
+  // #docregion ngOnInit
   Future<Null> ngOnInit() async {
     // #docregion get-id
     var idString = _routeParams.get('id');
@@ -44,11 +42,11 @@ class HeroDetailComponent implements OnInit {
     // #enddocregion get-id
     if (id != null) hero = await (_heroService.getHero(id));
   }
-  // #enddocregion ng-oninit
+  // #enddocregion ngOnInit
 
-  // #docregion go-back
+  // #docregion goBack
   void goBack() {
     window.history.back();
   }
-  // #enddocregion go-back
+  // #enddocregion goBack
 }

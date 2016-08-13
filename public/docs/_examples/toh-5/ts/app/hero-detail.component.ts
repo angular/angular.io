@@ -3,25 +3,23 @@
 // #docregion import-oninit, v2
 import { Component, OnInit } from '@angular/core';
 // #enddocregion import-oninit
-// #docregion import-activated-route
+// #docregion router
 import { ActivatedRoute, Params } from '@angular/router';
-// #enddocregion import-activated-route
+// #enddocregion router
 
 import { Hero } from './hero';
 // #docregion import-hero-service
 import { HeroService } from './hero.service';
 // #enddocregion import-hero-service
 
-// #docregion extract-template
 @Component({
   selector: 'my-hero-detail',
-  // #docregion template-url
+  // #docregion templateUrl
   templateUrl: 'app/hero-detail.component.html',
-  // #enddocregion template-url, v2
+  // #enddocregion templateUrl, v2
   styleUrls: ['app/hero-detail.component.css']
   // #docregion v2
 })
-// #enddocregion extract-template
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
   // #enddocregion implement
@@ -34,7 +32,7 @@ export class HeroDetailComponent implements OnInit {
   }
   // #enddocregion ctor
 
-  // #docregion ng-oninit
+  // #docregion ngOnInit
   ngOnInit() {
     // #docregion get-id
     this.route.params.forEach((params: Params) => {
@@ -44,11 +42,11 @@ export class HeroDetailComponent implements OnInit {
     });
     // #enddocregion get-id
   }
-  // #enddocregion ng-oninit
+  // #enddocregion ngOnInit
 
-  // #docregion go-back
+  // #docregion goBack
   goBack() {
     window.history.back();
   }
-// #enddocregion go-back
+// #enddocregion goBack
 }
