@@ -1,4 +1,5 @@
 // #docregion
+import { ModuleWithProviders }   from '@angular/core';
 import { Routes, RouterModule }  from '@angular/router';
 
 import { loginRoutes,
@@ -12,4 +13,4 @@ export const appRoutingProviders: any[] = [
   authProviders
 ];
 
-export const routing = RouterModule.forRoot(appRoutes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);

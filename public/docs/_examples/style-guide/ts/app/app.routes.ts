@@ -1,4 +1,4 @@
-import { RouterConfig } from '@angular/router';
+import { Routes } from '@angular/router';
 
 import { AppComponent as S0101 } from '../01-01/app';
 // import { AppComponent as S0207 } from '../02-07/app';
@@ -27,7 +27,7 @@ import { AppComponent as S0101 } from '../01-01/app';
 // import { AppComponent as S0704 } from '../07-04/app';
 // import { AppComponent as S0901 } from '../09-01/app';
 
-export const routes: RouterConfig = [
+export const routes: Routes = [
   { path: '', redirectTo: '/01-01', pathMatch: 'full' },
   { path: '01-01', component: S0101 },
   // { path: '02-07', component: S0207 },
@@ -56,4 +56,3 @@ export const routes: RouterConfig = [
   // { path: '07-04', component: S0704 },
   // { path: '09-01', component: S0901 },
 ];
-

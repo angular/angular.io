@@ -1,4 +1,5 @@
-// #docregion , heroes
+// #docregion , heroes, routing
+import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { HeroesComponent } from './heroes.component';
@@ -9,6 +10,8 @@ const appRoutes: Routes = [
     component: HeroesComponent
   }
 ];
-// #enddocregion heroes
+// #enddocregion heroes, routing
 
-export const routing = RouterModule.forRoot(appRoutes);
+// #docregion routing-export
+export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);
+// #enddocregion routing-export

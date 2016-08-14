@@ -1,4 +1,5 @@
 // #docregion
+import { ModuleWithProviders } from '@angular/core';
 // #docregion import-router
 import { Routes, RouterModule }   from '@angular/router';
 // #enddocregion import-router
@@ -32,7 +33,7 @@ export const appRoutingProviders: any[] = [
   CanDeactivateGuard
 ];
 
-export const routing = RouterModule.forRoot(appRoutes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);
 // #enddocregion
 
 /* A link parameters array
