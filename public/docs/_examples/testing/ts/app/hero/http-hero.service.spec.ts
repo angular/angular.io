@@ -81,7 +81,7 @@ describe('Http-HeroService (mockBackend)', () => {
         service.getHeroes().toPromise()
         // .then(() => Promise.reject('deliberate'))
           .then(heroes => {
-            expect(heroes.length).toEqual(fakeHeroes.length,
+            expect(heroes.length).toBe(fakeHeroes.length,
               'should have expected no. of heroes');
           });
       })));
@@ -91,7 +91,7 @@ describe('Http-HeroService (mockBackend)', () => {
 
         service.getHeroes()
           .do(heroes => {
-            expect(heroes.length).toEqual(fakeHeroes.length,
+            expect(heroes.length).toBe(fakeHeroes.length,
               'should have expected no. of heroes');
           })
           .toPromise();
@@ -104,7 +104,7 @@ describe('Http-HeroService (mockBackend)', () => {
 
         service.getHeroes()
           .do(heroes => {
-            expect(heroes.length).toEqual(0, 'should have no heroes');
+            expect(heroes.length).toBe(0, 'should have no heroes');
           })
           .toPromise();
       })));

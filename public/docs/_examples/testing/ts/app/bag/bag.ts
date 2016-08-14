@@ -1,7 +1,9 @@
 /* tslint:disable:forin */
-import { Component, Directive, EventEmitter, Injectable,
-         Input, Output, Optional, Pipe, PipeTransform,
-         OnInit, OnChanges, OnDestroy, SimpleChange } from '@angular/core';
+import { Component, ContentChildren, Directive, ElementRef, EventEmitter,
+         Injectable, Input, Output, Optional,
+         OnInit, OnChanges, OnDestroy,
+         Pipe, PipeTransform,
+         Renderer, SimpleChange } from '@angular/core';
 
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -63,6 +65,41 @@ export class ReversePipe implements PipeTransform {
 // #enddocregion ReversePipe
 
 //////////// Components /////////////
+@Component({
+  selector: 'bank-account',
+  template: `
+   Bank Name: {{bank}}
+   Account Id: {{id}}
+ `
+})
+export class BankAccountComp {
+  @Input() bank: string;
+  @Input('account') id: string;
+
+  constructor(private renderer: Renderer, private el: ElementRef ) {
+    renderer.setElementProperty(el.nativeElement, 'customProperty', true);
+  }
+}
+
+/** A component with attributes, styles, classes, and property setting */
+@Component({
+  selector: 'bank-account-parent',
+  template: `
+   <bank-account
+      bank="RBC"
+      account="4747"
+      [style.width.px]="width"
+      [style.color]="color"
+      [class.closed]="isClosed"
+      [class.open]="!isClosed">
+   </bank-account>
+ `
+})
+export class BankAccountParentComp {
+  width = 200;
+  color = 'red';
+  isClosed = true;
+}
 
 // #docregion ButtonComp
 @Component({
@@ -79,6 +116,30 @@ export class ButtonComp {
   }
 }
 // #enddocregion ButtonComp
+
+@Component({
+  selector: 'child-1',
+  template: `<span>Child-1({{text}})</span>`
+})
+export class Child1Comp {
+  @Input() text = 'Original';
+}
+
+@Component({
+  selector: 'child-2',
+  template: '<div>Child-2({{text}})</div>'
+})
+export class Child2Comp {
+  @Input() text: string;
+}
+
+@Component({
+  selector: 'child-3',
+  template: '<div>Child-3({{text}})</div>'
+})
+export class Child3Comp {
+  @Input() text: string;
+}
 
 @Component({
   selector: 'input-comp',
@@ -114,17 +175,9 @@ export class InputValueBinderComp {
 
 @Component({
   selector: 'parent-comp',
-  template: `Parent(<child-comp></child-comp>)`
+  template: `Parent(<child-1></child-1>)`
 })
 export class ParentComp { }
-
-@Component({
-  selector: 'child-comp',
-  template: `<span>Original {{childBinding}}</span>`
-})
-export class ChildComp {
-  childBinding = 'Child';
-}
 
 @Component({
   selector: 'io-comp',
@@ -212,9 +265,16 @@ export class CompWithCompWithExternalTemplate { }
 export class BadTemplateUrlComp { }
 
 
+
+@Component({selector: 'needs-content', template: '<ng-content></ng-content>'})
+export class NeedsContentComp {
+  // children with #content local variable
+  @ContentChildren('content') children: any;
+}
+
 ///////// MyIfChildComp ////////
 @Component({
-  selector: 'my-if-child-comp',
+  selector: 'my-if-child-1',
 
   template: `
     <h4>MyIfChildComp</h4>
@@ -274,7 +334,7 @@ export class MyIfChildComp implements OnInit, OnChanges, OnDestroy {
     <button (click)='clicked()'>{{toggleLabel}} Child</button><br>
     <div *ngIf="showChild"
          style="margin: 4px; padding: 4px; background-color: aliceblue;">
-      <my-if-child-comp  [(value)]="parentValue"></my-if-child-comp>
+      <my-if-child-1  [(value)]="parentValue"></my-if-child-1>
     </div>
   `
 })
@@ -308,10 +368,13 @@ export class ReversePipeComp {
   text = 'my dog has fleas.';
 }
 
+@Component({template: '<div>Replace Me</div>'})
+export class ShellComp { }
+
 @Component({
   selector: 'bag-comp',
   template: `
-    <h1>Bag-a-specs</h1>
+    <h1>Specs Bag</h1>
     <my-if-parent-comp></my-if-parent-comp>
     <hr>
     <h3>Input/Output Component</h3>
@@ -331,6 +394,15 @@ export class ReversePipeComp {
     <hr>
     <h3>Button Component</h3>
     <button-comp></button-comp>
+    <hr>
+    <h3>Needs Content</h3>
+    <needs-content #nc>
+      <child-1 #content text="My"></child-1>
+      <child-2 #content text="dog"></child-2>
+      <child-2 text="has"></child-2>
+      <child-3 #content text="fleas"></child-3>
+      <div #content>!</div>
+    </needs-content>
   `
 })
 export class BagComponent { }
@@ -338,16 +410,17 @@ export class BagComponent { }
 
 export const bagDeclarations = [
   BagComponent,
+  BankAccountComp, BankAccountParentComp,
   ButtonComp,
-  ChildComp,
+  Child1Comp, Child2Comp, Child3Comp,
   ExternalTemplateComp, CompWithCompWithExternalTemplate,
   InputComp,
   InputValueBinderDirective, InputValueBinderComp,
   IoComp, IoParentComp,
   MyIfComp, MyIfChildComp, MyIfParentComp,
-  ParentComp,
+  NeedsContentComp, ParentComp,
   TestProvidersComp, TestViewProvidersComp,
-  ReversePipe, ReversePipeComp
+  ReversePipe, ReversePipeComp, ShellComp
 ];
 
 export const bagProviders = [DependentService, FancyService];

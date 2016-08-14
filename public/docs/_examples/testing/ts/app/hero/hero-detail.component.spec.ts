@@ -1,8 +1,9 @@
 import {
-  async, ComponentFixture, fakeAsync, TestBed
+  async, ComponentFixture, fakeAsync, TestBed, tick
 } from '@angular/core/testing';
 
-import { By } from '@angular/platform-browser';
+import { By }           from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
 
 // Custom Jasmine Matchers
 import  '../../test/jasmine-matchers';
@@ -57,23 +58,24 @@ describe('HeroDetailComponent', () => {
     }));
 
     it('should display that hero\'s name', () => {
-      expect(page.nameDisplay.textContent).toEqual(expectedHero.name);
+      expect(page.nameDisplay.textContent).toBe(expectedHero.name);
     });
 
-    it('should navigate when click cancel', fakeAsync(() => {
-      page.cancelBtn.dispatchEvent(newEvent('click'));
-      expect(page.navSpy.calls.any()).toEqual(true, 'router.navigate called');
-    }));
+    it('should navigate when click cancel', () => {
+      page.cancelBtn.triggerEventHandler('click', null);
+      expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
+    });
 
     it('should navigate when click save', fakeAsync(() => {
-      page.saveBtn.dispatchEvent(newEvent('click'));
-      expect(page.navSpy.calls.any()).toEqual(true, 'router.navigate called');
+      page.saveBtn.triggerEventHandler('click', null);
+      tick(); // waits for async save to "complete" before navigating
+      expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     }));
 
-    it('should save when click save', fakeAsync(() => {
-      page.saveBtn.dispatchEvent(newEvent('click'));
-      expect(page.saveSpy.calls.any()).toEqual(true, 'HeroDetailService.save called');
-    }));
+    it('should save when click save', () => {
+      page.saveBtn.triggerEventHandler('click', null);
+      expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
+    });
 
     it('should convert hero name to Title Case', fakeAsync(() => {
       let inputName = 'quick BROWN  fox';
@@ -87,8 +89,8 @@ describe('HeroDetailComponent', () => {
       // and Angular updates the output span
       page.nameInput.dispatchEvent(newEvent('input'));
       fixture.detectChanges();
-      expect(page.nameDisplay.textContent).toEqual(expectedName, 'hero name display');
-      expect(comp.hero.name).toEqual(inputName, 'comp.hero.name');
+      expect(page.nameDisplay.textContent).toBe(expectedName, 'hero name display');
+      expect(comp.hero.name).toBe(inputName, 'comp.hero.name');
     }));
 
   });
@@ -97,11 +99,11 @@ describe('HeroDetailComponent', () => {
     beforeEach(async( createComponent ));
 
     it('should have hero.id === 0', () => {
-      expect(comp.hero.id).toEqual(0);
+      expect(comp.hero.id).toBe(0);
     });
 
     it('should display empty hero name', () => {
-      expect(page.nameDisplay.textContent).toEqual('');
+      expect(page.nameDisplay.textContent).toBe('');
     });
   });
 
@@ -112,8 +114,8 @@ describe('HeroDetailComponent', () => {
     }));
 
     it('should try to navigate back to hero list', () => {
-      expect(page.gotoSpy.calls.any()).toEqual(true, 'comp.gotoList called');
-      expect(page.navSpy.calls.any()).toEqual(true, 'router.navigate called');
+      expect(page.gotoSpy.calls.any()).toBe(true, 'comp.gotoList called');
+      expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
   });
 });
@@ -124,8 +126,8 @@ interface Page {
   navSpy:       jasmine.Spy;
   saveSpy:      jasmine.Spy;
 
-  saveBtn?:      HTMLButtonElement;
-  cancelBtn?:    HTMLButtonElement;
+  saveBtn?:      DebugElement;
+  cancelBtn?:    DebugElement;
   nameDisplay?:  HTMLElement;
   nameInput?:    HTMLInputElement;
 }
@@ -166,8 +168,8 @@ function addPageElements() {
   if (comp.hero) {
     // have a hero so these DOM elements can be reached
     let buttons = fixture.debugElement.queryAll(By.css('button'));
-    page.saveBtn     = buttons[0].nativeElement;
-    page.cancelBtn   = buttons[1].nativeElement;
+    page.saveBtn     = buttons[0];
+    page.cancelBtn   = buttons[1];
     page.nameDisplay = fixture.debugElement.query(By.css('span')).nativeElement;
     page.nameInput   = fixture.debugElement.query(By.css('input')).nativeElement;
   }

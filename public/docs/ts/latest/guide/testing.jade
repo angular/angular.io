@@ -339,6 +339,387 @@ a#testbed-intro
 :marked
   # The Angular TestBed
 
+.alert.is-important
+  :marked
+    The _TestBed_ is officially _experimental_ and thus subject to change.
+    Consult the [API reference](../api/core/testing/TestBed-class.html) for the latest status.
+:marked
+  The module definition we pass to `configureTestingModule`, 
+  a subset of the metadata properties we pass to `@NgModule`.
+  ```
+  type TestModuleMetadata = {
+    providers?: any[];
+    declarations?: any[];
+    imports?: any[];
+    schemas?: Array<SchemaMetadata | any[]>;
+  };
+  ```
+  The override methods take a `MetadataOverride<T>` where `T` is the metadata for the thing we're overriding
+  and refers to the kind of metadata object we'd pass to `@NgModule`, `@Component`, `@Directive`, or `@Pipe`.
+
+  ```
+  type MetadataOverride<T> = {
+    add?: T;
+    remove?: T;
+    set?: T;
+  };
+  ```
+
+a#testbed-methods
+table
+  tr
+    th Methods
+    th Description
+  tr
+    td(style="vertical-align: top") <code>configureTestingModule</code>
+    td
+      :marked
+        Override the providers, directives, pipes, modules of the default testing module.
+  tr
+    td(style="vertical-align: top") <code>compileComponents</code>
+    td
+      :marked
+       Compile the testing module's components.
+       Necessary when any of those components have a `templateUrl` 
+       as fetching component template files is necessarily asynchronous.
+  tr
+    td(style="vertical-align: top") <code>createComponent<T></code>
+    td
+      :marked
+        Description
+  tr
+    td(style="vertical-align: top") <code>overrideModule</code>
+    td
+      :marked
+        Description
+  tr
+    td(style="vertical-align: top") <code>overrideComponent</code>
+    td
+      :marked
+        Description
+  tr
+    td(style="vertical-align: top") <code>overrideDirective</code>
+    td
+      :marked
+        Description
+  tr
+    td(style="vertical-align: top") <code>overridePipe</code>
+    td
+      :marked
+        Description
+
+:marked
+  The following `TestBed` static methods are worth knowing about even if you never call them.
+
+table
+  tr
+    th Methods
+    th Description
+  tr
+    td(style="vertical-align: top") <code>initTestEnvironment</code>
+    td
+      :marked
+        Initialize the environment for testing with a compiler factory, a PlatformRef, and an
+        angular module. These are common to every test in the suite.
+        
+        This may only be called once, to set up the common providers for the current test
+        suite on the current platform. If you absolutely need to change the providers,
+        first use `resetTestEnvironment`.
+        
+        Test modules and platforms for individual platforms are available from
+        `angular2/platform/testing/<platform_name>`.
+  tr
+    td(style="vertical-align: top") <code>resetTestEnvironment</code>
+    td
+      :marked
+        Reset the providers for the test injector.
+
+a#componentfixture-details
+:marked
+  ## The _ComponentFixture_
+
+  The `TestBed.createComponent<T>`
+  creates an instance of the component (whose type is `T`) 
+  and a strongly typed `ComponentFixture` for that component.
+
+a#componentfixture-properties
+:marked
+  ### _ComponentFixture_ properties
+
+  The _fixture_ properties provide access to the component, its DOM representation,
+  and aspects of its environment.  Here are the most useful properties for testers.
+  
+table
+  tr
+    th Properties
+    th Description
+  tr
+    td(style="vertical-align: top") <code>componentInstance</code>
+    td
+      :marked
+        The instance of the component class created by `TestBed.createComponent`.
+  tr
+    td(style="vertical-align: top") <code>debugElement</code>
+    td
+      :marked
+        The `DebugElement` associated with the root element of the component.
+
+        The `debugElement` provides insight into the component and its DOM element during test and debugging.
+        It's a critical property for testers and we cover the members of most interest [below](#debugelement-details).
+  tr
+    td(style="vertical-align: top") <code>nativeElement</code>
+    td
+      :marked
+        The native DOM element at the root of the component.
+  tr
+    td(style="vertical-align: top") <code>changeDetectorRef</code>
+    td
+      :marked
+        The `ChangeDetectorRef` for the component.
+
+        The `ChangeDetectorRef` is most valuable when testing a
+        component that has the `ChangeDetectionStrategy.OnPush`
+        or the component's change detection is under your programmatic control.
+
+a#componentfixture-methods
+:marked
+  ### _ComponentFixture_ methods
+
+  The _fixture_ methods stimulate Angular to do things to the component that typically take place
+  when the component is in the runtime environment.
+
+  Here are the most useful methods for testers.
+table
+  tr
+    th Methods
+    th Description
+  tr
+    td(style="vertical-align: top") <code>detectChanges</code>
+    td
+      :marked
+        Trigger a change detection cycle for the component.
+
+        Call it to initialize the component (it calls `ngOnInit`) and after your 
+        test code change the component's data bound property values.
+        Angular can't see that you've changed `personComponent.name` and won't update the `name`
+        binding until you call `detectChanges`.
+  tr
+    td(style="vertical-align: top") <code>autoDetectChanges</code>
+    td
+      :marked
+        Set whether the fixture should try to detect changes automatically.
+
+        When autodetect is true, the TestBed listens for _zone_ events and calls `detectChanges`. 
+        You probably still have to call `detectChanges` to trigger data binding updates 
+        when your test code modifies component property values directly.
+
+        The default is `false` and testers who prefer fine control over test behavior
+        tend to keep it `false`. 
+
+        Calls `detectChanges` immediately which detects existing changes
+        and will trigger `ngOnInit` if the component has not yet been initialized.
+  tr
+    td(style="vertical-align: top") <code>checkNoChanges</code>
+    td
+      :marked
+        Do a change detection run to make sure there are no pending changes.
+        Throws an exceptions if there are.
+  tr
+    td(style="vertical-align: top") <code>isStable</code>
+    td
+      :marked
+        Return `true` if the fixture is currently _stable_.
+        Returns `false` if there are async tasks that have not completed.
+  tr
+    td(style="vertical-align: top") <code>whenStable</code>
+    td
+      :marked
+        Returns a promise that resolves when the fixture is stable.
+        
+        Hook that promise to resume testing after completion of asynchronous activity or 
+        asynchronous change detection.
+  tr
+    td(style="vertical-align: top") <code>destroy</code>
+    td
+      :marked
+        Trigger component destruction.
+
+a#debugelement-details
+:marked
+  ### _DebugElement_
+
+  The `DebugElement` provides crucial insights into the component's DOM representation.
+
+  From the test root component's `DebugElement`, returned by `fixture.debugElement`, 
+  you can walk (and query) the fixture's entire element and component sub-trees.
+
+.alert.is-important
+  :marked
+    The _DebugElement_ is officially _experimental_ and thus subject to change.
+    Consult the [API reference](../api/core/index/DebugElement-class.html) for the latest status.
+:marked
+  Here are the most useful `DebugElement` members for testers in approximate order of utility.
+
+table
+  tr
+    th Member
+    th Description
+  tr
+    td(style="vertical-align: top") <code>nativeElement</code>
+    td
+      :marked
+        The element in the browser DOM (null for WebWorkers).
+  tr
+    td(style="vertical-align: top") <code>query(predicate: Predicate<DebugElement>):</code>
+    td
+      :marked
+        Calling `query(predicate: Predicate<DebugElement>)` returns the first `DebugElement`
+        that matches the [predicate](#query-predicate) at any depth in the subtree.
+  tr
+    td(style="vertical-align: top") <code>queryAll(predicate: Predicate<DebugElement>):</code>
+    td
+      :marked
+        Calling `queryAll(predicate: Predicate<DebugElement>)` returns all `DebugElements`
+        that matches the [predicate](#query-predicate) at any depth in subtree.
+  tr
+    td(style="vertical-align: top") <code>injector</code>
+    td
+      :marked
+        The host dependency injector. 
+        For example, the root element's component instance injector.
+  tr
+    td(style="vertical-align: top") <code>componentInstance</code>
+    td
+      :marked
+        The element's own component instance, if it has one.
+   tr
+    td(style="vertical-align: top") <code>context</code>
+    td
+      :marked
+        An object that provides parent context for this element.
+        Often an ancestor component instance that governs this element.
+
+        When an element is repeated with in `*ngFor`, the context is an `NgForRow` whose `$implicit`
+        property is the value of the row instance value. 
+        For example, the `hero` in `*ngFor="let hero of heroes"`.
+  tr
+    td(style="vertical-align: top") <code>children</code>
+    td
+      :marked
+        The immediate `DebugElement` children. Walk the tree by descending through `children`.
+
+      .l-sub-section
+        :marked
+          `DebugElement` also has `childNodes`, a list of `DebugNode` objects. 
+          `DebugElement` derives from `DebugNode` objects and there are often 
+          more nodes than elements. Testers can usually ignore plain nodes.
+  tr
+    td(style="vertical-align: top") <code>parent</code>
+    td
+      :marked
+        The `DebugElement` parent. Null if this is the root element.
+
+  tr
+    td(style="vertical-align: top") <code>name</code>
+    td
+      :marked
+        The element tag name, if it is an element.
+
+  tr
+    td(style="vertical-align: top") <code>triggerEventHandler</code>
+    td
+      :marked
+        Triggers by event name if there is a corresponding listener in the element's `listeners` collection.
+        
+        When the event you want to trigger isn't listed or there's some other problem, 
+        consider calling `DebugElement.nativeElement.dispatchEvent(eventObject)`
+
+  tr
+    td(style="vertical-align: top") <code>listeners</code>
+    td
+      :marked
+        The callbacks attached to the component's `@Output` properties and/or the element's event properties.
+
+  tr
+    td(style="vertical-align: top") <code>providerTokens</code>
+    td
+      :marked
+        This component's injector lookup tokens.
+        Includes the component itself plus the tokens that the component lists in its `providers` metadata.
+  tr
+    td(style="vertical-align: top") <code>source</code>
+    td
+      :marked
+        Where to find this element in the source component template.
+
+  tr
+    td(style="vertical-align: top") <code>references</code>
+    td
+      :marked
+        Dictionary of objects associated with template local variables (e.g. `#foo`),
+        keyed by the local variable name.
+
+a#query-predicate
+:marked
+  The `DebugElement.query(predicate)` and `DebugElement.queryAll(predicate)` methods take a
+  predicate that filters the source element's subtree for matching `DebugElement`.
+
+  The predicate is any method that takes a `DebugElement` and returns `true` or `false` such as this one:
++makeExample('testing/ts/app/bag/bag.spec.ts', 'custom-predicate')(format=".")
+
+:marked
+  The Angular `By` class has three static methods for common predicates:
+  * `By.all` - return all elements
+  * `By.css(selector)` - return elements with matching CSS selectors.
+  * `By.directive(directive)` - return elements that Angular matched to an instance of the directive class. 
+
++makeExample('testing/ts/app/hero/hero-list.component.spec.ts', 'by', 'app/hero/hero-list.component.spec.ts')(format=".")
+
+a#renderer-tests
+:marked
+  Many custom application directives inject the `Renderer` and call one of its `set...` methods.
+
+  The test environment substitutes the `DebugDomRender` for the runtime `Renderer`.
+  The `DebugDomRender` updates additional dictionary properties of the `DebugElement`
+  when something calls a `set...` method.
+ 
+  These dictionary properties are primarily of interest to authors of Angular DOM inspection tools
+  but they may provide useful insights to testers as well.
+
+table
+  tr
+    th Dictionary
+    th Description
+  tr
+    td(style="vertical-align: top") <code>properties</code>
+    td
+      :marked
+        Updated by `Renderer.setElementProperty`.
+        Many Angular directives call it, including `NgModel`.
+  tr
+    td(style="vertical-align: top") <code>attributes</code>
+    td
+      :marked
+        Updated by `Renderer.setElementAttribute`.
+        Angular `[attribute]` bindings call it.
+  tr
+    td(style="vertical-align: top") <code>classes</code>
+    td
+      :marked
+        Updated by `Renderer.setElementClass`.
+        Angular `[class]` bindings call it.
+  tr
+    td(style="vertical-align: top") <code>styles</code>
+    td
+      :marked
+        Updated by `Renderer.setElementStyle`.
+        Angular `[style]` bindings call it.
+:marked
+  Here's an example of `Renderer` tests from the
+  <live-example plnkr="bag-specs">live "Specs Bag" sample</live-example>.
+
++makeExample('testing/ts/app/bag/bag.spec.ts', 'debug-dom-renderer')(format=".")
+
 a(href="#top").to-top Back to top
 
 .l-hr
@@ -389,16 +770,7 @@ table(width="100%")
       :marked
         TBD
 
-a#spec-file-location
-:marked
-  ## Why specs are in the app folder.
-  We recommend putting unit test spec files in the same folder 
-  as the application source code that they test because
-  - Such tests are easy to find
-  - We see at a glance if a part of our application lacks tests.
-  - Nearby tests can teach us about how the part works in context. 
-  - When we move the source (inevitable), we remember to move the test.
-  - When we rename the source file (inevitable), we remember to rename the test file.
+
 
 a(href="#top").to-top Back to top
 
@@ -550,23 +922,58 @@ a#faq
   * [When are end-to-end (e2e) tests a good choice?](#q-when-e2e)
   * [When to use the _TestBed_?](#q-why-testbed)
   * [When to write vanilla tests without the _TestBed_?](#q-when-no-testbed)
-  * [When can I skip _TestBed.compileComponents_?](q-when-no-compile-components)
-  * [Why must _TestBed.compileComponents_ be called last?](q-why-compile-components-is-last)
-  * [Why must _inject_ be called last?](q-why-last-last)  
-  * [What's the difference between _async_ and _fakeAsync_?](q-async-vs-fake-async)
-  * [What's the difference between _whenStable_ and _tick_?](q-when-stable-vs-tick)
-  * [How do I get something from the component's injector?](q-component-injector)
-  * [Why do feature modules make testing easier?](q-why-feature-modules)  
-  * [When should I prefer the _DynamicTestModule_?](q-dynamic-test-module)
-  * [How do I know if an injected service method was called?](q-spy-on-service)
-  * [When must I call _detectChanges_ and why?](q-detect-changes)
-  * [What's the difference between _triggerEventHandler_ and _dispatchEvent_?](q-trigger-event-handler-vs-dispatch-event)
-  * [How do I find an element by directive?](q-by-directive)
-  * [How do I extend Jasmine matchers?](q-jasmine-matchers)
-  * [Why would I add a test folder and how?](q-test-folder)
-  * [Why put specs in the same folder instead of in a test folder?](q-why-spec-sibling)
-  * [How do I use the Jasmine HTML TestRunner in the browser?](q-jasmine-browser-test-runner)
+  * [When can I skip _TestBed.compileComponents_?](#q-when-no-compile-components)
+  * [Why must _TestBed.compileComponents_ be called last?](#q-why-compile-components-is-last)
+  * [Why must _inject_ be called last?](#q-why-last-last)  
+  * [What's the difference between _async_ and _fakeAsync_?](#q-async-vs-fake-async)
+  * [What's the difference between _whenStable_ and _tick_?](#q-when-stable-vs-tick)
+  * [How do I get something from the component's injector?](#q-component-injector)
+  * [Why do feature modules make testing easier?](#q-why-feature-modules)  
+  * [When should I prefer the _DynamicTestModule_?](#q-dynamic-test-module)
+  * [How do I know if an injected service method was called?](#q-spy-on-service)
+  * [When must I call _detectChanges_ and why?](#q-detect-changes)
+  * [What's the difference between _triggerEventHandler_ and _dispatchEvent_?](#q-trigger-event-handler-vs-dispatch-event)
+  * [How do I find an element by directive?](#q-by-directive)
+  * [How do I extend Jasmine matchers?](#q-jasmine-matchers)
+  * [Why would I add a test folder and how?](#q-test-folder)
+  * [Why put specs next to the things they test?](#q-spec-file-location)
+  * [When would I put specs in a test folder?](#q-specs-in-test-folder)
+  * [How do I use the Jasmine HTML TestRunner in the browser?](#q-jasmine-browser-test-runner)
+
+  Resources
+  * [Where can I learn more about unit testing in JavaScript?](#q-js-unit-testing-resources)  
+  * [Where can I learn more about testing with Jasmine?](#q-jasmine-resources)
+  * [Where can I learn more about testing with karma?](#q-karma-resources)
+  * [Where can I learn more about e2e testing with protractor?](#q-protractor-resources)
 
 a(href="#faq").to-top Back to FAQ
 
 .l-hr
+
+a#q-spec-file-location
+:marked
+  ### Why put specs next to the things they test?
+
+  We recommend putting unit test spec files in the same folder 
+  as the application source code files that they test because
+  - Such tests are easy to find
+  - We see at a glance if a part of our application lacks tests.
+  - Nearby tests can teach us about how the part works in context. 
+  - When we move the source (inevitable), we remember to move the test.
+  - When we rename the source file (inevitable), we remember to rename the test file.
+
+.l-hr
+
+a#q-specs-in-test-folder
+:marked
+  ### When would I put specs in a test folder?
+
+  Application integration specs can test the interactions of multiple parts
+  spread across folders and modules.
+  They don't really belong to part in particular so they don't have a
+  natural home next to any one file.
+
+  It's often better to create an appropriate folder for them in the `tests` directory.
+
+  Of course specs that test the test helpers belong in the `test` folder,
+  next to their corresponding helper files.

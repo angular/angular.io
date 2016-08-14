@@ -50,9 +50,9 @@ function tests() {
       // use injector to get the RouterLink directive instance attached to each element
       .map(de => de.injector.get(FakeRouterLink) as FakeRouterLink);
 
-    expect(links.length).toEqual(2, 'should have 2 links');
-    expect(links[0].linkParams).toEqual('/dashboard', '1st link should go to Dashboard');
-    expect(links[1].linkParams).toEqual('/heroes', '1st link should go to Heroes');
+    expect(links.length).toBe(2, 'should have 2 links');
+    expect(links[0].linkParams).toBe('/dashboard', '1st link should go to Dashboard');
+    expect(links[1].linkParams).toBe('/heroes', '1st link should go to Heroes');
   });
 
   it('can click Heroes link in template', () => {
@@ -71,7 +71,7 @@ function tests() {
     heroesLinkDe.triggerEventHandler('click', null);
 
     fixture.detectChanges();
-    expect(link.navigatedTo).toEqual('/heroes');
+    expect(link.navigatedTo).toBe('/heroes');
   });
 }
 

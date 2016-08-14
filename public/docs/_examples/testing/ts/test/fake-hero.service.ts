@@ -6,17 +6,17 @@ export { Hero }           from '../app/hero/hero';
 export { HeroService }    from '../app/hero/hero.service';
 
 export var HEROES: Hero[] = [
-  {id: 41, name: 'Bob'},
-  {id: 42, name: 'Carol'},
-  {id: 43, name: 'Ted'},
-  {id: 44, name: 'Alice'},
-  {id: 45, name: 'Speedy'},
-  {id: 46, name: 'Stealthy'}
+  new Hero(41, 'Bob'),
+  new Hero(42, 'Carol'),
+  new Hero(43, 'Ted'),
+  new Hero(44, 'Alice'),
+  new Hero(45, 'Speedy'),
+  new Hero(46, 'Stealthy')
 ];
 
 export class FakeHeroService implements HeroService {
 
-  heroes = HEROES.map(h => Object.assign({}, h)); // clone HEROES
+  heroes = HEROES.map(h => h.clone());
   lastPromise: Promise<any>;  // remember so we can spy on promise calls
 
   getHero(id: number | string) {

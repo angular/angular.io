@@ -17,12 +17,12 @@ describe('FancyService without the TestBed', () => {
   beforeEach(() => { service = new FancyService(); });
 
   it('#getValue should return real value', () => {
-    expect(service.getValue()).toEqual('real value');
+    expect(service.getValue()).toBe('real value');
   });
 
   it('#getAsyncValue should return async value', done => {
     service.getAsyncValue().then(value => {
-      expect(value).toEqual('async value');
+      expect(value).toBe('async value');
       done();
     });
   });
@@ -31,7 +31,7 @@ describe('FancyService without the TestBed', () => {
   it('#getTimeoutValue should return timeout value',  done => {
     service = new FancyService();
     service.getTimeoutValue().then(value => {
-      expect(value).toEqual('timeout value');
+      expect(value).toBe('timeout value');
       done();
     });
   });
@@ -39,7 +39,7 @@ describe('FancyService without the TestBed', () => {
 
   it('#getObservableValue should return observable value', done => {
     service.getObservableValue().subscribe(value => {
-      expect(value).toEqual('observable value');
+      expect(value).toBe('observable value');
       done();
     });
   });
@@ -54,18 +54,18 @@ describe('DependentService without the TestBed', () => {
 
   it('#getValue should return real value by way of the real FancyService', () => {
     service = new DependentService(new FancyService());
-    expect(service.getValue()).toEqual('real value');
+    expect(service.getValue()).toBe('real value');
   });
 
   it('#getValue should return faked value by way of a fakeService', () => {
     service = new DependentService(new FakeFancyService());
-    expect(service.getValue()).toEqual('faked value');
+    expect(service.getValue()).toBe('faked value');
   });
 
   it('#getValue should return faked value from a fake object', () => {
     let fake =  { getValue: () => 'fake value' };
     service = new DependentService(fake as FancyService);
-    expect(service.getValue()).toEqual('fake value');
+    expect(service.getValue()).toBe('fake value');
   });
 
   it('#getValue should return stubbed value from a FancyService spy', () => {
@@ -74,9 +74,9 @@ describe('DependentService without the TestBed', () => {
     let spy = spyOn(fancy, 'getValue').and.returnValue(stubValue);
     service = new DependentService(fancy);
 
-    expect(service.getValue()).toEqual(stubValue, 'service returned stub value');
-    expect(spy.calls.count()).toEqual(1, 'stubbed method was called once');
-    expect(spy.calls.mostRecent().returnValue).toEqual(stubValue);
+    expect(service.getValue()).toBe(stubValue, 'service returned stub value');
+    expect(spy.calls.count()).toBe(1, 'stubbed method was called once');
+    expect(spy.calls.mostRecent().returnValue).toBe(stubValue);
   });
 });
 // #enddocregion DependentService
@@ -90,12 +90,12 @@ describe('ReversePipe', () => {
   beforeEach(() => { pipe = new ReversePipe(); });
 
   it('transforms "abc" to "cba"', () => {
-    expect(pipe.transform('abc')).toEqual('cba');
+    expect(pipe.transform('abc')).toBe('cba');
   });
 
   it('no change to palindrome: "able was I ere I saw elba"', () => {
     let palindrome = 'able was I ere I saw elba';
-    expect(pipe.transform(palindrome)).toEqual(palindrome);
+    expect(pipe.transform(palindrome)).toBe(palindrome);
   });
 
 });
@@ -109,12 +109,12 @@ describe('ButtonComp', () => {
   beforeEach(() => comp = new ButtonComp());
 
   it('#isOn should be false initially', () => {
-    expect(comp.isOn).toEqual(false);
+    expect(comp.isOn).toBe(false);
   });
 
   it('#clicked() should set #isOn to true', () => {
     comp.clicked();
-    expect(comp.isOn).toEqual(true);
+    expect(comp.isOn).toBe(true);
   });
 
   it('#clicked() should set #message to "is on"', () => {
@@ -124,9 +124,9 @@ describe('ButtonComp', () => {
 
   it('#clicked() should toggle #isOn', () => {
     comp.clicked();
-    expect(comp.isOn).toEqual(true);
+    expect(comp.isOn).toBe(true);
     comp.clicked();
-    expect(comp.isOn).toEqual(false);
+    expect(comp.isOn).toBe(false);
   });
 });
 // #enddocregion ButtonComp

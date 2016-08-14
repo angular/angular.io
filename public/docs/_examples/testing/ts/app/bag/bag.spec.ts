@@ -1,21 +1,25 @@
 // #docplaster
 import {
   BagModule,
+  BankAccountComp, BankAccountParentComp,
   ButtonComp,
-  ChildComp,
+  Child1Comp, Child2Comp, Child3Comp,
   FancyService,
   ExternalTemplateComp,
   InputComp,
   IoComp, IoParentComp,
   MyIfComp, MyIfChildComp, MyIfParentComp,
-  ParentComp,
+  NeedsContentComp, ParentComp,
   TestProvidersComp, TestViewProvidersComp,
-  ReversePipeComp
+  ReversePipeComp, ShellComp
 } from './bag';
 
 import { By }          from '@angular/platform-browser';
 import { DebugElement} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
+// Forms symbols imported only for a specific test below
+import { NgModel, NgControl } from '@angular/forms';
 
 import {
   async, ComponentFixture, fakeAsync, inject, TestBed, tick
@@ -37,30 +41,30 @@ describe('use inject helper in beforeEach', () => {
   });
 
     it('should use FancyService', () => {
-      expect(service.getValue()).toEqual('real value');
+      expect(service.getValue()).toBe('real value');
   });
 
   it('should use FancyService', () => {
-      expect(service.getValue()).toEqual('real value');
+      expect(service.getValue()).toBe('real value');
   });
 
   it('test should wait for FancyService.getAsyncValue', async(() => {
     service.getAsyncValue().then(
-      value => expect(value).toEqual('async value')
+      value => expect(value).toBe('async value')
     );
   }));
 
   // #docregion getTimeoutValue
   it('test should wait for FancyService.getTimeoutValue', async(() => {
     service.getTimeoutValue().then(
-      value => expect(value).toEqual('timeout value')
+      value => expect(value).toBe('timeout value')
     );
   }));
   // #enddocregion getTimeoutValue
 
   it('test should wait for FancyService.getObservableValue', async(() => {
     service.getObservableValue().subscribe(
-      value => expect(value).toEqual('observable value')
+      value => expect(value).toBe('observable value')
     );
   }));
 
@@ -68,7 +72,7 @@ describe('use inject helper in beforeEach', () => {
   // See https://github.com/angular/angular/issues/10127
   xit('test should wait for FancyService.getObservableDelayValue', async(() => {
     service.getObservableDelayValue().subscribe(
-      value => expect(value).toEqual('observable delay value')
+      value => expect(value).toBe('observable delay value')
     );
   }));
 
@@ -76,7 +80,7 @@ describe('use inject helper in beforeEach', () => {
     let value: any;
     service.getAsyncValue().then((val: any) => value = val);
     tick(); // Trigger JS engine cycle until all promises resolve.
-    expect(value).toEqual('async value');
+    expect(value).toBe('async value');
   }));
 });
 
@@ -88,7 +92,7 @@ describe('use inject within `it`', () => {
   it('should use modified providers',
     inject([FancyService], (service: FancyService) => {
       service.setValue('value modified in beforeEach');
-      expect(service.getValue()).toEqual('value modified in beforeEach');
+      expect(service.getValue()).toBe('value modified in beforeEach');
     })
   );
 });
@@ -105,7 +109,7 @@ describe('using async(inject) within beforeEach', () => {
   })));
 
   it('should use asynchronously modified value ... in synchronous test', () => {
-    expect(serviceValue).toEqual('async value');
+    expect(serviceValue).toBe('async value');
   });
 });
 
@@ -113,19 +117,19 @@ describe('using async(inject) within beforeEach', () => {
 import { Component, Injectable } from '@angular/core';
 
 @Component({
-  selector: 'child-comp',
+  selector: 'child-1',
   template: `Fake Child`
 })
 class FakeChildComp { }
 
 @Component({
-  selector: 'child-comp',
-  template: `Fake Child(<grandchild-comp></grandchild-comp>)`
+  selector: 'child-1',
+  template: `Fake Child(<grandchild-1></grandchild-1>)`
 })
 class FakeChildWithGrandchildComp { }
 
 @Component({
-  selector: 'grandchild-comp',
+  selector: 'grandchild-1',
   template: `Fake Grandchild`
 })
 class FakeGrandchildComp { }
@@ -149,10 +153,10 @@ describe('TestBed Component Tests', () => {
   }));
 
   it('should create a component with inline template', () => {
-    let fixture = TestBed.createComponent(ChildComp);
+    let fixture = TestBed.createComponent(Child1Comp);
     fixture.detectChanges();
 
-    expect(fixture).toHaveText('Original Child');
+    expect(fixture).toHaveText('Child');
   });
 
   it('should create a component with external template', () => {
@@ -190,12 +194,29 @@ describe('TestBed Component Tests', () => {
     expect(selected).toHaveText(hero.name);
   });
 
+  it('can access the instance variable of an `*ngFor` row', () => {
+    let fixture = TestBed.createComponent(IoParentComp);
+    let comp = fixture.componentInstance;
+
+    fixture.detectChanges();
+    let heroEl = fixture.debugElement.query(By.css('.hero')); // first hero
+
+    let ngForRow = heroEl.parent; // Angular's NgForRow wrapper element
+
+    // jasmine.any is instance-of-type test.
+    expect(ngForRow.componentInstance).toEqual(jasmine.any(IoComp), 'component is IoComp');
+
+    let hero = ngForRow.context['$implicit']; // the hero object
+    expect(hero.name).toBe(comp.heroes[0].name, '1st hero\'s name');
+  });
+
+
   // #docregion ButtonComp
   it('should support clicking a button', () => {
     let fixture = TestBed.createComponent(ButtonComp);
     let comp = fixture.componentInstance;
 
-    expect(comp.isOn).toEqual(false, 'isOn starts false');
+    expect(comp.isOn).toBe(false, 'isOn starts false');
 
     let btn = fixture.debugElement.query(By.css('button'));
     // #enddocregion ButtonComp
@@ -226,19 +247,19 @@ describe('TestBed Component Tests', () => {
     let comp = fixture.componentInstance;
     let input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
 
-    expect(comp.name).toEqual(expectedOrigName,
+    expect(comp.name).toBe(expectedOrigName,
       `At start name should be ${expectedOrigName} `);
 
     // wait until ngModel binds comp.name to input box
     fixture.whenStable().then(() => {
-      expect(input.value).toEqual(expectedOrigName,
+      expect(input.value).toBe(expectedOrigName,
         `After ngModel updates input box, input.value should be ${expectedOrigName} `);
 
       // simulate user entering new name in input
       input.value = expectedNewName;
 
       // that change doesn't flow to the component immediately
-      expect(comp.name).toEqual(expectedOrigName,
+      expect(comp.name).toBe(expectedOrigName,
         `comp.name should still be ${expectedOrigName} after value change, before binding happens`);
 
       // dispatch a DOM event so that Angular learns of input value change.
@@ -247,7 +268,7 @@ describe('TestBed Component Tests', () => {
       return fixture.whenStable();
     })
     .then(() => {
-      expect(comp.name).toEqual(expectedNewName,
+      expect(comp.name).toBe(expectedNewName,
         `After ngModel updates the model, comp.name should be ${expectedNewName} `);
     });
   }));
@@ -264,31 +285,31 @@ describe('TestBed Component Tests', () => {
     let comp =  fixture.componentInstance;
     let input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
 
-    expect(comp.name).toEqual(expectedOrigName,
+    expect(comp.name).toBe(expectedOrigName,
       `At start name should be ${expectedOrigName} `);
 
     // wait until ngModel binds comp.name to input box
     tick();
-    expect(input.value).toEqual(expectedOrigName,
+    expect(input.value).toBe(expectedOrigName,
       `After ngModel updates input box, input.value should be ${expectedOrigName} `);
 
     // simulate user entering new name in input
     input.value = expectedNewName;
 
     // that change doesn't flow to the component immediately
-    expect(comp.name).toEqual(expectedOrigName,
+    expect(comp.name).toBe(expectedOrigName,
       `comp.name should still be ${expectedOrigName} after value change, before binding happens`);
 
     // dispatch a DOM event so that Angular learns of input value change.
     // then wait a tick while ngModel pushes input.box value to comp.name
     input.dispatchEvent(newEvent('input'));
     tick();
-    expect(comp.name).toEqual(expectedNewName,
+    expect(comp.name).toBe(expectedNewName,
       `After ngModel updates the model, comp.name should be ${expectedNewName} `);
   }));
 
   // #docregion ReversePipeComp
-  it('ReversePipeComp should convert text to Titlecase', fakeAsync(() => {
+  it('ReversePipeComp should reverse the input text', fakeAsync(() => {
     let inputText = 'the quick brown fox.';
     let expectedText = '.xof nworb kciuq eht';
 
@@ -308,27 +329,73 @@ describe('TestBed Component Tests', () => {
     input.dispatchEvent(newEvent('input'));
     tick();
     fixture.detectChanges();
-    expect(span.textContent).toEqual(expectedText, 'output span');
-    expect(comp.text).toEqual(inputText, 'component.text');
+    expect(span.textContent).toBe(expectedText, 'output span');
+    expect(comp.text).toBe(inputText, 'component.text');
   }));
   // #enddocregion ReversePipeComp
+
+  // Use this technique to find attached directives of any kind
+  it('can examine attached directives and listeners', () => {
+    let fixture = TestBed.createComponent(InputComp);
+    fixture.detectChanges();
+
+    let inputEl = fixture.debugElement.query(By.css('input'));
+
+    expect(inputEl.providerTokens).toContain(NgModel, 'NgModel directive');
+
+    let ngControl = inputEl.injector.get(NgControl);
+    expect(ngControl).toEqual(jasmine.any(NgControl), 'NgControl directive');
+
+    expect(inputEl.listeners.length).toBeGreaterThan(2, 'several listeners attached');
+  });
+
+// #docregion debug-dom-renderer
+  it('DebugDomRender should set attributes, styles, classes, and properties', () => {
+    let fixture = TestBed.createComponent(BankAccountParentComp);
+    fixture.detectChanges();
+    let comp = fixture.componentInstance;
+
+    // the only child is debugElement of the BankAccount component
+    let el = fixture.debugElement.children[0];
+    let childComp = el.componentInstance as BankAccountComp;
+    expect(childComp).toEqual(jasmine.any(BankAccountComp));
+
+    expect(el.context).toBe(comp, 'context is the parent component');
+
+    expect(el.attributes['account']).toBe(childComp.id, 'account attribute');
+    expect(el.attributes['bank']).toBe(childComp.bank, 'bank attribute');
+
+    expect(el.classes['closed']).toBe(true, 'closed class');
+    expect(el.classes['open']).toBe(false, 'open class');
+
+    expect(el.properties['customProperty']).toBe(true, 'customProperty');
+
+    expect(el.styles['color']).toBe(comp.color, 'color style');
+    expect(el.styles['width']).toBe(comp.width + 'px', 'width style');
+  });
+// #enddocregion debug-dom-renderer
 });
 
-describe('TestBed Component Override Tests', () => {
+describe('TestBed Component Overrides:', () => {
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [BagModule],
+  it('should override ChildComp\'s template', () => {
+
+    let fixture = TestBed.configureTestingModule({
+      declarations: [Child1Comp],
     })
-
-    .overrideComponent(ChildComp, {
+    .overrideComponent(Child1Comp, {
       set: { template: '<span>Fake</span>' }
     })
+    .createComponent(Child1Comp);
 
-    // .overrideComponent(IoComp, {
-    //   set: { template: '<div class="hero" (click)="click()">Fake {{hero.name}}</div>' }
-    // })
+    fixture.detectChanges();
+    expect(fixture).toHaveText('Fake');
+  });
 
+  it('should override TestProvidersComp\'s FancyService provider', () => {
+    let fixture = TestBed.configureTestingModule({
+      declarations: [TestProvidersComp],
+    })
     .overrideComponent(TestProvidersComp, {
       remove: { providers: [FancyService]},
       add:    { providers: [{ provide: FancyService, useClass: FakeFancyService }] },
@@ -336,7 +403,22 @@ describe('TestBed Component Override Tests', () => {
       // Or replace them all (this component has only one provider)
       // set:    { providers: [{ provide: FancyService, useClass: FakeFancyService }] },
     })
+    .createComponent(TestProvidersComp);
 
+    fixture.detectChanges();
+    expect(fixture).toHaveText('injected value: faked value', 'text');
+
+    // Explore the providerTokens
+    let tokens = fixture.debugElement.providerTokens;
+    expect(tokens).toContain(fixture.componentInstance.constructor, 'component ctor');
+    expect(tokens).toContain(TestProvidersComp, 'TestProvidersComp');
+    expect(tokens).toContain(FancyService, 'FancyService');
+  });
+
+  it('should override TestViewProvidersComp\'s FancyService viewProvider', () => {
+    let fixture = TestBed.configureTestingModule({
+      declarations: [TestViewProvidersComp],
+    })
     .overrideComponent(TestViewProvidersComp, {
       // remove: { viewProviders: [FancyService]},
       // add:    { viewProviders: [{ provide: FancyService, useClass: FakeFancyService }] },
@@ -344,27 +426,48 @@ describe('TestBed Component Override Tests', () => {
       // Or replace them all (this component has only one viewProvider)
       set:    { viewProviders: [{ provide: FancyService, useClass: FakeFancyService }] },
     })
+    .createComponent(TestViewProvidersComp);
 
-    // Fully configured ... time to async compile all components
-    .compileComponents();
-  }));
-
-  it('should override ChildComp\'s template', () => {
-    let fixture = TestBed.createComponent(ChildComp);
-    fixture.detectChanges();
-    expect(fixture).toHaveText('Fake');
-  });
-
-  it('should override TestProvidersComp\'s FancyService provider', () => {
-    let fixture = TestBed.createComponent(TestProvidersComp);
     fixture.detectChanges();
     expect(fixture).toHaveText('injected value: faked value');
   });
 
-  it('should override TestViewProvidersComp\'s FancyService viewProvider', () => {
-    let fixture = TestBed.createComponent(TestViewProvidersComp);
+  it('can access template local variables as references', () => {
+    let fixture = TestBed.configureTestingModule({
+      declarations: [ShellComp, NeedsContentComp, Child1Comp, Child2Comp, Child3Comp],
+    })
+    .overrideComponent(ShellComp, {
+      set: {
+        selector: 'test-shell',
+        template: `
+        <needs-content #nc>
+          <child-1 #content text="My"></child-1>
+          <child-2 #content text="dog"></child-2>
+          <child-2 text="has"></child-2>
+          <child-3 #content text="fleas"></child-3>
+          <div #content>!</div>
+        </needs-content>
+        `
+      }
+    })
+    .createComponent(ShellComp);
+
     fixture.detectChanges();
-    expect(fixture).toHaveText('injected value: faked value');
+
+    // NeedsContentComp is the child of ShellComp
+    let el = fixture.debugElement.children[0];
+    let comp = el.componentInstance;
+
+    expect(comp.children.toArray()).toHaveLength(4,
+      'three different child components and an ElementRef with #content');
+
+    expect(el.references['nc']).toBe(comp, '#nc reference to component');
+
+    // #docregion custom-predicate
+    // Filter for DebugElements with #content reference
+    let contentRefs = el.queryAll( de => de.references['content'] );
+    // #docregion custom-predicate
+    expect(contentRefs).toHaveLength(4, 'elements w/ a #content reference');
   });
 
 });
@@ -422,30 +525,30 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
   });
 
   it('parent component OnInit should NOT be called before first detectChanges()', () => {
-    expect(parent.ngOnInitCalled).toEqual(false);
+    expect(parent.ngOnInitCalled).toBe(false);
   });
 
   it('parent component OnInit should be called after first detectChanges()', () => {
     fixture.detectChanges();
-    expect(parent.ngOnInitCalled).toEqual(true);
+    expect(parent.ngOnInitCalled).toBe(true);
   });
 
   it('child component should exist after OnInit', () => {
     fixture.detectChanges();
     getChild();
-    expect(child instanceof MyIfChildComp).toEqual(true, 'should create child');
+    expect(child instanceof MyIfChildComp).toBe(true, 'should create child');
   });
 
   it('should have called child component\'s OnInit ', () => {
     fixture.detectChanges();
     getChild();
-    expect(child.ngOnInitCalled).toEqual(true);
+    expect(child.ngOnInitCalled).toBe(true);
   });
 
   it('child component called OnChanges once', () => {
     fixture.detectChanges();
     getChild();
-    expect(child.ngOnChangesCounter).toEqual(1);
+    expect(child.ngOnChangesCounter).toBe(1);
   });
 
   it('changed parent value flows to child', () => {
@@ -455,9 +558,9 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     parent.parentValue = 'foo';
     fixture.detectChanges();
 
-    expect(child.ngOnChangesCounter).toEqual(2,
+    expect(child.ngOnChangesCounter).toBe(2,
       'expected 2 changes: initial value and changed value');
-    expect(child.childValue).toEqual('foo',
+    expect(child.childValue).toBe('foo',
       'childValue should eq changed parent value');
   });
 
@@ -475,9 +578,9 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     .then(() => {
       fixture.detectChanges();
 
-      expect(child.ngOnChangesCounter).toEqual(2,
+      expect(child.ngOnChangesCounter).toBe(2,
         'expected 2 changes: initial value and changed value');
-      expect(parent.parentValue).toEqual('bar',
+      expect(parent.parentValue).toBe('bar',
         'parentValue should eq changed parent value');
     });
 
@@ -491,7 +594,7 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     btn.triggerEventHandler('click', null);
 
     fixture.detectChanges();
-    expect(child.ngOnDestroyCalled).toEqual(true);
+    expect(child.ngOnDestroyCalled).toBe(true);
   });
 
   ////// helpers ///

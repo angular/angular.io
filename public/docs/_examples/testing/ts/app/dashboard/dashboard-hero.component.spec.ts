@@ -19,7 +19,7 @@ describe('DashboardHeroComponent when tested directly', () => {
 
   beforeEach(async(() => {
 
-    expectedHero = { id: 42, name: 'Test Name' };
+    expectedHero = new Hero(42, 'Test Name');
 
     // declare the component
     TestBed.configureTestingModule({
@@ -58,7 +58,7 @@ describe('DashboardHeroComponent when tested directly', () => {
 
     heroEl.triggerEventHandler('click', null);
 
-    expect(selectedHero).toEqual(expectedHero);
+    expect(selectedHero).toBe(expectedHero);
   });
 
 });
@@ -72,7 +72,7 @@ import { Component } from '@angular/core';
   template: '<dashboard-hero [hero]="hero" (selected)="onSelected($event)"></dashboard-hero>'
 })
 class TestWrapper {
-  hero: Hero = { id: 42, name: 'Test Name' };
+  hero = new Hero(42, 'Test Name');
   selectedHero: Hero;
 
   onSelected(hero: Hero) { this.selectedHero = hero; }
@@ -116,7 +116,7 @@ describe('DashboardHeroComponent when inside TestWrapper', () => {
     heroEl.triggerEventHandler('click', null);
 
     // selected hero should be the same data bound hero
-    expect(wrapper.selectedHero).toEqual(wrapper.hero);
+    expect(wrapper.selectedHero).toBe(wrapper.hero);
   });
 
 });

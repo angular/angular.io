@@ -60,6 +60,7 @@ describe('WelcomeComponent', () => {
     expect(content).toContain('Bubba');
   });
 
+
   it('should request login if not logged in', () => {
 
     userService.isLoggedIn = false; // welcome message hasn't been shown yet
@@ -70,4 +71,5 @@ describe('WelcomeComponent', () => {
     expect(content).not.toContain('Welcome', 'not welcomed');
     expect(content).toMatch(/log in/i, '"log in"');
   });
+
 });

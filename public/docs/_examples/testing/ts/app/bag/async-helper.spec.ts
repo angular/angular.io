@@ -7,7 +7,7 @@ describe('Angular async helper', () => {
 
   beforeEach(() => { actuallyDone = false; });
 
-  afterEach(() => { expect(actuallyDone).toEqual(true, 'actuallyDone should be true'); });
+  afterEach(() => { expect(actuallyDone).toBe(true, 'actuallyDone should be true'); });
 
   it('should run normal test', () => { actuallyDone = true; });
 

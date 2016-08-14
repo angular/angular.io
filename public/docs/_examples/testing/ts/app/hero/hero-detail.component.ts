@@ -25,7 +25,7 @@ export class HeroDetailComponent implements OnInit {
     // tslint:disable-next-line:triple-equals
     if (id == undefined) {
       // no id; act as if is new
-      this.hero = {id: 0, name: ''};
+      this.hero = new Hero();
     } else {
       this.heroDetailService.getHero(id).then(hero => {
         if (hero) {

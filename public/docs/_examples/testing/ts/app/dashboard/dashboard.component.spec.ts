@@ -39,7 +39,7 @@ describe('DashboardComponent: w/o Angular TestBed', () => {
 
   it('should NOT have heroes immediately after OnInit', () => {
     comp.ngOnInit(); // ngOnInit -> getHeroes
-    expect(comp.heroes.length).toEqual(0,
+    expect(comp.heroes.length).toBe(0,
       'should not have heroes until service promise resolves');
   });
 
@@ -55,13 +55,13 @@ describe('DashboardComponent: w/o Angular TestBed', () => {
   });
 
   it('should tell ROUTER to navigate by hero id', () => {
-    let hero: Hero = {id: 42, name: 'Abbracadabra' };
+    let hero = new Hero(42, 'Abbracadabra');
     let spy = spyOn(router, 'navigate');
 
     comp.gotoDetail(hero);
 
     let navArgs = spy.calls.mostRecent().args[0];
-    expect(navArgs[0]).toEqual('../heroes/42', 'should nav to HeroDetail for Hero 42');
+    expect(navArgs[0]).toBe('../heroes/42', 'should nav to HeroDetail for Hero 42');
   });
 
 });
@@ -93,7 +93,7 @@ describe('DashboardComponent: with TestBed', () => {
   }));
 
   it('should NOT have heroes before ngOnInit', () => {
-    expect(comp.heroes.length).toEqual(0,
+    expect(comp.heroes.length).toBe(0,
       'should not have heroes before ngOnInit');
   });
 
@@ -126,7 +126,7 @@ describe('DashboardComponent: with TestBed', () => {
       // Find and examine the displayed heroes
       // Look for them in the DOM by css class
       let heroes = fixture.debugElement.queryAll(By.css('.hero'));
-      expect(heroes.length).toEqual(4, 'should display 4 heroes');
+      expect(heroes.length).toBe(4, 'should display 4 heroes');
     });
 
     it('should tell ROUTER to navigate when hero clicked', () => {
@@ -142,7 +142,7 @@ describe('DashboardComponent: with TestBed', () => {
       let navArgs = spy.calls.first().args[0]; // args passed to router.navigate() == first args of the first call
       let id = comp.heroes[0].id; // expecting to navigate to id of component's first hero
 
-      expect(navArgs[0]).toEqual('../heroes/' + id, 'should nav to HeroDetail for first hero');
+      expect(navArgs[0]).toBe('../heroes/' + id, 'should nav to HeroDetail for first hero');
     });
   });
 
