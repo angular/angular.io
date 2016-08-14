@@ -1,3 +1,4 @@
+import { ModuleWithProviders } from '@angular/core';
 import { Routes,
          RouterModule } from '@angular/router';
 
@@ -7,4 +8,4 @@ export const routes: Routes = [
   { path: 'heroes', loadChildren: 'app/hero/hero.module.3' }
 ];
 
-export const routing = RouterModule.forRoot(routes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(routes);

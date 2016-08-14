@@ -1,4 +1,5 @@
 // #docregion
+import { ModuleWithProviders }   from '@angular/core';
 import { Routes, RouterModule }  from '@angular/router';
 
 import { CrisisDetailComponent } from './crisis-detail.component';
@@ -17,5 +18,5 @@ const crisisCenterRoutes: Routes = [
   }
 ];
 
-export const crisisCenterRouting = RouterModule.forChild(crisisCenterRoutes);
+export const crisisCenterRouting: ModuleWithProviders = RouterModule.forChild(crisisCenterRoutes);
 // #enddocregion routes

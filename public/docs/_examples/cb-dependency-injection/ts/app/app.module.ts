@@ -2,7 +2,8 @@
 import { BrowserModule }                from '@angular/platform-browser';
 import { FormsModule }                  from '@angular/forms';
 import { XHRBackend }                   from '@angular/http';
-// import { appRouterProviders }        from './app.routes';
+/* import { routing,
+            appRoutingProviders }       from './app.routing';*/
 import { LocationStrategy,
          HashLocationStrategy }         from '@angular/common';
 import { NgModule }                     from '@angular/core';
@@ -51,7 +52,11 @@ const C_DIRECTIVES = [
 
 // #docregion bootstrap
 @NgModule({
-  imports: [ BrowserModule, FormsModule ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    // routing TODO: add routes
+  ],
   declarations: [ ...DIRECTIVES,
                   ...B_DIRECTIVES,
                   ...C_DIRECTIVES,
@@ -59,7 +64,7 @@ const C_DIRECTIVES = [
                   AlexComponent ],
   bootstrap: [ AppComponent ],
   providers: [
-    // appRouterProviders, TODO: add routes
+    // appRoutingProviders, TODO: add routes
     { provide: LocationStrategy, useClass: HashLocationStrategy },
 
     { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server
@@ -71,4 +76,3 @@ export class AppModule {
   }
 }
 // #enddocregion bootstraps
-

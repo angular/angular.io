@@ -1,5 +1,6 @@
 // #docplaster
 // #docregion
+import { ModuleWithProviders } from '@angular/core';
 // #docregion route-config
 import { Routes, RouterModule } from '@angular/router';
 
@@ -36,6 +37,6 @@ export const appRoutingProviders: any[] = [
 
 ];
 
-export const routing = RouterModule.forRoot(appRoutes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);
 // #enddocregion route-config
 // #enddocregion
