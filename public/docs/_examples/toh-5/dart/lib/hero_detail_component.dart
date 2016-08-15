@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion , v2
 import 'dart:async';
-// #docregion goBack
+// #docregion dart-html
 import 'dart:html';
+// #enddocregion dart-html
 
-// #enddocregion goBack
 import 'package:angular2/core.dart';
 // #docregion added-imports
 import 'package:angular2/router.dart';
@@ -23,9 +23,9 @@ import 'hero_service.dart';
     styleUrls: const ['hero_detail_component.css']
     // #docregion v2
     )
-// #docregion goBack, implement
+// #docregion implement
 class HeroDetailComponent implements OnInit {
-  // #enddocregion goBack, implement
+  // #enddocregion implement
   Hero hero;
   // #docregion ctor
   final HeroService _heroService;
@@ -41,9 +41,10 @@ class HeroDetailComponent implements OnInit {
     if (id != null) hero = await (_heroService.getHero(id));
   }
   // #enddocregion ngOnInit
-  // #docregion goBack
 
+  // #docregion goBack
   void goBack() {
     window.history.back();
   }
+  // #enddocregion goBack
 }
