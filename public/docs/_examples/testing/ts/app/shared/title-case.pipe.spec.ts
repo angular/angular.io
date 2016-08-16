@@ -1,10 +1,11 @@
+// #docplaster
 // #docregion
-import { TitlecasePipe } from './title-case.pipe';
+import { TitleCasePipe } from './title-case.pipe';
 
-describe('TitlecasePipe', () => {
-  let pipe: TitlecasePipe;
-
-  beforeEach(() => pipe = new TitlecasePipe() );
+// #docregion excerpt
+describe('TitleCasePipe', () => {
+  // This pipe is a pure function so no need for BeforeEach
+  let pipe = new TitleCasePipe();
 
   it('transforms "abc" to "Abc"', () => {
     expect(pipe.transform('abc')).toBe('Abc');
@@ -14,6 +15,8 @@ describe('TitlecasePipe', () => {
     expect(pipe.transform('abc def')).toBe('Abc Def');
   });
 
+  // ... more tests ...
+// #enddocregion excerpt
   it('leaves "Abc Def" unchanged', () => {
     expect(pipe.transform('Abc Def')).toBe('Abc Def');
   });
@@ -25,4 +28,6 @@ describe('TitlecasePipe', () => {
   it('transforms "   abc   def" to "   Abc   Def" (preserves spaces) ', () => {
     expect(pipe.transform('   abc   def')).toBe('   Abc   Def');
   });
+// #docregion excerpt
 });
+// #enddocregion excerpt

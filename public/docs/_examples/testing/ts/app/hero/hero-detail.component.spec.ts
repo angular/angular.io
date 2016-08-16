@@ -37,7 +37,7 @@ describe('HeroDetailComponent', () => {
       imports: [ HeroModule ],
 
       // DON'T RE-DECLARE because declared in HeroModule
-      // declarations: [HeroDetailComponent, TitlecasePipe], // No!
+      // declarations: [HeroDetailComponent, TitleCasePipe], // No!
 
       providers: [
         { provide: ActivatedRoute, useValue: activatedRoute },
@@ -76,6 +76,12 @@ describe('HeroDetailComponent', () => {
       page.saveBtn.triggerEventHandler('click', null);
       expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
     });
+
+    // #docregion title-case-pipe
+    it('should convert original hero name to Title Case', () => {
+      expect(page.nameDisplay.textContent).toBe(comp.hero.name);
+    });
+    // #enddocregion title-case-pipe
 
     it('should convert hero name to Title Case', fakeAsync(() => {
       let inputName = 'quick BROWN  fox';

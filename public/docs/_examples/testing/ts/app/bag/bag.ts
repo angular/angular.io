@@ -44,7 +44,6 @@ export class FancyService {
 @Injectable()
 export class DependentService {
   constructor(private dependentService: FancyService) { }
-
   getValue() { return this.dependentService.getValue(); }
 }
 // #enddocregion DependentService
@@ -111,9 +110,7 @@ export class BankAccountParentComp {
 export class ButtonComp {
   isOn = false;
   clicked() { this.isOn = !this.isOn; }
-  get message() {
-    return `The light is ${ this.isOn ? 'On' : 'Off' }`;
-  }
+  get message() { return `The light is ${this.isOn ? 'On' : 'Off'}`; }
 }
 // #enddocregion ButtonComp
 
@@ -386,7 +383,7 @@ export class ShellComp { }
     <h3>Component With External Template Component</h3>
     <comp-w-ext-comp></comp-w-ext-comp>
     <hr>
-    <h3>TitleCase Pipe</h3>
+    <h3>Reverse Pipe</h3>
     <reverse-pipe-comp></reverse-pipe-comp>
     <hr>
     <h3>InputValueBinder Directive</h3>

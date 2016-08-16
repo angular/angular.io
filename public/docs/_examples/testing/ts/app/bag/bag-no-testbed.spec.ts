@@ -2,8 +2,6 @@
 import { DependentService, FancyService } from './bag';
 
 ///////// Fakes /////////
-import { Injectable } from '@angular/core';
-@Injectable()
 export class FakeFancyService extends FancyService {
   value: string = 'faked value';
 }

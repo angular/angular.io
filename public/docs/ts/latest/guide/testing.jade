@@ -68,7 +68,9 @@ a#testing-101
 
   1. They **clarify** what  the code does both when used as intended and when faced with deviant conditions.
 
-  1. They **reveal** mistakes in design and implementation. Tests force us to look at our code from many angles. When a part of our application seems hard to test, we may have discovered a design flaw, something we can cure now rather than later when it becomes expensive to fix.
+  1. They **reveal** mistakes in design and implementation. Tests force us to look at our code from many angles. 
+  When a part of our application seems hard to test, we may have discovered a design flaw, 
+  something we can cure now rather than later when it becomes expensive to fix.
 
   We'll assume that you know something about testing. Don't worry if you don't. 
   There are plenty of books and online resources to get up to speed.
@@ -275,7 +277,7 @@ code-example(format="." language="bash").
   [1] 24 07 2016 13:37:10.974:INFO [Chrome 51.0.2704]: Connected on socket /#Cf6A5PkvMzjbbtn1AAAA with id 24600087
   [1] Chrome 51.0.2704: Executed 0 of 0 SUCCESS  
       Chrome 51.0.2704: Executed 1 of 1 SUCCESS
-      SUCCESS (0.005 secs / 0.005 secs)
+  SUCCESS (0.005 secs / 0.005 secs)
 
 :marked
   Both the compiler and karma continue to run. The compiler output is preceeded by `[0]`; 
@@ -302,13 +304,24 @@ code-example(format="." language="bash").
 
   Restore the expectation from `false` back to `true`.
   Both processes detect the change, re-run, and karma reports complete success.
+
+.alert.is-helpful
+  :marked
+    The console log can be quite long. Keep your eye on the last line.
+    It says `SUCCESS` when all is well.
+    
+    If it says `FAILED`, scroll up to look for the error or, if that's too painful,
+    pipe the console output to a file and inspect with your favorite editor.
+  code-example(format="." language="json").
+    npm test > spec-output.txt
+
 :marked
   ## Friendlier output with the _HTML reporter_
 
   Console output is a fine choice when running tests in background. 
-  It can be a bit hard to read when there are lots of tests and one fails in the middle of the pack.
+  It is less pleasant to read when there are lots of tests and one fails in the middle of the pack.
 
-  The `karma.conf.js` is configured with two reporters: 
+  We configured `karma.conf.js` with two reporters: 
   the _progress_ reporter that displays in the console and the _html_ reporter that
   records the same results to the `tests.html` in the `_test-output` folder.
 
@@ -333,16 +346,289 @@ figure.image-display
 
 a(href="#top").to-top Back to top
 
-
 .l-hr
 a#testbed-intro
 :marked
   # The Angular TestBed
 
+  Introduction begins.
+
 .alert.is-important
   :marked
     The _TestBed_ is officially _experimental_ and thus subject to change.
     Consult the [API reference](../api/core/testing/TestBed-class.html) for the latest status.
+:marked
+a(href="#top").to-top Back to top
+
+
+.l-hr
+a#component-tests
+:marked
+  # Test a component
+
+a(href="#top").to-top Back to top
+
+.l-hr
+a#aut
+:marked
+  # Testing an application
+  Eventually we need to step away from toy test components and test an application.
+  That moment has arrived.
+
+  This chapter tests a cut-down version of the _Tour of Heroes_ [tutorial app](../tutorial).
+  Here's a reminder of how that app works:
+ 
+figure.image-display
+  img(src='/resources/images/devguide/testing/app.anim.gif' style="width:300px;" alt="Tour of Heroes")
+:marked
+  We'll test a subset of the app with our new-found skills:
+table(width="100%")
+  col(width="20%")
+  col(width="80%") 
+  tr
+    th Spec File
+    th Description
+  tr(style=top)
+    td app.component.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td dashboard.component.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td http-hero-service.spec.ts
+    td
+      :marked
+        TBD
+  tr(style=top)
+    td upper-case-pipe.spec.ts
+    td
+      :marked
+        TBD
+
+
+
+a(href="#top").to-top Back to top
+
+.l-hr
+a#testing-without-testbed
+:marked
+  # Testing without the TestBed
+
+  Testing Angular applications with the help of the Angular TestBed is the main focus of this chapter.
+
+  But we can can often explore the inner logic of application classes
+  with _unit tests_ that don't use the TestBed.
+  Such tests are often smaller, easier to read,
+  and easier to write and maintain.
+
+  They don't
+  * import from the Angular test libraries
+  * configure a module
+  * prepare dependency injection `providers`
+  * call `inject` or `async` or `fakeAsync`
+
+  They do
+  * exhibit standard, Angular-agnostic testing techniques
+  * create instances directly with `new`
+  * use stubs, spys, and mocks to fake dependencies.
+
+.callout.is-important
+  header Write both kinds of tests
+  :marked
+    We write both kinds of tests for the same application part, often in the same spec file.
+    Write simple _unit tests_ to validate the part in isolation.
+    Write TestBed _integration tests_ to validate the part as it collaborates with the rest of the application,
+    updates the DOM, or interacts with the Angular framework.
+
+:marked
+  ## Services
+  Services are good candidates for vanilla unit testing. 
+  Here are some synchronous and asynchronous unit tests of the `FancyService` written without the TestBed.
+
++makeExample('testing/ts/app/bag/bag-no-testbed.spec.ts', 'FancyService', 'app/bag/bag-no-testbed.spec.ts')
+:marked
+  A rough line count suggests that these tests are about 25% smaller than equivalent TestBed tests. 
+  That's telling but not decisive. 
+  The benefit comes from reduced setup and code complexity.
+
+  Compare these equivalent tests of `FancyService.getTimeoutValue`.
++makeTabs(
+  `testing/ts/app/bag/bag-no-testbed.spec.ts, testing/ts/app/bag/bag.spec.ts`, 
+  'getTimeoutValue, getTimeoutValue', 
+  `app/bag/bag-no-testbed.spec.ts, app/bag/bag.spec.ts (with TestBed)`)
+:marked
+  They have about the same line-count. 
+  The TestBed version has more moving parts, including a couple of helper functions (`async` and `inject`).
+  Both work and it's not much of an issue if you're using the TestBed nearby for other reasons. 
+  On the other hand, why burden simple service tests with TestBed complexity?
+
+  Pick the approach that suits you.
+
+  ### Services with dependencies
+
+  Services often depend on other services that Angular will inject into the constructor.
+  We can still test these services _without_ the testbed.
+  We don't always need Angular to inject dependencies. 
+  In many cases, it's easier to create and _inject_ them by hand.
+
+  The `DependentService` is a simple example
++makeExample('testing/ts/app/bag/bag.ts', 'DependentService', 'app/bag/bag.ts')(format='.')
+:marked
+  It delegates it's only method, `getValue`, to the injected `FancyService`.
+
+  Here are several ways we could test it.
++makeExample('testing/ts/app/bag/bag-no-testbed.spec.ts', 'DependentService', 'app/bag/bag-no-testbed.spec.ts')
+:marked
+  In the first test we create a `FancyService` with `new` and pass it to the `DependentService` constructor.
+  
+  It's rarely that simple. The injected service can be difficult to create or control.
+  So we mock the dependency, or use a fake value, or stub the pertinent service method
+  with substitute method that we can easily control.
+
+  These standard _unit testing_ techniques are great for exploring the inner logic of a service in isolation.
+  We still need the TestBed when writing _integration tests_ that validate how a service interacts with components.
+
+  ## Pipes
+  Pipes are easy to test without the Angular TestBed.
+
+  A pipe class has one method, `transform`, that turns an input to an output. 
+  The `transform` implementation rarely interacts with the DOM.
+  Most pipes have no dependence on Angular other than the `@Pipe`
+  metadata and an interface.
+  
+  Consider a `TitleCasePipe` that capitalizes the first letter of each word.
+  Here's a naive implementation implemented with a regular expression.
++makeExample('testing/ts/app/shared/title-case.pipe.ts', '', 'app/shared/title-case.pipe.ts')(format='.')
+:marked
+  Anything that uses a regular expression is worth testing thoroughly.
+  We only need simple Jasmine to explore the expected cases and the edge cases.
++makeExample('testing/ts/app/shared/title-case.pipe.spec.ts', 'excerpt', 'app/shared/title-case.pipe.spec.ts')
+:marked
+  **Important:** These are tests of the pipe _in isolation_.
+  They can't tell us if we're using the `TitleCasePipe` properly 
+  in all of the right application components.
+
+  For that purpose we need TestBed component tests such as this one.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'title-case-pipe', 'app/hero/hero-detail.component.spec.ts (pipe test)')
+:marked
+  While this test confirms that the pipe is being used by the `TitleCasePipeComp`,
+  we'd rather not write a lot of these tests to validate the pipe itself.
+
+  That's why we test pipes in isolation, without the aid of the Angular TestBed.
+
+  ## Components
+
+  Component tests typically examine how a component class interacts with its own template or with collaborating components.
+  The Angular TestBed is specifically designed to facilitate these _integration tests_.
+
+  Consider this `ButtonComp` component.
++makeExample('testing/ts/app/bag/bag.ts', 'ButtonComp', 'app/bag/bag.ts (ButtonComp)')(format='.')
+:marked
+  The following TestBed test demonstrates that clicking a button in the template leads
+  to an update of the on-screen message.
++makeExample('testing/ts/app/bag/bag.spec.ts', 'ButtonComp', 'app/bag/bag.spec.ts (ButtonComp)')(format='.')
+:marked
+  The assertions verify the data binding flow from one HTML control (the `<button>`) to the component and 
+  from the component back to a _different_ HTML control (the `<span>`). 
+  A passing test means the component and its template are wired up correctly.
+
+  Tests _without_ the TestBed can more rapidly probe a component at its API boundary,
+  exploring many more conditions with less effort.
+
+  Here are a set of _unit tests_ that verify the component's outputs in the face of a variety of
+  component inputs.
++makeExample('testing/ts/app/bag/bag-no-testbed.spec.ts', 'ButtonComp', 'app/bag/bag-no-testbed.spec.ts (ButtonComp)')(format='.')
+:marked
+  Clearly we're able to get a lot of test coverage with less code and almost no setup.
+  This advantage is even more pronounced with complex components that 
+  require meticulous preparation with the TestBed.
+
+  On the other hand, these simple unit tests can't confirm that the `ButtonComp` is 
+  properly bound to its template or even data bound at all. 
+  We need TestBed tests for that.
+
+a(href="#top").to-top Back to top
+
+.l-hr
+
+a#testbed-summary
+:marked
+  # TestBed Summary
+
+  This section takes inventory of the most useful TestBed features and summaries what they do.
+
+  The _TestBed_ consists of the `TestBed` and `ComponentFixture` classes plus a handful of functions in the test environment.
+  We'll cover the [_TestBed_](#testbed-api-summary) and [_ComponentFixture_](#componentfixture-api-summary) classes separately.
+
+  Here's a summary of the functions, in order of likely utility:
+
+table
+  tr
+    th Function
+    th Description
+  tr
+    td(style="vertical-align: top") <code>inject</code>
+    td
+      :marked
+        TBD.
+  tr
+    td(style="vertical-align: top") <code>async</code>
+    td
+      :marked
+        TBD.
+  tr
+    td(style="vertical-align: top") <code>fakeAsync</code>
+    td
+      :marked
+        TBD.
+
+  tr
+    td(style="vertical-align: top") <code>tick</code>
+    td
+      :marked
+        TBD.
+
+  tr
+    td(style="vertical-align: top") <code>getTestBed</code>
+    td
+      :marked
+        TBD.
+  tr
+    td(style="vertical-align: top") <code>discardPeriodicTasks</code>
+    td
+      :marked
+        TBD.
+  tr
+    td(style="vertical-align: top") <code>flushMicrotasks</code>
+    td
+      :marked
+        TBD.
+  tr
+    td(style="vertical-align: top") <code>ComponentFixtureAutoDetect</code>
+    td
+      :marked
+        A provider token for setting the default _auto-changeDetect_ from its default of `false`.
+        Change to `true` by adding the provider like this:
+      +makeExample('testing/ts/app/banner.component.spec.ts', 'ComponentFixtureAutoDetect')(format=".")
+
+.l-hr
+
+a#testbed-api-summary
+:marked
+  # _TestBed_ Class Summary
+  The `TestBed` class API is quite large and can be overwhelming until you've explored it first
+  a little at a time. We recommend that you read the early part of this chapter
+  to get the basics first before trying to absorb the full API.
+
+.alert.is-important
+  :marked
+    The _TestBed_ is officially _experimental_ and thus subject to change.
+    Consult the [API reference](../api/core/testing/TestBed-class.html) for the latest status.
+
 :marked
   The module definition we pass to `configureTestingModule`, 
   a subset of the metadata properties we pass to `@NgModule`.
@@ -366,6 +652,16 @@ a#testbed-intro
   ```
 
 a#testbed-methods
+:marked
+  The `TestBed` API consists of static class methods that either update or reference a _global_ instance of the`TestBed`.
+  
+  All static methods cover instance methods and most of them return
+  the `TestBed` class which means we can often chain method calls 
+  into natural expression sequences.
+
+  Call `TestBed` methods _within_ a `BeforeEach()` to ensure a fresh start before each individual test.
+
+  Here are the most important static methods, in order of likely utility.
 table
   tr
     th Methods
@@ -374,19 +670,27 @@ table
     td(style="vertical-align: top") <code>configureTestingModule</code>
     td
       :marked
-        Override the providers, directives, pipes, modules of the default testing module.
+        The testing shims (`karma-test-shim`, `browser-test-shim`) 
+        establish the [initial test environment](#a#testbed-initTestEnvironment) and a default test module.
+        The default test module is initialized with basic declaratives and 
+        some Angular service substitutes (e.g. `DebugDomRender`) that almost every tester needs.
+        
+        Then we call `configureTestingModule` to set the application environment for our specific tests
+        by adding to or overriding the default testing module's
+        imports, declarations (of components, directives, and pipes), and providers.
   tr
     td(style="vertical-align: top") <code>compileComponents</code>
     td
       :marked
-       Compile the testing module's components.
-       Necessary when any of those components have a `templateUrl` 
-       as fetching component template files is necessarily asynchronous.
+       Asynchronous method that compiles the test module after you've configured it.
+       We must call this method if any of the test module components have a `templateUrl` 
+       because fetching component template files is necessarily asynchronous.
   tr
     td(style="vertical-align: top") <code>createComponent<T></code>
     td
       :marked
-        Description
+        Create an instance of a component of type `T` based on the current TestBed configuration.
+        The configuration is frozen for the duration of the current spec.
   tr
     td(style="vertical-align: top") <code>overrideModule</code>
     td
@@ -408,46 +712,64 @@ table
       :marked
         Description
 
-:marked
-  The following `TestBed` static methods are worth knowing about even if you never call them.
-
-table
   tr
-    th Methods
-    th Description
-  tr
-    td(style="vertical-align: top") <code>initTestEnvironment</code>
+    td(style="vertical-align: top").
+      <a id="testbed-initTestEnvironment"></a>
+      <code>initTestEnvironment</code>
     td
       :marked
-        Initialize the environment for testing with a compiler factory, a PlatformRef, and an
-        angular module. These are common to every test in the suite.
-        
-        This may only be called once, to set up the common providers for the current test
-        suite on the current platform. If you absolutely need to change the providers,
-        first use `resetTestEnvironment`.
-        
+        Initializes the testing environment for the entire test run.
+
+        The testing shims (`karma-test-shim`, `browser-test-shim`) call it for you
+        so there is rarely a reason for you to call it yourself.
+
+        This method may be called _exactly once_. Call `resetTestEnvironment` first
+        if you absolutely need to change this default in the middle of your test run.
+
+        Specify the Angular compiler factory, a `PlatformRef`, and a default Angular test module.
         Test modules and platforms for individual platforms are available from
         `angular2/platform/testing/<platform_name>`.
   tr
     td(style="vertical-align: top") <code>resetTestEnvironment</code>
     td
       :marked
-        Reset the providers for the test injector.
+        Reset the initial test environment including the default test module.
 
-a#componentfixture-details
+:marked
+  A few of the `TestBed` instance methods are not covered by static `TestBed` _class_ methods.
+  These are rarely needed ... except one.
+  
+  ### The _get_ method for optional injectables
+
+  The `TestBed` has a `get` instance method that can retrieve a service from the test module injector.
+
+  Normally we'd use the `inject` function for that purpose. 
+  But `inject` throws an error if it can't provide the service. 
+  What if the service is optional?
+
+  The `TestBed.get` _instance_ method takes a second parameter, 
+  the object to return if Angular can't find the provider.
+  We use the `getTestBed()` function to get the instance and then call `get` with the lookup token
+  and the alternate value, `null`:
++makeExample('testing/ts/app/bag/bag.spec.ts', 'testbed-get')(format=".")
+
+
+a#componentfixture-api-summary
 :marked
   ## The _ComponentFixture_
 
   The `TestBed.createComponent<T>`
-  creates an instance of the component (whose type is `T`) 
-  and a strongly typed `ComponentFixture` for that component.
+  creates an instance of the component `T` 
+  and returns a strongly typed `ComponentFixture` for that component.
+
+  The `ComponentFixture` properties and methods provide access to the component, 
+  its DOM representation, and aspects of its Angular environment. 
 
 a#componentfixture-properties
 :marked
   ### _ComponentFixture_ properties
 
-  The _fixture_ properties provide access to the component, its DOM representation,
-  and aspects of its environment.  Here are the most useful properties for testers.
+  Here are the most important properties for testers, in order of likely utility.
   
 table
   tr
@@ -485,8 +807,8 @@ a#componentfixture-methods
 :marked
   ### _ComponentFixture_ methods
 
-  The _fixture_ methods stimulate Angular to do things to the component that typically take place
-  when the component is in the runtime environment.
+  The _fixture_ methods cause Angular to perform certain tasks to the component tree.
+  We call these method to trigger Angular behavior in response to simulated user action.
 
   Here are the most useful methods for testers.
 table
@@ -503,6 +825,9 @@ table
         test code change the component's data bound property values.
         Angular can't see that you've changed `personComponent.name` and won't update the `name`
         binding until you call `detectChanges`.
+
+        Runs `checkNoChanges`afterwards to confirm there are no circular updates unless
+        called as `detectChanges(false)`;
   tr
     td(style="vertical-align: top") <code>autoDetectChanges</code>
     td
@@ -568,15 +893,15 @@ table
     td(style="vertical-align: top") <code>nativeElement</code>
     td
       :marked
-        The element in the browser DOM (null for WebWorkers).
+        The corresponding DOM element in the browser (null for WebWorkers).
   tr
-    td(style="vertical-align: top") <code>query(predicate: Predicate<DebugElement>):</code>
+    td(style="vertical-align: top") <code>query</code>
     td
       :marked
         Calling `query(predicate: Predicate<DebugElement>)` returns the first `DebugElement`
         that matches the [predicate](#query-predicate) at any depth in the subtree.
   tr
-    td(style="vertical-align: top") <code>queryAll(predicate: Predicate<DebugElement>):</code>
+    td(style="vertical-align: top") <code>queryAll</code>
     td
       :marked
         Calling `queryAll(predicate: Predicate<DebugElement>)` returns all `DebugElements`
@@ -629,10 +954,11 @@ table
     td(style="vertical-align: top") <code>triggerEventHandler</code>
     td
       :marked
-        Triggers by event name if there is a corresponding listener in the element's `listeners` collection.
+        Triggers the event by its name if there is a corresponding listener 
+        in the element's `listeners` collection.
         
-        When the event you want to trigger isn't listed or there's some other problem, 
-        consider calling `DebugElement.nativeElement.dispatchEvent(eventObject)`
+        If the event lacks a listner or there's some other problem, 
+        consider calling `nativeElement.dispatchEvent(eventObject)`
 
   tr
     td(style="vertical-align: top") <code>listeners</code>
@@ -722,196 +1048,7 @@ table
 
 a(href="#top").to-top Back to top
 
-.l-hr
-a#component-tests
-:marked
-  # Test a component
-
-a(href="#top").to-top Back to top
-
-.l-hr
-a#aut
-:marked
-  # Testing an application
-  Eventually we need to step away from toy test components and test an application.
-  That moment has arrived.
-
-  This chapter tests a cut-down version of the _Tour of Heroes_ [tutorial app](../tutorial).
-  Here's a reminder of how that app works:
- 
-figure.image-display
-  img(src='/resources/images/devguide/testing/app.anim.gif' style="width:300px;" alt="Tour of Heroes")
-:marked
-  We'll test a subset of the app with our new-found skills:
-table(width="100%")
-  col(width="20%")
-  col(width="80%") 
-  tr
-    th Spec File
-    th Description
-  tr(style=top)
-    td app.component.spec.ts
-    td
-      :marked
-        TBD
-  tr(style=top)
-    td dashboard.component.spec.ts
-    td
-      :marked
-        TBD
-  tr(style=top)
-    td http-hero-service.spec.ts
-    td
-      :marked
-        TBD
-  tr(style=top)
-    td upper-case-pipe.spec.ts
-    td
-      :marked
-        TBD
-
-
-
-a(href="#top").to-top Back to top
-
-.l-hr
-a#testing-without-testbed
-:marked
-  # Testing without the TestBed
-
-  Testing Angular applications with the help of the Angular TestBed is the main focus of this chapter.
-
-  But we can can often explore the inner logic of application classes
-  with _unit tests_ that don't use the TestBed.
-  Such tests are often smaller, easier to read,
-  and easier to write and maintain.
-
-  They don't
-  * import from the Angular test libraries
-  * configure a module
-  * prepare dependency injection `providers`
-  * call `inject` or `async` or `fakeAsync`
-
-  They do
-  * exhibit standard, Angular-agnostic testing techniques
-  * create instances directly with `new`
-  * use stubs, spys, and mocks to fake dependencies.
-
-.callout.is-important
-  header Write both kinds of tests
-  :marked
-    We write both kinds of tests for the same application part, often in the same spec file.
-    Write simple _unit tests_ to validate the part in isolation.
-    Write TestBed _integration tests_ to validate the part as it collaborates with the rest of the application,
-    updates the DOM, or interacts with the Angular framework.
-
-:marked
-  ## Services
-  Services are good candidates for simple unit testing. 
-  Here are some synchronous and asynchronous unit tests of the `FancyService` writen without the TestBed.
-
-+makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'FancyService', 'app/bag-no-testbed.spec.ts')
-:marked
-  A rough line count suggests that these tests are about 25% smaller than equivalent TestBed tests. 
-  That's telling but not decisive. 
-  The real benefit comes from reduced setup and less call depth.
-
-  Compare these tests of `FancyService.getTimeoutValue`.
-+makeTabs(
-  `testing/ts/app/bag-no-testbed.spec.ts, testing/ts/app/bag.spec.ts`, 
-  'getTimeoutValue, getTimeoutValue', 
-  `app/bag-no-testbed.spec.ts (no TestBed), app/bag.spec.ts (with TestBed)`)
-:marked
-  They have about the same line-count. 
-  The TestBed version has three helpers and more indentation.
-  That may not bother you.
-  Both work. Pick the approach that suits you.
-
-  ### Services with dependencies
-
-  Services often depend on other services that Angular will inject into the constructor.
-  We can still test these services _without_ the testbed.
-  We don't always need Angular to inject dependencies. 
-  In many cases, it's easier to create and _inject_ them by hand.
-
-  The `DependentService` is a simple example
-+makeExample('testing/ts/app/bag.ts', 'DependentService', 'app/bag.ts')(format='.')
-:marked
-  It delegates it's only method, `getValue`, to the injected `FancyService`.
-
-  Here are several ways we could test it.
-+makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'DependentService', 'app/bag-no-testbed.spec.ts')
-:marked
-  In the first test we create a `FancyService` with `new` and pass it to the `DependentService` constructor.
-  
-  It's rarely that simple. The injected service can be difficult to create or control.
-  So we mock the dependency, or use a fake value, or stub the pertinent service method
-  with substitute method that we can easily control.
-
-  These standard _unit testing_ techniques are great for exploring the inner logic of a service in isolation.
-  We still need the TestBed when writing _integration tests_ that validate how a service interacts with components.
-
-  ## Pipes
-  Pipes are easy to test without the Angular TestBed.
-
-  A pipe class has one method, `transform`, that turns an input to an output. 
-  The `transform` implementation rarely interacts with the DOM.
-  Most pipes have no dependence on Angular other than the `@Pipe`
-  metadata and an interface.
-  
-  Consider a `TitleCasePipe` that capitalizes the first letter of each word.
-  Here's a naive implementation implemented with a regular expression.
-+makeExample('testing/ts/app/bag.ts', 'TitleCasePipe', 'app/bag.ts (TitleCasePipe)')(format='.')
-:marked
-  Anything that uses a regular expression is worth testing thoroughly.
-  We only need simple Jasmine to explore the expected cases and the edge cases.
-+makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'TitleCasePipe', 'app/bag-no-testbed.spec.ts (TitleCasePipe)')
-:marked
-  **Important:** These are tests of the pipe _in isolation_.
-  They can't tell us if we're using the `TitleCasePipe` properly 
-  in all of the right application components.
-
-  For that purpose we need TestBed component tests such as this one.
-+makeExample('testing/ts/app/bag.spec.ts', 'TitleCasePipeComp', 'app/bag.spec.ts (TitleCasePipeComp)')
-:marked
-  While this test confirms that the pipe is being used by the `TitleCasePipeComp`,
-  we'd rather not write a lot of these tests to validate the pipe itself.
-
-  That's why we test pipes in isolation, without the aid of the Angular TestBed.
-
-  ## Components and directives
-
-  Component tests typically examine how a component class interacts with its own template or with collaborating components.
-  Directive tests look at how a directive modifies the look and behavior of a component. 
-  The Angular TestBed is specifically designed to facilitate these _integration tests_.
-
-  Consider this a `ButtonComp` component.
-+makeExample('testing/ts/app/bag.ts', 'ButtonComp', 'app/bag.ts (ButtonComp)')(format='.')
-:marked
-  The following TestBed test demonstrates that clicking a button in the template triggers a
-  change in `ButtonComp`, resulting in an on-screen message update.
-+makeExample('testing/ts/app/bag.spec.ts', 'ButtonComp', 'app/bag.spec.ts (ButtonComp)')(format='.')
-:marked
-  That demonstrates a data binding flow from an HTML control (the `<button>`) to the component and from the component
-  back to a different HTML control (the `<span>`). 
-  A passing test means the component and its template are wired up correctly.
-
-  Tests without the TestBed can rapidly probe a component or directive class at its API boundary.
-  Here are a set of _unit tests_ that verify component outputs in the face of a variety of
-  component inputs.
-+makeExample('testing/ts/app/bag-no-testbed.spec.ts', 'ButtonComp', 'app/bag-no-testbed.spec.ts (ButtonComp)')(format='.')
-:marked
-  Clearly we're able to get a lot of test coverage with very little effort and almost no setup.
-  This advantage is even more pronounced with more complex components that would otherwise require meticulous preparation 
-  with the TestBed.
-
-  On the other hand, these tests can't confirm that the `ButtonComp` is properly bound to its template
-  or even data bound at all. Only TestBed tests can do that.
-
-a(href="#top").to-top Back to top
-
-
-.l-hr
+.l.hr
 
 a#faq 
 .l-main-section

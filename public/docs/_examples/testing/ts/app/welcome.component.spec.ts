@@ -40,6 +40,8 @@ describe('WelcomeComponent', () => {
     // find DOM element abstraction (DebugElement) by CSS class namen
     welcomeEl = fixture.debugElement.query(By.css('.welcome'));
 
+    // or get the element by position (we know its the first child)
+    welcomeEl = fixture.debugElement.children[0];
   });
 
   it('should welcome the user', () => {

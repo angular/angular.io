@@ -21,8 +21,7 @@ import { FormsModule } from '@angular/forms';
 // Forms symbols imported only for a specific test below
 import { NgModel, NgControl } from '@angular/forms';
 
-import {
-  async, ComponentFixture, fakeAsync, inject, TestBed, tick
+import { async, ComponentFixture, fakeAsync, getTestBed, inject, TestBed, tick
 } from '@angular/core/testing';
 
 // Custom Jasmine Matchers
@@ -36,11 +35,17 @@ describe('use inject helper in beforeEach', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [FancyService] });
-    // inject returns a fn; don't forget to call it!
-    inject([FancyService], (s: FancyService) => service = s) ();
+
+    // `TestBed.get` can returns the injectable or an
+    //  alternative object (including null) if the service provider is not found.
+    //  Of course it will be found in this case because we're providing it.
+    // #docregion testbed-get
+    service = getTestBed().get(FancyService, null);
+    // #enddocregion testbed-get
   });
 
-    it('should use FancyService', () => {
+
+  it('should use FancyService', () => {
       expect(service.getValue()).toBe('real value');
   });
 
@@ -54,13 +59,11 @@ describe('use inject helper in beforeEach', () => {
     );
   }));
 
-  // #docregion getTimeoutValue
   it('test should wait for FancyService.getTimeoutValue', async(() => {
     service.getTimeoutValue().then(
       value => expect(value).toBe('timeout value')
     );
   }));
-  // #enddocregion getTimeoutValue
 
   it('test should wait for FancyService.getObservableValue', async(() => {
     service.getObservableValue().subscribe(
@@ -85,9 +88,12 @@ describe('use inject helper in beforeEach', () => {
 });
 
 describe('use inject within `it`', () => {
+  // #docregion getTimeoutValue
   beforeEach(() => {
     TestBed.configureTestingModule({ providers: [FancyService] });
   });
+
+  // #enddocregion getTimeoutValue
 
   it('should use modified providers',
     inject([FancyService], (service: FancyService) => {
@@ -95,6 +101,16 @@ describe('use inject within `it`', () => {
       expect(service.getValue()).toBe('value modified in beforeEach');
     })
   );
+
+  // #docregion getTimeoutValue
+  it('test should wait for FancyService.getTimeoutValue',
+    async(inject([FancyService], (service: FancyService) => {
+
+    service.getTimeoutValue().then(
+      value => expect(value).toBe('timeout value')
+    );
+  })));
+  // #enddocregion getTimeoutValue
 });
 
 describe('using async(inject) within beforeEach', () => {
@@ -214,25 +230,13 @@ describe('TestBed Component Tests', () => {
   // #docregion ButtonComp
   it('should support clicking a button', () => {
     let fixture = TestBed.createComponent(ButtonComp);
-    let comp = fixture.componentInstance;
-
-    expect(comp.isOn).toBe(false, 'isOn starts false');
-
-    let btn = fixture.debugElement.query(By.css('button'));
-    // #enddocregion ButtonComp
-    // let btn = fixture.debugElement.query(el => el.name === 'button'); // the hard way
-    // #docregion ButtonComp
-    let span = fixture.debugElement
-               .query(By.css('span'))
-               .nativeElement as HTMLElement;
+    let btn  = fixture.debugElement.query(By.css('button'));
+    let span = fixture.debugElement.query(By.css('span')).nativeElement;
+    expect(span.textContent).toMatch(/is off/i, 'before click');
 
     btn.triggerEventHandler('click', null);
-    // btn.nativeElement.dispatchEvent(newEvent('click')); // alternative
-
     fixture.detectChanges();
-
-    expect(span.textContent).toMatch(/is on/i,
-      'message should say it is on');
+    expect(span.textContent).toMatch(/is on/i, 'after click');
   });
   // #enddocregion ButtonComp
 
