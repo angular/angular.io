@@ -176,7 +176,12 @@ class AppComponent implements OnInit, AfterViewInit {
   // #enddocregion NgStyle
 
   String title = 'Template Syntax';
+  // #docregion evil-title
+  String evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';
+  // #enddocregion evil-title
+
   String toeChoice;
+
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
