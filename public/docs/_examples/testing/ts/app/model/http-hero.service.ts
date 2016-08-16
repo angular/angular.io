@@ -13,7 +13,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 @Injectable()
-export class HeroService {
+export class HttpHeroService {
   private _heroesUrl = 'app/heroes';  // URL to web api
 
   constructor (private http: Http) {}

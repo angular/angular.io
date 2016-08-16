@@ -7,7 +7,7 @@ import { DebugElement } from '@angular/core';
 // Custom Jasmine Matchers
 import  '../../test/jasmine-matchers';
 
-import { Hero } from '../hero/hero';
+import { Hero } from '../model/hero';
 import { DashboardHeroComponent } from './dashboard-hero.component';
 
 describe('DashboardHeroComponent when tested directly', () => {

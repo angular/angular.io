@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router}    from '@angular/router';
 
-import { Hero }              from './hero';
+import { Hero }              from '../model';
 import { HeroDetailService } from './hero-detail.service';
 
 @Component({
@@ -40,6 +40,8 @@ export class HeroDetailComponent implements OnInit {
   save() {
     this.heroDetailService.saveHero(this.hero).then(() => this.gotoList());
   }
+
+  cancel() { this.gotoList(); }
 
   gotoList() {
     this.router.navigate(['../'], {relativeTo: this.route});

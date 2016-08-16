@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { By }                        from '@angular/platform-browser';
 import { DebugElement }              from '@angular/core';
 
-import { UserService }      from './shared/user.service';
+import { UserService }      from './model';
 import { WelcomeComponent } from './welcome.component';
 
 describe('WelcomeComponent', () => {
@@ -62,6 +62,16 @@ describe('WelcomeComponent', () => {
     expect(content).toContain('Bubba');
   });
 
+  it('should welcome "Bubba" after injecting userService',
+    inject([UserService], (service: UserService) => {
+
+    service.user.name = 'Bubba'; // welcome message hasn't been shown yet
+
+    fixture.detectChanges(); // trigger data binding
+
+    let content = welcomeEl.nativeElement.textContent;
+    expect(content).toContain('Bubba');
+  }));
 
   it('should request login if not logged in', () => {
 

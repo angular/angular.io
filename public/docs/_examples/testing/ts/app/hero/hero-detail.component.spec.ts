@@ -1,5 +1,5 @@
 import {
-  async, ComponentFixture, fakeAsync, TestBed, tick
+  async, ComponentFixture, fakeAsync, inject, TestBed, tick
 } from '@angular/core/testing';
 
 import { By }           from '@angular/platform-browser';
@@ -9,7 +9,7 @@ import { DebugElement } from '@angular/core';
 import  '../../test/jasmine-matchers';
 import { newEvent } from '../../test/dom-event';
 
-import { HeroModule }          from './hero.module';
+import HeroModule              from './hero.module';
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroDetailService }   from './hero-detail.service';
 
@@ -36,7 +36,7 @@ describe('HeroDetailComponent', () => {
     TestBed.configureTestingModule({
       imports: [ HeroModule ],
 
-      // DON'T RE-DECLARE because declared in HeroModule
+      // DON'T RE-DECLARE because already declared in HeroModule
       // declarations: [HeroDetailComponent, TitleCasePipe], // No!
 
       providers: [
@@ -66,16 +66,17 @@ describe('HeroDetailComponent', () => {
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
 
-    it('should navigate when click save', fakeAsync(() => {
+    it('should save when click save', () => {
+      page.saveBtn.triggerEventHandler('click', null);
+      expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
+    });
+
+    it('should navigate when click click save resolves', fakeAsync(() => {
       page.saveBtn.triggerEventHandler('click', null);
       tick(); // waits for async save to "complete" before navigating
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     }));
 
-    it('should save when click save', () => {
-      page.saveBtn.triggerEventHandler('click', null);
-      expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
-    });
 
     // #docregion title-case-pipe
     it('should convert original hero name to Title Case', () => {
@@ -124,25 +125,33 @@ describe('HeroDetailComponent', () => {
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
   });
+
+  ///////////////////////////
+
+  // Why we must use `fixture.debugElement.injector` in `Page()`
+  it('cannot use `inject` to get component\'s provided service', () => {
+    let service: HeroDetailService;
+    fixture = TestBed.createComponent(HeroDetailComponent);
+    expect(
+      // Throws because `inject` only has access to TestBed's injector
+      // which is an ancestor of the component's injector
+      inject([HeroDetailService], (hds: HeroDetailService) =>  service = hds )
+    )
+    .toThrowError(/No provider for HeroDetailService/);
+
+    // get `HeroDetailService` with component's own injector
+    service = fixture.debugElement.injector.get(HeroDetailService);
+    expect(service).toBeDefined('debugElement.injector');
+  });
 });
 
 /////////// Helpers /////
-interface Page {
-  gotoSpy:      jasmine.Spy;
-  navSpy:       jasmine.Spy;
-  saveSpy:      jasmine.Spy;
-
-  saveBtn?:      DebugElement;
-  cancelBtn?:    DebugElement;
-  nameDisplay?:  HTMLElement;
-  nameInput?:    HTMLInputElement;
-}
 
 /** Create the HeroDetailComponent, initialize it, set test variables  */
 function createComponent() {
   fixture = TestBed.createComponent(HeroDetailComponent);
   comp    = fixture.componentInstance;
-  setPage();
+  page    = new Page();
 
   // change detection triggers ngOnInit which gets a hero
   fixture.detectChanges();
@@ -150,33 +159,40 @@ function createComponent() {
     // got the hero and updated component
     // change detection updates the view
     fixture.detectChanges();
-    addPageElements();
+    page.addPageElements();
   });
 }
 
-/** Get component and page elements for tests  */
-function setPage() {
-  // Use component's injector to see the services it injected.
-  let compInjector = fixture.debugElement.injector;
-  let hds          = compInjector.get(HeroDetailService);
-  let router       = compInjector.get(Router);
+class Page {
+  gotoSpy:      jasmine.Spy;
+  navSpy:       jasmine.Spy;
+  saveSpy:      jasmine.Spy;
 
-  page = {
-    // Spy on component and injected service methods
-    gotoSpy: spyOn(comp, 'gotoList').and.callThrough(),
-    saveSpy: spyOn(hds, 'saveHero').and.callThrough(),
-    navSpy:  spyOn(router, 'navigate').and.callThrough()
-  };
-}
+  saveBtn:      DebugElement;
+  cancelBtn:    DebugElement;
+  nameDisplay:  HTMLElement;
+  nameInput:    HTMLInputElement;
 
-/** Add page elements after page initializes  */
-function addPageElements() {
-  if (comp.hero) {
-    // have a hero so these DOM elements can be reached
-    let buttons = fixture.debugElement.queryAll(By.css('button'));
-    page.saveBtn     = buttons[0];
-    page.cancelBtn   = buttons[1];
-    page.nameDisplay = fixture.debugElement.query(By.css('span')).nativeElement;
-    page.nameInput   = fixture.debugElement.query(By.css('input')).nativeElement;
+  constructor() {
+    // Use component's injector to see the services it injected.
+    let compInjector = fixture.debugElement.injector;
+    let hds          = compInjector.get(HeroDetailService);
+    let router       = compInjector.get(Router);
+    this.gotoSpy     = spyOn(comp, 'gotoList').and.callThrough();
+    this.saveSpy     = spyOn(hds, 'saveHero').and.callThrough();
+    this.navSpy      = spyOn(router, 'navigate').and.callThrough();
+  }
+
+  /** Add page elements after page initializes  */
+  addPageElements() {
+    if (comp.hero) {
+      // have a hero so these DOM elements can be reached
+      let buttons = fixture.debugElement.queryAll(By.css('button'));
+      this.saveBtn     = buttons[0];
+      this.cancelBtn   = buttons[1];
+      this.nameDisplay = fixture.debugElement.query(By.css('span')).nativeElement;
+      this.nameInput   = fixture.debugElement.query(By.css('input')).nativeElement;
+    }
   }
 }
+

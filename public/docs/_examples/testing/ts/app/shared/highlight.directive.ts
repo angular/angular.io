@@ -7,7 +7,7 @@ import { Directive, ElementRef, Input, OnChanges, Renderer } from '@angular/core
  */
 export class HighlightDirective implements OnChanges {
 
-  static defaultColor =  'lightgray';
+  static defaultColor =  'rgb(211, 211, 211)'; // lightgray
 
   @Input('highlight') bgColor: string;
 

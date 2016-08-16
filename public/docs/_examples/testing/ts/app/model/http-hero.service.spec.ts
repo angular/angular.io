@@ -18,8 +18,8 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/toPromise';
 
-import { Hero }        from './hero';
-import { HeroService } from './http-hero.service';
+import { Hero } from './hero';
+import { HttpHeroService as HeroService } from './http-hero.service';
 
 const makeHeroData = () => [
   { id: 1, name: 'Windstorm' },

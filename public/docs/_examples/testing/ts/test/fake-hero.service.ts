@@ -1,9 +1,6 @@
-import { Hero }           from '../app/hero/hero';
-import { HeroService }    from '../app/hero/hero.service';
-
 // Re-export for testing convenience
-export { Hero }           from '../app/hero/hero';
-export { HeroService }    from '../app/hero/hero.service';
+export { Hero, HeroService } from '../app/model';
+import { Hero, HeroService } from '../app/model';
 
 export var HEROES: Hero[] = [
   new Hero(41, 'Bob'),

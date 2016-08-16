@@ -35,12 +35,26 @@ System.config({
 });
 
 System.import('systemjs.config.js')
-  .then(function () {
-    return Promise.all([
-      System.import('@angular/core/testing'),
-      System.import('@angular/platform-browser-dynamic/testing')
-    ])
-  })
+  .then(importSystemJsExtras)
+  .then(initTestBed)
+  .then(initTesting);
+
+/** Optional SystemJS configuration extras. Keep going w/o it */
+function importSystemJsExtras(){
+  return System.import('systemjs.config.extras.js')
+  .catch(function(reason) {
+    console.log(
+      'WARNING: System.import could not load "systemjs.config.extras.js"; continuing without it.'
+    );
+    console.log(reason);
+  });
+}
+
+function initTestBed(){
+  return Promise.all([
+    System.import('@angular/core/testing'),
+    System.import('@angular/platform-browser-dynamic/testing')
+  ])
 
   .then(function (providers) {
     var testing = providers[0];
@@ -50,13 +64,14 @@ System.import('systemjs.config.js')
         testingBrowser.BrowserDynamicTestingModule,
         testingBrowser.platformBrowserDynamicTesting());
   })
+}
 
-  .then(function() {
-    // Import all spec files.
-    return Promise.all(
-      allSpecFiles.map(function (moduleName) {
-        return System.import(moduleName);
-      }));
-  })
-
+// Import all spec files and start karma
+function initTesting () {
+  return Promise.all(
+    allSpecFiles.map(function (moduleName) {
+      return System.import(moduleName);
+    })
+  )
   .then(__karma__.start, __karma__.error);
+}

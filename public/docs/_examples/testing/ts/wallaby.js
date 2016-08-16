@@ -9,6 +9,7 @@ module.exports = function () {
       // System.js for module loading
       {pattern: 'node_modules/systemjs/dist/system.js', instrument: false},
       {pattern: 'systemjs.config.js', instrument: false},
+      {pattern: 'systemjs.config.extras.js', instrument: false},
 
       // Polyfills
       {pattern: 'node_modules/core-js/client/shim.min.js', instrument: false},
@@ -39,43 +40,66 @@ module.exports = function () {
 
     debug: true,
 
-    bootstrap: function (wallaby) {
-      wallaby.delayStart();
-
-      System.config({
-        // Extend usual application package list with test folder
-        packages: { 'test': { main: 'index.js', defaultExtension: 'js' } },
-        packageWithIndex: true // sadly, we can't use umd packages (yet?)
-      });
-
-      System.import('systemjs.config.js')
-        .then(function () {
-          return Promise.all([
-            System.import('@angular/core/testing'),
-            System.import('@angular/platform-browser-dynamic/testing')
-          ])
-        })
-        .then(function (providers) {
-          var testing = providers[0];
-          var testingBrowser = providers[1];
-
-          testing.TestBed.initTestEnvironment(
-              testingBrowser.BrowserDynamicTestingModule,
-              testingBrowser.platformBrowserDynamicTesting());
-
-          // Load all spec files
-          return Promise.all(wallaby.tests.map(function (specFile) {
-            return System.import(specFile);
-          }));
-        })
-        .then(function () {
-          wallaby.start();
-        })
-        .catch(function (e) {
-          setTimeout(function () {
-            throw e;
-          }, 0);
-        });
-    }
+    bootstrap: bootstrap
   };
 };
+
+// like in karma-test-shim.js
+function bootstrap (wallaby) {
+  wallaby.delayStart();
+
+  System.config({
+    // Extend usual application package list with test folder
+    packages: { 'test': { main: 'index.js', defaultExtension: 'js' } },
+    packageWithIndex: true // sadly, we can't use umd packages (yet?)
+  });
+
+  System.import('systemjs.config.js')
+    .then(importSystemJsExtras)
+    .then(initTestBed)
+    .then(initTesting);
+
+  /** Optional SystemJS configuration extras. Keep going w/o it */
+  function importSystemJsExtras(){
+    return System.import('systemjs.config.extras.js')
+    .catch(function(reason) {
+      console.log(
+        'WARNING: System.import could not load "systemjs.config.extras.js"; continuing without it.'
+      );
+      console.log(reason);
+    });
+  }
+
+  function initTestBed(){
+    return Promise.all([
+      System.import('@angular/core/testing'),
+      System.import('@angular/platform-browser-dynamic/testing')
+    ])
+
+    .then(function (providers) {
+      var testing = providers[0];
+      var testingBrowser = providers[1];
+
+      testing.TestBed.initTestEnvironment(
+          testingBrowser.BrowserDynamicTestingModule,
+          testingBrowser.platformBrowserDynamicTesting());
+    })
+  }
+
+  // Load all spec files and start wallaby
+  function initTesting () {
+    return Promise.all(
+      wallaby.tests.map(function (specFile) {
+        return System.import(specFile);
+      })
+    )
+    .then(function () {
+      wallaby.start();
+    })
+    .catch(function (e) {
+      setTimeout(function () {
+        throw e;
+      }, 0);
+    });
+  }
+}

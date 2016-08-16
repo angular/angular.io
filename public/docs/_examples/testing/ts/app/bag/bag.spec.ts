@@ -232,6 +232,8 @@ describe('TestBed Component Tests', () => {
     let fixture = TestBed.createComponent(ButtonComp);
     let btn  = fixture.debugElement.query(By.css('button'));
     let span = fixture.debugElement.query(By.css('span')).nativeElement;
+
+    fixture.detectChanges();
     expect(span.textContent).toMatch(/is off/i, 'before click');
 
     btn.triggerEventHandler('click', null);
