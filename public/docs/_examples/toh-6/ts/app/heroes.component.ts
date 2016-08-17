@@ -24,7 +24,7 @@ export class HeroesComponent implements OnInit {
     private router: Router,
     private heroService: HeroService) { }
 
-  getHeroes() {
+  getHeroes(): void {
     this.heroService
         .getHeroes()
         .then(heroes => this.heroes = heroes)
@@ -32,19 +32,19 @@ export class HeroesComponent implements OnInit {
   }
 
   // #docregion addHero
-  addHero() {
+  addHero(): void {
     this.addingHero = true;
     this.selectedHero = null;
   }
 
-  close(savedHero: Hero) {
+  close(savedHero: Hero): void {
     this.addingHero = false;
     if (savedHero) { this.getHeroes(); }
   }
   // #enddocregion addHero
 
   // #docregion deleteHero
-  deleteHero(hero: Hero, event: any) {
+  deleteHero(hero: Hero, event: any): void {
     event.stopPropagation();
     this.heroService
         .delete(hero)
@@ -56,16 +56,16 @@ export class HeroesComponent implements OnInit {
   }
   // #enddocregion deleteHero
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getHeroes();
   }
 
-  onSelect(hero: Hero) {
+  onSelect(hero: Hero): void {
     this.selectedHero = hero;
     this.addingHero = false;
   }
 
-  gotoDetail() {
+  gotoDetail(): void {
     this.router.navigate(['/detail', this.selectedHero.id]);
   }
 }

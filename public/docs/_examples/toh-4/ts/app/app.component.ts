@@ -82,14 +82,16 @@ export class AppComponent implements OnInit {
   constructor(private heroService: HeroService) { }
 
 // #docregion get-heroes
-  getHeroes() {
+  getHeroes(): void {
     this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
 // #enddocregion get-heroes
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getHeroes();
   }
 
-  onSelect(hero: Hero) { this.selectedHero = hero; }
+  onSelect(hero: Hero): void {
+    this.selectedHero = hero;
+  }
 }
