@@ -8,7 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { HeroService } from './hero.service';
-// #docregion added-imports
+// #enddocregion added-imports
 
 // Bogus code below this point. It is only here to make lint happy.
 import { Hero } from './hero';

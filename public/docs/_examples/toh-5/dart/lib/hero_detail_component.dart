@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion , v2
+// #docregion added-imports
 import 'dart:async';
-// #docregion dart-html
-import 'dart:html';
-// #enddocregion dart-html
+import 'dart:html' show window;
 
+// #enddocregion added-imports
 import 'package:angular2/core.dart';
 // #docregion added-imports
 import 'package:angular2/router.dart';
