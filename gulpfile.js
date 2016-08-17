@@ -441,7 +441,7 @@ gulp.task('add-example-boilerplate', function(done) {
 // copies boilerplate files to locations
 // where an example app is found
 gulp.task('_copy-example-boilerplate', function (done) {
-  if (!argv.fast) buildStyles(copyExampleBoilerplate, done);
+  return argv.fast ? done() : buildStyles(copyExampleBoilerplate, done);
 });
 
 //Builds Angular 2 Docs CSS file from Bootstrap npm LESS source
