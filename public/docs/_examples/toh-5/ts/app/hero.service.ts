@@ -17,10 +17,10 @@ export class HeroService {
     );
   }
 
-  // #docregion get-hero
+  // #docregion getHero
   getHero(id: number) {
     return this.getHeroes()
                .then(heroes => heroes.find(hero => hero.id === id));
   }
-  // #enddocregion get-hero
+  // #enddocregion getHero
 }

@@ -16,8 +16,8 @@ class HeroService {
         const Duration(seconds: 2), () => mockHeroes);
   }
 
-  // #docregion get-hero
+  // #docregion getHero
   Future<Hero> getHero(int id) async =>
       (await getHeroes()).firstWhere((hero) => hero.id == id);
-  // #enddocregion get-hero
+  // #enddocregion getHero
 }

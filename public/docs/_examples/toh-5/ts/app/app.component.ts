@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 import { Component } from '@angular/core';
 
@@ -14,9 +13,9 @@ import { Component } from '@angular/core';
     <router-outlet></router-outlet>
   `,
   // #enddocregion template
-  // #docregion style-urls
+  // #docregion styleUrls
   styleUrls: ['app/app.component.css'],
-  // #enddocregion style-urls
+  // #enddocregion styleUrls
 })
 export class AppComponent {
   title = 'Tour of Heroes';

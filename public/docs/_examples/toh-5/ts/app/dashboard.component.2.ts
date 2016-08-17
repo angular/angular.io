@@ -22,5 +22,5 @@ export class DashboardComponent implements OnInit {
       .then(heroes => this.heroes = heroes.slice(1, 5));
   }
 
-  gotoDetail() { /* not implemented yet */}
+  gotoDetail(hero: Hero) { /* not implemented yet */}
 }
