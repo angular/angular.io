@@ -31,7 +31,7 @@ class Hero {
         let _name = await detail.element(by.css('h2')).getText();
         return {
             id: +_id.substr(_id.indexOf(' ') + 1),
-            name: _name.substr(0, _name.indexOf(' '))
+            name: _name.substr(0, _name.lastIndexOf(' '))
         };
     }
 }
