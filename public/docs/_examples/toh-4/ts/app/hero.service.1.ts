@@ -4,6 +4,7 @@
 import { Injectable } from '@angular/core';
 
 // #enddocregion empty-class
+import { Hero } from './hero';
 import { HEROES } from './mock-heroes';
 
 // #docregion empty-class, getHeroes-stub
