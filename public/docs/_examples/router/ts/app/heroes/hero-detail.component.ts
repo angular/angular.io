@@ -1,10 +1,15 @@
 // #docplaster
 // #docregion
-import { Component, OnInit }   from '@angular/core';
+// #docregion route-animation-imports
+import { Component, OnInit, HostBinding,
+         trigger, transition, animate,
+         style, state } from '@angular/core';
+// #enddocregion route-animation-imports
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { Hero, HeroService }  from './hero.service';
 
+// #docregion route-animation
 @Component({
   template: `
   <h2>HEROES</h2>
@@ -20,9 +25,46 @@ import { Hero, HeroService }  from './hero.service';
       <button (click)="gotoHeroes()">Back</button>
     </p>
   </div>
-  `
+  `,
+  animations: [
+    trigger('routeAnimation', [
+      state('*',
+        style({
+          opacity: 1,
+          transform: 'translateX(0)'
+        })
+      ),
+      transition('void => *', [
+        style({
+          opacity: 0,
+          transform: 'translateX(-100%)'
+        }),
+        animate('0.2s ease-in')
+      ]),
+      transition('* => void', [
+        animate('0.5s ease-out', style({
+          opacity: 0,
+          transform: 'translateY(100%)'
+        }))
+      ])
+    ])
+  ]
 })
-export class HeroDetailComponent implements OnInit  {
+// #docregion route-animation-host-binding
+export class HeroDetailComponent implements OnInit {
+// #enddocregion route-animation
+  @HostBinding('@routeAnimation') get routeAnimation() {
+    return true;
+  }
+
+  @HostBinding('style.display') get display() {
+    return 'block';
+  }
+
+  @HostBinding('style.position') get position() {
+    return 'absolute';
+  }
+
   hero: Hero;
 
   // #docregion ctor
@@ -49,4 +91,6 @@ export class HeroDetailComponent implements OnInit  {
     this.router.navigate(['/heroes', { id: heroId, foo: 'foo' }]);
   }
   // #enddocregion gotoHeroes-navigate
+// #docregion route-animation-host-binding
 }
+// #enddocregion route-animation-host-binding

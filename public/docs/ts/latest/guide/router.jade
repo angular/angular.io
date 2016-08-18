@@ -41,6 +41,7 @@ include ../_util-fns
   * navigating when the user clicks a data-bound [RouterLink](#router-link)
   * navigating under [program control](#navigate)
   * retrieving information from the [route](#activated-route)
+  * [animating](#route-animation) transitions for route components
   * toggling css classes for the [active router link](#router-link-active)
   * embedding critical information in the URL with [route parameters](#route-parameters)
   * providing non-critical information in [optional route parameters](#optional-route-parameters)
@@ -314,14 +315,14 @@ figure.image-display
 figure.image-display
   img(src='/resources/images/devguide/router/crisis-center-detail.png' alt="Crisis Center Detail")
 :marked
-   This is a bit different from the *Hero Detail*. *Hero Detail* saves the changes as we type.
-   In *Crisis Detail* our changes are temporary until we either save or discard them by pressing the "Save" or "Cancel" buttons.
-   Both buttons navigate back to the *Crisis Center* and its list of crises.
+  This is a bit different from the *Hero Detail*. *Hero Detail* saves the changes as we type.
+  In *Crisis Detail* our changes are temporary until we either save or discard them by pressing the "Save" or "Cancel" buttons.
+  Both buttons navigate back to the *Crisis Center* and its list of crises.
 
-   Suppose we click a crisis, make a change, but ***do not click either button***.
-   Maybe we click the browser back button instead. Maybe we click the "Heroes" link.
+  Suppose we click a crisis, make a change, but ***do not click either button***.
+  Maybe we click the browser back button instead. Maybe we click the "Heroes" link.
 
-   Do either. Up pops a dialog box.
+  Do either. Up pops a dialog box.
 figure.image-display
   img(src='/resources/images/devguide/router/confirm-dialog.png' alt="Confirm Dialog" width="300")
 :marked
@@ -683,7 +684,7 @@ figure.image-display
   We use the same techniques we learned for `app.routing.ts`.
 
   We import the two components from their new locations in the `app/heroes/` folder, define the two hero routes.
-  and add export our `heroesRouting` that returns configured `RouterModule` for our submodule.
+  and add export our `heroesRouting` that returns configured `RouterModule` for our feature module.
 
 :marked
   Now that we have routes for our `Heroes` module, we'll need to register them with the *Router*.
@@ -1070,9 +1071,55 @@ figure.image-display
 :marked
   The optional `foo` route parameter is harmless and continues to be ignored.
 
-h3#merge-hero-routes Import Hero feature module into AppModule
+h3#route-animation Adding animations to the route component
 :marked
-  Our heroes feature module is ready, but our application doesn't know about our heroes module yet.
+  Our heroes feature module is almost complete, but what is a feature without some smooth transitions?
+  We already know that Angular supports [animations](../guide/animations.html) and we want to take
+  advantage of them by adding some animation to our *Hero Detail* component.
+
+  First, we'll start by importing our animation functions that build our animation triggers,
+  control state and manage transitions between states. We'll use these functions to add transitions
+  to our route component as it moves between states our application view. We'll also import the
+  `HostBinding` decorator for binding to our route component.
+
++makeExcerpt('app/heroes/hero-detail.component.ts (animation imports)', 'route-animation-imports')
+
+:marked
+  Next, we'll use a **host binding** for route animations named *@routeAnimation*. There is nothing special
+  about the choice of the binding name, but since we are controlling route animation, we'll go with `routeAnimation`.
+  The binding value is set to `true` because we only care about the `*` and `void` states which are
+  [entering and leaving](../guide/animations.html#example-entering-and-leaving) animation states.
+
+  We'll also add some display and positioning bindings for styling.
+
++makeExcerpt('app/heroes/hero-detail.component.ts (route animation binding)', 'route-animation-host-binding')
+
+:marked
+  Now we can build our animation trigger, which we'll call *routeAnimation* to match our binding we previously
+  setup. We'll use the **wildcard state** that matches any animation state our route component is in, along with
+  two *transitions*. One transition will animate our component entering the application view (`void => *`), while the other
+  controls our component leaving the application view (`* => void`).
+
+  We could add different transitions to different route components depending on our needs, but we'll just animate our `HeroDetailComponent` for this milestone.
+
+.l-sub-section
+  :marked
+    Using route animations on each individual component is a viable option that should only be used sparingly.
+    A more general approach to adding animations between **route paths** without adding animations to individual
+    components will be covered in a future update to this chapter.
+
+:marked
+  Our route component animation looks as such:
+
++makeExcerpt('app/heroes/hero-detail.component.ts (route animation)', 'route-animation')
+
+:marked
+  Simply stated, our `HeroDetailComponent` will ease in from the left when routed to and will slide down when navigating away.
+  We could add more complex animations here, but we'll leave our `HeroDetailComponent` as is for now.
+
+h3#merge-hero-routes Import hero module into AppModule
+:marked
+  Our heroes feature module is ready, but application doesn't know about our heroes module yet.
   We'll need to import it into the `AppModule` we defined in `app.module.ts`.
 
   Update `app.module.ts` as follows:
@@ -1097,7 +1144,7 @@ h3#merge-hero-routes Import Hero feature module into AppModule
   We can evolve the hero feature with more components and different routes.
   That's a key benefit of creating a separate module for each feature area.
 
-  Since our `Heroes` routes are defined within our submodule, we can also remove our initial `heroes` route from the `app.routing.ts`.
+  Since our `Heroes` routes are defined within our feature module, we can also remove our initial `heroes` route from the `app.routing.ts`.
 
 +makeExcerpt('app/app.routing.3.ts (v2)', '')
 
@@ -1111,6 +1158,7 @@ h3#merge-hero-routes Import Hero feature module into AppModule
   * navigate imperatively from one component to another
   * pass information along in route parameters and subscribe to them in our component
   * import our feature area NgModule into our `AppModule`
+  * apply animations to our route component
 
   After these changes, the folder structure looks like this:
 .filetree
@@ -1194,7 +1242,7 @@ h3#merge-hero-routes Import Hero feature module into AppModule
   * Our `CrisisService` is only needed within the *Crisis Center* module.
   We should limit access to it to that module.
 
-  * Changes to a submodule such as *Crisis Center* shouldn't provoke changes to the root `NgModule` or
+  * Changes to a feature module such as *Crisis Center* shouldn't provoke changes to the `AppModule` or
   any other feature's component.
   We need to [*separate our concerns*](https://blog.8thlight.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html).
 
@@ -1248,6 +1296,31 @@ a#child-routing-component
   :marked
     We *can* give it a selector. There's no harm in it.
     Our point is that we don't *need* one because we only *navigate* to it.
+
+:marked
+  ### Service isolation
+
+  The `CrisisService` is neither needed nor wanted outside the *Crisis Center* domain.
+  Instead of registering it with the `AppModule`'s providers &mdash;
+  which makes it visible everywhere &mdash;
+  we register the `CrisisService` in the `CrisisCenterModule` providers array.
+
++makeExcerpt('app/crisis-center/crisis-center.module.1.ts', 'providers', '')
+
+:marked
+  This limits the scope of the `CrisisService` to the *Crisis Center* routes.
+  No module outside of the *Crisis Center* can access it.
+
+  There's a practical benefit to restricting its scope in this way.
+
+  First we can evolve the service independently of the rest of the application
+  without fear of breaking what should be unrelated modules.
+
+  Second, we can delay loading this service into memory until we need it.
+  We can remove it from the application launch bundle,
+  reducing the size of the initial payload and improving performance.
+  We can load it optionally, [asynchronously](#asynchronous-routing) with the other *Crisis Center* components
+  if and when the user begins that workflow.
 
 :marked
   ### Child Route Configuration
@@ -1312,7 +1385,7 @@ h3#import-crisis-module Import crisis center module into the AppModule routes
 
 :marked
   We also remove the initial crisis center route from our `app.routing.ts`. Our routes
-  are now being provided by our `HeroesModule` and our `CrisisCenter` submodules. We'll keep our `app.routing.ts` file
+  are now being provided by our `HeroesModule` and our `CrisisCenter` feature modules. We'll keep our `app.routing.ts` file
   for general routes which we'll cover later in the chapter.
 
 +makeExcerpt('app/app.routing.4.ts (v3)', '')
@@ -1666,7 +1739,7 @@ h3#can-deactivate-guard <i>CanDeactivate</i>: handling unsaved changes
     by waiting for the user's answer asynchronously. Waiting for the user asynchronously
     is like waiting for the server asynchronously.
 :marked
-  The `DialogService` (provided in the root `NgModule` for app-wide use) does the asking.
+  The `DialogService` (provided in the `AppModule` for app-wide use) does the asking.
 
   It returns a [promise](http://exploringjs.com/es6/ch_promises.html) that
   *resolves* when the user eventually decides what to do: either
@@ -1736,7 +1809,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
   navigate to an invalid crisis center `:id`, we'll navigate back to our list of existing crises.
 
   Like the `CanActivate` and `CanDeactivate` guards, the **`Resolve`** guard is an interface we can implement as a service
-  to resolve route data synchronously or asynchronously. In our `Crisis Detail` component, we used the `ngOnInit` to retrieve the `Crisis`
+  to resolve route data synchronously or asynchronously. In `CrisisDetailComponent`, we used the `ngOnInit` to retrieve the `Crisis`
   information. We also navigated the user away from the route if the `Crisis` was not found. It would be more efficient to perform this
   action before the route is ever activated.
 

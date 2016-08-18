@@ -1,6 +1,8 @@
 // #docplaster
 // #docregion
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,
+         HostBinding, trigger, transition,
+         animate, style, state }          from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 
 import { Crisis, CrisisService }  from './crisis.service';
@@ -25,10 +27,45 @@ import { Observable }             from 'rxjs/Observable';
   </div>
   `,
   // #enddocregion template
-  styles: ['input {width: 20em}']
+  styles: ['input {width: 20em}'],
+  animations: [
+    trigger('routeAnimation', [
+      state('*',
+        style({
+          opacity: 1,
+          transform: 'translateX(0)'
+        })
+      ),
+      transition('void => *', [
+        style({
+          opacity: 0,
+          transform: 'translateX(-100%)'
+        }),
+        animate('0.2s ease-in')
+      ]),
+      transition('* => void', [
+        animate('0.5s ease-out', style({
+          opacity: 0,
+          transform: 'translateY(100%)'
+        }))
+      ])
+    ])
+  ]
 })
 // #docregion cancel-save
 export class CrisisDetailComponent implements OnInit {
+  @HostBinding('@routeAnimation') get routeAnimation() {
+    return true;
+  }
+
+  @HostBinding('style.display') get display() {
+    return 'block';
+  }
+
+  @HostBinding('style.position') get position() {
+    return 'absolute';
+  }
+
   crisis: Crisis;
   editName: string;
 
