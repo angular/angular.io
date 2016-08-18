@@ -8,11 +8,9 @@ import { AppComponent }   from './app.component';
 // #docregion routing
 import { routing }        from './app.routing';
 // #enddocregion routing
-
+import { HeroDetailComponent }  from './hero-detail.component';
 import { HeroesComponent }      from './heroes.component';
 import { DashboardComponent }   from './dashboard.component';
-import { HeroDetailComponent }  from './hero-detail.component';
-
 import { HeroService }  from './hero.service';
 // #docregion routing
 
@@ -26,11 +24,9 @@ import { HeroService }  from './hero.service';
   // #docregion dashboard, hero-detail
   declarations: [
     AppComponent,
+    HeroDetailComponent,
     HeroesComponent,
-    DashboardComponent,
-    // #enddocregion dashboard
-    HeroDetailComponent
-    // #docregion dashboard
+    DashboardComponent
   ],
   // #enddocregion dashboard, hero-detail
   providers: [
