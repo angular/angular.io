@@ -16,9 +16,9 @@ import { InMemoryDataService }               from './in-memory-data.service';
 import { AppComponent }   from './app.component';
 import { routing }        from './app.routing';
 
+import { HeroDetailComponent }  from './hero-detail.component';
 import { HeroesComponent }      from './heroes.component';
 import { DashboardComponent }   from './dashboard.component';
-import { HeroDetailComponent }  from './hero-detail.component';
 import { HeroService }          from './hero.service';
 // #enddocregion v1, v2
 // #docregion search
@@ -36,9 +36,9 @@ import { HeroSearchComponent }  from './hero-search.component';
   // #docregion search
   declarations: [
     AppComponent,
+    HeroDetailComponent,
     HeroesComponent,
     DashboardComponent,
-    HeroDetailComponent,
     // #enddocregion v1, v2
     HeroSearchComponent
     // #docregion v1, v2
