@@ -44,12 +44,12 @@ describe('DashboardComponent: w/o Angular TestBed', () => {
   });
 
   it('should tell ROUTER to navigate by hero id', () => {
-    let hero = new Hero(42, 'Abbracadabra');
-    let spy = spyOn(router, 'navigate');
+    const hero = new Hero(42, 'Abbracadabra');
+    const spy = spyOn(router, 'navigate');
 
     comp.gotoDetail(hero);
 
-    let navArgs = spy.calls.mostRecent().args[0];
+    const navArgs = spy.calls.mostRecent().args[0];
     expect(navArgs[0]).toBe('../heroes/42', 'should nav to HeroDetail for Hero 42');
   });
 

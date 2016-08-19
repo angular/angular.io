@@ -44,13 +44,13 @@ function tests() {
   it('can get RouterLinks from template', () => {
     fixture.detectChanges();
 
-    let links = fixture.debugElement
+    const links = fixture.debugElement
       // find all elements with an attached FakeRouterLink directive
       .queryAll(By.directive(FakeRouterLink))
       // use injector to get the RouterLink directive instance attached to each element
       .map(de => de.injector.get(FakeRouterLink) as FakeRouterLink);
 
-    expect(links.length).toBe(2, 'should have 2 links');
+    expect(links.length).toBe(3, 'should have 3 links');
     expect(links[0].linkParams).toBe('/dashboard', '1st link should go to Dashboard');
     expect(links[1].linkParams).toBe('/heroes', '1st link should go to Heroes');
   });
@@ -59,12 +59,12 @@ function tests() {
     fixture.detectChanges();
 
     // Heroes RouterLink DebugElement
-    let heroesLinkDe = fixture.debugElement
+    const heroesLinkDe = fixture.debugElement
       .queryAll(By.directive(FakeRouterLink))[1];
 
     expect(heroesLinkDe).toBeDefined('should have a 2nd RouterLink');
 
-    let link = heroesLinkDe.injector.get(FakeRouterLink) as FakeRouterLink;
+    const link = heroesLinkDe.injector.get(FakeRouterLink) as FakeRouterLink;
 
     expect(link.navigatedTo).toBeNull('link should not have navigate yet');
 

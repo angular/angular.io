@@ -61,15 +61,15 @@ describe('DependentService without the TestBed', () => {
   });
 
   it('#getValue should return faked value from a fake object', () => {
-    let fake =  { getValue: () => 'fake value' };
+    const fake =  { getValue: () => 'fake value' };
     service = new DependentService(fake as FancyService);
     expect(service.getValue()).toBe('fake value');
   });
 
   it('#getValue should return stubbed value from a FancyService spy', () => {
-    let fancy = new FancyService();
-    let stubValue = 'stub value';
-    let spy = spyOn(fancy, 'getValue').and.returnValue(stubValue);
+    const fancy = new FancyService();
+    const stubValue = 'stub value';
+    const spy = spyOn(fancy, 'getValue').and.returnValue(stubValue);
     service = new DependentService(fancy);
 
     expect(service.getValue()).toBe(stubValue, 'service returned stub value');
@@ -92,7 +92,7 @@ describe('ReversePipe', () => {
   });
 
   it('no change to palindrome: "able was I ere I saw elba"', () => {
-    let palindrome = 'able was I ere I saw elba';
+    const palindrome = 'able was I ere I saw elba';
     expect(pipe.transform(palindrome)).toBe(palindrome);
   });
 

@@ -169,21 +169,21 @@ describe('TestBed Component Tests', () => {
   }));
 
   it('should create a component with inline template', () => {
-    let fixture = TestBed.createComponent(Child1Comp);
+    const fixture = TestBed.createComponent(Child1Comp);
     fixture.detectChanges();
 
     expect(fixture).toHaveText('Child');
   });
 
   it('should create a component with external template', () => {
-    let fixture = TestBed.createComponent(ExternalTemplateComp);
+    const fixture = TestBed.createComponent(ExternalTemplateComp);
     fixture.detectChanges();
 
     expect(fixture).toHaveText('from external template');
   });
 
   it('should allow changing members of the component', () => {
-    let fixture = TestBed.createComponent(MyIfComp);
+    const fixture = TestBed.createComponent(MyIfComp);
 
     fixture.detectChanges();
     expect(fixture).toHaveText('MyIf()');
@@ -194,44 +194,44 @@ describe('TestBed Component Tests', () => {
   });
 
   it('should create a nested component bound to inputs/outputs', () => {
-    let fixture = TestBed.createComponent(IoParentComp);
+    const fixture = TestBed.createComponent(IoParentComp);
 
     fixture.detectChanges();
-    let heroes = fixture.debugElement.queryAll(By.css('.hero'));
+    const heroes = fixture.debugElement.queryAll(By.css('.hero'));
     expect(heroes.length).toBeGreaterThan(0, 'has heroes');
 
-    let comp = fixture.componentInstance;
-    let hero = comp.heroes[0];
+    const comp = fixture.componentInstance;
+    const hero = comp.heroes[0];
 
     heroes[0].triggerEventHandler('click', null);
     fixture.detectChanges();
 
-    let selected = fixture.debugElement.query(By.css('p'));
+    const selected = fixture.debugElement.query(By.css('p'));
     expect(selected).toHaveText(hero.name);
   });
 
   it('can access the instance variable of an `*ngFor` row', () => {
-    let fixture = TestBed.createComponent(IoParentComp);
-    let comp = fixture.componentInstance;
+    const fixture = TestBed.createComponent(IoParentComp);
+    const comp = fixture.componentInstance;
 
     fixture.detectChanges();
-    let heroEl = fixture.debugElement.query(By.css('.hero')); // first hero
+    const heroEl = fixture.debugElement.query(By.css('.hero')); // first hero
 
-    let ngForRow = heroEl.parent; // Angular's NgForRow wrapper element
+    const ngForRow = heroEl.parent; // Angular's NgForRow wrapper element
 
     // jasmine.any is instance-of-type test.
     expect(ngForRow.componentInstance).toEqual(jasmine.any(IoComp), 'component is IoComp');
 
-    let hero = ngForRow.context['$implicit']; // the hero object
+    const hero = ngForRow.context['$implicit']; // the hero object
     expect(hero.name).toBe(comp.heroes[0].name, '1st hero\'s name');
   });
 
 
   // #docregion ButtonComp
   it('should support clicking a button', () => {
-    let fixture = TestBed.createComponent(ButtonComp);
-    let btn  = fixture.debugElement.query(By.css('button'));
-    let span = fixture.debugElement.query(By.css('span')).nativeElement;
+    const fixture = TestBed.createComponent(ButtonComp);
+    const btn  = fixture.debugElement.query(By.css('button'));
+    const span = fixture.debugElement.query(By.css('span')).nativeElement;
 
     fixture.detectChanges();
     expect(span.textContent).toMatch(/is off/i, 'before click');
@@ -244,14 +244,14 @@ describe('TestBed Component Tests', () => {
 
   // ngModel is async so we must wait for it with promise-based `whenStable`
   it('should support entering text in input box (ngModel)', async(() => {
-    let expectedOrigName = 'John';
-    let expectedNewName = 'Sally';
+    const expectedOrigName = 'John';
+    const expectedNewName = 'Sally';
 
-    let fixture = TestBed.createComponent(InputComp);
+    const fixture = TestBed.createComponent(InputComp);
     fixture.detectChanges();
 
-    let comp = fixture.componentInstance;
-    let input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
+    const comp = fixture.componentInstance;
+    const input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
 
     expect(comp.name).toBe(expectedOrigName,
       `At start name should be ${expectedOrigName} `);
@@ -282,14 +282,14 @@ describe('TestBed Component Tests', () => {
   // fakeAsync version of ngModel input test enables sync test style
   // synchronous `tick` replaces asynchronous promise-base `whenStable`
   it('should support entering text in input box (ngModel) - fakeAsync', fakeAsync(() => {
-    let expectedOrigName = 'John';
-    let expectedNewName = 'Sally';
+    const expectedOrigName = 'John';
+    const expectedNewName = 'Sally';
 
-    let fixture = TestBed.createComponent(InputComp);
+    const fixture = TestBed.createComponent(InputComp);
     fixture.detectChanges();
 
-    let comp =  fixture.componentInstance;
-    let input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
+    const comp =  fixture.componentInstance;
+    const input = <HTMLInputElement> fixture.debugElement.query(By.css('input')).nativeElement;
 
     expect(comp.name).toBe(expectedOrigName,
       `At start name should be ${expectedOrigName} `);
@@ -316,15 +316,15 @@ describe('TestBed Component Tests', () => {
 
   // #docregion ReversePipeComp
   it('ReversePipeComp should reverse the input text', fakeAsync(() => {
-    let inputText = 'the quick brown fox.';
-    let expectedText = '.xof nworb kciuq eht';
+    const inputText = 'the quick brown fox.';
+    const expectedText = '.xof nworb kciuq eht';
 
-    let fixture = TestBed.createComponent(ReversePipeComp);
+    const fixture = TestBed.createComponent(ReversePipeComp);
     fixture.detectChanges();
 
-    let comp =  fixture.componentInstance;
-    let input = fixture.debugElement.query(By.css('input')).nativeElement as HTMLInputElement;
-    let span =  fixture.debugElement.query(By.css('span')).nativeElement  as HTMLElement;
+    const comp =  fixture.componentInstance;
+    const input = fixture.debugElement.query(By.css('input')).nativeElement as HTMLInputElement;
+    const span =  fixture.debugElement.query(By.css('span')).nativeElement  as HTMLElement;
 
     // simulate user entering new name in input
     input.value = inputText;
@@ -342,14 +342,14 @@ describe('TestBed Component Tests', () => {
 
   // Use this technique to find attached directives of any kind
   it('can examine attached directives and listeners', () => {
-    let fixture = TestBed.createComponent(InputComp);
+    const fixture = TestBed.createComponent(InputComp);
     fixture.detectChanges();
 
-    let inputEl = fixture.debugElement.query(By.css('input'));
+    const inputEl = fixture.debugElement.query(By.css('input'));
 
     expect(inputEl.providerTokens).toContain(NgModel, 'NgModel directive');
 
-    let ngControl = inputEl.injector.get(NgControl);
+    const ngControl = inputEl.injector.get(NgControl);
     expect(ngControl).toEqual(jasmine.any(NgControl), 'NgControl directive');
 
     expect(inputEl.listeners.length).toBeGreaterThan(2, 'several listeners attached');
@@ -357,13 +357,13 @@ describe('TestBed Component Tests', () => {
 
 // #docregion debug-dom-renderer
   it('DebugDomRender should set attributes, styles, classes, and properties', () => {
-    let fixture = TestBed.createComponent(BankAccountParentComp);
+    const fixture = TestBed.createComponent(BankAccountParentComp);
     fixture.detectChanges();
-    let comp = fixture.componentInstance;
+    const comp = fixture.componentInstance;
 
     // the only child is debugElement of the BankAccount component
-    let el = fixture.debugElement.children[0];
-    let childComp = el.componentInstance as BankAccountComp;
+    const el = fixture.debugElement.children[0];
+    const childComp = el.componentInstance as BankAccountComp;
     expect(childComp).toEqual(jasmine.any(BankAccountComp));
 
     expect(el.context).toBe(comp, 'context is the parent component');
@@ -386,7 +386,7 @@ describe('TestBed Component Overrides:', () => {
 
   it('should override ChildComp\'s template', () => {
 
-    let fixture = TestBed.configureTestingModule({
+    const fixture = TestBed.configureTestingModule({
       declarations: [Child1Comp],
     })
     .overrideComponent(Child1Comp, {
@@ -399,7 +399,7 @@ describe('TestBed Component Overrides:', () => {
   });
 
   it('should override TestProvidersComp\'s FancyService provider', () => {
-    let fixture = TestBed.configureTestingModule({
+    const fixture = TestBed.configureTestingModule({
       declarations: [TestProvidersComp],
     })
     .overrideComponent(TestProvidersComp, {
@@ -415,14 +415,14 @@ describe('TestBed Component Overrides:', () => {
     expect(fixture).toHaveText('injected value: faked value', 'text');
 
     // Explore the providerTokens
-    let tokens = fixture.debugElement.providerTokens;
+    const tokens = fixture.debugElement.providerTokens;
     expect(tokens).toContain(fixture.componentInstance.constructor, 'component ctor');
     expect(tokens).toContain(TestProvidersComp, 'TestProvidersComp');
     expect(tokens).toContain(FancyService, 'FancyService');
   });
 
   it('should override TestViewProvidersComp\'s FancyService viewProvider', () => {
-    let fixture = TestBed.configureTestingModule({
+    const fixture = TestBed.configureTestingModule({
       declarations: [TestViewProvidersComp],
     })
     .overrideComponent(TestViewProvidersComp, {
@@ -439,7 +439,7 @@ describe('TestBed Component Overrides:', () => {
   });
 
   it('can access template local variables as references', () => {
-    let fixture = TestBed.configureTestingModule({
+    const fixture = TestBed.configureTestingModule({
       declarations: [ShellComp, NeedsContentComp, Child1Comp, Child2Comp, Child3Comp],
     })
     .overrideComponent(ShellComp, {
@@ -461,8 +461,8 @@ describe('TestBed Component Overrides:', () => {
     fixture.detectChanges();
 
     // NeedsContentComp is the child of ShellComp
-    let el = fixture.debugElement.children[0];
-    let comp = el.componentInstance;
+    const el = fixture.debugElement.children[0];
+    const comp = el.componentInstance;
 
     expect(comp.children.toArray()).toHaveLength(4,
       'three different child components and an ElementRef with #content');
@@ -471,7 +471,7 @@ describe('TestBed Component Overrides:', () => {
 
     // #docregion custom-predicate
     // Filter for DebugElements with #content reference
-    let contentRefs = el.queryAll( de => de.references['content'] );
+    const contentRefs = el.queryAll( de => de.references['content'] );
     // #docregion custom-predicate
     expect(contentRefs).toHaveLength(4, 'elements w/ a #content reference');
   });
@@ -488,7 +488,7 @@ describe('Nested (one-deep) component override', () => {
   }));
 
   it('ParentComp should use Fake Child component', () => {
-    let fixture = TestBed.createComponent(ParentComp);
+    const fixture = TestBed.createComponent(ParentComp);
     fixture.detectChanges();
     expect(fixture).toHaveText('Parent(Fake Child)');
   });
@@ -504,7 +504,7 @@ describe('Nested (two-deep) component override', () => {
   }));
 
   it('should use Fake Grandchild component', () => {
-    let fixture = TestBed.createComponent(ParentComp);
+    const fixture = TestBed.createComponent(ParentComp);
     fixture.detectChanges();
     expect(fixture).toHaveText('Parent(Fake Child(Fake Grandchild))');
   });
@@ -596,7 +596,7 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     fixture.detectChanges();
     getChild();
 
-    let btn = fixture.debugElement.query(By.css('button'));
+    const btn = fixture.debugElement.query(By.css('button'));
     btn.triggerEventHandler('click', null);
 
     fixture.detectChanges();

@@ -6,7 +6,10 @@ import { Hero, HeroService } from '../model';
 @Component({
   selector: 'app-heroes',
   templateUrl: 'app/hero/hero-list.component.html',
-  styleUrls:  ['app/hero/hero-list.component.css']
+  styleUrls:   [
+    'app/shared/styles.css',
+    'app/hero/hero-list.component.css'
+  ]
 })
 export class HeroListComponent implements OnInit {
   heroes: Promise<Hero[]>;

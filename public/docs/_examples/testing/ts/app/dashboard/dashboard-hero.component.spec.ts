@@ -45,7 +45,7 @@ describe('DashboardHeroComponent when tested directly', () => {
   });
 
   it('should display hero name', () => {
-    let expectedPipedName = expectedHero.name.toUpperCase();
+    const expectedPipedName = expectedHero.name.toUpperCase();
     expect(heroEl.nativeElement.textContent).toContain(expectedPipedName);
   });
 
@@ -107,7 +107,7 @@ describe('DashboardHeroComponent when inside TestWrapper', () => {
   });
 
   it('should display hero name', () => {
-    let expectedPipedName = wrapper.hero.name.toUpperCase();
+    const expectedPipedName = wrapper.hero.name.toUpperCase();
     expect(heroEl.nativeElement.textContent).toContain(expectedPipedName);
   });
 

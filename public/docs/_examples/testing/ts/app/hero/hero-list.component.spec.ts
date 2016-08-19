@@ -44,15 +44,15 @@ describe('HeroListComponent', () => {
   });
 
   it('1st hero should match 1st test hero', () => {
-    let expectedHero = HEROES[0];
-    let actualHero = page.heroLis[0].textContent;
+    const expectedHero = HEROES[0];
+    const actualHero = page.heroLis[0].textContent;
     expect(actualHero).toContain(expectedHero.id, 'hero.id');
     expect(actualHero).toContain(expectedHero.name, 'hero.name');
   });
 
   it('should select hero on click', fakeAsync(() => {
-    let expectedHero = HEROES[1];
-    let li = page.heroLis[1];
+    const expectedHero = HEROES[1];
+    const li = page.heroLis[1];
     li.dispatchEvent(newEvent('click'));
     tick();
     // `.toEqual` because selectedHero is clone of expectedHero; see FakeHeroService
@@ -60,8 +60,8 @@ describe('HeroListComponent', () => {
   }));
 
   it('should navigate to selected hero detail on click', fakeAsync(() => {
-    let expectedHero = HEROES[1];
-    let li = page.heroLis[1];
+    const expectedHero = HEROES[1];
+    const li = page.heroLis[1];
     li.dispatchEvent(newEvent('click'));
     tick();
 
@@ -71,7 +71,7 @@ describe('HeroListComponent', () => {
     // composed hero detail will be URL like 'heroes/42'
     // expect link array with the route path and hero id
     // first argument to router.navigate is link array
-    let navArgs = page.navSpy.calls.first().args[0];
+    const navArgs = page.navSpy.calls.first().args[0];
     expect(navArgs[0]).toContain('heroes', 'nav to heroes detail URL');
     expect(navArgs[1]).toBe(expectedHero.id, 'expected hero.id');
 
@@ -80,18 +80,18 @@ describe('HeroListComponent', () => {
   it('should find `HighlightDirective` with `By.directive', () => {
     // #docregion by
     // Can find DebugElement either by css selector or by directive
-    let h2        = fixture.debugElement.query(By.css('h2'));
-    let directive = fixture.debugElement.query(By.directive(HighlightDirective));
+    const h2        = fixture.debugElement.query(By.css('h2'));
+    const directive = fixture.debugElement.query(By.directive(HighlightDirective));
     // #enddocregion by
     expect(h2).toBe(directive);
   });
 
   it('should color header with `HighlightDirective`', () => {
-    let h2 = page.highlightDe.nativeElement as HTMLElement;
-    let bgColor = h2.style.backgroundColor;
+    const h2 = page.highlightDe.nativeElement as HTMLElement;
+    const bgColor = h2.style.backgroundColor;
 
     // different browsers report color values differently
-    let isExpectedColor = bgColor === 'gold' || bgColor === 'rgb(255, 215, 0)';
+    const isExpectedColor = bgColor === 'gold' || bgColor === 'rgb(255, 215, 0)';
     expect(isExpectedColor).toBe(true, 'backgroundColor');
   });
 
@@ -135,7 +135,7 @@ class Page {
     this.highlightDe = fixture.debugElement.query(By.directive(HighlightDirective));
 
     // Get the component's injected router and spy on it
-    let router = fixture.debugElement.injector.get(Router);
+    const router = fixture.debugElement.injector.get(Router);
     this.navSpy = spyOn(router, 'navigate').and.callThrough();
   };
 }

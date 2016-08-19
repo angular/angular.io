@@ -72,22 +72,22 @@ describe('DashboardComponent', () => {
     it('should DISPLAY heroes', () => {
       // Find and examine the displayed heroes
       // Look for them in the DOM by css class
-      let heroes = fixture.debugElement.queryAll(By.css('.hero'));
+      const heroes = fixture.debugElement.queryAll(By.css('.hero'));
       expect(heroes.length).toBe(4, 'should display 4 heroes');
     });
 
     it('should tell ROUTER to navigate when hero clicked', () => {
 
       // get the (fake) router injected into the component and spy on it
-      let router = fixture.debugElement.injector.get(Router);
-      let spy = spyOn(router, 'navigate');
+      const router = fixture.debugElement.injector.get(Router);
+      const spy = spyOn(router, 'navigate');
 
-      let heroEl = fixture.debugElement.query(By.css('.hero')); // get first hero DebugElement
+      const heroEl = fixture.debugElement.query(By.css('.hero')); // get first hero DebugElement
 
       heroEl.triggerEventHandler('click', null);
 
-      let navArgs = spy.calls.first().args[0]; // args passed to router.navigate() == first args of the first call
-      let id = comp.heroes[0].id; // expecting to navigate to id of component's first hero
+      const navArgs = spy.calls.first().args[0]; // args passed to router.navigate() == first args of the first call
+      const id = comp.heroes[0].id; // expecting to navigate to id of component's first hero
 
       expect(navArgs[0]).toBe('../heroes/' + id, 'should nav to HeroDetail for first hero');
     });

@@ -37,13 +37,13 @@ describe('HighlightDirective', () => {
 
   it('should color first <h2> background "yellow"', () => {
     fixture.detectChanges();
-    let h2 = h2Des[0].nativeElement as HTMLElement;
+    const h2 = h2Des[0].nativeElement as HTMLElement;
     expect(h2.style.backgroundColor).toBe('yellow');
   });
 
   it('should color second <h2> background w/ default color', () => {
     fixture.detectChanges();
-    let h2 = h2Des[1].nativeElement as HTMLElement;
+    const h2 = h2Des[1].nativeElement as HTMLElement;
     expect(h2.style.backgroundColor).toBe(HighlightDirective.defaultColor);
   });
 
@@ -52,7 +52,7 @@ describe('HighlightDirective', () => {
     expect(h2Des[2].providerTokens).not.toContain(HighlightDirective, 'HighlightDirective');
     fixture.detectChanges();
 
-    let h2 = h2Des[2].nativeElement as HTMLElement;
+    const h2 = h2Des[2].nativeElement as HTMLElement;
     expect(h2.style.backgroundColor).toBe('', 'backgroundColor');
   });
 });

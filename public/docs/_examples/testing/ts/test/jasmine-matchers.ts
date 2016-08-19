@@ -48,11 +48,11 @@ function toHaveText(
   return {
     compare: function (actual: any, expected: string, expectationFailOutput?: any): jasmine.CustomMatcherResult {
       let message = '';
-      let nativeElement = actual['nativeElement'];
+      const nativeElement = actual['nativeElement'];
       // tslint:disable-next-line:triple-equals
       let pass = nativeElement != undefined;
       if (!pass) {
-        message = 'Expected actual to be a native HTMLElement.';
+        message = 'Expected actual have a native HTMLElement.';
       } else {
         let text: string = nativeElement.textContent;
         pass = text.indexOf(expected) > -1;
@@ -67,7 +67,7 @@ function toHaveText(
   };
 }
 
-let customMatchers: jasmine.CustomMatcherFactories = {
+const customMatchers: jasmine.CustomMatcherFactories = {
   toHaveLength: toHaveLength,
   toHaveText: toHaveText
 };

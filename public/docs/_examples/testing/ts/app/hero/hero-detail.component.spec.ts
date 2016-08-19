@@ -85,8 +85,8 @@ describe('HeroDetailComponent', () => {
     // #enddocregion title-case-pipe
 
     it('should convert hero name to Title Case', fakeAsync(() => {
-      let inputName = 'quick BROWN  fox';
-      let expectedName = 'Quick Brown  Fox';
+      const inputName = 'quick BROWN  fox';
+      const expectedName = 'Quick Brown  Fox';
 
       // simulate user entering new name in input
       page.nameInput.value = inputName;

@@ -66,7 +66,7 @@ describe('BannerComponent with AutoChangeDetect', () => {
   });
 
   it('should still see original title after comp.title change', () => {
-    let oldTitle = comp.title;
+    const oldTitle = comp.title;
     comp.title = 'Test Title';
 
     // Still the old title; Angular didn't hear the change

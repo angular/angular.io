@@ -22,19 +22,19 @@ describe('Angular async helper', () => {
       async(() => { setTimeout(() => { actuallyDone = true; }, 0); }));
 
   it('should run async test with successful promise', async(() => {
-    let p = new Promise(resolve => { setTimeout(resolve, 10); });
+    const p = new Promise(resolve => { setTimeout(resolve, 10); });
     p.then(() => { actuallyDone = true; });
   }));
 
   it('should run async test with failed promise', async(() => {
-    let p = new Promise((resolve, reject) => { setTimeout(reject, 10); });
+    const p = new Promise((resolve, reject) => { setTimeout(reject, 10); });
     p.catch(() => { actuallyDone = true; });
   }));
 
   // Fail message: Cannot use setInterval from within an async zone test
   // See https://github.com/angular/angular/issues/10127
   xit('should run async test with successful delayed Observable', async(() => {
-    let source = Observable.of(true).delay(10);
+    const source = Observable.of(true).delay(10);
     source.subscribe(
       val => actuallyDone = true,
       err => fail(err)
@@ -44,7 +44,7 @@ describe('Angular async helper', () => {
   // Fail message: Error: 1 periodic timer(s) still in the queue
   // See https://github.com/angular/angular/issues/10127
   xit('should run async test with successful delayed Observable', fakeAsync(() => {
-    let source = Observable.of(true).delay(10);
+    const source = Observable.of(true).delay(10);
     source.subscribe(
       val => actuallyDone = true,
       err => fail(err)
