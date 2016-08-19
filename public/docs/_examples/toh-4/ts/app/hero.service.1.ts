@@ -13,8 +13,7 @@ export class HeroService {
   // #enddocregion empty-class, getHeroes-stub, full
   /*
   // #docregion getHeroes-stub
-  getHeroes(): void {
-  }
+  getHeroes(): void {} // stub
   // #enddocregion getHeroes-stub
   */
   // #docregion full
