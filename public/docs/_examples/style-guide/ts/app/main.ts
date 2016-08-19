@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { browserDynamicPlatform }   from '@angular/platform-browser-dynamic';
 import { BrowserModule }            from '@angular/platform-browser';
 
-import { HttpModule}            from '@angular/http';
+import { HttpModule }           from '@angular/http';
 import { InMemoryWebApiModule } from 'angular2-in-memory-web-api';
 
 import { RouterModule } from '@angular/router';
