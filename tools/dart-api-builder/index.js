@@ -9,7 +9,8 @@ var PROJECT_PATH = path.resolve(__dirname, "../..");
 var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
 var ANGULAR_REPO_PATH = path.resolve(__dirname, '../../../angular-dart');
-var ANGULAR2_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'docs');
+// The 'docs' folder is actually named 'doc' for angular2 Dart.
+var ANGULAR2_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'doc');
 var NG_IO_PKG_PATH = path.resolve(__dirname, "../api-builder/angular.io-package");
 
 function requireNgIoPkg(_path) { return require(path.resolve(NG_IO_PKG_PATH, _path)); }
