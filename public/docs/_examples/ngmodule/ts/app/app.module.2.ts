@@ -4,12 +4,11 @@ import { NgModule }           from '@angular/core';
 import { BrowserModule }      from '@angular/platform-browser';
 
 /* App Root */
-import
 // #enddocregion
-       { AppComponent }       from './app.component.2';
+import { AppComponent }       from './app.component.2';
 /*
 // #docregion
-       { AppComponent }       from './app.component';
+import { AppComponent }       from './app.component';
 // #enddocregion
 */
 // #docregion
