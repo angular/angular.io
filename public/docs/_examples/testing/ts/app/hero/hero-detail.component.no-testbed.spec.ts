@@ -1,7 +1,7 @@
 import { HeroDetailComponent } from './hero-detail.component';
 import { Hero }                from '../model';
 
-import { FakeActivatedRoute }  from '../../test/fake-router';
+import { FakeActivatedRoute }  from '../../testing';
 
 //////////  Tests  ////////////////////
 

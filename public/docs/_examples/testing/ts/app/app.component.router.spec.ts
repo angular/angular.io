@@ -9,7 +9,7 @@ import { SpyLocation } from '@angular/common/testing';
 // tslint:disable:no-unused-variable
 import { RouterTestingModule, SpyNgModuleFactoryLoader } from '@angular/router/testing';
 
-import { newEvent } from '../test/dom-event';
+import { newEvent } from '../testing';
 // tslint:enable:no-unused-variable
 
 // r - for relatively obscure router symbols
@@ -57,7 +57,8 @@ describe('AppComponent & RouterTestingModule', () => {
 
     // page.aboutLinkDe.triggerEventHandler('click', null); // fails
     // page.aboutLinkDe.nativeElement.dispatchEvent(newEvent('click')); // fails
-    page.aboutLinkDe.nativeElement.click();
+    page.aboutLinkDe.nativeElement.click(); // fails in phantom
+
     advance();
     expectPathToBe('/about');
     expectElementOf(AboutComponent);
@@ -70,8 +71,8 @@ describe('AppComponent & RouterTestingModule', () => {
 
   it('should navigate to "About" w/ browser location URL change', fakeAsync(() => {
     createComponent();
-    location.go('/about');
-    // locationSpyLocation.simulateHashChange('/about'); // also works.
+    location.simulateHashChange('/about');
+    // location.go('/about'); // also works ... except in plunker
     advance();
     expectPathToBe('/about');
     expectElementOf(AboutComponent);

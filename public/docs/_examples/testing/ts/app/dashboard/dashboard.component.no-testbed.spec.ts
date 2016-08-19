@@ -1,9 +1,10 @@
 import { Router } from '@angular/router';
 
 import { DashboardComponent } from './dashboard.component';
+import { Hero }               from '../model';
 
-import { Hero, FakeHeroService
-} from '../../test/fake-hero.service';
+import { addMatchers}      from '../../testing';
+import { FakeHeroService } from '../model/testing';
 
 class FakeRouter {
   navigate(commands: any[]) { return commands;  }
@@ -15,14 +16,14 @@ describe('DashboardComponent: w/o Angular TestBed', () => {
   let router: Router;
 
   beforeEach(() => {
+    addMatchers();
     router = new FakeRouter() as any as Router;
     heroService = new FakeHeroService();
     comp = new DashboardComponent(router, heroService);
   });
 
   it('should NOT have heroes before calling OnInit', () => {
-    // custom 'toHaveLength' matcher
-    expect(comp.heroes).toHaveLength(0,
+    expect(comp.heroes.length).toBe(0,
       'should not have heroes before OnInit');
   });
 

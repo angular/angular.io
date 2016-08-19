@@ -4,11 +4,12 @@ import { async, ComponentFixture, TestBed
 import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-// Custom Jasmine Matchers
-import  '../../test/jasmine-matchers';
+import { addMatchers }  from '../../testing';
 
 import { Hero } from '../model/hero';
 import { DashboardHeroComponent } from './dashboard-hero.component';
+
+beforeEach( addMatchers );
 
 describe('DashboardHeroComponent when tested directly', () => {
 
@@ -18,7 +19,6 @@ describe('DashboardHeroComponent when tested directly', () => {
   let heroEl: DebugElement;
 
   beforeEach(async(() => {
-
     expectedHero = new Hero(42, 'Test Name');
 
     // declare the component
@@ -65,20 +65,6 @@ describe('DashboardHeroComponent when tested directly', () => {
 
 //////////////////
 
-////// Test Wrapper Component //////
-import { Component } from '@angular/core';
-
-@Component({
-  template: '<dashboard-hero [hero]="hero" (selected)="onSelected($event)"></dashboard-hero>'
-})
-class TestWrapper {
-  hero = new Hero(42, 'Test Name');
-  selectedHero: Hero;
-
-  onSelected(hero: Hero) { this.selectedHero = hero; }
-}
-///////////////////
-
 describe('DashboardHeroComponent when inside TestWrapper', () => {
   let wrapper: TestWrapper;
   let fixture: ComponentFixture<TestWrapper>;
@@ -120,3 +106,17 @@ describe('DashboardHeroComponent when inside TestWrapper', () => {
   });
 
 });
+
+////// Test Wrapper Component //////
+
+import { Component } from '@angular/core';
+
+@Component({
+  template: '<dashboard-hero [hero]="hero" (selected)="onSelected($event)"></dashboard-hero>'
+})
+class TestWrapper {
+  hero = new Hero(42, 'Test Name');
+  selectedHero: Hero;
+
+  onSelected(hero: Hero) { this.selectedHero = hero; }
+}

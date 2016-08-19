@@ -17,7 +17,7 @@ baseURL = baseURL + baseURL[baseURL.length-1] ? '' : '/';
 System.config({
   baseURL: baseURL,
   // Extend usual application package list with test folder
-  packages: { 'test': { main: 'index.js', defaultExtension: 'js' } },
+  packages: { 'testing': { main: 'index.js', defaultExtension: 'js' } },
   packageWithIndex: true // sadly, we can't use umd packages (yet?)
 });
 

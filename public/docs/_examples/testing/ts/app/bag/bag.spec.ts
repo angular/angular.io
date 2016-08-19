@@ -24,12 +24,12 @@ import { NgModel, NgControl } from '@angular/forms';
 import { async, ComponentFixture, fakeAsync, getTestBed, inject, TestBed, tick
 } from '@angular/core/testing';
 
-// Custom Jasmine Matchers
-import  '../../test/jasmine-matchers';
-import { newEvent } from '../../test/dom-event';
+import { addMatchers, newEvent } from '../../testing';
 
-////////  SERVICE SPECS  /////////////
-  // #docregion FancyService
+beforeEach( addMatchers );
+
+////////  Service Tests  /////////////
+// #docregion FancyService
 describe('use inject helper in beforeEach', () => {
   let service: FancyService;
 
@@ -43,7 +43,6 @@ describe('use inject helper in beforeEach', () => {
     service = getTestBed().get(FancyService, null);
     // #enddocregion testbed-get
   });
-
 
   it('should use FancyService', () => {
       expect(service.getValue()).toBe('real value');
@@ -78,7 +77,7 @@ describe('use inject helper in beforeEach', () => {
       value => expect(value).toBe('observable delay value')
     );
   }));
-
+  // #docregion FancyService
   it('should allow the use of fakeAsync', fakeAsync(() => {
     let value: any;
     service.getAsyncValue().then((val: any) => value = val);
@@ -86,6 +85,7 @@ describe('use inject helper in beforeEach', () => {
     expect(value).toBe('async value');
   }));
 });
+// #enddocregion FancyService
 
 describe('use inject within `it`', () => {
   // #docregion getTimeoutValue
@@ -129,31 +129,6 @@ describe('using async(inject) within beforeEach', () => {
   });
 });
 
-////////// Fakes ///////////
-import { Component, Injectable } from '@angular/core';
-
-@Component({
-  selector: 'child-1',
-  template: `Fake Child`
-})
-class FakeChildComp { }
-
-@Component({
-  selector: 'child-1',
-  template: `Fake Child(<grandchild-1></grandchild-1>)`
-})
-class FakeChildWithGrandchildComp { }
-
-@Component({
-  selector: 'grandchild-1',
-  template: `Fake Grandchild`
-})
-class FakeGrandchildComp { }
-
-@Injectable()
-class FakeFancyService extends FancyService {
-  value: string = 'faked value';
-}
 
 /////////// Component Tests //////////////////
 
@@ -355,7 +330,7 @@ describe('TestBed Component Tests', () => {
     expect(inputEl.listeners.length).toBeGreaterThan(2, 'several listeners attached');
   });
 
-// #docregion debug-dom-renderer
+  // #docregion debug-dom-renderer
   it('DebugDomRender should set attributes, styles, classes, and properties', () => {
     const fixture = TestBed.createComponent(BankAccountParentComp);
     fixture.detectChanges();
@@ -379,7 +354,7 @@ describe('TestBed Component Tests', () => {
     expect(el.styles['color']).toBe(comp.color, 'color style');
     expect(el.styles['width']).toBe(comp.width + 'px', 'width style');
   });
-// #enddocregion debug-dom-renderer
+  // #enddocregion debug-dom-renderer
 });
 
 describe('TestBed Component Overrides:', () => {
@@ -464,7 +439,7 @@ describe('TestBed Component Overrides:', () => {
     const el = fixture.debugElement.children[0];
     const comp = el.componentInstance;
 
-    expect(comp.children.toArray()).toHaveLength(4,
+    expect(comp.children.toArray().length).toBe(4,
       'three different child components and an ElementRef with #content');
 
     expect(el.references['nc']).toBe(comp, '#nc reference to component');
@@ -472,8 +447,7 @@ describe('TestBed Component Overrides:', () => {
     // #docregion custom-predicate
     // Filter for DebugElements with #content reference
     const contentRefs = el.queryAll( de => de.references['content'] );
-    // #docregion custom-predicate
-    expect(contentRefs).toHaveLength(4, 'elements w/ a #content reference');
+    expect(contentRefs.length).toBe(4, 'elements w/ a #content reference');
   });
 
 });
@@ -634,3 +608,29 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     return child;
   }
 });
+
+////////// Fakes ///////////
+import { Component, Injectable } from '@angular/core';
+
+@Component({
+  selector: 'child-1',
+  template: `Fake Child`
+})
+class FakeChildComp { }
+
+@Component({
+  selector: 'child-1',
+  template: `Fake Child(<grandchild-1></grandchild-1>)`
+})
+class FakeChildWithGrandchildComp { }
+
+@Component({
+  selector: 'grandchild-1',
+  template: `Fake Grandchild`
+})
+class FakeGrandchildComp { }
+
+@Injectable()
+class FakeFancyService extends FancyService {
+  value: string = 'faked value';
+}

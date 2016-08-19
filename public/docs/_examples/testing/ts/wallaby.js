@@ -26,7 +26,7 @@ module.exports = function () {
       {pattern: 'app/**/*+(ts|html|css)', load: false},
       {pattern: 'app/**/*.spec.ts', ignore: true},
 
-      {pattern: 'test/**/*+(ts|html|css)', load: false},
+      {pattern: 'testing/**/*+(ts|html|css)', load: false},
     ],
 
     tests: [
@@ -51,7 +51,7 @@ function bootstrap (wallaby) {
 
   System.config({
     // Extend usual application package list with test folder
-    packages: { 'test': { main: 'index.js', defaultExtension: 'js' } },
+    packages: { 'testing': { main: 'index.js', defaultExtension: 'js' } },
     packageWithIndex: true // sadly, we can't use umd packages (yet?)
   });
 

@@ -4,19 +4,15 @@ import { async, ComponentFixture, fakeAsync, TestBed, tick
 import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-// Custom Jasmine Matchers
-import  '../../test/jasmine-matchers';
-import { newEvent } from '../../test/dom-event';
+import { addMatchers, newEvent, Router, FakeRouter
+} from '../../testing';
+
+import { HEROES, FakeHeroService } from '../model/testing';
 
 import HeroModule             from './hero.module';
 import { HeroListComponent }  from './hero-list.component';
 import { HighlightDirective } from '../shared/highlight.directive';
-
-import { HEROES, HeroService, FakeHeroService
-} from '../../test/fake-hero.service';
-
-import { Router, FakeRouter
-} from '../../test/fake-router';
+import { HeroService }        from '../model';
 
 let comp: HeroListComponent;
 let fixture: ComponentFixture<HeroListComponent>;
@@ -27,7 +23,7 @@ let page: Page;
 describe('HeroListComponent', () => {
 
   beforeEach( async(() => {
-
+    addMatchers();
     TestBed.configureTestingModule({
       imports: [HeroModule],
       providers: [

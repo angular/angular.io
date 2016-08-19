@@ -30,7 +30,7 @@ var allSpecFiles = Object.keys(window.__karma__.files)
 System.config({
   baseURL: '/base',
   // Extend usual application package list with test folder
-  packages: { 'test': { main: 'index.js', defaultExtension: 'js' } },
+  packages: { 'testing': { main: 'index.js', defaultExtension: 'js' } },
   packageWithIndex: true // sadly, we can't use umd packages (yet?)
 });
 

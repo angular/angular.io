@@ -7,7 +7,7 @@ import { AppComponent }    from './app.component';
 import { BannerComponent } from './banner.component';
 
 import { Router, FakeRouter, FakeRouterLink, FakeRouterOutlet
-} from '../test/fake-router';
+} from '../testing';
 
 let comp:    AppComponent;
 let fixture: ComponentFixture<AppComponent>;

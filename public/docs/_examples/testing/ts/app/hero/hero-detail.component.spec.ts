@@ -5,19 +5,17 @@ import {
 import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-// Custom Jasmine Matchers
-import  '../../test/jasmine-matchers';
-import { newEvent } from '../../test/dom-event';
+import {
+  addMatchers, newEvent,
+  ActivatedRoute, FakeActivatedRoute, Router, FakeRouter
+} from '../../testing';
+
+import { HEROES, FakeHeroService } from '../model/testing';
 
 import HeroModule              from './hero.module';
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroDetailService }   from './hero-detail.service';
-
-import { Hero, HEROES, HeroService, FakeHeroService
-} from '../../test/fake-hero.service';
-
-import { ActivatedRoute, FakeActivatedRoute, Router, FakeRouter
-} from '../../test/fake-router';
+import { Hero, HeroService }   from '../model';
 
 ////// Testing Vars //////
 let activatedRoute: FakeActivatedRoute;
@@ -30,7 +28,7 @@ let page: Page;
 describe('HeroDetailComponent', () => {
 
   beforeEach( async(() => {
-
+    addMatchers();
     activatedRoute = new FakeActivatedRoute();
 
     TestBed.configureTestingModule({
