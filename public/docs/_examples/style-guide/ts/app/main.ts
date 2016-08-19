@@ -2,15 +2,13 @@ import { NgModule } from '@angular/core';
 import { browserDynamicPlatform }   from '@angular/platform-browser-dynamic';
 import { BrowserModule }            from '@angular/platform-browser';
 
-import { HttpModule,
-         XHRBackend }   from '@angular/http';
+import { HttpModule}            from '@angular/http';
+import { InMemoryWebApiModule } from 'angular2-in-memory-web-api';
+
 import { RouterModule } from '@angular/router';
 
 import { HashLocationStrategy,
          LocationStrategy } from '@angular/common';
-
-import { InMemoryBackendService,
-         SEED_DATA }       from 'angular2-in-memory-web-api';
 
 import 'rxjs/add/operator/map';
 
@@ -49,6 +47,7 @@ const moduleMetadata = {
   imports: [
     BrowserModule,
     HttpModule,
+    InMemoryWebApiModule.forRoot(HeroData),
 
     s0101.AppModule,
     s0207.AppModule,
@@ -77,17 +76,16 @@ const moduleMetadata = {
     s0704.AppModule,
     s0901.AppModule,
 
+
     RouterModule.forRoot([
       { path: '', redirectTo: '/01-01', pathMatch: 'full' }
     ], {/* enableTracing: true */}),
   ],
-  declarations: [AppComponent],
   providers: [
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
-    { provide: XHRBackend, useClass: InMemoryBackendService },
-    { provide: SEED_DATA,  useClass: HeroData }
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
   ],
-  bootstrap: [ AppComponent ]
+  declarations: [ AppComponent ],
+  bootstrap:    [ AppComponent ]
 };
 
 @NgModule(moduleMetadata)

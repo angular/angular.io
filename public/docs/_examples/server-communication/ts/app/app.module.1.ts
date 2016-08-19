@@ -14,7 +14,7 @@ import { AppComponent } from './app.component';
     JsonpModule
   ],
   declarations: [ AppComponent ],
-  bootstrap: [ AppComponent ]
+  bootstrap:    [ AppComponent ]
 })
 export class AppModule { }
 

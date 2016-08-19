@@ -2,11 +2,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule, XHRBackend } from '@angular/http';
+import { HttpModule, JsonpModule }  from '@angular/http';
 
-import { InMemoryBackendService, SEED_DATA } from 'angular2-in-memory-web-api';
-import { HeroData } from './hero-data';
-import { AppComponent } from './app.component';
+import { InMemoryWebApiModule }     from 'angular2-in-memory-web-api';
+import { HeroData }                 from './hero-data';
+
+import { AppComponent }             from './app.component';
 
 import { HeroListComponent }        from './toh/hero-list.component';
 import { HeroListPromiseComponent } from './toh/hero-list.component.promise';
@@ -19,11 +20,10 @@ import { WikiSmartComponent } from './wiki/wiki-smart.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    JsonpModule
-  ],
-  providers: [
-    { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server
-    { provide: SEED_DATA,  useClass: HeroData }                // in-mem server data
+    JsonpModule,
+    // #docregion in-mem-web-api
+    InMemoryWebApiModule.forRoot(HeroData)
+    // #enddocregion in-mem-web-api
   ],
   declarations: [
     AppComponent,
