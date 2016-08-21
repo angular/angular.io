@@ -1,0 +1,215 @@
+include ../_util-fns
+
+:marked
+    Angular components consist of a mix of standard html and Angular syntax (e.g. `ngIf`, `ngFor`). 
+    
+    Expresions like `ngIf` and `ngFor` are specific to Angular, so there is no way for the browser to execute them directly.
+    
+    Before the browser can render the application, Angular specific code and templates have to be converted to regular executable JavaScript. We refer to this step as compilation.
+
+    By default compilation is executed by the browser at runtime, during what is called just-in-time compilation (JiT). It's called "just-in-time" since compilation happens on the fly as the application loads.
+
+    The downside to JiT compilation is a runtime performance penalty. Views take longer to render because of the compilation step. It also forces us to download the Angular compiler along with our application code since we will need the compiler at runtime.  
+    
+    In this cookbook we discuss how we can improve performance by doing compilation at build time instead. We call this process ahead-of-time compilation (AoT). 
+<a id="toc"></a>
+:marked
+   ## Table of contents   
+
+   [Ahead-of-time vs Just-in-time](#aot-jit)
+
+   [Compilation](#compilation)
+
+   [Tree Shaking](#tree-shaking)
+
+   [Bootstrapping](#bootstrapping)
+
+.l-main-section
+<a id="aot-jit"></a>
+:marked
+    ## Ahead-of-time (AoT) vs Just-in-time (JiT)
+
+    AoT and JiT compilation use the same exact compiler. The difference is, AoT happens at build time, JiT happens at runtime.  
+
+    ### Why do AoT compilation?
+
+    The performance improvement from doing AoT compilation can be significant for three reasons:
+
+    *Faster rendering*
+
+    When doing AoT compilation the browser downloads a pre-compiled version of the application. This means the browser can start rendering the application immediately, without delays from doing JiT compilation first.
+
+    *Fewer asynchronous requests*
+
+    The compiler will inline external html templates, which means we no longer need separate ajax requests to load templates at runtime.
+
+    *Smaller Angular framework download size*
+
+    Compilation at build time means we don't have to download the compiler with our application. The size of the compiler is significant, so omitting it will automatically reduce the download size of Angular.
+
+.l-main-section
+<a id="compilation"></a>
+:marked
+    ## Compilation
+
+    ### Prepare for offline compilation
+
+    We use the <a href='/docs/ts/latest/quickstart.html'>QuickStart</a> as a starting point for our sample, but make a few minor additions to the QuickStart application as seen below.
+
++makeTabs(
+  `cb-aot-compiler/ts/app/app.component.html,
+   cb-aot-compiler/ts/app/app.component.ts`,
+  null,
+  `app.component.html,
+   app.component.ts`
+)
+
+:marked
+    Before we can AoT compile our application we have to install a few new npm dependencies by running: 
+
+    `npm install @angular/compiler-cli typescript@2.0.2 @angular/platform-server @angular/compiler`
+    
+    When doing AoT compilation we no longer use the regular TypeScript compiler (`tsc`) directly. Instead we use the `ngc` compiler provided in the `@angular/compiler-cli` npm package. 
+    
+    `ngc` is a drop-in replacement for `tsc` and is configured much the same way.  
+
+    We have decided to put our `ngc` configurations in a file called `tsconfig-aot.json`.    
+    
+    First we add an `ngc` specific section called `angularCompilerOptions` to our config file. 
+    
+    By setting `genDir` we tell the compiler where to put the AoT compiled version of our application.
+
+    We are also setting `"skipMetadataEmit" : true` to prevent the AoT compiler from generating metadata files with the compiled application. Meta data files are not necessary when targeting TypeScript files, so there is no reason to include them.
+
+    We set the `module` in `tsconfig-aot.json` to `es2015`. This is important, but we will explain why in the <a href='/docs/ts/latest/cookbook/aot-compiler.html#!#tree-shaking'>Tree Shaking</a> section.
+
++makeExample('cb-aot-compiler/ts/tsconfig-aot.json', null, 'tsconfig-aot.json')(format='.')
+    
+:marked
+    ### Compiling the application
+
+    We trigger AoT compilation via the command line using the previously installed `ngc` compiler by executing:
+
+    `node_modules/.bin/ngc -p [path to config file]`
+
+    `ngc` expects the `-p` switch to point to a tsconfig.json file or a folder containing a tsconfig.json file.
+
+    The first thing we notice after running `ngc` is a series of generated `NgFactory` files in the folder we specified as `genDir` in `tsconfig-aot.json`. 
+
+    `NgFactory` files make up the AoT compiled application, but do not replace the original component files. We can think of `NgFactories` as a JavaScript representation of the component's template. The original component class is still used internally by the generated `NgFactory`.
+
+    To see what we mean by a "JavaScript representation" of the orignal Angular template syntax, just open up one of the generated `NgFactories` and look for familiar symbols like `NgIf` and `NgFor`. We will no longer see these directives in markup, but instead we will see them represented as JavaScript code. 
+
+    We must avoid making edits to `NgFactories` since any edits will be lost the next time we compile the application. 
+
+    `NgFactories` are much more visible when doing AoT compilation, but the same `NgFactories` are actually generated during JiT compilation as well. We just never see the physical files because it happens at runtime - on the fly. 
+
+<a id="compilation"></a>
+:marked
+    ## Tree Shaking
+:marked
+    AoT compilation also sets the stage for further optimization from a process called Tree Shaking. Tree Shaking means walking our code dependency tree, top to bottom, and shake out any unused code.
+
+    Tree Shaking is great for reducing the download size of our application since it effectively removes any unused portions of our source code. 
+    
+    Tree Shaking even applies to the Angular framework code. In fact, most of our size reduction will likely come from removing unreferenced features in the Angular code. 
+    
+    As an example, if our application is not using any `Forms` functionality, there is no reason to make the end user download any Forms related Angular code.
+
+    Three Shaking and AoT compilation are separate steps, but Tree Shaking can only target JavaScript code. Through AoT compilation we convert more of our application to JavaScript, which in turn makes more of our application "Tree Shakable".
+
+    ### Rollup
+
+    In our example we are using a framework called Rollup to do the Tree Shaking.
+
+    The necessary Rollup dependencies can be installed by running:
+
+    `npm install rollup rollup-plugin-node-resolve rollup-plugin-commonjs rollup-plugin-uglify`
+
+    Earlier we made a point about transpiling our TypeScript to `ES2015` modules. This is important since Rollup will only be able to effectively Tree Shake our code if it's using `ES2015` modules.
+    
+    it's not important that our code use additional `ES2015` syntax like `classes` and `const`. The key point is that our code is using `ES2015` `imports` and `exports`. 
+    
+    Based on `ES2015` modules, Rollup will be able to statically analyse our code by following the trail of `import` and `export` statements in our code. Code that is exported, but never imported can be excluded from the final bundle.
+    
+    Next we have to create a configuration file to tell Rollup how to process our application. 
+    
+    In our example we have named the configuration file `rollup.js`.
+
+    In `rollup.js` we tell Rollup that the entry point of our application is app/main.js by setting the `entry` attribute.
+
+    We want Rollup to output a single application bundle containing our application and only the parts of Angular (and other dependencies) that our application actually uses. 
+    
+    By setting the `dest` attribute we tell Rollup where to put the generated bundle. In this example it will be generated as dist/build.js.
+
++makeExample('cb-aot-compiler/ts/rollup.js', null, 'rollup.js')(format='.')
+
+:marked
+    ### Rollup Plugins
+
+    Rollup needs our source code to use `ES2015` modules, but we can't take for granted that all our external dependencies are published with `ES2015` modules.
+
+    *RxJS*
+
+    We face this challenge with `RxJs`. 
+    
+    `RxJs` is an important Angular dependency but the source is published as `ES5` `commonJS`.
+
+    Luckily there is a Rollup plugin that we can use to convert `ES5` `commonJS` to `ES2015`. By converting the `commonJS` modules to `ES2015` Rollup will be able to include `RxJs` in our bundle.
+
++makeExample('cb-aot-compiler/ts/rollup.js','commonjs','rollup.js (CommonJs to ES2015 Plugin)')(format='.')     
+
+:marked
+    *Minification* 
+
+    At this point the size of our bundle is already significantly reduced from Tree Shaking, but we can still do better.
+
+    We can reduce the size further by minifying the bundle. In our example we are using the uglify Rollup plugin to minify and mangle our code.     
+
+    In a production setting we would expand on this even further by enabling gzip on our web server to take advantage of compression, which results in an even smaller bundle going over the wire.
+
++makeExample('cb-aot-compiler/ts/rollup.js','uglify','rollup.js (CommonJs to ES2015 Plugin)')(format='.') 
+
+:marked
+    The last step is to start the Rollup process by running: `rollup -c rollup.js`
+.alert.is-important
+ :marked
+    Rollup may output the following warning during execution:
+
+    The `this` keyword is equivalent to `undefined` at the top level of an ES module, and has been rewritten
+
+    You can safely ignore this warning.
+
+.l-main-section
+<a id="bootstrapping"></a>
+:marked
+    ## Bootstrapping
+
+    When doing AoT compilation there is a slight difference in how we bootstrap the applicaton.
+
+    Instead of bootstrapping `AppModule` we now bootstrap the application using the generated `AppModuleNgFactory`.
+
+    Since we are working with an `AppModuleNgFactory`, we no longer call `platformBrowserDynamic.bootstrap`. 
+    
+    Instead we call `platformBrowser().bootstrapModuleFactory` and pass in the `AppModuleNgFactory`.    
+
+    We show the bootstrap code for both AoT and JiT code below:
+
++makeTabs(
+  `cb-aot-compiler/ts/app/main.ts,
+   cb-aot-compiler/ts/app/main-jit.ts`,
+  null,
+  `main.ts (AoT comilation),
+   main.ts (JiT compilation)`
+)
+
+:marked
+    ### Loading our Bundle
+
+    Loading the generated application bundle does not require a module loader like SystemJS. Instead we load the bundle using a single `script` tag as seen below:
+
++makeExample('cb-aot-compiler/ts/index.html','bundle','index.html (load bundle)')(format='.') 
+
+
+    
+
