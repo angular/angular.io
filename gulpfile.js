@@ -344,10 +344,14 @@ function runE2eDartTests(appDir, outputFile) {
     gutil.log('http-server failed to launch over ' + deployDir);
     return false;
   }
-  var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
-  var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
-    return spawnExt('pub', ['build'], { cwd: appDir }).promise;
-  });
+  if (argv.pub === false) {
+    var prepPromise = Promise.resolve(true);
+  } else {
+    var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
+    var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
+      return spawnExt('pub', ['build'], { cwd: appDir }).promise;
+    });
+  }
   return runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile);
 }
 
