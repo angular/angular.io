@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { browserDynamicPlatform }   from '@angular/platform-browser-dynamic';
+import { platformBrowserDynamic }   from '@angular/platform-browser-dynamic';
 import { BrowserModule }            from '@angular/platform-browser';
 
 import { HttpModule }           from '@angular/http';
@@ -91,6 +91,6 @@ const moduleMetadata = {
 @NgModule(moduleMetadata)
 class MainModule { }
 
-browserDynamicPlatform().bootstrapModule(MainModule);
+platformBrowserDynamic().bootstrapModule(MainModule);
 
 

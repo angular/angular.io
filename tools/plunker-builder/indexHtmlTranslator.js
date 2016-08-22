@@ -41,7 +41,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://unpkg.com/zone.js@0.6.12?main=browser'
+    to:   'https://unpkg.com/zone.js@0.6.17?main=browser'
   },
   {
     pattern: 'script',
@@ -51,7 +51,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.umd.js',
-    to:   'https://unpkg.com/rxjs@5.0.0-beta.6/bundles/Rx.umd.js'
+    to:   'https://unpkg.com/rxjs@5.0.0-beta.11/bundles/Rx.umd.js'
   },
   {
     pattern: 'script',

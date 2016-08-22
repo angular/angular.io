@@ -27,7 +27,7 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          @heroState="hero.state"
+          [@heroState]="hero.state"
           (click)="hero.toggleState()">
         {{hero.name}}
       </li>

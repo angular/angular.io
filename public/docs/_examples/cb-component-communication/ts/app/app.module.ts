@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
@@ -30,12 +30,17 @@ let directives: any[] = [
     VoteTakerComponent
   ];
 
+let schemas: any[] = [];
+
 // Include Countdown examples
 // unless in e2e tests which they break.
 if (!/e2e/.test(location.search)) {
   console.log('adding countdown timer examples');
   directives.push(CountdownLocalVarParentComponent);
   directives.push(CountdownViewChildParentComponent);
+} else {
+  // In e2e test use CUSTOM_ELEMENTS_SCHEMA to supress unknown element errors
+  schemas.push(CUSTOM_ELEMENTS_SCHEMA);
 }
 
 @NgModule({
@@ -43,6 +48,7 @@ if (!/e2e/.test(location.search)) {
     BrowserModule
   ],
   declarations: directives,
-  bootstrap: [ AppComponent ]
+  bootstrap: [ AppComponent ],
+  schemas: schemas
 })
 export class AppModule { }
