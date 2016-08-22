@@ -21,7 +21,7 @@ module.exports = function () {
       {pattern: 'node_modules/zone.js/dist/async-test.js', instrument: false},
       {pattern: 'node_modules/zone.js/dist/fake-async-test.js', instrument: false},
       {pattern: 'node_modules/zone.js/dist/sync-test.js', instrument: false},
-      {pattern: 'node_modules/zone.js/dist/proxy-zone.js', instrument: false},
+      {pattern: 'node_modules/zone.js/dist/proxy.js', instrument: false},
 
       {pattern: 'app/**/*+(ts|html|css)', load: false},
       {pattern: 'app/**/*.spec.ts', ignore: true},
