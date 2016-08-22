@@ -44,12 +44,12 @@ function initTestBed(){
   ])
 
   .then(function (providers) {
-    var testing = providers[0];
+    var testingCore    = providers[0];
     var testingBrowser = providers[1];
 
-    testing.TestBed.initTestEnvironment(
-        testingBrowser.BrowserDynamicTestingModule,
-        testingBrowser.platformBrowserDynamicTesting());
+    testingCore.TestBed.initTestEnvironment(
+      testingBrowser.BrowserDynamicTestingModule,
+      testingBrowser.platformBrowserDynamicTesting());
   })
 }
 

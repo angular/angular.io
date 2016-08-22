@@ -358,8 +358,7 @@ export class MyIfParentComp implements OnInit {
   template: `
     <input [(ngModel)]="text">
     <span>{{text | reverse}}</span>
-  `,
-  pipes: [ReversePipe]
+  `
 })
 export class ReversePipeComp {
   text = 'my dog has fleas.';
