@@ -80,15 +80,16 @@ export class CrisisDetailComponent implements OnInit {
   }
   // #enddocregion cancel-save-only
 
-  // #docregion gotoCrises
+  // #docregion gotoCrises, relative-navigation
   gotoCrises() {
     let crisisId = this.crisis ? this.crisis.id : null;
-    // Pass along the hero id if available
-    // so that the CrisisListComponent can select that hero.
+    // Pass along the crisis id if available
+    // so that the CrisisListComponent can select that crisis.
     // Add a totally useless `foo` parameter for kicks.
-    this.router.navigate(['/crisis-center', { id: crisisId, foo: 'foo' }]);
+    // Relative navigation back to the crises
+    this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
   }
-  // #enddocregion gotoCrises
+  // #enddocregion gotoCrises, relative-navigation
 // #docregion cancel-save
 }
 // #enddocregion cancel-save

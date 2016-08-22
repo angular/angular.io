@@ -41,6 +41,7 @@ include ../_util-fns
   * navigating when the user clicks a data-bound [RouterLink](#router-link)
   * navigating under [program control](#navigate)
   * retrieving information from the [route](#activated-route)
+  * navigating [relative](#relative-navigation) to our current URL
   * toggling css classes for the [active router link](#router-link-active)
   * embedding critical information in the URL with [route parameters](#route-parameters)
   * providing non-critical information in [optional route parameters](#optional-route-parameters)
@@ -1369,8 +1370,80 @@ code-example.
 
 +makeExcerpt('app/crisis-center/crisis-center.routing.2.ts (routes v2)' , 'routes')
 
+.l-main-section
+h2#relative-navigation Relative Navigation
+:marked
+  While building out our *Crisis Center* feature, we've navigated to the
+  *Crisis Detail* route using an **absolute path** that begins with a **slash**.
+  This navigation starts from the top of our route configuration to find the
+  matching path to our route.
+
+  We could continue to use absolute paths to navigate inside our *Crisis Center*
+  feature, but that makes our links very rigid. If we changed our parent `/crisis-center`
+  path, we would have to change our link parameters array.
+
+  We can make our links more flexible by using **relative** navigation with the router.
+  * The full path to the route is not required.
+  * Navigation within our feature area remains intact if the parent route path is changed.
+  * The *link parameters array* only contains navigation relative to the current URL.
+
+.l-sub-section
+  :marked
+    The **link parameters array** supports a directory-like syntax for relative navigation.
+
+    `./` or `no leading slash` is relative to the current level.
+
+    `../` to go up one level in the route path.
+
+    The relative navigation syntax can be used in combination with a *path*. If we wanted to navigate
+    from one route path to another sibling route path we could use `../path` convention to go up
+    one level and down to the sibling route path.
+
+:marked
+  In order to navigate relatively using the `Router` service, we use the `ActivatedRoute`
+  to give the router knowledge of where we are in the *RouterState*, which is our tree of
+  activated routes. We do this by adding an object as the second argument in our
+  `router.navigate` method after the *link parameters array* specifying the **relativeTo** property.
+  We set the `relativeTo` property to our `ActivatedRoute` and the router will merge our
+  navigation information into to the current URL.
+
+.l-sub-section
+  :marked
+    When using router's `navigateByUrl` method, the navigation is **always** absolute.
+
+:marked
+  ### Navigate to Crisis Detail relatively
+
+  Let's update our *Crisis List* `onSelect` method to use relative navigation so we don't have
+  to start from the top of our route configuration. We've already injected the `ActivatedRoute`
+  into our constructor that we'll need for the relative navigation.
+
++makeExcerpt('app/crisis-center/crisis-list.component.1.ts (constructor)', 'relative-navigation-ctor')
+
+:marked
+  When we visit the *Crisis Center*, our path is `/crisis-center`, so we just want to add the `id` of the *Crisis Center*
+  to our existing path. When the router navigates, it will use the current path `/crisis-center`,
+  adding on our `id`. If our `id` were `1`, the resulting path would be `/crisis-center/1`.
+
++makeExcerpt('app/crisis-center/crisis-list.component.ts (relative navigation)', 'relative-navigation')
+
+:marked
+  We'll also update the *Crisis Detail* component to navigate back to our *Crisis Center* list. We want to go back up a level
+  in the path, so we use to the `../` syntax. If our current `id` is `1`, the resulting path coming from `/crisis-center/1`
+  would be `/crisis-center`.
+
++makeExcerpt('app/crisis-center/crisis-detail.component.1.ts (relative navigation)', 'relative-navigation')
+
+:marked
+  If we are using a `RouterLink` to navigate instead of the `Router` service, we can use the **same**
+  link parameters array, but we don't have to provide the object with the `relativeTo` property. The `ActivatedRoute`
+  is implicit in the `RouterLink` directive.
+
++makeExcerpt('app/crisis-center/crisis-list.component.1.ts (relative routerLink)', 'relative-navigation-router-link')
+
 <a id="guards"></a>
 .l-main-section
+h2#guards Route Guards
 :marked
   ## Milestone #4: Route Guards
 

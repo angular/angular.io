@@ -40,10 +40,12 @@ export class CrisisListComponent implements OnInit {
     });
   }
 
+  // #docregion relative-navigation
   onSelect(crisis: Crisis) {
     this.selectedId = crisis.id;
 
-    // Navigate with absolute link
-    this.router.navigate(['/crisis-center', crisis.id]);
+    // Navigate with relative link
+    this.router.navigate([crisis.id], { relativeTo: this.route });
   }
+  // #enddocregion relative-navigation
 }
