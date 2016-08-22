@@ -1,4 +1,5 @@
-// #docregion
+// #docplaster
+// #docregion , imports
 import 'dart:async';
 import 'dart:convert';
 
@@ -6,12 +7,13 @@ import 'package:angular2/core.dart';
 import 'package:http/http.dart';
 
 import 'hero.dart';
+// #enddocregion imports
 
 @Injectable()
 class HeroService {
-  // #docregion post
+  // #docregion update
   static final _headers = {'Content-Type': 'application/json'};
-  // #enddocregion post
+  // #enddocregion update
   // #docregion getHeroes
   static const _heroesUrl = 'app/heroes'; // URL to web API
 
@@ -35,25 +37,20 @@ class HeroService {
 
   // #docregion extract-data
   dynamic _extractData(Response resp) => JSON.decode(resp.body)['data'];
-  // #enddocregion extract-data, getHeroes
-
-  Future<Hero> getHero(int id) async =>
-      (await getHeroes()).firstWhere((hero) => hero.id == id);
-
-  // #docregion save
-  Future<Hero> save(dynamic heroOrName) =>
-      heroOrName is Hero ? _put(heroOrName) : _post(heroOrName);
-  // #enddocregion save
+  // #enddocregion extract-data
 
   // #docregion handleError
   Exception _handleError(dynamic e) {
     print(e); // for demo purposes only
     return new Exception('Server error; cause: $e');
   }
-  // #enddocregion handleError
+  // #enddocregion handleError, getHeroes
 
-  // #docregion post
-  Future<Hero> _post(String name) async {
+  Future<Hero> getHero(int id) async =>
+      (await getHeroes()).firstWhere((hero) => hero.id == id);
+
+  // #docregion create
+  Future<Hero> create(String name) async {
     try {
       final response = await _http.post(_heroesUrl,
           headers: _headers, body: JSON.encode({'name': name}));
@@ -62,10 +59,10 @@ class HeroService {
       throw _handleError(e);
     }
   }
-  // #enddocregion post
+  // #enddocregion create
+  // #docregion update
 
-  // #docregion put
-  Future<Hero> _put(Hero hero) async {
+  Future<Hero> update(Hero hero) async {
     try {
       var url = '$_heroesUrl/${hero.id}';
       final response =
@@ -75,7 +72,7 @@ class HeroService {
       throw _handleError(e);
     }
   }
-  // #enddocregion put
+  // #enddocregion update
 
   // #docregion delete
   Future<Null> delete(int id) async {
