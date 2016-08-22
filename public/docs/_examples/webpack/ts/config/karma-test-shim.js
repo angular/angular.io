@@ -8,7 +8,7 @@ require('zone.js/dist/zone');
 require('zone.js/dist/async-test');
 require('zone.js/dist/fake-async-test');
 require('zone.js/dist/sync-test');
-require('zone.js/dist/proxy-zone');
+require('zone.js/dist/proxy');
 
 var appContext = require.context('../src', true, /\.spec\.ts/);
 
