@@ -617,7 +617,8 @@ gulp.task('dartdoc', ['pub upgrade'], function() {
   const tmpPath = topLevelLibFilePath + '.disabled';
   renameIfExistsSync(topLevelLibFilePath, tmpPath);
   gutil.log(`Hiding top-level angular2 library: ${topLevelLibFilePath}`);
-  const dartdoc = spawnExt('dartdoc', ['--output', 'docs/api', '--add-crossdart'], { cwd: ngRepoPath});
+  // Remove dartdoc '--add-crossdart' flag while we are fixing links to API pages.
+  const dartdoc = spawnExt('dartdoc', ['--output', 'docs/api'], { cwd: ngRepoPath});
   return dartdoc.promise.finally(() => {
       gutil.log(`Restoring top-level angular2 library: ${topLevelLibFilePath}`);
       renameIfExistsSync(tmpPath, topLevelLibFilePath);
