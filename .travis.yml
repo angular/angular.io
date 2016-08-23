@@ -12,18 +12,17 @@ env:
     - CHROME_BIN=chromium-browser
     - LATEST_RELEASE=2.0.0-rc.5
     - TASK_FLAGS="--dgeni-log=warn"
-    # - TASK_FLAGS=""
   matrix:
     - TASK=lint
     - TASK="run-e2e-tests --fast" SCRIPT=examples-install.sh
     - TASK="run-e2e-tests --fast" SCRIPT=examples-install-preview.sh
-    - TASK=build-compile SCRIPT=deploy-install.sh WAIT="travis_wait 50"
-    - TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50"
+    - TASK=build-compile SCRIPT=deploy-install.sh WAIT="travis_wait 50" POST_SCRIPT="check-docs.sh -v"
+    - TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50" POST_SCRIPT="check-docs.sh -v"
 matrix:
   fast_finish: true
   allow_failures:
     - env: TASK="run-e2e-tests --fast" SCRIPT=examples-install-preview.sh
-    - env: TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50"
+    - env: TASK=build-compile SCRIPT=deploy-install-preview.sh WAIT="travis_wait 50" POST_SCRIPT="check-docs.sh -v"
 before_install:
   - source ./scripts/env-set.sh
   - ./scripts/before-install.sh
@@ -34,3 +33,4 @@ before_script:
   - sh -e /etc/init.d/xvfb start
 script:
   - $WAIT gulp $TASK $TASK_FLAGS
+  - if [[ -n "$POST_SCRIPT" ]]; then ./scripts/$POST_SCRIPT; fi
