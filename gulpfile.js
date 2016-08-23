@@ -72,9 +72,10 @@ var _apiShredOptions =  {
   logLevel: _dgeniLogLevel
 };
 
+const relDartDocApiDir = path.join('doc', 'api');
 var _apiShredOptionsForDart =  {
   lang: 'dart',
-  examplesDir: path.resolve(ngPathFor('dart'), 'examples'),
+  examplesDir: path.resolve(ngPathFor('dart'), 'example'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api'),
   logLevel: _dgeniLogLevel
@@ -346,6 +347,7 @@ function runE2eDartTests(appDir, outputFile) {
   }
   if (argv.pub === false) {
     var prepPromise = Promise.resolve(true);
+    gutil.log('Skipping pub upgrade and pub build (--no-pub flag present)');
   } else {
     var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
     var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
@@ -608,8 +610,8 @@ gulp.task('build-dart-cheatsheet', [], function() {
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
   const ngRepoPath = ngPathFor('dart');
-  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'docs', 'api'))) {
-    gutil.log('Skipping dartdoc: --fast flag enabled and "docs/api" dir exists');
+  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, relDartDocApiDir))) {
+    gutil.log(`Skipping dartdoc: --fast flag enabled and api dir exists (${relDartDocApiDir})`);
     return true;
   }
   checkAngularProjectPath(ngRepoPath);
@@ -618,7 +620,7 @@ gulp.task('dartdoc', ['pub upgrade'], function() {
   renameIfExistsSync(topLevelLibFilePath, tmpPath);
   gutil.log(`Hiding top-level angular2 library: ${topLevelLibFilePath}`);
   // Remove dartdoc '--add-crossdart' flag while we are fixing links to API pages.
-  const dartdoc = spawnExt('dartdoc', ['--output', 'docs/api'], { cwd: ngRepoPath});
+  const dartdoc = spawnExt('dartdoc', ['--output', relDartDocApiDir], { cwd: ngRepoPath});
   return dartdoc.promise.finally(() => {
       gutil.log(`Restoring top-level angular2 library: ${topLevelLibFilePath}`);
       renameIfExistsSync(tmpPath, topLevelLibFilePath);
@@ -1246,7 +1248,7 @@ function buildApiDocsForDart() {
   log.level = _dgeniLogLevel;
   const dabInfo = dab.dartPkgConfigInfo;
   dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, 'api');
-  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), 'docs', 'api');
+  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), relDartDocApiDir);
   // Exclude API entries for developer/internal libraries. Also exclude entries for
   // the top-level catch all "angular2" library (otherwise every entry appears twice).
   dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
