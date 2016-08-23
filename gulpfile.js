@@ -517,12 +517,14 @@ function installExampleAngular() {
   var sources;
   var template;
   var libs = [
-    'core', 'common', 'compiler',
+    'core', 'common', 'compiler', 'compiler-cli',
     'platform-browser', 'platform-browser-dynamic',
     'forms', 'http', 'router', 'upgrade'];
 
   // Like: "angular/core-builds" or "@angular/core"
   sources = libs.map( lib => argv.build ? `angular/${lib}-builds` : `@angular/${lib}`);
+
+  if (argv.build) { sources.push('@angular/tsc-wrapped');} // tsc-wrapped needed for builds
 
   sources.push('@angular/router-deprecated');
 

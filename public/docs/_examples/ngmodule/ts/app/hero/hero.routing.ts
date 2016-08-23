@@ -1,10 +1,10 @@
 import { ModuleWithProviders } from '@angular/core';
 import { Routes,
-         RouterModule }  from '@angular/router';
+         RouterModule } from '@angular/router';
 
-import { HeroComponent } from './hero.component';
-import { HeroListComponent }      from './hero-list.component';
-import { HeroDetailComponent }    from './hero-detail.component';
+import { HeroComponent }       from './hero.component';
+import { HeroListComponent }   from './hero-list.component';
+import { HeroDetailComponent } from './hero-detail.component';
 
 const routes: Routes = [
   { path: '',

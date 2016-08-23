@@ -6,6 +6,7 @@ describe('NgModule', function () {
   const gold = 'rgba(255, 215, 0, 1)';
   const powderblue = 'rgba(176, 224, 230, 1)';
   const lightgray = 'rgba(211, 211, 211, 1)';
+  const white = 'rgba(0, 0, 0, 0)';
 
   function getCommonsSectionStruct() {
     const buttons = element.all(by.css('nav a'));
@@ -55,7 +56,7 @@ describe('NgModule', function () {
   }
 
   // tests
-  function appTitleTests(color: string) {
+  function appTitleTests(color: string, name?: string) {
     return function() {
       it('should have a gray header', function() {
         const commons = getCommonsSectionStruct();
@@ -64,16 +65,16 @@ describe('NgModule', function () {
 
       it('should welcome us', function () {
         const commons = getCommonsSectionStruct();
-        expect(commons.subtitle.getText()).toBe('Welcome, Sam Spade');
+        expect(commons.subtitle.getText()).toBe('Welcome, ' + (name ||  'Sherlock Holmes'));
       });
     };
   }
 
-  function contactTests(color: string) {
+  function contactTests(color: string, name?: string) {
     return function() {
       it('shows the contact\'s owner', function() {
         const contacts = getContactSectionStruct();
-        expect(contacts.header.getText()).toBe('Contact of Sam Spade');
+        expect(contacts.header.getText()).toBe('Contact of ' + (name ||  'Sherlock Holmes'));
       });
 
       it('can cycle between contacts', function () {
@@ -114,9 +115,9 @@ describe('NgModule', function () {
       browser.get('');
     });
 
-    describe('app-title', appTitleTests(lightgray));
+    describe('app-title', appTitleTests(white, 'Miss Marple'));
 
-    describe('contact', contactTests(lightgray));
+    describe('contact', contactTests(lightgray, 'Miss Marple'));
 
     describe('crisis center', function () {
       beforeEach(function () {
@@ -149,7 +150,7 @@ describe('NgModule', function () {
 
       it('shows a list of heroes', function() {
         const heroes = getHeroesSectionStruct();
-        expect(heroes.header.getText()).toBe('Heroes of Sam Spade');
+        expect(heroes.header.getText()).toBe('Heroes of Miss Marple');
         expect(heroes.title.getText()).toBe('Hero List');
         expect(heroes.items.count()).toBe(6);
         expect(heroes.items.get(0).getText()).toBe('11 - Mr. Nice');
