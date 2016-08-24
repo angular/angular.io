@@ -14,7 +14,7 @@ const apiDocPath = path.join(DOCS_PATH, 'dart/latest/api');
 
 dartPkg.config(function (dartPkgConfigInfo) {
     dartPkgConfigInfo.ngIoDartApiDocPath = apiDocPath;
-    dartPkgConfigInfo.ngDartDocPath = path.join(ANGULAR_IO_PROJECT_PATH, '../angular-dart/docs/api');
+    dartPkgConfigInfo.ngDartDocPath = path.join(ANGULAR_IO_PROJECT_PATH, '../angular-dart/doc/api');
 });
 
 const dgeni = new Dgeni([dartPkg]);
