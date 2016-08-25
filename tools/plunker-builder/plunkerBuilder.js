@@ -132,11 +132,13 @@ function initConfigAndCollectFileNames(configFileName) {
   } else {
     config.files = defaultIncludes;
   }
+  var includeSpec = false;
   var gpaths = config.files.map(function(fileName) {
     fileName = fileName.trim();
     if (fileName.substr(0,1) == '!') {
       return "!" + path.join(basePath, fileName.substr(1));
     } else {
+      includeSpec = includeSpec || /.*\.spec.(ts|js)$/.test(fileName);
       return path.join(basePath, fileName);
     }
   });
@@ -149,15 +151,17 @@ function initConfigAndCollectFileNames(configFileName) {
     '!**/*plnkr.*',
     '!**/package.json',
     '!**/example-config.json',
-    '!**/*.spec.*',
     '!**/tslint.json',
     '!**/.editorconfig',
     '!**/systemjs.config.js',
     '!**/wallaby.js',
     '!**/karma-test-shim.js',
-    '!**/karma.conf.js',
-    '!**/spec.js'
-   ];
+    '!**/karma.conf.js'
+  ];
+  // exclude all specs if no spec is mentioned in `files[]`
+  if (!includeSpec) {
+    defaultExcludes = defaultExcludes.concat(['!**/*.spec.*','!**/spec.js']);
+  }
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });

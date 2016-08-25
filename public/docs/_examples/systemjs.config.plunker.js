@@ -1,5 +1,6 @@
 /**
- * PLUNKER VERSION (based on systemjs.config.js in angular.io)
+ * PLUNKER VERSION
+ * (based on systemjs.config.js in angular.io)
  * System configuration for Angular 2 samples
  * Adjust as necessary for your application needs.
  */
@@ -15,8 +16,8 @@
     'app':                        'app',
 
     '@angular':                   'https://npmcdn.com/@angular', // sufficient if we didn't pin the version
-    '@angular/router':            'https://npmcdn.com/@angular/router' + routerVer,
     '@angular/forms':             'https://npmcdn.com/@angular/forms' + formsVer,
+    '@angular/router':            'https://npmcdn.com/@angular/router' + routerVer,
     '@angular/router-deprecated': 'https://npmcdn.com/@angular/router-deprecated' + routerDeprecatedVer,
     'angular2-in-memory-web-api': 'https://npmcdn.com/angular2-in-memory-web-api', // get latest
     'rxjs':                       'https://npmcdn.com/rxjs@5.0.0-beta.6',
@@ -47,15 +48,24 @@
     map['@angular/'+pkgName] = 'https://npmcdn.com/@angular/' + pkgName + ngVer;
   });
 
-  // Add package entries for angular packages
-  ngPackageNames.concat(['forms', 'router', 'router-deprecated']).forEach(function(pkgName) {
+  // Add package entries for angular packages with special versions
+  ngPackageNames = ngPackageNames.concat(['forms', 'router', 'router-deprecated']);
 
-    // Bundled (~40 requests):
+  // Individual files (~300 requests):
+  function packIndex(pkgName) {
+    packages['@angular/'+pkgName] = { main: 'index.js', defaultExtension: 'js' };
+  }
+
+  // Bundled (~40 requests):
+  function packUmd(pkgName) {
     packages['@angular/'+pkgName] = { main: '/bundles/' + pkgName + '.umd.js' };
+  }
 
-    // Individual files (~300 requests):
-    //packages['@angular/'+pkgName] = { main: 'index.js', defaultExtension: 'js' };
-  });
+  // Most environments should use UMD; some (e.g. Karma) need the individual index files
+  var setPackageConfig = System.packageWithIndex ? packIndex : packUmd;
+
+  // Add package entries for angular packages
+  ngPackageNames.forEach(setPackageConfig);
 
   var config = {
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER

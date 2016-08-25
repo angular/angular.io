@@ -50,6 +50,9 @@
   // Add package entries for angular packages
   ngPackageNames.forEach(setPackageConfig);
 
+  // No umd for router yet
+  packages['@angular/router'] = { main: 'index.js', defaultExtension: 'js' };
+
   var config = {
     map: map,
     packages: packages
