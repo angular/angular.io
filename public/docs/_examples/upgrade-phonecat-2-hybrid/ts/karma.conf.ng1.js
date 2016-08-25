@@ -19,14 +19,16 @@ module.exports = function(config) {
 
       // Polyfills
       'node_modules/core-js/client/shim.js',
-
-      // Reflect and Zone.js
       'node_modules/reflect-metadata/Reflect.js',
+
+      // zone.js
       'node_modules/zone.js/dist/zone.js',
+      'node_modules/zone.js/dist/long-stack-trace-zone.js',
+      'node_modules/zone.js/dist/proxy.js',
+      'node_modules/zone.js/dist/sync-test.js',
+      'node_modules/zone.js/dist/jasmine-patch.js',
       'node_modules/zone.js/dist/async-test.js',
       'node_modules/zone.js/dist/fake-async-test.js',
-      'node_modules/zone.js/dist/sync-test.js',
-      'node_modules/zone.js/dist/proxy.js',
 
       // RxJs.
       { pattern: 'node_modules/rxjs/**/*.js', included: false, watched: false },

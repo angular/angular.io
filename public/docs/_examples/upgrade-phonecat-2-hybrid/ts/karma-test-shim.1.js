@@ -37,16 +37,15 @@ System.import('systemjs.config.js')
     var coreTesting = providers[0];
     var browserTesting = providers[1];
     coreTesting.TestBed.initTestEnvironment(
-            browserTesting.BrowserDynamicTestingModule,
-            browserTesting.platformBrowserDynamicTesting());
-
+      browserTesting.BrowserDynamicTestingModule,
+      browserTesting.platformBrowserDynamicTesting());
   })
   .then(function () {
-  // Finally, load all spec files.
-  // This will run the tests directly.
-  return Promise.all(
-    allSpecFiles.map(function (moduleName) {
-      return System.import(moduleName);
-    }));
+    // Finally, load all spec files.
+    // This will run the tests directly.
+    return Promise.all(
+      allSpecFiles.map(function (moduleName) {
+        return System.import(moduleName);
+      }));
   })
   .then(__karma__.start, __karma__.error);
