@@ -1,0 +1,106 @@
+include ../_util-fns
+
+<a id="top"></a>
+:marked
+  This cookbook contains recipes for creating barrels to simplify file imports. In Angular 2 apps, we frequently find
+  ouselves importing multiple files together (for example, in the tutorial app, the hero component and the hero service
+  are both frequently imported together into other components). We can create a single export that contains them both
+  so they can be easily imported together. This is called a barrel.
+
+<a id="toc"></a>
+:marked
+  ## Table of contents
+
+  [Creating a barrel](#creating-a-barrel)
+
+  [Importing a barrel](#importing-a-barrel)
+
+:marked
+  **See the [live example](/resources/live-examples/cb-barrels/ts/plnkr.html)**.
+
+.l-main-section
+<a id="creating-a-barrel"></a>
+:marked
+  ## Creating a barrel
+
+  The `Hero` model, `HeroDetailComponent`, `HeroesComponent`, and `HeroService` are all frequently used together.
+  It would make things easier if we could import them all together. To make this possible, each of them
+  is moved into a `heroes` directory and organized into sub-directories with their supporting files:
+
+.filetree
+  .file heroes
+  .children
+    .file heroes.component.css
+    .file heroes.component.html
+    .file heroes.component.ts
+    .file hero-detail
+    .children
+      .file hero-detail.component.css
+      .file hero-detail.component.html
+      .file hero-detail.component.ts
+    .file shared
+    .children
+      .file hero.service.ts
+      .file hero.ts
+      .file mock-heroes.ts
+
+:marked
+  Since there are two exportable items in the shared folder, an `index.ts` file is created in that
+  folder, and then each of the files in that folder are imported and re-exported. This is our first
+  barrel. Since `mock-heroes.ts` is not used outside of the barrel it is not re-exported:
++makeExample('cb-barrels/ts/app/heroes/shared/index.ts', '', 'app/heroes/shared/index.ts')
+
+:marked
+  Even though there is only a single exportable item in the hero-detail folder, a barrel is
+  created in that folder so that all our imports are consistent, rather than some importing
+  barrels like this:
+
+  (`import { ... } from './shared'`)
+
+  and  others importing files like this:
+
+  `import { ... } from './hero-detail/hero-detail.component'`
++makeExample('cb-barrels/ts/app/heroes/hero-detail/index.ts', '', 'app/heroes/hero-detail/index.ts')
+
+:marked
+  Our final barrel is in the heroes folder and it consolidates each of the other barrels into one.
+  An `index.ts` file is created in the heroes folder and then the components and barrels we just
+  created are all imported and re-exported:
++makeExample('cb-barrels/ts/app/heroes/index.ts', '', 'app/heroes/index.ts')
+
+:marked
+  The SystemJs module loader is not yet able to identify our new barrels, so
+  they are added manually as packages in index.html.
++makeExample('cb-barrels/ts/index.html', 'packages', 'index.html')
+
+:marked
+  The files inside the barrels can now be imported through a single import.
+
+<a id="importing-a-barrel"></a>
+:marked
+  ## Importing a barrel
+  The app component imports the `HeroesComponent`, `HeroDetailComponent`, and `HeroService` with a
+  single import:
++makeExample('cb-barrels/ts/app/app.component.ts', 'imports', 'app/app.component.ts')
+
+:marked
+  The dashboard component imports `Hero` and `HeroService` with a single import:
++makeExample('cb-barrels/ts/app/dashboard.component.ts', 'imports', 'app/dashboard.component.ts')
+
+:marked
+  The `main.ts` bootstrap file imports `HeroService`:
++makeExample('cb-barrels/ts/app/main.ts', 'imports', 'app/main.ts')
+
+.alert.is-helpful
+  :marked
+    Do not attempt to reference the barrel index file from within the barrel.
+    These files are still imported individually as shown below.
+
+:marked
+  The `HeroDetailComponent` is updated to import the `HeroService` and `Hero` model from the
+  `shared` barrel.
++makeExample('cb-barrels/ts/app/heroes/hero-detail/hero-detail.component.ts', 'imports', 'app/heroes/hero-detail/hero-detail.component.ts')
+
+:marked
+  And finally, the `HeroesComponent` imports the the `HeroDetailComponent` from it's barrel:
++makeExample('cb-barrels/ts/app/heroes/heroes.component.ts', 'imports', 'app/heroes/heroes.component.ts')
