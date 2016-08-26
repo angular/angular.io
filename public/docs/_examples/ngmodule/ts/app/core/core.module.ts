@@ -3,15 +3,15 @@
 // #docregion
 // #docregion v4
 import {
-  BaseException, ModuleWithProviders,
-  NgModule, Optional, SkipSelf }  from '@angular/core';
+  ModuleWithProviders, NgModule,
+  Optional, SkipSelf }       from '@angular/core';
 
-import { CommonModule }           from '@angular/common';
+import { CommonModule }      from '@angular/common';
 
-import { TitleComponent }         from './title.component';
-import { UserService }            from './user.service';
+import { TitleComponent }    from './title.component';
+import { UserService }       from './user.service';
 // #enddocregion
-import { UserServiceConfig }      from './user.service';
+import { UserServiceConfig } from './user.service';
 
 // #docregion v4
 @NgModule({
@@ -26,7 +26,7 @@ export class CoreModule {
   // #docregion ctor
   constructor (@Optional() @SkipSelf() parentModule: CoreModule) {
     if (parentModule) {
-      throw new BaseException(
+      throw new Error(
         'CoreModule is already loaded. Import it in the AppModule only');
     }
   }
