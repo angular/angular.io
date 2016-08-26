@@ -890,6 +890,7 @@ function harpCompile() {
   spawnInfo.promise.then(function(x) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
+    showHideApiDir('show');
     if (x !== 0) {
       deferred.reject(x)
     } else {
@@ -899,9 +900,8 @@ function harpCompile() {
   }).catch(function(e) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
-    deferred.reject(e);
-  }).finally(() => {
     showHideApiDir('show');
+    deferred.reject(e);
   });
   return deferred.promise;
 }
@@ -1148,11 +1148,10 @@ function watchAndSync(options, cb) {
 
 // returns a promise;
 function askDeploy() {
-
   prompt.start();
   var schema = {
     name: 'shouldDeploy',
-    description: 'Deploy to Firebase? (y/n): ',
+    description: 'Deploy to Firebase? (y/n)',
     type: 'string',
     pattern: /Y|N|y|n/,
     message: "Respond with either a 'y' or 'n'",
