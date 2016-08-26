@@ -18,4 +18,4 @@ import { HeroService } from './hero.service';
     HeroComponent, HeroDetailComponent, HeroListComponent,
   ]
 })
-export default class HeroModule { }
+export class HeroModule { }

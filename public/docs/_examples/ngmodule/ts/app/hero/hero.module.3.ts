@@ -21,5 +21,5 @@ import { HeroService }         from './hero.service';
     HighlightDirective
   ]
 })
-export default class HeroModule { }
+export class HeroModule { }
 // #enddocregion class
