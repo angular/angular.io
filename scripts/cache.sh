@@ -42,7 +42,7 @@ function cacheRefresh() {
         if [[ -e $srcPath ]]; then
             [[ -d "$destDir" ]] || (set -x; mkdir $destDir);
             case "$f" in
-                ($FILE_PATTERN)
+                (*$FILE_PATTERN*)
                     (set -x; cp $srcPath $destPath);;
                 (*)
                     echo "SKIPPED $f";;
@@ -56,9 +56,18 @@ function cacheRefresh() {
     [[ $allFound ]] || exit 1;
 }
 
-function cacheDiff() {
+function cacheDiffSummary() {
     diff -qr -x "_*.*" "$CACHE/" "$LATEST/" | \
         grep -v "^Only in"
+}
+
+function cacheDiff() {
+    local FILES="*$1*"
+    cd $CACHE;
+    # List files
+    find . -name "$FILES" ! -name "*~" -exec diff -q {} ../latest/{} \;
+    # Show differences
+    find . -name "$FILES" ! -name "*~" -exec diff    {} ../latest/{} \;
 }
 
 function usage() {
@@ -69,8 +78,9 @@ function usage() {
 }
 
 case "$1" in
-    (-r)    shift; cacheRefresh $@;;
-    (-d)    shift; cacheDiff $@;;
-    (-l)    shift; printf "$FILES\n\n";;
-    (*)     usage;
+    (-r|--refresh)        shift; cacheRefresh $@;;
+    (-ds|--diff-summary)  shift; cacheDiffSummary $@;;
+    (-d|--diff)           shift; cacheDiff $@;;
+    (-l)  shift; printf "$FILES\n\n";;
+    (*)   usage;
 esac
