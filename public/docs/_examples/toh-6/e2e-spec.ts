@@ -1,246 +1,283 @@
 /// <reference path='../_protractor/e2e.d.ts' />
 'use strict';
-describe('TOH Http Chapter', function () {
 
-  beforeEach(function () {
-    browser.get('');
-  });
+const expectedH1 = 'Tour of Heroes';
+const expectedTitle = `Angular 2 ${expectedH1}`;
+const targetHero = { id: 15, name: 'Magneta' };
+const targetHeroDashboardIndex = 3;
+const nameSuffix = 'X';
+const newHeroName = targetHero.name + nameSuffix;
 
-  function getPageStruct() {
-    let hrefEles = element.all(by.css('my-app a'));
+type WPromise<T> = webdriver.promise.Promise<T>;
+
+class Hero {
+  id: number;
+  name: string;
+
+  // Factory methods
+
+  // Hero from string formatted as '<id> <name>'.
+  static fromString(s: string): Hero {
+    return {
+      id: +s.substr(0, s.indexOf(' ')),
+      name: s.substr(s.indexOf(' ') + 1),
+    };
+  }
+
+  // Hero from hero list <li> element.
+  static async fromLi(li: protractor.ElementFinder): Promise<Hero> {
+      let strings = await li.all(by.xpath('span')).getText();
+      return { id: +strings[0], name: strings[1] };
+  }
+
+  // Hero id and name from the given detail element.
+  static async fromDetail(detail: protractor.ElementFinder): Promise<Hero> {
+    // Get hero id from the first <div>
+    let _id = await detail.all(by.css('div')).first().getText();
+    // Get name from the h2
+    let _name = await detail.element(by.css('h2')).getText();
+    return {
+        id: +_id.substr(_id.indexOf(' ') + 1),
+        name: _name.substr(0, _name.lastIndexOf(' '))
+    };
+  }
+}
+
+describe('Tutorial part 6', () => {
+
+  beforeAll(() => browser.get(''));
+
+  function getPageElts() {
+    let hrefElts = element.all(by.css('my-app a'));
 
     return {
-      hrefs: hrefEles,
-      myDashboardHref: hrefEles.get(0),
-      myDashboardParent: element(by.css('my-app my-dashboard')),
-      topHeroes: element.all(by.css('my-app my-dashboard .module.hero')),
+      hrefs: hrefElts,
 
-      myHeroesHref: hrefEles.get(1),
-      myHeroesParent: element(by.css('my-app my-heroes')),
-      allHeroes: element.all(by.css('my-app my-heroes li .hero-element')),
+      myDashboardHref: hrefElts.get(0),
+      myDashboard: element(by.css('my-app my-dashboard')),
+      topHeroes: element.all(by.css('my-app my-dashboard > div h4')),
 
-      firstDeleteButton: element.all(by.buttonText('Delete')).get(0),
+      myHeroesHref: hrefElts.get(1),
+      myHeroes: element(by.css('my-app my-heroes')),
+      allHeroes: element.all(by.css('my-app my-heroes li')),
+      selectedHero: element(by.css('my-app li.selected')),
+      selectedHeroSubview: element(by.css('my-app my-heroes > div:last-child')),
 
-      addButton: element.all(by.buttonText('Add New Hero')).get(0),
-
-      heroDetail: element(by.css('my-app my-hero-detail')),
+      heroDetail: element(by.css('my-app my-hero-detail > div')),
 
       searchBox: element(by.css('#search-box')),
       searchResults: element.all(by.css('.search-result'))
     };
   }
 
-  it('should search for hero and navigate to details view', function() {
-    let page = getPageStruct();
+  describe('Initial page', () => {
 
-    return sendKeys(page.searchBox, 'Magneta').then(function () {
+    it(`has title '${expectedTitle}'`, () => {
+        expect(browser.getTitle()).toEqual(expectedTitle);
+    });
+
+    it(`has h1 '${expectedH1}'`, () => {
+        expectHeading(1, expectedH1);
+    });
+
+    const expectedViewNames = ['Dashboard', 'Heroes'];
+    it(`has views ${expectedViewNames}`, () => {
+      let viewNames = getPageElts().hrefs.map(el => el.getText());
+      expect(viewNames).toEqual(expectedViewNames);
+    });
+
+    it('has dashboard as the active view', () => {
+      let page = getPageElts();
+      expect(page.myDashboard.isPresent()).toBeTruthy();
+    });
+
+  });
+
+  describe('Dashboard tests', () => {
+
+    beforeAll(() => browser.get(''));
+
+    it('has top heroes', () => {
+      let page = getPageElts();
+      expect(page.topHeroes.count()).toEqual(4);
+    });
+
+    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
+
+    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+
+    it(`cancels and shows ${targetHero.name} in Dashboard`, () => {
+      element(by.buttonText('Back')).click();
+      browser.waitForAngular(); // seems necessary to gets tests to past for toh-6
+
+      let targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
+      expect(targetHeroElt.getText()).toEqual(targetHero.name);
+    });
+
+    it(`selects and routes to ${targetHero.name} details`, dashboardSelectTargetHero);
+
+    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+
+    it(`saves and shows ${newHeroName} in Dashboard`, () => {
+      element(by.buttonText('Save')).click();
+      browser.waitForAngular(); // seems necessary to gets tests to past for toh-6
+
+      let targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
+      expect(targetHeroElt.getText()).toEqual(newHeroName);
+    });
+
+  });
+
+  describe('Heroes tests', () => {
+
+    beforeAll(() => browser.get(''));
+
+    it('can switch to Heroes view', () => {
+      getPageElts().myHeroesHref.click();
+      let page = getPageElts();
+      expect(page.myHeroes.isPresent()).toBeTruthy();
+      expect(page.allHeroes.count()).toEqual(10, 'number of heroes');
+    });
+
+    it(`selects and shows ${targetHero.name} as selected in list`, () => {
+      getHeroLiEltById(targetHero.id).click();
+      expect(Hero.fromLi(getPageElts().selectedHero)).toEqual(targetHero);
+    });
+
+    it('shows selected hero subview', () => {
+      let page = getPageElts();
+      let title = page.selectedHeroSubview.element(by.css('h2')).getText();
+      let expectedTitle = `${targetHero.name.toUpperCase()} is my hero`;
+      expect(title).toEqual(expectedTitle);
+    });
+
+    it('can route to hero details', () => {
+      element(by.buttonText('View Details')).click();
+
+      let page = getPageElts();
+      expect(page.heroDetail.isPresent()).toBeTruthy('shows hero detail');
+      let hero = Hero.fromDetail(page.heroDetail);
+      expect(hero).toEqual(targetHero);
+    });
+
+    it(`updates hero name (${newHeroName}) in details view`, updateHeroNameInDetailView);
+
+    it(`shows ${newHeroName} in Heroes list`, () => {
+      element(by.buttonText('Save')).click();
+      browser.waitForAngular(); // seems necessary to gets tests to past for toh-6
+      let expectedHero = {id: targetHero.id, name: newHeroName};
+      expect(Hero.fromLi(getHeroLiEltById(targetHero.id))).toEqual(expectedHero);
+    });
+
+    it(`deletes ${newHeroName} from Heroes list`, async () => {
+      const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+      const li = getHeroLiEltById(targetHero.id);
+      li.element(by.buttonText('x')).click();
+
+      const page = getPageElts();
+      expect(page.myHeroes.isPresent()).toBeTruthy();
+      expect(page.allHeroes.count()).toEqual(9, 'number of heroes');
+      const heroesAfter = await toHeroArray(page.allHeroes);
+      const expectedHeroes =  heroesBefore.filter(h => h.name !== newHeroName);
+      expect(heroesAfter).toEqual(expectedHeroes);
+      expect(page.selectedHeroSubview.isPresent()).toBeFalsy();
+    });
+
+    it(`adds back ${targetHero.name}`, async () => {
+      const newHeroName = 'Alice';
+      const heroesBefore = await toHeroArray(getPageElts().allHeroes);
+      const numHeroes = heroesBefore.length;
+
+      sendKeys(element(by.css('input')), newHeroName);
+      element(by.buttonText('Add')).click();
+
+      let page = getPageElts();
+      let heroesAfter = await toHeroArray(page.allHeroes);
+      expect(heroesAfter.length).toEqual(numHeroes + 1, 'number of heroes');
+
+      expect(heroesAfter.slice(0, numHeroes)).toEqual(heroesBefore, 'Old heroes are still there');
+
+      const maxId = heroesBefore[heroesBefore.length - 1].id;
+      expect(heroesAfter[numHeroes]).toEqual({id: maxId + 1, name: newHeroName});
+    });
+  });
+
+  describe('Progressive hero search', () => {
+
+    beforeAll(() => browser.get(''));
+
+    it(`searches for 'Ma'`, async () => {
+      sendKeys(getPageElts().searchBox, 'Ma');
+      browser.sleep(1000);
+      expect(getPageElts().searchResults.count()).toBe(4);
+    });
+
+    it(`continues search with 'g'`, async () => {
+      sendKeys(getPageElts().searchBox, 'g');
+      browser.sleep(1000);
+      expect(getPageElts().searchResults.count()).toBe(2);
+    });
+
+    it(`continues search with 'n' and gets ${targetHero.name}`, async () => {
+      sendKeys(getPageElts().searchBox, 'n');
+      browser.sleep(1000);
+      let page = getPageElts();
       expect(page.searchResults.count()).toBe(1);
       let hero = page.searchResults.get(0);
-      return hero.click();
-    })
-    .then(function() {
-      browser.waitForAngular();
-      let inputEle = page.heroDetail.element(by.css('input'));
-      return inputEle.getAttribute('value');
-    })
-    .then(function(value) {
-      expect(value).toBe('Magneta');
+      expect(hero.getText()).toEqual(targetHero.name);
+    });
+
+    it(`navigates to ${targetHero.name} details view`, async () => {
+      let hero = getPageElts().searchResults.get(0);
+      expect(hero.getText()).toEqual(targetHero.name);
+      hero.click();
+
+      let page = getPageElts();
+      expect(page.heroDetail.isPresent()).toBeTruthy('shows hero detail');
+      expect(Hero.fromDetail(page.heroDetail)).toEqual(targetHero);
     });
   });
 
-  it('should be able to add a hero from the "Heroes" view', function(){
-    let page = getPageStruct();
-    let heroCount: webdriver.promise.Promise<number>;
+  function dashboardSelectTargetHero() {
+    let targetHeroElt = getPageElts().topHeroes.get(targetHeroDashboardIndex);
+    expect(targetHeroElt.getText()).toEqual(targetHero.name);
+    targetHeroElt.click();
+    browser.waitForAngular(); // seems necessary to gets tests to past for toh-6
 
-    page.myHeroesHref.click().then(function() {
-      browser.waitForAngular();
-      heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(10, 'should show 10');
-    }).then(function() {
-      return page.addButton.click();
-    }).then(function(){
-      return save(page, '', 'The New Hero');
-    }).then(function(){
-      browser.waitForAngular();
-
-      heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(11, 'should show 11');
-
-      let newHero = element(by.xpath('//span[@class="hero-element" and contains(text(),"The New Hero")]'));
-      expect(newHero).toBeDefined();
-    });
-  });
-
-  it('should be able to delete hero from "Heroes" view', function(){
-    let page = getPageStruct();
-    let heroCount: webdriver.promise.Promise<number>;
-
-    page.myHeroesHref.click().then(function() {
-      browser.waitForAngular();
-      heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(10, 'should show 10');
-    }).then(function() {
-      return page.firstDeleteButton.click();
-    }).then(function(){
-      browser.waitForAngular();
-      heroCount = page.allHeroes.count();
-      expect(heroCount).toBe(9, 'should show 9');
-    });
-  });
-
-  it('should be able to save details from "Dashboard" view', function () {
-    let page = getPageStruct();
-    expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be available');
-    let heroEle = page.topHeroes.get(2);
-    let heroDescrEle = heroEle.element(by.css('h4'));
-    let heroDescr: string;
-
-    return heroDescrEle.getText().then(function(text) {
-      heroDescr = text;
-      return heroEle.click();
-    }).then(function() {
-      return save(page, heroDescr, '-foo');
-    })
-    .then(function(){
-      return page.myDashboardHref.click();
-    })
-    .then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be back');
-      expect(heroDescrEle.getText()).toEqual(heroDescr + '-foo');
-    });
-  });
-
-  it('should be able to save details from "Heroes" view', function () {
-    let page = getPageStruct();
-
-    let viewDetailsButtonEle = page.myHeroesParent.element(by.cssContainingText('button', 'View Details'));
-    let heroEle: protractor.ElementFinder, heroDescr: string;
-
-    page.myHeroesHref.click().then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
-      expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be present');
-      expect(viewDetailsButtonEle.isPresent()).toBe(false, 'viewDetails button should not yet be present');
-      heroEle = page.allHeroes.get(0);
-      return heroEle.getText();
-    }).then(function(text) {
-      // remove leading 'id' from the element
-      heroDescr = text.substr(text.indexOf(' ') + 1);
-      return heroEle.click();
-    }).then(function() {
-      expect(viewDetailsButtonEle.isDisplayed()).toBe(true, 'viewDetails button should now be visible');
-      return viewDetailsButtonEle.click();
-    }).then(function() {
-      return save(page, heroDescr, '-bar');
-    })
-    .then(function(){
-      return page.myHeroesHref.click();
-    })
-    .then(function() {
-      expect(heroEle.getText()).toContain(heroDescr + '-bar');
-    });
-  });
-
-  function save(page: any, origValue: string, textToAdd: string) {
-    let inputEle = page.heroDetail.element(by.css('input'));
-    expect(inputEle.isDisplayed()).toBe(true, 'should be able to see the input box');
-    let saveButtonEle = page.heroDetail.element(by.buttonText('Save'));
-    let backButtonEle = page.heroDetail.element(by.buttonText('Back'));
-    expect(backButtonEle.isDisplayed()).toBe(true, 'should be able to see the back button');
-    let detailTextEle = page.heroDetail.element(by.css('div h2'));
-    expect(detailTextEle.getText()).toContain(origValue);
-    return sendKeys(inputEle, textToAdd).then(function () {
-      expect(detailTextEle.getText()).toContain(origValue + textToAdd);
-      return saveButtonEle.click();
-    });
+    let page = getPageElts();
+    expect(page.heroDetail.isPresent()).toBeTruthy('shows hero detail');
+    let hero = Hero.fromDetail(page.heroDetail);
+    expect(hero).toEqual(targetHero);
   }
 
-  it('should be able to see the start screen', function () {
-    let page = getPageStruct();
-    expect(page.hrefs.count()).toEqual(2, 'should be two dashboard choices');
-    expect(page.myDashboardHref.getText()).toEqual('Dashboard');
-    expect(page.myHeroesHref.getText()).toEqual('Heroes');
-  });
+  async function updateHeroNameInDetailView() {
+    // Assumes that the current view is the hero details view.
+    addToHeroName(nameSuffix);
 
-  it('should be able to see dashboard choices', function () {
-    let page = getPageStruct();
-    expect(page.topHeroes.count()).toBe(4, 'should be 4 dashboard hero choices');
-  });
-
-  it('should be able to toggle the views', function () {
-    let page = getPageStruct();
-
-    expect(page.myDashboardParent.element(by.css('h3')).getText()).toEqual('Top Heroes');
-    page.myHeroesHref.click().then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(false, 'should no longer see dashboard element');
-      expect(page.allHeroes.count()).toBeGreaterThan(4, 'should be more than 4 heroes shown');
-      return page.myDashboardHref.click();
-    }).then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(true, 'should once again see the dashboard element');
-    });
-
-  });
-
-  it('should be able to edit details from "Dashboard" view', function () {
-    let page = getPageStruct();
-    expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be available');
-    let heroEle = page.topHeroes.get(3);
-    let heroDescrEle = heroEle.element(by.css('h4'));
-    let heroDescr: string;
-    return heroDescrEle.getText().then(function(text) {
-      heroDescr = text;
-      return heroEle.click();
-    }).then(function() {
-      return editDetails(page, heroDescr, '-foo');
-    }).then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be back');
-      expect(heroDescrEle.getText()).toEqual(heroDescr + '-foo');
-    });
-  });
-
-  it('should be able to edit details from "Heroes" view', function () {
-    let page = getPageStruct();
-    expect(page.myDashboardParent.isPresent()).toBe(true, 'dashboard element should be present');
-    let viewDetailsButtonEle = page.myHeroesParent.element(by.cssContainingText('button', 'View Details'));
-    let heroEle: protractor.ElementFinder, heroDescr: string;
-    page.myHeroesHref.click().then(function() {
-      expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
-      expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be present');
-      expect(viewDetailsButtonEle.isPresent()).toBe(false, 'viewDetails button should not yet be present');
-      heroEle = page.allHeroes.get(2);
-      return heroEle.getText();
-    }).then(function(text) {
-      // remove leading 'id' from the element
-      heroDescr = text.substr(text.indexOf(' ') + 1);
-      return heroEle.click();
-    }).then(function() {
-      expect(viewDetailsButtonEle.isDisplayed()).toBe(true, 'viewDetails button should now be visible');
-      return viewDetailsButtonEle.click();
-    }).then(function() {
-      return editDetails(page, heroDescr, '-bar');
-    }).then(function() {
-      expect(page.myHeroesParent.isPresent()).toBe(true, 'myHeroes element should be back');
-      expect(heroEle.getText()).toContain(heroDescr + '-bar');
-      expect(viewDetailsButtonEle.isPresent()).toBe(false, 'viewDetails button should again NOT be present');
-    });
-  });
-
-  function editDetails(page: any, origValue: string, textToAdd: string) {
-    expect(page.myDashboardParent.isPresent()).toBe(false, 'dashboard element should NOT be present');
-    expect(page.myHeroesParent.isPresent()).toBe(false, 'myHeroes element should NOT be present');
-    expect(page.heroDetail.isDisplayed()).toBe(true, 'should be able to see hero-details');
-    let inputEle = page.heroDetail.element(by.css('input'));
-    expect(inputEle.isDisplayed()).toBe(true, 'should be able to see the input box');
-    let buttons = page.heroDetail.all(by.css('button'));
-    let backButtonEle = buttons.get(0);
-    let saveButtonEle = buttons.get(1);
-    expect(backButtonEle.isDisplayed()).toBe(true, 'should be able to see the back button');
-    expect(saveButtonEle.isDisplayed()).toBe(true, 'should be able to see the save button');
-    let detailTextEle = page.heroDetail.element(by.css('div h2'));
-    expect(detailTextEle.getText()).toContain(origValue);
-    return sendKeys(inputEle, textToAdd).then(function () {
-      expect(detailTextEle.getText()).toContain(origValue + textToAdd);
-      return saveButtonEle.click();
-    });
+    let hero = await Hero.fromDetail(getPageElts().heroDetail);
+    expect(hero).toEqual({id: targetHero.id, name: newHeroName});
   }
 
 });
+
+function addToHeroName(text: string): WPromise<void> {
+  let input = element(by.css('input'));
+  return sendKeys(input, text);
+}
+
+function expectHeading(hLevel: number, expectedText: string): void {
+    let hTag = `h${hLevel}`;
+    let hText = element(by.css(hTag)).getText();
+    expect(hText).toEqual(expectedText, hTag);
+};
+
+function getHeroLiEltById(id: number): protractor.ElementFinder {
+  let spanForId = element(by.cssContainingText('li span.badge', id.toString()));
+  return spanForId.element(by.xpath('..'));
+}
+
+async function toHeroArray(allHeroes: protractor.ElementArrayFinder): Promise<Hero[]> {
+  let promisedHeroes: Array<Promise<Hero>> = await allHeroes.map(Hero.fromLi);
+  // The cast is necessary to get around issuing with the signature of Promise.all()
+  return <Promise<any>> Promise.all(promisedHeroes);
+}
