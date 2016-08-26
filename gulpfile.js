@@ -120,22 +120,35 @@ var _styleLessName = 'a2docs.less';
 //    or a regex pattern to match any one of 'ts', 'js', or 'dart'.
 //    Default: 'ts|js' except for the "full site build" tasks (see below),
 //    for which it is 'all'.
-//
-var lang, langs, buildDartApiDocs = false;
+
+// langs and skipLangs partition ['ts', 'js', 'dart'].
+var lang, langs, skipLangs, buildDartApiDocs = false;
 function configLangs(langOption) {
-  const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
+  const fullSiteBuildTasks = ['build-compile', 'check-deploy', 'harp-compile'];
   const buildAllDocs = argv['_'] &&
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
   const langDefault = buildAllDocs ? 'all' : 'ts|js';
-  lang = (langOption || langDefault).toLowerCase();
-  if (lang === 'all') lang = 'ts|js|dart';
-  langs = lang.match(/\w+/g); // the languages in `lang` as an array
-  gutil.log('Building docs for: ' + lang);
+  if (langOption === '') {
+    lang = '';
+    langs = [];
+  } else {
+    lang = (langOption || langDefault).toLowerCase();
+    if (lang === 'all') lang = 'ts|js|dart';
+    langs = lang.match(/\w+/g); // the languages in `lang` as an array
+  }
+  gutil.log(`Building docs for: [${langs}]`);
   if (langs.indexOf('dart') >= 0) {
     buildDartApiDocs = true;
     // For Dart, be proactive about checking for the repo
     checkAngularProjectPath(ngPathFor('dart'));
+  } else {
+    argv.pub = false;
   }
+  skipLangs = [];
+  ['ts', 'js', 'dart'].forEach(lang => {
+    if (langs.indexOf(lang) < 0) skipLangs.push(lang);
+  });
+  gutil.log(`Skipped languages: [${skipLangs}]`);
 }
 configLangs(argv.lang);
 
@@ -688,12 +701,12 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
-gulp.task('harp-compile', [], function() {
+gulp.task('harp-compile', () => {
   return harpCompile()
 });
 
-gulp.task('serve', [], function() {
-  // Harp will serve files from workspace.
+gulp.task('harp-serve', () => {
+  // Harp will watch and serve workspace files.
   const cmd = 'npm run harp -- server .';
   gutil.log('Launching harp server (over project files)');
   gutil.log(`  > ${cmd}`);
@@ -701,20 +714,13 @@ gulp.task('serve', [], function() {
   return execPromise(cmd);
 });
 
-gulp.task('serve-www', [], function() {
+gulp.task('serve-www', () => {
   // Serve generated site.
   return execPromise('npm run live-server ./www');
 });
 
 gulp.task('build-compile', ['build-docs'], function() {
   return harpCompile();
-});
-
-gulp.task('check-serve', ['build-docs'], function() {
-  return harpCompile().then(function() {
-    gutil.log('Launching live-server over ./www');
-    return execPromise('npm run live-server ./www');
-  });
 });
 
 gulp.task('check-deploy', ['build-docs'], function() {
@@ -812,7 +818,7 @@ gulp.task('_shred-clean-devguide', function(cb) {
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
   const promises = [];
   gutil.log('Shredding API examples for languages: ' + langs.join(', '));
-  langs.forEach((lang) => {
+  langs.forEach(lang => {
     if (lang === 'js') return; // JS is handled via TS.
     checkAngularProjectPath(ngPathFor(lang));
     const options = lang == 'dart' ? _apiShredOptionsForDart : _apiShredOptions;
@@ -862,14 +868,24 @@ gulp.task('lint', function() {
 function harpCompile() {
   // Supposedly running in production makes harp faster
   // and less likely to drown in node_modules.
-  env({
-    vars: { NODE_ENV: "production" }
-  });
+  env({ vars: { NODE_ENV: "production" } });
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
+
+  if(skipLangs && fs.existsSync('www')) {
+    gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
+    gutil.log(`API docs will be copied from existing www folder.`)
+    del.sync('www-backup'); // remove existing backup if it exists
+    renameIfExistsSync('www', 'www-backup');
+  } else {
+    gutil.log(`Harp full site compile, including API docs for all languages.`);
+    if (skipLangs)
+      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full site has not been built yet.`);
+  }
 
   var deferred = Q.defer();
   gutil.log('running harp compile...');
   showHideExampleNodeModules('hide');
+  showHideApiDir('hide');
   var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', './www' ]);
   spawnInfo.promise.then(function(x) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
@@ -877,12 +893,15 @@ function harpCompile() {
     if (x !== 0) {
       deferred.reject(x)
     } else {
+      restoreApiHtml();
       deferred.resolve(x);
     }
   }).catch(function(e) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
     deferred.reject(e);
+  }).finally(() => {
+    showHideApiDir('show');
   });
   return deferred.promise;
 }
@@ -978,6 +997,37 @@ function showHideExampleNodeModules(showOrHide) {
     fs.renameSync(nmHiddenPath, nmPath);
     fs.rmdirSync(TEMP_PATH);
   }
+}
+
+// Show/hide the API docs harp source folder for every lang in skipLangs.
+function showHideApiDir(showOrHide) {
+  skipLangs.forEach(lang => {
+    _showHideApiDir(lang, showOrHide);
+  });
+}
+
+// Rename the API docs harp source folder for lang to/from 'api' to '_api-tmp-foo'.
+function _showHideApiDir(lang, showOrHide) {
+  const vers = 'latest';
+  const basePath = path.join(DOCS_PATH, lang, vers);
+  const apiDirPath = path.join(basePath, 'api');
+  const disabledApiDirPath = path.join(basePath, '_api-tmp-hide-from-jade');
+  const args = showOrHide == 'hide'
+    ? [apiDirPath, disabledApiDirPath]
+    : [disabledApiDirPath, apiDirPath];
+  renameIfExistsSync(...args);
+}
+
+// For each lang in skipLangs, copy the API dir from www-backup to www.
+function restoreApiHtml() {
+  const vers = 'latest';
+  skipLangs.forEach(lang => {
+    const relApiDir = path.join('docs', lang, vers, 'api');
+    const wwwApiSubdir = path.join('www', relApiDir);
+    const backupApiSubdir = path.join('www-backup', relApiDir);
+    gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
+    fs.copySync(backupApiSubdir, wwwApiSubdir);
+  });
 }
 
 // Copies fileNames into destPaths, setting the mode of the
@@ -1467,8 +1517,9 @@ function checkAngularProjectPath(_ngPath) {
 
 function renameIfExistsSync(oldPath, newPath) {
   if (fs.existsSync(oldPath)) {
-      fs.renameSync(oldPath, newPath);
+    gutil.log(`Rename: mv ${oldPath} ${newPath}`);
+    fs.renameSync(oldPath, newPath);
   } else {
-    gutil.log(`renameIfExistsSync cannot find file to rename: ${oldPath}`);
+    gutil.log(`renameIfExistsSync cannot rename, path not found: ${oldPath}`);
   }
 }
