@@ -83,7 +83,7 @@ class PlunkerBuilder {
       var config = this._initConfigAndCollectFileNames(configFileName);
       var postData = this._createPostData(config);
       this._addPlunkerFiles(config, postData);
-      var html = this._createPlunkerHtml(postData, altFileName);
+      var html = this._createPlunkerHtml(postData);
       if (this.options.writeNoLink) {
         fs.writeFileSync(outputFileName, html, 'utf-8');
       }
@@ -106,15 +106,9 @@ class PlunkerBuilder {
     }
   }
 
-  _createBasePlunkerHtml(embedded, altFileName) {
-    // We extract the filename without extension
-    var targetName = '';
-    if (altFileName) {
-      targetName = altFileName.split('/').pop().slice(0, -5);
-    }
-    var target = embedded ? targetName : '_self';
+  _createBasePlunkerHtml(embedded) {
     var html = '<!DOCTYPE html><html lang="en"><body>'
-    html += `<form id="mainForm" method="post" action="${this.options.url}" target="${target}">`
+    html += `<form id="mainForm" method="post" action="${this.options.url}" target="_self">`
 
     // html += '<div class="button"><button id="formButton" type="submit">Create Plunker</button></div>'
     // html += '</form><script>document.getElementById("formButton").click();</script>'
@@ -183,8 +177,8 @@ class PlunkerBuilder {
     return postData;
   }
 
-  _createPlunkerHtml(postData, altFileName) {
-    var baseHtml = this._createBasePlunkerHtml(this.options.embedded, altFileName);
+  _createPlunkerHtml(postData) {
+    var baseHtml = this._createBasePlunkerHtml(this.options.embedded);
     var doc = jsdom.jsdom(baseHtml);
     var form = doc.querySelector('form');
     _.forEach(postData, (value, key) => {

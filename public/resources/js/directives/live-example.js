@@ -32,9 +32,9 @@ angularIO.directive('liveExample', ['$location', function ($location) {
 
   function span(text) { return '<span>' + text + '</span>'; }
 
-  function embeddedTemplate(src, name) {
+  function embeddedTemplate(src) {
     return '<div ng-if="embeddedShow">' +
-        '<iframe frameborder="0" width="100%" height="100%" name="' + name + '" src="' + src + '"></iframe>' +
+        '<iframe frameborder="0" width="100%" height="100%" src="' + src + '"></iframe>' +
       '</div>' +
       '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="/resources/images/plunker/placeholder.png" alt="plunker">';
   }
@@ -57,9 +57,9 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       var isForJs = attrs.lang === 'js' || NgIoUtil.isDoc($location, 'js');
       var exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
 
-      if (attrs.hasOwnProperty('embedded') && !isForDart) {
+      if (embedded && !isForDart) {
         href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html'
-        template = embeddedTemplate(href, plnkr);
+        template = embeddedTemplate(href);
       } else {
         var href = isForDart
           ? 'http://angular-examples.github.io/' + ex
