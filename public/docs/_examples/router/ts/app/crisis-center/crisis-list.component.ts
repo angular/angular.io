@@ -1,10 +1,9 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router }       from '@angular/router';
+import { Component, OnInit }      from '@angular/core';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
-import { Subscription }          from 'rxjs/Subscription';
 
 @Component({
   template: `
@@ -15,38 +14,38 @@ import { Subscription }          from 'rxjs/Subscription';
         <span class="badge">{{crisis.id}}</span> {{crisis.name}}
       </li>
     </ul>
+
+    <router-outlet></router-outlet>
   `
 })
-export class CrisisListComponent implements OnInit, OnDestroy {
+export class CrisisListComponent implements OnInit {
   crises: Crisis[];
-  private selectedId: number;
-  private sub: Subscription;
+  public selectedId: number;
 
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
-    private router: Router) { }
+    private router: Router
+  ) { }
 
-  isSelected(crisis: Crisis) { return crisis.id === this.selectedId; }
+  isSelected(crisis: Crisis) {
+    return crisis.id === this.selectedId;
+  }
 
   ngOnInit() {
-    this.sub = this.route
-      .params
-      .subscribe(params => {
-        this.selectedId = +params['id'];
-        this.service.getCrises()
-          .then(crises => this.crises = crises);
-      });
+    this.route.params.forEach((params: Params) => {
+      this.selectedId = params['id'];
+      this.service.getCrises()
+        .then(crises => this.crises = crises);
+    });
   }
 
-  ngOnDestroy() {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
-  }
-
+  // #docregion relative-navigation
   onSelect(crisis: Crisis) {
-    // Navigate with Absolute link
-    this.router.navigate(['/crisis-center', crisis.id]);
+    this.selectedId = crisis.id;
+
+    // Navigate with relative link
+    this.router.navigate([crisis.id], { relativeTo: this.route });
   }
+  // #enddocregion relative-navigation
 }
