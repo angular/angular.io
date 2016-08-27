@@ -25,7 +25,6 @@ import { Observable }     from 'rxjs/Observable';
   `,
   styles: ['input {width: 20em}']
 })
-
 export class CrisisDetailComponent implements OnInit {
   crisis: Crisis;
   editName: string;
@@ -34,7 +33,7 @@ export class CrisisDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public dialogService: DialogService
-    ) { }
+  ) { }
 
 // #docregion crisis-detail-resolve
   ngOnInit() {

@@ -8,10 +8,9 @@ import { Component }          from '@angular/core';
   template: `
     <h1 class="title">Component Router</h1>
     <nav>
-      <a routerLink="/crisis-center" routerLinkActive="active"
-         [routerLinkActiveOptions]="{ exact: true }">Crisis Center</a>
+      <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
       <a routerLink="/heroes" routerLinkActive="active">Heroes</a>
-      <a routerLink="/crisis-center/admin" routerLinkActive="active">Crisis Admin</a>
+      <a routerLink="/admin" routerLinkActive="active">Admin</a>
       <a routerLink="/login" routerLinkActive="active">Login</a>
     </nav>
     <router-outlet></router-outlet>

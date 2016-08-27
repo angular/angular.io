@@ -9,10 +9,10 @@ import { CrisisService }        from './crisis.service';
 import { CrisisDetailResolve }  from './crisis-detail-resolve.service';
 // #enddocregion crisis-detail-resolve
 
-import { CrisisCenterComponent } from './crisis-center.component';
-import { CrisisListComponent }   from './crisis-list.component';
-import { CrisisDetailComponent } from './crisis-detail.component';
-import { CrisisAdminComponent }  from './crisis-admin.component';
+import { CrisisCenterComponent }     from './crisis-center.component';
+import { CrisisListComponent }       from './crisis-list.component';
+import { CrisisCenterHomeComponent } from './crisis-center-home.component';
+import { CrisisDetailComponent }     from './crisis-detail.component';
 
 import { crisisCenterRouting } from './crisis-center.routing';
 
@@ -25,8 +25,8 @@ import { crisisCenterRouting } from './crisis-center.routing';
   declarations: [
     CrisisCenterComponent,
     CrisisListComponent,
-    CrisisDetailComponent,
-    CrisisAdminComponent
+    CrisisCenterHomeComponent,
+    CrisisDetailComponent
   ],
   // #docregion crisis-detail-resolve
 

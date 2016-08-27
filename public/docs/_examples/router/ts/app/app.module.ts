@@ -7,7 +7,8 @@ import { AppComponent }       from './app.component';
 import { routing,
          appRoutingProviders } from './app.routing';
 
-import { HeroesModule } from './heroes/heroes.module';
+import { HeroesModule }         from './heroes/heroes.module';
+import { CrisisCenterModule }   from './crisis-center/crisis-center.module';
 
 import { LoginComponent } from './login.component';
 
@@ -18,7 +19,8 @@ import { DialogService }  from './dialog.service';
     BrowserModule,
     FormsModule,
     routing,
-    HeroesModule
+    HeroesModule,
+    CrisisCenterModule
   ],
   declarations: [
     AppComponent,

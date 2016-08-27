@@ -1,12 +1,11 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router }       from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 
 import { Crisis, CrisisService }  from './crisis.service';
 import { DialogService }          from '../dialog.service';
 import { Observable }             from 'rxjs/Observable';
-import { Subscription }           from 'rxjs/Subscription';
 
 @Component({
   // #docregion template
@@ -29,13 +28,9 @@ import { Subscription }           from 'rxjs/Subscription';
   styles: ['input {width: 20em}']
 })
 // #docregion cancel-save
-export class CrisisDetailComponent implements OnInit, OnDestroy {
-
+export class CrisisDetailComponent implements OnInit {
   crisis: Crisis;
   editName: string;
-  // #enddocregion ngOnDestroy
-  private sub: Subscription;
-  // #enddocregion ngOnDestroy
 
 // #enddocregion cancel-save
   constructor(
@@ -47,9 +42,7 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.sub = this.route
-      .params
-      .subscribe(params => {
+    this.route.params.forEach((params: Params) => {
         let id = +params['id'];
         this.service.getCrisis(id)
           .then(crisis => {
@@ -63,14 +56,6 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
       });
   }
   // #enddocregion ngOnInit
-
-  // #enddocregion ngOnDestroy
-  ngOnDestroy() {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
-  }
-  // #enddocregion ngOnDestroy
 
   // #docregion cancel-save
   cancel() {
