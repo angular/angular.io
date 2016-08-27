@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 import { Component } from '@angular/core';
 
@@ -6,7 +5,6 @@ import { Component } from '@angular/core';
   selector: 'my-app',
   template: `<hero-form-template></hero-form-template>
              <hr>
-             <hero-form-model></hero-form-model>`
+             <hero-form-reactive></hero-form-reactive>`
 })
 export class AppComponent { }
-// #enddocregion

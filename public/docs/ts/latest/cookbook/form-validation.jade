@@ -2,91 +2,97 @@ include ../_util-fns
 
 <a id="top"></a>
 :marked
-   We want our data to be accurate and complete. By helping the user enter
-   appropriate data and confirming that data is valid, we can improve the quality of that incoming data.
-   
-   In this cookbook we show how to validate data and display useful validation messages using first the
-   template-driven forms and then the reactive forms approach.
+   We can improve overall data quality by validating user input for accuracy and completeness.
 
-   An Angular component is comprised of a template and a component class containing the code that drives the template.
-   The first example demonstrates how to validate data using only the template. The second technique
-   moves the validation logic out of the template and into the component class, giving you more control and better unit testing.
+   In this cookbook we show how to validate user input in the UI and display useful validation messages 
+   using first the template-driven forms and then the reactive forms approach.
+
+   An Angular component consists of a template and a component class containing the code that drives the template.
+   The first example demonstrates input validation entirely within the template. 
+   The second example moves the validation logic out of the template and into the component class, 
+   giving the developer more control and easier unit testing.
   
-   In these examples we use the form created in the [Forms chapter.](../guide/forms.html)
+   Both examples are based on the the sample form in the [Forms chapter.](../guide/forms.html)
 
 <a id="toc"></a>
 :marked
-   ## Table of contents
+  ## Contents
 
-      [Template-Driven Forms Approach](#template-driven)
+    [Template-Driven Forms Approach](#template-driven)
 
-      [Reactive Forms Approach](#model-driven)
+    [Reactive Forms Approach](#reactive)
 
-:marked
-   **See the [live example](/resources/live-examples/cb-validation/ts/plnkr.html)**.
+  **Try the live example**
+  <live-example name="cb-form-validation" embedded img="cookbooks/form-validation/plunker.png"></live-example>
 
 .l-main-section
 <a id="template-driven"></a>
 :marked
-   ## Template-Driven Forms Approach
+   ## Template-Driven Forms
 
-   Using the template-driven approach to form validation, the validation is defined in the template.
-   Each control on the form defines its validation, binding, and validation messages in the template.
+   In the template-driven approach,
+   each control on the form defines its own validation and validation messages in the template.
 
-+makeExample('cb-validation/ts/app/hero-form-template.component.html','name-with-error-msg','app/hero-form-template.component.html')
+   Here's an excerpt from the template html for a single input box control bound to the hero name:
++makeExample('cb-form-validation/ts/app/template/hero-form-template.component.html','name-with-error-msg','app/template/hero-form-template.component.html (Hero name)')
 
 :marked
-   Here we define a standard label and set up an input box for validation of the hero name as follows:
-      - Add the desired HTML validation attributes. In this example, 
-      we add `required`, `minlength`, and `maxlength` attributes on the input box to define the validation rules. 
-      - Set the `name` attribute of the input box. This is required for Angular to track this input element.
-      - Use `ngModel` binding to set the default value and track the user's changes to the input box.
-      This registers the input box as a control that is associated with the `ngForm` directive.
-      - Define a template reference variable (`name` in this example) that references the registered control.
-      We use this variable to reference this control when checking the control state, such as `valid` or `dirty`.
+  Note the following:
+  - The `<input>` element implements the validation rules as HTML validation attributes: `required`, `minlength`, and `maxlength`.
 
-   Next we define a `div` element for the validation error messages. 
-   We use the template reference variable to determine whether to display one of the validation messages.
-      - We use `*ngIf` to check whether the control has errors and whether it is `dirty` or `touched` before
-      displaying the validation block `div`.
-      - We then have a separate `div` for each possible validation error. In our example, we defined validation for
-      `required`, `minlength`, and `maxlength`, so we add one `div` for each one. Each `div` is marked with `[hidden]`
-      so the validation message is hidden unless the control has the specified error.
+  - Set the `name` attribute of the input box so Angular can track this input element.
 
-   Repeat for each data entry control on the form.
+  - The `[(ngModel)]` two-way data binding to the hero's name in the `model.name` property also 
+  registers the input box as a control associated with the implicit `NgForm` directive.
+  
+  - A template variable (`#name`) is a reference to this control.
+  that we can check for control states such as `valid` or `dirty`.
+  The template variable value is always `ngModel`.
+
+  - A `<div>` element for a group of validation error messages.
+  The `*ngIf` reveals the error group if there are any errors and
+  the control is either `dirty` or `touched`.
+
+  - Within the error group are separate `<div>` elements for each possible validation error. 
+  Here we've prepared messages for `required`, `minlength`, and `maxlength`.
+
+  The full template repeats this kind of layout for each data entry control on the form.
 .l-sub-section
   :marked
-    Adding the check for `dirty` or `touched` prevents display of errors before the user has a chance to edit the
-    value. This is most useful when adding new data, such as a new hero.
+    We shouldn't show errors for a new hero before the user has had a chance to edit the value.
+    The checks for `dirty` and `touched` prevent premature display of errors.
 
     Learn about `dirty` and `touched` in the [Forms](../guide/forms.html) chapter.
 :marked
-   The component class manages the model used in the data binding. And provides any other code required  by the view.
+   The component class manages the hero model used in the data binding
+   as well as other code to support the view.
 
-+makeExample('cb-validation/ts/app/hero-form-template.component.ts','class','app/hero-form-template.component.ts')
++makeExample('cb-form-validation/ts/app/template/hero-form-template.component.ts','class','app/template/hero-form-template.component.ts')
 
 :marked
    Use this template-driven validation technique when working with simple forms with simple validation scenarios.
 
-   Here's the complete solution for the template-driven approach:
+   Here are the pertinent files for the template-driven approach:
 
 +makeTabs( 
-  `cb-validation/ts/app/main.ts,
-   cb-validation/ts/app/app.module.ts,
-   cb-validation/ts/app/app.component.ts,
-   cb-validation/ts/app/hero.ts,
-   cb-validation/ts/app/hero-form-template.component.html,
-   cb-validation/ts/app/hero-form-template.component.ts`, 
+  `cb-form-validation/ts/app/template/hero-form-template.module.ts,
+   cb-form-validation/ts/app/template/hero-form-template.component.html,
+   cb-form-validation/ts/app/template/hero-form-template.component.ts,
+   cb-form-validation/ts/app/shared/hero.ts,
+   cb-form-validation/ts/app/shared/submitted.component.ts`, 
   '', 
-  'app/main.ts, app/app.module.ts, app/app.component.ts, app/hero.ts, app/hero-form-template.component.html, app/hero-form-template.component.ts' )
+  `app/template/hero-form-template.module.ts,
+   app/template/hero-form-template.component.html,
+   app/template/hero-form-template.component.ts,
+   app/shared/hero.ts,
+   app/shared/submitted.component.ts`)
 
 .l-main-section
-<a id="model-driven"></a>
+<a id="reactive"></a>
 :marked
-   ## Reactive Forms Approach
+   ## Reactive Forms
 
-   The alternate way to implement forms in Angular is to use reactive forms, previously called `model-driven forms`.
-   Using the reactive forms approach to form validation, the validation rules are specified in the model as 
+   Reactive forms are an alternate approach to form validation in the validation rules are specified in the model as 
    defined in the component class. Defining the validation in the class instead of the template gives you more control.
    You can adjust the validation based on the application state or user.
    Your code then becomes the source of truth for your validation.
@@ -100,7 +106,7 @@ include ../_util-fns
     When moving the validation attributes out of the HTML, we are no longer aria ready. Work is being done to
     address this. 
     
-+makeExample('cb-validation/ts/app/hero-form-model.component.ts','class','app/hero-form-model.component.ts')
++makeExample('cb-form-validation/ts/app/reactive/hero-form-reactive.component.ts','class','app/reactive/hero-form-reactive.component.ts')
 
 :marked
    In the component's class, we define the form and our own data structures to manage definition and display of the validation messages:
@@ -153,7 +159,7 @@ include ../_util-fns
    We'll use the form and `formError` collection properties in the template. Notice that when using the reactive forms approach, 
    the amount of code required for each control in the template is signficantly reduced.
 
-+makeExample('cb-validation/ts/app/hero-form-model.component.html','name-with-error-msg','app/hero-form-model.component.html')
++makeExample('cb-form-validation/ts/app/reactive/hero-form-reactive.component.html','name-with-error-msg','app/reactive/hero-form-reactive.component.html')
 
 :marked
    In the template, define a standard label and set up an input box for validation as follows:
@@ -173,17 +179,20 @@ include ../_util-fns
 
    Use this technique when you want better control over the validation rules and messsages.
 
-   Here's the complete solution for the reactive forms approach:
+   Here are the pertinent files for the reactive forms approach:
 
 +makeTabs( 
-  `cb-validation/ts/app/main.ts,
-   cb-validation/ts/app/app.module.ts,
-   cb-validation/ts/app/app.component.ts,
-   cb-validation/ts/app/hero.ts,
-   cb-validation/ts/app/hero-form-model.component.html,
-   cb-validation/ts/app/hero-form-model.component.ts`, 
+  `cb-form-validation/ts/app/reactive/hero-form-reactive.module.ts,
+   cb-form-validation/ts/app/reactive/hero-form-reactive.component.html,
+   cb-form-validation/ts/app/reactive/hero-form-reactive.component.ts,
+   cb-form-validation/ts/app/shared/hero.ts,
+   cb-form-validation/ts/app/shared/submitted.component.ts`, 
   '', 
-  'app/main.ts, app/app.module.ts, app/app.component.ts, app/hero.ts, app/hero-form-model.component.html, app/hero-form-model.component.ts' )
+  `app/reactive/hero-form-reactive.module.ts,
+   app/reactive/hero-form-reactive.component.html,
+   app/reactive/hero-form-reactive.component.ts,
+   app/shared/hero.ts,
+   app/shared/submitted.component.ts`)
 
 :marked
   [Back to top](#top)
