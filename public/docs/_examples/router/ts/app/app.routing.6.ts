@@ -9,24 +9,9 @@ import { loginRoutes,
 
 import { CanDeactivateGuard } from './can-deactivate-guard.service';
 
-// #docregion lazy-load-crisis-center
-const crisisCenterRoutes: Routes = [
-  {
-    path: '',
-    redirectTo: '/crisis-center',
-    pathMatch: 'full'
-  },
-  {
-    path: 'crisis-center',
-    loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
-  }
-];
-
 const appRoutes: Routes = [
-  ...loginRoutes,
-  ...crisisCenterRoutes
+  ...loginRoutes
 ];
-// #enddocregion lazy-load-crisis-center
 
 export const appRoutingProviders: any[] = [
   authProviders,
@@ -34,14 +19,3 @@ export const appRoutingProviders: any[] = [
 ];
 
 export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);
-// #enddocregion
-
-/* A link parameters array
-// #docregion heroes-redirect
-{
-  path: '',
-  redirectTo: '/heroes',
-  pathMatch: 'full'
-},
-// #enddocregion heroes-redirect
-*/

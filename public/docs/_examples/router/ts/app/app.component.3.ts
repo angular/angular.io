@@ -1,7 +1,7 @@
 /* tslint:disable:no-unused-variable */
 // #docplaster
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router }    from '@angular/router';
 
 @Component({
   selector: 'my-app',
@@ -36,7 +36,7 @@ import { Router } from '@angular/router';
   */
 // #docregion template
   template: `
-    <h1 class="title">Component Router</h1>
+    <h1 class="title">Angular Router</h1>
     <nav>
       <a [routerLink]="['/crisis-center']">Crisis Center</a>
       <a [routerLink]="['/crisis-center/1', { foo: 'foo' }]">Dragon Crisis</a>

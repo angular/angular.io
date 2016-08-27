@@ -3,7 +3,6 @@ import { Injectable }           from '@angular/core';
 import { CanDeactivate,
          ActivatedRouteSnapshot,
          RouterStateSnapshot }  from '@angular/router';
-import { Observable }           from 'rxjs/Observable';
 
 import { CrisisDetailComponent } from './crisis-center/crisis-detail.component';
 
@@ -14,7 +13,7 @@ export class CanDeactivateGuard implements CanDeactivate<CrisisDetailComponent> 
     component: CrisisDetailComponent,
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): Observable<boolean> | Promise<boolean> | boolean {
+  ): Promise<boolean> | boolean {
     // Get the Crisis Center ID
     console.log(route.params['id']);
 
