@@ -32,11 +32,11 @@ angularIO.directive('liveExample', ['$location', function ($location) {
 
   function span(text) { return '<span>' + text + '</span>'; }
 
-  function embeddedTemplate(src) {
+  function embeddedTemplate(src, img) {
     return '<div ng-if="embeddedShow">' +
         '<iframe frameborder="0" width="100%" height="100%" src="' + src + '"></iframe>' +
       '</div>' +
-      '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="/resources/images/plunker/placeholder.png" alt="plunker">';
+      '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="' + img + '" alt="plunker">';
   }
 
   return {
@@ -48,6 +48,8 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       var embedded = attrs.hasOwnProperty('embedded');
       var plnkr = embedded ? 'eplnkr' : 'plnkr';
       var href, template;
+      var imageBase  = '/resources/images/';
+      var defaultImg = 'plunker/placeholder.png';
 
       if (attrs.plnkr) {
         plnkr = attrs.plnkr + '.' + plnkr;
@@ -58,8 +60,9 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       var exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
 
       if (embedded && !isForDart) {
-        href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html'
-        template = embeddedTemplate(href);
+        href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html';
+        img = imageBase + (attrs.img || defaultImg);
+        template = embeddedTemplate(href, img);
       } else {
         var href = isForDart
           ? 'http://angular-examples.github.io/' + ex
