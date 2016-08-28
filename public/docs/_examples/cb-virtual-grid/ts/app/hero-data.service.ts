@@ -1,21 +1,24 @@
 // #docregion
-import { Row }    from './row';
+import { Injectable } from '@angular/core';
 
+import { Row } from './row';
+
+@Injectable()
 export class HeroDataService {
 
-  getApplicants(count: number): Array<Row> {
-
-    let rows: Array<Row> = [];
-    let heroes: Array<string> = ['Mr. Nice',
-                                'Narco',
-                                'Bombasto',
-                                'Celeritas',
-                                'Magneta',
-                                'RubberMan',
-                                'Dynama',
-                                'Dr IQ',
-                                'Magma',
-                                'Tornado'];
+  getApplicants(count: number): Row[] {
+    let rows: Row[] = [];
+    let heroes: string[] = ['Mr. Nice',
+      'Narco',
+      'Bombasto',
+      'Celeritas',
+      'Magneta',
+      'RubberMan',
+      'Dynama',
+      'Dr IQ',
+      'Magma',
+      'Tornado'
+    ];
 
     for (let i = 0; i < count; i++) {
       let heroIndex = this.generateRandomNumber(heroes.length - 1);
@@ -25,7 +28,7 @@ export class HeroDataService {
     return rows;
   }
 
-  private generateRandomNumber(upperBound: number) {
+  private generateRandomNumber(upperBound: number): number {
     return Math.floor(Math.random() * upperBound);
   }
 

@@ -5,9 +5,9 @@ import { Row }             from './row';
 
 @Injectable()
 export class HeroGridSortingService {
-  sortDirection: number = 1;
+  sortDirection = 1;
 
-  sort(rows: Array<Row>, colIndex: number) {
+  sort(rows: Array<Row>, colIndex: number): void {
     this.sortDirection *= -1;
     rows.sort((a, b) => {
        if (a.columns[colIndex].cellValue === b.columns[colIndex].cellValue) {

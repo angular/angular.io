@@ -10,13 +10,12 @@ import { Row }                    from './row';
 
 @Component({
   selector: 'hero-grid',
-  directives: [CellComponent],
   providers: [HeroGridService, KeyCodeService, HeroDataService, HeroGridSortingService],
   template: `<h1>Hero Grid</h1>
             <table id="hero-grid">
               <tr>
                 <td class="row-number-column"></td>
-                <td (click)="sort(colIndex)" class="columnHeader" 
+                <td (click)="sort(colIndex)" class="columnHeader"
                     *ngFor="let columnHeader of heroGridService.header; let colIndex = index">
                   {{columnHeader}}
                 </td>
@@ -26,10 +25,10 @@ import { Row }                    from './row';
                   {{heroGridService.rows.indexOf(row)}}
                 </td>
                 <td *ngFor="let col of row.columns">
-                  <grid-cell [id]="heroGridService.createCellSelector(row, col)" 
-                        [col]="col" 
+                  <grid-cell [id]="heroGridService.createCellSelector(row, col)"
+                        [col]="col"
                         (navigate)="navigate($event)">
-                  </grid-cell>       
+                  </grid-cell>
                 </td>
               </tr>
             </table>`
@@ -38,25 +37,23 @@ import { Row }                    from './row';
 export class HeroGridComponent implements AfterViewChecked {
 
   visibleRows: Array<Row> = [];
-  heroGridService: HeroGridService;
   @ViewChildren(CellComponent) cells: QueryList<CellComponent>;
 
-  constructor(heroGridService: HeroGridService) {
-    this.heroGridService = heroGridService;
+  constructor(public heroGridService: HeroGridService) {
     this.visibleRows = this.heroGridService.getVisibleRows();
   }
 
-  navigate($event: any) {
+  navigate($event: any): void {
     this.heroGridService.navigate($event.keyCode);
     this.visibleRows = this.heroGridService.getVisibleRows();
   }
 
-  sort(columnIndex: number) {
+  sort(columnIndex: number): void {
     this.heroGridService.sort(columnIndex);
     this.visibleRows = this.heroGridService.getVisibleRows();
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     let id = this.heroGridService.getCurrentCellSelector();
     let currentCell = this.cells.toArray().find(cell => cell.id === id);
     currentCell.select();

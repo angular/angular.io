@@ -10,20 +10,15 @@ import { Row }                    from './row';
 @Injectable()
 export class HeroGridService {
   static maxRows = 1000;
-  header: Array<string> = ['Name', 'Ranking', 'Age'];
-  rows: Array<Row>;
+  header: string[] = ['Name', 'Ranking', 'Age'];
+  rows: Row[];
   currentColumn: Column;
-  currentRowIndex: number = 0;
+  currentRowIndex = 0;
 
   private gridWindow: any;
 
-  keyCodeService: KeyCodeService;
-  sortingService: HeroGridSortingService;
-
-  constructor(keyCodeService: KeyCodeService, heroDataService: HeroDataService, sortingService: HeroGridSortingService) {
-    this.keyCodeService = keyCodeService;
+  constructor(private keyCodeService: KeyCodeService, private sortingService: HeroGridSortingService, heroDataService: HeroDataService) {
     this.rows = heroDataService.getApplicants(HeroGridService.maxRows);
-    this.sortingService = sortingService;
 
     this.init();
 
@@ -34,12 +29,12 @@ export class HeroGridService {
     }
   }
 
-  selectColumn(col: Column) {
+  selectColumn(col: Column): void {
     this.currentColumn = col;
     this.currentRowIndex = this.rows.indexOf(this.currentColumn.row);
   }
 
-  sort(colIndex: number) {
+  sort(colIndex: number): void {
     this.sortingService.sort(this.rows, colIndex);
     this.init();
   }
@@ -48,20 +43,20 @@ export class HeroGridService {
     return 'cell' + this.rows.indexOf(row) + '-' + row.columns.indexOf(col);
   }
 
-  getCurrentCellSelector() {
+  getCurrentCellSelector(): string {
     let cellIndex = this.rows[this.currentRowIndex].columns.indexOf(this.currentColumn);
     return 'cell' + this.currentRowIndex + '-' + cellIndex;
   }
 
-  getVisibleRows() {
-    let visible: Array<Row> = [];
+  getVisibleRows(): Row[] {
+    let visible: Row[] = [];
     for (let i = this.gridWindow.start; i <= this.gridWindow.end; i++) {
       visible.push(this.rows[i]);
     }
     return visible;
   }
 
-  navigate(keyCode: number) {
+  navigate(keyCode: number): void {
     let navDirection = this.keyCodeService.getNavigationKey(keyCode);
 
     if (navDirection.down) {
@@ -92,30 +87,30 @@ export class HeroGridService {
     this.currentRowIndex = this.rows.indexOf(this.currentColumn.row);
   }
 
-  private adjustRowRangeUpward() {
+  private adjustRowRangeUpward(): void {
     if (this.currentRowIndex <= this.gridWindow.start) {
       this.shiftRowsBy(-1);
     }
   }
 
-  private adjustRowRangeDownward() {
+  private adjustRowRangeDownward(): void {
     if (this.currentRowIndex === this.gridWindow.end) {
       this.shiftRowsBy(1);
     }
   }
 
-  private shiftRowsBy(offset: number) {
+  private shiftRowsBy(offset: number): void {
     this.gridWindow.start = this.gridWindow.start + offset;
     this.gridWindow.end = this.gridWindow.end + offset;
   }
 
-  private ensureRow() {
+  private ensureRow(): void {
     if (this.currentRowIndex + 1 >= this.rows.length) {
       this.rows.push(new Row(this.header.length));
     }
   }
 
-  private init() {
+  private init(): void {
     this.gridWindow = {pageSize: 10, start: 0, end: 10};
     this.currentColumn = this.rows[0].columns[0];
     this.currentRowIndex = 0;

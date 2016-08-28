@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
 
-import { HeroGridComponent } from './hero-grid.component';
-
 @Component({
   selector: 'my-app',
-  template: '<hero-grid></hero-grid>',
-  directives: [HeroGridComponent]
+  template: '<hero-grid></hero-grid>'
 })
 
 export class AppComponent {

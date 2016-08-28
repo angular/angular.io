@@ -1,4 +1,7 @@
 // #docregion
+import { Injectable } from '@angular/core';
+
+@Injectable()
 export class KeyCodeService {
 
   getNavigationKey(keyCode: number): any {

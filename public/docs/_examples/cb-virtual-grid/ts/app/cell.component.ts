@@ -7,7 +7,7 @@ import { KeyCodeService }  from './key-code.service';
 
 @Component({
   selector: 'grid-cell',
-  template: `<input #input 
+  template: `<input #input
                     [value]="col.cellValue"
                     [id]="id"
                     (input)="col.cellValue = $event.target.value"
@@ -24,11 +24,11 @@ export class CellComponent {
               private renderer: Renderer, private keyCodeService: KeyCodeService) {
   }
 
-  select() {
+  select(): void {
     this.renderer.invokeElementMethod(this.input.nativeElement, 'focus');
   }
 
-  onKeyDown(e: any) {
+  onKeyDown(e: any): boolean {
     let key = this.keyCodeService.getNavigationKey(e.keyCode);
     if (key.isArrowKey) {
       this.navigate.emit(e);
