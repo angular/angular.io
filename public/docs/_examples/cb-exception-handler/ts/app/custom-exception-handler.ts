@@ -1,21 +1,14 @@
 // #docregion
-import { ExceptionHandler } from '@angular/core';
-import { Injectable } from '@angular/core';
+import { ExceptionHandler, Injectable } from '@angular/core';
 
 import { ErrorLoggingService } from './error-logging.service';
 
 // #docregion class
 @Injectable()
 export class CustomExceptionHandler {
-  private errorLogggingService: ErrorLoggingService;
+  constructor(private errorLogggingService: ErrorLoggingService) {}
 
-  constructor(errorLogggingService: ErrorLoggingService) {
-    this.errorLogggingService = errorLogggingService;
-  }
-
-  // Public methods.
-
-  public call(exception: any, stackTrace?: any, reason?: string) {
+  call(exception: any, stackTrace?: any, reason?: string): void {
     this.logToConsole(exception, stackTrace, reason);
 
     try {
@@ -31,9 +24,7 @@ export class CustomExceptionHandler {
     }
   }
 
-  // Private methods.
-
-  private logToConsole(exception: any, stackTrace?: any, reason?: string) {
+  private logToConsole(exception: any, stackTrace?: any, reason?: string): void {
     // Even though we are replacing the core _instance_ of the ExceptionHandler, we can
     // still leverage the core class' static method for stringification of the error.
     let stringified = ExceptionHandler.exceptionToString(exception, stackTrace, reason);
@@ -49,7 +40,7 @@ export class CustomExceptionHandler {
     while (exception.originalException) {
       exception = exception.originalException;
     }
-    return(exception);
+    return exception;
   }
 }
 // #enddocregion class

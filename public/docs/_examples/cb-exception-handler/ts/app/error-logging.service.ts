@@ -5,11 +5,7 @@ import { Injectable } from '@angular/core';
 // #docregion class
 @Injectable()
 export class ErrorLoggingService {
-  constructor() {}
-
-  // Public methods.
-
-  public log(error: any) {
+  log(error: any) {
     // Internal tracking.
     this.sendToConsole(error);
     this.sendToServer(error);
@@ -21,9 +17,7 @@ export class ErrorLoggingService {
     this.sendToTrackJs(error);
   }
 
-  // Private methods.
-
-  private sendToConsole(error: any) {
+  private sendToConsole(error: any): void {
     if (console && console.group && console.error) {
       console.group('Error Logging Service');
       console.error(error);
@@ -31,23 +25,23 @@ export class ErrorLoggingService {
     }
   }
 
-  private sendToRollbar(error: any) {
+  private sendToRollbar(error: any): void {
     // Example: Rollbar.error(error);
   }
 
-  private sendToNewRelic(error: any) {
+  private sendToNewRelic(error: any): void {
     // Example: newrelic.noticeError(error);
   }
 
-  private sendToRaygun(error: any) {
+  private sendToRaygun(error: any): void {
     // Example: Raygun.send(error);
   }
 
-  private sendToServer(error: any) {
+  private sendToServer(error: any): void {
     // ... use http service to send error to your own server.
   }
 
-  private sendToTrackJs(error: any) {
+  private sendToTrackJs(error: any): void {
     // Example: trackJs.track(error);
   }
 }

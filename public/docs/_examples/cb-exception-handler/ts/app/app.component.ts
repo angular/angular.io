@@ -5,8 +5,7 @@ import { Component } from '@angular/core';
 // #docregion component
 @Component({
   selector: 'my-app',
-  template:
-  `
+  template: `
     <p>
       <a (click)="throwError()">Throw an Error</a> <em>(and watch console)</em>.
     </p>
@@ -16,7 +15,7 @@ import { Component } from '@angular/core';
 export class AppComponent {
   constructor() {}
 
-  public throwError() {
+  throwError(): void {
     throw(new Error('No Disassemble!'));
   }
 }
