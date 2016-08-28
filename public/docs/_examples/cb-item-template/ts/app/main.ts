@@ -1,13 +1,6 @@
-/* tslint:disable */
 // #docregion
-import { bootstrap } from '@angular/platform-browser-dynamic';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { AppComponent } from './app.component';
+import { AppModule } from './app.module';
 
-bootstrap(AppComponent).then(
-  () => window.console.info('Angular finished bootstrapping your application!'),
-  (error) => {
-    console.warn('Angular was not able to bootstrap your application.');
-    console.error(error);
-  }
-);
+platformBrowserDynamic().bootstrapModule(AppModule);

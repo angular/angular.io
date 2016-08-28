@@ -1,7 +1,6 @@
 // #docplaster
 // #docregion
 import { Component } from '@angular/core';
-import { SimpleSelectComponent } from './simple-select.component';
 
 interface Color {
   hex: string;
@@ -11,9 +10,7 @@ interface Color {
 // #docregion metadata
 @Component({
   selector: 'my-app',
-  directives: [ SimpleSelectComponent ],
-  template:
-  `
+  template: `
     <p>
       Selected color: {{ selectedColor?.name || "None selected" }}.
     </p>
@@ -25,13 +22,13 @@ interface Color {
       </template>
     </simple-select>
 
-    <simple-select 
+    <simple-select
       [items]="colors"
       [(value)]="selectedColor"
-      [template]="externalTemplate">
+      [template]="itemTemplateRef">
     </simple-select>
 
-    <template #externalTemplate let-item="item">
+    <template #itemTemplateRef let-item="item">
       <span class="name" [style.color]="item.hex">
         {{ item.hex }} &mdash; {{ item.name }}
       </span>
@@ -40,11 +37,10 @@ interface Color {
 })
 // #enddocregion metadata
 export class AppComponent {
+  colors: Color[];
+  selectedColor: Color;
 
-  public colors: Color[];
-  public selectedColor: Color;
-
-  public constructor() {
+  constructor() {
     this.colors = [
       { hex: '#000000', name: 'Black' },
       { hex: '#FFFFFF', name: 'White' },
@@ -54,7 +50,7 @@ export class AppComponent {
       { hex: '#6DC066', name: 'Green' },
       { hex: '#FF00FF', name: 'Magenta' }
     ];
-    this.selectedColor = this.colors[ 0 ];
+    this.selectedColor = this.colors[0];
   }
 
 }

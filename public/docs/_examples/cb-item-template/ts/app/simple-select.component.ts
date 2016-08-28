@@ -21,18 +21,18 @@ interface ItemContext {
   template:
   `
     <button (click)="toggleItems()" class="select-root">
-      
-      <template 
+
+      <template
         [ngTemplateOutlet]="itemTemplateRef"
         [ngOutletContext]="{ item: value, index: -1 }">
       </template>
 
     </button>
-  
+
     <ul *ngIf="isShowingItems" class="select-items">
-      <li *ngFor="let item of items ; let index = index ;" (click)="selectItem( item )">
-        
-        <template 
+      <li *ngFor="let item of items ; let index = index" (click)="selectItem(item)">
+
+        <template
           [ngTemplateOutlet]="itemTemplateRef"
           [ngOutletContext]="{ item: item, index: index }">
         </template>
@@ -43,20 +43,11 @@ interface ItemContext {
 })
 // #enddocregion metadata
 export class SimpleSelectComponent {
-
-  public isShowingItems: boolean;
-  @Input() public items: any[];
-  public itemTemplateRef: TemplateRef<ItemContext>;
-  @Input() public value: any;
-  @Output() public valueChange: EventEmitter<any>;
-
-  constructor() {
-    this.isShowingItems = false;
-    this.items = [];
-    this.itemTemplateRef = null;
-    this.value = null;
-    this.valueChange = new EventEmitter();
-  }
+  isShowingItems = false;
+  itemTemplateRef: TemplateRef<ItemContext>;
+  @Input() items: any[] = [];
+  @Input() value: any;
+  @Output() valueChange = new EventEmitter<any>();
 
   // #docregion setters
   @Input()
@@ -74,12 +65,12 @@ export class SimpleSelectComponent {
   }
   // #enddocregion setters
 
-  public selectItem(item: any) {
+  selectItem(item: any): void {
     this.valueChange.emit(item);
     this.toggleItems();
   }
 
-  public toggleItems() {
+  toggleItems(): void {
     this.isShowingItems = ! this.isShowingItems;
   }
 
