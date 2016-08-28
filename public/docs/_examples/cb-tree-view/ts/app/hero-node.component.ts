@@ -11,7 +11,7 @@ export class HeroNodeComponent implements OnInit {
   @Input() hero: Hero;
   heroClass: string;
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.hero.ranking > 7) {
       this.heroClass = 'hero-top';
     }else if (this.hero.ranking > 4) {

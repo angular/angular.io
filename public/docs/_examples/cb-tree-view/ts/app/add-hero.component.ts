@@ -9,24 +9,22 @@ import { Hero }              from './hero';
     templateUrl: 'app/add-hero.component.html'
 })
 export class AddHeroComponent implements OnInit {
-
   hero: Hero;
 
-  constructor(private treeNodeService: TreeNodeService) {
-  }
+  constructor(private treeNodeService: TreeNodeService) { }
 
-  addHero() {
+  addHero(): void {
     if (this.hero.name) {
       this.treeNodeService.addHero(this.hero);
       this.hero = new Hero();
     }
   }
 
-  cancel() {
+  cancel(): void {
     this.treeNodeService.selectedNode.unselect();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.hero = new Hero();
   }
 }

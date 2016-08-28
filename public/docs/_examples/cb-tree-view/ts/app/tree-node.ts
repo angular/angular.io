@@ -6,11 +6,11 @@ export class TreeNode {
   expanded: boolean = false;
   selected: boolean = false;
 
-  constructor(public title: string, public nodes?: Array<TreeNode>, public heroes?: Array<Hero>) {
+  constructor(public title: string, public nodes?: TreeNode[], public heroes?: Hero[]) {
   }
 
-  getIcon() {
-    if (this._hasChildren()) {
+  getIcon(): string {
+    if (this.hasChildren()) {
       if (this.expanded) {
         return '-';
       }
@@ -19,23 +19,23 @@ export class TreeNode {
     return '';
   }
 
-  toggle() {
+  toggle(): void {
     this.expanded = !this.expanded;
     if (this.expanded === false) {
       this.selected = false;
     }
   }
 
-  select() {
+  select(): void {
     this.selected = true;
     this.expanded = true;
   }
 
-  unselect() {
+  unselect(): void {
     this.selected = false;
   }
 
-  private _hasChildren() {
+  private hasChildren() {
     return (this.nodes.length + this.heroes.length) > 0;
   }
 }

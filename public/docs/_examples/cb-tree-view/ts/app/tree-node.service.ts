@@ -7,42 +7,40 @@ import { Hero }       from './hero';
 
 @Injectable()
 export class TreeNodeService {
-
-  private _root = new TreeNode('Hero Regions', [], []);
+  private root = new TreeNode('Hero Regions', [], []);
   selectedNode: TreeNode;
 
-  constructor(private _http: Http) {
-  }
+  constructor(private http: Http) {}
 
   // #docregion build-tree
-  private _buildTreeRecursive(root: TreeNode, nodes: Array<any>): TreeNode {
+  private buildTreeRecursive(root: TreeNode, nodes: any[]): TreeNode {
     if (nodes) {
       nodes.forEach(node => {
         let heroes = (node.heroes || []).map((hero: any) => new Hero(hero.name, hero.ranking));
         let treeNode = new TreeNode(node.title, [], heroes);
-        root.nodes.push(this._buildTreeRecursive(treeNode, node.nodes));
+        root.nodes.push(this.buildTreeRecursive(treeNode, node.nodes));
         return treeNode;
       });
     }
     return root;
   }
 
-  getTreeNodes(): any {
-    return this._http.get('./app/mock-data.json')
+  getTreeNodes(): Promise<TreeNode[]> {
+    return this.http.get('./app/mock-data.json')
                .toPromise()
                .then(res => {
-                 let root = this._buildTreeRecursive(this._root, res.json().nodes);
+                 let root = this.buildTreeRecursive(this.root, res.json().nodes);
                  return root.nodes;
                });
   }
-  // #enddocregion build-tree   
+  // #enddocregion build-tree
 
-  addHero(newHero: Hero) {
+  addHero(newHero: Hero): void {
     this.selectedNode.heroes.push(newHero);
   }
 
   // #docregion toggle-nodes
-  toggleNodes(nodes: Array<TreeNode>, state: boolean) {
+  toggleNodes(nodes: TreeNode[], state: boolean): void {
     nodes.forEach(node => {
       node.expanded = state;
       this.toggleNodes(node.nodes, state);
@@ -50,7 +48,7 @@ export class TreeNodeService {
   }
   // #enddocregion toggle-nodes
 
-  selectNode(node: TreeNode) {
+  selectNode(node: TreeNode): void {
     if (this.selectedNode) {
       this.selectedNode.unselect();
     }

@@ -1,7 +1,6 @@
 // #docregion
 import { Component, OnInit } from '@angular/core';
 
-import { TreeViewComponent } from './tree-view.component';
 import { TreeNode }          from './tree-node';
 import { TreeNodeService }   from './tree-node.service';
 
@@ -10,25 +9,22 @@ import { TreeNodeService }   from './tree-node.service';
   template: `
     <div>
       <h2>Hero locations</h2>
-      <button (click)="_treeNodeService.toggleNodes(_nodes,true)">Expand All</button>
-      <button (click)="_treeNodeService.toggleNodes(_nodes,false)">Collapse All</button>
-      <tree-view id="heroes" [nodes]="_nodes"></tree-view>
+      <button (click)="treeNodeService.toggleNodes(nodes,true)">Expand All</button>
+      <button (click)="treeNodeService.toggleNodes(nodes,false)">Collapse All</button>
+      <tree-view id="heroes" [nodes]="nodes"></tree-view>
     </div>
-  `,
-  directives: [TreeViewComponent],
-  providers:  [TreeNodeService]
+  `
 })
 export class AppComponent implements OnInit {
+  nodes: TreeNode[] = [];
 
-  private _nodes: Array<TreeNode> = [];
-
-  constructor(private _treeNodeService: TreeNodeService) {
+  constructor(private treeNodeService: TreeNodeService) {
   }
 
   ngOnInit() {
-    this._treeNodeService
+    this.treeNodeService
         .getTreeNodes()
-        .then((nodes: Array<TreeNode>) => this._nodes = nodes)
+        .then((nodes: TreeNode[]) => this.nodes = nodes)
         .catch((error: any) => console.log(error)); // TODO: Display error
   }
 }

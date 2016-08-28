@@ -1,6 +1,4 @@
 // #docregion
 export class Hero {
-
-  constructor(public name?: string, public ranking?: number) {
-  }
+  constructor(public name?: string, public ranking?: number) {  }
 }
