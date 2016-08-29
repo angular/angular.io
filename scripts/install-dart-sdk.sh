@@ -13,7 +13,8 @@ if  [[ -z "$(type -t dart)" ]]; then
     # https://storage.googleapis.com/dart-archive/channels/stable/release/latest/dartium/dartium-macos-x64-release.zip
 
     DART_ARCHIVE=https://storage.googleapis.com/dart-archive/channels
-    VERS=stable/release/latest
+    # VERS=stable/release/latest
+    VERS=stable/release/1.18.1
 
     mkUrl() {
         local dir=$1

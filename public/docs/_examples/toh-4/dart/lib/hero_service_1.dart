@@ -13,7 +13,7 @@ class HeroService {
   // #enddocregion getHeroes-stub, empty-class, final
   /*
   // #docregion getHeroes-stub
-  List<Hero> getHeroes() {}
+  List<Hero> getHeroes() {} // stub
   // #enddocregion getHeroes-stub
   */
   // #docregion final

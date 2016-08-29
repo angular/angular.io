@@ -27,10 +27,10 @@ This site relies heavily on node and npm.
 1. Make sure you are using at least node v.5+ and latest npm; 
 if not install [nvm](https://github.com/creationix/nvm) to get node going on your machine.
 
-1. install these npm packages *globally*: `npm install -g harp gulp`
+1. Install these npm packages *globally*: `npm install -g harp gulp`
 
-1. clone this repo and the [angular source code repo](https://github.com/angular/angular) to the same parent directory.
-The two cloned repo directories must be sibling.
+1. Clone this repo, the [angular/angular source code repo](https://github.com/angular/angular), and the [dart-lang/angular2 source code repo](https://github.com/dart-lang/angular2) to the same parent directory.
+The three cloned repo directories must be siblings, with the latter two repo directories named **angular** and **angular-dart**, respectively.
 
 1. cd into root directory `angular.io/`
 

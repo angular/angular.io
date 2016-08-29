@@ -22,7 +22,7 @@ export class WikipediaService {
     // TODO: Add error handling
     return this.jsonp
                .get(wikiUrl, { search: params })
-               .map(request => <string[]> request.json()[1]);
+               .map(response => <string[]> response.json()[1]);
     // #enddocregion call-jsonp
   }
 }

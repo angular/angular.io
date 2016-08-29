@@ -1,8 +1,5 @@
-// #docplaster
-// #docregion, variables-imports
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
-// #enddocregion variables-imports
+// #docregion
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 
 import { Hero }        from './hero';
@@ -13,50 +10,30 @@ import { HeroService } from './hero.service';
   templateUrl: 'app/hero-detail.component.html',
   styleUrls: ['app/hero-detail.component.css']
 })
-// #docregion variables-imports
 export class HeroDetailComponent implements OnInit {
-  @Input() hero: Hero;
-  @Output() close = new EventEmitter();
-  error: any;
-  navigated = false; // true if navigated here
-  // #enddocregion variables-imports
+  hero: Hero;
 
   constructor(
     private heroService: HeroService,
     private route: ActivatedRoute) {
   }
 
-  // #docregion ngOnInit
   ngOnInit(): void {
     this.route.params.forEach((params: Params) => {
-      if (params['id'] !== undefined) {
-        let id = +params['id'];
-        this.navigated = true;
-        this.heroService.getHero(id)
-            .then(hero => this.hero = hero);
-      } else {
-        this.navigated = false;
-        this.hero = new Hero();
-      }
+      let id = +params['id'];
+      this.heroService.getHero(id)
+        .then(hero => this.hero = hero);
     });
   }
-  // #enddocregion ngOnInit
 
   // #docregion save
   save(): void {
-    this.heroService
-        .save(this.hero)
-        .then(hero => {
-          this.hero = hero; // saved hero, w/ id if new
-          this.goBack(hero);
-        })
-        .catch(error => this.error = error); // TODO: Display error message
+    this.heroService.update(this.hero)
+      .then(this.goBack);
   }
   // #enddocregion save
-  // #docregion goBack
-  goBack(savedHero: Hero = null): void {
-    this.close.emit(savedHero);
-    if (this.navigated) { window.history.back(); }
+
+  goBack(): void {
+    window.history.back();
   }
-  // #enddocregion goBack
 }
