@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { HeroesComponent } from './+heroes';
+import { HeroesComponent } from './heroes';
 
 @NgModule({
   imports: [
