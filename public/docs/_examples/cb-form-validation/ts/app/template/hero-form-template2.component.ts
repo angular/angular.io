@@ -1,31 +1,27 @@
 /* tslint:disable: member-ordering forin */
 // #docplaster
 // #docregion
-import { Component, OnInit }                  from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Component, AfterViewChecked, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 
-import { Hero }                   from '../shared/hero';
-import { forbiddenNameValidator } from '../shared/forbidden-name.directive';
+import { Hero }      from '../shared/hero';
 
 @Component({
   moduleId:  module.id,
-  selector: 'hero-form-reactive3',
-  templateUrl: 'hero-form-reactive.component.html'
+  selector: 'hero-form-template2',
+  templateUrl: 'hero-form-template2.component.html'
 })
-export class HeroFormReactiveComponent implements OnInit {
+export class HeroFormTemplate2Component implements AfterViewChecked {
 
   powers = ['Really Smart', 'Super Flexible', 'Weather Changer'];
 
-  hero = new Hero(18, 'Dr. WhatIsHisName', this.powers[0], 'Dr. What');
+  hero = new Hero(18, 'Dr. WhatIsHisWayTooLongName', this.powers[0], 'Dr. What');
 
   submitted = false;
 
-  // #docregion on-submit
   onSubmit() {
     this.submitted = true;
-    this.hero = this.heroForm.value;
   }
-  // #enddocregion on-submit
 // #enddocregion
 
   // Reset the form with a new hero AND restore 'pristine' class state
@@ -34,50 +30,35 @@ export class HeroFormReactiveComponent implements OnInit {
   // TODO: Workaround until NgForm has a reset method (#6822)
   active = true;
 // #docregion
-  // #docregion add-hero
+
   addHero() {
     this.hero = new Hero(42, '', '');
-    this.buildForm();
-    this.onValueChanged();
-  // #enddocregion add-hero
-// #enddocregion class
+// #enddocregion
 
     this.active = false;
     setTimeout(() => this.active = true, 0);
 // #docregion
-  // #docregion add-hero
-  }
-  // #enddocregion add-hero
-
-  // #docregion form-builder
-  heroForm: FormGroup;
-  constructor(private fb: FormBuilder) { }
-
-  ngOnInit(): void {
-    this.buildForm();
   }
 
-  buildForm(): void {
-    this.heroForm = this.fb.group({
-      // #docregion name-validators
-      'name': [this.hero.name, [
-          Validators.required,
-          Validators.minLength(4),
-          Validators.maxLength(24),
-          forbiddenNameValidator(/bob/i)
-        ]
-      ],
-      // #enddocregion name-validators
-      'alterEgo': [this.hero.alterEgo],
-      'power':    [this.hero.power, Validators.required]
-    });
+  // #docregion view-child
+  heroForm: NgForm;
+  @ViewChild('heroForm') currentForm: NgForm;
 
-    this.heroForm.valueChanges
-      .subscribe(data => this.onValueChanged(data));
+  ngAfterViewChecked() {
+    this.formChanged();
   }
 
-  // #enddocregion form-builder
+  formChanged() {
+    if (this.currentForm === this.heroForm) { return; }
+    this.heroForm = this.currentForm;
+    if (this.heroForm) {
+      this.heroForm.valueChanges
+        .subscribe(data => this.onValueChanged(data));
+    }
+  }
+  // #enddocregion view-child
 
+  // #docregion handler
   onValueChanged(data?: any) {
     const controls = this.heroForm ? this.heroForm.controls : {};
 
@@ -99,7 +80,9 @@ export class HeroFormReactiveComponent implements OnInit {
     'name': '',
     'power': ''
   };
+  // #enddocregion handler
 
+  // #docregion messages
   validationMessages = {
     'name': {
       'required':      'Name is required.',
@@ -111,5 +94,6 @@ export class HeroFormReactiveComponent implements OnInit {
       'required': 'Power is required.'
     }
   };
+  // #enddocregion messages
 }
 // #enddocregion
