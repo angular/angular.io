@@ -71,7 +71,7 @@ If you are only going to work on a specific part of the docs, such as the dev gu
 ## Code Sample Development
 
 All documentation is supported by sample code and plunkers. 
-Such code resides in the `public/docs/_examples` directory, under chapter-specific directories, further divided by language track.
+Such code resides in the `public/docs/_examples` directory, under page-specific directories, further divided by language track.
 
 For example, the TypeScript QuickStart sample is in `public/docs/_examples/quickstart/ts`.
 
