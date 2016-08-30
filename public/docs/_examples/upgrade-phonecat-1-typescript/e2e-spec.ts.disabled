@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by, ElementFinder } from 'protractor';
+import { setProtractorToNg1Mode } from '../protractor-helpers';
 
 // Angular E2E Testing Guide:
 // https://docs.angularjs.org/guide/e2e-testing
@@ -43,7 +45,7 @@ describe('PhoneCat Application', function() {
       let phoneNameColumn = element.all(by.repeater('phone in $ctrl.phones').column('phone.name'));
 
       function getNames() {
-        return phoneNameColumn.map(function(elem) {
+        return phoneNameColumn.map(function(elem: ElementFinder) {
           return elem.getText();
         });
       }

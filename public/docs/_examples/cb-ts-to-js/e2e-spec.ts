@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('TypeScript to Javascript tests', function () {
 
   beforeAll(function () {
@@ -54,7 +56,7 @@ describe('TypeScript to Javascript tests', function () {
     expect(h1.getAttribute('class')).toBe('active');
 
     h1.click();
-    browser.actions().doubleClick(h1 as any as webdriver.WebElement).perform();
+    browser.actions().doubleClick(h1.getWebElement()).perform();
     expect(h1.getAttribute('class')).toBe('active');
   });
 

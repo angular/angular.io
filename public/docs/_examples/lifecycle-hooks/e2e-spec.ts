@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Lifecycle hooks', function () {
 
   beforeAll(function () {
@@ -41,18 +43,13 @@ describe('Lifecycle hooks', function () {
 
     expect(titleEle.getText()).toContain('Windstorm can sing');
     expect(changeLogEles.count()).toEqual(2, 'should start with 2 messages');
-    // heroNameInputEle.sendKeys('-foo-').then(function () {
-    sendKeys(heroNameInputEle, '-foo-').then(function () {
-      expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
-      expect(changeLogEles.count()).toEqual(2, 'should still have 2 messages');
-      // protractor bug with sendKeys means that line below does not work.
-      // return powerInputEle.sendKeys('-bar-');
-      return sendKeys(powerInputEle, '-bar-');
-    }).then(function () {
-      expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
-      // 7 == 2 previously + length of '-bar-'
-      expect(changeLogEles.count()).toEqual(7, 'should have 7 messages now');
-    });
+    heroNameInputEle.sendKeys('-foo-');
+    expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
+    expect(changeLogEles.count()).toEqual(2, 'should still have 2 messages');
+    powerInputEle.sendKeys('-bar-');
+    expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
+    // 7 == 2 previously + length of '-bar-'
+    expect(changeLogEles.count()).toEqual(7, 'should have 7 messages now');
   });
 
   it('should support DoCheck hook', function () {
@@ -65,21 +62,19 @@ describe('Lifecycle hooks', function () {
     let logCount: number;
 
     expect(titleEle.getText()).toContain('Windstorm can sing');
-    changeLogEles.count().then(function(count) {
+    changeLogEles.count().then(function(count: number) {
       // 3 messages to start
       expect(count).toEqual(3, 'should start with 3 messages');
       logCount = count;
-      // heroNameInputEle.sendKeys('-foo-').then(function () {
-      return sendKeys(heroNameInputEle, '-foo-');
+      return heroNameInputEle.sendKeys('-foo-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing');
       return changeLogEles.count();
-    }).then(function (count) {
+    }).then(function(count: number) {
       // one more for each keystroke
       expect(count).toEqual(logCount + 5, 'should add 5 more messages');
       logCount = count;
-      // return powerInputEle.sendKeys('-bar-');
-      return sendKeys(powerInputEle, '-bar-');
+      return powerInputEle.sendKeys('-bar-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
       expect(changeLogEles.count()).toEqual(logCount + 6, 'should add 6 more messages');
@@ -97,16 +92,16 @@ describe('Lifecycle hooks', function () {
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
 
-    logEles.count().then(function(count) {
+    logEles.count().then(function(count: number) {
       logCount = count;
-      return sendKeys(childViewInputEle, '-test-');
+      return childViewInputEle.sendKeys('-test-');
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
       expect(commentEle.isPresent()).toBe(true, 'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
-    }).then(function(count) {
-      expect(logCount + 6).toEqual(count, '6 additional log messages should have been added');
+    }).then(function(count: number) {
+      expect(logCount + 7).toEqual(count, '7 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
     }).then(function() {
@@ -126,15 +121,15 @@ describe('Lifecycle hooks', function () {
     expect(childViewInputEle.getAttribute('value')).toContain('Magneta');
     expect(commentEle.isPresent()).toBe(false, 'comment should not be in DOM');
 
-    logEles.count().then(function(count) {
+    logEles.count().then(function(count: number) {
       logCount = count;
-      return sendKeys(childViewInputEle, '-test-');
+      return childViewInputEle.sendKeys('-test-');
     }).then(function() {
       expect(childViewInputEle.getAttribute('value')).toContain('-test-');
       expect(commentEle.isPresent()).toBe(true, 'should have comment because >10 chars');
       expect(commentEle.getText()).toContain('long name');
       return logEles.count();
-    }).then(function(count) {
+    }).then(function(count: number) {
       expect(logCount + 5).toEqual(count, '5 additional log messages should have been added');
       logCount = count;
       return buttonEle.click();
@@ -151,7 +146,7 @@ describe('Lifecycle hooks', function () {
     let logEles = element.all(by.css('spy-parent h4 ~ div'));
     expect(heroEles.count()).toBe(2, 'should have two heroes displayed');
     expect(logEles.count()).toBe(2, 'should have two log entries');
-    sendKeys(inputEle, '-test-').then(function() {
+    inputEle.sendKeys('-test-').then(function() {
       return addHeroButtonEle.click();
     }).then(function() {
       expect(heroEles.count()).toBe(3, 'should have added one hero');

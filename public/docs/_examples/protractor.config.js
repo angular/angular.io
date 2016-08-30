@@ -43,39 +43,23 @@ exports.config = {
 
     // debugging
     // console.log('browser.params:' + JSON.stringify(browser.params));
+    var protractorHelpers = require('./protractor-helpers.ts');
 
     var appDir = browser.params.appDir;
     if (appDir) {
       if (appDir.match('/ts') != null) {
-        browser.appIsTs = true;
+        protractorHelpers.appLang.appIsTs = true;
       } else if (appDir.match('/js') != null) {
-        browser.appIsJs = true;
+        protractorHelpers.appLang.appIsJs = true;
       } else if (appDir.match('/dart') != null) {
-        browser.appIsDart = true;
+        protractorHelpers.appLang.appIsDart = true;
       } else {
-        browser.appIsUnknown = true;
+        protractorHelpers.appLang.appIsUnknown = true;
       }
     } else {
-      browser.appIsUnknown = true;
+      protractorHelpers.appLang.appIsUnknown = true;
     }
-    jasmine.getEnv().addReporter(new Reporter( browser.params )) ;
-    global.describeIf = describeIf;
-    global.itIf = itIf;
-    global.sendKeys = sendKeys;
-
-    // Allow changing bootstrap mode to NG1 for upgrade tests
-    global.setProtractorToNg1Mode = function() {
-      browser.useAllAngular2AppRoots = false;
-      browser.rootEl = 'body';
-
-      var disableNgAnimate = function() {
-        angular.module('disableNgAnimate', []).run(['$animate', function($animate) {
-          $animate.enabled(false);
-        }]);
-      };
-
-      browser.addMockModule('disableNgAnimate', disableNgAnimate);
-    };
+    jasmine.getEnv().addReporter(new Reporter( browser.params ));
   },
 
   jasmineNodeOpts: {
@@ -87,40 +71,15 @@ exports.config = {
 
   beforeLaunch: function() {
     // add TS support for specs
-    require('ts-node').register();
+    require('ts-node').register({
+      project: './tsconfig.json'
+    });
   }
 };
 
-function describeIf(cond, name, func) {
-  if (cond) {
-    describe(name, func);
-  } else {
-    xdescribe(name, func);
-  }
-}
-
-function itIf(cond, name, func) {
-  if (cond) {
-    it(name, func);
-  } else {
-    xit(name, func);
-  }
-}
-
-// Hack - because of bug with protractor send keys
-// Hack - because of bug with send keys
-function sendKeys(element, str) {
-  return str.split('').reduce(function (promise, char) {
-    return promise.then(function () {
-      return element.sendKeys(char);
-    });
-  }, element.getAttribute('value'));
-  // better to create a resolved promise here but ... don't know how with protractor;
-  }
-
 // See http://jasmine.github.io/2.1/custom_reporter.html
 function Reporter(options) {
-  var _defaultOutputFile = path.resolve(process.cwd(), "../../../../", 'protractor-results.txt');
+  var _defaultOutputFile = path.resolve(process.cwd(), "../../../", 'protractor-results.txt');
   options.outputFile = options.outputFile || _defaultOutputFile;
 
   var _root = { appDir: options.appDir, suites: [] };

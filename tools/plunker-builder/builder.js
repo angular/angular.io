@@ -209,10 +209,10 @@ class PlunkerBuilder {
 
   _getPlunkerFiles() {
     // Assume plunker version is sibling of node_modules version
-    this.readme = fs.readFileSync(this.basePath +  '/plunker.README.md', 'utf-8');
-    var systemJsConfigPath = '/systemjs.config.plunker.js';
+    this.readme = fs.readFileSync(this.basePath +  '/_boilerplate/plunker.README.md', 'utf-8');
+    var systemJsConfigPath = '/_boilerplate/systemjs.config.plunker.js';
     if (this.options.build) {
-      systemJsConfigPath = '/systemjs.config.plunker.build.js';
+      systemJsConfigPath = '/_boilerplate/systemjs.config.plunker.build.js';
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
     this.systemjsConfig +=  this.copyrights.jsCss;

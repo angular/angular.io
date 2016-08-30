@@ -37,7 +37,7 @@ var TEMP_PATH = './_temp';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
-var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
+var BOILERPLATE_PATH = path.join(EXAMPLES_PATH, '_boilerplate');
 var EXAMPLES_TESTING_PATH = path.join(EXAMPLES_PATH, 'testing/ts');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
@@ -92,21 +92,15 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
-  '.editorconfig',
   'a2docs.css',
   'package.json',
   'styles.css',
   'systemjs.config.js',
   'tsconfig.json',
-  'tslint.json',
-  'typings.json'
+  'tslint.json'
 ];
 
 var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
-
-var _exampleProtractorBoilerplateFiles = [
-  'tsconfig.json'
-];
 
 var _exampleUnitTestingBoilerplateFiles = [
   'karma-test-shim.js',
@@ -205,18 +199,13 @@ function runE2e() {
     });
     */
     // Not 'fast'; do full setup
-    gutil.log('runE2e: install _protractor stuff');
-    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PROTRACTOR_PATH});
+    gutil.log('runE2e: install _examples stuff');
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
     promise = spawnInfo.promise
-      .then(function() {
-        gutil.log('runE2e: install _examples stuff');
-        spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH})
-        return spawnInfo.promise;
-      })
       .then(function() {
         buildStyles(copyExampleBoilerplate, _.noop);
         gutil.log('runE2e: update webdriver');
-        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PROTRACTOR_PATH});
+        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
         return spawnInfo.promise;
       });
   };
@@ -251,11 +240,10 @@ function findAndRunE2eTests(filter, outputFile) {
   fs.writeFileSync(outputFile, header);
 
   // create an array of combos where each
-  // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
+  // combo consists of { examplePath: ... }
   var examplePaths = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
    e2eSpecPaths.forEach(function(specPath) {
-    var destConfig = path.join(specPath, 'protractor.config.js');
     // get all of the examples under each dir where a pcFilename is found
     localExamplePaths = getExamplePaths(specPath, true);
     // Filter by language
@@ -326,7 +314,7 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
       // start protractor
 
       var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', 'protractor.config.js',
-        `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PROTRACTOR_PATH });
+        `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PATH });
 
       spawnInfo.proc.stderr.on('data', function (data) {
         transpileError = transpileError || /npm ERR! Exit status 100/.test(data.toString());
@@ -488,12 +476,12 @@ function buildStyles(cb, done){
 function copyExampleBoilerplate() {
   gutil.log('Copying example boilerplate files');
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
-    return path.join(EXAMPLES_PATH, fn);
+    return path.join(BOILERPLATE_PATH, fn);
   });
   var examplePaths = excludeDartPaths(getExamplePaths(EXAMPLES_PATH));
 
   var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
-    return path.join(EXAMPLES_PATH, fn);
+    return path.join(BOILERPLATE_PATH, fn);
   });
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
@@ -503,14 +491,6 @@ function copyExampleBoilerplate() {
     .then(function() {
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
     })
-    // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
-    .then(function() {
-      var protractorSourceFiles =
-        _exampleProtractorBoilerplateFiles
-          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name); });
-      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return copyFiles(protractorSourceFiles, e2eSpecPaths, destFileMode);
-    })
     // copy the unit test boilerplate
     .then(function() {
       var unittestSourceFiles =
@@ -518,6 +498,10 @@ function copyExampleBoilerplate() {
           .map(function(name) { return path.join(EXAMPLES_TESTING_PATH, name); });
       var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
       return copyFiles(unittestSourceFiles, unittestPaths, destFileMode);
+    })
+    .catch(function(err) {
+      gutil.log(err);
+      throw err;
     });
 }
 
@@ -596,11 +580,6 @@ function deleteExampleBoilerPlate() {
   return deleteFiles(_exampleBoilerplateFiles, examplePaths)
     .then(function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
-    })
-    .then(function() {
-      var protractorFiles = _exampleProtractorBoilerplateFiles;
-      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return deleteFiles(protractorFiles, e2eSpecPaths);
     });
 }
 
@@ -820,7 +799,7 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   // Split big shredding task into partials 2016-06-14
-  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/', '_protractor/']});
+  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/']});
   var promise = Promise.resolve(true);
   examplePaths.forEach(function (examplePath) {
     promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));
@@ -879,7 +858,6 @@ gulp.task('lint', function() {
       '!./public/docs/_examples/**/ts-snippets/*.ts',
       '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts',
       '!./public/docs/_examples/**/node_modules/**/*',
-      '!./public/docs/_examples/_protractor/**/*',
       '!./public/docs/_examples/**/typings/**/*',
       '!./public/docs/_examples/**/typings-ng1/**/*',
       '!./public/docs/_examples/**/build/**/*',
@@ -1152,7 +1130,7 @@ function getTypingsPaths(basePath) {
 
 function getExamplePaths(basePath, includeBase) {
   // includeBase defaults to false
-  return getPaths(basePath, _exampleConfigFilename, includeBase)
+  return getPaths(basePath, _exampleConfigFilename, includeBase);
 }
 
 function getDartExampleWebPaths(basePath) {
@@ -1183,6 +1161,8 @@ function getFilenames(basePath, filename, includeBase) {
     // ignore (skip) the top level version.
     includePatterns.push("!" + path.join(basePath, "/" + filename));
   }
+  // ignore (skip) the files in BOILERPLATE_PATH.
+  includePatterns.push("!" + path.join(BOILERPLATE_PATH, "/" + filename));
   var nmPattern = path.join(basePath, "**/node_modules/**");
   var filenames = globby.sync(includePatterns, {ignore: [nmPattern]});
   return filenames;
