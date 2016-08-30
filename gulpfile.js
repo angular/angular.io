@@ -524,6 +524,7 @@ gulp.task('remove-example-boilerplate', function() {
 // either release or current build packages
 // Examples:
 //   gulp install-example-angular --build  // use current build packages
+//   gulp install-example-angular --build=2.0.0-b43f954  // use tagged packages
 //   gulp install-example-angular          // restore release packages
 gulp.task('install-example-angular', installExampleAngular);
 
@@ -535,14 +536,28 @@ function installExampleAngular() {
     'platform-browser', 'platform-browser-dynamic',
     'forms', 'http', 'router', 'upgrade'];
 
+  var build = argv.build;
+  if (build) {
+    if (typeof build === 'string') {
+      build = (build[0]==='#' ? '' : '#') + build;
+    } else {
+      build = '';
+    }
+  } else{
+    build = 'npm';
+  }
   // Like: "angular/core-builds" or "@angular/core"
-  sources = libs.map( lib => argv.build ? `angular/${lib}-builds` : `@angular/${lib}`);
+  sources = libs.map( lib => {
+    return build === 'npm'
+      ? `@angular/${lib}`
+      : `git+https://github.com/angular/${lib}-builds${build}`;
+  });
 
   if (argv.build) { sources.push('@angular/tsc-wrapped');} // tsc-wrapped needed for builds
 
   sources.push('@angular/router-deprecated');
 
-  gutil.log(`Installing Angular npm packages from ${argv.build ? 'BUILD' : 'RELEASE'}`);
+  gutil.log(`Installing Angular packages from ${build === 'npm' ? 'NPM' : 'BUILD ' + build}`);
 
   var spawnInfo = spawnExt('rm', ['-rf', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
   return spawnInfo.promise
