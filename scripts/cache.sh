@@ -2,6 +2,8 @@
 
 set -e -o pipefail
 
+cd `dirname $0`/..
+
 BASE="public/docs/ts"
 LATEST="$BASE/latest"
 CACHE="$BASE/_cache"
@@ -71,16 +73,17 @@ function cacheDiff() {
 }
 
 function usage() {
-    echo "Usage: cache.sh [-d | -l | -r pattern]"
-    echo "  -d      diff cache and latest subdirectories"
-    echo "  -l      list files subject to caching"
-    echo "  -r pat  refresh files in cache matching pattern"
+    echo "Usage: cache.sh [options]"
+    echo "  (-ds|--diff-summary)  list names of cache files that differ from ts/latest"
+    echo "  (-d|--diff) pat       diff cache and latest subdirectories"
+    echo "  (-l|--list)           list files subject to caching"
+    echo "  (-r|--refresh) pat    refresh files in cache matching pattern"
 }
 
 case "$1" in
-    (-r|--refresh)        shift; cacheRefresh $@;;
     (-ds|--diff-summary)  shift; cacheDiffSummary $@;;
     (-d|--diff)           shift; cacheDiff $@;;
-    (-l)  shift; printf "$FILES\n\n";;
+    (-l|--list)           shift; printf "$FILES\n\n";;
+    (-r|--refresh)        shift; cacheRefresh $@;;
     (*)   usage;
 esac
