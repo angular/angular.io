@@ -2,6 +2,8 @@
 
 set -e -o pipefail
 
+cd `dirname $0`/..
+
 BASE="public/docs/ts"
 LATEST="$BASE/latest"
 CACHE="$BASE/_cache"
