@@ -9,7 +9,7 @@ var _rxRules = {
   },
   angular_pkg: {
     from: /src=".?node_modules\/@angular/g,
-    to: 'src="https://npmcdn.com/@angular'
+    to: 'src="https://unpkg.com/@angular'
   },
   script: {
     from: /<script.*".*%tag%".*>.*<\/script>/,
@@ -36,32 +36,32 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/core-js/client/shim.min.js',
-    to:   'https://npmcdn.com/core-js/client/shim.min.js'
+    to:   'https://unpkg.com/core-js/client/shim.min.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://npmcdn.com/zone.js@0.6.12?main=browser'
+    to:   'https://unpkg.com/zone.js@0.6.12?main=browser'
   },
   {
     pattern: 'script',
     from: 'node_modules/reflect-metadata/Reflect.js',
-    to:   'https://npmcdn.com/reflect-metadata@0.1.3'
+    to:   'https://unpkg.com/reflect-metadata@0.1.3'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.umd.js',
-    to:   'https://npmcdn.com/rxjs@5.0.0-beta.6/bundles/Rx.umd.js'
+    to:   'https://unpkg.com/rxjs@5.0.0-beta.6/bundles/Rx.umd.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   'https://npmcdn.com/systemjs@0.19.27/dist/system.src.js'
+    to:   'https://unpkg.com/systemjs@0.19.27/dist/system.src.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/angular/in-memory-web-api/web-api.js',
-    to:   'https://npmcdn.com/angular/in-memory-web-api/web-api.js'
+    to:   'https://unpkg.com/angular/in-memory-web-api/web-api.js'
   },
   {
     pattern: 'link',
