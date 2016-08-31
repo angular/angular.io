@@ -74,6 +74,8 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '@angular/platform-browser-dynamic/testing.ts',
     '@angular/platform-server/index.ts',
     '@angular/platform-server/testing.ts',
+    '@angular/platform-webworker/index.ts',
+    '@angular/platform-webworker-dynamic/index.ts',
     '@angular/router/index.ts',
     '@angular/router-deprecated/index.ts',
     '@angular/upgrade/index.ts',
