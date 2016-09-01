@@ -25,7 +25,7 @@ describe('TypeScript to Javascript tests', function () {
   it('should support optional, attribute, and query injections', function () {
     let app = element(by.css('hero-di-inject-additional'));
     let h1 = app.element(by.css('h1'));
-    let okMsg = app.element(by.css('.ok-msg'));
+    let okMsg = app.element(by.css('p'));
 
     expect(h1.getText()).toBe('Tour of Heroes');
     app.element(by.buttonText('OK')).click();

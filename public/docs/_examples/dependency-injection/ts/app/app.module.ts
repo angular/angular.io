@@ -7,9 +7,21 @@ import { HeroesComponent } from './heroes/heroes.component';
 import { HeroListComponent } from './heroes/hero-list.component';
 import { InjectorComponent } from './injector.component';
 import { TestComponent } from './test.component';
-import { ProvidersComponent } from './providers.component';
 import { APP_CONFIG, HERO_DI_CONFIG }    from './app.config';
 import { UserService } from './user.service';
+import {
+  ProvidersComponent,
+  Provider1Component,
+  Provider3Component,
+  Provider4Component,
+  Provider5Component,
+  Provider6aComponent,
+  Provider6bComponent,
+  Provider7Component,
+  Provider8Component,
+  Provider9Component,
+  Provider10Component,
+} from './providers.component';
 
 // #docregion ngmodule
 @NgModule({
@@ -22,7 +34,18 @@ import { UserService } from './user.service';
     HeroesComponent,
     HeroListComponent,
     InjectorComponent,
-    TestComponent
+    TestComponent,
+    ProvidersComponent,
+    Provider1Component,
+    Provider3Component,
+    Provider4Component,
+    Provider5Component,
+    Provider6aComponent,
+    Provider6bComponent,
+    Provider7Component,
+    Provider8Component,
+    Provider9Component,
+    Provider10Component,
   ],
   // #docregion ngmodule-providers
   providers: [

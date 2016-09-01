@@ -5,12 +5,6 @@
  * Adjust as necessary for your application needs.
  */
 (function(global) {
-
-  var ngVer = '@2.0.0-rc.5'; // lock in the angular package version; do not let it float to current!
-  var routerVer = '@3.0.0-rc.1'; // lock router version
-  var formsVer = '@0.3.0'; // lock forms version
-  var routerDeprecatedVer = '@2.0.0-rc.2'; // temporarily until we update all the guides
-
   //map tells the System loader where to look for things
   var  map = {
     'app':                        'app',
@@ -25,7 +19,7 @@
     '@angular/platform-browser-dynamic': 'https://cdn.rawgit.com/angular/platform-browser-dynamic-builds/master',
     '@angular/router': 'https://cdn.rawgit.com/angular/router-builds/master',
 
-    'rxjs':       'https://unpkg.com/rxjs@5.0.0-beta.6',
+    'rxjs':       'https://unpkg.com/rxjs@5.0.0-beta.11',
     'ts':         'https://unpkg.com/plugin-typescript@4.0.10/lib/plugin.js',
     'typescript': 'https://unpkg.com/typescript@1.9.0-dev.20160409/lib/typescript.js',
 

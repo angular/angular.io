@@ -633,6 +633,7 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
   return buildApiDocsForDart();
 });
 
+// Using the --build flag will use systemjs.config.plunker.build.js (for preview builds)
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   regularPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
   return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });

@@ -66,8 +66,8 @@ describe('Lifecycle hooks', function () {
 
     expect(titleEle.getText()).toContain('Windstorm can sing');
     changeLogEles.count().then(function(count) {
-      // Empirically 5 messages to start
-      expect(count).toBeGreaterThan(4, 'should start with some messages');
+      // 3 messages to start
+      expect(count).toEqual(3, 'should start with 3 messages');
       logCount = count;
       // heroNameInputEle.sendKeys('-foo-').then(function () {
       return sendKeys(heroNameInputEle, '-foo-');
@@ -82,8 +82,7 @@ describe('Lifecycle hooks', function () {
       return sendKeys(powerInputEle, '-bar-');
     }).then(function () {
       expect(titleEle.getText()).toContain('Windstorm-foo- can sing-bar-');
-      // 7 == 2 previously + length of '-bar-'
-      expect(changeLogEles.count()).toEqual(logCount + 11, 'should add 11 more messages');
+      expect(changeLogEles.count()).toEqual(logCount + 6, 'should add 6 more messages');
     });
   });
 

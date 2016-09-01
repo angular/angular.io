@@ -5,9 +5,8 @@
  */
 (function(global) {
 
-  var ngVer = '@2.0.0-rc.5'; // lock in the angular package version; do not let it float to current!
-  var routerVer = '@3.0.0-rc.1'; // lock router version
-  var formsVer = '@0.3.0'; // lock forms version
+  var ngVer = '@2.0.0-rc.6'; // lock in the angular package version; do not let it float to current!
+  var routerVer = '@3.0.0-rc.2'; // lock router version
   var routerDeprecatedVer = '@2.0.0-rc.2'; // temporarily until we update all the guides
 
   //map tells the System loader where to look for things
@@ -16,10 +15,9 @@
 
     '@angular':                   'https://unpkg.com/@angular', // sufficient if we didn't pin the version
     '@angular/router':            'https://unpkg.com/@angular/router' + routerVer,
-    '@angular/forms':             'https://unpkg.com/@angular/forms' + formsVer,
     '@angular/router-deprecated': 'https://unpkg.com/@angular/router-deprecated' + routerDeprecatedVer,
     'angular2-in-memory-web-api': 'https://unpkg.com/angular2-in-memory-web-api', // get latest
-    'rxjs':                       'https://unpkg.com/rxjs@5.0.0-beta.6',
+    'rxjs':                       'https://unpkg.com/rxjs@5.0.0-beta.11',
     'ts':                         'https://unpkg.com/plugin-typescript@4.0.10/lib/plugin.js',
     'typescript':                 'https://unpkg.com/typescript@1.9.0-dev.20160409/lib/typescript.js',
  };
@@ -35,6 +33,7 @@
     'common',
     'compiler',
     'core',
+    'forms',
     'http',
     'platform-browser',
     'platform-browser-dynamic',
@@ -48,7 +47,7 @@
   });
 
   // Add package entries for angular packages
-  ngPackageNames.concat(['forms', 'router', 'router-deprecated']).forEach(function(pkgName) {
+  ngPackageNames.concat(['router', 'router-deprecated']).forEach(function(pkgName) {
 
     // Bundled (~40 requests):
     packages['@angular/'+pkgName] = { main: '/bundles/' + pkgName + '.umd.js' };

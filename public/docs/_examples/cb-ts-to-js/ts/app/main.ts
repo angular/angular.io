@@ -1,7 +1,6 @@
 /* tslint:disable no-unused-variable */
 // #docregion ng2import
-import { bootstrap }
-  from '@angular/platform-browser-dynamic';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import {
   LocationStrategy,
   HashLocationStrategy
@@ -11,8 +10,6 @@ import {
 // #docregion appimport
 import { HeroComponent } from './hero.component';
 // #enddocregion appimport
-
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
 import { HeroesModule } from './hero.component';
 import { HeroesLifecycleModule } from './hero-lifecycle.component';
