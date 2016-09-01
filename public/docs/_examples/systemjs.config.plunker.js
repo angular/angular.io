@@ -56,6 +56,9 @@
     //packages['@angular/'+pkgName] = { main: 'index.js', defaultExtension: 'js' };
   });
 
+  // TODO: REMOVE AFTER `@angular/core/testing.js` RESTORED
+  packages['@angular/core/testing'] = { main: 'bundles/core-testing.umd.js' };
+
   var config = {
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
     transpiler: 'ts',

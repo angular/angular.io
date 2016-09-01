@@ -49,6 +49,9 @@
   // Add package entries for angular packages
   ngPackageNames.forEach(setPackageConfig);
 
+  // TODO: REMOVE AFTER `@angular/core/testing.js` RESTORED
+  packages['@angular/core/testing'] = { main: 'bundles/core-testing.umd.js' };
+
   var config = {
     map: map,
     packages: packages
