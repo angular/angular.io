@@ -38,7 +38,6 @@ export class HeroFormReactiveComponent implements OnInit {
   addHero() {
     this.hero = new Hero(42, '', '');
     this.buildForm();
-    this.onValueChanged();
   // #enddocregion add-hero
 // #enddocregion class
 
@@ -74,17 +73,20 @@ export class HeroFormReactiveComponent implements OnInit {
 
     this.heroForm.valueChanges
       .subscribe(data => this.onValueChanged(data));
+
+    this.onValueChanged(); // (re)set validation messages now
   }
 
   // #enddocregion form-builder
 
   onValueChanged(data?: any) {
-    const controls = this.heroForm ? this.heroForm.controls : {};
+    if (!this.heroForm) { return; }
+    const form = this.heroForm;
 
     for (const field in this.formErrors) {
       // clear previous error message (if any)
       this.formErrors[field] = '';
-      const control = controls[field];
+      const control = form.get(field);
 
       if (control && control.dirty && !control.valid) {
         const messages = this.validationMessages[field];

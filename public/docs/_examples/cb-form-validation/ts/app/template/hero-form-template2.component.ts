@@ -60,12 +60,13 @@ export class HeroFormTemplate2Component implements AfterViewChecked {
 
   // #docregion handler
   onValueChanged(data?: any) {
-    const controls = this.heroForm ? this.heroForm.controls : {};
+    if (!this.heroForm) { return; }
+    const form = this.heroForm.form;
 
     for (const field in this.formErrors) {
       // clear previous error message (if any)
       this.formErrors[field] = '';
-      const control = controls[field];
+      const control = form.get(field);
 
       if (control && control.dirty && !control.valid) {
         const messages = this.validationMessages[field];
