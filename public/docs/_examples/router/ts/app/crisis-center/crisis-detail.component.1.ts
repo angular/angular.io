@@ -1,12 +1,11 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router }       from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 
 import { Crisis, CrisisService }  from './crisis.service';
 import { DialogService }          from '../dialog.service';
 import { Observable }             from 'rxjs/Observable';
-import { Subscription }           from 'rxjs/Subscription';
 
 @Component({
   // #docregion template
@@ -29,13 +28,9 @@ import { Subscription }           from 'rxjs/Subscription';
   styles: ['input {width: 20em}']
 })
 // #docregion cancel-save
-export class CrisisDetailComponent implements OnInit, OnDestroy {
-
+export class CrisisDetailComponent implements OnInit {
   crisis: Crisis;
   editName: string;
-  // #enddocregion ngOnDestroy
-  private sub: Subscription;
-  // #enddocregion ngOnDestroy
 
 // #enddocregion cancel-save
   constructor(
@@ -47,9 +42,7 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.sub = this.route
-      .params
-      .subscribe(params => {
+    this.route.params.forEach((params: Params) => {
         let id = +params['id'];
         this.service.getCrisis(id)
           .then(crisis => {
@@ -63,14 +56,6 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
       });
   }
   // #enddocregion ngOnInit
-
-  // #enddocregion ngOnDestroy
-  ngOnDestroy() {
-    if (this.sub) {
-      this.sub.unsubscribe();
-    }
-  }
-  // #enddocregion ngOnDestroy
 
   // #docregion cancel-save
   cancel() {
@@ -95,15 +80,16 @@ export class CrisisDetailComponent implements OnInit, OnDestroy {
   }
   // #enddocregion cancel-save-only
 
-  // #docregion gotoCrises
+  // #docregion gotoCrises, relative-navigation
   gotoCrises() {
     let crisisId = this.crisis ? this.crisis.id : null;
-    // Pass along the hero id if available
-    // so that the CrisisListComponent can select that hero.
+    // Pass along the crisis id if available
+    // so that the CrisisListComponent can select that crisis.
     // Add a totally useless `foo` parameter for kicks.
-    this.router.navigate(['/crisis-center', { id: crisisId, foo: 'foo' }]);
+    // Relative navigation back to the crises
+    this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
   }
-  // #enddocregion gotoCrises
+  // #enddocregion gotoCrises, relative-navigation
 // #docregion cancel-save
 }
 // #enddocregion cancel-save

@@ -6,15 +6,14 @@ import 'rxjs/add/operator/map';
 
 @Component({
   template:  `
-    <h3>CRISIS ADMINISTRATION</h3>
-    <p>Manage your crises here</p>
+    <p>Dashboard</p>
 
     <p>Session ID: {{ sessionId | async }}</p>
     <a id="anchor"></a>
     <p>Token: {{ token | async }}</p>
   `
 })
-export class CrisisAdminComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit {
   sessionId: Observable<string>;
   token: Observable<string>;
 

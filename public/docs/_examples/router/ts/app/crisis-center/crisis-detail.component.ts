@@ -25,7 +25,6 @@ import { Observable }     from 'rxjs/Observable';
   `,
   styles: ['input {width: 20em}']
 })
-
 export class CrisisDetailComponent implements OnInit {
   crisis: Crisis;
   editName: string;
@@ -34,7 +33,7 @@ export class CrisisDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public dialogService: DialogService
-    ) { }
+  ) { }
 
 // #docregion crisis-detail-resolve
   ngOnInit() {
@@ -67,12 +66,12 @@ export class CrisisDetailComponent implements OnInit {
   // #docregion gotoCrises
   gotoCrises() {
     let crisisId = this.crisis ? this.crisis.id : null;
-    // Pass along the hero id if available
-    // so that the CrisisListComponent can select that hero.
+    // Pass along the crisis id if available
+    // so that the CrisisListComponent can select that crisis.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
-    // Absolute link
-    this.router.navigate(['/crisis-center', { id: crisisId, foo: 'foo' }]);
+    // Relative navigation back to the crises
+    this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises
