@@ -13,20 +13,24 @@ var _rxRules = {
   },
   script: {
     from: /<script.*".*%tag%".*>.*<\/script>/,
-    to: '<script src="%tag%"></script>'
+    to:   '<script src="%tag%"></script>'
   },
   link: {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
-    to: '<link rel="stylesheet" href="%tag%">'
+    to:    '<link rel="stylesheet" href="%tag%">'
   },
   system_extra_main: {
     from: /main:\s*[\'|\"]index.js[\'|\"]/,
-    to: 'main: "index.ts"'
+    to:   'main: "index.ts"'
   },
   system_extra_defaultExtension: {
     from: /defaultExtension:\s*[\'|\"]js[\'|\"]/,
-    to: 'defaultExtension: "ts"'
-  }
+    to:   'defaultExtension: "ts"'
+  },
+  zone_pkg: {
+    from: /src=".?node_modules\/zone.js\/dist\/(.*)"/g,
+    to:   'src="https://unpkg.com/zone.js/dist/$1?main=browser"'
+  },
 };
 
 var _rxData = [
@@ -63,13 +67,43 @@ var _rxData = [
     from: 'node_modules/angular/in-memory-web-api/web-api.js',
     to:   'https://unpkg.com/angular/in-memory-web-api/web-api.js'
   },
+
+  // Test libraries
+
+  // Plunker recommends getting jasmine from cloudfare
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine-html.js'
+  },
+  {
+    pattern: 'script',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/boot.js',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/boot.js'
+  },
+  {
+    pattern: 'link',
+    from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
+    to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.css'
+  },
+
+
   {
     pattern: 'link',
     from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    to:   'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css'
+    // Official source per http://getbootstrap.com/getting-started/
+    to:   'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
   },
   {
     pattern: 'angular_pkg',
+  },
+  {
+    pattern: 'zone_pkg',
   },
   {
     pattern: 'system_extra_main'
@@ -80,6 +114,7 @@ var _rxData = [
 ];
 
 
+// var first_time = true; // DIAGNOSTIC
 
 function translate(html) {
   _rxData.forEach(function(rxDatum) {
@@ -102,6 +137,17 @@ function translate(html) {
       });
       rxTo = to.join("\n    ");
     }
+
+    /* DIAGNOSTIC
+    if (first_time && rxDatum.pattern === 'zone_pkg') {
+      first_time = false;
+
+      console.log('zone_pkg');
+      console.log('  rxFrom: '+rxFrom);
+      console.log('  rxTo: '+rxTo);
+      console.log('  replace: ' + html.replace(rxFrom, rxTo ));
+    }
+    */
     html = html.replace(rxFrom, rxTo );
   });
 

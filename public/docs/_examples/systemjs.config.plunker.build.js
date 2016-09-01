@@ -1,78 +1,13 @@
 /**
- * PLUNKER CURRENT BUILD VERSION
+ * PLUNKER VERSION FOR CURRENT ANGULAR BUILD
  * (based on systemjs.config.js in angular.io)
  * System configuration for Angular 2 samples
  * Adjust as necessary for your application needs.
+ *
+ * UNTESTED !
  */
-(function(global) {
-  //map tells the System loader where to look for things
-  var  map = {
-    'app':                        'app',
-
-
-    '@angular/core': 'https://cdn.rawgit.com/angular/core-builds/master',
-    '@angular/common': 'https://cdn.rawgit.com/angular/common-builds/master',
-    '@angular/compiler':'https://cdn.rawgit.com/angular/compiler-builds/master',
-    '@angular/forms':'https://cdn.rawgit.com/angular/forms-builds/master',
-    '@angular/http':'https://cdn.rawgit.com/angular/http-builds/master',
-    '@angular/platform-browser':'https://cdn.rawgit.com/angular/platform-browser-builds/master',
-    '@angular/platform-browser-dynamic': 'https://cdn.rawgit.com/angular/platform-browser-dynamic-builds/master',
-    '@angular/router': 'https://cdn.rawgit.com/angular/router-builds/master',
-
-    'rxjs':       'https://unpkg.com/rxjs@5.0.0-beta.11',
-    'ts':         'https://unpkg.com/plugin-typescript@4.0.10/lib/plugin.js',
-    'typescript': 'https://unpkg.com/typescript@1.9.0-dev.20160409/lib/typescript.js',
-
-    'angular2-in-memory-web-api': 'https://unpkg.com/angular2-in-memory-web-api',
- };
-
-  //packages tells the System loader how to load when no filename and/or no extension
-  var packages = {
-    app: {
-      main: 'main.ts',
-      defaultExtension: 'ts'
-    },
-    '@angular/core': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/compiler': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/common': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/forms': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/http': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/platform-browser-dynamic': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/platform-browser': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    '@angular/router': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    'angular2-in-memory-web-api': {
-      main: 'index.js',
-      defaultExtension: 'js'
-    },
-    rxjs: {
-      defaultExtension: 'js'
-    }
-  }
-   var config = {
+(function (global) {
+  System.config({
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
     transpiler: 'ts',
     typescriptOptions: {
@@ -83,10 +18,56 @@
         "exports": "ts"
       }
     },
-    map: map,
-    packages: packages
-  };
+    paths: {
+      // paths serve as alias
+      'npm:': 'https://unpkg.com/',
+      'ng:': 'https://cdn.rawgit.com/angular/'
+    },
+    // map tells the System loader where to look for things
+    map: {
+      // our app is within the app folder
+      app: 'app',
 
-  System.config(config);
+      // angular bundles
+      '@angular/core': 'ng:core-builds/master/bundles/core.umd.js',
+      '@angular/common': 'ng:common-builds/master/bundles/common.umd.js',
+      '@angular/compiler': 'ng:compiler-builds/master/bundles/compiler.umd.js',
+      '@angular/platform-browser': 'ng:platform-browser-builds/master/bundles/platform-browser.umd.js',
+      '@angular/platform-browser-dynamic': 'ng:platform-browser-dynamic-builds/master/bundles/platform-browser-dynamic.umd.js',
+      '@angular/http': 'ng:http-builds/master/bundles/http.umd.js',
+      '@angular/router': 'ng:router-builds/master/bundles/router.umd.js',
+      '@angular/forms': 'ng:forms-builds/master/bundles/forms.umd.js',
 
+      // angular testing umd bundles
+      '@angular/core/testing': 'ng:core-builds/master/bundles/core-testing.umd.js',
+      '@angular/common/testing': 'ng:common-builds/master/bundles/common-testing.umd.js',
+      '@angular/compiler/testing': 'ng:compiler-builds/master/bundles/compiler-testing.umd.js',
+      '@angular/platform-browser/testing': 'ng:platform-browser-builds/master/bundles/platform-browser-testing.umd.js',
+      '@angular/platform-browser-dynamic/testing': 'ng:platform-browser-dynamic-builds/master/bundles/platform-browser-dynamic-testing.umd.js',
+      '@angular/http/testing': 'ng:http-builds/master/bundles/http-testing.umd.js',
+      '@angular/router/testing': 'ng:router-builds/master/bundles/router-testing.umd.js',
+      '@angular/forms/testing': 'ng:forms-builds/master/bundles/forms-testing.umd.js',
+
+      // other libraries
+      'rxjs':                       'npm:rxjs',
+      'angular2-in-memory-web-api': 'npm:angular2-in-memory-web-api',
+      'ts':                         'npm:plugin-typescript@4.0.10/lib/plugin.js',
+      'typescript':                 'npm:typescript@1.9.0-dev.20160409/lib/typescript.js',
+
+    },
+    // packages tells the System loader how to load when no filename and/or no extension
+    packages: {
+      app: {
+        main: './main.ts',
+        defaultExtension: 'ts'
+      },
+      rxjs: {
+        defaultExtension: 'js'
+      },
+      'angular2-in-memory-web-api': {
+        main: './index.js',
+        defaultExtension: 'js'
+      }
+    }
+  });
 })(this);
