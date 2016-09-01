@@ -1,5 +1,6 @@
 // #docplaster
 // #docregion
+// #docregion hero-import
 import { NgModule }       from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
@@ -8,7 +9,6 @@ import { AppComponent }       from './app.component';
 import { routing,
          appRoutingProviders } from './app.routing';
 
-// #docregion hero-import
 import { HeroesModule }         from './heroes/heroes.module';
 
 import { CrisisListComponent }  from './crisis-list.component';

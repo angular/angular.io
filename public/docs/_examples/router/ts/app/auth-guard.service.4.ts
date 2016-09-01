@@ -1,19 +1,17 @@
 // #docplaster
-// #docregion, admin-can-load
+// #docregion
 import { Injectable }       from '@angular/core';
 import {
   CanActivate, Router,
   ActivatedRouteSnapshot,
   RouterStateSnapshot,
   CanActivateChild,
-  NavigationExtras,
-  CanLoad, Route
+  NavigationExtras
 }                           from '@angular/router';
-import { Observable }       from 'rxjs/Observable';
 import { AuthService }      from './auth.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
+export class AuthGuard implements CanActivate, CanActivateChild {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -25,13 +23,6 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
   canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     return this.canActivate(route, state);
   }
-
-  canLoad(route: Route): Observable<boolean>|Promise<boolean>|boolean {
-    let url = `/${route.path}`;
-
-    return this.checkLogin(url);
-  }
-// #enddocregion admin-can-load
 
   checkLogin(url: string): boolean {
     if (this.authService.isLoggedIn) { return true; }
@@ -53,5 +44,4 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
     this.router.navigate(['/login'], navigationExtras);
     return false;
   }
-// #docregion admin-can-load
 }
