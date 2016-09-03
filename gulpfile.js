@@ -1147,11 +1147,16 @@ function watchAndSync(options, cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({proxy: 'localhost:9000'});
 
+  // When using the --focus=name flag, only **/name/**/*.* example files and
+  // **/name.jade files are watched. This is useful for performance reasons.
+  // Example: gulp serve-and-sync --focus=architecture 
+  var focus = argv.focus;
+
   if (options.devGuide) {
-    devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
+    devGuideExamplesWatch(_devguideShredOptions, browserSync.reload, focus);
   }
   if (options.devGuideJade) {
-    devGuideSharedJadeWatch( { jadeDir: DOCS_PATH}, browserSync.reload);
+    devGuideSharedJadeWatch( { jadeDir: DOCS_PATH}, browserSync.reload, focus);
   }
   if (options.apiDocs) {
     apiSourceWatch(browserSync.reload);
@@ -1218,8 +1223,9 @@ function apiExamplesWatch(postShredAction) {
   });
 }
 
-function devGuideExamplesWatch(shredOptions, postShredAction) {
-  var includePattern = path.join(shredOptions.examplesDir, '**/*.*');
+function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
+  var watchPattern = focus ? '**/' + focus + '/**/*.*' : '**/*.*';
+  var includePattern = path.join(shredOptions.examplesDir, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
@@ -1235,8 +1241,9 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   });
 }
 
-function devGuideSharedJadeWatch(shredOptions, postShredAction) {
-  var includePattern = path.join(DOCS_PATH, '**/*.jade');
+function devGuideSharedJadeWatch(shredOptions, postShredAction, focus) {
+  var watchPattern = focus ? '**/' + focus + '.jade' : '**/*.jade';
+  var includePattern = path.join(DOCS_PATH, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
