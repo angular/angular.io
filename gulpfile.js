@@ -889,7 +889,7 @@ function harpCompile() {
   env({ vars: { NODE_ENV: "production" } });
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
 
-  if(skipLangs && fs.existsSync('www')) {
+  if(skipLangs && fs.existsSync('www') && backupApiHtmlFilesExist('www')) {
     gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
     gutil.log(`API docs will be copied from existing www folder.`)
     del.sync('www-backup'); // remove existing backup if it exists
@@ -897,7 +897,8 @@ function harpCompile() {
   } else {
     gutil.log(`Harp full site compile, including API docs for all languages.`);
     if (skipLangs)
-      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full site has not been built yet.`);
+      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` + 
+      `site has not been built yet or some API HTML files are missing.`);
   }
 
   var deferred = Q.defer();
@@ -1046,6 +1047,21 @@ function restoreApiHtml() {
     gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
     fs.copySync(backupApiSubdir, wwwApiSubdir);
   });
+}
+
+// For each lang in skipLangs, ensure API dir exists in www-backup
+function backupApiHtmlFilesExist(folderName) {
+  const vers = 'latest';
+  var result = 1;
+  skipLangs.forEach(lang => {
+    const relApiDir = path.join('docs', lang, vers, 'api');
+    const backupApiSubdir = path.join(folderName, relApiDir);
+    if (!fs.existsSync(backupApiSubdir)) {
+      gutil.log(`WARNING: API docs HTML folder doesn't exist: ${backupApiSubdir}`);
+      result = 0;
+    }
+  });
+  return result;
 }
 
 // Copies fileNames into destPaths, setting the mode of the
