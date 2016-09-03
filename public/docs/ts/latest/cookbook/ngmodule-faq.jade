@@ -33,12 +33,13 @@ block includes
   * [Can I re-export imported classes and modules?](#q-re-export)
   * [What is the _forRoot_ method?](#q-for-root)
 
-  Service Providers  
+  Service Providers
   * [Why is a service provided in a feature module visible everywhere?](#q-module-provider-visibility)
-  * [Why is a service provided in a _lazy loaded_ module visible only to that module?](#q-lazy-loaded-module-provider-visibility) 
+  * [Why is a service provided in a _lazy loaded_ module visible only to that module?](#q-lazy-loaded-module-provider-visibility)
   * [What if two modules provide the _same_ service?](#q-module-provider-duplicates)
   * [How do I restrict service scope to a module?](#q-component-scoped-providers)
-  * [Should I add providers to the root _AppModule_ or the root _AppComponent_?](#q-root-component-or-module)
+  * [Should I add app-wide providers to the root _AppModule_ or the root _AppComponent_?](#q-root-component-or-module)
+  * [Should I add other providers to a module or a component?](#q-component-or-module)
   * [Why is it bad if _SharedModule_ provides a service to a lazy loaded module?](#q-why-bad)
   * [Why does lazy loading create a child injector?](#q-why-child-injector)  
   * [How can I tell if a module or service was previously loaded?](#q-is-it-loaded)
@@ -424,14 +425,21 @@ a#q-component-scoped-providers
 a#q-root-component-or-module
 .l-main-section
 :marked
-  ### Should I add providers to the root _AppModule_ or the root _AppComponent_?
+  ### Should I add app-wide providers to the root _AppModule_ or the root _AppComponent_?
 
-  Most apps launch with an initial set of service providers. 
-  Should we register those providers on the root `AppModule` (`@NgModule.providers`) or
-  the root `AppComponent` (`@Component.providers`)?
+.alert.is-helpful
+  :marked
+    Register application-wide providers in the root `AppModule`, not in the `AppComponent`.
+:marked
+  Lazy-loaded modules and their components can inject `AppModule` services;
+  they cannot inject `AppComponent` services.
 
-  **_List such providers in the root_ `AppModule` _unless you have a compelling reason to do otherwise_**.
-  
+  Register a service in `AppComponent` providers _only_ if the service must be hidden
+  from components outside the `AppComponent` tree. This is a rare exceptional use case.
+
+  More generally, [prefer registering providers in modules](#q-component-or-module) to registering in components.
+
+  #### **_Discussion_:**
   Angular registers all startup module providers with the application root injector.
   The services created from root injector providers are available to the entire application. 
   They are _application-scoped_.
@@ -439,7 +447,7 @@ a#q-root-component-or-module
   Certain services (e.g., the `Router`) only work when registered in the application root injector.
 
   By contrast, Angular registers `AppComponent` providers with the `AppComponent`'s own injector.
-  `AppComponent`services are available to that component and its component tree. 
+  `AppComponent`services are available only to that component and its component tree. 
   They are _component-scoped_.
 
   The `AppComponent`'s injector is a _child_ of the root injector, one down in the injector hierarchy.
@@ -448,19 +456,33 @@ a#q-root-component-or-module
 
   `AppComponent` services don't exist at the root level where routing operates. 
   Lazy loaded modules can't reach them.
-  In this sample applications, if we had registered `UserService` in the `AppComponent`, 
+  In the Angular Module Chapter sample applications, if we had registered `UserService` in the `AppComponent`, 
   the `HeroComponent` couldn't inject it.
   The application  would fail the moment a user navigated to "Heroes".
 
-  We _can_ register a service in `AppComponent` providers if the app doesn't use routing.
-  We _should_ register a service in `AppComponent` providers if the service must be hidden
-  from components outside the `AppComponent` tree. 
+.l-hr
+
+a#q-component-or-module
+.l-main-section
+:marked
+  ### Should I add other providers to a module or a component?
+
+  In general, prefer registering feature-specific providers in modules (`@NgModule.providers`)
+  to registering in components (`@Component.providers`).
   
-  These are special cases.
-  When in doubt, register with the `AppModule`.
+  Register a provider with a component when you _must_ limit the scope of a service instance
+  to that component and its component tree. 
+  Apply the same reasoning to registering a provider with a directive.
+
+  For example, a hero editing component that needs a private copy of a caching hero service should register
+  the `HeroService` with the `HeroEditorComponent`. 
+  Then each new instance of the `HeroEditorComponent` gets its own cached service instance. 
+  The changes that editor makes to heroes in its service do not touch the hero instances elsewhere in the application.
+
+  [Always register _application-wide_ services with the root `AppModule`](q-root-component-or-module), 
+  not the root `AppComponent`.
 
 .l-hr
-  
 a#q-why-bad
 .l-main-section
 :marked
