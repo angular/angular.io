@@ -6,7 +6,8 @@ import {
   style,
   animate,
   transition,
-  keyframes
+  keyframes,
+  AnimationTransitionEvent
 } from '@angular/core';
 
 import { Heroes } from './hero.service';
@@ -14,14 +15,18 @@ import { Heroes } from './hero.service';
 @Component({
   moduleId: module.id,
   selector: 'hero-list-multistep',
+  // #docregion template
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
+          (@flyInOut.start)="animationStarted($event)"
+          (@flyInOut.done)="animationDone($event)"
           [@flyInOut]="'in'">
         {{hero.name}}
       </li>
     </ul>
   `,
+  // #enddocregion template
   styleUrls: ['hero-list.component.css'],
   /* The element here always has the state "in" when it
    * is present. We animate two transitions: From void
@@ -54,4 +59,12 @@ import { Heroes } from './hero.service';
 })
 export class HeroListMultistepComponent {
   @Input() heroes: Heroes;
+
+  animationStarted(event: AnimationTransitionEvent) {
+    console.warn('Animation started: ', event);
+  }
+
+  animationDone(event: AnimationTransitionEvent) {
+    console.warn('Animation done: ', event);
+  }
 }
