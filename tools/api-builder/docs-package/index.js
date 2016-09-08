@@ -18,7 +18,7 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 .processor(require('./processors/checkUnbalancedBackTicks'))
 .processor(require('./processors/convertBackticksToCodeBlocks'))
 .processor(require('./processors/addNotYetDocumentedProperty'))
-.processor(require('./processors/createDecoratorDocs'))
+.processor(require('./processors/mergeDecoratorDocs'))
 
 .config(function(parseTagsProcessor) {
   parseTagsProcessor.tagDefinitions.push({ name: 'internal', transforms: function() { return true; } });
