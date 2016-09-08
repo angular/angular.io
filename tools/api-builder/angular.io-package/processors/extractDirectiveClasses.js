@@ -8,7 +8,7 @@ module.exports = function extractDirectiveClassesProcessor(EXPORT_DOC_TYPES) {
   return {
     $runAfter: ['processing-docs'],
     $runBefore: ['docs-processed'],
-    decoratorTypes: ['Directive', 'Component', 'View'],
+    decoratorTypes: ['Directive', 'Component'],
     $process: function(docs) {
       var decoratorTypes = this.decoratorTypes;
 
