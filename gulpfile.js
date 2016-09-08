@@ -1212,7 +1212,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function apiSourceWatch(postBuildAction) {
-  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/src/**/*.*')];
+  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/**/*.*')];
   gulp.watch(srcPattern, {readDelay: 500}, function (event, done) {
     gutil.log('API source changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
