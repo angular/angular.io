@@ -21,7 +21,7 @@ Filing issues is helpful but **pull requests** that improve the docs are even be
 
 Learn how to [contribute to Angular.io](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md).
 
-> **IMPORTANT**: do _NOT_ make changes to cached files under `public/docs/ts/_cache`. Cached files are updated through a separate workflow.
+> **IMPORTANT**: Do _NOT_ make changes to cached files under `public/docs/ts/_cache`. Cached files are updated through a separate workflow.
 
 ## Development Setup
 This site relies heavily on node and npm.
