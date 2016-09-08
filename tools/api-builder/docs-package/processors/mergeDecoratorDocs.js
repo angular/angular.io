@@ -6,7 +6,7 @@ module.exports = function mergeDecoratorDocs() {
     $runBefore: ['docs-processed'],
     docsToMergeInfo: [
       { nameTemplate: _.template('${name}Decorator'), decoratorProperty: 'decoratorInterfaceDoc' },
-      { nameTemplate: _.template('${name}Metadata'), decoratorProperty: 'metadataDoc' },
+      { nameTemplate: _.template('${name}Metadata'), decoratorProperty: 'metadataDoc', useFields: ['howToUse', 'whatItDoes'] },
       { nameTemplate: _.template('${name}MetadataType'), decoratorProperty: 'metadataInterfaceDoc' },
       { nameTemplate: _.template('${name}MetadataFactory'), decoratorProperty: 'metadataFactoryDoc' }
     ],
@@ -21,7 +21,10 @@ module.exports = function mergeDecoratorDocs() {
         var makeDecorator = getMakeDecoratorCall(doc);
         if (makeDecorator) {
           doc.docType = 'decorator';
+          // get the type of the decorator metadata
           doc.decoratorType = makeDecorator.arguments[0].text;
+          // clear the symbol type named (e.g. ComponentMetadataFactory) since it is not needed
+          doc.symbolTypeName = undefined;
 
           // keep track of the docs that need to be merged into this decorator doc
           docsToMergeInfo.forEach(function(info) {
@@ -35,12 +38,21 @@ module.exports = function mergeDecoratorDocs() {
         if (docsToMerge[doc.name]) {
           var decoratorDoc = docsToMerge[doc.name].decoratorDoc;
           var property = docsToMerge[doc.name].property;
+          var useFields = docsToMerge[doc.name].useFields;
 
           // attach this document to its decorator
           decoratorDoc[property] = doc;
 
+          // Copy over fields from the merged doc if specified
+          if (useFields) {
+            useFields.forEach(function(field) {
+              decoratorDoc[field] = doc[field];
+            });
+          }
+
           // remove doc from its module doc's exports
           doc.moduleDoc.exports = doc.moduleDoc.exports.filter(function(exportDoc) { return exportDoc !== doc; });
+
 
           // remove from the overall list of docs to be rendered
           return false;
