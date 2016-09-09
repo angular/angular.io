@@ -95,7 +95,7 @@ module.exports = function addJadeDataDocsProcessor() {
               });
 
               // Remove line breaks, there should only be one tag
-              howToUse = howToUseArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+              howToUse = howToUseArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
             }
 
             var whatItDoes = '';
@@ -105,7 +105,7 @@ module.exports = function addJadeDataDocsProcessor() {
               });
 
               // Remove line breaks, there should only be one tag
-              whatItDoes = whatItDoesArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+              whatItDoes = whatItDoesArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
             }
 
             // SECURITY STATUS
@@ -119,7 +119,7 @@ module.exports = function addJadeDataDocsProcessor() {
               });
 
               // Remove line breaks, there should only be one tag
-              security = securityArray[0].description.replace(/(\r\n|\n|\r)/gm,"");
+              security = securityArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
 
               exportDoc.showSecurityNotes = true;
             }
