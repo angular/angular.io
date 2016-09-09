@@ -16,7 +16,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
 .processor(require('./processors/filterUnwantedDecorators'))
-.processor(require('./processors/extractDirectiveClasses'))
 .processor(require('./processors/matchUpDirectiveDecorators'))
 .processor(require('./processors/filterMemberDocs'))
 
@@ -100,7 +99,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 })
 
 
-.config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
+.config(function(readFilesProcessor, generateNavigationDoc) {
   // Clear out unwanted processors
   generateNavigationDoc.$enabled = false;
 })
