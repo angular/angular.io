@@ -52,7 +52,7 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
 
   .config(function (convertPrivateClassesToInterfacesProcessor,
     createOverviewDump,
-    extractDirectiveClassesProcessor,
+    extractDecoratedClassesProcessor,
     extractJSDocCommentsProcessor,
     extractTitleFromGuides,
     generateNavigationDoc,
@@ -62,7 +62,7 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
     // Clear out unwanted processors
     createOverviewDump.$enabled = false;
     convertPrivateClassesToInterfacesProcessor.$enabled = false;
-    extractDirectiveClassesProcessor.$enabled = false;
+    extractDecoratedClassesProcessor.$enabled = false;
     extractJSDocCommentsProcessor.$enabled = false;
     extractTitleFromGuides.$enabled = false;
     generateNavigationDoc.$enabled = false;
