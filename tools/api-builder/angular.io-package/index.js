@@ -15,7 +15,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
-.processor(require('./processors/filterUnwantedDecorators'))
 .processor(require('./processors/matchUpDirectiveDecorators'))
 .processor(require('./processors/filterMemberDocs'))
 
@@ -47,20 +46,13 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   }
   readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
   readTypeScriptModules.ignoreExportsMatching = [
-    '___esModule',
-    '___core_private_types__',
-    '___platform_browser_private__',
-    '___platform_browser_private_types__',
-    '___platform_browser_dynamic_private__',
-    '___platform_browser_dynamic_private_types__',
-    '___platform_server_private__',
-    '___router_private__' ,
-    '___core_private_testing_types__',
-    '___compiler_private__',
+    '__esModule',
     '__core_private__',
-    '___core_private__',
-    '___core_private_testing_placeholder__',
-    '___core_private_testing__'
+    '__core_private_testing__',
+    '__platform_browser_private__',
+    '__platform_browser_dynamic_private__',
+    '__platform_server_private__',
+    '__router_private__',
   ];
 
   readTypeScriptModules.sourceFiles = [
@@ -81,7 +73,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     '@angular/platform-webworker-dynamic/index.ts',
     '@angular/router/index.ts',
     '@angular/router/testing/index.ts',
-    '@angular/router-deprecated/index.ts',
     '@angular/upgrade/index.ts',
   ];
   readTypeScriptModules.hidePrivateMembers = true;
@@ -167,12 +158,4 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     require('./rendering/toId'),
     require('./rendering/indentForMarkdown')
   ]));
-})
-
-.config(function(filterUnwantedDecorators) {
-  filterUnwantedDecorators.decoratorsToIgnore = [
-    'CONST',
-    'IMPLEMENTS',
-    'ABSTRACT'
-  ];
 });
