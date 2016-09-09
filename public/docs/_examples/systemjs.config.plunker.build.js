@@ -37,6 +37,7 @@
       '@angular/http': 'ng:http-builds/master/bundles/http.umd.js',
       '@angular/router': 'ng:router-builds/master/bundles/router.umd.js',
       '@angular/forms': 'ng:forms-builds/master/bundles/forms.umd.js',
+      '@angular/upgrade': 'ng:upgrade-builds/master/bundles/upgrade.umd.js',
 
       // angular testing umd bundles (overwrite the shim mappings)
       '@angular/core/testing': 'ng:core-builds/master/bundles/core-testing.umd.js',
