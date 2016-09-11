@@ -1044,8 +1044,10 @@ function restoreApiHtml() {
     const relApiDir = path.join('docs', lang, vers, 'api');
     const wwwApiSubdir = path.join('www', relApiDir);
     const backupApiSubdir = path.join('www-backup', relApiDir);
-    gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
-    fs.copySync(backupApiSubdir, wwwApiSubdir);
+    if (fs.existsSync(backupApiSubdir) || argv.forceSkipApi !== true) {
+      gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
+      fs.copySync(backupApiSubdir, wwwApiSubdir);
+    }
   });
 }
 
