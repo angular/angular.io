@@ -1,0 +1,306 @@
+include ../_util-fns
+
+:marked
+  With internationalization, also known as i18n, we can display our website in multiple languages. There are two different
+  approaches to internationalization: with AoT compilation which requires a build step and a full reload when the language changes,
+  or with JiT which doesn't require a full reload and uses bindings to determine when a translation is needed.
+  
+  
+  
+  <a id="top"></a>
+  ## Table of contents
+  
+  [Different approaches to internationalization](#approaches-internationalization)
+  
+    * [JiT](#jit)
+    * [AoT](#aot)
+    
+  [Angular 2 and i18n](#angular2-i18n)
+  
+    * [i18n directive](#i18n-directive)
+    * [i18n plural pipe](#i18n-plural-pipe)
+    * [i18n select pipe](#i18n-select-pipe)
+    
+  [Extract and use translations](#extract)
+  
+    * [Extract messages with ng-xi18n](#ng-xi18n)
+    * [Translate messages](#translate)
+    * [Use translations with the JiT approach](#use-jit)
+    * [Use translations with the AoT approach](#use-aot)
+
+  
+.l-main-section
+<a id="approaches-internationalization"></a>
+:marked
+  ## Different approaches to internationalization
+
+  
+a(id="jit")
+.l-main-section
+:marked
+  ### Just in time (JiT) approach
+  
+  The JiT approach relies on providing the translations to our application and binding them to our templates using directives, pipes and interpolations.
+  
+  Its main features are:
+    * Minimal server side support required:  The same version of the application code is served by the server.
+    However, the server must also serve translated message bundles back to the application or have tools that embed all
+    translations in the application code at build time.
+    * Our application must track all the pieces of the UI that need to be updated when the locale changes.
+    In addition, if the new language strings are being loaded over the network, this could take time and the UI needs to indicate this in some way to the user.
+    * Allows one to support multiple languages in the same view.
+    As an example, a page could display a table showing how the user's advertising message might look in different locales.
+    This is fairly easy to do with this approach since it's fairly simple to have one locale per root node.
+    * The server is not required to determine the locale from the request – the client side can use cookies, the browser
+    language, and JS APIs to determine the language.
+    However, it's still be beneficial for the server to do some of this (e.g. to serve the likely language pack together with the application)
+    but that can be done at a later stage in development or for production.
+
+  
+a(id="aot")
+.l-main-section
+:marked
+  ### Ahead of time (AoT) compilation approach
+  
+  The AoT approach relies on precompiling the templates using the `ngc` compiler and then injecting the translations into these files.
+  
+  Its main features are:
+    * Performance win: by reloading the entire app, there is no need to track and update the bindings/UI that change as a result of the locale change.
+    * The locale changes so rarely that the cost of the reload is usually incurred only once.
+    * No information/state is (typically) lost. The user is presumably changing the language because he could not understand the earlier language.
+    This means that he doesn't have unsaved information in the application.
+    * Tools support: the strings to translate are easily extracted from our templates.
+    The resulting translations are in a generic format that can be consumed both by Angular 2 and one of the many translation softwares available.
+    * Cannot support multiple languages in the same application view.
+    * We have to reload the app to change the language.
+    * Extra server side support is needed: Since we generate different precompiled files for each language, the server must perform cookie/user agent analysis
+    to decide which localized version of the application code should be returned to the user. This also causes a cache miss.
+    * The server is now responsible for determining the default localized version to serve. (e.g. cookies / geo-ip / Accept-Language header, etc.)
+  
+
+a(id="angular2-i18n")
+.l-main-section
+:marked
+  ## Angular 2 and i18n
+  
+  Whatever approach we decide to use, we must update our templates to define which strings will be translated.
+ 
+  
+a(id="i18n-directive")
+.l-main-section
+:marked
+  ### i18n directive
+  
+  The i18n directive is what tells Angular where it should inject the translations.
+  It is used by both the JiT and the AoT approaches.
+  
+  We simply add the attribute `i18n` to an element and the content string will be replaced when necessary.
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'i18n-directive')(format=".")
+
+:marked
+  To help the translators, we can add more information about the meaning and context of this string.
+  Simply add a description to the i18n attribute:
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'i18n-directive-desc')(format=".")
+
+:marked
+  We can add some meaning as well, separate the meaning from the description with a pipe `|`:
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'i18n-directive-meaning')(format=".")
+
+:marked
+  Both the meaning and the description will be extracted by our messages extractor and added to the messages file.
+  It will help our translators to translate our application with a better understanding of what our text means. 
+
+  
+a(id="i18n-plural-pipe")
+.l-main-section
+:marked
+  ### i18n plural pipe
+  
+  When we need to pluralize some terms based on values, we can use the plural pipe.
+  
+  This pipe provides different translations based on a number and on a mapping (which is an object
+  that mimics the [ICU format](http://userguide.icu-project.org/formatparse/messages)):
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'i18n-plural-pipe')(format=".")
+
+.alert.is-important
+  :marked
+    The plural pipe is not yet supported by the ng-xi18n messages extractor. 
+
+  
+a(id="i18n-select-pipe")
+.l-main-section
+:marked
+  ### i18n select pipe
+  
+  Just like the plural pipe displays different translations based on a number, the select pipe is used to display different
+  translations based on a string that matches the current value.
+  
+  It also uses a mapping object that mimics the [ICU format](http://userguide.icu-project.org/formatparse/messages):
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'i18n-select-pipe')(format=".")
+.alert.is-important
+  :marked
+    The select pipe is not yet supported by the ng-xi18n messages extractor.
+  
+
+a(id="extract")
+.l-main-section
+:marked
+  ## Extract and use translations
+  
+a(id="ng-xi18n")
+.l-main-section
+:marked
+  ### Extract messages with ng-xi18n
+  
+  Now that our templates have been updated to support i18n translations, we can use the `ng-xi18n` messages extractor.
+  This cli tool is based on `ngc`, and is available in the `@angular/compiler-cli` npm package.
+  
+  To use it, the first thing that we have to do is to install it:
+  
+code-example(language="sh").
+  npm install @angular/compiler-cli --save
+
+:marked
+  Like `ngc`, `ng-xi18n` is based on `tsc`, the TypeScript compiler. It uses the file `tsconfig.json` to determine where
+  are our files. We have to make sure that we have defined the parameter `files` so that it knows what is the entry point
+  of our application.
+
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'tsconfig1')(format=".")
+
+:marked
+  We can then use the `ng-xi18n` binary to generate a file named `messages.xlf` at the root of our application.
+ 
+code-example(language="sh").
+  ./node_modules/.bin/ng-xi18n
+  
+.alert.is-helpful
+  :marked
+    It is considered good practice to create a new npm command that will be used to run `ng-xi18n`.
+    
+    Edit package.json and add the following command in the `scripts` property: `"extract": "ng-xi18n"`.
+    We can now generate our translations using the command `npm run extract`.
+
+:marked
+  If we want to generate this `messages.xlf` file somewhere in particular, `ng-xi18n` uses the same parameters as `ngc`.
+  
+  Let's edit our `tsconfig.json` file and add the `angularCompilerOptions` with `genDir` pointing to the folder where we
+  want `ng-xi18n` to generate the file.
+
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'tsconfig2')(format=".")
+
+:marked
+  The generated `messages.xlf` file uses by default the format `XML Localisation Interchange File Format` (XLIFF, version 1.2).
+  
+  `ng-x18n` and Angular 2 also support the `XML Message Bundle`(XMB) format. We can switch to this format by setting
+  the cli option `i18nFormat` to the value `xmb`:
+   
+code-example(language="sh").
+  ./node_modules/.bin/ng-xi18n --i18nFormat=xmb
+
+a(id="translate")
+.l-main-section
+:marked
+  ### Translate messages
+  
+  Now that we have generated a `messages` file, we have to make a copy by language that we want to support.
+  
+  If we want to support french for example, we can copy the file as `messages.fr`. We can start translating the messages,
+  or send those files to our translators.
+  
+  You can find a list of editors supporting the xlf format [here](https://en.wikipedia.org/wiki/XLIFF#Editors).
+  
+.alert.is-helpful
+  :marked
+    If we choose the default `XLIFF` format, we have to add the translations into the `<target/>` elements of our `messages.xlf`
+    file, such as: `<target>Bonjour i18n</target>`.
+    
+:marked
+  Whenever we add new messages in our application, we should run `ng-xi18n` again, and copy the added translations into
+  each of our localization files.
+  
+.alert.is-helpful
+  :marked
+    Using a versionning system such as `GIT` can help us find out easily what new translations have been generated by
+    the messages extractor.
+
+a(id="use-jit")
+.l-main-section
+:marked
+  ### Use translations with the JiT approach
+  
+  Now that we have a localized file, we can tell Angular 2 to use it for all of our elements that have the `i18n` directive attribute.
+  
+  Angular 2 understand `xlf` and `xmb` formats, but we have to provide these message into our application.
+  To do that we will have to define a few providers at bootstrap time.
+  
+  Let's say that we have the following bootstrap file:
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'bootstrap')(format=".")
+
+:marked
+  We have to provide three values: `TRANSLATIONS`, `TRANSLATIONS_FORMAT` and `LOCALE_ID`:
+    * `TRANSLATIONS` is a string containing the content of our `messages` file for the chosen localization.
+    * `TRANSLATIONS_FORMAT` is either `xlf` or `xmb` depending on the format of our `messages` file.
+    * `LOCALE_ID` is a string representing the locale of our chosen language.
+  
+  For our `messages.fr.xlf` file, we would change the bootstrap like this:  
+  
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'bootstrap-i18n')(format=".")
+
+:marked
+  Since TypeScript is unable to import an `xlf` file, we have to create a `.ts` file that exports the content of our
+  `messages.fr.xlf` file.
+
+
++makeExample('i18n/ts-snippets/i18n.config.snippets.ts', 'messages-ts')(format=".")
+
+.alert.is-helpful
+  :marked
+    If you use Webpack you can use the [raw loader](https://github.com/webpack/raw-loader) to import your translations
+    file directly like this: `const TRANSLATION = require("raw!./i18n/messages.fr.xlf");`
+
+:marked
+  That's it, our application is now internationalized! Angular 2 will replace the content of our elements using
+  the `i18n` attribute directive with the french translations that we provided at bootstrap.
+  
+.alert.is-important
+  :marked
+    Angular 2 is focused on providing the best AoT approach as possible which means that even if you can use i18n with the
+    JiT approach, the mecanism behind i18n in Angular 2 requires a full reload to change the language, you won't be able
+    to do it at runtime.
+
+a(id="use-aot")
+.l-main-section
+:marked
+  ### Use translations with the AoT approach
+  
+  Using the AoT approach requires a little bit of setup to make the `ngc` compiler work. Refer to the
+  [AoT cookbook](../cookbook/aot-compiler.html) to learn more about it.
+  
+  Once our project is ngc-ready, we will use `ngc` to compile a version of our application per locale. To do that
+  we will add three arguments to the cli command:
+    * `--i18nFile`: the path to our localization file
+    * `--locale`: the name of the locale
+    * `--i18nFormat`: the format of our localization file
+  
+  If we want to generate precompiled files for our french translations, we will use:
+  
+code-example(language="sh").
+  ngc --i18nFile=./src/i18n/messages.fr.xlf --locale=fr --i18nFormat=xlf
+  
+.alert.is-helpful
+  :marked
+    Since you're supposed to generate precompiled file for each locale, you should probably use different `tsconfig.json`
+    files with a different `genDir` for each, and different npm commands pointing to each locale.
+    
+    You could also write a script that directly calls the `CodeGenerator` class (exported by the package `@angular/compiler-cli`)
+    for each locale.
+    
+:marked
+  That's all that we have to do, the `ngc` compiler will replace the content of our elements using the i18n attribute
+  directive with our translations in the AoT precompiled files. 
