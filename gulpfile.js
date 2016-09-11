@@ -297,7 +297,7 @@ function runE2eTsTests(appDir, outputFile) {
   } catch (e) {
     exampleConfig = {};
   }
-  
+
   var config = {
     build: exampleConfig.build || 'tsc',
     run: exampleConfig.run || 'http-server:e2e'
@@ -1263,7 +1263,7 @@ function apiExamplesWatch(postShredAction) {
 }
 
 function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
-  var watchPattern = focus ? '**/' + focus + '/**/*.*' : '**/*.*';
+  var watchPattern = focus ? '**/{' + focus + ',cb-' + focus+ '}/**/*.*' : '**/*.*';
   var includePattern = path.join(shredOptions.examplesDir, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
