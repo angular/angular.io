@@ -289,6 +289,19 @@ describe('Animation Tests', () => {
     });
   });
 
+  describe('callbacks', () => {
+    it('fires a callback on start and done', () => {
+      addActiveHero();
+      browser.manage().logs().get('browser').then((logs) => {
+        const animationMessages = logs.filter((log) => {
+          return log.message.indexOf('Animation') !== -1 ? true : false;
+        });
+
+        expect(animationMessages.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
   function addActiveHero(sleep?: number) {
     sleep = sleep || 500;
     element(by.buttonText('Add active hero')).click();
