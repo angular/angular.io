@@ -7,6 +7,11 @@ var titleCase = function(text) {
   });
 };
 
+var escapeQuotes = function(text) {
+  return text ? text.replace(/"/g, '\\"') : text;
+};
+
+
 /*
 * Create _data.json file for Harp pages
 *
@@ -130,10 +135,10 @@ module.exports = function addJadeDataDocsProcessor() {
               title: exportDoc.name,
               docType: exportDoc.docType,
               exportDoc: exportDoc,
-              stability: stability,
-              howToUse: howToUse,
-              whatItDoes: whatItDoes,
-              security: security
+              stability: escapeQuotes(stability),
+              howToUse: escapeQuotes(howToUse),
+              whatItDoes: escapeQuotes(whatItDoes),
+              security: escapeQuotes(security)
             };
 
             if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);

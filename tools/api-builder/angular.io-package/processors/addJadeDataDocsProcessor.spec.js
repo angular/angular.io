@@ -20,7 +20,8 @@ describe('addJadeDataDocsProcessor', function() {
           exportDoc = { name: 'someObj', docType: 'var', symbolTypeName: 'MyClass', originalModule: 'some/private/module' }
         ],
         fileInfo: { baseName: 'x_y' },
-        description: 'some description\nsecond line'
+        description: 'some description\nsecond line',
+        howToUse: 'use with "quotes" or without'
       }
     ];
     docs = processor.$process(docs);
@@ -40,7 +41,7 @@ describe('addJadeDataDocsProcessor', function() {
           originalModule: 'some/private/module',
           exportDoc: exportDoc,
           stability : '',
-          howToUse : '',
+          howToUse : 'use with \\"quotes\\" or without',
           whatItDoes : '',
           security : false
         }
