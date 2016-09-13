@@ -45,22 +45,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
   }
   readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
-  readTypeScriptModules.ignoreExportsMatching = [
-    '__esModule',
-    '__core_private__',
-    '___core_private__',
-    '__core_private_testing__',
-    '___core_private_testing__',
-    '___core_private_testing_placeholder__',
-    '__platform_browser_private__',
-    '___platform_browser_private__',
-    '__platform_browser_dynamic_private__',
-    '___platform_browser_dynamic_private__',
-    '___platform_server_private__',
-    '__platform_server_private__',
-    '__router_private__',
-    '___router_private__',
-  ];
+  readTypeScriptModules.ignoreExportsMatching = [/^_/];
 
   readTypeScriptModules.sourceFiles = [
     '@angular/common/index.ts',
