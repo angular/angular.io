@@ -56,14 +56,13 @@ angularIO.directive('copyButton', function() {
 
           console.log('clicked', contentElement[0].innerText);
 
+          // CHANGE TEXT, THEN CHANGE BACK
           buttonWrapper.addClass('is-copied');
           button.innerText = 'Copied!';
-
           setTimeout(function() {
             buttonWrapper.removeClass('is-copied');
             button.innerText = buttonLabel;
-          }, 2000);
-
+          }, 1000);
 
           return contentElement[0].innerText; }
       });
