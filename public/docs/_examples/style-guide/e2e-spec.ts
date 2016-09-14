@@ -57,19 +57,6 @@ describe('Style Guide', function () {
     expect(buttons.get(1).getText()).toBe('Hide toast');
   });
 
-  it('03-05', function () {
-    browser.get('#/03-05');
-
-    let div = element(by.tagName('sg-app > div'));
-    expect(div.getText()).toBe('Actual favorite: Windstorm');
-
-    let lis = element.all(by.tagName('sg-app > ul > li'));
-    expect(lis.get(0).getText()).toBe('Windstorm');
-    expect(lis.get(1).getText()).toBe('Bombasto');
-    expect(lis.get(2).getText()).toBe('Magneta');
-    expect(lis.get(3).getText()).toBe('Tornado');
-  });
-
   it('03-06', function () {
     browser.get('#/03-06');
 
