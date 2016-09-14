@@ -2,7 +2,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { Hero } from '../shared/hero.model.ts';
+import { Hero } from '../shared/hero.model';
 
 // #docregion example
 @Component({
