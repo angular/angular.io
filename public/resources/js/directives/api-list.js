@@ -4,7 +4,7 @@ angularIO.directive('apiList', function () {
   return {
     restrict: 'E',
     template:
-      '<div ng-cloak="ng-cloak" class="banner">' +
+      '<div ng-cloak="ng-cloak" >' +
       '  <dl class="api-key">' +
       '    <dt>Display:</dt>' +
       '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
