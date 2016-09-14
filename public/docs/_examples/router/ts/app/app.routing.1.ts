@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { ModuleWithProviders } from '@angular/core';
 // #docregion route-config
+import { ModuleWithProviders } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 // #enddocregion route-config

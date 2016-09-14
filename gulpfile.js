@@ -91,15 +91,12 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 var _exampleBoilerplateFiles = [
   '.editorconfig',
   'a2docs.css',
-  'karma.conf.js',
-  'karma-test-shim.js',
   'package.json',
   'styles.css',
   'systemjs.config.js',
   'tsconfig.json',
   'tslint.json',
-  'typings.json',
-  'wallaby.js'
+  'typings.json'
  ];
 
 var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
@@ -636,7 +633,7 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
 // Using the --build flag will use systemjs.config.plunker.build.js (for preview builds)
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   regularPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
-  return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
+  return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build, targetSelf: argv.targetSelf });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -1044,8 +1041,10 @@ function restoreApiHtml() {
     const relApiDir = path.join('docs', lang, vers, 'api');
     const wwwApiSubdir = path.join('www', relApiDir);
     const backupApiSubdir = path.join('www-backup', relApiDir);
-    gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
-    fs.copySync(backupApiSubdir, wwwApiSubdir);
+    if (fs.existsSync(backupApiSubdir) || argv.forceSkipApi !== true) {
+      gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
+      fs.copySync(backupApiSubdir, wwwApiSubdir);
+    }
   });
 }
 
