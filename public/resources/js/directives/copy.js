@@ -38,18 +38,32 @@ angularIO.directive('copyContainer', function() {
  * but the content element itself most be available at link time.
  */
 angularIO.directive('copyButton', function() {
+  var buttonLabel = "Copy Code";
+
   return {
     restrict: 'E',
     template:
-      '<md-button class="md-icon-button">\n' +
-      '  <md-icon md-font-icon="icon-content-copy" alt="Copy to Clipboard"></md-icon>\n' +
+      '<md-button class="md-copy-button">\n' +
+      buttonLabel + '\n' +
       '  <md-tooltip>Copy to Clipboard</md-tooltip>\n' +
       '</md-button>',
     link: function link(scope, element) {
       var contentElement = element.next();
       var clipboard = new Clipboard(element[0], {
         text: function() {
+          var button = element[0].firstChild;
+          var buttonWrapper = element;
+
           console.log('clicked', contentElement[0].innerText);
+
+          // CHANGE TEXT, THEN CHANGE BACK
+          buttonWrapper.addClass('is-copied');
+          button.innerText = 'Copied!';
+          setTimeout(function() {
+            buttonWrapper.removeClass('is-copied');
+            button.innerText = buttonLabel;
+          }, 1000);
+
           return contentElement[0].innerText; }
       });
       scope.$on('$destroy', function() {
