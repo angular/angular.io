@@ -875,34 +875,26 @@ figure
   of NPM. We'll install all new dependencies using NPM, and will eventually be
   able to remove Bower from the project.
 
-  Let's begin by installing TypeScript to the project. While we're at it, let's also
-  install the [Typings type definition manager](https://github.com/typings/typings).
-  It will allow us to install type definitions for libraries that don't come with
-  prepackaged types.
+  Let's begin by installing TypeScript to the project.
 
 code-example(format="").
-  npm i typescript typings --save-dev
+  npm i typescript --save-dev
 
 :marked
-  Let's also add run scripts for the `tsc` TypeScript compiler and the `typings`
-  tool to `package.json`:
+  Let's also add run scripts for the `tsc` TypeScript compiler to `package.json`:
 
-+makeJson('upgrade-phonecat-1-typescript/ts/package.json', {paths: 'scripts.tsc, scripts.tsc:w, scripts.typings'}, 'package.json')
++makeJson('upgrade-phonecat-1-typescript/ts/package.json', {paths: 'scripts.tsc, scripts.tsc:w'}, 'package.json')
 
 
 :marked
-  We can now use Typings to install type definitions for the existing libraries that
-  we're using: Angular 1 and the Jasmine unit test framework.
+  We can now install type definitions for the existing libraries that
+  we're using but that don't come with prepackaged types: Angular 1 and the 
+  Jasmine unit test framework.
 
 code-example(format="").
-  npm run typings install dt~jquery dt~angular dt~angular-route \
-    dt~angular-resource dt~angular-mocks dt~angular-animate \
-    dt~jasmine -- --save --global
+  npm install @types/jasmine @types/angular  @types/angular-animate @types/angular-cookies @types/angular-mocks @types/angular-resource @types/angular-route @types/angular-sanitize --save-dev
 
 :marked
-  This will add these typings into a `typings.json` configuration file as well as
-  download them into the `typings directory`.
-
   We should also configure the TypeScript compiler so that it can understand our
   project. We'll add a `tsconfig.json` file to the project directory, just like we do
   in the [Quickstart](../quickstart.html). It instructs the TypeScript compiler how
@@ -968,8 +960,8 @@ code-example(format="").
 
 .l-sub-section
   :marked
-    The [Angular 1.x type definitions](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/angularjs)
-    we installed with Typings are not officially maintained by the Angular team,
+    The [Angular 1.x type definitions](https://www.npmjs.com/package/@types/angular)
+    we installed are not officially maintained by the Angular team,
     but are quite comprehensive. It is possible to make an Angular 1.x application
     fully type-annotated with the help of these definitions.
 
@@ -1037,14 +1029,12 @@ code-example(format="").
   [Quickstart](../quickstart.html) guide and get the following configurations from there:
 
   * Add Angular 2 and the other new dependencies to `package.json`
-  * Add the new typings into `typings.json`
   * The SystemJS configuration file `systemjs.config.js` to the project root directory.
 
   Once these are done, run:
 
 code-example(format="").
   npm install
-  npm run typings install
 
 :marked
   We can soon load Angular 2 dependencies into the application via `index.html`,
@@ -1109,6 +1099,18 @@ code-example(format="").
   in `systemjs.config.js`, so it is already being loaded by the browser.
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/main.ts', 'import-adapter', 'app/main.ts')
+
+.l-sub-section
+  :marked
+    ### Why declare _angular_ as _any_?
+    
+    A strongly typed `angular` reference to Angular 1 would be great.
+    But we can't import its <a href="https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#support-for-umd-module-definitions" target="_blank">UMD typings</a>
+    library, `@types/angular`, without also importing Angular 1 itself via `import * as angular from 'angular'`.
+    
+    Angular 1 is currently loaded by a script tag in `index.html` and 
+    switching to an ES6 import at this time is not worth the considerable effort.
+    Instead we declare `angular` as an untyped `any` to avoid typing errors.
 
 :marked
   We can then make an adapter by instantiating the class:
@@ -1215,7 +1217,6 @@ code-example(format="").
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-list/phone-list.component.ng1.ts', null, 'app/phone-list/phone-list.component.ts')
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-detail/phone-detail.component.ng1.ts', null, 'app/phone-detail/phone-detail.component.ts')
-
 
 :marked
   What we have here are two Angular 1 components using an Angular 2 service!
@@ -1497,12 +1498,7 @@ code-example(format="").
   we still need are for Jasmine and Angular 2 polyfills.
 
 code-example(format="").
-  npm run typings uninstall jquery -- --save --global
-  npm run typings uninstall angular -- --save --global
-  npm run typings uninstall angular-route -- --save --global
-  npm run typings uninstall angular-resource -- --save --global
-  npm run typings uninstall angular-mocks -- --save --global
-  npm run typings uninstall angular-animate -- --save --global
+  npm uninstall @types/angular --save-dev
 
 :marked
   Finally, from `index.html`, remove all references to

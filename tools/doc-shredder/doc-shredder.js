@@ -4,7 +4,7 @@ var del = require('del');
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 var globby = require('globby');
-var ignoreDirs = ['**/node_modules/**', '**/dist/**', '**/typings/**'];
+var ignoreDirs = ['**/node_modules/**', '**/dist/**'];
 
 var _getLogLevel = function (options) { return options.logLevel || 'info'; }
 
@@ -138,7 +138,7 @@ function createShredExamplePackage(shredOptions) {
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles ,
-        exclude: [ '**/node_modules/**', '**/dist/**', '**/typings/**', '**/packages/**', '**/dart/build/**'],
+        exclude: [ '**/node_modules/**', '**/dist/**', '**/packages/**', '**/dart/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.examplesDir
@@ -190,7 +190,7 @@ function createShredJadePackage(shredOptions) {
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles ,
-        exclude: [ '**/node_modules/**', '**/typings/**', '**/packages/**', '**/dart/build/**', '**/_code-examples.jade'],
+        exclude: [ '**/node_modules/**', '**/packages/**', '**/dart/build/**', '**/_code-examples.jade'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.jadeDir
@@ -244,7 +244,7 @@ var createShredMapPackage = function(mapOptions) {
       readFilesProcessor.sourceFiles = [ {
         // Process all candidate files in `src` and its subfolders ...
         include: includeFiles,
-        exclude: ['**/node_modules/**', '**/typings/**', '**/packages/**', '**/dart/build/**'],
+        exclude: ['**/node_modules/**', '**/packages/**', '**/dart/build/**'],
         // When calculating the relative path to these files use this as the base path.
         // So `src/foo/bar.js` will have relative path of `foo/bar.js`
         basePath: options.jadeDir

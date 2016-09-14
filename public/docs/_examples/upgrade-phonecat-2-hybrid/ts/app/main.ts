@@ -1,5 +1,6 @@
 // #docregion import-adapter
 import { UpgradeAdapter } from '@angular/upgrade';
+declare var angular: any;
 
 import { AppModule } from './app.module';
 // #enddocregion import-adapter
