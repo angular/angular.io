@@ -215,11 +215,6 @@ extends ${baseHref}/../../../_layout-dart-api
 
 include ${baseHref}/../_util-fns
 
-block var-def
-  //- FIXME: a CSS expert needs to figure out why the header CSS needs to be patched for Dart.
-  //- This enables the patch:
-  - var fixHeroCss = 1;
-
 block head-extra
   // generated Dart API page template: head-extra
   //- <base> is required because all the links in dartdoc generated pages are "pseudo-absolute"

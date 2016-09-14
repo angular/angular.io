@@ -4,12 +4,16 @@ angularIO.directive('apiList', function () {
   return {
     restrict: 'E',
     template:
-      '<div ng-cloak="ng-cloak" class="banner is-plain api-filter-bar">' +
-      '  <dl class="api-filter">' +
-      '    <dt>Display:</dt>' +
-      '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
-      '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)"><span class="symbol {{apiType.cssClass}}"></span>{{apiType.title}}</dd>' +
-      '  </dl>' +
+      '<div ng-cloak="ng-cloak" class="banner is-plain api-filter clearfix">' +
+      '  <div class="form-select-menu">' +
+      '    <button ng-repeat="apiType in $ctrl.apiTypes" ng-if="$ctrl.apiType === apiType" class="form-select-button has-symbol" ng-click="$ctrl.toggleMenu()"><strong>Type:</strong><span class="symbol {{apiType.cssClass}}" ng-if="apiType.cssClass !== \'stable\'" ></span>{{apiType.title}}</button>'+
+      '    <button class="form-select-button is-default" ng-if="$ctrl.apiType === null" ng-click="$ctrl.toggleMenu()"><strong>All Types</strong></button>'+
+      '    <ul class="form-select-dropdown" ng-class="{ visible: $ctrl.showMenu === true }">' +
+      '      <li ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.clearType()">All Types</li>' +
+      '      <li ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)"><span class="symbol {{apiType.cssClass}}"></span>{{apiType.title}}</li>' +
+      '    </ul>' +
+      '    <div class="overlay" ng-class="{ visible: $ctrl.showMenu === true }" ng-click="$ctrl.toggleMenu()"></div>' +
+      '  </div>' +
       '  <div class="form-search">' +
       '    <i class="material-icons">search</i>' +
       '    <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 350, \'blur\': 0}}">' +
@@ -29,10 +33,12 @@ angularIO.directive('apiList', function () {
     controller: function($scope, $attrs, $http, $location) {
       var $ctrl = this;
 
+      $ctrl.showMenu = false;
+
       var isForDart = $attrs.lang === 'dart';
 
       $ctrl.apiTypes = [
-        { cssClass: 'stable', title: 'Stable', matches: ['stable']},
+        { cssClass: 'stable', title: 'Only Stable', matches: ['stable']},
         { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
         { cssClass: 'pipe', title: 'Pipe', matches: ['pipe'] },
         { cssClass: 'decorator', title: 'Decorator', matches: ['decorator'] },
@@ -54,6 +60,16 @@ angularIO.directive('apiList', function () {
       $ctrl.setType = function (type) {
         if (type === $ctrl.apiType) $ctrl.apiType = null;
         else $ctrl.apiType = type;
+        $ctrl.showMenu = !$ctrl.showMenu;
+      };
+
+      $ctrl.clearType = function () {
+        $ctrl.apiType = null;
+        $ctrl.showMenu = !$ctrl.showMenu;
+      };
+
+      $ctrl.toggleMenu = function () {
+        $ctrl.showMenu = !$ctrl.showMenu;
       };
 
       $ctrl.isFiltered = function(section) {
