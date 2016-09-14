@@ -4,17 +4,20 @@ angularIO.directive('apiList', function () {
   return {
     restrict: 'E',
     template:
-      '<div ng-cloak="ng-cloak" >' +
-      '  <dl class="api-key">' +
+      '<div ng-cloak="ng-cloak" class="banner is-plain api-filter-bar">' +
+      '  <dl class="api-filter">' +
       '    <dt>Display:</dt>' +
       '    <dd ng-class="{ active: !$ctrl.apiType }" ng-click="$ctrl.apiType = null">All</dd>' +
-      '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)" class="{{apiType.cssClass}}">{{apiType.title}}</dd>' +
+      '    <dd ng-repeat="apiType in $ctrl.apiTypes" ng-class="{ active: $ctrl.apiType === apiType }" ng-click="$ctrl.setType(apiType)"><span class="symbol {{apiType.cssClass}}"></span>{{apiType.title}}</dd>' +
       '  </dl>' +
-      '  <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 350, \'blur\': 0}}" class="api-filter">' +
+      '  <div class="form-search">' +
+      '    <i class="material-icons">search</i>' +
+      '    <input placeholder="Filter" ng-model="$ctrl.apiFilter" ng-model-options="{updateOn: \'default blur\', debounce: {\'default\': 350, \'blur\': 0}}">' +
+      '  </div>' +
       '</div>' +
       '<article class="l-content-small grid-fluid docs-content">' +
       '  <div ng-repeat="section in $ctrl.groupedSections" ng-if="$ctrl.isFiltered(section)" ng-cloak="ng-cloak">' +
-      '    <h3>{{ section.title }}</h3>' +
+      '    <h2>{{ section.title }}</h2>' +
       '    <ul class="api-list">' +
       '      <li ng-repeat="item in section.items" ng-show="item.show" class="api-item">' +
       '        <a ng-href="{{ item.path }}"><span class="symbol {{ item.docType }}"></span>{{ item.title }}</a>' +
@@ -89,7 +92,7 @@ angularIO.directive('apiList', function () {
       });
 
       $scope.$watchGroup(
-        [function() { return $ctrl.apiFilter}, function() { return $ctrl.apiType; }, function() { return $ctrl.sections; }],
+        [function() { return $ctrl.apiFilter; }, function() { return $ctrl.apiType; }, function() { return $ctrl.sections; }],
         function() {
           var apiFilter = ($ctrl.apiFilter || '').toLowerCase();
 
