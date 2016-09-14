@@ -93,7 +93,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   computePathsProcessor.pathTemplates.push({
     docTypes: ['module'],
     getPath: function computeModulePath(doc) {
-      doc.moduleFolder = doc.id.replace(/^@angular\//, '');
+      doc.moduleFolder = doc.id.replace(/^@angular\//, '').replace(/\/index$/, '');
       return doc.moduleFolder + '/index.html';
     },
     getOutputPath: function computeModulePath(doc) {
@@ -103,15 +103,15 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
-    pathTemplate: '${moduleDoc.moduleFolder}/${name}-${docType}.html',
-    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
+    pathTemplate: '${moduleDoc.moduleFolder}/${name}.html',
+    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}.jade',
   });
 
 
   computePathsProcessor.pathTemplates.push({
     docTypes: ['decorator'],
-    pathTemplate: '${moduleDoc.moduleFolder}/${name}-${docType}.html',
-    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
+    pathTemplate: '${moduleDoc.moduleFolder}/${name}.html',
+    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}.jade',
   });
 
   computePathsProcessor.pathTemplates.push({
