@@ -13,15 +13,15 @@
 
 // #docregion i18n-plural-pipe
 @Component({
-  selector: 'app',
+  selector: 'my-app',
   template: `
     <div>
       {{ messages.length | i18nPlural: messageMapping }}
     </div>
-  `,
+  `
 })
-class MyApp {
-  messages: any[];
+export class AppComponent {
+  messages: string[];
   messageMapping: {[k:string]: string} = {
     '=0': 'No messages.',
     '=1': 'One message.',
@@ -32,16 +32,16 @@ class MyApp {
 
 // #docregion i18n-select-pipe
 @Component({
-  selector: 'app',
+  selector: 'my-app',
   template: `
     <div>
-      {{ gender | i18nSelect: inviteMap }}
+      {{ gender | i18nSelect: genderMap }}
     </div>
-  `,
+  `
 })
-class MyApp {
-  gender: string = 'male';
-  inviteMap: any = {
+export class AppComponent {
+  gender = 'male';
+  genderMap = {
     'male': 'Invite him.',
     'female': 'Invite her.',
     'other': 'Invite them.'
@@ -49,62 +49,39 @@ class MyApp {
 }
 // #enddocregion i18n-select-pipe
 
-// #docregion tsconfig1
+// #docregion tsconfig
 {
   "compilerOptions": {
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "target": "es5",
     "module": "commonjs",
-    "outDir": "./dist/out-tsc"
-  },
-  "files": [
-    "./src/main.ts"
-  ]
-}
-// #enddocregion tsconfig1
-
-// #docregion tsconfig2
-{
-  "compilerOptions": {
+    "moduleResolution": "node",
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
-    "module": "commonjs",
-    "outDir": "./dist/out-tsc"
+    "removeComments": false,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true
   },
-  "files": [
-    "./src/main.ts"
-  ],
   "angularCompilerOptions": {
-    "genDir": "./src/i18n"
+    "genDir": "./app/i18n"
   }
 }
-// #enddocregion tsconfig2
+// #enddocregion tsconfig
 
 // #docregion bootstrap
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { enableProdMode } from '@angular/core';
-import { environment } from './environments/environment';
-import { AppModule } from './app/';
 
-if (environment.production) {
-  enableProdMode();
-}
+import { AppModule } from './app.module';
 
 platformBrowserDynamic().bootstrapModule(AppModule);
 // #enddocregion bootstrap
 
 // #docregion bootstrap-i18n
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { enableProdMode, TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
-import { environment } from './environments/environment';
-import { AppModule } from './app/';
-import { TRANSLATION } from './i18n/messages.fr';
+import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
 
-if (environment.production) {
-  enableProdMode();
-}
+import { AppModule } from './app.module';
+import { TRANSLATION } from './i18n/messages.fr';
 
 // Compile using french translations
 platformBrowserDynamic().bootstrapModule(
@@ -118,7 +95,6 @@ platformBrowserDynamic().bootstrapModule(
   }
 );
 // #enddocregion bootstrap-i18n
-
 
 // #docregion messages-ts
 export const TRANSLATION = `<?xml version="1.0" encoding="UTF-8"?>
