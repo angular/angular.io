@@ -224,9 +224,6 @@ block head-extra
   // generated Dart API page template: head-extra
   //- <base> is required because all the links in dartdoc generated pages are "pseudo-absolute"
   base(href="${baseHref}")
-  link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Source+Code+Pro|Roboto:500,400italic,300,400' type='text/css')
-  link(rel="stylesheet" href="static-assets/prettify.css")
-  link(rel="stylesheet" href="static-assets/css/bootstrap.min.css")
   link(rel="stylesheet" href="static-assets/styles.css")
 
 block breadcrumbs
