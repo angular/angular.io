@@ -42,7 +42,7 @@ export class HeroService {
 
   // #docregion delete
   delete(id: number): Promise<void> {
-    let url = `${this.heroesUrl}/${id}`;
+    const url = `${this.heroesUrl}/${id}`;
     return this.http.delete(url, {headers: this.headers})
       .toPromise()
       .then(() => null)
