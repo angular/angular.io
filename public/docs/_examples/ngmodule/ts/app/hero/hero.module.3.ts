@@ -8,14 +8,9 @@ import { HeroListComponent }   from './hero-list.component';
 import { HighlightDirective }  from './highlight.directive';
 import { routing }             from './hero.routing.3';
 
-// TODO: Remove in RC 6
-import { HeroService }         from './hero.service';
-
 // #docregion class
 @NgModule({
   imports: [ CommonModule, FormsModule, routing ],
-  // TODO: Remove in RC 6
-  providers: [ HeroService ],
   declarations: [
     HeroComponent, HeroDetailComponent, HeroListComponent,
     HighlightDirective
