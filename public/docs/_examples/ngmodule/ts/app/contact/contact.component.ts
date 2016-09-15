@@ -6,9 +6,10 @@ import { Contact, ContactService } from './contact.service';
 import { UserService }             from '../core/user.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'app-contact',
-  templateUrl: 'app/contact/contact.component.html',
-  styleUrls: ['app/contact/contact.component.css']
+  templateUrl: 'contact.component.html',
+  styleUrls: ['contact.component.css']
 })
 export class ContactComponent implements OnInit {
   contact:  Contact;
@@ -36,7 +37,7 @@ export class ContactComponent implements OnInit {
   }
 
   onSubmit() {
-    // TODO: do something like save it
+    // POST-DEMO TODO: do something like save it
     this.displayMessage('Saved ' + this.contact.name);
   }
 
