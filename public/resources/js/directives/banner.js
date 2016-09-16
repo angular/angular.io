@@ -13,7 +13,7 @@ angularIO.directive('banner', ['$interval', function($interval) {
     transclude: true,
     compile: function(tElement, attrs) {
       var template =
-        '<div class="announcement-bar shadow-2 clearfix" ng-transclude></div>';
+        '<div class="announcement-bar clearfix" ng-transclude></div>';
 
       // UPDATE ELEMENT WITH NEW TEMPLATE
       tElement.html(template);
