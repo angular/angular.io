@@ -4,19 +4,14 @@ export { ActivatedRoute, Router, RouterLink, RouterOutlet} from '@angular/router
 import { Component, Directive, Injectable, Input } from '@angular/core';
 import { NavigationExtras } from '@angular/router';
 
+// #docregion router-link
 @Directive({
   selector: '[routerLink]',
   host: {
-    '(click)': 'onClick()',
-    '[attr.href]': 'href',
-    '[class.router-link-active]': 'isRouteActive'
+    '(click)': 'onClick()'
   }
 })
-export class RouterLinkDirectiveStub {
-
-  isRouteActive = false;
-  href: string; // the url displayed on the anchor element.
-
+export class RouterLinkStubDirective {
   @Input('routerLink') linkParams: any;
   navigatedTo: any = null;
 
@@ -24,17 +19,14 @@ export class RouterLinkDirectiveStub {
     this.navigatedTo = this.linkParams;
   }
 }
+// #enddocregion router-link
 
 @Component({selector: 'router-outlet', template: ''})
 export class RouterOutletStubComponent { }
 
 @Injectable()
 export class RouterStub {
-  lastCommand: any[];
-  navigate(commands: any[], extras?: NavigationExtras) {
-    this.lastCommand = commands;
-    return commands;
-  }
+  navigate(commands: any[], extras?: NavigationExtras) { }
 }
 
 

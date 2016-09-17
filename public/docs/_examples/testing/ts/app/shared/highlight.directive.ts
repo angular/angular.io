@@ -1,13 +1,12 @@
+// #docregion
 import { Directive, ElementRef, Input, OnChanges, Renderer } from '@angular/core';
 
 @Directive({ selector: '[highlight]' })
-/**
- * Set backgroundColor for the attached element ton highlight color and
- * set element `customProperty` = true
- */
+/** Set backgroundColor for the attached element to highlight color
+ *  and set the element's customProperty to true */
 export class HighlightDirective implements OnChanges {
 
-  static defaultColor =  'rgb(211, 211, 211)'; // lightgray
+  defaultColor =  'rgb(211, 211, 211)'; // lightgray
 
   @Input('highlight') bgColor: string;
 
@@ -18,7 +17,6 @@ export class HighlightDirective implements OnChanges {
   ngOnChanges() {
     this.renderer.setElementStyle(
       this.el.nativeElement, 'backgroundColor',
-      this.bgColor || HighlightDirective.defaultColor );
+      this.bgColor || this.defaultColor );
   }
 }
-

@@ -187,7 +187,7 @@ class Page {
     const router       = compInjector.get(Router);
     this.gotoSpy       = spyOn(comp, 'gotoList').and.callThrough();
     this.saveSpy       = spyOn(hds, 'saveHero').and.callThrough();
-    this.navSpy        = spyOn(router, 'navigate').and.callThrough();
+    this.navSpy        = spyOn(router, 'navigate');
   }
 
   /** Add page elements after hero arrives */

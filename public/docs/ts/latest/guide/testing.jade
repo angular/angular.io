@@ -13,25 +13,63 @@ block includes
 
 a#top
 :marked
-  # Contents
-
-  * [Introduction to Angular Testing](#testing-101)
-  * [Setup](#setup)
-  * [The first karma test](#1st-karma-test)
-  * [The Angular Testing Platform (ATP) ](#atp-intro)
-  * [The sample application and its tests](#sample-app)
-  * [A simple component test](#simple-component-test)
-  * [Test a component with a service dependency](#component-with-dependency)
-  * [Test a component with an async service](#component-with-async-service)
-  * [Test a component with an external template](#component-with-external-template)
-  * [Test a component with inputs and outputs](#component-with-inputs-output)
-  * [Test a component inside a test host component](#component-inside-test-host)
-  * [Test a routed component](#routed-component)
-  * [Test a routed component with parameters](#routed-component-w-param)
-  * [Use a _page_ object to simplify setup](#page-object)
-  * [Isolated tests](#testing-without-atp "Testing without the Angular Testing Platform")
-  * [_TestBed_ API](#atp-api)
-  * [FAQ](#faq "Frequently asked questions")
+  # Table of Contents
+  1. [Introduction to Angular Testing](#testing-intro)
+  <br><br>
+  1. [Setup](#setup)
+    - [setup files](#setup-files): `karma.conf`, `karma-test-shim`, `systemjs.config`
+    - [npm packages](#npm-packages)
+  1. [The first karma test](#1st-karma-test)
+  <br><br>
+  1. [The Angular Testing Platform (ATP) ](#atp-intro)
+  <br><br>
+  1. [The sample application and its tests](#sample-app)
+  <br><br>
+  1. [A simple component test](#simple-component-test)
+    - [_configureTestingModule_](#configure-testing-module)
+    - [_createComponent_](#create-component)
+    - [_detectChanges_](#detect-changes)
+    - [_autoDetectChanges_](#auto-detect-changes)
+  1. [Test a component with a service dependency](#component-with-dependency)
+  <br><br>
+  1. [Test a component with an async service](#component-with-async-service)
+    - [spies](#service-spy)
+    - [_async_](#async)
+    - [_whenStable_](#when-stable)
+    - [_fakeAsync_](#async)
+    - [_tick_](#tick)
+    - [_jasmine.done_](#jasmine-done)
+  1. [Test a component with an external template](#component-with-external-template)
+    - [_async_](#async-in-before-each) in `beforeEach`
+    - [_compileComponents_](#compile-components)
+  1. [Test a component with inputs and outputs](#component-with-inputs-output)
+  <br><br>
+  1. [Test a component inside a test host component](#component-inside-test-host)
+  <br><br>
+  1. [Test a routed component](#routed-component)
+    - [_inject_](#inject)
+  1. [Test a routed component with parameters](#routed-component-w-param)
+    - [_Observable_ test double](#stub-observable)
+  1. [Use a _page_ object to simplify setup](#page-object)
+  <br><br>
+  1. [Test a _RouterOutlet_ component](#router-outlet-component)
+    - [stubbing unneeded components](#stub-component)
+    - [Stubbing the _RouterLink_](#router-link-stub)
+    - [_By.directive_ and injected directives](#by-directive)
+  1. ["Shallow" component tests with  *NO\_ERRORS\_SCHEMA*](#shallow-component-test)
+  <br><br>
+  1. [Test an attribute directive](#attribute-directive)
+  <br><br>  
+  1. [Isolated tests](#testing-without-atp "Testing without the Angular Testing Platform")
+    - [Services](#isolated-service-tests)
+    - [Pipes](#isolated-pipe-tests)
+    - [Components](#isolated-component-tests)
+  1. [_Angular Testing Platform_ API](#atp-api)
+    - [Stand-alone functions](#atp-api): `async`, `fakeAsync`, etc.
+    - [_TestBed_](#testbed-class-summary)
+    - [_ComponentFixture_](#component-fixture-class-summary)
+    - [_DebugElement_](#debug-element-details)
+  1. [FAQ](#faq "Frequently asked questions")
 :marked
   It’s a big agenda. Fortunately, you can learn a little bit at a time and put each lesson to use.
 
@@ -45,7 +83,7 @@ a#top
 a(href="#top").to-top Back to top
 
 .l-hr
-a#testing-101
+a#testing-intro
 :marked
   # Introduction to Angular Testing
 
@@ -146,7 +184,9 @@ a#setup
     you can skip the rest of this section and get on with your first test.
     The QuickStart repo provides all necessary setup.
 
+a#setup-files
 :marked
+  ### Setup files
   Here's brief description of the setup files.
  
 table(width="100%")
@@ -424,7 +464,6 @@ a#simple-component-test
 :marked
   # Test a component
 
-:marked
   The top of the screen displays application title, presented by the `BannerComponent` in `app/banner.component.ts`.
 +makeExample('testing/ts/app/banner.component.ts', '', 'app/banner.component.ts')(format='.')
 :marked
@@ -436,9 +475,11 @@ a#simple-component-test
 
   Start with ES6 import statements to get access to symbols referenced in the spec.
 +makeExample('testing/ts/app/banner.component.spec.ts', 'imports', 'app/banner.component.spec.ts (imports)')(format='.')
+
+a#configure-testing-module
 :marked
   Here's the setup for the tests followed by observations about the `beforeEach`:
-+makeExample('testing/ts/app/banner.component.spec.ts', 'setup', 'app/banner.component.spec.ts (imports)')(format='.')
++makeExample('testing/ts/app/banner.component.spec.ts', 'setup', 'app/banner.component.spec.ts (setup)')(format='.')
 :marked
   `TestBed.configureTestingModule` takes an `@NgModule`-like metadata object.
   This one simply declares the component to test, `BannerComponent`.
@@ -451,13 +492,14 @@ a#simple-component-test
   But that would lead to tons more configuration in order to support the other components within `AppModule` 
   that have nothing to do with `BannerComponent`.
 
+a#create-component
+:marked
   `TestBed.createComponent` creates an instance of `BannerComponent` to test.
   The method returns a `ComponentFixture`, a handle on the test environment surrounding the created component.
   The fixture provides access to the component instance itself and 
   to the `DebugElement` which is a handle on the component's DOM element.
 
   Query the `DebugElement` by CSS selector for the `<h1>` sub-element that holds the actual title.
-
 
   ### _createComponent_ closes configuration
   `TestBed.createComponent` closes the current `TestBed` instance to further configuration.
@@ -474,7 +516,7 @@ a#simple-component-test
 :markdown
   These tests ask the `DebugElement` for the native HTML element to satisfy their expectations.
 
-a#fixture-detect-changes
+a#detect-changes
 :marked
   ### _detectChanges_: Angular change detection under test
 
@@ -498,7 +540,7 @@ a#fixture-detect-changes
   It gives the tester an opportunity to investigate the state of
   the component _before Angular initiates data binding or calls lifecycle hooks_.
 
-a#automatic-change-detection
+a#auto-detect-changes
 :marked
   ### Automatic change detection
   Some testers prefer that the Angular test environment run change detection automatically.
@@ -805,7 +847,7 @@ a#component-with-external-template
   The `app/dashboard/dashboard-hero.component.spec.ts` demonstrates the pre-compilation process:
 +makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'compile-components', 'app/dashboard/dashboard-hero.component.spec.ts (compileComponents)')(format='.')
 
-a#async-fn-in-before-each
+a#async-in-before-each
 :marked
   ## The _async_ function in _beforeEach_
 
@@ -992,7 +1034,7 @@ a#routed-component
   Stubbing the router with a test implementation is an easy option. This should do the trick:
 +makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'router-stub', 'app/dashboard/dashboard.component.spec.ts (Router Stub)')(format='.')
 :marked
-  Now we setup the testing module with test stubs for the `Router` and `HeroService` and 
+  Now we setup the testing module with the test stubs for the `Router` and `HeroService` and 
   create a test instance of the `DashbaordComponent` for subsequent testing.
 +makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'compile-and-create-body', 'app/dashboard/dashboard.component.spec.ts (compile and create)')(format='.')
 :marked
@@ -1169,8 +1211,185 @@ figure.image-display
   Here are a few more `HeroDetailComponent` tests to drive the point home.
 +makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'selected-tests', 'app/hero/hero-detail.component.spec.ts (selected tests)')(format='.')
 :marked
+a(href="#top").to-top Back to top
+.l-hr
+
+a#router-outlet-component
+:marked
+  # Test a _RouterOutlet_ component
+
+  The `AppComponent` displays routed components in a `<router-outlet>`.
+  It also displays a navigation bar with anchors and their `RouterLink` directives.
+a#app-component-html
++makeExample('testing/ts/app/app.component.html', '', 'app/app.component.html')(format='.')
+:marked
+  The component class does nothing.
++makeExample('testing/ts/app/app.component.ts', '', 'app/app.component.ts')(format='.')
+.l-sub-section
+  :marked
+    This component may not seem worth testing but it's instructive to show how to test it.
+:marked
+  Unit tests can confirm that the anchors are wired properly without engaging the router.
+
+a#stub-component
+:marked
+  ### Stubbing unneeded components
+
+  The test setup should look familiar
++makeExample('testing/ts/app/app.component.spec.ts', 'setup-stubs', 'app/app.component.spec.ts (Stub Setup)')(format='.')
+:marked
+  The `AppComponent` is the declared test subject 
+  The setup extends the default testing module with one real component (`BannerComponent`) and several stubs.
+
+  * `BannerComponent` is simple and harmless to use as is.
+
+  * The real `WelcomeComponent` has an injected service. `WelcomeStubComponent` is a placeholder with no service to worry about.
+
+  * The real `RouterOutlet` is complex and errors easily. 
+  The `RouterOutletStubComponent` (in `testing/router-stubs.ts`) is safely inert.
+  
+  The component stubs are essential. 
+  Without them, the Angular compiler doesn't recognize the `<app-welcome>` and `<router-outlet>` tags 
+  and throws an error. 
+a#router-link-stub
+:marked
+  ### Stubbing the _RouterLink_
+
+  The `RouterLinkStubDirective` contributes substantively to the test
++makeExample('testing/ts/testing/router-stubs.ts', 'router-link', 'testing/router-stubs.ts (RouterLinkStubDirective)')(format='.')
+:marked
+  The `host` metadata property wires the click event of the host element (the `<a>`) to the directive's `onClick` method.
+  The URL bound to the `[routerLink]` attribute flows to the directive's `linkParams` property. 
+  Clicking the anchor should trigger the `onClick` method which sets the telltale `navigatedTo` property.
+  Tests can inspect that property to confirm the expected _click-to-navigation_ behavior.
+
+a#by-directive
+a#inject-directive
+:marked
+  ### _By.directive_ and injected directives
+
+  A little more setup triggers the initial data binding and gets references to the navigation links:
++makeExample('testing/ts/app/app.component.spec.ts', 'test-setup', 'app/app.component.spec.ts (test setup)')(format='.')
+:marked
+  Two points of special interest:
+
+  1. You can locate elements _by directive_, using `By.directive`, not just by css selectors.
+
+  1. You can use the component's dependency injector to get an attached directive because 
+  Angular always adds attached directives to the component's injector.
+
+a#app-component-tests
+:marked
+  Here are some tests that leverage this setup:
++makeExample('testing/ts/app/app.component.spec.ts', 'tests', 'app/app.component.spec.ts (selected tests)')(format='.')
+.l-sub-section
+  :marked
+    The "click" test _in this example_ is worthless.
+    It works hard to appear useful when in fact it 
+    tests the `RouterLinkStubDirective` rather than the _component_.
+    This is a common failing of directive stubs.
+    
+    It has a legitimate purpose in this chapter. 
+    It demonstrates how to find a `RouterLink` element, click it, and inspect a result,
+    without engaging the full router machinery.
+    This is a skill you may need to test a more sophisticated component, one that changes the display,
+    re-calculates parameters, or re-arranges navigation options when the user clicks the link.
 
 a(href="#top").to-top Back to top
+.l-hr
+
+a#shallow-component-test
+:marked
+  # "Shallow component tests" with *NO\_ERRORS\_SCHEMA*
+
+  The [previous setup](#stub-component) declared the `BannerComponent` and stubbed two other components 
+  for _no reason other than to avoid a compiler error_.
+  
+  Without them, the Angular compiler doesn't recognize the `<app-banner>`, `<app-welcome>` and `<router-outlet>` tags 
+  in the [_app.component.html_](#app-component-html) template and throws an error. 
+
+  Add `NO_ERRORS_SCHEMA` to the testing module's `schemas` metadata
+  to tell the compiler to ignore unrecognized elements and attributes.
+  You no longer have to declare irrelevant components and directives.
+  
+  These tests are ***shallow*** because they only "go deep" into the components you want to test.
+  Here is a setup (with `import` statements) that demonstrates the improved simplicity of _shallow_ tests, relative to the stubbing setup.
++makeTabs('testing/ts/app/app.component.spec.ts, testing/ts/app/app.component.spec.ts', 
+  'setup-schemas, setup-stubs-w-imports', 
+  'app/app.component.spec.ts (NO_ERRORS_SCHEMA), app/app.component.spec.ts (Stubs)')(format='.')
+:marked
+  The _only_ declarations are the _component-under-test_ (`AppComponent`) and the `RouterLinkStubDirective` 
+  that contributes actively to the tests.
+  The [tests in this example](#app-component-tests) are unchanged.
+
+.alert.is-important
+  :marked
+    _Shallow component tests_ with `NO_ERRORS_SCHEMA` greatly simplify unit testing of complex templates.
+    However, the compiler no longer alerts you to mistakes 
+    such as misspelled or misused components and directives.
+
+a(href="#top").to-top Back to top
+
+.l-hr
+
+a#attribute-directive
+:marked
+  # Test an attribute directive
+
+  An _attribute directive_ modifies the behavior of an element, component or another directive.
+  Its name reflects the way the directive is applied: as an attribute on a host element.
+
+  The sample application's `HighlightDirective` sets the background color of an element
+  based on either a data bound color or a default color (lightgray).
+  It also sets a custom property of the element (`customProperty`) to `true` 
+  for no reason other than to show that it can.
++makeExample('testing/ts/app/shared/highlight.directive.ts', '', 'app/shared/highlight.directive.ts')(format='.')
+:marked
+  It's used throughout the application, perhaps most simply in the `AboutComponent`:
++makeExample('testing/ts/app/about.component.ts', '', 'app/about.component.ts')(format='.')
+:marked
+  Testing the specific use of the `HighlightDirective` within the `AboutComponent` requires only the
+  techniques explored above (in particular the ["Shallow test"](#shallow-component-test) approach).
++makeExample('testing/ts/app/about.component.spec.ts', 'tests', 'app/about.component.spec.ts')(format='.')
+:marked
+  However, testing a single use case is unlikely to explore the full range of a directive's capabilities.
+  Finding and testing all components that use the directive is tedious, brittle, and almost as unlikely to afford full coverage.
+
+  [Isolated unit tests](#isolated-tests) might be helpful. 
+  But attribute directives like this one tend to manipulate the DOM. 
+  Isolated tests don't and therefore don't inspire confidence in the directive's efficacy.
+
+  A better solution is to create an artificial test component that demonstrates all ways to apply the directive.
++makeExample('testing/ts/app/shared/highlight.directive.spec.ts', 'test-component', 'app/shared/highlight.directive.spec.ts (test component)')(format='.')
+figure.image-display
+  img(src='/resources/images/devguide/testing/highlight-directive-spec.png' width="200px" alt="HighlightDirective spec in action")
+.l-sub-section
+  :marked
+    The `<input>` case binds the `HighlightDirective` to the name of a color value in the input box.
+    The initial value is the word "cyan" which should be the background color of the input box.
+:marked
+  Here are some tests of this component:
++makeExample('testing/ts/app/shared/highlight.directive.spec.ts', 'selected-tests', 'app/shared/highlight.directive.spec.ts (selected tests)')
+:marked
+  A few techniques are noteworthy:
+
+  * The `By.directive` predicate is a great way to get the elements that have this directive _when their element types are unknown_.
+
+  * The <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:not" target="_blank">`:not` pseudo-class</a> 
+  in `By.css('h2:not([highlight])')` helps find `<h2>` elements that _do not_ have the directive.
+  `By.css('*:not([highlight])')` finds _any_ element that does not have the directive.
+
+  * `DebugElement.styles` affords access to element styles even in the absence of a real browser, thanks to the `DebugElement` abstraction.
+  But feel free to exploit the `nativeElement` when that seems easier or more clear than the abstraction.
+
+  * Angular adds a directive to the injector of the element to which it is applied. 
+  The test for the default color uses the injector of the 2nd `<h2>` to get its `HighlightDirective` instance
+  and its `defaultColor`.
+  
+  * `DebugElement.properties` affords access to the artificial custom property that is set by the directive.
+
+a(href="#top").to-top Back to top
+
 .l-hr
 
 a#isolated-tests
@@ -1204,9 +1423,10 @@ a#testing-without-atp
     Write _Angular_ tests to validate the part as it interacts with Angular,
     updates the DOM, and collaborates with the rest of the application.
 
+a#isolated-service-tests
 :marked
   ## Services
-  Services are good candidates for vanilla unit testing. 
+  Services are good candidates for isolated unit testing. 
   Here are some synchronous and asynchronous unit tests of the `FancyService` 
   written without assistance from Angular Testing Platform.
 
@@ -1254,6 +1474,8 @@ a#testing-without-atp
   Use the Angular Testing Platform when writing tests that validate how a service interacts with components
   _within the Angular runtime environment_.
 
+a#isolated-pipe-tests
+:marked
   ## Pipes
   Pipes are easy to test without the Angular Testing Platform (ATP).
 
@@ -1322,9 +1544,9 @@ a#atp-api
   This section takes inventory of the most useful _Angular Testing Platform_ features and summarizes what they do.
 
   The _Angular Testing Platform_ consists of the `TestBed` and `ComponentFixture` classes plus a handful of functions in the test environment.
-  The [_TestBed_](#testbed-api-summary) and [_ComponentFixture_](#componentfixture-api-summary) classes are covered separately.
+  The [_TestBed_](#testbed-api-summary) and [_ComponentFixture_](#component-fixture-api-summary) classes are covered separately.
 
-  Here's a summary of the functions, in order of likely utility:
+  Here's a summary of the stand-alone functions, in order of likely utility:
 
 table
   tr
@@ -1537,8 +1759,8 @@ table
         if you absolutely need to change this default in the middle of your test run.
 
         Specify the Angular compiler factory, a `PlatformRef`, and a default Angular testing module.
-        Alternatives for non-browser platforms are available from
-        `angular2/platform/testing/<platform_name>`.
+        Alternatives for non-browser platforms are available in the general form
+        `@angular/platform-<platform_name>/testing/<platform_name>`.
   tr
     td(style="vertical-align: top") <code>resetTestEnvironment</code>
     td
@@ -1549,7 +1771,7 @@ table
   A few of the `TestBed` instance methods are not covered by static `TestBed` _class_ methods.
   These are rarely needed.
 
-a#componentfixture-api-summary
+a#component-fixture-api-summary
 :marked
   ## The _ComponentFixture_
 
@@ -1560,7 +1782,7 @@ a#componentfixture-api-summary
   The `ComponentFixture` properties and methods provide access to the component, 
   its DOM representation, and aspects of its Angular environment. 
 
-a#componentfixture-properties
+a#component-fixture-properties
 :marked
   ### _ComponentFixture_ properties
 
@@ -1582,7 +1804,7 @@ table
         The `DebugElement` associated with the root element of the component.
 
         The `debugElement` provides insight into the component and its DOM element during test and debugging.
-        It's a critical property for testers. The most interesting members are covered [below](#debugelement-details).
+        It's a critical property for testers. The most interesting members are covered [below](#debug-element-details).
   tr
     td(style="vertical-align: top") <code>nativeElement</code>
     td
@@ -1598,7 +1820,7 @@ table
         component that has the `ChangeDetectionStrategy.OnPush`
         or the component's change detection is under your programmatic control.
 
-a#componentfixture-methods
+a#component-fixture-methods
 :marked
   ### _ComponentFixture_ methods
 
@@ -1665,7 +1887,7 @@ table
       :marked
         Trigger component destruction.
 
-a#debugelement-details
+a#debug-element-details
 :marked
   ### _DebugElement_
 
@@ -1855,7 +2077,7 @@ a(href="#top").to-top Back to top
     General
     * [When are end-to-end (e2e) tests a good choice?](#q-when-e2e)
     * [When to use the _TestBed_?](#q-why-testbed)
-    * [When to write vanilla tests without the _TestBed_?](#q-when-no-testbed)
+    * [When to write isolated unit tests without the _TestBed_?](#q-when-no-testbed)
     * [When can I skip _TestBed.compileComponents_?](#q-when-no-compile-components)
     * [Why must _TestBed.compileComponents_ be called last?](#q-why-compile-components-is-last)
     * [Why must _inject_ be called last?](#q-why-last-last)  
