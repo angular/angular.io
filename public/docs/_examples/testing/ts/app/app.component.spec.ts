@@ -8,7 +8,7 @@ import { AppComponent }    from './app.component';
 import { BannerComponent } from './banner.component';
 import { SharedModule }    from './shared/shared.module';
 
-import { Router, FakeRouter, FakeRouterLinkDirective, FakeRouterOutletComponent
+import { Router, RouterStub, RouterLinkDirectiveStub, RouterOutletStubComponent
 } from '../testing';
 
 
@@ -20,9 +20,9 @@ describe('AppComponent & TestModule', () => {
     TestBed.configureTestingModule({
       declarations: [
         AppComponent, BannerComponent,
-        FakeRouterLinkDirective, FakeRouterOutletComponent
+        RouterLinkDirectiveStub, RouterOutletStubComponent
       ],
-      providers: [{ provide: Router, useClass: FakeRouter }],
+      providers: [{ provide: Router, useClass: RouterStub }],
       schemas:   [NO_ERRORS_SCHEMA]
     })
 
@@ -49,9 +49,9 @@ function tests() {
 
     const links = fixture.debugElement
       // find all elements with an attached FakeRouterLink directive
-      .queryAll(By.directive(FakeRouterLinkDirective))
+      .queryAll(By.directive(RouterLinkDirectiveStub))
       // use injector to get the RouterLink directive instance attached to each element
-      .map(de => de.injector.get(FakeRouterLinkDirective) as FakeRouterLinkDirective);
+      .map(de => de.injector.get(RouterLinkDirectiveStub) as RouterLinkDirectiveStub);
 
     expect(links.length).toBe(3, 'should have 3 links');
     expect(links[0].linkParams).toBe('/dashboard', '1st link should go to Dashboard');
@@ -63,11 +63,11 @@ function tests() {
 
     // Heroes RouterLink DebugElement
     const heroesLinkDe = fixture.debugElement
-      .queryAll(By.directive(FakeRouterLinkDirective))[1];
+      .queryAll(By.directive(RouterLinkDirectiveStub))[1];
 
     expect(heroesLinkDe).toBeDefined('should have a 2nd RouterLink');
 
-    const link = heroesLinkDe.injector.get(FakeRouterLinkDirective) as FakeRouterLinkDirective;
+    const link = heroesLinkDe.injector.get(RouterLinkDirectiveStub) as RouterLinkDirectiveStub;
 
     expect(link.navigatedTo).toBeNull('link should not have navigate yet');
 
@@ -101,8 +101,8 @@ describe('AppComponent & AppModule', () => {
     // Separate override because cannot both `set` and `add/remove` in same override
     .overrideModule(AppModule, {
       add: {
-        declarations: [ FakeRouterLinkDirective, FakeRouterOutletComponent ],
-        providers:    [{ provide: Router, useClass: FakeRouter }]
+        declarations: [ RouterLinkDirectiveStub, RouterOutletStubComponent ],
+        providers:    [{ provide: Router, useClass: RouterStub }]
       }
     })
 

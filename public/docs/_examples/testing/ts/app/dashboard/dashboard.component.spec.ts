@@ -12,11 +12,11 @@ import { Router } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardModule }    from './dashboard.module';
 
-// #docregion fake-router
-class FakeRouter {
+// #docregion router-stub
+class RouterStub {
   navigateByUrl(url: string) { return url;  }
 }
-// #enddocregion fake-router
+// #enddocregion router-stub
 
 beforeEach ( addMatchers );
 
@@ -73,7 +73,7 @@ function compileAndCreate() {
     TestBed.configureTestingModule({
       providers: [
         { provide: HeroService, useClass: FakeHeroService },
-        { provide: Router,      useClass: FakeRouter }
+        { provide: Router,      useClass: RouterStub }
       ]
     })
     .compileComponents().then(() => {

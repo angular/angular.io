@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router }   from '@angular/router';
+import 'rxjs/add/operator/pluck';
 
 import { Hero }              from '../model';
 import { HeroDetailService } from './hero-detail.service';
@@ -16,31 +17,34 @@ import { HeroDetailService } from './hero-detail.service';
 export class HeroDetailComponent implements OnInit {
   @Input() hero: Hero;
 
+  // #docregion ctor
   constructor(
     private heroDetailService: HeroDetailService,
     private route: ActivatedRoute,
     private router: Router) {
   }
+  // #enddocregion ctor
 
-  ngOnInit() {
-    let id = this.route.snapshot.params['id'];
+  // #docregion ng-on-init
+  ngOnInit(): void {
+    // get hero when `id` param changes
+    this.route.params.pluck<string>('id')
+      .forEach(id => this.getHero(id))
+      .catch(() => this.hero = new Hero()); // no id; should edit new hero
+  }
+  // #enddocregion ng-on-init
 
-    // tslint:disable-next-line:triple-equals
-    if (id == undefined) {
-      // no id; act as if is new
-      this.hero = new Hero();
-    } else {
-      this.heroDetailService.getHero(id).then(hero => {
-        if (hero) {
-          this.hero = hero;
-        } else {
-          this.gotoList(); // id not found; navigate to list
-        }
-      });
-    }
+  private getHero(id: string): void {
+    this.heroDetailService.getHero(id).then(hero => {
+      if (hero) {
+        this.hero = hero;
+      } else {
+        this.gotoList(); // id not found; navigate to list
+      }
+    });
   }
 
-  save() {
+  save(): void {
     this.heroDetailService.saveHero(this.hero).then(() => this.gotoList());
   }
 
