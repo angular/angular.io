@@ -33,11 +33,11 @@ angularIO.directive('biocard', function($rootScope, $timeout, $mdDialog) {
             '     </div>' +
             '     <p class="text-body">{{bio}}</p>' +
             '  </md-content>' +
-            '  <div class="md-actions">' +
+            '  <md-dialog-actions>' +
             '    <md-button ng-click="closeDialog()">' +
             '      Close Bio' +
             '    </md-button>' +
-            '  </div>' +
+            '  </md-dialog-actions>' +
             '</md-dialog>'
         });
       });
