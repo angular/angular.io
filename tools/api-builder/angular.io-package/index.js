@@ -42,7 +42,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
   // confirm that the angular repo is actually there.
   if (!fs.existsSync(angular_repo_path)) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
+    throw new Error('build-api-docs task requires the angular repo to be at ' + angular_repo_path);
   }
   readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
   readTypeScriptModules.ignoreExportsMatching = [/^_/];

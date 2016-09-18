@@ -165,9 +165,9 @@ class PlunkerBuilder {
     if (!this.options.embedded) {
       postData.private = true;
 
-      postData.description = "Angular 2 Example - " + config.description;
+      postData.description = "Angular Example - " + config.description;
     } else {
-      postData.title = "Angular 2 Example - " + config.description;
+      postData.title = "Angular Example - " + config.description;
     }
 
     // Embedded needs to add more content, so if the callback is available, we call it

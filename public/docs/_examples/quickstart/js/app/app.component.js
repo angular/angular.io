@@ -10,7 +10,7 @@
     ng.core.Component({
       // #enddocregion ng-namespace-funcs
       selector: 'my-app',
-      template: '<h1>My First Angular 2 App</h1>'
+      template: '<h1>My First Angular App</h1>'
     // #docregion ng-namespace-funcs
     })
     // #enddocregion component

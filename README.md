@@ -1,7 +1,7 @@
 # Angular.io
 [![Build Status][travis-badge]][travis-badge-url]
 
-Angular.io is site for Angular 2 **documentation** . 
+Angular.io is site for Angular **documentation** . 
 
 This site also includes links to other helpful angular resources including 
 Angular 2, Angular 1, Angular Material, and AngularFire.
@@ -77,7 +77,7 @@ Such code resides in the `public/docs/_examples` directory, under page-specific 
 
 For example, the TypeScript QuickStart sample is in `public/docs/_examples/quickstart/ts`.
 
-All samples are in a consistent directory structure using the same styles and the same npm packages, including the latest release of Angular 2.
+All samples are in a consistent directory structure using the same styles and the same npm packages, including the latest release of Angular.
 This consistency is possible in part thanks to gulp-driven tooling. 
 To run the samples locally and confirm that they work properly, 
 take the following extra steps to prepare the environment:
