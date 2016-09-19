@@ -13,15 +13,20 @@ describe('WelcomeComponent', () => {
   let userService: UserService; // the actually injected service
   let welcomeEl: DebugElement;  // the element with the welcome message
 
+  let userServiceStub: {
+    isLoggedIn: boolean;
+    user: { name: string}
+  };
+
   // #docregion setup
   beforeEach(() => {
-    // fake UserService for test purposes
-    // #docregion fake-userservice
-    const fakeUserService = {
+    // stub UserService for test purposes
+    // #docregion user-service-stub
+    userServiceStub = {
       isLoggedIn: true,
       user: { name: 'Test User'}
     };
-    // #enddocregion fake-userservice
+    // #enddocregion user-service-stub
 
     // #docregion config-test-module
     TestBed.configureTestingModule({
@@ -29,7 +34,7 @@ describe('WelcomeComponent', () => {
     // #enddocregion setup
     // providers:    [ UserService ]  // a real service would be a problem!
     // #docregion setup
-       providers:    [ {provide: UserService, useValue: fakeUserService } ]
+       providers:    [ {provide: UserService, useValue: userServiceStub } ]
     });
     // #enddocregion config-test-module
 
@@ -80,4 +85,8 @@ describe('WelcomeComponent', () => {
     expect(content).toMatch(/log in/i, '"log in"');
   });
   // #enddocregion tests
+
+  it('orig stub and injected UserService are not the same object', () => {
+    expect(userServiceStub === userService).toBe(false);
+  });
 });

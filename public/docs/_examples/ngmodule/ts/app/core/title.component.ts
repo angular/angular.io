@@ -3,8 +3,9 @@ import { Component, Input } from '@angular/core';
 import { UserService }      from '../core/user.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'app-title',
-  templateUrl: 'app/core/title.component.html',
+  templateUrl: 'title.component.html',
 })
 export class TitleComponent {
   @Input() subtitle = '';

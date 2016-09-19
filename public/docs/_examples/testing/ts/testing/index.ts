@@ -1,7 +1,7 @@
 import { tick, ComponentFixture } from '@angular/core/testing';
 
 export * from './jasmine-matchers';
-export * from './fake-router';
+export * from './router-stubs';
 
 // Short utilities
 /**

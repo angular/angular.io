@@ -1,3 +1,4 @@
+// #docplaster
 import {
   async, ComponentFixture, fakeAsync, inject, TestBed, tick
 } from '@angular/core/testing';
@@ -7,7 +8,7 @@ import { DebugElement } from '@angular/core';
 
 import {
   addMatchers, newEvent,
-  ActivatedRoute, FakeActivatedRoute, Router, FakeRouter
+  ActivatedRoute, ActivatedRouteStub, Router, RouterStub
 } from '../../testing';
 
 import { HEROES, FakeHeroService } from '../model/testing';
@@ -18,7 +19,7 @@ import { HeroDetailService }   from './hero-detail.service';
 import { Hero, HeroService }   from '../model';
 
 ////// Testing Vars //////
-let activatedRoute: FakeActivatedRoute;
+let activatedRoute: ActivatedRouteStub;
 let comp: HeroDetailComponent;
 let fixture: ComponentFixture<HeroDetailComponent>;
 let page: Page;
@@ -29,7 +30,7 @@ describe('HeroDetailComponent', () => {
 
   beforeEach( async(() => {
     addMatchers();
-    activatedRoute = new FakeActivatedRoute();
+    activatedRoute = new ActivatedRouteStub();
 
     TestBed.configureTestingModule({
       imports: [ HeroModule ],
@@ -40,12 +41,13 @@ describe('HeroDetailComponent', () => {
       providers: [
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: HeroService,    useClass: FakeHeroService },
-        { provide: Router,         useClass: FakeRouter},
+        { provide: Router,         useClass: RouterStub},
       ]
     })
     .compileComponents();
   }));
 
+  // #docregion route-good-id
   describe('when navigate to hero id=' + HEROES[0].id, () => {
     let expectedHero: Hero;
 
@@ -55,51 +57,53 @@ describe('HeroDetailComponent', () => {
       createComponent();
     }));
 
+  // #docregion selected-tests
     it('should display that hero\'s name', () => {
       expect(page.nameDisplay.textContent).toBe(expectedHero.name);
     });
+  // #enddocregion route-good-id
 
     it('should navigate when click cancel', () => {
       page.cancelBtn.triggerEventHandler('click', null);
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
 
-    it('should save when click save', () => {
+    it('should save when click save but not navigate immediately', () => {
       page.saveBtn.triggerEventHandler('click', null);
       expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
+      expect(page.navSpy.calls.any()).toBe(false, 'router.navigate not called');
     });
 
-    it('should navigate when click click save resolves', fakeAsync(() => {
+    it('should navigate when click save and save resolves', fakeAsync(() => {
       page.saveBtn.triggerEventHandler('click', null);
-      tick(); // waits for async save to "complete" before navigating
+      tick(); // wait for async save to "complete" before navigating
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     }));
 
-
     // #docregion title-case-pipe
-    it('should convert original hero name to Title Case', () => {
-      expect(page.nameDisplay.textContent).toBe(comp.hero.name);
-    });
-    // #enddocregion title-case-pipe
-
     it('should convert hero name to Title Case', fakeAsync(() => {
       const inputName = 'quick BROWN  fox';
-      const expectedName = 'Quick Brown  Fox';
+      const titleCaseName = 'Quick Brown  Fox';
 
-      // simulate user entering new name in input
+      // simulate user entering new name into the input box
       page.nameInput.value = inputName;
 
       // dispatch a DOM event so that Angular learns of input value change.
-      // detectChanges() makes ngModel push input value to component property
-      // and Angular updates the output span
       page.nameInput.dispatchEvent(newEvent('input'));
+
+      // detectChanges() makes [(ngModel)] push input value to component property
+      // and Angular updates the output span through the title pipe
       fixture.detectChanges();
-      expect(page.nameDisplay.textContent).toBe(expectedName, 'hero name display');
-      expect(comp.hero.name).toBe(inputName, 'comp.hero.name');
+
+      expect(page.nameDisplay.textContent).toBe(titleCaseName);
     }));
-
+    // #enddocregion title-case-pipe
+  // #enddocregion selected-tests
+  // #docregion route-good-id
   });
+  // #enddocregion route-good-id
 
+  // #docregion route-no-id
   describe('when navigate with no hero id', () => {
     beforeEach( async( createComponent ));
 
@@ -111,7 +115,9 @@ describe('HeroDetailComponent', () => {
       expect(page.nameDisplay.textContent).toBe('');
     });
   });
+  // #enddocregion route-no-id
 
+  // #docregion route-bad-id
   describe('when navigate to non-existant hero id', () => {
     beforeEach( async(() => {
       activatedRoute.testParams = { id: 99999 };
@@ -123,6 +129,7 @@ describe('HeroDetailComponent', () => {
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
   });
+  // #enddocregion route-bad-id
 
   ///////////////////////////
 
@@ -145,22 +152,24 @@ describe('HeroDetailComponent', () => {
 
 /////////// Helpers /////
 
+// #docregion create-component
 /** Create the HeroDetailComponent, initialize it, set test variables  */
 function createComponent() {
   fixture = TestBed.createComponent(HeroDetailComponent);
   comp    = fixture.componentInstance;
   page    = new Page();
 
-  // change detection triggers ngOnInit which gets a hero
+  // 1st change detection triggers ngOnInit which gets a hero
   fixture.detectChanges();
   return fixture.whenStable().then(() => {
-    // got the hero and updated component
-    // change detection updates the view
+    // 2nd change detection displays the async-fetched hero
     fixture.detectChanges();
     page.addPageElements();
   });
 }
+// #enddocregion create-component
 
+// #docregion page
 class Page {
   gotoSpy:      jasmine.Spy;
   navSpy:       jasmine.Spy;
@@ -173,19 +182,19 @@ class Page {
 
   constructor() {
     // Use component's injector to see the services it injected.
-    let compInjector = fixture.debugElement.injector;
-    let hds          = compInjector.get(HeroDetailService);
-    let router       = compInjector.get(Router);
-    this.gotoSpy     = spyOn(comp, 'gotoList').and.callThrough();
-    this.saveSpy     = spyOn(hds, 'saveHero').and.callThrough();
-    this.navSpy      = spyOn(router, 'navigate').and.callThrough();
+    const compInjector = fixture.debugElement.injector;
+    const hds          = compInjector.get(HeroDetailService);
+    const router       = compInjector.get(Router);
+    this.gotoSpy       = spyOn(comp, 'gotoList').and.callThrough();
+    this.saveSpy       = spyOn(hds, 'saveHero').and.callThrough();
+    this.navSpy        = spyOn(router, 'navigate').and.callThrough();
   }
 
-  /** Add page elements after page initializes  */
+  /** Add page elements after hero arrives */
   addPageElements() {
     if (comp.hero) {
-      // have a hero so these DOM elements can be reached
-      let buttons = fixture.debugElement.queryAll(By.css('button'));
+      // have a hero so these elements are now in the DOM
+      const buttons    = fixture.debugElement.queryAll(By.css('button'));
       this.saveBtn     = buttons[0];
       this.cancelBtn   = buttons[1];
       this.nameDisplay = fixture.debugElement.query(By.css('span')).nativeElement;
@@ -193,4 +202,4 @@ class Page {
     }
   }
 }
-
+// #enddocregion page
