@@ -45,7 +45,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://unpkg.com/zone.js@0.6.23?main=browser'
+    to:   'https://unpkg.com/zone.js@0.6.25?main=browser'
   },
   {
     pattern: 'script',
