@@ -15,17 +15,21 @@ var regionExtractor = require('../doc-shredder/regionExtractor');
 class PlunkerBuilder {
   constructor(basePath, destPath, options) {
     this.basePath = basePath;
+    this.boilerplatePath = './public/docs/_examples';
+    this.copyrights = {};
+    this.boilerplateFiles = {};
+    this.boilerplateFilesPath = `${__dirname}/boilerplate`
     this.destPath = destPath;
     this.options = options;
-    this.copyrights = {};
 
     this._buildCopyrightStrings();
   }
 
   buildPlunkers() {
     this._getPlunkerFiles();
+    this._getBoilerplateFiles();
     var errFn = this.options.errFn || function(e) { console.log(e); };
-    var plunkerPaths = path.join(this.basePath, '**/*plnkr.json');
+    var plunkerPaths = path.join(this.basePath, `**/*${this.options.flagFile}`);
     var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
     fileNames.forEach((configFileName) => {
       try {
@@ -36,12 +40,22 @@ class PlunkerBuilder {
     });
   }
 
+  _addAPIFiles(postData) {
+    _.forEach(this.boilerplateFiles, (content, fileName) => {
+      this.options.addField(postData, fileName, content);
+    });
+  }
+
   _addPlunkerFiles(config, postData) {
     this._addReadme(config, postData);
     if (config.basePath.indexOf('/ts') > -1) {
       // uses systemjs.config.js so add plunker version
       this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
       this.options.addField(postData, 'tsconfig.json', this.tsconfig);
+    }
+
+    if (this.options.api) {
+      this._addAPIFiles(postData);
     }
   }
 
@@ -54,6 +68,16 @@ class PlunkerBuilder {
       var plunkerReadme = this.readme + config.description;
       this.options.addField(postData, 'README.md', plunkerReadme);
     }
+  }
+
+  _attachCopyright(file, content) {
+    const ext = file.substr(file.lastIndexOf('.') + 1);
+    if (ext === 'js' || ext === 'ts' || ext === 'css') {
+      content += this.copyrights.jsCss;
+    } else if (ext === 'html') {
+      content += this.copyrights.html;
+    }
+    return content;
   }
 
   _buildCopyrightStrings() {
@@ -73,7 +97,7 @@ class PlunkerBuilder {
   _buildPlunkerFrom(configFileName) {
     // replace ending 'plnkr.json' with 'plnkr.no-link.html' to create output file name;
     var outputFileName = `${this.options.plunkerFileName}.no-link.html`;
-    outputFileName = configFileName.substr(0, configFileName.length - 'plnkr.json'.length) + outputFileName;
+    outputFileName = configFileName.substr(0, configFileName.length - this.options.flagFile.length) + outputFileName;
     var altFileName;
     if (this.destPath && this.destPath.length > 0) {
       var partPath = path.dirname(path.relative(this.basePath, outputFileName));
@@ -167,7 +191,11 @@ class PlunkerBuilder {
 
       postData.description = "Angular Example - " + config.description;
     } else {
-      postData.title = "Angular Example - " + config.description;
+      if (this.options.api) {
+        postData.title = config.description;
+      } else {
+        postData.title = "Angular Example - " + config.description;
+      }
     }
 
     // Embedded needs to add more content, so if the callback is available, we call it
@@ -207,16 +235,23 @@ class PlunkerBuilder {
     }
   }
 
+  _getBoilerplateFiles() {
+    fs.readdirSync(this.boilerplateFilesPath).map((file) => {
+      let content = fs.readFileSync(`${this.boilerplateFilesPath}/${file}`);
+      this.boilerplateFiles[`${file}`] = this._attachCopyright(file, content);
+    });
+  }
+
   _getPlunkerFiles() {
     // Assume plunker version is sibling of node_modules version
-    this.readme = fs.readFileSync(this.basePath +  '/plunker.README.md', 'utf-8');
+    this.readme = fs.readFileSync(this.boilerplatePath +  '/plunker.README.md', 'utf-8');
     var systemJsConfigPath = '/systemjs.config.plunker.js';
     if (this.options.build) {
       systemJsConfigPath = '/systemjs.config.plunker.build.js';
     }
-    this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
+    this.systemjsConfig = fs.readFileSync(this.boilerplatePath + systemJsConfigPath, 'utf-8');
     this.systemjsConfig +=  this.copyrights.jsCss;
-    this.tsconfig = fs.readFileSync(`${this.basePath}/tsconfig.json`, 'utf-8');
+    this.tsconfig = fs.readFileSync(`${this.boilerplatePath}/tsconfig.json`, 'utf-8');
   }
 
   _htmlToElement(document, html) {
@@ -228,10 +263,17 @@ class PlunkerBuilder {
   _initConfigAndCollectFileNames(configFileName) {
     var basePath = path.dirname(configFileName);
     var configSrc = fs.readFileSync(configFileName, 'utf-8');
+    var config = {};
     try {
       var config = (configSrc && configSrc.trim().length) ? JSON.parse(configSrc) : {};
     } catch (e) {
-      throw new Error(`Plunker config - unable to parse json file: ${configFileName}\n${e}`);
+      if (configFileName.slice(-3) === '.ts') {
+        config.description = 'Angular API example';
+        config.tags = ['API'];
+      }
+      else {
+        throw new Error(`Plunker config - unable to parse json file: ${configFileName}\n${e}`);
+      }
     }
 
     var defaultIncludes = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
@@ -255,7 +297,6 @@ class PlunkerBuilder {
       }
     });
 
-    // var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
     var defaultExcludes = [
       '!**/typings/**',
       '!**/typings.json',
@@ -273,11 +314,17 @@ class PlunkerBuilder {
 
     // exclude all specs if no spec is mentioned in `files[]`
     if (!includeSpec) {
-      defaultExcludes = defaultExcludes.concat(['!**/*.spec.*','!**/spec.js']);
+      defaultExcludes = defaultExcludes.concat(['!**/*.spec.*','!**/spec.js', '!**/*_spec.*']);
+    }
+
+    if (this.options.api) {
+      defaultExcludes = defaultExcludes.map((pattern) => {
+        pattern = pattern.slice(1);
+        return path.join(`!${basePath}`, pattern);
+      });
     }
 
     Array.prototype.push.apply(gpaths, defaultExcludes);
-
     config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
     config.basePath = basePath;
 

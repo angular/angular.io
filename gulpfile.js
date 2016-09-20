@@ -38,15 +38,19 @@ var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
 var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
+var ANGULAR_EXAMPLES_PATH = path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
+var API_LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'api-live-examples');
 var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
 var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPlunker'));
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
+var embeddedApiPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedApiPlunker'));
+var regularApiPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularApiPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
 const isSilent = !!argv.silent;
@@ -611,7 +615,7 @@ gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunker
 // Stop zipping examples Feb 28, 2016
 //gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
-gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']
+gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs', 'build-plunkers-api']
     .concat(buildDartApiDocs ? ['build-dart-api-docs', 'build-dart-cheatsheet'] : []));
 
 gulp.task('build-devguide-docs', ['_shred-devguide-examples', '_shred-devguide-shared-jade'], function() {
@@ -634,6 +638,11 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   regularPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
   return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build, targetSelf: argv.targetSelf });
+});
+
+gulp.task('build-plunkers-api', function() {
+  regularApiPlunker.buildPlunkers(ANGULAR_EXAMPLES_PATH, API_LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
+  return embeddedApiPlunker.buildPlunkers(ANGULAR_EXAMPLES_PATH, API_LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -894,7 +903,7 @@ function harpCompile() {
   } else {
     gutil.log(`Harp full site compile, including API docs for all languages.`);
     if (skipLangs)
-      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` + 
+      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` +
       `site has not been built yet or some API HTML files are missing.`);
   }
 
@@ -1164,7 +1173,7 @@ function watchAndSync(options, cb) {
 
   // When using the --focus=name flag, only **/name/**/*.* example files and
   // **/name.jade files are watched. This is useful for performance reasons.
-  // Example: gulp serve-and-sync --focus=architecture 
+  // Example: gulp serve-and-sync --focus=architecture
   var focus = argv.focus;
 
   if (options.devGuide) {

@@ -6,6 +6,7 @@ module.exports = new Package('links', [])
 .factory(require('./inline-tag-defs/linkDocs'))
 .factory(require('./inline-tag-defs/example'))
 .factory(require('./inline-tag-defs/exampleTabs'))
+.factory(require('./inline-tag-defs/liveExample'))
 .factory(require('dgeni-packages/links/services/getAliases'))
 .factory(require('dgeni-packages/links/services/getDocFromAlias'))
 .factory(require('./services/getLinkInfo'))
@@ -14,11 +15,12 @@ module.exports = new Package('links', [])
 .factory(require('./services/deprecatedDocsLinkDisambiguator'))
 .factory(require('./services/getApiFragmentFileName'))
 
-.config(function(inlineTagProcessor, linkInlineTagDef, linkDocsInlineTagDef, exampleInlineTagDef, exampleTabsInlineTagDef) {
+.config(function(inlineTagProcessor, linkInlineTagDef, linkDocsInlineTagDef, exampleInlineTagDef, exampleTabsInlineTagDef, liveExampleInlineTagDef) {
   inlineTagProcessor.inlineTagDefinitions.push(linkInlineTagDef);
   inlineTagProcessor.inlineTagDefinitions.push(linkDocsInlineTagDef);
   inlineTagProcessor.inlineTagDefinitions.push(exampleInlineTagDef);
   inlineTagProcessor.inlineTagDefinitions.push(exampleTabsInlineTagDef);
+  inlineTagProcessor.inlineTagDefinitions.push(liveExampleInlineTagDef);
 })
 
 .config(function(getLinkInfo, moduleScopeLinkDisambiguator, deprecatedDocsLinkDisambiguator) {
