@@ -14,7 +14,7 @@ import { DashboardModule }    from './dashboard.module';
 
 // #docregion router-stub
 class RouterStub {
-  navigateByUrl(url: string) { return url;  }
+  navigateByUrl(url: string) { return url; }
 }
 // #enddocregion router-stub
 
