@@ -1,7 +1,7 @@
 /**
  * PLUNKER VERSION
  * (based on systemjs.config.js in angular.io)
- * System configuration for Angular 2 samples
+ * System configuration for Angular samples
  * Adjust as necessary for your application needs.
  */
 (function (global) {

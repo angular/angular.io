@@ -10,7 +10,7 @@ class Hero {
 
 describe('Architecture', () => {
 
-  const expectedTitle = 'Architecture of Angular 2';
+  const expectedTitle = 'Architecture of Angular';
   const expectedH2 = ['Hero List', 'Sales Tax Calculator'];
 
   beforeAll(() => browser.get(''));

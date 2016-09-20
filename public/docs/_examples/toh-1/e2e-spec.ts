@@ -4,7 +4,7 @@
 type WPromise<T> = webdriver.promise.Promise<T>;
 
 const expectedH1 = 'Tour of Heroes';
-const expectedTitle = `Angular 2 ${expectedH1}`;
+const expectedTitle = `Angular ${expectedH1}`;
 
 class Hero {
   id: number;

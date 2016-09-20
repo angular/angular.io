@@ -213,7 +213,7 @@ function createPostData(config) {
   // Leave here in case we want to add a md file later.
   // postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
 
-  var tags = ['angular2', 'example'].concat(config.tags || []);
+  var tags = ['angular', 'example'].concat(config.tags || []);
   tags.forEach(function(tag,ix) {
     postData['tags[' + ix + ']'] = tag;
   });
@@ -221,7 +221,7 @@ function createPostData(config) {
   // postData['tags[1]'] = "example";
   postData.private = true;
 
-  postData.description = "Angular 2 Example - " + config.description;
+  postData.description = "Angular Example - " + config.description;
   return postData;
 }
 
