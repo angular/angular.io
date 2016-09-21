@@ -1,3 +1,5 @@
+/* tslint:disable:member-ordering */
+// #docplaster
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router }   from '@angular/router';
 import 'rxjs/add/operator/pluck';
@@ -5,22 +7,24 @@ import 'rxjs/add/operator/pluck';
 import { Hero }              from '../model';
 import { HeroDetailService } from './hero-detail.service';
 
+// #docregion prototype
 @Component({
-  selector: 'app-hero-detail',
+  selector:    'app-hero-detail',
   templateUrl: 'app/hero/hero-detail.component.html',
   styleUrls:  ['app/hero/hero-detail.component.css'],
   providers:  [ HeroDetailService ]
 })
 export class HeroDetailComponent implements OnInit {
-  @Input() hero: Hero;
-
   // #docregion ctor
   constructor(
     private heroDetailService: HeroDetailService,
-    private route: ActivatedRoute,
+    private route:  ActivatedRoute,
     private router: Router) {
   }
   // #enddocregion ctor
+// #enddocregion prototype
+
+  @Input() hero: Hero;
 
   // #docregion ng-on-init
   ngOnInit(): void {
@@ -50,4 +54,6 @@ export class HeroDetailComponent implements OnInit {
   gotoList() {
     this.router.navigate(['../'], {relativeTo: this.route});
   }
+// #docregion prototype
 }
+// #enddocregion prototype

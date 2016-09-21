@@ -52,6 +52,10 @@ block includes
     - [_Observable_ test double](#stub-observable)
   1. [Use a _page_ object to simplify setup](#page-object)
   <br><br>
+  1. [Setup with module imports](#import-module)
+  <br><br>
+  1. [Override component providers](#component-override)
+  <br><br>
   1. [Test a _RouterOutlet_ component](#router-outlet-component)
     - [stubbing unneeded components](#stub-component)
     - [Stubbing the _RouterLink_](#router-link-stub)
@@ -446,6 +450,7 @@ a(href="#top").to-top Back to top
   This chapter tests a cut-down version of the _Tour of Heroes_ [tutorial app](../tutorial).
   
   The following live example shows how it works and provides the complete source code.
+  Give it some time to load and warm up.
 <live-example embedded img="devguide/testing/app-plunker.png"></live-example>
 <br><br>
 :marked
@@ -1210,7 +1215,151 @@ figure.image-display
   There are no distractions: no waiting for promises to resolve and no searching the DOM for element values to compare.
   Here are a few more `HeroDetailComponent` tests to drive the point home.
 +makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'selected-tests', 'app/hero/hero-detail.component.spec.ts (selected tests)')(format='.')
+
+a(href="#top").to-top Back to top
+.l-hr
+
+#import-module
 :marked
+  # Setup with module imports
+  Earlier component tests configured the testing module with a few `declarations` like this:
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'compile-components', 'app/dashboard/dashboard-hero.component.spec.ts (config)')(format='.')
+:marked
+  The `DashboardComponent` is simple. It needs no help.
+  But more complex components often depend on other components, directives, pipes, and providers
+  and these must be added to the testing module too.
+
+  Fortunately, the `TestBed.configureTestingModule` parameter parallels
+  the metadata passed to the `@NgModule` decorator 
+  which means you can also specify `providers` and `imports.
+
+  The `HeroDetailComponent` requires a lot of help despite its small size and simple construction. 
+  In addition to the support it receives from the default testing module `CommonModule`, it needs:
+  * `NgModel` and friends in the `FormsModule` enable two-way data binding
+  * The `TitleCasePipe` from the `shared` folder
+  * Router services (which these tests are stubbing)
+  * Hero data access services (also stubbed)
+
+  One approach is to configure the testing module from the individual pieces as in this example:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-forms-module', 'app/hero/hero-detail.component.spec.ts (FormsModule setup)')(format='.')
+:marked
+  Because many app components need the `FormsModule` and the `TitleCasePipe`, the developer created 
+  a `SharedModule` to combine these and other frequently requested parts.
+  The test configuration can use the `SharedModule` too as seen in this alternative setup:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-shared-module', 'app/hero/hero-detail.component.spec.ts (SharedModule setup)')(format='.')
+:marked
+  It's a bit tighter and smaller, with fewer import statements (not shown).
+
+#feature-module-import
+:marked
+  ### Import the feature module
+  The `HeroDetailComponent` is part of the `HeroModule` [Feature Module](ngmodule.html#feature-modules) that aggregates more of the interdependent pieces
+  including the `SharedModule`.
+  Try a test configuration that imports the `HeroModule` like this one:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-hero-module', 'app/hero/hero-detail.component.spec.ts (HeroModule setup)')(format='.')
+:marked
+  That's _really_ crisp. Only the _test doubles_ in the `providers` remain. Even the `HeroDetailComponent` declaration is gone.
+.l-sub-section
+  :marked
+    In fact, if you try to declare it, Angular throws an error because
+    `HeroDetailComponent` is declared in both the `HeroModule` and the `DynamicTestModule` (the testing module).
+
+.alert.is-helpful
+  :marked
+    Importing the component's feature module is often the easiest way to configure the tests,
+    especially when the feature module is small and mostly self-contained ... as feature modules should be.
+:marked
+
+a(href="#top").to-top Back to top
+.l-hr
+
+#component-override
+:marked
+  # Override component providers
+
+  The `HeroDetailComponent` provides its own `HeroDetailService`.
++makeExample('testing/ts/app/hero/hero-detail.component.ts', 'prototype', 'app/hero/hero-detail.component.ts (prototype)')(format='.')
+:marked
+  It's not possible to stub the component's `HeroDetailService` in the `providers` of the `TestBed.configureTestingModule`. 
+  Those are providers for the _testing module_, not the component. They prepare the dependency injector at the _fixture level_.
+
+  Angular creates the component with its _own_ injector which is a _child_ of the fixture injector.
+  It registers the component's providers (the `HeroDetailService` in this case) with the child injector. 
+  A test cannot get to child injector services from the fixture injector.
+  And `TestBed.configureTestingModule` can't configure them either.
+
+  Angular has been creating new instances of the real `HeroDetailService` all along!
+
+.l-sub-section
+  :marked
+    These tests could fail or timeout if the `HeroDetailService` made its own XHR calls to a remote server.
+    There might not be a remote server to call.
+
+    Fortunately, the `HeroDetailService` delegates responsibility for remote data access to an injected `HeroService`.
+
+  +makeExample('testing/ts/app/hero/hero-detail.service.ts', 'prototype', 'app/hero/hero-detail.service.ts (prototype)')(format='.')
+  :marked
+    The [previous test configuration](#feature-module-import) replaces the real `HeroService` with a `FakeHeroService` 
+    that intercepts server requests and fakes their responses.
+
+:marked
+  What if you aren't so lucky. What if faking the `HeroService` is hard? 
+  What if `HeroDetailService` makes its own server requests? 
+  
+  The `TestBed.overrideComponent` method can replace the component's `providers` with easy-to-manage _test doubles_
+  as seen in the following setup variation:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-override', 'app/hero/hero-detail.component.spec.ts (Override setup)')(format='.')
+:marked
+  Notice that `TestBed.configureTestingModule` no longer provides a (fake) `HeroService` because it's [not needed](#stub-hero-detail-service).
+
+#override-component-method
+:marked
+  ### The _overrideComponent_ method
+
+  Focus on the `overrideComponent` method.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'override-component-method', 'app/hero/hero-detail.component.spec.ts (overrideComponent)')(format='.')
+:marked
+  It takes two arguments: the component type to override (`HeroDetailComponent`) and an override metadata object.
+  The [overide metadata object](#metadata-override-object) is a generic defined as follows:
+
+code-example(format="." language="javascript").
+  type MetadataOverride<T> = {
+    add?: T;
+    remove?: T;
+    set?: T;
+  };
+:marked
+  A metadata override object can either add-and-remove elements in metadata properties or completely reset those properties.
+  This example resets the component's `providers` metadata.
+
+  The type parameter, `T`,  is the kind of metadata you'd pass to the `@Component` decorator:
+code-example(format="." language="javascript").
+    selector?: string;
+    template?: string;
+    templateUrl?: string;
+    providers?: any[];
+    ...
+
+#stub-hero-detail-service
+:marked
+  ### _StubHeroDetailService_
+
+  This example completely replaces the component's `providers` with an array containing the `StubHeroDetailService`.
+  The `StubHeroDetailService` is dead simple. It doesn't need a `HeroService` (fake or otherwise).
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'stub-hds', 'app/hero/hero-detail.component.spec.ts (StubHeroDetailService)')(format='.')
+:marked
+  ### The override tests
+
+  Now the tests can control the component's hero directly by manipulating the stub's `testHero`.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'override-tests', 'app/hero/hero-detail.component.spec.ts (override tests)')(format='.')
+:marked
+  ### More overrides
+  The `TestBed.overrideComponent` method can be called multiple times for the same or different components.
+  The `TestBed` offers similar `overrideDirective`, `overrideModule`, and `overridePipe` methods
+  for digging into and replacing parts of these other classes.
+  
+  Explore the options and combinations on your own.
+
 a(href="#top").to-top Back to top
 .l-hr
 
@@ -1299,8 +1448,7 @@ a(href="#top").to-top Back to top
   ### What good are these tests?
 
   Stubbed `RouterLink` tests can confirm that a component with links and an outlet is setup properly,
-  that the component has the links it should have and 
-  that they are all pointing in the expected direction.
+  that the component has the links it should have, and that they are all pointing in the expected direction.
   These tests do not concern whether the app will succeed in navigating to the target component when the user clicks a link.
 
   Stubbing the RouterLink and RouterOutlet is the best option for such limited testing goals.
@@ -1664,6 +1812,7 @@ code-example(format="." language="javascript").
     schemas?: Array&lt;SchemaMetadata | any[]&gt;;
   };
 
+#metadata-override-object
 :marked
   Each overide method takes a `MetadataOverride<T>` where `T` is the kind of metadata
   appropriate to the method, the parameter of an `@NgModule`, `@Component`, `@Directive`, or `@Pipe`.
@@ -1913,11 +2062,6 @@ table
   From the test root component's `DebugElement`, returned by `fixture.debugElement`, 
   you can walk (and query) the fixture's entire element and component sub-trees.
 
-.alert.is-important
-  :marked
-    The _DebugElement_ is officially _experimental_ and thus subject to change.
-    Consult the [API reference](../api/core/index/DebugElement-class.html) for the latest status.
-:marked
   Here are the most useful `DebugElement` members for testers in approximate order of utility.
 
 table
