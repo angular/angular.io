@@ -11,6 +11,4 @@ import { routing }       from './crisis.routing';
   declarations: [ CrisisDetailComponent, CrisisListComponent ],
   providers:    [ CrisisService ]
 })
-// #docregion export-default
-export default class CrisisModule {}
-// #enddocregion export-default
+export class CrisisModule {}

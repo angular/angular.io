@@ -1,12 +1,11 @@
 // #docplaster
-// #docregion final
-// #docregion v1
+// #docregion , v1, v2
 import 'package:angular2/core.dart';
 import 'package:angular2/platform/browser.dart';
 import 'package:angular2_tour_of_heroes/app_component.dart';
 // #enddocregion v1
-import 'package:http/http.dart';
 import 'package:angular2_tour_of_heroes/in_memory_data_service.dart';
+import 'package:http/http.dart';
 
 void main() {
   bootstrap(AppComponent,
@@ -15,7 +14,7 @@ void main() {
     // [provide(Client, useFactory: () => new BrowserClient(), deps: [])]
   );
 }
-// #enddocregion final
+// #enddocregion v2,
 /*
 // #docregion v1
 import 'package:http/browser_client.dart';

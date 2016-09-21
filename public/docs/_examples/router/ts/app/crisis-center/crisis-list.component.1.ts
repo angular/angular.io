@@ -23,10 +23,12 @@ export class CrisisListComponent implements OnInit, OnDestroy {
   selectedId: number;
   private sub: Subscription;
 
+  // #docregion relative-navigation-ctor
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router) {}
+  // #enddocregion relative-navigation-ctor
 
   ngOnInit() {
     this.sub = this.route
@@ -45,7 +47,14 @@ export class CrisisListComponent implements OnInit, OnDestroy {
   // #docregion select
   onSelect(crisis: Crisis) {
     // Absolute link
-    this.router.navigate(['/crisis-center', crisis.id]);
+    this.router.navigate([crisis.id]);
   }
   // #enddocregion select
 }
+// #enddocregion
+
+/*
+// #docregion relative-navigation-router-link
+<a [routerLink]="[crisis.id]">{{ crisis.name }}</a>
+// #enddocregion relative-navigation-router-link
+*/

@@ -16,8 +16,8 @@ describe('Router', function () {
 
       crisisHref: hrefEles.get(0),
       crisisList: element.all(by.css('my-app > ng-component > ng-component li')),
-      crisisDetail: element(by.css('my-app > ng-component > ng-component > div')),
-      crisisDetailTitle: element(by.css('my-app > ng-component > ng-component > div > h3')),
+      crisisDetail: element(by.css('my-app > ng-component > ng-component > ng-component > div')),
+      crisisDetailTitle: element(by.css('my-app > ng-component > ng-component > ng-component > div > h3')),
 
       heroesHref: hrefEles.get(1),
       heroesList: element.all(by.css('my-app > ng-component li')),
@@ -34,7 +34,7 @@ describe('Router', function () {
     expect(page.hrefs.count()).toEqual(4, 'should be 4 dashboard choices');
     expect(page.crisisHref.getText()).toEqual('Crisis Center');
     expect(page.heroesHref.getText()).toEqual('Heroes');
-    expect(page.adminHref.getText()).toEqual('Crisis Admin');
+    expect(page.adminHref.getText()).toEqual('Admin');
     expect(page.loginHref.getText()).toEqual('Login');
   });
 
@@ -118,7 +118,6 @@ describe('Router', function () {
       crisisText = text.substr(text.indexOf(' ')).trim();
       return crisisEle.click();
     }).then(function () {
-      expect(page.crisisList.count()).toBe(0, 'should no longer see crisis center entries');
       expect(page.crisisDetail.isPresent()).toBe(true, 'should be able to see crisis detail');
       expect(page.crisisDetailTitle.getText()).toContain(crisisText);
       let inputEle = page.crisisDetail.element(by.css('input'));

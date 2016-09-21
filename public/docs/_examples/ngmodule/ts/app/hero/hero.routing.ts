@@ -1,9 +1,10 @@
+import { ModuleWithProviders } from '@angular/core';
 import { Routes,
-         RouterModule }  from '@angular/router';
+         RouterModule } from '@angular/router';
 
-import { HeroComponent } from './hero.component';
-import { HeroListComponent }      from './hero-list.component';
-import { HeroDetailComponent }    from './hero-detail.component';
+import { HeroComponent }       from './hero.component';
+import { HeroListComponent }   from './hero-list.component';
+import { HeroDetailComponent } from './hero-detail.component';
 
 const routes: Routes = [
   { path: '',
@@ -15,4 +16,4 @@ const routes: Routes = [
   }
 ];
 
-export const routing = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders = RouterModule.forChild(routes);

@@ -1,9 +1,8 @@
-// #docregion
+// #docregion , init
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-// #docregion init
 import 'package:angular2/core.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
@@ -26,7 +25,6 @@ class InMemoryDataService extends MockClient {
   ];
   static final List<Hero> _heroesDb =
       _initialHeroes.map((json) => new Hero.fromJson(json)).toList();
-  // #enddocregion init
   static int _nextId = _heroesDb.map((hero) => hero.id).reduce(max) + 1;
 
   static Future<Response> _handler(Request request) async {
@@ -37,6 +35,7 @@ class InMemoryDataService extends MockClient {
         final regExp = new RegExp(prefix, caseSensitive: false);
         data = _heroesDb.where((hero) => hero.name.contains(regExp)).toList();
         break;
+      // #enddocregion init-disabled
       case 'POST':
         var name = JSON.decode(request.body)['name'];
         var newHero = new Hero(_nextId++, name);
@@ -54,6 +53,7 @@ class InMemoryDataService extends MockClient {
         _heroesDb.removeWhere((hero) => hero.id == id);
         // No data, so leave it as null.
         break;
+      // #docregion init-disabled
       default:
         throw 'Unimplemented HTTP method ${request.method}';
     }
@@ -62,5 +62,4 @@ class InMemoryDataService extends MockClient {
   }
 
   InMemoryDataService() : super(_handler);
-  // #docregion init
 }

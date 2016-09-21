@@ -8,7 +8,7 @@ block includes
   Angular has a Hierarchical Dependency Injection system.
   There is actually a tree of injectors
   that parallel an application's component tree.
-  We can re-configure the injectors at any level of that component tree with
+  We can reconfigure the injectors at any level of that component tree with
   interesting and useful results.
 
   In this chapter we explore these points and write some code.
@@ -67,10 +67,10 @@ figure.image-display
      We'll reserve discussion of this option for another day.
 :marked
   Such a proliferation of injectors makes little sense until we consider the possibility that injectors at different levels can be
-  configured with different providers. We don't *have* to re-configure providers at every level. But we *can*.
+  configured with different providers. We don't *have* to reconfigure providers at every level. But we *can*.
 
-  If we don't re-configure, the tree of injectors appears to be flat. All requests bubble up to the root injector that we
-  configured with the `bootstrap` method.
+  If we don't reconfigure, the tree of injectors appears to be flat. All requests bubble up to the root 
+  <span if-docs="ts">NgModule</span> injector that we configured with the `!{_bootstrapModule}` method.
 
   The ability to configure one or more providers at different levels opens up interesting and useful possibilities.
 
@@ -140,11 +140,14 @@ figure.image-display
   Look closely at the metadata for our `HeroEditComponent`. Notice the `providers` property.
 
 +makeExample('hierarchical-dependency-injection/ts/app/hero-editor.component.ts', 'providers')
+
+- var _root_NgModule = _docsFor == 'dart' ? '<code>bootstrap</code> arguments' : 'root <code>NgModule</code>'
 :marked
   This adds a `RestoreService` provider to the injector of the `HeroEditComponent`.
-  Couldn’t we simply alter our bootstrap call to this?
+  Couldn’t we simply alter our !{_root_NgModule} to include this provider?
 
-+makeExample('hierarchical-dependency-injection/ts/app/main.ts', 'bad-alternative')
++makeExcerpt(_appModuleTsVsMainTs, 'bad-alternative')
+
 :marked
   Technically we could, but our component wouldn’t quite behave the way it is supposed to. Remember that each injector treats the services that it provides as singletons. However, in order to be able to have multiple instances of `HeroEditComponent` edit multiple heroes at the same time we need to have multiple instances of the `RestoreService`. More specifically, each instance of `HeroEditComponent` needs to be bound to its own instance of the `RestoreService`.
 
@@ -159,20 +162,14 @@ figure.image-display
   we would have exactly one instance of that service and it would be shared across the entire application.
 
   That’s clearly not what we want in this scenario. We want each component to have its own instance of the `RestoreService`.
-  Defining (or re-defining) a provider at the component level creates a new instance of the service for each new instance
+  Defining (or redefining) a provider at the component level creates a new instance of the service for each new instance
   of that component. We've made the `RestoreService` a kind of "private" singleton for each `HeroEditComponent`,
   scoped to that component instance and its child components.
 
-  <!--
-    ## Advanced Dependency Injection in Angular 2
-
-    Restrict Dependency Lookups
-    [TODO] (@Host) This has been postponed for now until we come up with a decent use case
-
-
-    .l-main-section
-    :marked
-      ## Dependency Visibility
-
-    [TODO] (providers vs viewProviders) This has been postponed for now until come up with a decent use case
-    -->
+//- ## Advanced Dependency Injection in Angular 2
+//- Restrict Dependency Lookups
+//- [TODO] (@Host) This has been postponed for now until we come up with a decent use case
+//- .l-main-section
+//-   :marked
+//-     ## Dependency Visibility
+//- [TODO] (providers vs viewProviders) This has been postponed for now until come up with a decent use case

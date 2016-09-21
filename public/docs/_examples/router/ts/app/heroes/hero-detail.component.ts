@@ -1,11 +1,15 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute }       from '@angular/router';
+// #docregion route-animation-imports
+import { Component, OnInit, HostBinding,
+         trigger, transition, animate,
+         style, state } from '@angular/core';
+// #enddocregion route-animation-imports
+import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { Hero, HeroService }  from './hero.service';
-import { Subscription }       from 'rxjs/Subscription';
 
+// #docregion route-animation
 @Component({
   template: `
   <h2>HEROES</h2>
@@ -21,15 +25,48 @@ import { Subscription }       from 'rxjs/Subscription';
       <button (click)="gotoHeroes()">Back</button>
     </p>
   </div>
-  `
+  `,
+  animations: [
+    trigger('routeAnimation', [
+      state('*',
+        style({
+          opacity: 1,
+          transform: 'translateX(0)'
+        })
+      ),
+      transition('void => *', [
+        style({
+          opacity: 0,
+          transform: 'translateX(-100%)'
+        }),
+        animate('0.2s ease-in')
+      ]),
+      transition('* => void', [
+        animate('0.5s ease-out', style({
+          opacity: 0,
+          transform: 'translateY(100%)'
+        }))
+      ])
+    ])
+  ]
 })
-export class HeroDetailComponent implements OnInit, OnDestroy  {
+// #docregion route-animation-host-binding
+export class HeroDetailComponent implements OnInit {
+// #enddocregion route-animation
+  @HostBinding('@routeAnimation') get routeAnimation() {
+    return true;
+  }
+
+  @HostBinding('style.display') get display() {
+    return 'block';
+  }
+
+  @HostBinding('style.position') get position() {
+    return 'absolute';
+  }
+
   hero: Hero;
 
-  // #docregion ngOnInit
-  private sub: Subscription;
-
-  // #enddocregion ngOnInit
   // #docregion ctor
   constructor(
     private route: ActivatedRoute,
@@ -39,18 +76,12 @@ export class HeroDetailComponent implements OnInit, OnDestroy  {
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.sub = this.route.params.subscribe(params => {
+    this.route.params.forEach((params: Params) => {
        let id = +params['id']; // (+) converts string 'id' to a number
        this.service.getHero(id).then(hero => this.hero = hero);
      });
   }
   // #enddocregion ngOnInit
-
-  // #docregion ngOnDestroy
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
-  // #enddocregion ngOnDestroy
 
   // #docregion gotoHeroes-navigate
   gotoHeroes() {
@@ -60,4 +91,6 @@ export class HeroDetailComponent implements OnInit, OnDestroy  {
     this.router.navigate(['/heroes', { id: heroId, foo: 'foo' }]);
   }
   // #enddocregion gotoHeroes-navigate
+// #docregion route-animation-host-binding
 }
+// #enddocregion route-animation-host-binding

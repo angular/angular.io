@@ -11,8 +11,6 @@ import { UserService }        from './user.service';
 
 /* Feature Modules */
 import { ContactModule }      from './contact/contact.module.3';
-
-
 import { routing }            from './app.routing.3';
 
 @NgModule({
@@ -23,9 +21,8 @@ import { routing }            from './app.routing.3';
     routing
   ],
 // #enddocregion imports
-
-  declarations: [ AppComponent, HighlightDirective, TitleComponent ],
   providers:    [ UserService ],
+  declarations: [ AppComponent, HighlightDirective, TitleComponent ],
   bootstrap:    [ AppComponent ]
 })
 export class AppModule { }

@@ -4,7 +4,7 @@
  * The tests here basically just checking that the end styles
  * of each animation are in effect.
  *
- * Relies on the Angular 2 testability only becoming stable once
+ * Relies on the Angular testability only becoming stable once
  * animation(s) have finished.
  *
  * Ideally we'd use https://developer.mozilla.org/en-US/docs/Web/API/Document/getAnimations
@@ -286,6 +286,19 @@ describe('Animation Tests', () => {
       browser.driver.sleep(300);
       expect(getScaleX(li)).toBe(1.1);
       expect(li.getCssValue('backgroundColor')).toBe(ACTIVE_COLOR);
+    });
+  });
+
+  describe('callbacks', () => {
+    it('fires a callback on start and done', () => {
+      addActiveHero();
+      browser.manage().logs().get('browser').then((logs) => {
+        const animationMessages = logs.filter((log) => {
+          return log.message.indexOf('Animation') !== -1 ? true : false;
+        });
+
+        expect(animationMessages.length).toBeGreaterThan(0);
+      });
     });
   });
 

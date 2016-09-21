@@ -15,7 +15,6 @@ import { routing }            from './contact.routing.3';
 @NgModule({
   imports:      [ CommonModule, FormsModule, routing ],
   declarations: [ ContactComponent, HighlightDirective, AwesomePipe ],
-
   providers:    [ ContactService ]
 })
 export class ContactModule { }

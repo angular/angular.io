@@ -2,10 +2,6 @@
 // #docregion
 import { Component }          from '@angular/core';
 
-// #docregion rxjs-extensions
-import './rxjs-extensions';
-// #enddocregion rxjs-extensions
-
 @Component({
   selector: 'my-app',
 

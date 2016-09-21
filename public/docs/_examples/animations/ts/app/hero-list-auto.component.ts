@@ -17,7 +17,7 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          @shrinkOut="'in'">
+          [@shrinkOut]="'in'">
         {{hero.name}}
       </li>
     </ul>

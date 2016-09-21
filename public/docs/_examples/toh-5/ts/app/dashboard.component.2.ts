@@ -17,10 +17,10 @@ export class DashboardComponent implements OnInit {
 
   constructor(private heroService: HeroService) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.heroService.getHeroes()
       .then(heroes => this.heroes = heroes.slice(1, 5));
   }
 
-  gotoDetail() { /* not implemented yet */}
+  gotoDetail(hero: Hero): void { /* not implemented yet */}
 }

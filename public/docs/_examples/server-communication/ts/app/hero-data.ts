@@ -1,5 +1,6 @@
 // #docregion
-export class HeroData {
+import { InMemoryDbService } from 'angular2-in-memory-web-api';
+export class HeroData implements InMemoryDbService {
   createDb() {
     let heroes = [
       { id: '1', name: 'Windstorm' },

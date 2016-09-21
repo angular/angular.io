@@ -28,11 +28,13 @@ export class HeroSearchComponent implements OnInit {
   // #docregion searchTerms
 
   // Push a search term into the observable stream.
-  search(term: string) { this.searchTerms.next(term); }
+  search(term: string): void {
+    this.searchTerms.next(term);
+  }
   // #enddocregion searchTerms
   // #docregion search
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.heroes = this.searchTerms
       .debounceTime(300)        // wait for 300ms pause in events
       .distinctUntilChanged()   // ignore if next search term is same as previous
@@ -49,7 +51,7 @@ export class HeroSearchComponent implements OnInit {
   }
   // #enddocregion search
 
-  gotoDetail(hero: Hero) {
+  gotoDetail(hero: Hero): void {
     let link = ['/detail', hero.id];
     this.router.navigate(link);
   }

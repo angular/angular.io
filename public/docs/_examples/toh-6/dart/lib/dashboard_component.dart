@@ -1,4 +1,4 @@
-// #docregion , search
+// #docregion
 import 'dart:async';
 
 import 'package:angular2/core.dart';
@@ -6,6 +6,7 @@ import 'package:angular2/router.dart';
 
 import 'hero.dart';
 import 'hero_service.dart';
+// #docregion search
 import 'hero_search_component.dart';
 
 @Component(

@@ -26,7 +26,7 @@ exports.config = {
   // Framework to use. Jasmine is recommended.
   framework: 'jasmine',
 
-  // For angular2 tests
+  // For angular tests
   useAllAngular2AppRoots: true,
 
   // Base URL for application server

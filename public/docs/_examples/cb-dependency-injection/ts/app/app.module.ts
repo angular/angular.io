@@ -1,15 +1,16 @@
 // #docregion
 import { BrowserModule }                from '@angular/platform-browser';
 import { FormsModule }                  from '@angular/forms';
-import { XHRBackend }                   from '@angular/http';
-// import { appRouterProviders }        from './app.routes';
+import { HttpModule }                   from '@angular/http';
+
+/* import { routing }                   from './app.routing';*/
 import { LocationStrategy,
          HashLocationStrategy }         from '@angular/common';
 import { NgModule }                     from '@angular/core';
 
 import { HeroData }                     from './hero-data';
-import { InMemoryBackendService,
-         SEED_DATA }                    from 'angular2-in-memory-web-api';
+import { InMemoryWebApiModule }         from 'angular2-in-memory-web-api';
+
 
 import { AppComponent }                 from './app.component';
 import { HeroBioComponent }             from './hero-bio.component';
@@ -31,44 +32,43 @@ import { ParentFinderComponent,
          BethComponent,
          BobComponent }                 from './parent-finder.component';
 
-const DIRECTIVES = [
+const declarations = [
+    AppComponent,
     HeroBiosComponent, HeroBiosAndContactsComponent, HeroBioComponent,
     HeroesBaseComponent, SortedHeroesComponent,
     HeroOfTheMonthComponent, HeroContactComponent,
     HighlightDirective,
     ParentFinderComponent,
-    AppComponent
 ];
 
-const B_DIRECTIVES = [ BarryComponent, BethComponent, BobComponent ];
+const a_components = [AliceComponent, AlexComponent ];
 
-// #docregion C_DIRECTIVES
-const C_DIRECTIVES = [
+const b_components = [ BarryComponent, BethComponent, BobComponent ];
+
+const c_components = [
   CarolComponent, ChrisComponent, CraigComponent,
   CathyComponent
 ];
-// #enddocregion C_DIRECTIVES
 
-// #docregion bootstrap
 @NgModule({
-  imports: [ BrowserModule, FormsModule ],
-  declarations: [ ...DIRECTIVES,
-                  ...B_DIRECTIVES,
-                  ...C_DIRECTIVES,
-                  AliceComponent,
-                  AlexComponent ],
+  imports: [
+    BrowserModule,
+    FormsModule,
+    HttpModule,
+    InMemoryWebApiModule.forRoot(HeroData)
+    // routing TODO: add routes
+  ],
+  declarations: [
+    declarations,
+    a_components,
+    b_components,
+    c_components,
+  ],
   bootstrap: [ AppComponent ],
+  // #docregion providers
   providers: [
-    // appRouterProviders, TODO: add routes
-    { provide: LocationStrategy, useClass: HashLocationStrategy },
-
-    { provide: XHRBackend, useClass: InMemoryBackendService }, // in-mem server
-    { provide: SEED_DATA,  useClass: HeroData } // in-mem server data
+    { provide: LocationStrategy, useClass: HashLocationStrategy }
   ]
+  // #enddocregion providers
 })
-export class AppModule {
-  constructor() {
-  }
-}
-// #enddocregion bootstraps
-
+export class AppModule { }

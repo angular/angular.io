@@ -48,5 +48,5 @@
 
       // #docregion first, final
     });
-  // #enddocregion first, final
 })(window.app || (window.app = {}));
+// #enddocregion first, final

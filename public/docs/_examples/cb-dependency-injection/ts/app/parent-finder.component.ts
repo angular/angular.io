@@ -2,7 +2,7 @@
 /* tslint:disable:*/
 // #docplaster
 // #docregion
-import { Component, forwardRef, Optional, provide, SkipSelf } from '@angular/core';
+import { Component, forwardRef, Optional, SkipSelf } from '@angular/core';
 
 // A component base class (see AlexComponent)
 export abstract class Base { name = 'Count Basie'; }

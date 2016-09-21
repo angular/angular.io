@@ -1,4 +1,5 @@
 // #docregion
+import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { HeroListComponent }    from './hero-list.component';
@@ -11,5 +12,5 @@ const heroesRoutes: Routes = [
 // #enddocregion hero-detail-route
 ];
 
-export const heroesRouting = RouterModule.forChild(heroesRoutes);
+export const heroesRouting: ModuleWithProviders = RouterModule.forChild(heroesRoutes);
 // #enddocregion

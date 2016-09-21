@@ -2,7 +2,7 @@
 import { Component } from '@angular/core';
 
 // #docregion example
-import { HeroesComponent } from './+heroes';
+import { HeroesComponent } from './heroes';
 // #enddocregion example
 
 @Component({

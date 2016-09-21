@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
 
 @Component({
  selector: 'my-app',
- template: 'Welcome to Angular 2'
+ template: 'Welcome to Angular'
 })
 export class AppComponent {
   constructor(logger: Logger) {
