@@ -7,7 +7,7 @@ import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
 import {
-  ActivatedRoute, ActivatedRouteStub, newEvent, Router, RouterStub
+  ActivatedRoute, ActivatedRouteStub, click, newEvent, Router, RouterStub
 } from '../../testing';
 
 import { Hero }                from '../model';
@@ -103,7 +103,7 @@ function overrideSetup() {
     expect(comp.hero.name).toBe(newName, 'component hero has new name');
     expect(hds.testHero.name).toBe(origName, 'service hero unchanged before save');
 
-    page.saveBtn.triggerEventHandler('click', null);
+    click(page.saveBtn);
     tick(); // wait for async save to complete
     expect(hds.testHero.name).toBe(newName, 'service hero has new name after save');
     expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
@@ -159,18 +159,18 @@ function heroModuleSetup() {
   // #enddocregion route-good-id
 
     it('should navigate when click cancel', () => {
-      page.cancelBtn.triggerEventHandler('click', null);
+      click(page.cancelBtn);
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     });
 
     it('should save when click save but not navigate immediately', () => {
-      page.saveBtn.triggerEventHandler('click', null);
+      click(page.saveBtn);
       expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
       expect(page.navSpy.calls.any()).toBe(false, 'router.navigate not called');
     });
 
     it('should navigate when click save and save resolves', fakeAsync(() => {
-      page.saveBtn.triggerEventHandler('click', null);
+      click(page.saveBtn);
       tick(); // wait for async save to complete
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     }));

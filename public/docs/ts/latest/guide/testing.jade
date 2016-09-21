@@ -43,7 +43,7 @@ block includes
     - [_async_](#async-in-before-each) in `beforeEach`
     - [_compileComponents_](#compile-components)
   1. [Test a component with inputs and outputs](#component-with-inputs-output)
-  <br><br>
+    - [_triggerEventHandler_](#trigger-event-handler)
   1. [Test a component inside a test host component](#component-inside-test-host)
   <br><br>
   1. [Test a routed component](#routed-component)
@@ -965,14 +965,51 @@ a(href="#top").to-top Back to top
 :marked
   The component exposes an `EventEmitter` property. The test subscribes to it just as the host component would do.
 
-  The Angular `DebugElement.triggerEventHandler` lets the test raise _any data-bound event_.
-  In this example, the component's template binds to the hero `<div>`.
-
-  The test has a reference to that `<div>` in `heroEl` so triggering the `heroEl` click event should cause Angular
-  to call `DashboardHeroComponent.click`. 
+  The `heroEl` is a `DebugElement` that represents the hero `<div>`. 
+  The test calls `triggerEventHandler` with the "click" event name.
+  The "click" event binding responds by calling `DashboardHeroComponent.click()`. 
   
-  If the component behaves as expected, its `selected` property should emit the `hero` object,
-  the test detects that emission through its subscription, and the test will pass.
+  If the component behaves as expected, `click()` tells the component's `selected` property to emit the `hero` object,
+  the test detects that value through its subscription to `selected`, and the test should pass.
+  
+#trigger-event-handler
+:marked
+  ### _triggerEventHandler_
+
+  The Angular `DebugElement.triggerEventHandler` can raise _any data-bound event_ by its _event name_.
+  The second parameter is the event object passed to the handler.
+
+  In this example, the test triggers a "click" event with a null event object.
+
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'trigger-event-handler')(format='.')
+:marked
+  The test assumes (correctly in this case) that the runtime event handler &mdash; the component's `click()` method &mdash;
+  doesn't care about the event object.
+  
+  Other handlers will be less forgiving. 
+  For example, the `RouterLink` directive expects an object with a `button` property indicating the mouse button that was pressed. 
+  The directive throws an error if the event object doesn't do this correctly.
+
+#click-helper
+:marked
+  Clicking a button, an anchor, or an arbitrary HTML element is a common test task.
+  Make that easy by encapsulating the _click-triggering_ process in a helper such as the `click` function below:
++makeExample('testing/ts/testing/index.ts', 'click-event', 'testing/index.ts (click helper)')(format='.')
+:marked
+  The first parameter is the _element-to-click_. You can pass a custom event object as the second parameter if you wish. The default is a (partial) 
+  <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button" target="_blank">left-button mouse event object</a> 
+  accepted by many handlers including the `RouterLink` directive.
+
+.callout.is-critical
+  header click() is not an ATP function
+  :marked
+    The `click()` helper function is **not** part of the _Angular Testing Platform_. 
+    It's a function defined in _this chapter's sample code_ and used by all of the sample tests. 
+    If you like it, add it to your own collection of helpers.
+:marked
+  Here's the previous test, rewritten using this click helper.
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'click-test-2', 'app/dashboard/dashboard-hero.component.spec.ts (click test revised)')(format='.')
+
 
 .l-hr
 
@@ -2135,8 +2172,10 @@ table
       :marked
         Triggers the event by its name if there is a corresponding listener 
         in the element's `listeners` collection.
-        
-        If the event lacks a listner or there's some other problem, 
+        The second parameter is the _event object_ expected by the handler.
+        See [above](#trigger-event-handler).
+
+        If the event lacks a listener or there's some other problem, 
         consider calling `nativeElement.dispatchEvent(eventObject)`
 
   tr

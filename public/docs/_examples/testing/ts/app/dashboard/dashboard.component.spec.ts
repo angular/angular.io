@@ -2,9 +2,9 @@
 import { async, inject, ComponentFixture, TestBed
 } from '@angular/core/testing';
 
-import { addMatchers }     from '../../testing';
-import { HeroService }     from '../model';
-import { FakeHeroService } from '../model/testing';
+import { addMatchers, click } from '../../testing';
+import { HeroService }        from '../model';
+import { FakeHeroService }    from '../model/testing';
 
 import { By }     from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -39,7 +39,7 @@ describe('DashboardComponent (deep)', () => {
   function clickForDeep() {
     // get first <div class="hero"> DebugElement
     const heroEl = fixture.debugElement.query(By.css('.hero'));
-    heroEl.triggerEventHandler('click', null);
+    click(heroEl);
   }
 });
 
