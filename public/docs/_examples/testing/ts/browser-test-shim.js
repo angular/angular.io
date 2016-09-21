@@ -9,7 +9,7 @@ Error.stackTraceLimit = 0; // "No stacktrace"" is usually best for app testing.
 // Uncomment to get full stacktrace output. Sometimes helpful, usually not.
 // Error.stackTraceLimit = Infinity; //
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 3000;
 
 var baseURL = document.baseURI;
 baseURL = baseURL + baseURL[baseURL.length-1] ? '' : '/';

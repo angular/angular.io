@@ -4,7 +4,7 @@ import { Hero }       from './hero';
 import { HEROES }     from './test-heroes';
 
 @Injectable()
-/** Dummy HeroService that pretends to be real */
+/** Dummy HeroService. Pretend it makes real http requests */
 export class HeroService {
   getHeroes() {
     return Promise.resolve(HEROES);
@@ -21,9 +21,10 @@ export class HeroService {
 
   updateHero(hero: Hero): Promise<Hero> {
     return this.getHero(hero.id).then(h => {
-      return h ?
-        Object.assign(h, hero) :
-        Promise.reject(`Hero ${hero.id} not found`) as any as Promise<Hero>;
+      if (!h) {
+        throw new Error(`Hero ${hero.id} not found`);
+      }
+      return Object.assign(h, hero);
     });
   }
 }

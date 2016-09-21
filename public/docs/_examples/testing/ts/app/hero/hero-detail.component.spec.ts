@@ -7,16 +7,13 @@ import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
 import {
-  addMatchers, newEvent,
-  ActivatedRoute, ActivatedRouteStub, Router, RouterStub
+  ActivatedRoute, ActivatedRouteStub, newEvent, Router, RouterStub
 } from '../../testing';
 
-import { HEROES, FakeHeroService } from '../model/testing';
-
-import { HeroModule }          from './hero.module';
+import { Hero }                from '../model';
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroDetailService }   from './hero-detail.service';
-import { Hero, HeroService }   from '../model';
+import { HeroModule }          from './hero.module';
 
 ////// Testing Vars //////
 let activatedRoute: ActivatedRouteStub;
@@ -24,20 +21,117 @@ let comp: HeroDetailComponent;
 let fixture: ComponentFixture<HeroDetailComponent>;
 let page: Page;
 
-//////////  Tests  ////////////////////
-
+////// Tests //////
 describe('HeroDetailComponent', () => {
+  beforeEach(() => {
+    activatedRoute = new ActivatedRouteStub();
+  });
+  describe('with HeroModule setup', heroModuleSetup);
+  describe('when override its provided HeroDetailService', overrideSetup);
+  describe('with FormsModule setup', formsModuleSetup);
+  describe('with SharedModule setup', sharedModuleSetup);
+});
+
+////////////////////
+function overrideSetup() {
+  // #docregion stub-hds
+  class StubHeroDetailService {
+    testHero = new Hero(42, 'Test Hero');
+
+    getHero(id: number | string): Promise<Hero>  {
+      return Promise.resolve(true).then(() => Object.assign({}, this.testHero) );
+    }
+
+    saveHero(hero: Hero): Promise<Hero> {
+      return Promise.resolve(true).then(() => Object.assign(this.testHero, hero) );
+    }
+  }
+  // #enddocregion stub-hds
+
+  // the `id` value is irrelevant because ignored by service stub
+  beforeEach(() => activatedRoute.testParams = { id: 99999 } );
+
+  // #docregion setup-override
+  beforeEach( async(() => {
+    TestBed.configureTestingModule({
+      imports:   [ HeroModule ],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: Router,         useClass: RouterStub},
+  // #enddocregion setup-override
+        // HeroDetailService at this level is IRRELEVANT!
+        { provide: HeroDetailService, useValue: {} }
+  // #docregion setup-override
+      ]
+    })
+
+    // Override component's own provider
+    // #docregion override-component-method
+    .overrideComponent(HeroDetailComponent, {
+      set: {
+        providers: [
+          { provide: HeroDetailService, useClass: StubHeroDetailService }
+        ]
+      }
+    })
+    // #enddocregion override-component-method
+
+    .compileComponents();
+  }));
+  // #enddocregion setup-override
+
+  // #docregion override-tests
+  let hds: StubHeroDetailService;
 
   beforeEach( async(() => {
-    addMatchers();
-    activatedRoute = new ActivatedRouteStub();
+    createComponent();
+    // get the component's injected StubHeroDetailService
+    hds = fixture.debugElement.injector.get(HeroDetailService);
+  }));
 
-    TestBed.configureTestingModule({
-      imports: [ HeroModule ],
+  it('should display stub hero\'s name', () => {
+    expect(page.nameDisplay.textContent).toBe(hds.testHero.name);
+  });
 
-      // DON'T RE-DECLARE because already declared in HeroModule
-      // declarations: [HeroDetailComponent, TitleCasePipe], // No!
+  it('should save stub hero change', fakeAsync(() => {
+    const origName = hds.testHero.name;
+    const newName = 'New Name';
 
+    page.nameInput.value = newName;
+    page.nameInput.dispatchEvent(newEvent('input')); // tell Angular
+
+    expect(comp.hero.name).toBe(newName, 'component hero has new name');
+    expect(hds.testHero.name).toBe(origName, 'service hero unchanged before save');
+
+    page.saveBtn.triggerEventHandler('click', null);
+    tick(); // wait for async save to complete
+    expect(hds.testHero.name).toBe(newName, 'service hero has new name after save');
+    expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
+  }));
+  // #enddocregion override-tests
+
+  it('fixture injected service is not the component injected service',
+    inject([HeroDetailService], (service: HeroDetailService) => {
+
+    expect(service).toEqual({}, 'service injected from fixture');
+    expect(hds).toBeTruthy('service injected into component');
+  }));
+}
+
+////////////////////
+import { HEROES, FakeHeroService } from '../model/testing';
+import { HeroService }             from '../model';
+
+const firstHero = HEROES[0];
+
+function heroModuleSetup() {
+  // #docregion setup-hero-module
+  beforeEach( async(() => {
+     TestBed.configureTestingModule({
+      imports:   [ HeroModule ],
+  // #enddocregion setup-hero-module
+  //  declarations: [ HeroDetailComponent ], // NO!  DOUBLE DECLARATION
+  // #docregion setup-hero-module
       providers: [
         { provide: ActivatedRoute, useValue: activatedRoute },
         { provide: HeroService,    useClass: FakeHeroService },
@@ -46,13 +140,14 @@ describe('HeroDetailComponent', () => {
     })
     .compileComponents();
   }));
+  // #enddocregion setup-hero-module
 
   // #docregion route-good-id
-  describe('when navigate to hero id=' + HEROES[0].id, () => {
+  describe('when navigate to existing hero', () => {
     let expectedHero: Hero;
 
     beforeEach( async(() => {
-      expectedHero = HEROES[0];
+      expectedHero = firstHero;
       activatedRoute.testParams = { id: expectedHero.id };
       createComponent();
     }));
@@ -76,7 +171,7 @@ describe('HeroDetailComponent', () => {
 
     it('should navigate when click save and save resolves', fakeAsync(() => {
       page.saveBtn.triggerEventHandler('click', null);
-      tick(); // wait for async save to "complete" before navigating
+      tick(); // wait for async save to complete
       expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
     }));
 
@@ -91,8 +186,7 @@ describe('HeroDetailComponent', () => {
       // dispatch a DOM event so that Angular learns of input value change.
       page.nameInput.dispatchEvent(newEvent('input'));
 
-      // detectChanges() makes [(ngModel)] push input value to component property
-      // and Angular updates the output span through the title pipe
+      // Tell Angular to update the output span through the title pipe
       fixture.detectChanges();
 
       expect(page.nameDisplay.textContent).toBe(titleCaseName);
@@ -131,10 +225,8 @@ describe('HeroDetailComponent', () => {
   });
   // #enddocregion route-bad-id
 
-  ///////////////////////////
-
   // Why we must use `fixture.debugElement.injector` in `Page()`
-  it('cannot use `inject` to get component\'s provided service', () => {
+  it('cannot use `inject` to get component\'s provided HeroDetailService', () => {
     let service: HeroDetailService;
     fixture = TestBed.createComponent(HeroDetailComponent);
     expect(
@@ -148,7 +240,64 @@ describe('HeroDetailComponent', () => {
     service = fixture.debugElement.injector.get(HeroDetailService);
     expect(service).toBeDefined('debugElement.injector');
   });
-});
+}
+
+/////////////////////
+import { FormsModule }         from '@angular/forms';
+import { TitleCasePipe }       from '../shared/title-case.pipe';
+
+function formsModuleSetup() {
+ // #docregion setup-forms-module
+  beforeEach( async(() => {
+     TestBed.configureTestingModule({
+      imports:      [ FormsModule ],
+      declarations: [ HeroDetailComponent, TitleCasePipe ],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: HeroService,    useClass: FakeHeroService },
+        { provide: Router,         useClass: RouterStub},
+      ]
+    })
+    .compileComponents();
+  }));
+  // #enddocregion setup-forms-module
+
+  it('should display 1st hero\'s name', fakeAsync(() => {
+    const expectedHero = firstHero;
+    activatedRoute.testParams = { id: expectedHero.id };
+    createComponent().then(() => {
+      expect(page.nameDisplay.textContent).toBe(expectedHero.name);
+    });
+  }));
+}
+
+///////////////////////
+import { SharedModule }        from '../shared/shared.module';
+
+function sharedModuleSetup() {
+  // #docregion setup-shared-module
+  beforeEach( async(() => {
+    TestBed.configureTestingModule({
+      imports:      [ SharedModule ],
+      declarations: [ HeroDetailComponent ],
+      providers: [
+        { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: HeroService,    useClass: FakeHeroService },
+        { provide: Router,         useClass: RouterStub},
+      ]
+    })
+    .compileComponents();
+  }));
+  // #enddocregion setup-shared-module
+
+  it('should display 1st hero\'s name', fakeAsync(() => {
+    const expectedHero = firstHero;
+    activatedRoute.testParams = { id: expectedHero.id };
+    createComponent().then(() => {
+      expect(page.nameDisplay.textContent).toBe(expectedHero.name);
+    });
+  }));
+}
 
 /////////// Helpers /////
 
@@ -185,9 +334,10 @@ class Page {
     const compInjector = fixture.debugElement.injector;
     const hds          = compInjector.get(HeroDetailService);
     const router       = compInjector.get(Router);
+
     this.gotoSpy       = spyOn(comp, 'gotoList').and.callThrough();
-    this.saveSpy       = spyOn(hds, 'saveHero').and.callThrough();
     this.navSpy        = spyOn(router, 'navigate');
+    this.saveSpy       = spyOn(hds, 'saveHero').and.callThrough();
   }
 
   /** Add page elements after hero arrives */
