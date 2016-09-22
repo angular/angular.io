@@ -4,7 +4,7 @@ import { async, ComponentFixture, TestBed
 import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { addMatchers }  from '../../testing';
+import { addMatchers, click } from '../../testing';
 
 import { Hero } from '../model/hero';
 import { DashboardHeroComponent } from './dashboard-hero.component';
@@ -53,10 +53,22 @@ describe('DashboardHeroComponent when tested directly', () => {
     let selectedHero: Hero;
     comp.selected.subscribe((hero: Hero) => selectedHero = hero);
 
+  // #docregion trigger-event-handler
     heroEl.triggerEventHandler('click', null);
+  // #enddocregion trigger-event-handler
     expect(selectedHero).toBe(expectedHero);
   });
   // #enddocregion click-test
+
+  // #docregion click-test-2
+  it('should raise selected event when clicked', () => {
+    let selectedHero: Hero;
+    comp.selected.subscribe((hero: Hero) => selectedHero = hero);
+
+    click(heroEl);   // triggerEventHandler helper
+    expect(selectedHero).toBe(expectedHero);
+  });
+  // #enddocregion click-test-2
 });
 
 //////////////////
@@ -89,7 +101,7 @@ describe('DashboardHeroComponent when inside a test host', () => {
   });
 
   it('should raise selected event when clicked', () => {
-    heroEl.triggerEventHandler('click', null);
+    click(heroEl);
     // selected hero should be the same data bound hero
     expect(testHost.selectedHero).toBe(testHost.hero);
   });
@@ -102,8 +114,7 @@ import { Component } from '@angular/core';
 // #docregion test-host
 @Component({
   template: `
-    <dashboard-hero  [hero]="hero"  (selected)="onSelected($event)">
-    </dashboard-hero>`
+    <dashboard-hero  [hero]="hero"  (selected)="onSelected($event)"></dashboard-hero>`
 })
 class TestHostComponent {
   hero = new Hero(42, 'Test Name');
