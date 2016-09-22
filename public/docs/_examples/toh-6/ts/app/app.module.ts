@@ -9,6 +9,7 @@ import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule }   from '@angular/forms';
 import { HttpModule }    from '@angular/http';
+import { RouterModule }  from '@angular/router';
 
 // #enddocregion v1
 // Imports for loading & configuring the in-memory web api
@@ -24,7 +25,6 @@ import { HeroService }          from './hero.service';
 // #enddocregion v1, v2
 import { HeroSearchComponent }  from './hero-search.component';
 // #docregion v1, v2
-import { routing }              from './app.routing';
 
 @NgModule({
   imports: [
@@ -36,7 +36,25 @@ import { routing }              from './app.routing';
     InMemoryWebApiModule.forRoot(InMemoryDataService),
     // #enddocregion in-mem-web-api
     // #docregion v1
-    routing
+    RouterModule.forRoot([
+      {
+        path: '',
+        redirectTo: '/dashboard',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        component: DashboardComponent
+      },
+      {
+        path: 'detail/:id',
+        component: HeroDetailComponent
+      },
+      {
+        path: 'heroes',
+        component: HeroesComponent
+      }
+    ])
   ],
   // #docregion search
   declarations: [

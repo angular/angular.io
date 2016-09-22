@@ -3,7 +3,7 @@ import { BrowserModule }                from '@angular/platform-browser';
 import { FormsModule }                  from '@angular/forms';
 import { HttpModule }                   from '@angular/http';
 
-/* import { routing }                   from './app.routing';*/
+// import { AppRoutingModule }             from './app-routing.module';
 import { LocationStrategy,
          HashLocationStrategy }         from '@angular/common';
 import { NgModule }                     from '@angular/core';
@@ -56,7 +56,7 @@ const c_components = [
     FormsModule,
     HttpModule,
     InMemoryWebApiModule.forRoot(HeroData)
-    // routing TODO: add routes
+    // AppRoutingModule TODO: add routes
   ],
   declarations: [
     declarations,

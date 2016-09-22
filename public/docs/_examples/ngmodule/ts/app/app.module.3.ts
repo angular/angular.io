@@ -11,14 +11,16 @@ import { UserService }        from './user.service';
 
 /* Feature Modules */
 import { ContactModule }      from './contact/contact.module.3';
-import { routing }            from './app.routing.3';
+
+/* Routing Module */
+import { AppRoutingModule }   from './app-routing.module.3';
 
 @NgModule({
 // #docregion imports
   imports:      [
     BrowserModule,
     ContactModule,
-    routing
+    AppRoutingModule
   ],
 // #enddocregion imports
   providers:    [ UserService ],

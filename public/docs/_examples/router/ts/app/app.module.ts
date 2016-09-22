@@ -4,8 +4,8 @@ import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
 
 import { AppComponent }         from './app.component';
-import { routing,
-         appRoutingProviders }  from './app.routing';
+import { AppRoutingModule }     from './app-routing.module';
+import { LoginRoutingModule }   from './login-routing.module';
 
 import { HeroesModule }         from './heroes/heroes.module';
 import { CrisisCenterModule }   from './crisis-center/crisis-center.module';
@@ -18,16 +18,16 @@ import { DialogService }        from './dialog.service';
   imports: [
     BrowserModule,
     FormsModule,
-    routing,
     HeroesModule,
-    CrisisCenterModule
+    CrisisCenterModule,
+    LoginRoutingModule,
+    AppRoutingModule
   ],
   declarations: [
     AppComponent,
     LoginComponent
   ],
   providers: [
-    appRoutingProviders,
     DialogService
   ],
   bootstrap: [ AppComponent ]

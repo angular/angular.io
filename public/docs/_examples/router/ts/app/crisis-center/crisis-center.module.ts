@@ -5,22 +5,19 @@ import { FormsModule }    from '@angular/forms';
 import { CommonModule }   from '@angular/common';
 
 import { CrisisService }        from './crisis.service';
-// #docregion crisis-detail-resolve
-import { CrisisDetailResolve }  from './crisis-detail-resolve.service';
-// #enddocregion crisis-detail-resolve
 
 import { CrisisCenterComponent }     from './crisis-center.component';
 import { CrisisListComponent }       from './crisis-list.component';
 import { CrisisCenterHomeComponent } from './crisis-center-home.component';
 import { CrisisDetailComponent }     from './crisis-detail.component';
 
-import { crisisCenterRouting } from './crisis-center.routing';
+import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    crisisCenterRouting
+    CrisisCenterRoutingModule
   ],
   declarations: [
     CrisisCenterComponent,
@@ -28,11 +25,8 @@ import { crisisCenterRouting } from './crisis-center.routing';
     CrisisCenterHomeComponent,
     CrisisDetailComponent
   ],
-  // #docregion crisis-detail-resolve
-
   providers: [
-    CrisisService,
-    CrisisDetailResolve
+    CrisisService
   ]
   // #enddocregion crisis-detail-resolve
 })

@@ -1,3 +1,4 @@
+import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { HeroListComponent }    from './hero-list.component';
@@ -9,4 +10,9 @@ const routes: Routes =  [
 ];
 
 export const routedComponents = [HeroDetailComponent, HeroListComponent];
-export const routing = RouterModule.forChild(routes);
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class HeroRoutingModule {}

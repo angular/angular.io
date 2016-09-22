@@ -46,6 +46,7 @@ include ../_util-fns
   * toggling css classes for the [active router link](#router-link-active)
   * embedding critical information in the URL with [route parameters](#route-parameters)
   * providing non-critical information in [optional route parameters](#optional-route-parameters)
+  * refactoring routing into a [routing module](#routing-module)
   * add [child routes](#child-routing-component) under a feature section
   * [grouping child routes](#component-less-route) without a component
   * [redirecting](#redirect) from one route to another
@@ -87,7 +88,7 @@ include ../_util-fns
   It is not part of the Angular core. It is in its own library package, `@angular/router`.
   We import what we need from it as we would from any other Angular package.
 
-+makeExcerpt('app/app.routing.ts (import)', 'import-router')
++makeExcerpt('app/app.module.1.ts (import)', 'import-router')
 
 .l-sub-section
   :marked
@@ -100,13 +101,14 @@ include ../_util-fns
   A router has no routes until we configure it.
   We bootstrap our application with an array of routes that we'll provide to our **`RouterModule.forRoot`** function.
 
-  In the following example, we configure our application with four route definitions.
+  In the following example, we configure our application with four route definitions. The configured `RouterModule` is
+  add to the `AppModule`'s `imports` array.
 
-+makeExcerpt('app/app.routing.1.ts (excerpt)', 'route-config')
++makeExcerpt('app/app.module.0.ts (excerpt)', 'route-config')
 
 .l-sub-section
   :marked
-    The `Routes` is an array of *routes* that describe how to navigate.
+    The `RouterModule` is provided an array of *routes* that describe how to navigate.
     Each *Route* maps a URL `path` to a component.
 
     There are no **leading slashes** in our **path**. The router parses and builds the URL for us,
@@ -134,14 +136,6 @@ include ../_util-fns
     configuration above, the routes with a static path are listed first, followed by an empty path route,
     that matches as the default route. The wildcard route is listed last as it's the most generic route and should be
     matched **only** if no other routes are matched first.
-
-:marked
-    We export the `routing` constant so we can import it into our `app.module.ts` file where we'll add
-    a configured *Router* module to our `AppModule` imports.
-:marked
-  Next we open `app.module.ts` where we must register our routing, routing providers, and declare our two route components.
-
-+makeExcerpt('app/app.module.1.ts (basic setup)', 'router-basics')
 
 :marked
   ### Router Outlet
@@ -192,7 +186,7 @@ code-example(language="html").
   that make up the current state of the router. We can access the current `RouterState` from anywhere in our
   application using the `Router` service and the `routerState` property.
 
-  The router state provides us with methods to traverse up and down the route tree from any activated route
+  Each `ActivatedRoute` in the `RouterState` provides methods to traverse up and down the route tree
   to get information we may need from parent, child and sibling routes.
 
 :marked
@@ -413,20 +407,6 @@ a#base-href
   need routing and, depending on your requirements, you may need a different routing library.
 
   We teach our router how to navigate by configuring it with routes.
-  We recommend creating a separate `app.routing.ts` file dedicated to this purpose.
-
-:marked
-  Here is our first configuration. We pass the array of routes to the `RouterModule.forRoot` method
-  which returns a module containing the configured `Router` service provider ... and some other,
-  unseen providers that the routing library requires. We export this as the `routing` token.
-
-+makeExcerpt('app/app.routing.2.ts')
-
-.l-sub-section
-  :marked
-    We also export an empty `appRoutingProviders` array
-    so we can simplify registration of router dependencies later in `app.module.ts`.
-    We don't have any providers to register right now. But we will.
 
 a#route-config
 h4#define-routes Define routes
@@ -451,25 +431,23 @@ h4#define-routes Define routes
   the `CrisisListComponent`, display its view, and update the browser's address location and history with the URL
   for that path.*
 
-.l-sub-section
-  :marked
-    Learn about *providers* in the [Dependency Injection](dependency-injection.html#!#injector-providers) chapter.
-
-h4#register-providers Register routing in the AppModule
 :marked
-  Our app launches from the `app.module.ts` file in the `/app` folder.
-
-  We import the `routing` token we exported from the `app.routing.ts` file and add it to the `imports` array.
-
-  We import our `CrisisListComponent` and `HeroListComponent` components and add them to our *declarations*
-  so they will be registered within our `AppModule`.
-
-  We also import the `appRoutingProviders` array and add it to the `providers` array.
+  Here is our first configuration. We pass the array of routes to the `RouterModule.forRoot` method
+  which returns a module containing the configured `Router` service provider ... and some other,
+  unseen providers that the routing library requires. Once our application is bootstrapped, the `Router`
+  will perform the initial navigation based on the current browser URL.
 
 +makeExcerpt('app/app.module.1.ts')
 
+.l-sub-section
+  :marked
+    Adding the configured `RouterModule` to the `AppModule` is sufficient for simple route configurations.
+    As our application grows, we'll want to refactor our routing configuration into a separate file
+    and create a **[Routing Module](#routing-module)**, a special type of `Service Module` dedicating for the purpose
+    of routing in feature modules.
+
 :marked
-  Providing the router module in our `AppModule` makes the Router available everywhere in our application.
+  Providing the `RouterModule` in our `AppModule` makes the Router available everywhere in our application.
 
 h3#shell The <i>AppComponent</i> shell
 :marked
@@ -562,7 +540,6 @@ h3#router-directives <i>Router Directives</i>
       .children
         .file app.component.ts
         .file app.module.ts
-        .file app.routing.ts
         .file crisis-list.component.ts
         .file hero-list.component.ts
         .file main.ts
@@ -579,7 +556,6 @@ h3#router-directives <i>Router Directives</i>
 +makeTabs(
   `router/ts/app/app.component.1.ts,
   router/ts/app/app.module.1.ts,
-  router/ts/app/app.routing.2.ts,
   router/ts/app/main.ts,
   router/ts/app/hero-list.component.ts,
   router/ts/app/crisis-list.component.ts,
@@ -587,15 +563,85 @@ h3#router-directives <i>Router Directives</i>
   ',,,,',
   `app.component.ts,
   app.module.ts,
-  app.routing.ts,
   main.ts,
   hero-list.component.ts,
   crisis-list.component.ts,
   index.html`)
 
+.l-main-section#routing-module
+:marked
+  ## Milestone #2: The *Routing Module*
+
+  In our initial route configuration, we provided a simple setup with two routes used
+  to configure our application for routing. This is perfectly fine for simple routing.
+  As our application grows and we make use of more *Router* features, such as guards,
+  resolvers, and child routing, we'll naturally want to refactor our routing. We
+  recommend moving the routing into a separate file using a special-purpose
+  service called a *Routing Module*.
+
+  The **Routing Module**
+  * separates our routing concerns from our feature module
+  * provides a module to replace or remove when testing our feature module
+  * provides a common place for require routing service providers including guards and resolvers
+  * is **not** concerned with feature [module declarations](../cookbook/ngmodule-faq.html#!#routing-module)
+
+:marked
+  ### Refactor routing into a module
+
+  We'll create a file named `app-routing.module.ts` in our `/app` folder to
+  contain our `Routing Module`. The routing module will import our `RouterModule` tokens
+  and configure our routes. We'll follow the convention of our filename and name
+  the Angular module `AppRoutingModule`.
+
+  We import the `CrisisListComponent` and the `HeroListComponent` components
+  just like we did in the `app.module.ts`. Then we'll move the `Router` imports
+  and routing configuration including `RouterModule.forRoot` into our routing module.
+
+  We'll also export the `AppRoutingModule` so we can add it to our `AppModule` imports.
+
+  Our last step is to re-export the `RouterModule`. By re-exporting the `RouterModule`,
+  our feature module will be provided with the `Router Directives` when using our `Routing Module`.
+
+  Here is our first `Routing Module`:
+
++makeExcerpt('app/app-routing.module.1.ts')
+
+:marked
+   Next, we'll update our `app.module.ts` file by importing our `AppRoutingModule` token
+   from the `app-routing.module.ts` and replace our `RouterModule.forRoot` with our newly
+   created `AppRoutingModule`.
+
++makeExcerpt('app/app.module.2.ts')
+
+:marked
+  Our application continues to work just the same, and we can use our routing module as
+  the central place to maintain our routing configuration for each feature module.
+
+a#why-routing-module
+:marked
+  ### Do you need a _Routing Module_?
+  
+  The _Routing Module_ *replaces* the routing configuration in the root or feature module. 
+  _Either_ configure routes in the Routing Module _or_ within the module itself but not in both.
+
+  The Routing Module is a design choice whose value is most obvious when the configuration is complex
+  and includes specialized guard and resolver services.
+  It can seem like overkill when the actual configuration is dead simple.
+
+  Some developers skip the Routing Module (e.g., `AppRoutingModule`) when the configuration is simple and 
+  merge the routing configuration directly into the companion module (e.g., `AppModule`).
+  
+  We recommend that you choose one pattern or the other and follow that pattern consistently.
+
+  Most developers should always implement a Routing Module for the sake of consistency.
+  It keeps the code clean when configuration becomes complex.
+  It makes testing the feature module easier.
+  Its existence calls attention to the fact that a module is routed.
+  It is where developers expect to find and expand routing configuration.
+
 .l-main-section#heroes-feature
 :marked
-  ## Milestone #2: The Heroes Feature
+  ## Milestone #3: The Heroes Feature
 
   We've seen how to navigate using the `RouterLink` directive.
 
@@ -677,20 +723,25 @@ figure.image-display
 
   We recommend giving each feature area its own route configuration file.
 
-  Create a new `heroes.routing.ts` in the `heroes` folder like this:
+  Create a new `heroes-routing.module.ts` in the `heroes` folder like this:
 
-+makeExcerpt('app/heroes/heroes.routing.ts')
++makeExcerpt('app/heroes/heroes-routing.module.ts')
+
+.l-sub-section
+  :marked
+    Keep the Routing Module file in the same folder as its companion module file.
+    Here both `heroes-routing.module.ts` and `heroes.module.ts` are in the same `app/heroes` folder.
 
 :marked
-  We use the same techniques we learned for `app.routing.ts`.
+  We use the same techniques we learned in creating the `app-routing.module.ts`.
 
   We import the two components from their new locations in the `app/heroes/` folder, define the two hero routes.
-  and add export our `heroesRouting` that returns configured `RouterModule` for our feature module.
+  and add export our `HeroRoutingModule` that returns our `RoutingModule` for the hero feature module.
 
 :marked
   Now that we have routes for our `Heroes` module, we'll need to register them with the *Router*.
-  We'll import the *RouterModule* like we did in the `app.routing.ts`, but there is a slight difference here.
-  In our `app.routing.ts`, we used the static **forRoot** method to register our routes and application level
+  We'll import the *RouterModule* like we did in the `app-routing.module.ts`, but there is a slight difference here.
+  In our `app-routing.module.ts`, we used the static **forRoot** method to register our routes and application level
   service providers. In a feature module we use static **forChild** method.
 
 .l-sub-section
@@ -699,7 +750,7 @@ figure.image-display
     module, we'll use **RouterModule.forChild** method to only register additional routes.
 
 :marked
-  We import our `heroesRouting` token from `heroes.routing.ts` into our `Heroes` module and register the routing.
+  We import our `HeroRoutingModule` token from `heroes-routing.module.ts` into our `Heroes` module and register the routing.
 
 +makeExcerpt('app/heroes/heroes.module.ts (heroes routing)', 'heroes-routes')
 
@@ -707,7 +758,7 @@ figure.image-display
   ### Route definition with a parameter
   The route to `HeroDetailComponent` has a twist.
 
-+makeExcerpt('app/heroes/heroes.routing.ts (excerpt)', 'hero-detail-route')
++makeExcerpt('app/heroes/heroes-routing.module.ts (excerpt)', 'hero-detail-route')
 
 :marked
   Notice the `:id` token in the path. That creates a slot in the path for a **Route Parameter**.
@@ -963,7 +1014,7 @@ figure.image-display
   The router embedded the `id` value in the navigation URL because we had defined it
   as a route parameter with an `:id` placeholder token in the route `path`:
 
-+makeExcerpt('app/heroes/heroes.routing.ts', 'hero-detail-route')
++makeExcerpt('app/heroes/heroes-routing.module.ts', 'hero-detail-route')
 
 :marked
   When the user clicks the back button, the `HeroDetailComponent` constructs another *link parameters array*
@@ -975,7 +1026,7 @@ figure.image-display
   This array lacks a route parameter because we had no reason to send information to the `HeroListComponent`.
 
   Now we have a reason. We'd like to send the id of the current hero with the navigation request so that the
-  `HeroListComponent` can highlight that hero in its list. 
+  `HeroListComponent` can highlight that hero in its list.
   This is a _nice-to-have_ feature; the list will display perfectly well without it.
 
   We do that with an object that contains an _optional_ `id` parameter.
@@ -1125,7 +1176,7 @@ h3#merge-hero-routes Import hero module into AppModule
 
   Update `app.module.ts` as follows:
 
-+makeExcerpt('app/app.module.2.ts (heroes module import)', 'hero-import')
++makeExcerpt('app/app.module.3.ts (heroes module import)', 'hero-import')
 
 :marked
   We imported the `HeroesModule` and added it to our `AppModule`'s `imports`.
@@ -1145,9 +1196,9 @@ h3#merge-hero-routes Import hero module into AppModule
   We can evolve the hero feature with more components and different routes.
   That's a key benefit of creating a separate module for each feature area.
 
-  Since our `Heroes` routes are defined within our feature module, we can also remove our initial `heroes` route from the `app.routing.ts`.
+  Since our `Heroes` routes are defined within our feature module, we can also remove our initial `heroes` route from the `app-routing.module.ts`.
 
-+makeExcerpt('app/app.routing.3.ts (v2)', '')
++makeExcerpt('app/app-routing.module.2.ts (v2)', '')
 
 :marked
   ### Heroes App Wrap-up
@@ -1173,10 +1224,10 @@ h3#merge-hero-routes Import hero module into AppModule
         .file hero-list.component.ts
         .file hero.service.ts
         .file heroes.module.ts
-        .file heroes.routing.ts
+        .file heroes-routing.module.ts
       .file app.component.ts
       .file app.module.ts
-      .file app.routing.ts
+      .file app-routing.module.ts
       .file crisis-list.component.ts
       .file main.ts
     .file node_modules ...
@@ -1193,26 +1244,26 @@ h3#merge-hero-routes Import hero module into AppModule
 
 +makeTabs(
   `router/ts/app/app.component.1.ts,
-   router/ts/app/app.module.2.ts,
-   router/ts/app/app.routing.3.ts,
+   router/ts/app/app.module.3.ts,
+   router/ts/app/app-routing.module.3.ts,
    router/ts/app/heroes/hero-list.component.ts,
    router/ts/app/heroes/hero-detail.component.ts,
    router/ts/app/heroes/hero.service.ts,
    router/ts/app/heroes/heroes.module.ts,
-   router/ts/app/heroes/heroes.routing.ts`,
+   router/ts/app/heroes/heroes-routing.module.ts`,
    null,
   `app.component.ts,
   app.module.ts,
-  app.routing.ts,
+  app-routing.module.ts,
   hero-list.component.ts,
   hero-detail.component.ts,
   hero.service.ts,
   heroes.module.ts,
-  heroes.routing.ts`)
+  heroes-routing.module.ts`)
 
 .l-main-section#crisis-center-feature
 :marked
-  ## Milestone #3: The Crisis Center
+  ## Milestone #4: The Crisis Center
 
   The *Crisis Center* is a fake view at the moment. Time to make it useful.
 
@@ -1239,9 +1290,6 @@ h3#merge-hero-routes Import hero module into AppModule
   * The user should be able to cancel unwanted changes.
 
   * The router should block access to certain features until the user logs-in.
-
-  * Our `CrisisService` is only needed within the *Crisis Center* module.
-  We should limit access to it to that module.
 
   * Changes to a feature module such as *Crisis Center* shouldn't provoke changes to the `AppModule` or
   any other feature's component.
@@ -1299,31 +1347,6 @@ a#child-routing-component
     Our point is that we don't *need* one because we only *navigate* to it.
 
 :marked
-  ### Service isolation
-
-  The `CrisisService` is neither needed nor wanted outside the *Crisis Center* domain.
-  Instead of registering it with the `AppModule`'s providers &mdash;
-  which makes it visible everywhere &mdash;
-  we register the `CrisisService` in the `CrisisCenterModule` providers array.
-
-+makeExcerpt('app/crisis-center/crisis-center.module.1.ts', 'providers', '')
-
-:marked
-  This limits the scope of the `CrisisService` to the *Crisis Center* routes.
-  No module outside of the *Crisis Center* can access it.
-
-  There's a practical benefit to restricting its scope in this way.
-
-  First we can evolve the service independently of the rest of the application
-  without fear of breaking what should be unrelated modules.
-
-  Second, we can delay loading this service into memory until we need it.
-  We can remove it from the application launch bundle,
-  reducing the size of the initial payload and improving performance.
-  We can load it optionally, [asynchronously](#asynchronous-routing) with the other *Crisis Center* components
-  if and when the user begins that workflow.
-
-:marked
   ### Child Route Configuration
 
   The `CrisisCenterComponent` is a *Routing Component* like the `AppComponent`.
@@ -1334,10 +1357,10 @@ a#child-routing-component
 +makeExcerpt('app/crisis-center/crisis-center-home.component.ts (minus imports)', 'minus-imports')
 
 :marked
-  We create a `crisis-center.routing.ts` file as we did the `heroes.routing.ts` file.
+  We create a `crisis-center-routing.module.ts` file as we did the `heroes-routing.module.ts` file.
   But this time we define **child routes** *within* the parent `crisis-center` route.
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.1.ts (Routes)', 'routes')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.1.ts (Routes)', 'routes')
 
 :marked
   Notice that the parent `crisis-center` route has a `children` property
@@ -1378,22 +1401,22 @@ code-example.
   localhost:3000/crisis-center/2
 
 :marked
-  Here's the complete `crisis-center.routing.ts` file with its imports.
+  Here's the complete `crisis-center-routing.module.ts` file with its imports.
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.1.ts', '')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.1.ts', '')
 
 h3#import-crisis-module Import crisis center module into the AppModule routes
 :marked
   As with the `Heroes` module, we must import the `Crisis Center` module into the `AppModule`:
 
-+makeExcerpt('app/app.module.3.ts (Crisis Center Module)', 'crisis-center-module')
++makeExcerpt('app/app.module.4.ts (import CrisisCenterModule)', 'crisis-center-module')
 
 :marked
-  We also remove the initial crisis center route from our `app.routing.ts`. Our routes
-  are now being provided by our `HeroesModule` and our `CrisisCenter` feature modules. We'll keep our `app.routing.ts` file
+  We also remove the initial crisis center route from our `app-routing.module.ts`. Our routes
+  are now being provided by our `HeroesModule` and our `CrisisCenter` feature modules. We'll keep our `app-routing.module.ts` file
   for general routes which we'll cover later in the chapter.
 
-+makeExcerpt('app/app.routing.4.ts (v3)', '')
++makeExcerpt('app/app-routing.module.3.ts (v3)', '')
 
 a#redirect
 :marked
@@ -1414,7 +1437,7 @@ code-example.
   The preferred solution is to add a `redirect` route that transparently translates from the initial relative URL (`''`)
   to the desired default path (`/crisis-center`):
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.2.ts' , 'redirect', '')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.2.ts' , 'redirect', '')
 
 :marked
   A redirect route requires a `pathMatch` property to tell the router how to match a URL to the path of a route.
@@ -1445,7 +1468,7 @@ code-example.
 :marked
   The updated route definitions look like this:
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.2.ts (routes v2)' , 'routes')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.2.ts (routes v2)' , 'routes')
 
 .l-main-section
 h2#relative-navigation Relative Navigation
@@ -1522,7 +1545,7 @@ h2#relative-navigation Relative Navigation
 .l-main-section
 h2#guards Route Guards
 :marked
-  ## Milestone #4: Route Guards
+  ## Milestone #5: Route Guards
 
   At the moment, *any* user can navigate *anywhere* in the application *anytime*.
 
@@ -1597,7 +1620,7 @@ a#can-activate-guard
     .file admin-dashboard.component.ts
     .file admin.component.ts
     .file admin.module.ts
-    .file admin.routing.ts
+    .file admin-routing.module.ts
     .file manage-crises.component.ts
     .file manage-heroes.component.ts
 
@@ -1631,7 +1654,7 @@ a#can-activate-guard
 :marked
   Our initial admin routing configuration:
 
-+makeExcerpt('app/admin/admin.routing.1.ts (admin routing)', 'admin-routes')
++makeExcerpt('app/admin/admin-routing.module.1.ts (admin routing)', 'admin-routes')
 
 h3#component-less-route <i>Component-Less Route</i>: grouping routes without a component
 :marked
@@ -1646,7 +1669,7 @@ h3#component-less-route <i>Component-Less Route</i>: grouping routes without a c
   Next, we'll import the `AdminModule` into our `app.module.ts` and add it to the `imports` array
   to register our admin routes.
 
-+makeExcerpt('app/app.module.3.ts (admin module)', 'admin-module')
++makeExcerpt('app/app.module.4.ts (admin module)', 'admin-module')
 
 :marked
   And we add a link to the `AppComponent` shell that users can click to get to this feature.
@@ -1671,10 +1694,10 @@ h3#component-less-route <i>Component-Less Route</i>: grouping routes without a c
 +makeExcerpt('app/auth-guard.service.1.ts')
 
 :marked
-  Next we open `admin.routing.ts `, import the `AuthGuard` class, and
+  Next we open `admin-routing.module.ts `, import the `AuthGuard` class, and
   update the admin route with a `CanActivate` guard property that references it:
 
-+makeExcerpt('app/admin/admin.routing.2.ts (guarded admin route)', 'admin-route')
++makeExcerpt('app/admin/admin-routing.module.2.ts (guarded admin route)', 'admin-route')
 
 :marked
   Our admin feature is now protected by the guard, albeit protected poorly.
@@ -1716,20 +1739,19 @@ h3#component-less-route <i>Component-Less Route</i>: grouping routes without a c
   to our stored URL if available, or use the default URL.
   There is nothing new about this component or the way we wire it into the router configuration.
 
-  We'll register a `/login` route in our `app.routing.ts` and add the necessary providers to the `appRoutingProviders`
-  array we created earlier. In our `app.module.ts`, we'll import the `LoginComponent` and add it to our `AppModule` `declarations`.
+  We'll register a `/login` route in our `login-routing.module.ts` and add the necessary providers to the `providers`
+  array. In our `app.module.ts`, we'll import the `LoginComponent` and add it to our `AppModule` `declarations`.
+  We'll also import and add the `LoginRoutingModule` to our `AppModule` imports.
 
 +makeTabs(
    `router/ts/app/app.module.ts,
-   router/ts/app/app.routing.6.ts,
    router/ts/app/login.component.1.ts,
-   router/ts/app/login.routing.ts
+   router/ts/app/login-routing.module.ts
   `,
   null,
    `app/app.module.ts,
-   app/app.routing.ts,
    app/login.component.ts,
-   app/login.routing.ts
+   app/login-routing.module.ts
   `)
 
 .l-sub-section
@@ -1759,7 +1781,7 @@ h3#can-activate-child-guard <i>CanActivateChild</i>: guarding child routes
   We add the same `AuthGuard` to our `component-less` admin route to protect all other child routes at one time
   instead of adding the `AuthGuard` to each route individually.
 
-+makeExcerpt('app/admin/admin.routing.3.ts (excerpt)', 'can-activate-child')
++makeExcerpt('app/admin/admin-routing.module.3.ts (excerpt)', 'can-activate-child')
 
 h3#can-deactivate-guard <i>CanDeactivate</i>: handling unsaved changes
 :marked
@@ -1851,14 +1873,14 @@ a#CanDeactivate
   to resolve to truthy (navigate) or falsey (stay put).
 
 :marked
-  We add the `Guard` to our crisis detail route in `crisis-center.routing.ts` using the `canDeactivate` array.
+  We add the `Guard` to our crisis detail route in `crisis-center-routing.module.ts` using the `canDeactivate` array.
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.3.ts (can deactivate guard)', '')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.3.ts (can deactivate guard)', '')
 
 :marked
-  We also need to add the `Guard` to our main `appRoutingProviders` so the `Router` can inject it during the navigation process.
+  We also need to add the `Guard` to our main `AppRoutingModule` `providers` so the `Router` can inject it during the navigation process.
 
-+makeExample('app/app.routing.6.ts', '', '')
++makeExample('app/app-routing.module.4.ts', '', '')
 
 :marked
   Now we have given our user a safeguard against unsaved changes.
@@ -1909,14 +1931,11 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
   We'll use our `CrisisService.getCrisis` method that returns a promise to prevent our route from loading until the data is fetched. If we don't find a valid `Crisis`,
   we navigate the user back to the `CrisisList`, canceling the previous in-flight navigation to the crisis details.
 
-  Now that our guard is ready, we'll import it in our `crisis-center.routing.ts` and use the `resolve` object in our route configuration.
+  Now that our guard is ready, we'll import it in our `crisis-center-routing.module.ts` and use the `resolve` object in our route configuration.
 
-+makeExcerpt('app/crisis-center/crisis-center.routing.ts (resolve)', 'crisis-detail-resolve')
+  We'll add the `CrisisDetailResolve` service to our `CrisisCenterRoutingModule`'s `providers`, so its available to the `Router` during the navigation process.
 
-:marked
-  We'll add the `CrisisDetailResolve` service to our crisis center module's `providers`, so its available to the `Router` during the navigation process.
-
-+makeExcerpt('app/crisis-center/crisis-center.module.ts (crisis detail resolve provider)', 'crisis-detail-resolve')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.ts (resolve)', 'crisis-detail-resolve')
 
 :marked
   Now that we've added our `Resolve` guard to fetch data before the route loads, we no longer need to do this once we get into our `CrisisDetailComponent`.
@@ -1940,7 +1959,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
    `router/ts/app/app.component.ts,
    router/ts/app/crisis-center/crisis-center-home.component.ts,
    router/ts/app/crisis-center/crisis-center.component.ts,
-   router/ts/app/crisis-center/crisis-center.routing.ts,
+   router/ts/app/crisis-center/crisis-center-routing.module.ts,
    router/ts/app/crisis-center/crisis-list.component.ts,
    router/ts/app/crisis-center/crisis-detail.component.ts,
    router/ts/app/crisis-center/crisis-detail-resolve.service.ts,
@@ -1950,7 +1969,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
    `app.component.ts,
    crisis-center-home.component.ts,
    crisis-center.component.ts,
-   crisis-center.routing.ts,
+   crisis-center-routing.module.ts,
    crisis-list.component.ts,
    crisis-detail.component.ts,
    crisis-detail-resolve.service.ts,
@@ -2026,7 +2045,7 @@ a#fragment
 <a id="asynchronous-routing"></a>
 .l-main-section
 :marked
-  ## Milestone #5: Asynchronous Routing
+  ## Milestone #6: Asynchronous Routing
 
   As we have completed our milestones, our application has naturally gotten larger. As we continue to build
   out feature areas our overall application size will get larger also. At some point we'll reach a tipping
@@ -2047,26 +2066,21 @@ a#fragment
 :marked
   ### Lazy-Loading route configuration
 
-  We'll start by adding an `admin` route to our `app.routing.ts` file. We want to load our `Admin` module asynchronously,
+  We'll start by adding an `admin` route to our `app-routing.module.ts` file. We want to load our `Admin` module asynchronously,
   so we'll use the `loadChildren` property in our route config where previously we used the `children` property to include our child routes.
 
-  We'll also change our `admin` **path** in our `admin.routing.ts` to an empty path. The `Router` supports
+  We'll also change our `admin` **path** in our `admin-routing.module.ts` to an empty path. The `Router` supports
   *empty path* routes, which we can use for grouping routes together without adding anything additional paths to the URL. Our
   users will still visit `/admin` and our `AdminComponent` still serves as our *Routing Component* which contains
   our child routes.
 
 +makeTabs(
-  `router/ts/app/app.routing.ts,
-  router/ts/app/admin/admin.routing.ts`,
+  `router/ts/app/app-routing.module.ts,
+  router/ts/app/admin/admin-routing.module.ts`,
   'lazy-load-admin,',
-  `app.routing.ts (load children),
-  app/admin/admin.routing.ts (empty path admin)
+  `app-routing.module.ts (load children),
+  app/admin/admin-routing.module.ts (empty path admin)
   `)
-
-.l-sub-section
-  :marked
-    We use the ES2015 `spread` feature to flatten the route arrays of our `adminRoutes` and `loginRoutes`
-    into our `appRoutes` array to provide a simple array of routes.
 
 :marked
   The `loadChildren` property is used by the `Router` to map to our bundle we want to lazy-load, in this case being the `AdminModule`.
@@ -2116,10 +2130,10 @@ h3#can-load-guard <i>CanLoad Guard</i>: guarding against loading of feature modu
 +makeExcerpt('app/auth-guard.service.ts (can load guard)', '')
 
 :marked
-  Next, we'll import the `AuthGuard` into our `app.routing.ts` and add the `AuthGuard` to the `canLoad` array for
+  Next, we'll import the `AuthGuard` into our `app-routing.module.ts` and add the `AuthGuard` to the `canLoad` array for
   our `admin` route. Now our `admin` feature area is only loaded when the proper access has been granted.
 
-+makeExcerpt('app/app.routing.ts (can load guard)', 'can-load-guard')
++makeExcerpt('app/app-routing.module.ts (can load guard)', 'can-load-guard')
 
 <a id="final-app"></a>
 .l-main-section
@@ -2325,4 +2339,4 @@ code-example(format=".", language="bash").
   providing the `useHash: true` in an object as the second argument of the `RouterModule.forRoot`
   in our `AppModule`.
 
-+makeExcerpt('app/app.module.5.ts (hash URL strategy)', '')
++makeExcerpt('app/app.module.6.ts (hash URL strategy)', '')
