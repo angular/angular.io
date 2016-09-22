@@ -1160,7 +1160,11 @@ function watchAndSync(options, cb) {
   execCommands(['npm run harp -- server .'], {}, cb);
 
   var browserSync = require('browser-sync').create();
-  browserSync.init({proxy: 'localhost:9000'});
+  browserSync.init(
+    {
+      proxy: 'localhost:9000',
+      scrollRestoreTechnique: 'cookie'
+    });
 
   // When using the --focus=name flag, only **/name/**/*.* example files and
   // **/name.jade files are watched. This is useful for performance reasons.
