@@ -1,10 +1,11 @@
 // #docplaster
 // #docregion , v2
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit }      from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { Location }               from '@angular/common';
 
-import { Hero } from './hero';
-import { HeroService } from './hero.service';
+import { Hero }         from './hero';
+import { HeroService }  from './hero.service';
 
 @Component({
   selector: 'my-hero-detail',
@@ -22,8 +23,9 @@ export class HeroDetailComponent implements OnInit {
   // #docregion ctor
   constructor(
     private heroService: HeroService,
-    private route: ActivatedRoute) {
-  }
+    private route: ActivatedRoute,
+    private location: Location
+  ) {}
   // #enddocregion ctor
 
   // #docregion ngOnInit
@@ -38,7 +40,7 @@ export class HeroDetailComponent implements OnInit {
 
   // #docregion goBack
   goBack(): void {
-    window.history.back();
+    this.location.back();
   }
 // #enddocregion goBack
 }
