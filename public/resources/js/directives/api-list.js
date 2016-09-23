@@ -1,3 +1,14 @@
+/*eslint no-unused-vars: "angularIO" */
+
+
+/*
+* API List & Filter Directive
+*
+* A page displaying all of the angular API methods available
+* including a filter that can hide/show methods bases on filter
+* settings.
+*/
+
 angularIO.directive('apiList', function () {
   var API_FILTER_KEY = 'apiFilter';
   var API_TYPE_KEY = 'apiType';
@@ -31,10 +42,9 @@ angularIO.directive('apiList', function () {
       '</article>',
     controllerAs: '$ctrl',
     controller: function($scope, $attrs, $http, $location) {
+      // SET DEFAULTS
       var $ctrl = this;
-
       $ctrl.showMenu = false;
-
       var isForDart = $attrs.lang === 'dart';
 
       $ctrl.apiTypes = [
@@ -63,11 +73,13 @@ angularIO.directive('apiList', function () {
         $ctrl.showMenu = !$ctrl.showMenu;
       };
 
+      // CLEAR FILTER
       $ctrl.clearType = function () {
         $ctrl.apiType = null;
         $ctrl.showMenu = !$ctrl.showMenu;
       };
 
+      // TOGGLE FILTER MENU
       $ctrl.toggleMenu = function () {
         $ctrl.showMenu = !$ctrl.showMenu;
       };
