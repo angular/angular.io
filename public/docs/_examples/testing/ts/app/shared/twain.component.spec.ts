@@ -12,7 +12,8 @@ describe('TwainComponent', () => {
   let fixture: ComponentFixture<TwainComponent>;
 
   let spy: jasmine.Spy;
-  let twainEl: DebugElement;  // the element with the Twain quote
+  let de: DebugElement;
+  let el: HTMLElement;
   let twainService: TwainService; // the actually injected service
 
   const testQuote = 'Test Quote';
@@ -37,54 +38,53 @@ describe('TwainComponent', () => {
     // #enddocregion spy
 
     // Get the Twain quote element by CSS selector (e.g., by class name)
-    twainEl = fixture.debugElement.query(By.css('.twain'));
+    de = fixture.debugElement.query(By.css('.twain'));
+    el = de.nativeElement;
   });
   // #enddocregion setup
 
   // #docregion tests
-  function getQuote() { return twainEl.nativeElement.textContent; }
-
   it('should not show quote before OnInit', () => {
-    expect(getQuote()).toBe('', 'nothing displayed');
+    expect(el.textContent).toBe('', 'nothing displayed');
     expect(spy.calls.any()).toBe(false, 'getQuote not yet called');
   });
 
   it('should still not show quote after component initialized', () => {
-    fixture.detectChanges(); // trigger data binding
+    fixture.detectChanges();
     // getQuote service is async => still has not returned with quote
-    expect(getQuote()).toBe('...', 'no quote yet');
+    expect(el.textContent).toBe('...', 'no quote yet');
     expect(spy.calls.any()).toBe(true, 'getQuote called');
   });
 
   // #docregion async-test
   it('should show quote after getQuote promise (async)', async(() => {
-    fixture.detectChanges();          // trigger data binding
+    fixture.detectChanges();
 
     fixture.whenStable().then(() => { // wait for async getQuote
       fixture.detectChanges();        // update view with quote
-      expect(getQuote()).toBe(testQuote);
+      expect(el.textContent).toBe(testQuote);
     });
   }));
   // #enddocregion async-test
 
   // #docregion fake-async-test
   it('should show quote after getQuote promise (fakeAsync)', fakeAsync(() => {
-    fixture.detectChanges(); // trigger data binding
+    fixture.detectChanges();
     tick();                  // wait for async getQuote
     fixture.detectChanges(); // update view with quote
-    expect(getQuote()).toBe(testQuote);
+    expect(el.textContent).toBe(testQuote);
   }));
   // #enddocregion fake-async-test
   // #enddocregion tests
 
   // #docregion done-test
   it('should show quote after getQuote promise (done)', done => {
-    fixture.detectChanges();   // trigger data binding
+    fixture.detectChanges();
 
     // get the spy promise and wait for it to resolve
     spy.calls.mostRecent().returnValue.then(() => {
       fixture.detectChanges(); // update view with quote
-      expect(getQuote()).toBe(testQuote);
+      expect(el.textContent).toBe(testQuote);
       done();
     });
   });
