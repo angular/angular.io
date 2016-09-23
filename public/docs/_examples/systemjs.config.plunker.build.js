@@ -1,7 +1,7 @@
 /**
  * PLUNKER VERSION FOR CURRENT ANGULAR BUILD
  * (based on systemjs.config.js in angular.io)
- * System configuration for Angular 2 samples
+ * System configuration for Angular samples
  * Adjust as necessary for your application needs.
  *
  * UNTESTED !
@@ -53,7 +53,7 @@
       'rxjs':                       'npm:rxjs',
       'angular2-in-memory-web-api': 'npm:angular2-in-memory-web-api',
       'ts':                         'npm:plugin-typescript@4.0.10/lib/plugin.js',
-      'typescript':                 'npm:typescript@1.9.0-dev.20160409/lib/typescript.js',
+      'typescript':                 'npm:typescript@2.0.2/lib/typescript.js',
 
     },
     // packages tells the System loader how to load when no filename and/or no extension

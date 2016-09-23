@@ -2,7 +2,7 @@
 'use strict';
 
 const expectedH1 = 'Tour of Heroes';
-const expectedTitle = `Angular 2 ${expectedH1}`;
+const expectedTitle = `Angular ${expectedH1}`;
 const targetHero = { id: 15, name: 'Magneta' };
 const targetHeroDashboardIndex = 3;
 const nameSuffix = 'X';

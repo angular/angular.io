@@ -4,7 +4,7 @@ import { async, ComponentFixture, fakeAsync, TestBed, tick
 import { By }           from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { addMatchers, newEvent, Router, FakeRouter
+import { addMatchers, newEvent, Router, RouterStub
 } from '../../testing';
 
 import { HEROES, FakeHeroService } from '../model/testing';
@@ -28,7 +28,7 @@ describe('HeroListComponent', () => {
       imports: [HeroModule],
       providers: [
         { provide: HeroService, useClass: FakeHeroService },
-        { provide: Router,      useClass: FakeRouter}
+        { provide: Router,      useClass: RouterStub}
       ]
     })
     .compileComponents()
@@ -132,7 +132,7 @@ class Page {
 
     // Get the component's injected router and spy on it
     const router = fixture.debugElement.injector.get(Router);
-    this.navSpy = spyOn(router, 'navigate').and.callThrough();
+    this.navSpy = spyOn(router, 'navigate');
   };
 }
 

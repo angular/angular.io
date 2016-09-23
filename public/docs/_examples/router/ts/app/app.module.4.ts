@@ -2,25 +2,30 @@
 import { NgModule }       from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
-import { Routes, RouterModule }   from '@angular/router';
 
-import { AppComponent }   from './app.component';
+import { AppComponent }        from './app.component';
+import { routing,
+         appRoutingProviders } from './app.routing';
 
-const routes: Routes = [
+import { HeroesModule }        from './heroes/heroes.module';
+import { CrisisCenterModule }  from './crisis-center/crisis-center.module';
 
-];
+import { DialogService }       from './dialog.service';
 
 @NgModule({
   imports: [
     BrowserModule,
     FormsModule,
-    RouterModule.forRoot(routes, { useHash: true })  // .../#/crisis-center/
+    routing,
+    HeroesModule,
+    CrisisCenterModule
   ],
   declarations: [
     AppComponent
   ],
   providers: [
-
+    appRoutingProviders,
+    DialogService
   ],
   bootstrap: [ AppComponent ]
 })

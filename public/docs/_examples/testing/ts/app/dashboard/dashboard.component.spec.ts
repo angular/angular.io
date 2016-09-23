@@ -2,9 +2,9 @@
 import { async, inject, ComponentFixture, TestBed
 } from '@angular/core/testing';
 
-import { addMatchers }     from '../../testing';
-import { HeroService }     from '../model';
-import { FakeHeroService } from '../model/testing';
+import { addMatchers, click } from '../../testing';
+import { HeroService }        from '../model';
+import { FakeHeroService }    from '../model/testing';
 
 import { By }     from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -12,11 +12,11 @@ import { Router } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardModule }    from './dashboard.module';
 
-// #docregion fake-router
-class FakeRouter {
-  navigateByUrl(url: string) { return url;  }
+// #docregion router-stub
+class RouterStub {
+  navigateByUrl(url: string) { return url; }
 }
-// #enddocregion fake-router
+// #enddocregion router-stub
 
 beforeEach ( addMatchers );
 
@@ -39,7 +39,7 @@ describe('DashboardComponent (deep)', () => {
   function clickForDeep() {
     // get first <div class="hero"> DebugElement
     const heroEl = fixture.debugElement.query(By.css('.hero'));
-    heroEl.triggerEventHandler('click', null);
+    click(heroEl);
   }
 });
 
@@ -73,7 +73,7 @@ function compileAndCreate() {
     TestBed.configureTestingModule({
       providers: [
         { provide: HeroService, useClass: FakeHeroService },
-        { provide: Router,      useClass: FakeRouter }
+        { provide: Router,      useClass: RouterStub }
       ]
     })
     .compileComponents().then(() => {

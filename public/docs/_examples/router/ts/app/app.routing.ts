@@ -1,32 +1,36 @@
+// #docplaster
 // #docregion
-import { ModuleWithProviders } from '@angular/core';
+import { ModuleWithProviders }  from '@angular/core';
 // #docregion import-router
-import { Routes, RouterModule }   from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 // #enddocregion import-router
 
 import { loginRoutes,
-         authProviders }  from './login.routing';
+         authProviders }      from './login.routing';
 
 import { CanDeactivateGuard } from './can-deactivate-guard.service';
+// #docregion can-load-guard
+import { AuthGuard }          from './auth-guard.service';
+// #enddocregion can-load-guard
 
-// #docregion lazy-load-crisis-center
-const crisisCenterRoutes: Routes = [
+// #docregion lazy-load-admin, can-load-guard
+
+const adminRoutes: Routes = [
   {
-    path: '',
-    redirectTo: '/heroes',
-    pathMatch: 'full'
-  },
-  {
-    path: 'crisis-center',
-    loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
+    path: 'admin',
+    loadChildren: 'app/admin/admin.module#AdminModule',
+// #enddocregion lazy-load-admin
+    canLoad: [AuthGuard]
+// #docregion lazy-load-admin
   }
 ];
+// #enddocregion can-load-guard
 
 const appRoutes: Routes = [
   ...loginRoutes,
-  ...crisisCenterRoutes
+  ...adminRoutes
 ];
-// #enddocregion lazy-load-crisis-center
+// #enddocregion lazy-load-admin
 
 export const appRoutingProviders: any[] = [
   authProviders,

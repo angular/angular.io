@@ -7,9 +7,7 @@ import { async, ComponentFixture, fakeAsync, TestBed, tick,
 import { RouterTestingModule } from '@angular/router/testing';
 import { SpyLocation }         from '@angular/common/testing';
 
-// tslint:disable:no-unused-variable
-import { newEvent } from '../testing';
-// tslint:enable:no-unused-variable
+import { click }               from '../testing';
 
 // r - for relatively obscure router symbols
 import * as r                         from  '@angular/router';
@@ -48,9 +46,8 @@ describe('AppComponent & RouterTestingModule', () => {
 
   it('should navigate to "About" on click', fakeAsync(() => {
     createComponent();
-    // page.aboutLinkDe.triggerEventHandler('click', null); // fails
-    // page.aboutLinkDe.nativeElement.dispatchEvent(newEvent('click')); // fails
-    page.aboutLinkDe.nativeElement.click(); // fails in phantom
+    click(page.aboutLinkDe);
+    // page.aboutLinkDe.nativeElement.click(); // ok but fails in phantom
 
     advance();
     expectPathToBe('/about');

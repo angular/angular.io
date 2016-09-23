@@ -3,10 +3,10 @@
 import { ModuleWithProviders }  from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { CrisisListComponent } from './crisis-center/crisis-list.component';
+import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
 
 const appRoutes: Routes = [
-  { path: 'crisis-center', component: CrisisListComponent }
+  { path: 'crisis-center', component: CrisisCenterComponent }
 ];
 
 export const appRoutingProviders: any[] = [

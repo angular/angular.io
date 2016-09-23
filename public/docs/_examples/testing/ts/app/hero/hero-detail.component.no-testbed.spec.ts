@@ -1,12 +1,12 @@
 import { HeroDetailComponent } from './hero-detail.component';
 import { Hero }                from '../model';
 
-import { FakeActivatedRoute }  from '../../testing';
+import { ActivatedRouteStub }  from '../../testing';
 
 //////////  Tests  ////////////////////
 
 describe('HeroDetailComponent - no TestBed', () => {
-  let activatedRoute: FakeActivatedRoute;
+  let activatedRoute: ActivatedRouteStub;
   let comp: HeroDetailComponent;
   let expectedHero: Hero;
   let hds: any;
@@ -14,7 +14,7 @@ describe('HeroDetailComponent - no TestBed', () => {
 
   beforeEach( done => {
     expectedHero = new Hero(42, 'Bubba');
-    activatedRoute = new FakeActivatedRoute();
+    activatedRoute = new ActivatedRouteStub();
     activatedRoute.testParams = { id: expectedHero.id };
 
     router = jasmine.createSpyObj('router', ['navigate']);

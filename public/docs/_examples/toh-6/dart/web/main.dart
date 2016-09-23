@@ -23,9 +23,6 @@ void main() {
   bootstrap(AppComponent, [
     provide(BrowserClient, useFactory: () => new BrowserClient(), deps: [])
   ]);
-  // Simplify bootstrap provider list to [BrowserClient]
-  // once there is a fix for:
-  // https://github.com/dart-lang/angular2/issues/37
 }
 // #enddocregion v1
 */

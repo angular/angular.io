@@ -8,7 +8,7 @@ app.AppComponent =
       selector: 'my-app',
     // #enddocregion
     // #docregion view
-      template: '<h1 id="output">My First Angular 2 App</h1>'
+      template: '<h1 id="output">My First Angular App</h1>'
     })
     // #enddocregion
     // #docregion class
@@ -48,7 +48,7 @@ app.AppComponent = function  AppComponent () {}
 app.AppComponent.annotations = [
   new ng.core.Component({
     selector: 'my-app',
-    template: '<h1 id="output">My First Angular 2 App</h1>'
+    template: '<h1 id="output">My First Angular App</h1>'
   })
 ];
 // #enddocregion

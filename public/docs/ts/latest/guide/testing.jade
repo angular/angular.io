@@ -11,25 +11,69 @@ block includes
   Along the way you will learn some general testing principles and techniques but the focus is on
   Angular testing.
 
-a#top
+#top
 :marked
-  # Contents
-
-  * [Introduction to Angular Testing](#testing-101)
-  * [Setup](#setup)
-  * [The first karma test](#1st-karma-test)
-  * [The Angular Testing Platform (ATP) ](#atp-intro)
-  * [The sample application and its tests](#sample-app)
-  * [A simple component test](#simple-component-test)
-  * [Test a component with a service dependency](#component-with-dependency)
-  * [Test a component with an async service](#component-with-async-service)
-  * [Test a component with an external template](#component-with-external-template)
-  * [Test a component with inputs and outputs](#component-with-inputs-output)
-  * [Test a component inside a test host component](#component-inside-test-host)
-  * [Test a routed component](#routed-component)  
-  * [Isolated tests](#testing-without-atp "Testing without the Angular Testing Platform")
-  * [_TestBed_ API](#atp-api)
-  * [FAQ](#faq "Frequently asked questions")
+  # Table of Contents
+  1. [Introduction to Angular Testing](#testing-intro)
+  <br><br>
+  1. [Setup](#setup)
+    - [setup files](#setup-files): `karma.conf`, `karma-test-shim`, `systemjs.config`
+    - [npm packages](#npm-packages)
+  1. [The first karma test](#1st-karma-test)
+  <br><br>
+  1. [The Angular Testing Platform (ATP) ](#atp-intro)
+  <br><br>
+  1. [The sample application and its tests](#sample-app)
+  <br><br>
+  1. [A simple component test](#simple-component-test)
+    - [_configureTestingModule_](#configure-testing-module)
+    - [_createComponent_](#create-component)
+    - [_detectChanges_](#detect-changes)
+    - [_autoDetectChanges_](#auto-detect-changes)
+  1. [Test a component with a service dependency](#component-with-dependency)
+  <br><br>
+  1. [Test a component with an async service](#component-with-async-service)
+    - [spies](#service-spy)
+    - [_async_](#async)
+    - [_whenStable_](#when-stable)
+    - [_fakeAsync_](#async)
+    - [_tick_](#tick)
+    - [_jasmine.done_](#jasmine-done)
+  1. [Test a component with an external template](#component-with-external-template)
+    - [_async_](#async-in-before-each) in `beforeEach`
+    - [_compileComponents_](#compile-components)
+  1. [Test a component with inputs and outputs](#component-with-inputs-output)
+    - [_triggerEventHandler_](#trigger-event-handler)
+  1. [Test a component inside a test host component](#component-inside-test-host)
+  <br><br>
+  1. [Test a routed component](#routed-component)
+    - [_inject_](#inject)
+  1. [Test a routed component with parameters](#routed-component-w-param)
+    - [_Observable_ test double](#stub-observable)
+  1. [Use a _page_ object to simplify setup](#page-object)
+  <br><br>
+  1. [Setup with module imports](#import-module)
+  <br><br>
+  1. [Override component providers](#component-override)
+  <br><br>
+  1. [Test a _RouterOutlet_ component](#router-outlet-component)
+    - [stubbing unneeded components](#stub-component)
+    - [Stubbing the _RouterLink_](#router-link-stub)
+    - [_By.directive_ and injected directives](#by-directive)
+  1. ["Shallow" component tests with  *NO\_ERRORS\_SCHEMA*](#shallow-component-test)
+  <br><br>
+  1. [Test an attribute directive](#attribute-directive)
+  <br><br>  
+  1. [Isolated tests](#testing-without-atp "Testing without the Angular Testing Platform")
+    - [Services](#isolated-service-tests)
+    - [Pipes](#isolated-pipe-tests)
+    - [Components](#isolated-component-tests)
+  1. [_Angular Testing Platform_ API](#atp-api)
+    - [Stand-alone functions](#atp-api): `async`, `fakeAsync`, etc.
+    - [_TestBed_](#testbed-class-summary)
+    - [_ComponentFixture_](#component-fixture-class-summary)
+    - [_DebugElement_](#debug-element-details)
+  1. [FAQ](#faq "Frequently asked questions")
 :marked
   It’s a big agenda. Fortunately, you can learn a little bit at a time and put each lesson to use.
 
@@ -43,7 +87,7 @@ a#top
 a(href="#top").to-top Back to top
 
 .l-hr
-a#testing-101
+#testing-intro
 :marked
   # Introduction to Angular Testing
 
@@ -114,7 +158,7 @@ table(width="100%")
         and assert that the application responds in the browser as expected.
 
 .l-hr
-a#setup
+#setup
 :marked
   # Setup
 
@@ -140,11 +184,13 @@ a#setup
 
 .alert.is-helpful
   :marked
-    If youur application was based on the QuickStart repository,
+    If your application was based on the QuickStart repository,
     you can skip the rest of this section and get on with your first test.
     The QuickStart repo provides all necessary setup.
 
+#setup-files
 :marked
+  ### Setup files
   Here's brief description of the setup files.
  
 table(width="100%")
@@ -177,9 +223,9 @@ table(width="100%")
     td
       :marked
         [SystemJS](https://github.com/systemjs/systemjs/blob/master/README.md) 
-        loads the application and test modules.
-        This script tells SystemJS where to find the module files and how to load them.
-        It's the same version of the file used by QuickStart-based applications.
+        loads the application and test files.
+        This script tells SystemJS where to find those files and how to load them.
+        It's the same version of `systemjs.config.js` used by QuickStart-based applications.
   tr
     td(style="vertical-align: top") <code>systemjs.config.extras.js</code>
     td
@@ -205,7 +251,7 @@ table(width="100%")
   They were installed when you ran `npm install`.
 
 .l-hr
-a#1st-karma-test
+#1st-karma-test
 :marked
   # The first karma test
 
@@ -326,7 +372,7 @@ figure.image-display
 a(href="#top").to-top Back to top
 
 .l-hr
-a#atp-intro
+#atp-intro
 :marked
   # The Angular Testing Platform (ATP)
 
@@ -344,7 +390,7 @@ a#atp-intro
   for components, directives, pipes, and services.
   Isolated unit tests examine an instance of a class all by itself without 
   any dependence on Angular or any injected values. 
-  The tester creates a test instance of the class with new, supplying fake constructor parameters as needed, and
+  The tester creates a test instance of the class with new, supplying test doubles for the constructor parameters as needed, and
   then probes the test instance API surface.
 
   Isolated tests don't reveal how the class interacts with Angular. 
@@ -355,12 +401,8 @@ a#atp-intro
   ### Testing with the _ Angular Testing Platform_
 
   The  _Angular Testing Platform_ consists of the `TestBed` class and some helper functions from `@angular/core/testing`.
-.alert.is-important
-  :marked
-    The _TestBed_ is officially _experimental_ and thus subject to change.
-    Consult the [API reference](../api/core/testing/index/TestBed-class.html) for the latest status.
-:marked
-  The `TestBed` creates an Angular test module &mdash; an `@NgModule` class &mdash;
+
+  The `TestBed` creates an Angular testing module &mdash; an `@NgModule` class &mdash;
   that you configure to produce the module environment for the class you want to test. 
   You tell the `TestBed` to create an instance of the test component and probe that instance with tests.
 
@@ -372,19 +414,20 @@ a#atp-intro
   :marked
     You can access that hidden instance anytime by calling `getTestBed()`;
 :marked
-  This `TestBed` instance comes pre-configured with a baseline of default providers and declarables (components, directives, and pipes)
+  Thanks to initialization in the [testing shims](#setup), 
+  the default `TestBed` instance is pre-configured with a baseline of default providers and declarables (components, directives, and pipes)
   that almost everyone needs. 
-  This chapter tests a browser application so the default includes the `CommonModule` declarables from `@angular/common`
+
+  The shims in this chapter are designed for testing a browser application so the default configuration includes the `CommonModule` declarables from `@angular/common`
   and the `BrowserModule` providers (some of them mocked) from `@angular/platform-browser`.
 
-  You refine the default test module configuration with application and test specifics 
-  so that it can produce an instance of the test component in the Angular environment suitable for your tests.
-
-  Start by calling `TestBed.configureTestingModule` with an object that looks like `@NgModule` metadata.
-  This object defines additional imports, declarations, providers and schemas.
+  This default testing module configuration is a _foundation_ for testing _any_ browser app.
+  You call `TestBed.configureTestingModule` with an object that defines additional imports, declarations, providers and schemas
+  to reshape the testing module to fit your application tests.
+  Optional `override...` methods can fine-tune aspects of the configuration.
 
   After configuring the `TestBed`, tell it to create an instance of the test component and the test fixture
-  you'll need to inspect and control the component's immediate environment.
+  that you'll need to inspect and control the component's immediate environment.
   
 +makeExample('testing/ts/app/banner.component.spec.ts', 'simple-example-before-each', 'app/banner.component.spec.ts (simplified)')(format='.')
 :marked
@@ -393,20 +436,21 @@ a#atp-intro
   and see the effects of these actions both in the test component and in the test DOM.
 +makeExample('testing/ts/app/banner.component.spec.ts', 'simple-example-it', 'app/banner.component.spec.ts (simplified)')(format='.')
 :marked
-  A comprehensive review of the _TestBed_ API appears [later in the chapter](#atp-api).
+  A comprehensive review of the _Angular Testing Platform_ APIs appears [later in the chapter](#atp-api).
   Let's dive right into Angular testing, starting with with the components of a sample application.
 
 a(href="#top").to-top Back to top
 
 .l-hr
 
-a#sample-app
+#sample-app
 :marked
   # The sample application and its tests
 
   This chapter tests a cut-down version of the _Tour of Heroes_ [tutorial app](../tutorial).
   
   The following live example shows how it works and provides the complete source code.
+  Give it some time to load and warm up.
 <live-example embedded img="devguide/testing/app-plunker.png"></live-example>
 <br><br>
 :marked
@@ -415,17 +459,16 @@ a#sample-app
 
   It includes the tests discussed in this chapter and additional tests for you to explore.
   This live example contains both application and test code. 
-  It is large and can take several minutes to start. Please be patient.
+  It is large and can take up to a minute to start. Please be patient.
 <live-example plnkr="app-specs" embedded img="devguide/testing/app-specs-plunker.png"></live-example>
 
 a(href="#top").to-top Back to top
 .l-hr
 
-a#simple-component-test
+#simple-component-test
 :marked
   # Test a component
 
-:marked
   The top of the screen displays application title, presented by the `BannerComponent` in `app/banner.component.ts`.
 +makeExample('testing/ts/app/banner.component.ts', '', 'app/banner.component.ts')(format='.')
 :marked
@@ -437,14 +480,16 @@ a#simple-component-test
 
   Start with ES6 import statements to get access to symbols referenced in the spec.
 +makeExample('testing/ts/app/banner.component.spec.ts', 'imports', 'app/banner.component.spec.ts (imports)')(format='.')
+
+#configure-testing-module
 :marked
   Here's the setup for the tests followed by observations about the `beforeEach`:
-+makeExample('testing/ts/app/banner.component.spec.ts', 'setup', 'app/banner.component.spec.ts (imports)')(format='.')
++makeExample('testing/ts/app/banner.component.spec.ts', 'setup', 'app/banner.component.spec.ts (setup)')(format='.')
 :marked
   `TestBed.configureTestingModule` takes an `@NgModule`-like metadata object.
   This one simply declares the component to test, `BannerComponent`.
   
-  It lacks `imports` because (a) it extends the default test module configuration which 
+  It lacks `imports` because (a) it extends the default testing module configuration which 
   already has what `BannerComponent` needs
   and (b) `BannerComponent` doesn't interact with any other components.
 
@@ -452,13 +497,14 @@ a#simple-component-test
   But that would lead to tons more configuration in order to support the other components within `AppModule` 
   that have nothing to do with `BannerComponent`.
 
+#create-component
+:marked
   `TestBed.createComponent` creates an instance of `BannerComponent` to test.
   The method returns a `ComponentFixture`, a handle on the test environment surrounding the created component.
   The fixture provides access to the component instance itself and 
   to the `DebugElement` which is a handle on the component's DOM element.
 
   Query the `DebugElement` by CSS selector for the `<h1>` sub-element that holds the actual title.
-
 
   ### _createComponent_ closes configuration
   `TestBed.createComponent` closes the current `TestBed` instance to further configuration.
@@ -472,10 +518,10 @@ a#simple-component-test
   ### The tests
   Jasmine runs this `beforeEach` before each test of which there are two
 +makeExample('testing/ts/app/banner.component.spec.ts', 'tests', 'app/banner.component.spec.ts (tests)')(format='.')
-:markdown
+:marked
   These tests ask the `DebugElement` for the native HTML element to satisfy their expectations.
 
-a#fixture-detect-changes
+#detect-changes
 :marked
   ### _detectChanges_: Angular change detection under test
 
@@ -499,7 +545,7 @@ a#fixture-detect-changes
   It gives the tester an opportunity to investigate the state of
   the component _before Angular initiates data binding or calls lifecycle hooks_.
 
-a#automatic-change-detection
+#auto-detect-changes
 :marked
   ### Automatic change detection
   Some testers prefer that the Angular test environment run change detection automatically.
@@ -529,7 +575,7 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#component-with-dependency
+#component-with-dependency
 :marked
   # Test a component with a dependency
   Components often have service dependencies.
@@ -539,18 +585,18 @@ a#component-with-dependency
 :marked
   The `WelcomeComponent` has decision logic that interacts with the service;
   such logic makes this component worth testing.
-  Here's the test module configuration for the spec file, `app/welcome.component.spec.ts`:
+  Here's the testing module configuration for the spec file, `app/welcome.component.spec.ts`:
 +makeExample('testing/ts/app/welcome.component.spec.ts', 'config-test-module', 'app/welcome.component.spec.ts')(format='.')
 :marked
   This time, in addition to declaring the component under test,
   the configurations sets the `providers` list with the dependent `UserService`.
 
-  This example configures the test module with a _fake_ `UserService`.
+  This example configures the testing module with a stub `UserService`.
   
-  ## Provide service fakes
+  ## Provide service test doubles
 
   A component under test doesn't have to be injected with real services. 
-  In fact, it is usually better if they are fakes.
+  In fact, it is usually better if they are test doubles (stubs, fakes, spies, or mocks).
   The purpose of the spec is to test the component, not the service,
   and real services can be trouble.
 
@@ -558,22 +604,21 @@ a#component-with-dependency
   The real service might try to ask the user for login credentials and 
   try to reach an authentication server.
   These behaviors could be hard to intercept. 
-  It is far easier to create and register a fake `UserService`.
+  It is far easier to create and register a test double in place of the real `UserService`.
 
-  There are many ways to fake a service. 
-  This test suit supplies a minimal `UserService` that satisfies the needs of the `WelcomeComponent`
+  This particular test suite supplies a minimal `UserService` stub that satisfies the needs of the `WelcomeComponent`
   and its tests:
-+makeExample('testing/ts/app/welcome.component.spec.ts', 'fake-userservice')(format='.')
++makeExample('testing/ts/app/welcome.component.spec.ts', 'user-service-stub')(format='.')
 
-a#injected-service-reference
+#injected-service-reference
 :marked
   ## Referencing injected services
-  The tests need access to the injected (fake) `UserService`.
+  The tests need access to the injected (stubbed) `UserService`.
 
-  You cannot reference the `fakeUserService` object provided to the test module. 
+  You cannot reference the `userServiceStub` object provided to the testing module. 
   **It does not work!** 
-  Surprisingly, the instance actually injected into the component is _not the same_ 
-  as the provided `fakeUserService` object.
+  Surprisingly, the instance actually injected into the component is _not the same_ object
+  as the provided `userServiceStub`.
 
 .alert.is-important
   :marked
@@ -601,7 +646,7 @@ a#injected-service-reference
 .alert.is-important
   :marked
     Use the component's own injector to get the component's injected service.
-a#welcome-spec-setup
+#welcome-spec-setup
 :marked
   Here's the complete, preferred `beforeEach`:
 +makeExample('testing/ts/app/welcome.component.spec.ts', 'setup', 'app/welcome.component.spec.ts')(format='.')
@@ -609,7 +654,7 @@ a#welcome-spec-setup
   And here are some tests:
 +makeExample('testing/ts/app/welcome.component.spec.ts', 'tests', 'app/welcome.component.spec.ts')(format='.')
 :marked
-  The first is a sanity test; it confirms that the fake `UserService` is working.
+  The first is a sanity test; it confirms that the stubbed `UserService` is called and working.
   The remaining tests confirm the logic of the component when the service returns different values.
   The second test validates the effect of changing the user name.
   The third test checks that the component displays the proper message when there is no logged-in user.
@@ -618,7 +663,7 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#component-with-async-service
+#component-with-async-service
 :marked
   # Test a component with an async service
   Many services return values asynchronously. 
@@ -634,15 +679,15 @@ a#component-with-async-service
   It is sufficient to see within `ngOnInit` that `twainService.getQuote` returns a promise which means it is asynchronous.
 
   In general, tests should not make calls to remote servers. 
-  They should fake such calls. The setup in this `app/shared/twain.component.spec.ts` shows one way to do that: 
+  They should emulate such calls. The setup in this `app/shared/twain.component.spec.ts` shows one way to do that: 
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'setup', 'app/shared/twain.component.spec.ts (setup)')(format='.')
 
-a#service-spy
+#service-spy
 :marked
   ### Spying on the real service
 
   This setup is similar to the [`welcome.component.spec` setup](#welcome-spec-setup).
-  But instead of creating a fake service object, it injects the _real_ service (see the test module `providers`) and 
+  But instead of creating a stubbed service object, it injects the _real_ service (see the testing module `providers`) and 
   replaces the critical `getQuote` method with a Jasmine spy.
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'spy')(format='.')
 :marked
@@ -669,26 +714,29 @@ a#service-spy
 
   The test must become an "async test" ... like the third test
 
-a#async-fn-in-it
+#async
 :marked
   ## The _async_ function in _it_
 
   Notice the `async` in the third test.
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'async-test', 'app/shared/twain.component.spec.ts (async test)')(format='.')
 :marked
-  The `async` function is part of the _Angular TestBed_ feature set.
-  It _takes_ a parameterless function and _returns_ a parameterless function
+  The `async` function is an independent feature of the _Angular Testing Platform_. 
+
+  It simplifyies coding of asynchronous tests by arranging for the tester's code to run in a special _async test zone_.
+
+  The `async` function _takes_ a parameterless function and _returns_ a parameterless function
   which becomes the argument to the  Jasmine `it` call. 
 
   The body of the `async` argument looks much like the body of a normal `it` argument.
-  There is nothing obviously asynchronous about it. For example, it doesn't return a promise.
+  There is nothing obviously asynchronous about it. 
+  For example, it doesn't return a promise and 
+  there is no `done` function to call as there is in standard Jasmine asynchronous tests.
 
-  The `async` function arranges for the tester's code to run in a special _async test zone_
-  that almost hides the mechanics of asynchronous execution.
+  Some functions called within a test (such as `fixture.whenStable`) continue to reveal their asynchronous behavior.
+  Consider also the [_fakeAsync_](#fake-async) alternative which affords a more linear coding experience.
 
-  Almost but not completely.
-
-a#when-stable
+#when-stable
 :marked
   ## _whenStable_
   The test must wait for the `getQuote` promise to resolve. 
@@ -711,8 +759,8 @@ a#when-stable
   The test kicks off another round of change detection (`fixture.detechChanges`) which tells Angular to update the DOM with the quote.
   The `getQuote` helper method extracts the display element text and the expectation confirms that the text matches the test quote.
 
-a#fakeAsync
-a#fake-async
+#fakeAsync
+#fake-async
 :marked
   ## The _fakeAsync_ function
 
@@ -720,28 +768,26 @@ a#fake-async
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'fake-async-test', 'app/shared/twain.component.spec.ts (fakeAsync test)')(format='.')
 :marked
   Notice that `fakeAsync` replaces `async` as the `it` argument.
-  The `fakeAsync` function is also part of the _Angular TestBed_ feature set.
-  Like `async`, it too _takes_ a parameterless function and _returns_ a parameterless function
+  The `fakeAsync` function is another, independent feature of the _Angular Testing Platform_.
+
+  Like [async](#), it _takes_ a parameterless function and _returns_ a parameterless function
   which becomes the argument to the  Jasmine `it` call. 
 
-  The `async` function arranges for the tester's code to run in a special _fakeAsync test zone_.
+  The `fakeAsync` function enables a linear coding style by running the test body in a special _fakeAsync test zone_.
 
-  The key advantage of `fakeAsync` is that the test body looks entirely synchronous.
+  The principle advantage of `fakeAsync` over `async` is that the test appears to be synchronous.
   There are no promises at all. 
   No `then(...)` chains to disrupt the visible flow of control.
 
-.l-sub-section
-  :marked
-    There are limitations. For example, you cannot make an XHR call from within a `fakeAsync`.
-:marked
+  There are limitations. For example, you cannot make an XHR call from within a `fakeAsync`.
 
-a#tick
-a#tick-first-look
+#tick
+#tick-first-look
 :marked
   ## The _tick_ function
   Compare the third and fourth tests. Notice that `fixture.whenStable` is gone, replaced by `tick()`.
 
-  The `tick` function is a part of the _Angular TestBed_ feature set and a companion to `fakeAsync`.
+  The `tick` function is a part of the _Angular Testing Platform_ and a companion to `fakeAsync`.
   It can only be called within a `fakeAsync` body.
 
   Calling `tick()` simulates the passage of time until all pending asynchronous activities complete,
@@ -754,7 +800,7 @@ a#tick-first-look
   To more fully appreciate the improvement, imagine a succession of asynchronous operations, 
   chained in a long sequence of promise callbacks.
 
-a#jasmine-done
+#jasmine-done
 :marked
   ## _jasmine.done_
 
@@ -778,7 +824,7 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#component-with-external-template
+#component-with-external-template
 :marked
   # Test a component with an external template
   The `TestBed.createComponent` is a synchronous method. 
@@ -796,7 +842,7 @@ a#component-with-external-template
   The compiler must read these files from a file system before it can create a component instance.
 
   The `TestBed.compileComponents` method asynchronously compiles all the components configured in its
-  current test module. After it completes, external templates and css files, have been "inlined"
+  current testing module. After it completes, external templates and css files, have been "inlined"
   and `TestBed.createComponent` can do its job synchronously.
 .l-sub-section
   :marked
@@ -806,27 +852,19 @@ a#component-with-external-template
   The `app/dashboard/dashboard-hero.component.spec.ts` demonstrates the pre-compilation process:
 +makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'compile-components', 'app/dashboard/dashboard-hero.component.spec.ts (compileComponents)')(format='.')
 
-a#async-fn-in-before-each
+#async-in-before-each
 :marked
   ## The _async_ function in _beforeEach_
 
-  Notice the `async` call in the `beforeEach`.
-
-  The `async` function is part of the _Angular TestBed_ feature set.
-  It _takes_ a parameterless function and _returns_ a parameterless function
-  which becomes the argument to the Jasmine `beforeEach` call. 
-
-  The body of the `async` argument looks much like the body of a normal `beforEach` argument.
-  There is nothing obviously asynchronous about it. For example, it doesn't return a promise.
-
+  Notice the `async` call in the `beforeEach`. 
   The `async` function arranges for the tester's code to run in a special _async test zone_
-  that hides the mechanics of asynchronous execution.
+  that hides the mechanics of asynchronous execution, just as it does when passed to an [_it_ test)(#async).
 
-a#compile-components
+#compile-components
 :marked
   ## _compileComponents_ 
   In this example, `Testbed.compileComponents` compiles one component, the `DashboardComponent`. 
-  It's the only declared component in this test module.
+  It's the only declared component in this testing module.
 
   Tests later in this chapter have more declared components and some of them import application
   modules that declare yet more components.
@@ -851,7 +889,7 @@ a#compile-components
 
 .l-hr
 
-a#component-with-inputs-outputs
+#component-with-inputs-outputs
 :marked
   # Test a component with inputs and outputs
   A component with inputs and outputs typically appears inside the view template of a host component.
@@ -884,8 +922,12 @@ a#component-with-inputs-outputs
 +makeExample('testing/ts/app/dashboard/dashboard.component.ts', 'ctor', 'app/dashboard/dashboard.component.ts (constructor)')(format='.')
 :marked
   The `DashboardComponent` depends upon the Angular router and the `HeroService`.
-  You'd probably have to fake them both and that's a lot of work. The router is particularly challenging (see below).
-
+  You'd probably have to replace them both with test doubles and that looks like a lot of work. 
+  The router seems particularly challenging.
+.l-sub-section
+  :marked
+    The [discussion below](#routed-component) covers testing components that requre the router.
+:marked
   The immediate goal is to test the `DashboardHeroComponent`, not the `DashboardComponent`, and there's no need
   to work hard unnecessarily. Let's try the second and third options.
 
@@ -917,24 +959,61 @@ a#component-with-inputs-outputs
     at low cost and without resorting to much slower and more complicated end-to-end tests.
 
 :marked
-  The second test verifies click behavior. Clicking the hero should rais a `selected` event that the
+  The second test verifies click behavior. Clicking the hero should raise a `selected` event that the
   host component (`DashboardComponent` presumably) can hear:
 +makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'click-test', 'app/dashboard/dashboard-hero.component.spec.ts (click test)')(format='.')
 :marked
   The component exposes an `EventEmitter` property. The test subscribes to it just as the host component would do.
 
-  The Angular `DebugElement.triggerEventHandler` lets the test raise _any data-bound event_.
-  In this example, the component's template binds to the hero `<div>`.
-
-  The test has a reference to that `<div>` in `heroEl` so triggering the `heroEl` click event should cause Angular
-  to call `DashboardHeroComponent.click`. 
+  The `heroEl` is a `DebugElement` that represents the hero `<div>`. 
+  The test calls `triggerEventHandler` with the "click" event name.
+  The "click" event binding responds by calling `DashboardHeroComponent.click()`. 
   
-  If the component behaves as expected, its `selected` property should emit the `hero` object,
-  the test detects that emission through its subscription, and the test will pass.
+  If the component behaves as expected, `click()` tells the component's `selected` property to emit the `hero` object,
+  the test detects that value through its subscription to `selected`, and the test should pass.
+  
+#trigger-event-handler
+:marked
+  ### _triggerEventHandler_
+
+  The Angular `DebugElement.triggerEventHandler` can raise _any data-bound event_ by its _event name_.
+  The second parameter is the event object passed to the handler.
+
+  In this example, the test triggers a "click" event with a null event object.
+
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'trigger-event-handler')(format='.')
+:marked
+  The test assumes (correctly in this case) that the runtime event handler &mdash; the component's `click()` method &mdash;
+  doesn't care about the event object.
+  
+  Other handlers will be less forgiving. 
+  For example, the `RouterLink` directive expects an object with a `button` property indicating the mouse button that was pressed. 
+  The directive throws an error if the event object doesn't do this correctly.
+
+#click-helper
+:marked
+  Clicking a button, an anchor, or an arbitrary HTML element is a common test task.
+  Make that easy by encapsulating the _click-triggering_ process in a helper such as the `click` function below:
++makeExample('testing/ts/testing/index.ts', 'click-event', 'testing/index.ts (click helper)')(format='.')
+:marked
+  The first parameter is the _element-to-click_. You can pass a custom event object as the second parameter if you wish. The default is a (partial) 
+  <a href="https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button" target="_blank">left-button mouse event object</a> 
+  accepted by many handlers including the `RouterLink` directive.
+
+.callout.is-critical
+  header click() is not an ATP function
+  :marked
+    The `click()` helper function is **not** part of the _Angular Testing Platform_. 
+    It's a function defined in _this chapter's sample code_ and used by all of the sample tests. 
+    If you like it, add it to your own collection of helpers.
+:marked
+  Here's the previous test, rewritten using this click helper.
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'click-test-2', 'app/dashboard/dashboard-hero.component.spec.ts (click test revised)')(format='.')
+
 
 .l-hr
 
-a#component-inside-test-host
+#component-inside-test-host
 :marked
   # Test a component inside a test host component
 
@@ -957,7 +1036,7 @@ a#component-inside-test-host
   The setup for the test-host tests is similar to the setup for the stand-alone tests:
 +makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'test-host-setup', 'app/dashboard/dashboard-hero.component.spec.ts (test host setup)')(format='.')
 :marked
-  This test module configuration shows two important differences:
+  This testing module configuration shows two important differences:
   1. It _declares_ both the `DashboardHeroComponent` and the `TestHostComponent`.
   1. It _creates_ the `TestHostComponent` instead of the `DashboardHeroComponent`.
 
@@ -978,7 +1057,7 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#routed-component
+#routed-component
 :marked
   # Test a routed component
 
@@ -994,24 +1073,24 @@ a#routed-component
   This is often the case.
   As a rule you test the component, not the router,
   and care only if the component navigates with the right address under the given conditions.
-  Faking the router is an easy option. This should do the trick:
-+makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'fake-router', 'app/dashboard/dashboard.component.spec.ts (fakeRouter)')(format='.')
+  Stubbing the router with a test implementation is an easy option. This should do the trick:
++makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'router-stub', 'app/dashboard/dashboard.component.spec.ts (Router Stub)')(format='.')
 :marked
-  Now we setup the test module with the `fakeRouter` and a fake `HeroService` and 
+  Now we setup the testing module with the test stubs for the `Router` and `HeroService` and 
   create a test instance of the `DashbaordComponent` for subsequent testing.
 +makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'compile-and-create-body', 'app/dashboard/dashboard.component.spec.ts (compile and create)')(format='.')
 :marked
   The following test clicks the displayed hero and confirms (with the help of a spy) that `Router.navigateByUrl` is called with the expected url.
 +makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'navigate-test', 'app/dashboard/dashboard.component.spec.ts (navigate test)')(format='.')
 
-a#inject
+#inject
 :marked
   ## The _inject_ function
 
   Notice the `inject` function in the second `it` argument.
 +makeExample('testing/ts/app/dashboard/dashboard.component.spec.ts', 'inject')(format='.')
 :marked
-  The `inject` function is part of the _Angular TestBed_ feature set.
+  The `inject` function is an independent feature of the _Angular Testing Platform_.
   It injects services into the test function where you can alter, spy on, and manipulate them.
 
   The `inject` function has two parameters
@@ -1046,8 +1125,477 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#isolated-tests
-a#testing-without-atp
+#routed-component-w-param
+:marked
+  # Test a routed component with parameters
+  
+  Clicking a _Dashboard_ hero triggers navigation to `heroes/:id` where `:id`
+  is a route parameter whose value is the `id` of the hero to edit. 
+  That URL matches a route to the `HeroDetailComponent`.
+
+  The router pushes the `:id` token value into the `ActivatedRoute.params` _Observable_ property,
+  Angular injects the `ActivatedRoute` into the `HeroDetailComponent`, 
+  and the component extracts the `id` so it can fetch the corresponding hero via the `HeroDetailService`.
+  Here's the `HeroDetailComponent` constructor:
++makeExample('testing/ts/app/hero/hero-detail.component.ts', 'ctor', 'app/hero/hero-detail.component.ts (constructor)')(format='.')
+:marked
+  `HeroDetailComponent`  listens for changes to the `ActivatedRoute.params` in its `ngOnInit` method.
++makeExample('testing/ts/app/hero/hero-detail.component.ts', 'ng-on-init', 'app/hero/hero-detail.component.ts (ngOnInit)')(format='.')
+.l-sub-section
+  :marked
+    The expression after `route.params` chains an _Observable_ operator that _plucks_ the `id` from the `params` 
+    and then chains a `forEach` operator to subscribes to `id`-changing events. 
+    The `id` changes every time the user navigates to a different hero.
+    
+    The `forEach` passes the new `id` value to the component's `getHero` method (not shown)
+    which fetches a hero and sets the component's `hero` property. 
+    If the`id` parameter is missing, the `pluck` operator fails and the `catch` treats failure as a request to edit a new hero.
+    
+    The [Router](router.html#route-parameters) chapter covers `ActivatedRoute.params` in more detail.
+:marked
+  A test can explore how the `HeroDetailComponent` responds to different `id` parameter values
+  by manipulating the `ActivatedRoute` injected into the component's constructor.
+
+  By now you know how to stub the `Router` and a data service.
+  Stubbing the `ActivatedRoute` would follow the same pattern except for a complication:
+  the `ActivatedRoute.params` is an _Observable_.
+#stub-observable
+:marked
+  ### _Observable_ test double
+
+  The `hero-detail.component.spec.ts` relies on an `ActivatedRouteStub` to set `ActivatedRoute.params` values for each test.
+  This is a cross-application, re-usable _test helper class_. 
+  We recommend locating such helpers in a `testing` folder sibling to the `app` folder.
+  This sample keeps `ActivatedRouteStub` in `testing/router-stubs.ts`:
+  
++makeExample('testing/ts/testing/router-stubs.ts', 'activated-route-stub', 'testing/router-stubs.ts (ActivatedRouteStub)')(format='.')
+:marked
+  Notable features of this stub:
+
+  * The stub implements only two of the `ActivatedRoute` capabilities: `params` and `snapshot.params`.
+
+  * <a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/subjects/behaviorsubject.md" target="_blank">_BehaviorSubject_</a> 
+  drives the stub's `params` _Observable_ and returns the same value to every `params` subscriber until it's given a new value.
+
+  * The `HeroDetailComponent` chain its expressions to this stub `params` _Observable_ which is now under the tester's control.
+
+  * Setting the `testParams` property causes the `subject` to push the assigned value into `params`.
+   That triggers the `HeroDetailComponent` _params_ subscription, described above, in the same way that navigation does.
+
+  * Setting the `testParams` property also updates the stub's internal value for the `snapshot` property to return.
+.l-sub-section(style="margin-left:30px")
+  :marked
+    The [_snapshot_](router.html#snapshot "Router Chapter: snapshot") is another popular way for components to consume route parameters.
+.callout.is-helpful
+  :marked
+    The router stubs in this chapter are meant to inspire you. Create your own stubs to fit your testing needs.
+
+#observable-tests
+:marked
+  ### _Observable_ tests
+  Here's a test demonstrating the component's behavior when the observed `id` refers to an existing hero:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'route-good-id', 'app/hero/hero-detail.component.spec.ts (existing id)')(format='.')
+.l-sub-section
+  :marked
+    The `createComponent` method and `page` object are discussed [in the next section](#page-object).
+    Rely on your intuition for now.
+:marked
+  When the `id` cannot be found, the component should re-route to the `HeroListComponent`.
+  The test suite setup provided the same `RouterStub` [described above](#routed-component) which spies on the router without actually navigating.
+  This test supplies a "bad" id and expects the component to try to navigate.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'route-bad-id', 'app/hero/hero-detail.component.spec.ts (bad id)')(format='.')
+:marked
+:marked
+  While this app doesn't have a route to the `HeroDetailComponent` that omits the `id` parameter, it might add such a route someday. 
+  The component should do something reasonable when there is no `id`.
+
+  In this implementation, the component should create and display a new hero.
+  New heroes have `id=0` and a blank `name`. This test confirms that the component behaves as expected:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'route-no-id', 'app/hero/hero-detail.component.spec.ts (no id)')(format='.')
+:marked
+.callout.is-helpful
+  :marked
+    Inspect and download _all_ of the chapter's application test code with this <live-example plnkr="app-specs">live example</live-example>.
+
+.l-hr
+
+#page-object
+:marked
+  # Use a _page_ object to simplify setup
+
+  The `HeroDetailComponent` is a simple view with a title, two hero fields, and two buttons.
+figure.image-display
+  img(src='/resources/images/devguide/testing/hero-detail.component.png' alt="HeroDetailComponent in action")
+:marked
+  But there's already plenty of template complexity.
++makeExample('testing/ts/app/hero/hero-detail.component.html', '', 'app/hero/hero-detail.component.html')(format='.')
+:marked
+  To fully exercise the component, the test needs ...
+  * to wait until a `hero` arrives before `*ngIf` allows any element in DOM
+  * element references for the title name span and name input-box to inspect their values
+  * two button references to click
+  * spies on services and component methods
+
+  Even a small form such as this one can produce a mess of tortured conditional setup and CSS element selection.
+
+  Tame the madness with a `Page` class that simplifies access to component properties and encapsulates the logic that sets them.
+  Here's the `Page` class for the `hero-detail.component.spec.ts`
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'page', 'app/hero/hero-detail.component.spec.ts (Page)')(format='.')
+:marked
+  Now the important hooks for component manipulation and inspection are neatly organized and accessible from an instance of `Page`.
+
+  A `createComponent` method creates a `page` and fills in the blanks once the `hero` arrives.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'create-component', 'app/hero/hero-detail.component.spec.ts (createComponent)')(format='.')
+:marked
+  The [observable tests](#observable-tests) in the previous section demonstrate how `createComponent` and `page` 
+  keep the tests short and _on message_. 
+  There are no distractions: no waiting for promises to resolve and no searching the DOM for element values to compare.
+  Here are a few more `HeroDetailComponent` tests to drive the point home.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'selected-tests', 'app/hero/hero-detail.component.spec.ts (selected tests)')(format='.')
+
+a(href="#top").to-top Back to top
+.l-hr
+
+#import-module
+:marked
+  # Setup with module imports
+  Earlier component tests configured the testing module with a few `declarations` like this:
++makeExample('testing/ts/app/dashboard/dashboard-hero.component.spec.ts', 'compile-components', 'app/dashboard/dashboard-hero.component.spec.ts (config)')(format='.')
+:marked
+  The `DashboardComponent` is simple. It needs no help.
+  But more complex components often depend on other components, directives, pipes, and providers
+  and these must be added to the testing module too.
+
+  Fortunately, the `TestBed.configureTestingModule` parameter parallels
+  the metadata passed to the `@NgModule` decorator 
+  which means you can also specify `providers` and `imports.
+
+  The `HeroDetailComponent` requires a lot of help despite its small size and simple construction. 
+  In addition to the support it receives from the default testing module `CommonModule`, it needs:
+  * `NgModel` and friends in the `FormsModule` enable two-way data binding
+  * The `TitleCasePipe` from the `shared` folder
+  * Router services (which these tests are stubbing)
+  * Hero data access services (also stubbed)
+
+  One approach is to configure the testing module from the individual pieces as in this example:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-forms-module', 'app/hero/hero-detail.component.spec.ts (FormsModule setup)')(format='.')
+:marked
+  Because many app components need the `FormsModule` and the `TitleCasePipe`, the developer created 
+  a `SharedModule` to combine these and other frequently requested parts.
+  The test configuration can use the `SharedModule` too as seen in this alternative setup:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-shared-module', 'app/hero/hero-detail.component.spec.ts (SharedModule setup)')(format='.')
+:marked
+  It's a bit tighter and smaller, with fewer import statements (not shown).
+
+#feature-module-import
+:marked
+  ### Import the feature module
+  The `HeroDetailComponent` is part of the `HeroModule` [Feature Module](ngmodule.html#feature-modules) that aggregates more of the interdependent pieces
+  including the `SharedModule`.
+  Try a test configuration that imports the `HeroModule` like this one:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-hero-module', 'app/hero/hero-detail.component.spec.ts (HeroModule setup)')(format='.')
+:marked
+  That's _really_ crisp. Only the _test doubles_ in the `providers` remain. Even the `HeroDetailComponent` declaration is gone.
+.l-sub-section
+  :marked
+    In fact, if you try to declare it, Angular throws an error because
+    `HeroDetailComponent` is declared in both the `HeroModule` and the `DynamicTestModule` (the testing module).
+
+.alert.is-helpful
+  :marked
+    Importing the component's feature module is often the easiest way to configure the tests,
+    especially when the feature module is small and mostly self-contained ... as feature modules should be.
+:marked
+
+a(href="#top").to-top Back to top
+.l-hr
+
+#component-override
+:marked
+  # Override component providers
+
+  The `HeroDetailComponent` provides its own `HeroDetailService`.
++makeExample('testing/ts/app/hero/hero-detail.component.ts', 'prototype', 'app/hero/hero-detail.component.ts (prototype)')(format='.')
+:marked
+  It's not possible to stub the component's `HeroDetailService` in the `providers` of the `TestBed.configureTestingModule`. 
+  Those are providers for the _testing module_, not the component. They prepare the dependency injector at the _fixture level_.
+
+  Angular creates the component with its _own_ injector which is a _child_ of the fixture injector.
+  It registers the component's providers (the `HeroDetailService` in this case) with the child injector. 
+  A test cannot get to child injector services from the fixture injector.
+  And `TestBed.configureTestingModule` can't configure them either.
+
+  Angular has been creating new instances of the real `HeroDetailService` all along!
+
+.l-sub-section
+  :marked
+    These tests could fail or timeout if the `HeroDetailService` made its own XHR calls to a remote server.
+    There might not be a remote server to call.
+
+    Fortunately, the `HeroDetailService` delegates responsibility for remote data access to an injected `HeroService`.
+
+  +makeExample('testing/ts/app/hero/hero-detail.service.ts', 'prototype', 'app/hero/hero-detail.service.ts (prototype)')(format='.')
+  :marked
+    The [previous test configuration](#feature-module-import) replaces the real `HeroService` with a `FakeHeroService` 
+    that intercepts server requests and fakes their responses.
+
+:marked
+  What if you aren't so lucky. What if faking the `HeroService` is hard? 
+  What if `HeroDetailService` makes its own server requests? 
+  
+  The `TestBed.overrideComponent` method can replace the component's `providers` with easy-to-manage _test doubles_
+  as seen in the following setup variation:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-override', 'app/hero/hero-detail.component.spec.ts (Override setup)')(format='.')
+:marked
+  Notice that `TestBed.configureTestingModule` no longer provides a (fake) `HeroService` because it's [not needed](#stub-hero-detail-service).
+
+#override-component-method
+:marked
+  ### The _overrideComponent_ method
+
+  Focus on the `overrideComponent` method.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'override-component-method', 'app/hero/hero-detail.component.spec.ts (overrideComponent)')(format='.')
+:marked
+  It takes two arguments: the component type to override (`HeroDetailComponent`) and an override metadata object.
+  The [overide metadata object](#metadata-override-object) is a generic defined as follows:
+
+code-example(format="." language="javascript").
+  type MetadataOverride<T> = {
+    add?: T;
+    remove?: T;
+    set?: T;
+  };
+:marked
+  A metadata override object can either add-and-remove elements in metadata properties or completely reset those properties.
+  This example resets the component's `providers` metadata.
+
+  The type parameter, `T`,  is the kind of metadata you'd pass to the `@Component` decorator:
+code-example(format="." language="javascript").
+    selector?: string;
+    template?: string;
+    templateUrl?: string;
+    providers?: any[];
+    ...
+
+#stub-hero-detail-service
+:marked
+  ### _StubHeroDetailService_
+
+  This example completely replaces the component's `providers` with an array containing the `StubHeroDetailService`.
+  The `StubHeroDetailService` is dead simple. It doesn't need a `HeroService` (fake or otherwise).
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'stub-hds', 'app/hero/hero-detail.component.spec.ts (StubHeroDetailService)')(format='.')
+:marked
+  ### The override tests
+
+  Now the tests can control the component's hero directly by manipulating the stub's `testHero`.
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'override-tests', 'app/hero/hero-detail.component.spec.ts (override tests)')(format='.')
+:marked
+  ### More overrides
+  The `TestBed.overrideComponent` method can be called multiple times for the same or different components.
+  The `TestBed` offers similar `overrideDirective`, `overrideModule`, and `overridePipe` methods
+  for digging into and replacing parts of these other classes.
+  
+  Explore the options and combinations on your own.
+
+a(href="#top").to-top Back to top
+.l-hr
+
+#router-outlet-component
+:marked
+  # Test a _RouterOutlet_ component
+
+  The `AppComponent` displays routed components in a `<router-outlet>`.
+  It also displays a navigation bar with anchors and their `RouterLink` directives.
+#app-component-html
++makeExample('testing/ts/app/app.component.html', '', 'app/app.component.html')(format='.')
+:marked
+  The component class does nothing.
++makeExample('testing/ts/app/app.component.ts', '', 'app/app.component.ts')(format='.')
+
+:marked
+  Unit tests can confirm that the anchors are wired properly without engaging the router.
+  See why this is worth doing [below](#why-stubbed-routerlink-tests).
+
+#stub-component
+:marked
+  ### Stubbing unneeded components
+
+  The test setup should look familiar
++makeExample('testing/ts/app/app.component.spec.ts', 'setup-stubs', 'app/app.component.spec.ts (Stub Setup)')(format='.')
+:marked
+  The `AppComponent` is the declared test subject 
+  The setup extends the default testing module with one real component (`BannerComponent`) and several stubs.
+
+  * `BannerComponent` is simple and harmless to use as is.
+
+  * The real `WelcomeComponent` has an injected service. `WelcomeStubComponent` is a placeholder with no service to worry about.
+
+  * The real `RouterOutlet` is complex and errors easily. 
+  The `RouterOutletStubComponent` (in `testing/router-stubs.ts`) is safely inert.
+  
+  The component stubs are essential. 
+  Without them, the Angular compiler doesn't recognize the `<app-welcome>` and `<router-outlet>` tags 
+  and throws an error. 
+#router-link-stub
+:marked
+  ### Stubbing the _RouterLink_
+
+  The `RouterLinkStubDirective` contributes substantively to the test
++makeExample('testing/ts/testing/router-stubs.ts', 'router-link', 'testing/router-stubs.ts (RouterLinkStubDirective)')(format='.')
+:marked
+  The `host` metadata property wires the click event of the host element (the `<a>`) to the directive's `onClick` method.
+  The URL bound to the `[routerLink]` attribute flows to the directive's `linkParams` property. 
+  Clicking the anchor should trigger the `onClick` method which sets the telltale `navigatedTo` property.
+  Tests can inspect that property to confirm the expected _click-to-navigation_ behavior.
+
+#by-directive
+#inject-directive
+:marked
+  ### _By.directive_ and injected directives
+
+  A little more setup triggers the initial data binding and gets references to the navigation links:
++makeExample('testing/ts/app/app.component.spec.ts', 'test-setup', 'app/app.component.spec.ts (test setup)')(format='.')
+:marked
+  Two points of special interest:
+
+  1. You can locate elements _by directive_, using `By.directive`, not just by css selectors.
+
+  1. You can use the component's dependency injector to get an attached directive because 
+  Angular always adds attached directives to the component's injector.
+
+#app-component-tests
+:marked
+  Here are some tests that leverage this setup:
++makeExample('testing/ts/app/app.component.spec.ts', 'tests', 'app/app.component.spec.ts (selected tests)')(format='.')
+.l-sub-section
+  :marked
+    The "click" test _in this example_ is worthless.
+    It works hard to appear useful when in fact it 
+    tests the `RouterLinkStubDirective` rather than the _component_.
+    This is a common failing of directive stubs.
+    
+    It has a legitimate purpose in this chapter. 
+    It demonstrates how to find a `RouterLink` element, click it, and inspect a result,
+    without engaging the full router machinery.
+    This is a skill you may need to test a more sophisticated component, one that changes the display,
+    re-calculates parameters, or re-arranges navigation options when the user clicks the link.
+
+#why-stubbed-routerlink-tests
+:marked
+  ### What good are these tests?
+
+  Stubbed `RouterLink` tests can confirm that a component with links and an outlet is setup properly,
+  that the component has the links it should have, and that they are all pointing in the expected direction.
+  These tests do not concern whether the app will succeed in navigating to the target component when the user clicks a link.
+
+  Stubbing the RouterLink and RouterOutlet is the best option for such limited testing goals.
+  Relying on the real router would make them brittle.
+  They could fail for reasons unrelated to the component. 
+  For example, a navigation guard could prevent an unauthorized user from visiting the `HeroListComponent`.
+  That's not the fault of the `AppComponent` and no change to that component could cure the failed test.
+
+  A _different_ battery of tests can explore whether the application navigates as expected
+  in the presence of conditions that influence guards such as whether the user is authenticated and authorized.
+  A future chapter update will explain how to write such tests with the `RouterTestingModule`.
+a(href="#top").to-top Back to top
+.l-hr
+
+#shallow-component-test
+:marked
+  # "Shallow component tests" with *NO\_ERRORS\_SCHEMA*
+
+  The [previous setup](#stub-component) declared the `BannerComponent` and stubbed two other components 
+  for _no reason other than to avoid a compiler error_.
+  
+  Without them, the Angular compiler doesn't recognize the `<app-banner>`, `<app-welcome>` and `<router-outlet>` tags 
+  in the [_app.component.html_](#app-component-html) template and throws an error. 
+
+  Add `NO_ERRORS_SCHEMA` to the testing module's `schemas` metadata
+  to tell the compiler to ignore unrecognized elements and attributes.
+  You no longer have to declare irrelevant components and directives.
+  
+  These tests are ***shallow*** because they only "go deep" into the components you want to test.
+  Here is a setup (with `import` statements) that demonstrates the improved simplicity of _shallow_ tests, relative to the stubbing setup.
++makeTabs('testing/ts/app/app.component.spec.ts, testing/ts/app/app.component.spec.ts', 
+  'setup-schemas, setup-stubs-w-imports', 
+  'app/app.component.spec.ts (NO_ERRORS_SCHEMA), app/app.component.spec.ts (Stubs)')(format='.')
+:marked
+  The _only_ declarations are the _component-under-test_ (`AppComponent`) and the `RouterLinkStubDirective` 
+  that contributes actively to the tests.
+  The [tests in this example](#app-component-tests) are unchanged.
+
+.alert.is-important
+  :marked
+    _Shallow component tests_ with `NO_ERRORS_SCHEMA` greatly simplify unit testing of complex templates.
+    However, the compiler no longer alerts you to mistakes 
+    such as misspelled or misused components and directives.
+
+a(href="#top").to-top Back to top
+
+.l-hr
+
+#attribute-directive
+:marked
+  # Test an attribute directive
+
+  An _attribute directive_ modifies the behavior of an element, component or another directive.
+  Its name reflects the way the directive is applied: as an attribute on a host element.
+
+  The sample application's `HighlightDirective` sets the background color of an element
+  based on either a data bound color or a default color (lightgray).
+  It also sets a custom property of the element (`customProperty`) to `true` 
+  for no reason other than to show that it can.
++makeExample('testing/ts/app/shared/highlight.directive.ts', '', 'app/shared/highlight.directive.ts')(format='.')
+:marked
+  It's used throughout the application, perhaps most simply in the `AboutComponent`:
++makeExample('testing/ts/app/about.component.ts', '', 'app/about.component.ts')(format='.')
+:marked
+  Testing the specific use of the `HighlightDirective` within the `AboutComponent` requires only the
+  techniques explored above (in particular the ["Shallow test"](#shallow-component-test) approach).
++makeExample('testing/ts/app/about.component.spec.ts', 'tests', 'app/about.component.spec.ts')(format='.')
+:marked
+  However, testing a single use case is unlikely to explore the full range of a directive's capabilities.
+  Finding and testing all components that use the directive is tedious, brittle, and almost as unlikely to afford full coverage.
+
+  [Isolated unit tests](#isolated-tests) might be helpful. 
+  But attribute directives like this one tend to manipulate the DOM. 
+  Isolated tests don't and therefore don't inspire confidence in the directive's efficacy.
+
+  A better solution is to create an artificial test component that demonstrates all ways to apply the directive.
++makeExample('testing/ts/app/shared/highlight.directive.spec.ts', 'test-component', 'app/shared/highlight.directive.spec.ts (test component)')(format='.')
+figure.image-display
+  img(src='/resources/images/devguide/testing/highlight-directive-spec.png' width="200px" alt="HighlightDirective spec in action")
+.l-sub-section
+  :marked
+    The `<input>` case binds the `HighlightDirective` to the name of a color value in the input box.
+    The initial value is the word "cyan" which should be the background color of the input box.
+:marked
+  Here are some tests of this component:
++makeExample('testing/ts/app/shared/highlight.directive.spec.ts', 'selected-tests', 'app/shared/highlight.directive.spec.ts (selected tests)')
+:marked
+  A few techniques are noteworthy:
+
+  * The `By.directive` predicate is a great way to get the elements that have this directive _when their element types are unknown_.
+
+  * The <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/:not" target="_blank">`:not` pseudo-class</a> 
+  in `By.css('h2:not([highlight])')` helps find `<h2>` elements that _do not_ have the directive.
+  `By.css('*:not([highlight])')` finds _any_ element that does not have the directive.
+
+  * `DebugElement.styles` affords access to element styles even in the absence of a real browser, thanks to the `DebugElement` abstraction.
+  But feel free to exploit the `nativeElement` when that seems easier or more clear than the abstraction.
+
+  * Angular adds a directive to the injector of the element to which it is applied. 
+  The test for the default color uses the injector of the 2nd `<h2>` to get its `HighlightDirective` instance
+  and its `defaultColor`.
+  
+  * `DebugElement.properties` affords access to the artificial custom property that is set by the directive.
+
+a(href="#top").to-top Back to top
+
+.l-hr
+
+#isolated-tests
+#testing-without-atp
 :marked
   # Testing without the Angular Testing Platform
 
@@ -1067,7 +1615,7 @@ a#testing-without-atp
   They do
   * exhibit standard, Angular-agnostic testing techniques
   * create instances directly with `new`
-  * use stubs, spys, and mocks to fake dependencies.
+  * substitute test doubles (stubs, spys, and mocks) for the real dependencies.
 
 .callout.is-important
   header Write both kinds of tests
@@ -1077,9 +1625,10 @@ a#testing-without-atp
     Write _Angular_ tests to validate the part as it interacts with Angular,
     updates the DOM, and collaborates with the rest of the application.
 
+#isolated-service-tests
 :marked
   ## Services
-  Services are good candidates for vanilla unit testing. 
+  Services are good candidates for isolated unit testing. 
   Here are some synchronous and asynchronous unit tests of the `FancyService` 
   written without assistance from Angular Testing Platform.
 
@@ -1119,7 +1668,7 @@ a#testing-without-atp
   The first test creates a `FancyService` with `new` and passes it to the `DependentService` constructor.
   
   It's rarely that simple. The injected service can be difficult to create or control.
-  You can mock the dependency, or use a fake value, or stub the pertinent service method
+  You can mock the dependency, or use a dummy value, or stub the pertinent service method
   with a substitute method that is easy to control.
 
   These _isolated_ unit testing techniques are great for exploring the inner logic of a service or its
@@ -1127,6 +1676,8 @@ a#testing-without-atp
   Use the Angular Testing Platform when writing tests that validate how a service interacts with components
   _within the Angular runtime environment_.
 
+#isolated-pipe-tests
+:marked
   ## Pipes
   Pipes are easy to test without the Angular Testing Platform (ATP).
 
@@ -1143,7 +1694,7 @@ a#testing-without-atp
   Use simple Jasmine to explore the expected cases and the edge cases.
 +makeExample('testing/ts/app/shared/title-case.pipe.spec.ts', 'excerpt', 'app/shared/title-case.pipe.spec.ts')
 :marked
-  ## Write ATP tests too
+  ### Write ATP tests too
   These are tests of the pipe _in isolation_.
   They can't tell if the `TitleCasePipe` is working properly 
   as applied in the application components.
@@ -1151,7 +1702,7 @@ a#testing-without-atp
   Consider adding ATP component tests such as this one.
 +makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'title-case-pipe', 'app/hero/hero-detail.component.spec.ts (pipe test)')
 
-a#isolated-component-tests
+#isolated-component-tests
 :marked
   ## Components
 
@@ -1188,16 +1739,16 @@ a(href="#top").to-top Back to top
 
 .l-hr
 
-a#atp-api
+#atp-api
 :marked
   # Angular Testing Platform APIs
 
   This section takes inventory of the most useful _Angular Testing Platform_ features and summarizes what they do.
 
   The _Angular Testing Platform_ consists of the `TestBed` and `ComponentFixture` classes plus a handful of functions in the test environment.
-  The [_TestBed_](#testbed-api-summary) and [_ComponentFixture_](#componentfixture-api-summary) classes are covered separately.
+  The [_TestBed_](#testbed-api-summary) and [_ComponentFixture_](#component-fixture-api-summary) classes are covered separately.
 
-  Here's a summary of the functions, in order of likely utility:
+  Here's a summary of the stand-alone functions, in order of likely utility:
 
 table
   tr
@@ -1208,24 +1759,30 @@ table
     td
       :marked
         Runs the body of a test (`it`) or setup (`beforeEach`) function within a special _async test zone_.
-        See [here](#async-fn-in-it) and [here](#async-fn-in-before-each).
+        See [discussion above](#async).
   tr
     td(style="vertical-align: top") <code>fakeAsync</code>
     td
       :marked
         Runs the body of a test (`it`) within a special _fakeAsync test zone_, enabling
-        a linear control flow coding style. See [above](#fake-async).
+        a linear control flow coding style. See [discussion above](#fake-async).
   tr
     td(style="vertical-align: top") <code>tick</code>
     td
       :marked
         Simulates the passage of time and the completion of pending asynchronous activities
-        by flushing timer and micro-task queues in the _fakeAsync test zone_.
-        
+        by flushing both _timer_ and _micro-task_ queues within the _fakeAsync test zone_.
+
+      .l-sub-section
+        :marked
+          The curious, dedicated reader might enjoy this lengthy blog post, 
+          "<a href="https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/" 
+          target="_blank">_Tasks, microtasks, queues and schedules_</a>".
+      :marked
         Accepts an optional argument that moves the virtual clock forward
         the specified number of milliseconds, 
         clearing asynchronous activities scheduled within that timeframe.
-        See [above](#tick).
+        See [discussion bove](#tick).
 
   tr
     td(style="vertical-align: top")  <code>inject</code>
@@ -1238,22 +1795,22 @@ table
     td(style="vertical-align: top") <code>discardPeriodicTasks</code>
     td
       :marked
-        When a `fakeAsync` test ends with pending timer event tasks (queued `setTimeOut` and `setInterval` callbacks),
+        When a `fakeAsync` test ends with pending timer event _tasks_ (queued `setTimeOut` and `setInterval` callbacks),
         the test fails with a clear error message.
         
         In general, a test should end with no queued tasks. 
-        When pending timer tasks are expected, call `discardPeriodicTasks` to flush the queues
+        When pending timer tasks are expected, call `discardPeriodicTasks` to flush the _task_ queue
         and avoid the error.
 
   tr
     td(style="vertical-align: top") <code>flushMicrotasks</code>
     td
       :marked
-        When a `fakeAsync` test ends with pending "microtasks" such as unresolved promises,
+        When a `fakeAsync` test ends with pending _micro-tasks_ such as unresolved promises,
         the test fails with a clear error message.
         
-        In general, a test should wait for microtasks to finish.
-        When pending microtasks are expected, call `discardPeriodicTasks` to flush the queues
+        In general, a test should wait for micro-tasks to finish.
+        When pending microtasks are expected, call `flushMicrotasks` to flush the  _micro-task_ queue
         and avoid the error.
 
   tr
@@ -1274,19 +1831,14 @@ table
 
 .l-hr
 
-a#testbed-class-summary
+#testbed-class-summary
 :marked
   # _TestBed_ Class Summary
-  The `TestBed` class API is quite large and can be overwhelming until you've explored it first
+  The `TestBed` class is a principle feature of the _Angular Testing Platform_. 
+  Its API is quite large and can be overwhelming until you've explored it first
   a little at a time. Read the early part of this chapter first
   to get the basics before trying to absorb the full API.
 
-.alert.is-important
-  :marked
-    The _TestBed_ is officially _experimental_ and thus subject to change.
-    Consult the [API reference](../api/core/testing/index/TestBed-class.html) for the latest status.
-
-:marked
   The module definition passed to `configureTestingModule`, 
   is a subset of the `@NgModule` metadata properties.
 code-example(format="." language="javascript").
@@ -1297,6 +1849,7 @@ code-example(format="." language="javascript").
     schemas?: Array&lt;SchemaMetadata | any[]&gt;;
   };
 
+#metadata-override-object
 :marked
   Each overide method takes a `MetadataOverride<T>` where `T` is the kind of metadata
   appropriate to the method, the parameter of an `@NgModule`, `@Component`, `@Directive`, or `@Pipe`.
@@ -1309,7 +1862,7 @@ code-example(format="." language="javascript").
   };
 
 :marked
-a#testbed-methods
+#testbed-methods
 :marked
   The `TestBed` API consists of static class methods that either update or reference a _global_ instance of the`TestBed`.
   
@@ -1327,18 +1880,18 @@ table
     td
       :marked
         The testing shims (`karma-test-shim`, `browser-test-shim`) 
-        establish the [initial test environment](#a#testbed-initTestEnvironment) and a default test module.
-        The default test module is configured with basic declaratives and some Angular service substitutes (e.g. `DebugDomRender`) 
+        establish the [initial test environment](##testbed-initTestEnvironment) and a default testing module.
+        The default testing module is configured with basic declaratives and some Angular service substitutes (e.g. `DebugDomRender`) 
         that every tester needs.
         
-        Call `configureTestingModule` to refine the test module configuration for a particular set of tests
+        Call `configureTestingModule` to refine the testing module configuration for a particular set of tests
         by adding and removing imports, declarations (of components, directives, and pipes), and providers.
   tr
     td(style="vertical-align: top") <code>compileComponents</code>
     td
       :marked
-        Compile the test module asynchronously after you've finished configuring it.
-        You **must** call this method if _any_ of the test module components have a `templateUrl`
+        Compile the testing module asynchronously after you've finished configuring it.
+        You **must** call this method if _any_ of the testing module components have a `templateUrl`
         or `styleUrls` because fetching component template and style files is necessarily asynchronous.
         See [above](#compile-components).
 
@@ -1355,7 +1908,7 @@ table
     td
       :marked
         Replace metadata for the given `NgModule`. Recall that modules can import other modules.
-        The `overrideModule` method can reach deeply into the current test module to
+        The `overrideModule` method can reach deeply into the current testing module to
         modify one of these inner modules.
   tr
     td(style="vertical-align: top") <code>overrideComponent</code>
@@ -1408,20 +1961,20 @@ table
         This method may be called _exactly once_. Call `resetTestEnvironment` first
         if you absolutely need to change this default in the middle of your test run.
 
-        Specify the Angular compiler factory, a `PlatformRef`, and a default Angular test module.
-        Test modules and platforms for individual platforms are available from
-        `angular2/platform/testing/<platform_name>`.
+        Specify the Angular compiler factory, a `PlatformRef`, and a default Angular testing module.
+        Alternatives for non-browser platforms are available in the general form
+        `@angular/platform-<platform_name>/testing/<platform_name>`.
   tr
     td(style="vertical-align: top") <code>resetTestEnvironment</code>
     td
       :marked
-        Reset the initial test environment including the default test module.
+        Reset the initial test environment including the default testing module.
 
 :marked
   A few of the `TestBed` instance methods are not covered by static `TestBed` _class_ methods.
   These are rarely needed.
 
-a#componentfixture-api-summary
+#component-fixture-api-summary
 :marked
   ## The _ComponentFixture_
 
@@ -1432,7 +1985,7 @@ a#componentfixture-api-summary
   The `ComponentFixture` properties and methods provide access to the component, 
   its DOM representation, and aspects of its Angular environment. 
 
-a#componentfixture-properties
+#component-fixture-properties
 :marked
   ### _ComponentFixture_ properties
 
@@ -1454,7 +2007,7 @@ table
         The `DebugElement` associated with the root element of the component.
 
         The `debugElement` provides insight into the component and its DOM element during test and debugging.
-        It's a critical property for testers. The most interesting members are covered [below](#debugelement-details).
+        It's a critical property for testers. The most interesting members are covered [below](#debug-element-details).
   tr
     td(style="vertical-align: top") <code>nativeElement</code>
     td
@@ -1470,7 +2023,7 @@ table
         component that has the `ChangeDetectionStrategy.OnPush`
         or the component's change detection is under your programmatic control.
 
-a#componentfixture-methods
+#component-fixture-methods
 :marked
   ### _ComponentFixture_ methods
 
@@ -1537,7 +2090,7 @@ table
       :marked
         Trigger component destruction.
 
-a#debugelement-details
+#debug-element-details
 :marked
   ### _DebugElement_
 
@@ -1546,11 +2099,6 @@ a#debugelement-details
   From the test root component's `DebugElement`, returned by `fixture.debugElement`, 
   you can walk (and query) the fixture's entire element and component sub-trees.
 
-.alert.is-important
-  :marked
-    The _DebugElement_ is officially _experimental_ and thus subject to change.
-    Consult the [API reference](../api/core/index/DebugElement-class.html) for the latest status.
-:marked
   Here are the most useful `DebugElement` members for testers in approximate order of utility.
 
 table
@@ -1624,8 +2172,10 @@ table
       :marked
         Triggers the event by its name if there is a corresponding listener 
         in the element's `listeners` collection.
-        
-        If the event lacks a listner or there's some other problem, 
+        The second parameter is the _event object_ expected by the handler.
+        See [above](#trigger-event-handler).
+
+        If the event lacks a listener or there's some other problem, 
         consider calling `nativeElement.dispatchEvent(eventObject)`
 
   tr
@@ -1653,7 +2203,7 @@ table
         Dictionary of objects associated with template local variables (e.g. `#foo`),
         keyed by the local variable name.
 
-a#query-predicate
+#query-predicate
 :marked
   The `DebugElement.query(predicate)` and `DebugElement.queryAll(predicate)` methods take a
   predicate that filters the source element's subtree for matching `DebugElement`.
@@ -1670,7 +2220,7 @@ a#query-predicate
 
 +makeExample('testing/ts/app/hero/hero-list.component.spec.ts', 'by', 'app/hero/hero-list.component.spec.ts')(format=".")
 
-a#renderer-tests
+#renderer-tests
 :marked
   Many custom application directives inject the `Renderer` and call one of its `set...` methods.
 
@@ -1718,7 +2268,7 @@ a(href="#top").to-top Back to top
 
 .l.hr
 
-  a#faq 
+  #faq 
   .l-main-section
   :marked
     ## FAQ: Frequently Asked Questions
@@ -1727,7 +2277,7 @@ a(href="#top").to-top Back to top
     General
     * [When are end-to-end (e2e) tests a good choice?](#q-when-e2e)
     * [When to use the _TestBed_?](#q-why-testbed)
-    * [When to write vanilla tests without the _TestBed_?](#q-when-no-testbed)
+    * [When to write isolated unit tests without the _TestBed_?](#q-when-no-testbed)
     * [When can I skip _TestBed.compileComponents_?](#q-when-no-compile-components)
     * [Why must _TestBed.compileComponents_ be called last?](#q-why-compile-components-is-last)
     * [Why must _inject_ be called last?](#q-why-last-last)  
@@ -1756,7 +2306,7 @@ a(href="#top").to-top Back to top
 
   .l-hr
 
-a#q-spec-file-location
+#q-spec-file-location
 :marked
   ### Why put specs next to the things they test?
 
@@ -1770,7 +2320,7 @@ a#q-spec-file-location
 
 .l-hr
 
-a#q-specs-in-test-folder
+#q-specs-in-test-folder
 :marked
   ### When would I put specs in a test folder?
 

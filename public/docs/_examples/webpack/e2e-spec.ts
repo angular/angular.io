@@ -2,7 +2,7 @@
 'use strict';
 describe('QuickStart E2E Tests', function () {
 
-  let expectedMsg = 'Hello from Angular 2 App with Webpack';
+  let expectedMsg = 'Hello from Angular App with Webpack';
 
   beforeEach(function () {
     browser.get('');

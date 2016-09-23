@@ -1,9 +1,9 @@
 import { NgModule }         from '@angular/core';
 import { BrowserModule }    from '@angular/platform-browser';
-import { RouterModule }     from '@angular/router';
-
 
 import { AppComponent }     from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+
 import { AboutComponent }   from './about.component';
 import { BannerComponent }  from './banner.component';
 import { HeroService,
@@ -19,11 +19,7 @@ import { SharedModule }     from './shared/shared.module';
   imports: [
     BrowserModule,
     DashboardModule,
-    RouterModule.forRoot([
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full'},
-      { path: 'about', component: AboutComponent },
-      { path: 'heroes', loadChildren: 'app/hero/hero.module#HeroModule'}
-    ]),
+    AppRoutingModule,
     SharedModule
   ],
   providers:    [ HeroService, TwainService, UserService ],

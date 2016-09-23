@@ -26,7 +26,7 @@ import { NgModel, NgControl } from '@angular/forms';
 import { async, ComponentFixture, fakeAsync, inject, TestBed, tick
 } from '@angular/core/testing';
 
-import { addMatchers, newEvent } from '../../testing';
+import { addMatchers, newEvent, click } from '../../testing';
 
 beforeEach( addMatchers );
 
@@ -180,7 +180,7 @@ describe('TestBed Component Tests', () => {
     const comp = fixture.componentInstance;
     const hero = comp.heroes[0];
 
-    heroes[0].triggerEventHandler('click', null);
+    click(heroes[0]);
     fixture.detectChanges();
 
     const selected = fixture.debugElement.query(By.css('p'));
@@ -213,7 +213,7 @@ describe('TestBed Component Tests', () => {
     fixture.detectChanges();
     expect(span.textContent).toMatch(/is off/i, 'before click');
 
-    btn.triggerEventHandler('click', null);
+    click(btn);
     fixture.detectChanges();
     expect(span.textContent).toMatch(/is on/i, 'after click');
   });
@@ -610,7 +610,7 @@ describe('Lifecycle hooks w/ MyIfParentComp', () => {
     getChild();
 
     const btn = fixture.debugElement.query(By.css('button'));
-    btn.triggerEventHandler('click', null);
+    click(btn);
 
     fixture.detectChanges();
     expect(child.ngOnDestroyCalled).toBe(true);
