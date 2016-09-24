@@ -2,7 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { ValidateDirective } from './shared';
+import { InputHighlightDirective,
+         ValidateDirective } from './shared';
 
 @NgModule({
   imports: [
@@ -10,6 +11,7 @@ import { ValidateDirective } from './shared';
   ],
   declarations: [
     AppComponent,
+    InputHighlightDirective,
     ValidateDirective
   ],
   exports: [ AppComponent ]

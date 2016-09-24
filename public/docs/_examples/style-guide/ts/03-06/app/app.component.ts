@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Hero, HeroService } from './heroes';
-import { ExceptionService, SpinnerService, ToastService } from './shared';
+import { ExceptionService, SpinnerService, ToastService } from './core';
 
 @Component({
   moduleId: module.id,

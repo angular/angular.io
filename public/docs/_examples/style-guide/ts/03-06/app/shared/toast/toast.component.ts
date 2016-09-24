@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ToastService } from './toast.service';
+import { ToastService } from '../../core';
 
 @Component({
   selector: 'toh-toast',
