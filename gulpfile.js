@@ -38,6 +38,7 @@ var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
 var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
+var EXAMPLES_TESTING_PATH = path.join(EXAMPLES_PATH, 'testing/ts');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
@@ -97,12 +98,17 @@ var _exampleBoilerplateFiles = [
   'tsconfig.json',
   'tslint.json',
   'typings.json'
- ];
+];
 
 var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
 
 var _exampleProtractorBoilerplateFiles = [
   'tsconfig.json'
+];
+
+var _exampleUnitTestingBoilerplateFiles = [
+  'karma-test-shim.js',
+  'karma.conf.js'
 ];
 
 var _exampleConfigFilename = 'example-config.json';
@@ -497,9 +503,17 @@ function copyExampleBoilerplate() {
     .then(function() {
       var protractorSourceFiles =
         _exampleProtractorBoilerplateFiles
-          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
+          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name); });
       var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
       return copyFiles(protractorSourceFiles, e2eSpecPaths, destFileMode);
+    })
+    // copy the unit test boilerplate
+    .then(function() {
+      var unittestSourceFiles =
+        _exampleUnitTestingBoilerplateFiles
+          .map(function(name) { return path.join(EXAMPLES_TESTING_PATH, name); });
+      var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
+      return copyFiles(unittestSourceFiles, unittestPaths, destFileMode);
     });
 }
 
@@ -894,7 +908,7 @@ function harpCompile() {
   } else {
     gutil.log(`Harp full site compile, including API docs for all languages.`);
     if (skipLangs)
-      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` + 
+      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` +
       `site has not been built yet or some API HTML files are missing.`);
   }
 
@@ -1130,6 +1144,14 @@ function getDartExampleWebPaths(basePath) {
   return paths;
 }
 
+function getUnitTestingPaths(basePath) {
+  var examples = getPaths(basePath, _exampleConfigFilename, true);
+  return examples.filter((example) => {
+    var exampleConfig = fs.readJsonSync(`${example}/${_exampleConfigFilename}`, {throws: false});
+    return exampleConfig && !!exampleConfig.unittesting;
+  });
+}
+
 function getPaths(basePath, filename, includeBase) {
   var filenames = getFilenames(basePath, filename, includeBase);
   var paths = filenames.map(function(fileName) {
@@ -1164,7 +1186,7 @@ function watchAndSync(options, cb) {
 
   // When using the --focus=name flag, only **/name/**/*.* example files and
   // **/name.jade files are watched. This is useful for performance reasons.
-  // Example: gulp serve-and-sync --focus=architecture 
+  // Example: gulp serve-and-sync --focus=architecture
   var focus = argv.focus;
 
   if (options.devGuide) {
