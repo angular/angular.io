@@ -1,15 +1,14 @@
 import {
-  describe,
-  beforeEachProviders,
-  it,
+  addProviders,
   inject,
-  expect
 } from '@angular/core/testing';
 import { CheckmarkPipe } from './checkmark.pipe';
 
 describe('CheckmarkPipe', function() {
 
-  beforeEachProviders(() => [CheckmarkPipe]);
+  beforeEach(() => {
+    addProviders([CheckmarkPipe]);
+  });
 
   it('should convert boolean values to unicode checkmark or cross',
     inject([CheckmarkPipe], function(checkmarkPipe: CheckmarkPipe) {

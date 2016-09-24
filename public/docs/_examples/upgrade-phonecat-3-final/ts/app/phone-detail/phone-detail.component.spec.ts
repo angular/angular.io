@@ -1,17 +1,14 @@
 // #docregion
 import { HTTP_PROVIDERS } from '@angular/http';
-// #docregion routeparams
-import { RouteParams } from '@angular/router-deprecated';
+// #docregion activatedroute
+import { ActivatedRoute } from '@angular/router';
 
-// #enddocregion routeparams
+// #enddocregion activatedroute
 import { Observable } from 'rxjs/Rx';
 
 import {
-  describe,
-  beforeEachProviders,
+  addProviders,
   inject,
-  it,
-  expect
 } from '@angular/core/testing';
 import {
   TestComponentBuilder,
@@ -35,16 +32,26 @@ class MockPhone extends Phone {
   }
 }
 
+// #docregion activatedroute
+
+class ActivatedRouteMock {
+  constructor(public snapshot: any) {}
+}
+
+// #enddocregion activatedroute
+
 describe('PhoneDetailComponent', () => {
 
-  // #docregion routeparams
+  // #docregion activatedroute
 
-  beforeEachProviders(() => [
-    { provide: Phone, useClass: MockPhone },
-    { provide: RouteParams, useValue: new RouteParams({phoneId: 'xyz'})},
-    HTTP_PROVIDERS
-  ]);
-  // #enddocregion routeparams
+  beforeEach(() => {
+    addProviders([
+      { provide: Phone, useClass: MockPhone },
+      { provide: ActivatedRoute, useValue: new ActivatedRouteMock({ params: { 'phoneId': 1 } }) },
+      HTTP_PROVIDERS
+    ]);
+  });
+  // #enddocregion activatedroute
 
   it('should fetch phone detail',
       inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
@@ -52,7 +59,7 @@ describe('PhoneDetailComponent', () => {
         .then((fixture: ComponentFixture<PhoneDetailComponent>) => {
       fixture.detectChanges();
       let compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('h1')).toHaveText(xyzPhoneData().name);
+      expect(compiled.querySelector('h1').textContent).toContain(xyzPhoneData().name);
     });
   }));
 
