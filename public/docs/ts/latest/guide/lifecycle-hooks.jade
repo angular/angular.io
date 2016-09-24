@@ -5,30 +5,37 @@ block includes
 
 :marked
   # Component Lifecycle
-  A Component has a lifecycle managed by Angular itself. Angular creates it, renders it, creates and renders its children,
+figure
+  img(src="/resources/images/devguide/lifecycle-hooks/hooks-in-sequence.png" alt="Us" align="left" style="width:200px; margin-left:-40px;margin-right:30px" )
+:marked
+  A component has a lifecycle managed by Angular itself. 
+  
+  Angular creates it, renders it, creates and renders its children,
   checks it when its data-bound properties change, and destroys it before removing it from the DOM.
 
-  Angular offers **component lifecycle hooks**
-  that provide visibility into these key moments and the ability to act when they occur.
+  Angular offers **lifecycle hooks**
+  that provide visibility into these key life moments and the ability to act when they occur.
 
+  A directive has the same set of lifecycle hooks, minus the hooks that are specific to component content and views.
+  <br clear="all">
   ## Table of Contents
-  * [The lifecycle hooks](#hooks-overview)
-    * [_What_ they are](#hook-descriptions)
-    * [_When_ they are called](#hook-sequence)
+    * [Overview](#hooks-overview)
+    <br><br>
+    * [Each hook's purpose and timing](#hooks-purpose-timing)
 +ifDocsFor('ts|js')
   :marked
     * [Interfaces are optional (technically)](#interface-optional)
+  :marked
+    * [Other Angular lifecycle hooks](#other-lifecycle-hooks)
+    <br><br>
+    * [The lifecycle sample](#the-sample)
+      * [All](#peek-a-boo)
+      * [Spying OnInit and OnDestroy](#spy)
+      * [OnChanges](#onchanges)
+      * [DoCheck](#docheck)
+      * [AfterViewInit and AfterViewChecked](#afterview)
+      * [AfterContentInit and AfterContentChecked](#aftercontent)
 :marked
-  * [Other Angular lifecycle hooks](#other-lifecycle-hooks)
-  <br><br>
-  * [The lifecycle sample](#the-sample)
-    * [All](#peek-a-boo)
-    * [Spying OnInit and OnDestroy](#spy)
-    * [OnChanges](#onchanges)
-    * [DoCheck](#docheck)
-    * [AfterViewInit and AfterViewChecked](#afterview)
-    * [AfterContentInit and AfterContentChecked](#aftercontent)
-
   Try the <live-example></live-example>.
 
 a#hooks-overview
@@ -48,75 +55,7 @@ a#hooks-overview
   No directive or component will implement all of the lifecycle hooks and some of the hooks only make sense for components.
   Angular only calls a directive/component hook method *if it is defined*.
 
-a#hook-descriptions
-:marked
-  Here are descriptions of the component lifecycle hook methods followed by a chart describing [when they are called](#hook-sequence):
-
-  ### Directives and Components
-
-table(width="100%")
-  col(width="20%")
-  col(width="80%")
-  tr
-    th Hook
-    th Purpose
-  tr(style=top)
-    td ngOnInit
-    td
-      :marked
-        Initialize the directive/component after Angular initializes the data-bound input properties.
-  tr(style=top)
-    td ngOnChanges
-    td
-      :marked
-        Respond after Angular sets a data-bound input property.
-        The method receives a `changes` object of current and previous values.
-  tr(style=top)
-    td ngDoCheck
-    td
-      :marked
-        Detect and act upon changes that Angular can't or won't
-        detect on its own. Called every change detection run.
-  tr(style=top)
-    td ngOnDestroy
-    td
-      :marked
-        Cleanup just before Angular destroys the directive/component.
-        Unsubscribe observables and detach event handlers to avoid memory leaks.
-
-:marked
-  ### Components only
-
-table(width="100%")
-  col(width="20%")
-  col(width="80%")
-  tr
-    th Hook
-    th Purpose
-  tr(style=top)
-    td ngAfterContentInit
-    td
-      :marked
-        After Angular projects external content into its view.
-  tr(style=top)
-    td ngAfterContentChecked
-    td
-      :marked
-        After Angular checks the bindings of the external content that it projected into its view.
-  tr(style=top)
-    td ngAfterViewInit
-    td
-      :marked
-        After Angular creates the component's view(s).
-  tr(style=top)
-    td ngAfterViewChecked
-    td
-      :marked
-        After Angular checks the bindings of the component's view(s).
-:marked
-  Angular does not call the hook methods in this order.
-
-a#hook-sequence
+a#hooks-purpose-timing
 .l-main-section
 :marked
   ## Lifecycle sequence
@@ -127,47 +66,82 @@ table(width="100%")
   col(width="80%")
   tr
     th Hook
-    th Timing
+    th Purpose and Timing
+
   tr(style=top)
     td ngOnChanges
     td
       :marked
-        before `ngOnInit` and when a data-bound input property value changes.
+        Respond when Angular (re)sets data-bound input properties.
+        The method receives a `SimpleChanges` object of current and previous property values.
+        
+        Called before `ngOnInit` and whenever one or more data-bound input properties change.
+
   tr(style=top)
     td ngOnInit
     td
       :marked
-        after the first `ngOnChanges`.
+        Initialize the directive/component after Angular first displays the data-bound properties
+        and sets the directive/component's input properties.
+        
+        Called _once_, after the _first_ `ngOnChanges`. 
+
   tr(style=top)
     td ngDoCheck
     td
       :marked
-        during every Angular change detection cycle.
+        Detect and act upon changes that Angular can't or won't detect on its own. 
+        
+        Called during every change detection run, immediately after `ngOnChanges` and `ngOnInit`.
+
   tr(style=top)
     td ngAfterContentInit
     td
       :marked
-        after projecting content into the component.
+        Respond after Angular projects external content into the component's view.
+
+        Called _once_ after the first `NgDoCheck`.
+
+        _A component-only hook_.
+
   tr(style=top)
     td ngAfterContentChecked
     td
       :marked
-         after every check of projected component content.
+        Respond after Angular checks the content projected into the component.
+
+        Called after the `ngAfterContentInit` and every subsequent `NgDoCheck`.
+
+        _A component-only hook_.
+
   tr(style=top)
     td ngAfterViewInit
     td
       :marked
-        after initializing the component's views and child views.
+        Respond after Angular initializes the component's views and child views.
+
+        Called _once_ after the first `ngAfterContentChecked`.
+
+        _A component-only hook_.
+
   tr(style=top)
     td ngAfterViewChecked
     td
       :marked
-         after every check of the component's views and child views.
+        Respond after Angular checks the component's views and child views.
+
+        Called after the `ngAfterViewInit` and every subsequent `ngAfterContentChecked`.
+
+        _A component-only hook_.
+
   tr(style=top)
     td ngOnDestroy
     td
       :marked
-         just before Angular destroys the directive/component.
+        Cleanup just before Angular destroys the directive/component.
+        Unsubscribe observables and detach event handlers to avoid memory leaks.      
+
+        Called _just before_ Angular destroys the directive/component.
 
 +ifDocsFor('ts|js')
   a#interface-optional
