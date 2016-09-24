@@ -21,6 +21,15 @@
 *
 *   <live-example embedded plnkr="minimal"></live-example>
 *   // ~/resources/live-examples/{chapter}/ts/minimal.eplnkr.html
+*
+*   <live-example api="core/animation/ts/dsl"></live-example>
+*   // ~/resources/api-live-examples/core/animation/ts/dsl/plnkr.html
+*
+*   <live-example api="core/animation/ts/dsl" embedded></live-example>
+*   // ~/resources/api-live-examples/core/animation/ts/dsl/eplnkr.html
+*
+*   <live-example api="core/animation/ts/dsl" noimg></live-example>
+*   // ~/resources/api-live-examples/core/animation/ts/dsl/plnkr.html
 */
 angularIO.directive('liveExample', ['$location', function ($location) {
 
@@ -30,7 +39,18 @@ angularIO.directive('liveExample', ['$location', function ($location) {
     return '<a' + attr +  '>' + text + '</a>';
   }
 
-  function span(text) { return '<span>' + text + '</span>'; }
+  function embeddedNoImgTemplate(src) {
+    return '<div ng-if="embeddedShow">' +
+        '<div class="api-live-example" ng-click="toggleEmbedded()" ng-if="embeddedShow">' +
+          '<img src="/resources/images/icons/ic_keyboard_arrow_down_black_24px.svg"><span>Live example</span>' +
+        '</div>' +
+        '<iframe frameborder="0" width="100%" height="100%" src="' + src + '"></iframe>' +
+      '</div>' +
+      '<div class="api-live-example" ng-click="toggleEmbedded()" ng-if="!embeddedShow">' +
+        '<img src="/resources/images/icons/ic_keyboard_arrow_right_black_24px.svg"><span>Live example</span>' +
+      '</div>'
+
+  }
 
   function embeddedTemplate(src, img) {
     return '<div ng-if="embeddedShow">' +
@@ -38,6 +58,24 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       '</div>' +
       '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="' + img + '" alt="plunker">';
   }
+
+  function getHref(langOrApi, example, plnkr) {
+    var href;
+    switch (langOrApi) {
+      case 'ts':
+      case 'js':
+        href = '/resources/live-examples/' + example + '/' + langOrApi + '/' + plnkr + '.html';
+        break;
+      case 'dart':
+        href = 'http://angular-examples.github.io/' + example;
+        break;
+      case 'api':
+        href = '/resources/api-live-examples/' + example + '/' + plnkr + '.html';
+    }
+    return href;
+  }
+
+  function span(text) { return '<span>' + text + '</span>'; }
 
   return {
     restrict: 'E',
@@ -47,35 +85,41 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var embedded = attrs.hasOwnProperty('embedded');
       var plnkr = embedded ? 'eplnkr' : 'plnkr';
-      var href, template;
+      var href, template, exLang;
       var imageBase  = '/resources/images/';
       var defaultImg = 'plunker/placeholder.png';
-
+      var noImg = angular.isDefined(attrs.noimg);
+      var isApi = !!attrs.api;
+      console.log(noImg);
       if (attrs.plnkr) {
         plnkr = attrs.plnkr + '.' + plnkr;
       }
 
+      if (isApi) {
+        ex = attrs.api;
+        exLang = 'api';
+      } else {
+        exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
+      }
+
       var isForDart = attrs.lang === 'dart' || NgIoUtil.isDoc($location, 'dart');
       var isForJs = attrs.lang === 'js' || NgIoUtil.isDoc($location, 'js');
-      var exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
 
       if (embedded && !isForDart) {
-        href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html';
+        href = getHref(exLang, ex, plnkr);
         img = imageBase + (attrs.img || defaultImg);
-        template = embeddedTemplate(href, img);
+        template = noImg ? embeddedNoImgTemplate(href) : embeddedTemplate(href, img);
       } else {
-        var href = isForDart
-          ? 'http://angular-examples.github.io/' + ex
-          : '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html'
+        href = getHref(exLang, ex, plnkr);
 
         // Link to live example.
-        var template = a(text, { href: href, target: '_blank' });
+        template = a(text, { href: href, target: '_blank' });
 
         // The hosted example and sources are in different locations for Dart.
         // Also show link to sources for Dart, unless noSource is specified.
         if (isForDart && !attrs.hasOwnProperty('nosource')) {
           var srcText = attrs.srcText || 'view source';
-          var srcHref = 'http://github.com/angular-examples/' + ex;
+          href = getHref('dart', ex);
           template = span(template + ' (' + a(srcText, { href: srcHref, target: '_blank' }) + ')');
         }
       }
