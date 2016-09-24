@@ -11,7 +11,7 @@ export class AppComponent {
   messages: string[] = [];
   messageMapping: {[k: string]: string} = {
     '=0': 'No messages.',
-    '=1': 'One message.',
+    'one': 'One message.',
     'other': '# messages.'
   };
   // #enddocregion i18n-plural-pipe
