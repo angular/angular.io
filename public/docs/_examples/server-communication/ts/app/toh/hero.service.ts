@@ -15,13 +15,13 @@ import { Observable }     from 'rxjs/Observable';
 
 @Injectable()
 export class HeroService {
-  // #docregion ctor
-  constructor (private http: Http) {}
-  // #enddocregion ctor
-
   // #docregion endpoint
   private heroesUrl = 'app/heroes';  // URL to web API
   // #enddocregion endpoint
+
+  // #docregion ctor
+  constructor (private http: Http) {}
+  // #enddocregion ctor
 
   // #docregion methods, error-handling, http-get
   getHeroes (): Observable<Hero[]> {

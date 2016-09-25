@@ -37,10 +37,10 @@
       '@angular/upgrade': 'npm:@angular/upgrade/bundles/upgrade.umd.js',
 
       // other libraries
-      'rxjs':                       'npm:rxjs',
-      'angular2-in-memory-web-api': 'npm:angular2-in-memory-web-api',
-      'ts':                         'npm:plugin-typescript@4.0.10/lib/plugin.js',
-      'typescript':                 'npm:typescript@2.0.2/lib/typescript.js',
+      'rxjs':                      'npm:rxjs',
+      'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
+      'ts':                        'npm:plugin-typescript@4.0.10/lib/plugin.js',
+      'typescript':                'npm:typescript@2.0.2/lib/typescript.js',
 
     },
     // packages tells the System loader how to load when no filename and/or no extension
@@ -52,7 +52,7 @@
       rxjs: {
         defaultExtension: 'js'
       },
-      'angular2-in-memory-web-api': {
+      'angular-in-memory-web-api': {
         main: './index.js',
         defaultExtension: 'js'
       }
