@@ -9,7 +9,7 @@ import { LocationStrategy,
 import { NgModule }                     from '@angular/core';
 
 import { HeroData }                     from './hero-data';
-import { InMemoryWebApiModule }         from 'angular2-in-memory-web-api';
+import { InMemoryWebApiModule }         from 'angular-in-memory-web-api';
 
 
 import { AppComponent }                 from './app.component';
