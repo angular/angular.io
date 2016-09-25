@@ -706,15 +706,14 @@ a(href="#top").to-top Back to top
 :marked
   ### Synchronous tests
   The first two tests are synchronous. 
-  Neither test can prove that a value from the service will be displayed.
-  
-  Thanks to the spy, the second test verifies that `getQuote` is called. 
-  But the quote itself has not arrived, despite the fact that the spy returns a resolved promise.
-  
-  This test must wait at least one full turn of the JavaScript engine, a least one "tick", before the
-  value becomes available. By that time, the test runner has moved on to the next test in the suite.
+  Thanks to the spy, they verify that `getQuote` is called _after_
+  the first change detection cycle during which Angular calls `ngOnInit`. 
 
-  The test must become an "async test" ... like the third test
+  Neither test can prove that a value from the service is be displayed.
+  The quote itself has not arrived, despite the fact that the spy returns a resolved promise.
+  
+  This test must wait at least one full turn of the JavaScript engine before the
+  value becomes available. The test must become _asynchronous_.
 
 #async
 :marked
@@ -724,10 +723,9 @@ a(href="#top").to-top Back to top
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'async-test', 'app/shared/twain.component.spec.ts (async test)')(format='.')
 :marked
   The `async` function is one of the Angular testing utilities. 
+  It simplifies coding of asynchronous tests by arranging for the tester's code to run in a special _async test zone_.
 
-  It simplifyies coding of asynchronous tests by arranging for the tester's code to run in a special _async test zone_.
-
-  The `async` function _takes_ a parameterless function and _returns_ a parameterless function
+  The `async` function _takes_ a parameterless function and _returns_ a function
   which becomes the argument to the  Jasmine `it` call. 
 
   The body of the `async` argument looks much like the body of a normal `it` argument.
@@ -736,17 +734,14 @@ a(href="#top").to-top Back to top
   there is no `done` function to call as there is in standard Jasmine asynchronous tests.
 
   Some functions called within a test (such as `fixture.whenStable`) continue to reveal their asynchronous behavior.
-  Consider also the [_fakeAsync_](#fake-async) alternative which affords a more linear coding experience.
+.l-sub-section
+  :marked
+    The `fakeAsync` alternative, [covered below](#fake-async), removes this artifact and affords a more linear coding experience.
 
 #when-stable
 :marked
   ## _whenStable_
-  The test must wait for the `getQuote` promise to resolve. 
- 
-  The `getQuote` promise promise resolves in the next turn of the JavaScript engine, thanks to the spy.
-  But a different test implementation of  `getQuote` could take longer.
-  An integration test might call the _real_ `getQuote`, resulting in an XHR request
-  that took many seconds to respond.
+  The test must wait for the `getQuote` promise to resolve in the next turn of the JavaScript engine.
 
   This test has no direct access to the promise returned by the call to `testService.getQuote` 
   which is private and inaccessible inside `TwainComponent`.
@@ -755,10 +750,10 @@ a(href="#top").to-top Back to top
   which intercepts all promises issued within the _async_ method call.
   
   The `ComponentFixture.whenStable` method returns its own promise which resolves when the `getQuote` promise completes.
-  In fact, the _whenStable_ promise resolves when _all pending asynchronous activities_ complete ... the definition of "stable".
+  In fact, the _whenStable_ promise resolves when _all pending asynchronous activities within this test_ complete ... the definition of "stable".
 
-  Then the testing continues. 
-  The test kicks off another round of change detection (`fixture.detechChanges`) which tells Angular to update the DOM with the quote.
+  Then the test resumes and kicks off another round of change detection (`fixture.detectChanges`)
+  which tells Angular to update the DOM with the quote.
   The `getQuote` helper method extracts the display element text and the expectation confirms that the text matches the test quote.
 
 #fakeAsync
@@ -772,23 +767,23 @@ a(href="#top").to-top Back to top
   Notice that `fakeAsync` replaces `async` as the `it` argument.
   The `fakeAsync` function is another of the Angular testing utilities.
 
-  Like [async](#), it _takes_ a parameterless function and _returns_ a parameterless function
-  which becomes the argument to the  Jasmine `it` call. 
+  Like [async](#async), it _takes_ a parameterless function and _returns_ a function
+  that becomes the argument to the  Jasmine `it` call. 
 
   The `fakeAsync` function enables a linear coding style by running the test body in a special _fakeAsync test zone_.
 
   The principle advantage of `fakeAsync` over `async` is that the test appears to be synchronous.
-  There are no promises at all. 
-  No `then(...)` chains to disrupt the visible flow of control.
+  There is no `then(...)` to disrupt the visible flow of control.
+  The promise-returning `fixture.whenStable` is gone, replaced by `tick()`.
 
-  There are limitations. For example, you cannot make an XHR call from within a `fakeAsync`.
+.l-sub-section
+  :marked
+    There _are_ limitations. For example, you cannot make an XHR call from within a `fakeAsync`.
 
 #tick
 #tick-first-look
 :marked
   ## The _tick_ function
-  Compare the third and fourth tests. Notice that `fixture.whenStable` is gone, replaced by `tick()`.
-
   The `tick` function is one of the Angular testing utilities and a companion to `fakeAsync`.
   It can only be called within a `fakeAsync` body.
 
@@ -858,25 +853,26 @@ a(href="#top").to-top Back to top
 :marked
   ## The _async_ function in _beforeEach_
 
-  Notice the `async` call in the `beforeEach`. 
+  Notice the `async` call in the `beforeEach`, made necessary by the asynchronous `TestBed.compileComponents` method.
   The `async` function arranges for the tester's code to run in a special _async test zone_
   that hides the mechanics of asynchronous execution, just as it does when passed to an [_it_ test)(#async).
 
 #compile-components
 :marked
   ## _compileComponents_ 
-  In this example, `Testbed.compileComponents` compiles one component, the `DashboardComponent`. 
+  In this example, `TestBed.compileComponents` compiles one component, the `DashboardComponent`. 
   It's the only declared component in this testing module.
 
   Tests later in this chapter have more declared components and some of them import application
   modules that declare yet more components.
   Some or all of these components could have external templates and css files.
-  `TestBed.compileComponents` compiles them all asynchonously at one time.
+  `TestBed.compileComponents` compiles them all asynchronously at one time.
   
   The `compileComponents` method returns a promise so you can perform additional tasks _after_ it finishes.
+  The promise isn't needed here.
 
   ### _compileComponents_ closes configuration
-  After `compileComponents` runs, the current `TestBed` instance is closed to further configuration.
+  Calling `compileComponents` closes the current `TestBed` instance is further configuration.
   You cannot call any more `TestBed` configuration methods, not `configureTestModule` 
   nor any of the `override...` methods. The `TestBed` throws an error if you try.
 
@@ -928,7 +924,7 @@ a(href="#top").to-top Back to top
   The router seems particularly challenging.
 .l-sub-section
   :marked
-    The [discussion below](#routed-component) covers testing components that requre the router.
+    The [discussion below](#routed-component) covers testing components that require the router.
 :marked
   The immediate goal is to test the `DashboardHeroComponent`, not the `DashboardComponent`, and there's no need
   to work hard unnecessarily. Let's try the second and third options.
