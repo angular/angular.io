@@ -2,8 +2,8 @@ include ../_util-fns
 
 :marked
   With internationalization, also known as i18n, we can display our website in multiple languages.
-  Angular provides tools to export translation files that translators and work on.
-  Those finished translations can then be loaded alongside with your application to make it
+  Angular provides tools to export translation files that translators can work on.
+  Those finished translations can then be merged with your application to make it
   available to multiple audiences.
   
   <a id="top"></a>
@@ -13,9 +13,9 @@ include ../_util-fns
     * [The i18n attribute](#the-i18n-attribute)
     * [Extract messages with ng-xi18n](#ng-xi18n)
     * [Translate messages](#translate)
-    * [Loading translations](#loading-translations)
-      * [Using JiT](#use-jit)
-      * [Using AoT](#use-aot)
+    * [Merging translations](#merging-translations)
+      * [JiT configuration](#jit-configuration)
+      * [AoT configuration](#aot-configuration)
 
 :marked
   **Try it out**. Here's a link to a <live-example></live-example> of the JiT application.      
@@ -29,10 +29,10 @@ a(id="angular-i18n")
   Angular allows us to replace text in our application with the translation of our choice. 
   
   We would usually start with a working application that already has text in a single language. 
-  We then we extract from our app a translation file that translators can load on their translation software to work on the translation.
+  We then extract from our app a translation file that translators can open on their translation software to work on the translation.
   Finally we use their translation on our app to override the original text.
 
-  We can then build the application for each language we need, and deploy each translated application to it's own server.  
+  We can then build the application for each language we need, and deploy each translated application separately.  
 
   
 a(id="the-i18n-attribute")
@@ -40,7 +40,7 @@ a(id="the-i18n-attribute")
 :marked
   ### i18n attribute
   
-  The `i18n` attribute is what tells Angular where it should insert the translations.
+  The `i18n` attribute is a market for translatable content.
 
   We'll start with a simple greeting in a `<h1>` tag:
 
@@ -77,7 +77,7 @@ a(id="ng-xi18n")
   
   Now that our template has been updated to support i18n translations, we can use the `ng-xi18n` messages extractor.
   
-  This CLI tool is based on `ngc`, and is available in the `@angular/compiler-cli` npm package.
+  This CLI tool is based on `ngc` and is available in the `@angular/compiler-cli` npm package.
   You can read more about `ngc` on the [AoT cookbook](../cookbook/aot-compiler.html).
   
   To use it, the first thing that we have to do is to install it and it's `platform-server` peer dependency:
@@ -115,7 +115,7 @@ a(id="translate")
   translators to edit, using one of the many editors that support `xlf`. 
   You can find a list of editors [here](https://en.wikipedia.org/wiki/XLIFF#Editors).
   
-  For the sake of simplicity, we will make our French by editing the translation file manually in our text editor.
+  For the sake of simplicity, we will make our French translation by editing the translation file manually in our text editor.
 
   Make a copy of `messages.xlf` called `messages.fr.xlf`, open it and find the following section:
 
@@ -130,6 +130,7 @@ a(id="translate")
 
   This XML element represents the translation of our header tag. 
   You might have a different string in `id="af2ccf4b5dba59616e92cf1531505af02da8f6d2"`, this is normal.
+  It depends on the content of the message and it's meaning, so if you change either it will also change.
 
   Replace `<target/>` with `<target>Bonjour i18n!</target>` to add our French translation.
   That's all for our french translation! 
@@ -142,10 +143,10 @@ a(id="translate")
     the messages extractor.
 
 
-a(id="loading-translations")
+a(id="merging-translations")
 .l-main-section
 :marked
-  ## Loading translations
+  ## Merging translations
 
   Now that we have a localized file, we can tell Angular to use it for all of our elements that have the `i18n` marker.
   
@@ -159,8 +160,8 @@ a(id="loading-translations")
 
   In both approaches the general idea is the same. we have to give angular these three things:
     * Translations file
-    * Translation format 
-    * Locale ID
+    * Translation file format 
+    * Locale ID (`en-US` for instance)
 
   Our untranslated app now looks like this:
 
@@ -178,15 +179,15 @@ a(id="loading-translations")
   messages.fr.xlf
 `)
 
-a(id="use-jit")
+a(id="jit-configuration")
 .l-main-section
 :marked
-  ### Load translations with the JiT approach
+  ### Merge translations with the JiT approach
   
   When we use JiT, we'll provide those three things when bootstrapping out `AppModule`.
 
   We have to provide three values: `TRANSLATIONS`, `TRANSLATIONS_FORMAT` and `LOCALE_ID`.
-    * `TRANSLATIONS` is a string containing the content of our `messages` file for the chosen localization.
+    * `TRANSLATIONS` is a string containing the content of our `messages` file for the chosen locale.
     * `TRANSLATIONS_FORMAT` is either `xlf`, `xlif` or `xtb` depending on the format of our `messages` file.
     * `LOCALE_ID` is a string representing the locale of our chosen language.
 
@@ -225,7 +226,7 @@ a(id="use-jit")
   That's it, our application is now internationalized! Angular will replace the content of our elements using
   the `i18n` attribute with the french translations that we provided at bootstrap.
 
-  Your JiT app should now look just like the app at the end of [Loading translations](#loading-translations)
+  Your JiT app should now look just like the app at the end of [Merging translations](#merging-translations)
   except for these two files:
 
 +makeTabs(`
@@ -236,13 +237,13 @@ a(id="use-jit")
     app/messages.fr.ts
   `)
 
-a(id="use-aot")
+a(id="aot-configuration")
 .l-main-section
 :marked
-  ### Use translations with the AoT approach
+  ### Merge translations with the AoT approach
   
   Using the AoT approach requires a little bit of setup to make the `ngc` compiler work. Start with 
-  the files shown at the end of [Loading translations](#loading-translations) and refer to the
+  the files shown at the end of [Merging translations](#merging-translations) and refer to the
   [AoT cookbook](../cookbook/aot-compiler.html) to make it AoT ready.
   
   Once our project is AoT-ready, we will use `ngc` to compile a version of our application per locale. To do that
@@ -256,6 +257,6 @@ code-example(language="sh" class="code-shell").
   
 :marked
   That's all that we have to do! The `ngc` compiler will replace the content of our elements that have
-  the i18n attribute  with our translations in the AoT precompiled files.
+  the i18n attribute with our translations in the AoT generated templates.
 
 

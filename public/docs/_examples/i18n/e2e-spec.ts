@@ -1,6 +1,6 @@
 /// <reference path='../_protractor/e2e.d.ts' />
 'use strict';
-describe('i18n E2E Tests', function () {
+describe('i18n E2E Tests', () => {
 
   beforeEach(function () {
     browser.get('');
