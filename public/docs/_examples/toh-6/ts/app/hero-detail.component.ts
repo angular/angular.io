@@ -1,6 +1,7 @@
 // #docregion
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit }      from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
+import { Location }               from '@angular/common';
 
 import { Hero }        from './hero';
 import { HeroService } from './hero.service';
@@ -16,8 +17,9 @@ export class HeroDetailComponent implements OnInit {
 
   constructor(
     private heroService: HeroService,
-    private route: ActivatedRoute) {
-  }
+    private route: ActivatedRoute,
+    private location: Location
+  ) {}
 
   ngOnInit(): void {
     this.route.params.forEach((params: Params) => {
@@ -30,11 +32,11 @@ export class HeroDetailComponent implements OnInit {
   // #docregion save
   save(): void {
     this.heroService.update(this.hero)
-      .then(this.goBack);
+      .then(() => this.goBack());
   }
   // #enddocregion save
 
   goBack(): void {
-    window.history.back();
+    this.location.back();
   }
 }
