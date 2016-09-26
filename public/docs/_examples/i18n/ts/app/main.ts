@@ -3,7 +3,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { TRANSLATIONS, TRANSLATIONS_FORMAT, LOCALE_ID } from '@angular/core';
 
 import { AppModule } from './app.module';
-import { TRANSLATION } from './i18n/messages.fr';
+import { TRANSLATION } from './messages.fr';
 
 // Compile using french translations
 const platform = platformBrowserDynamic();
