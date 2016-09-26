@@ -8,8 +8,9 @@ import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
 // #docregion initialclass
 @Component({
+  moduleId: module.id,
   selector: 'phone-detail',
-  templateUrl: 'phone-detail/phone-detail.template.html',
+  templateUrl: 'phone-detail.template.html',
   // #enddocregion initialclass
   pipes: [ CheckmarkPipe ]
   // #docregion initialclass

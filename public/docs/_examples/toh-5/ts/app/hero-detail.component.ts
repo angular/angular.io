@@ -7,11 +7,12 @@ import { Hero } from './hero';
 import { HeroService } from './hero.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-hero-detail',
   // #docregion templateUrl
-  templateUrl: 'app/hero-detail.component.html',
+  templateUrl: 'hero-detail.component.html',
   // #enddocregion templateUrl, v2
-  styleUrls: ['app/hero-detail.component.css']
+  styleUrls: [ 'hero-detail.component.css' ]
   // #docregion v2
 })
 // #docregion implement

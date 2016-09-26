@@ -5,9 +5,10 @@ import { Router }            from '@angular/router';
 import { Hero, HeroService } from '../model';
 
 @Component({
+  moduleId: module.id,
   selector: 'app-dashboard',
-  templateUrl: 'app/dashboard/dashboard.component.html',
-  styleUrls:  ['app/dashboard/dashboard.component.css']
+  templateUrl: 'dashboard.component.html',
+  styleUrls: [ 'dashboard.component.css' ]
 })
 export class DashboardComponent implements OnInit {
 

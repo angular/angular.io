@@ -8,7 +8,7 @@ import { UserService }    from '../user.service';
   moduleId: module.id,
   selector: 'app-contact',
   templateUrl: 'contact.component.html',
-  styleUrls: ['contact.component.css']
+  styleUrls: [ 'contact.component.css' ]
 })
 export class ContactComponent implements OnInit {
   contact:  Contact;

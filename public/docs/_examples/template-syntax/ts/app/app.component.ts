@@ -17,8 +17,9 @@ export enum Color {Red, Green, Blue};
  * Giant grab bag of stuff to drive the chapter
  */
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app/app.component.html'
+  templateUrl: 'app.component.html'
 })
 export class AppComponent implements AfterViewInit, OnInit {
 

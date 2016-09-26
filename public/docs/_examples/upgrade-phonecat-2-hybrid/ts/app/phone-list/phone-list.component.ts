@@ -4,8 +4,9 @@ import { Component } from '@angular/core';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'phone-list',
-  templateUrl: 'phone-list/phone-list.template.html'
+  templateUrl: 'phone-list.template.html'
 })
 export class PhoneListComponent {
   phones: PhoneData[];

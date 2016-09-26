@@ -9,12 +9,13 @@ import { Hero } from './hero';
 import { HeroService } from './hero.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-dashboard',
   // #docregion templateUrl
-  templateUrl: 'app/dashboard.component.html',
+  templateUrl: 'dashboard.component.html',
   // #enddocregion templateUrl
   // #docregion css
-  styleUrls: ['app/dashboard.component.css']
+  styleUrls: [ 'dashboard.component.css' ]
   // #enddocregion css
 })
 // #docregion component

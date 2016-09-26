@@ -272,6 +272,7 @@ export class ExternalTemplateComponent implements OnInit {
 export class InnerCompWithExternalTemplateComponent { }
 
 @Component({
+  moduleId: module.id,
   selector: 'bad-template-comp',
   templateUrl: 'non-existant.html'
 })
