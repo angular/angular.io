@@ -7,10 +7,11 @@ import { UserContextService } from './user-context.service';
 import { UserService }        from './user.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app/app.component.html',
+  templateUrl: 'app.component.html',
 // #docregion providers
-  providers: [LoggerService, UserContextService, UserService]
+  providers: [ LoggerService, UserContextService, UserService ]
 // #enddocregion providers
 })
 export class AppComponent {

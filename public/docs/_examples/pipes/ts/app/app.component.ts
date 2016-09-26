@@ -2,8 +2,9 @@
 import { Component } from '@angular/core';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app/app.component.html'
+  templateUrl: 'app.component.html'
 })
 export class AppComponent {
   birthday = new Date(1988, 3, 15); // April 15, 1988

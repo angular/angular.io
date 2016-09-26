@@ -5,9 +5,10 @@ import { Hero } from '../model';
 
 // #docregion component
 @Component({
+  moduleId: module.id,
   selector:    'dashboard-hero',
-  templateUrl: 'app/dashboard/dashboard-hero.component.html',
-  styleUrls:  ['app/dashboard/dashboard-hero.component.css']
+  templateUrl: 'dashboard-hero.component.html',
+  styleUrls: [ 'dashboard-hero.component.css' ]
 })
 export class DashboardHeroComponent {
   @Input() hero: Hero;

@@ -6,8 +6,9 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
 @Component({
+  moduleId: module.id,
   selector: 'phone-detail',
-  templateUrl: 'phone-detail/phone-detail.template.html',
+  templateUrl: 'phone-detail.template.html',
   pipes: [ CheckmarkPipe ]
 })
 export class PhoneDetailComponent {

@@ -7,8 +7,9 @@ import { HeroService } from './hero.service';
 // #enddocregion imports
 
 @Component({
+  moduleId: module.id,
   selector: 'my-dashboard',
-  templateUrl: 'app/dashboard.component.html'
+  templateUrl: 'dashboard.component.html'
 })
 // #docregion component
 export class DashboardComponent implements OnInit {

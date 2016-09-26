@@ -5,8 +5,9 @@ import { RouterLink } from '@angular/router-deprecated';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'phone-list',
-  templateUrl: 'phone-list/phone-list.template.html',
+  templateUrl: 'phone-list.template.html',
   directives: [ RouterLink ]
 })
 // #enddocregion top
