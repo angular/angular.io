@@ -77,13 +77,6 @@ describe('Style Guide', function () {
     expect(div.getText()).toBe('This is heroes component');
   });
 
-  it('04-14', function () {
-    browser.get('#/04-14');
-
-    let h2 = element(by.tagName('sg-app > toh-heroes > div > h2'));
-    expect(h2.getText()).toBe('My Heroes');
-  });
-
   it('05-02', function () {
     browser.get('#/05-02');
 

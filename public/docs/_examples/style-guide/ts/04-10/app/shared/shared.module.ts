@@ -1,20 +1,24 @@
+// #docregion
 import { NgModule }      from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule }  from '@angular/common';
+import { FormsModule }   from '@angular/forms';
 
-import { FilterTextComponent,
-         InitCapsPipe,
-         ModalComponent,
-         NavComponent,
-         SpinnerComponent } from './';
-
-const declarations = [
-    FilterTextComponent, InitCapsPipe, ModalComponent,
-    NavComponent, SpinnerComponent,
-];
+import { FilterTextComponent } from './filter-text/filter-text.component';
+import { FilterTextService }   from './filter-text/filter-text.service';
+import { InitCapsPipe }        from './init-caps.pipe';
 
 @NgModule({
-  imports: [ BrowserModule ],
-  declarations: declarations,
-  exports: declarations
+  imports: [CommonModule, FormsModule],
+  declarations: [
+    FilterTextComponent,
+    InitCapsPipe
+  ],
+  providers: [FilterTextService],
+  exports: [
+    CommonModule,
+    FormsModule,
+    FilterTextComponent,
+    InitCapsPipe
+  ]
 })
 export class SharedModule { }

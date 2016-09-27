@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { ValidatorDirective } from './shared';
+import { ValidatorDirective, Validator2Directive } from './shared';
 
 @NgModule({
   imports: [
@@ -10,7 +10,7 @@ import { ValidatorDirective } from './shared';
   ],
   declarations: [
     AppComponent,
-    ValidatorDirective
+    ValidatorDirective, Validator2Directive
   ],
   exports: [ AppComponent ]
 })

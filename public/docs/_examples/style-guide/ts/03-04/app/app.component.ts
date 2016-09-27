@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ToastService } from './shared';
+import { ToastService } from './core';
 
 @Component({
   selector: 'sg-app',
