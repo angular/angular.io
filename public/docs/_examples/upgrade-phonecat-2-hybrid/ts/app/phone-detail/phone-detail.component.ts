@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion initialclass
 import { Component, Inject } from '@angular/core';
+
 import { Phone, PhoneData } from '../core/phone/phone.service';
 // #enddocregion initialclass
 // #docregion checkmark-pipe
-import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
 // #docregion initialclass
 @Component({
@@ -12,7 +12,6 @@ import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
   selector: 'phone-detail',
   templateUrl: 'phone-detail.template.html',
   // #enddocregion initialclass
-  pipes: [ CheckmarkPipe ]
   // #docregion initialclass
 })
 // #enddocregion checkmark-pipe
