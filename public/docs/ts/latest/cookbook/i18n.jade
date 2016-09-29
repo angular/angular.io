@@ -1,0 +1,350 @@
+include ../_util-fns
+
+:marked
+  Angular's _internationalization_ ("_i18n_") tools help make your app availble in multiple languages.
+  
+  <a id="top"></a>
+  ## Table of contents
+    
+    * [Angular and i18n template translation](#angular-i18n)
+    * [Mark text with the _i18n_ attribute](#i18n-attribute)
+    * [Extract text with ng-xi18n](#ng-xi18n)
+    * [Translate](#translate)
+    * [Merge the translation file into the app](#merge)
+      * [JiT configuration](#jit)
+      * [AoT configuration](#aot)
+
+:marked
+  **Try this** <live-example>live example</live-example> of a JiT-compiled app, translated into French.
+
+  
+a#angular-i18n
+.l-main-section
+:marked
+  ## Angular and _i18n_ template translation
+
+  Application internationalization is a challenging, many-faceted effort that 
+  takes dedication and enduring commitment.
+  Angular's _i18n_ internationalization facilities can help.
+
+  This page describes the _i18n_ tools to assist translation of component template text
+  into multiple languages.
+
+.l-sub-section
+  :marked
+    Practitioners of _internationalization_ refer to a translatable text as a "_message_".
+    This page uses the words "_text_" and "_message_" interchangably and in the combination, "_text message_".
+  
+:marked
+  The _i18n_ template translation process has four phases:
+
+  1. Mark static text messages in your component templates for translation.
+  
+  1. An angular _i18n_ tool extracts the marked messages into an industry standard translation source file.
+
+  1. A translator edits that file, translating the extracted text messages into the target language, 
+  and returns the file to you.
+
+  1. The Angular compiler imports the completed translation files, 
+  replaces the original messages with translated text, and generates a new version of the application
+  in the target language.
+
+  You build and deploy a separate version of the application for each supported language.
+
+a#i18n-attribute
+.l-main-section
+:marked
+  ## Mark text with the _i18n_ attribute
+  
+  The Angular `i18n` attribute is a marker for translatable content.
+  Place it on every element tag whose fixed text should be translated.
+
+.alert.is-helpful
+  :marked
+    `i18n` is not an Angular _directive_. It's a custom _attribute_, recognized by Angular tools and compilers.
+
+:marked
+  In the accompanying sample, an `<h1>` tag displays a simple English language greeting which you will translate to French:
++makeExample('cb-i18n/ts/app/app.component.1.html', 'greeting', 'app/app.component.html')(format=".")
+:marked
+  Add the `i18n` attribute to the tag to mark it for translation.
+
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute', 'app/app.component.html')(format=".")
+
+:marked
+  The translator may need a description of the message to translate it accurately.
+  Assign a description to the i18n attribute:
+  
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute-desc', 'app/app.component.html')(format=".")
+
+:marked
+  The true _meaning_ of the text may require some application context.
+  Add a contextual meaning to the assigned string, separating it from the description with the `|` character:
+  
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-attribute-meaning', 'app/app.component.html')(format=".")
+
+:marked
+  While all appearance of a message with the _same_ meaning should have the _same_ translation, 
+  a message with *different meanings* could have different translations.
+  The Angular extraction tool preserves both the _meaning_ and the _description_ in the translation source file
+  to facilitiate contextually-specific transations.
+
+a#ng-xi18n
+.l-main-section
+:marked
+  ## Extract translatable text with the _ng-xi18n_ command
+  
+  Use the `ng-xi18n` extraction tool to generate a translation source file in an industry standard format.
+  
+  This is an Angular CLI tool based on the `ngc` compiler in the `@angular/compiler-cli` npm package.
+  If you haven't already installed the CLI and its `platform-server` peer dependency, do so now:
+  
+code-example(language="sh" class="code-shell").
+  npm install @angular/compiler-cli @angular/platform-server --save
+
+:marked
+  Open a terminal window at the root of the application project and enter the `ng-xi18n` command:
+ 
+code-example(language="sh" class="code-shell").
+  ./node_modules/.bin/ng-xi18n
+
+:marked
+  By default the tool generates a translation file named **`messages.xlf`** in the
+  <a href="https://en.wikipedia.org/wiki/XLIFF" target="_blank">XML Localisation Interchange File Format (XLIFF, version 1.2)</a>.
+
+code-example(language="sh" class="code-shell").
+  ./node_modules/.bin/ng-xi18n  --i18nFormat=xmb
+
+.l-sub-section
+  :marked
+    Windows users may have to quote the command:
+  code-example(language="sh").
+    "./node_modules/.bin/ng-xi18n"
+  :marked
+    Consider adding a convenience shortcut to the `scripts` section of the `package.json`
+    to make the command easier to remember and run:
+  code-example(format='.').
+    "scripts": {
+      "i18n": "ng-xi18n", 
+      ...
+    }
+  :marked
+    Now you can enter:
+  code-example(language="sh" class="code-shell").
+    npm run i18n
+
+:marked
+  ### Other translation formats
+
+  You can generate a file named **`messages.xmb`** in the 
+  <a href="http://cldr.unicode.org/development/development-process/design-proposals/xmb"  target="_blank">XML Message Bundle (XMB)</a> format
+  by adding the `--i18nFormat=xmb` switch.
+
+  This sample sticks with the _XLIFF_ format.
+
+a#translate
+.l-main-section
+:marked
+  ## Translate _le message textuel_
+  
+  The `ng-xi18n` command generated a translation source file in the project root folder named `messages.xlf`.
+  The next step is to translate the English language template text into the specific language translation
+  files. The cookbook sample creates a French translation file.
+
+a#i18n-file-structure
+:marked
+  ### Create an i18n project structure
+
+  You will probably translate into more than one other language so it's a good idea
+  for the project structure to reflect your entire internationalization effort.
+  
+  One approach is to create an `i18n` folder with subfolders for each language or locale, e.g. `i18n/fr` for French.
+  This sample puts `i18n/fr` under the project root.
+
+  Move the `messages.xlf` into the `i18n` folder where it will become the source for all language-specific translations.
+  Then copy `messages.xlf` into `i18n/fr` and rename it as `messages.fr.xlf` .
+
+  Follow the same convention for each target language.
+
+  ### Translate
+  In the real world, you send the `messages.fr.xlf` file to a French translator who would fill in the translations
+  using one of the 
+  <a href="https://en.wikipedia.org/wiki/XLIFF#Editors" target="_blank">many XLIFF file editors</a>.
+
+  This sample file is easy to translate without a special editor or knowledge of French.
+  Open `messages.fr.xlf` and find the `<trans-unit>` section:
+
++makeExample('cb-i18n/ts/i18n/trans-unit.html', '', 'i18n/messages.fr.xlf (<trans-unit>)')(format=".")
+:marked
+  This XML element represents the translation of the `<h1>` greeting tag you marked with the `i18n` attribute. 
+  
+  Using the _source_, _description_, and _meaning_ elements to guide your translation,
+  replace the `<target/>` tag with the French greeting:
++makeExample('cb-i18n/ts/i18n/fr/messages.fr.xlf.html', 'trans-unit', 'i18n/fr/messages.fr.xlf (<trans-unit>, after translation)')(format=".")
+:marked
+  Note that the `id` is generated by the tool. Don't touch it.
+  Its value depends on the content of the message, its meaning, and its description.
+  Change any of these factors and the `id` changes as well.
+.alert.is-helpful
+  :marked
+    Repeat the extraction process whenever you add new app messages or edit existing ones.
+    Be careful not to lose the previous translations.
+    Specialized software can help manage the change process.
+
+#app-pre-translation
+:marked
+  ### The app before translation
+
+  After the previous steps, the sample app _and_ its translation file are as follows:
+
++makeTabs(`
+  cb-i18n/ts/app/app.component.html,
+  cb-i18n/ts/app/app.component.ts,
+  cb-i18n/ts/app/app.module.ts,
+  cb-i18n/ts/app/main.1.ts,
+  cb-i18n/ts/i18n/fr/messages.fr.xlf.html
+`, '', `
+  app/app.component.html,
+  app/app.component.ts,
+  app/app.module.ts,
+  app/main.ts,
+  i18n/fr/messages.fr.xlf
+`)
+
+a#merge
+.l-main-section
+:marked
+  ## Merge the translation file
+
+  To merge the translated text into component templates,
+  you compile the application with the completed translation file.
+  The process is the same whether the file is in `.xlf` format or 
+  in one of the other formats (`.xlif` and `.xtb`) that Angular understands.
+  
+  You provide the Angular compiler with three new pieces of information:
+    * the translation file
+    * the translation file format 
+    * the _Locale ID_ (`en-US` for instance)
+  
+  _How_ you provide this information depends upon whether you compile with
+  the JiT (_Just-in-Time_) compiler or the AoT (_Ahead-of-Time_) compiler. 
+  
+    * with [JiT](#jit), you provide the information at bootstrap time.
+    * with [AoT](#aot), you pass the information as `ngc` options. 
+
+a#jit
+.l-main-section
+:marked
+  ### Merge with the JiT compiler
+  
+  The JiT (_Just-in-Time_) compiler compiles the application in the browser as the application loads.
+  Translation with the JiT compiler is a dynamic process of ...
+
+  1. determining the language version for the current user,
+  2. importing the appropriate language translation file as a string constant,
+  3. creating corresponding translation providers to guide the JiT compiler,
+  4. bootstrapping the application with those providers.
+
+  Open `index.html` and revise the launch script as shown here:
++makeExample('cb-i18n/ts/index.html', 'i18n', 'index.html (launch script)')(format='.')
+:marked
+  In this sample, the user's language is hardcoded as a global `document.locale` variable
+  in the `index.html`.
+
+a#text-plugin
+:marked
+  ### SystemJS Text plugin
+
+  Notice the SystemJS mapping of `text` to a `systemjs-text-plugin.js`.
+  With the help of a text pluglin, SystemJS can read any file as raw text and
+  return the contents as a string.
+  You'll need it to import the language translation file.
+
+  SystemJS doesn't ship with a raw text plugin but it's easy to add.
+  Create the following `systemjs-text-plugin.js` in the root folder:
++makeExample('cb-i18n/ts/systemjs-text-plugin.js', null, 'systemjs-text-plugin.js')(format='.')
+:marked
+  ### Create translation providers
+
+  Three providers tell the JiT compiler how to translate the template texts for a particular language
+  while compiling the application:
+
+  * `TRANSLATIONS` is a string containing the content of the translation file.
+  * `TRANSLATIONS_FORMAT` is the format of the file: `xlf`, `xlif` or `xtb`
+  * `LOCALE_ID` is the locale of the target language.
+
+  The `getTranslationProviders` function in the following `app/i18n-providers.ts` 
+  creates those providers based on the user's _locale_
+  and the corresponding translation file:
++makeExample('cb-i18n/ts/app/i18n-providers.ts', null, 'app/i18n-providers.ts')
+:marked
+  * It gets the locale from the global `document.locale` variable that was set in `index.html`.
+
+  * If there is no locale or the language is English, there is no need to translate.
+    The function returns an empty `noProviders` array as a `Promise`.
+    It must return a `Promise` because this function could read a translation file asynchronously from the server.
+
+  * It creates a transaction filename from the locale according to the name and location convention 
+  [described earlier](#i18n-file-structure).
+
+  * The `getTranslationsWithSystemJs` method reads the translation and returns the contents as a string.
+  Notice that it appends `!text` to the filename, telling SystemJS to use the [text plugin](#text-plugin). 
+
+  * The callback composes a providers array with the three translation providers.
+
+  * Finally, `getTranslationProviders` returns the entire effort as a promise.
+
+  ### Bootstrap the app with translation providers
+
+  The Angular `bootstrapModule` method has a second, _options_ parameter
+  that can influence the behavior of the compiler.
+
+  You'll create an _options_ object with the translation providers from `getTranslationProviders`
+  and pass it to `bootstrapModule`.
+  Open the `app/main.ts` and modify the bootstrap code as follows:
++makeExample('cb-i18n/ts/app/main.ts', null, 'app/main.ts')(format=".")
+:marked
+  Notice that it waits for the `getTranslationProviders` promise to resolve before
+  bootstrapping the app.
+
+  The app is now _internationalized_ for English and French and there is a clear path for adding
+  more languages.
+
+a#aot
+.l-main-section
+:marked
+  ### _Internationalize_ with the AoT compiler
+  
+  The JiT compiler translates the application into the target language while compiling dynamically in the browser.
+  That's flexible but may not be fast enough for your users. 
+  
+  The AoT (_Ahead-of-Time_) compiler is part of a build process that produces a small, fast, ready-to-run application package.
+  When you internationalize with the AoT compiler, you pre-build a separate application package for each
+  language. Then in the host web page (`index.html`), you determine which language the user needs
+  and serve the appropriate application package.
+
+  This cookbook doesn't cover how to build multiple application packages and 
+  serve them according to the user's language preference.
+  It does explain the few steps necessary to tell the AoT to apply a translations file.
+
+  Internationalization with the AoT compiler requires some setup specifically for AoT. 
+  Start with application project as shown [just before merging the translation file](#app-pre-translationStart)
+  and refer to the [AoT cookbook](aot-compiler.html) to make it _AoT-ready_.
+  
+  Next, issue an `ngc` compile command for each supported language (including English).
+  The result is a separate version of the application for each language.
+  
+  Tell AoT how to translate by adding three options to the `ngc` command:
+    * `--i18nFile`: the path to the translation file
+    * `--locale`: the name of the locale
+    * `--i18nFormat`: the format of the localization file
+  
+  For this sample, the French language command would be
+code-example(language="sh" class="code-shell").
+  ./node_modules/.bin/ngc --i18nFile=./i18n/fr/messages.fr.xlf --locale=fr --i18nFormat=xlf
+
+.l-sub-section
+  :marked
+    Windows users may have to quote the command:
+  code-example(language="sh" class="code-shell").
+    "./node_modules/.bin/ngc" --i18nFile=./i18n/fr/messages.fr.xlf --locale=fr --i18nFormat=xlf
