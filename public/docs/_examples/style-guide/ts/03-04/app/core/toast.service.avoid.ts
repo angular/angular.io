@@ -8,19 +8,19 @@ import { Injectable } from '@angular/core';
 export class ToastService {
   message: string;
 
-  private toastCount: number;
+  private _toastCount: number;
 
   hide() {
-    this.toastCount--;
-    this.log();
+    this._toastCount--;
+    this._log();
   }
 
   show() {
-    this.toastCount++;
-    this.log();
+    this._toastCount++;
+    this._log();
   }
 
-  private log() {
+  private _log() {
     console.log(this.message);
   }
 }
