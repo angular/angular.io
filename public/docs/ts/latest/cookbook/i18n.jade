@@ -1,16 +1,16 @@
 include ../_util-fns
 
 :marked
-  Angular's _internationalization_ ("_i18n_") tools help make your app availble in multiple languages.
+  Angular's _internationalization_ ("_i18n_") tools help make your app available in multiple languages.
   
   <a id="top"></a>
   ## Table of contents
     
     * [Angular and i18n template translation](#angular-i18n)
     * [Mark text with the _i18n_ attribute](#i18n-attribute)
-    * [Extract text with ng-xi18n](#ng-xi18n)
+    * [Create a translation source file with the _ng-xi18n_ tool](#ng-xi18n)
     * [Translate](#translate)
-    * [Merge the translation file into the app](#merge)
+    * [Merge the completed translation file into the app](#merge)
       * [JiT configuration](#jit)
       * [AoT configuration](#aot)
 
@@ -29,6 +29,7 @@ a#angular-i18n
 
   This page describes the _i18n_ tools to assist translation of component template text
   into multiple languages.
+
 
 .l-sub-section
   :marked
@@ -61,7 +62,9 @@ a#i18n-attribute
 
 .alert.is-helpful
   :marked
-    `i18n` is not an Angular _directive_. It's a custom _attribute_, recognized by Angular tools and compilers.
+    `i18n` is not an Angular _directive_. 
+    It's a custom _attribute_, recognized by Angular tools and compilers.
+    It will be removed by the compiler _after_ translation.
 
 :marked
   In the accompanying sample, an `<h1>` tag displays a simple English language greeting which you will translate to French:
@@ -87,16 +90,17 @@ a#i18n-attribute
   While all appearance of a message with the _same_ meaning should have the _same_ translation, 
   a message with *different meanings* could have different translations.
   The Angular extraction tool preserves both the _meaning_ and the _description_ in the translation source file
-  to facilitiate contextually-specific transations.
+  to facilitiate contextually-specific translations.
 
 a#ng-xi18n
 .l-main-section
 :marked
-  ## Extract translatable text with the _ng-xi18n_ command
+  ## Create a translation source file with the _ng-xi18n_ tool
   
-  Use the `ng-xi18n` extraction tool to generate a translation source file in an industry standard format.
+  Use the `ng-xi18n` extraction tool to extract the `i18n`-marked texts 
+  into a translation source file in an industry standard format.
   
-  This is an Angular CLI tool based on the `ngc` compiler in the `@angular/compiler-cli` npm package.
+  This is an Angular CLI tool in the `@angular/compiler-cli` npm package.
   If you haven't already installed the CLI and its `platform-server` peer dependency, do so now:
   
 code-example(language="sh" class="code-shell").
@@ -151,18 +155,26 @@ a#translate
   The next step is to translate the English language template text into the specific language translation
   files. The cookbook sample creates a French translation file.
 
-a#i18n-file-structure
+a#localization-folder
 :marked
-  ### Create an i18n project structure
+  ### Create a localization folder
 
   You will probably translate into more than one other language so it's a good idea
   for the project structure to reflect your entire internationalization effort.
   
-  One approach is to create an `i18n` folder with subfolders for each language or locale, e.g. `i18n/fr` for French.
-  This sample puts `i18n/fr` under the project root.
+  One approach is to dedicate a folder to localization and store related assets 
+  (e.g. internationalization files) there.
+.l-sub-section
+  :marked
+  Localization and internationalization are 
+  <a href="" target="_blank">different but closely related terms</a>.
+:marked
+  This sample follows that suggestion. It has `locale` folder immediately under the project root.
+  Assets within the folder carry a filename extension that matches a language-culture code from a
+  <a href="https://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx" target="_blank">well-known codeset</a>.
 
-  Move the `messages.xlf` into the `i18n` folder where it will become the source for all language-specific translations.
-  Then copy `messages.xlf` into `i18n/fr` and rename it as `messages.fr.xlf` .
+  Move `messages.xlf` into the `locale` folder where it will become the source for all language-specific translations.
+  Then make a copy for the French language named `messages.fr.xlf` .
 
   Follow the same convention for each target language.
 
@@ -174,17 +186,17 @@ a#i18n-file-structure
   This sample file is easy to translate without a special editor or knowledge of French.
   Open `messages.fr.xlf` and find the `<trans-unit>` section:
 
-+makeExample('cb-i18n/ts/i18n/trans-unit.html', '', 'i18n/messages.fr.xlf (<trans-unit>)')(format=".")
++makeExample('cb-i18n/ts/locale/trans-unit.html', '', 'locale/messages.fr.xlf (<trans-unit>)')(format=".")
 :marked
   This XML element represents the translation of the `<h1>` greeting tag you marked with the `i18n` attribute. 
   
   Using the _source_, _description_, and _meaning_ elements to guide your translation,
   replace the `<target/>` tag with the French greeting:
-+makeExample('cb-i18n/ts/i18n/fr/messages.fr.xlf.html', 'trans-unit', 'i18n/fr/messages.fr.xlf (<trans-unit>, after translation)')(format=".")
++makeExample('cb-i18n/ts/locale/messages.fr.xlf.html', 'trans-unit', 'locale/messages.fr.xlf (<trans-unit>, after translation)')(format=".")
 :marked
   Note that the `id` is generated by the tool. Don't touch it.
-  Its value depends on the content of the message, its meaning, and its description.
-  Change any of these factors and the `id` changes as well.
+  Its value depends on the content of the message and its assigned meaning.
+  Change either factor and the `id` changes as well.
 .alert.is-helpful
   :marked
     Repeat the extraction process whenever you add new app messages or edit existing ones.
@@ -202,19 +214,19 @@ a#i18n-file-structure
   cb-i18n/ts/app/app.component.ts,
   cb-i18n/ts/app/app.module.ts,
   cb-i18n/ts/app/main.1.ts,
-  cb-i18n/ts/i18n/fr/messages.fr.xlf.html
+  cb-i18n/ts/locale/messages.fr.xlf.html
 `, '', `
   app/app.component.html,
   app/app.component.ts,
   app/app.module.ts,
   app/main.ts,
-  i18n/fr/messages.fr.xlf
+  locale/messages.fr.xlf
 `)
 
 a#merge
 .l-main-section
 :marked
-  ## Merge the translation file
+  ## Merge the completed translation file
 
   To merge the translated text into component templates,
   you compile the application with the completed translation file.
@@ -224,7 +236,8 @@ a#merge
   You provide the Angular compiler with three new pieces of information:
     * the translation file
     * the translation file format 
-    * the _Locale ID_ (`en-US` for instance)
+    * the   <a href="https://en.wikipedia.org/wiki/XLIFF" target="_blank">_Locale ID_</a>
+    (`fr` or `en-US` for instance)
   
   _How_ you provide this information depends upon whether you compile with
   the JiT (_Just-in-Time_) compiler or the AoT (_Ahead-of-Time_) compiler. 
@@ -280,12 +293,12 @@ a#text-plugin
 :marked
   * It gets the locale from the global `document.locale` variable that was set in `index.html`.
 
-  * If there is no locale or the language is English, there is no need to translate.
+  * If there is no locale or the language is U.S. English (`en-US`), there is no need to translate.
     The function returns an empty `noProviders` array as a `Promise`.
     It must return a `Promise` because this function could read a translation file asynchronously from the server.
 
   * It creates a transaction filename from the locale according to the name and location convention 
-  [described earlier](#i18n-file-structure).
+  [described earlier](#localization-folder).
 
   * The `getTranslationsWithSystemJs` method reads the translation and returns the contents as a string.
   Notice that it appends `!text` to the filename, telling SystemJS to use the [text plugin](#text-plugin). 
@@ -341,10 +354,10 @@ a#aot
   
   For this sample, the French language command would be
 code-example(language="sh" class="code-shell").
-  ./node_modules/.bin/ngc --i18nFile=./i18n/fr/messages.fr.xlf --locale=fr --i18nFormat=xlf
+  ./node_modules/.bin/ngc --i18nFile=./locale/messages.fr.xlf --locale=fr --i18nFormat=xlf
 
 .l-sub-section
   :marked
     Windows users may have to quote the command:
   code-example(language="sh" class="code-shell").
-    "./node_modules/.bin/ngc" --i18nFile=./i18n/fr/messages.fr.xlf --locale=fr --i18nFormat=xlf
+    "./node_modules/.bin/ngc" --i18nFile=./locale/messages.fr.xlf --locale=fr --i18nFormat=xlf

@@ -9,13 +9,13 @@ export function getTranslationProviders(): Promise<Object[]> {
   // return no providers if fail to get translation file for locale
   const noProviders: Object[] = [];
 
-  // No locale or English: no translation providers
-  if (!locale || locale === 'en') {
+  // No locale or U.S. English: no translation providers
+  if (!locale || locale === 'en-US') {
     return Promise.resolve(noProviders);
   }
 
-  // Ex: 'i18n/fr/messages.fr.xlf`
-  const translationFile = `./i18n/${locale}/messages.${locale}.xlf`;
+  // Ex: 'locale/messages.fr.xlf`
+  const translationFile = `./locale/messages.${locale}.xlf`;
 
   return getTranslationsWithSystemJs(translationFile)
     .then( (translations: string ) => [
