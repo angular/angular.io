@@ -50,6 +50,8 @@ var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPl
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
+const WWW = argv.page ? 'www-pages' : 'www'
+
 const isSilent = !!argv.silent;
 if (isSilent) gutil.log = gutil.noop;
 const _dgeniLogLevel = argv.dgeniLog || (isSilent ? 'error' : 'info');
@@ -747,7 +749,7 @@ gulp.task('harp-serve', () => {
 
 gulp.task('serve-www', () => {
   // Serve generated site.
-  return execPromise('npm run live-server ./www');
+  return execPromise(`npm run live-server ${WWW}`);
 });
 
 gulp.task('build-compile', ['build-docs'], function() {
@@ -758,7 +760,7 @@ gulp.task('check-deploy', ['build-docs'], function() {
   return harpCompile().then(function() {
     gutil.log('compile ok');
     gutil.log('running live server ...');
-    execPromise('npm run live-server ./www');
+    execPromise(`npm run live-server ${WWW}`);
     return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
@@ -902,11 +904,13 @@ function harpCompile() {
   env({ vars: { NODE_ENV: "production" } });
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
 
-  if(skipLangs && fs.existsSync('www') && backupApiHtmlFilesExist('www')) {
+  if(argv.page) harpJsonSetJade2NgTo(true);
+  
+  if(skipLangs && fs.existsSync(WWW) && backupApiHtmlFilesExist(WWW)) {
     gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
-    gutil.log(`API docs will be copied from existing www folder.`)
-    del.sync('www-backup'); // remove existing backup if it exists
-    renameIfExistsSync('www', 'www-backup');
+    gutil.log(`API docs will be copied from existing ${WWW} folder.`)
+    del.sync(`${WWW}-backup`); // remove existing backup if it exists
+    renameIfExistsSync(WWW, `${WWW}-backup`);
   } else {
     gutil.log(`Harp full site compile, including API docs for all languages.`);
     if (skipLangs)
@@ -918,11 +922,12 @@ function harpCompile() {
   gutil.log('running harp compile...');
   showHideExampleNodeModules('hide');
   showHideApiDir('hide');
-  var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', './www' ]);
+  var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', WWW ]);
   spawnInfo.promise.then(function(x) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
     showHideApiDir('show');
+    harpJsonSetJade2NgTo(false);
     if (x !== 0) {
       deferred.reject(x)
     } else {
@@ -933,6 +938,7 @@ function harpCompile() {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
     showHideApiDir('show');
+    harpJsonSetJade2NgTo(false);
     deferred.reject(e);
   });
   return deferred.promise;
@@ -1050,21 +1056,21 @@ function _showHideApiDir(lang, showOrHide) {
   renameIfExistsSync(...args);
 }
 
-// For each lang in skipLangs, copy the API dir from www-backup to www.
+// For each lang in skipLangs, copy the API dir from ${WWW}-backup to WWW.
 function restoreApiHtml() {
   const vers = 'latest';
   skipLangs.forEach(lang => {
     const relApiDir = path.join('docs', lang, vers, 'api');
-    const wwwApiSubdir = path.join('www', relApiDir);
-    const backupApiSubdir = path.join('www-backup', relApiDir);
+    const apiSubdir = path.join(WWW, relApiDir);
+    const backupApiSubdir = path.join(`${WWW}-backup`, relApiDir);
     if (fs.existsSync(backupApiSubdir) || argv.forceSkipApi !== true) {
-      gutil.log(`cp ${backupApiSubdir} ${wwwApiSubdir}`)
-      fs.copySync(backupApiSubdir, wwwApiSubdir);
+      gutil.log(`cp ${backupApiSubdir} ${apiSubdir}`)
+      fs.copySync(backupApiSubdir, apiSubdir);
     }
   });
 }
 
-// For each lang in skipLangs, ensure API dir exists in www-backup
+// For each lang in skipLangs, ensure API dir exists in folderName
 function backupApiHtmlFilesExist(folderName) {
   const vers = 'latest';
   var result = 1;
@@ -1077,6 +1083,14 @@ function backupApiHtmlFilesExist(folderName) {
     }
   });
   return result;
+}
+
+function harpJsonSetJade2NgTo(v) {
+  const execSync = require('child_process').execSync;
+  const harpJsonPath = path.join(ANGULAR_IO_PROJECT_PATH, 'harp.json');
+  execSync(`perl -pi -e 's/("jade2ng": *)\\w+/$1${v}/' ${harpJsonPath}`);
+  const harpJson = require(harpJsonPath);
+  gutil.log(`jade2ng: ${harpJson.globals.jade2ng}`);
 }
 
 // Copies fileNames into destPaths, setting the mode of the

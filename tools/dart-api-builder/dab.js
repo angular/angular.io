@@ -219,12 +219,10 @@ block head-extra
   // generated Dart API page template: head-extra
   //- <base> is required because all the links in dartdoc generated pages are "pseudo-absolute"
   base(href="${baseHref}")
-  link(rel="stylesheet" href="static-assets/styles.css")
 
 block breadcrumbs
   // generated Dart API page template: breadcrumbs
-  .banner
-    ol.breadcrumbs.gt-separated.hidden-xs
+  ol.breadcrumbs.gt-separated.hidden-xs
 ${breadcrumbs}
 
 block main-content
