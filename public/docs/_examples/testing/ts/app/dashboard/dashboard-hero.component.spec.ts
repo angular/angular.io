@@ -86,7 +86,7 @@ describe('DashboardHeroComponent when inside a test host', () => {
   }));
 
   beforeEach(() => {
-    // create TestHosComponent instead of DashboardHeroComponent
+    // create TestHostComponent instead of DashboardHeroComponent
     fixture  = TestBed.createComponent(TestHostComponent);
     testHost = fixture.componentInstance;
     heroEl   = fixture.debugElement.query(By.css('.hero')); // find hero
