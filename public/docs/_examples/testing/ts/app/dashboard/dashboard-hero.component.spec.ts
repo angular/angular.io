@@ -19,7 +19,7 @@ describe('DashboardHeroComponent when tested directly', () => {
   let heroEl: DebugElement;
 
   // #docregion setup, compile-components
-  // asynch beforeEach
+  // async beforeEach
   beforeEach( async(() => {
     TestBed.configureTestingModule({
       declarations: [ DashboardHeroComponent ],
