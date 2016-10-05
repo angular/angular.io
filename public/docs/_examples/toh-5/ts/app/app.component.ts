@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
   // #docregion template
   template: `
@@ -14,7 +15,7 @@ import { Component } from '@angular/core';
   `,
   // #enddocregion template
   // #docregion styleUrls
-  styleUrls: ['app/app.component.css'],
+  styleUrls: ['app.component.css'],
   // #enddocregion styleUrls
 })
 export class AppComponent {
