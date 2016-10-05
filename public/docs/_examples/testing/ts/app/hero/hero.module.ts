@@ -1,9 +1,9 @@
 import { NgModule }     from '@angular/core';
 import { SharedModule } from '../shared/shared.module';
-import { routedComponents, routing } from './hero.routing';
+import { routedComponents, HeroRoutingModule } from './hero-routing.module';
 
 @NgModule({
-  imports:      [ SharedModule, routing ],
+  imports:      [ SharedModule, HeroRoutingModule ],
   declarations: [ routedComponents ]
 })
 export class HeroModule { }

@@ -9,11 +9,11 @@ import { ContactComponent }   from './contact.component.3';
 import { ContactService }     from './contact.service';
 import { HighlightDirective } from './highlight.directive';
 
-import { routing }            from './contact.routing.3';
+import { ContactRoutingModule }   from './contact-routing.module.3';
 
 // #docregion class
 @NgModule({
-  imports:      [ CommonModule, FormsModule, routing ],
+  imports:      [ CommonModule, FormsModule, ContactRoutingModule ],
   declarations: [ ContactComponent, HighlightDirective, AwesomePipe ],
   providers:    [ ContactService ]
 })

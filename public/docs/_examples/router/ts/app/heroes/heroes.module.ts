@@ -9,13 +9,13 @@ import { HeroDetailComponent }  from './hero-detail.component';
 import { HeroService } from './hero.service';
 
 // #docregion heroes-routes
-import { heroesRouting } from './heroes.routing';
+import { HeroRoutingModule } from './heroes-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    heroesRouting
+    HeroRoutingModule
   ],
   declarations: [
     HeroListComponent,

@@ -1,5 +1,5 @@
 // #docregion
-import { ModuleWithProviders }  from '@angular/core';
+import { NgModule }             from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 export const routes: Routes = [
@@ -11,5 +11,9 @@ export const routes: Routes = [
 ];
 
 // #docregion forRoot
-export const routing: ModuleWithProviders = RouterModule.forRoot(routes);
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule {}
 // #enddocregion forRoot
