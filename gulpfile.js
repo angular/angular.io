@@ -465,7 +465,7 @@ gulp.task('_copy-example-boilerplate', function (done) {
 function buildStyles(cb, done){
   gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
     .pipe(less())
-    .pipe(gulp.dest(EXAMPLES_PATH)).on('end', function(){
+    .pipe(gulp.dest(BOILERPLATE_PATH)).on('end', function(){
       cb().then(function() { done(); });
     });
 }

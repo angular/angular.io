@@ -44,7 +44,7 @@ function heroTests() {
   });
 
   it('shows selected hero details', async () => {
-    await element(by.cssContainingText('li', targetHero.name)).click(); 
+    await element(by.cssContainingText('li', targetHero.name)).click();
     let page = getPageElts();
     let hero = await heroFromDetail(page.heroDetail);
     expect(hero.id).toEqual(targetHero.id);
