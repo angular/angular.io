@@ -79,7 +79,7 @@ var _apiShredOptions =  {
 const relDartDocApiDir = path.join('doc', 'api');
 var _apiShredOptionsForDart =  {
   lang: 'dart',
-  examplesDir: path.resolve(ngPathFor('dart'), 'example'),
+  examplesDir: path.resolve(ANGULAR_PROJECT_PATH + '2_api_examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api'),
   logLevel: _dgeniLogLevel
