@@ -1,8 +1,10 @@
-/// <reference path="../_protractor/e2e.d.ts" />
 'use strict'; // necessary for node!
 
+import { browser, element, by, protractor, ElementFinder, ElementArrayFinder } from 'protractor';
+import { appLang, describeIf } from '../protractor-helpers';
+
 // THESE TESTS ARE INCOMPLETE
-describeIf(browser.appIsTs || browser.appIsJs, 'Form Validation Tests', function () {
+describeIf(appLang.appIsTs || appLang.appIsJs, 'Form Validation Tests', function () {
 
   beforeAll(function () {
     browser.get('');
@@ -41,15 +43,15 @@ describeIf(browser.appIsTs || browser.appIsJs, 'Form Validation Tests', function
 const testName = 'Test Name';
 
 let page: {
-  section: protractor.ElementFinder,
-  form: protractor.ElementFinder,
-  title: protractor.ElementFinder,
-  nameInput: protractor.ElementFinder,
-  alterEgoInput: protractor.ElementFinder,
-  powerSelect: protractor.ElementFinder,
-  errorMessages: protractor.ElementArrayFinder,
-  heroFormButtons: protractor.ElementArrayFinder,
-  heroSubmitted: protractor.ElementFinder
+  section: ElementFinder,
+  form: ElementFinder,
+  title: ElementFinder,
+  nameInput: ElementFinder,
+  alterEgoInput: ElementFinder,
+  powerSelect: ElementFinder,
+  errorMessages: ElementArrayFinder,
+  heroFormButtons: ElementArrayFinder,
+  heroSubmitted: ElementFinder
 };
 
 function getPage(sectionTag: string) {

@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Pipes', function () {
 
   beforeAll(function () {
@@ -53,12 +55,10 @@ describe('Pipes', function () {
     let factorInputEle = eles.get(1);
     let outputEle = element(by.css('power-boost-calculator p'));
     baseInputEle.clear().then(function() {
-      return sendKeys(baseInputEle, '7');
-    }).then(function() {
+      baseInputEle.sendKeys('7');
       return factorInputEle.clear();
     }).then(function() {
-      return sendKeys(factorInputEle, '3');
-    }).then(function() {
+      factorInputEle.sendKeys('3');
       expect(outputEle.getText()).toContain('343');
     });
   });
@@ -75,15 +75,10 @@ describe('Pipes', function () {
     expect(mutateCheckEle.getAttribute('checked')).toEqual('true', 'should default to mutating array');
     expect(flyingHeroesEle.count()).toEqual(2, 'only two of the original heroes can fly');
 
-    return sendKeys(nameEle, 'test1\n')
-    .then(function(){
-       expect(flyingHeroesEle.count()).toEqual(2, 'no change while mutating array');
-       return mutateCheckEle.click();
-    })
-    .then(function() {
-      return sendKeys(nameEle, 'test2\n');
-    })
-    .then(function() {
+    nameEle.sendKeys('test1\n');
+    expect(flyingHeroesEle.count()).toEqual(2, 'no change while mutating array');
+    mutateCheckEle.click().then(function() {
+      nameEle.sendKeys('test2\n');
       expect(flyingHeroesEle.count()).toEqual(4, 'not mutating; should see both adds');
       expect(flyingHeroesEle.get(2).getText()).toContain('test1');
       expect(flyingHeroesEle.get(3).getText()).toContain('test2');
@@ -105,10 +100,8 @@ describe('Pipes', function () {
     expect(mutateCheckEle.getAttribute('checked')).toEqual('true', 'should default to mutating array');
     expect(flyingHeroesEle.count()).toEqual(2, 'only two of the original heroes can fly');
 
-    return sendKeys(nameEle, 'test1\n')
-    .then(function(){
-       expect(flyingHeroesEle.count()).toEqual(3, 'new flying hero should show in mutating array');
-    });
+    nameEle.sendKeys('test1\n');
+    expect(flyingHeroesEle.count()).toEqual(3, 'new flying hero should show in mutating array');
   });
 
   it('should show an async hero message', function () {

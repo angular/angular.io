@@ -1,5 +1,6 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { protractor, browser, element, by, ElementFinder } from 'protractor';
 
 const nameSuffix = 'X';
 
@@ -20,7 +21,7 @@ describe('Architecture', () => {
   });
 
   it(`has h2 '${expectedH2}'`, () => {
-    let h2 = element.all(by.css('h2')).map((elt) => elt.getText());
+    let h2 = element.all(by.css('h2')).map((elt: any) => elt.getText());
     expect(h2).toEqual(expectedH2);
   });
 
@@ -52,7 +53,7 @@ function heroTests() {
 
   it(`shows updated hero name in details`, async () => {
     let input = element.all(by.css('input')).first();
-    await sendKeys(input, nameSuffix);
+    input.sendKeys(nameSuffix);
     let page = getPageElts();
     let hero = await heroFromDetail(page.heroDetail);
     let newName = targetHero.name + nameSuffix;
@@ -69,7 +70,7 @@ function salesTaxTests() {
 
   it('shows sales tax', async function () {
     let page = getPageElts();
-    await sendKeys(page.salesTaxAmountInput, '10');
+    page.salesTaxAmountInput.sendKeys('10', protractor.Key.ENTER);
     // Note: due to Dart bug USD is shown instead of $
     let re = /The sales tax is (\$|USD)1.00/;
     expect(page.salesTaxDetail.getText()).toMatch(re);
@@ -87,10 +88,12 @@ function getPageElts() {
   };
 }
 
-async function heroFromDetail(detail: protractor.ElementFinder): Promise<Hero> {
+async function heroFromDetail(detail: ElementFinder): Promise<Hero> {
   // Get hero id from the first <div>
+  // let _id = await detail.all(by.css('div')).first().getText();
   let _id = await detail.all(by.css('div')).first().getText();
   // Get name from the h2
+  // let _name = await detail.element(by.css('h4')).getText();
   let _name = await detail.element(by.css('h4')).getText();
   return {
     id: +_id.substr(_id.indexOf(' ') + 1),

@@ -1,11 +1,13 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by, ElementFinder } from 'protractor';
+
 describe('Cookbook: component-relative paths', function () {
 
   interface Page {
-    title: protractor.ElementFinder;
-    absComp: protractor.ElementFinder;
-    relComp: protractor.ElementFinder;
+    title: ElementFinder;
+    absComp: ElementFinder;
+    relComp: ElementFinder;
 
   }
   function getPageStruct() {

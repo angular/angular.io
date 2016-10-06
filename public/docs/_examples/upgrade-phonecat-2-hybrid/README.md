@@ -14,9 +14,6 @@ The following changes from vanilla Phonecat are applied:
   in index.html and karma.conf.ng1.js.
 * E2E tests have been moved to the parent directory, where `run-e2e-tests` can
   discover and run them along with all the other examples.
-* Angular 1 typings (from DefinitelyTyped) are added to typings-ng1 so that
-  TypeScript can recognize Angular 1 code. (typings.json comes from boilerplate
-  so we can't add them there).
 * Most of the phone JSON and image data removed in the interest of keeping
   repo weight down. Keeping enough to retain testability of the app.
 

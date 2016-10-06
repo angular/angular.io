@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by, ElementFinder, ElementArrayFinder } from 'protractor';
+import { promise } from 'selenium-webdriver';
 
 const expectedH1 = 'Tour of Heroes';
 const expectedTitle = `Angular ${expectedH1}`;
@@ -7,8 +9,6 @@ const targetHero = { id: 15, name: 'Magneta' };
 const targetHeroDashboardIndex = 3;
 const nameSuffix = 'X';
 const newHeroName = targetHero.name + nameSuffix;
-
-type WPromise<T> = webdriver.promise.Promise<T>;
 
 class Hero {
   id: number;
@@ -25,13 +25,13 @@ class Hero {
   }
 
   // Hero from hero list <li> element.
-  static async fromLi(li: protractor.ElementFinder): Promise<Hero> {
+  static async fromLi(li: ElementFinder): Promise<Hero> {
       let strings = await li.all(by.xpath('span')).getText();
       return { id: +strings[0], name: strings[1] };
   }
 
   // Hero id and name from the given detail element.
-  static async fromDetail(detail: protractor.ElementFinder): Promise<Hero> {
+  static async fromDetail(detail: ElementFinder): Promise<Hero> {
     // Get hero id from the first <div>
     let _id = await detail.all(by.css('div')).first().getText();
     // Get name from the h2
@@ -82,7 +82,7 @@ describe('Tutorial part 6', () => {
 
     const expectedViewNames = ['Dashboard', 'Heroes'];
     it(`has views ${expectedViewNames}`, () => {
-      let viewNames = getPageElts().hrefs.map(el => el.getText());
+      let viewNames = getPageElts().hrefs.map((el: ElementFinder) => el.getText());
       expect(viewNames).toEqual(expectedViewNames);
     });
 
@@ -188,7 +188,7 @@ describe('Tutorial part 6', () => {
       const heroesBefore = await toHeroArray(getPageElts().allHeroes);
       const numHeroes = heroesBefore.length;
 
-      sendKeys(element(by.css('input')), newHeroName);
+      element(by.css('input')).sendKeys(newHeroName);
       element(by.buttonText('Add')).click();
 
       let page = getPageElts();
@@ -207,19 +207,19 @@ describe('Tutorial part 6', () => {
     beforeAll(() => browser.get(''));
 
     it(`searches for 'Ma'`, async () => {
-      sendKeys(getPageElts().searchBox, 'Ma');
+      getPageElts().searchBox.sendKeys('Ma');
       browser.sleep(1000);
       expect(getPageElts().searchResults.count()).toBe(4);
     });
 
     it(`continues search with 'g'`, async () => {
-      sendKeys(getPageElts().searchBox, 'g');
+      getPageElts().searchBox.sendKeys('g');
       browser.sleep(1000);
       expect(getPageElts().searchResults.count()).toBe(2);
     });
 
     it(`continues search with 'n' and gets ${targetHero.name}`, async () => {
-      sendKeys(getPageElts().searchBox, 'n');
+      getPageElts().searchBox.sendKeys('n');
       browser.sleep(1000);
       let page = getPageElts();
       expect(page.searchResults.count()).toBe(1);
@@ -260,9 +260,9 @@ describe('Tutorial part 6', () => {
 
 });
 
-function addToHeroName(text: string): WPromise<void> {
+function addToHeroName(text: string): promise.Promise<void> {
   let input = element(by.css('input'));
-  return sendKeys(input, text);
+  return input.sendKeys(text);
 }
 
 function expectHeading(hLevel: number, expectedText: string): void {
@@ -271,13 +271,13 @@ function expectHeading(hLevel: number, expectedText: string): void {
     expect(hText).toEqual(expectedText, hTag);
 };
 
-function getHeroLiEltById(id: number): protractor.ElementFinder {
+function getHeroLiEltById(id: number): ElementFinder {
   let spanForId = element(by.cssContainingText('li span.badge', id.toString()));
   return spanForId.element(by.xpath('..'));
 }
 
-async function toHeroArray(allHeroes: protractor.ElementArrayFinder): Promise<Hero[]> {
-  let promisedHeroes: Array<Promise<Hero>> = await allHeroes.map(Hero.fromLi);
+async function toHeroArray(allHeroes: ElementArrayFinder): Promise<Hero[]> {
+  let promisedHeroes = await allHeroes.map(Hero.fromLi);
   // The cast is necessary to get around issuing with the signature of Promise.all()
   return <Promise<any>> Promise.all(promisedHeroes);
 }
