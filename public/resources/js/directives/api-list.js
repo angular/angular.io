@@ -20,9 +20,9 @@ angularIO.directive('apiList', function () {
       '<div ng-cloak="ng-cloak" class="banner is-plain api-filter clearfix">' +
       '  <div class="form-select-menu">' +
       '    <button ng-repeat="type in $ctrl.types" ng-if="$ctrl.type === type.matches[0]" class="form-select-button has-symbol" ng-click="$ctrl.toggleMenu(\'type\')"><strong>Type:</strong><span class="symbol {{type.cssClass}}" ng-if="type.cssClass !== \'stable\'" ></span>{{type.title}}</button>'+
-      '    <button class="form-select-button is-default" ng-if="$ctrl.type === null" ng-click="$ctrl.toggleMenu(\'type\')"><strong>All Types</strong></button>'+
+      '    <button class="form-select-button is-default" ng-if="$ctrl.type === null" ng-click="$ctrl.toggleMenu(\'type\')"><strong>Type: All</strong></button>'+
       '    <ul class="form-select-dropdown" ng-class="{ visible: $ctrl.showTypeMenu === true }">' +
-      '      <li ng-class="{ active: !$ctrl.type }" ng-click="$ctrl.clear(\'type\')">All Types</li>' +
+      '      <li ng-class="{ active: !$ctrl.type }" ng-click="$ctrl.clear(\'type\')">All</li>' +
       '      <li ng-repeat="type in $ctrl.types" ng-class="{ active: $ctrl.type === type }" ng-click="$ctrl.set(type, \'type\')"><span class="symbol {{type.cssClass}}"></span>{{type.title}}</li>' +
       '    </ul>' +
       '    <div class="overlay" ng-class="{ visible: $ctrl.showTypeMenu === true }" ng-click="$ctrl.toggleMenu(\'type\')"></div>' +
@@ -30,9 +30,9 @@ angularIO.directive('apiList', function () {
       '        ' +
       '  <div class="form-select-menu">' +
       '    <button ng-repeat="status in $ctrl.statuses" ng-if="$ctrl.status === status.matches[0]" class="form-select-button" ng-click="$ctrl.toggleMenu(\'status\')"><strong>Status:</strong>{{status.title}}</button>'+
-      '    <button class="form-select-button is-default" ng-if="$ctrl.status === null" ng-click="$ctrl.toggleMenu(\'status\')"><strong>All Statuses</strong></button>'+
+      '    <button class="form-select-button is-default" ng-if="$ctrl.status === null" ng-click="$ctrl.toggleMenu(\'status\')"><strong>Status: All</strong></button>'+
       '    <ul class="form-select-dropdown" ng-class="{ visible: $ctrl.showStatusMenu === true }">' +
-      '      <li ng-class="{ active: !$ctrl.status }" ng-click="$ctrl.clear(\'status\')">All Statuses</li>' +
+      '      <li ng-class="{ active: !$ctrl.status }" ng-click="$ctrl.clear(\'status\')">All</li>' +
       '      <li ng-repeat="status in $ctrl.statuses" ng-class="{ active: $ctrl.status === status }" ng-click="$ctrl.set(status, \'status\')">{{status.title}}</li>' +
       '    </ul>' +
       '    <div class="overlay" ng-class="{ visible: $ctrl.showStatusMenu === true }" ng-click="$ctrl.toggleMenu(\'status\')"></div>' +
