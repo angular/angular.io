@@ -10,9 +10,6 @@
 */
 
 angularIO.directive('apiList', function () {
-  var API_FILTER_KEY = 'apiFilter';
-  var API_TYPE_KEY = 'apiType';
-  var API_STATUS_KEY = 'statusType';
   var QUERY_KEY = 'query';
   var TYPE_KEY = 'type';
   var STATUS_KEY = 'status';
