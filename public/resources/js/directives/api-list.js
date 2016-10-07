@@ -28,7 +28,7 @@ angularIO.directive('apiList', function () {
       '    <div class="overlay" ng-class="{ visible: $ctrl.showTypeMenu === true }" ng-click="$ctrl.toggleMenu(\'type\')"></div>' +
       '  </div>' +
       '        ' +
-      '  <div class="form-select-menu">' +
+      '  <div class="form-select-menu" ng-if="!$ctrl.isForDart">' +
       '    <button ng-repeat="status in $ctrl.statuses" ng-if="$ctrl.status === status.matches[0]" class="form-select-button" ng-click="$ctrl.toggleMenu(\'status\')"><strong>Status:</strong>{{status.title}}</button>'+
       '    <button class="form-select-button is-default" ng-if="$ctrl.status === null" ng-click="$ctrl.toggleMenu(\'status\')"><strong>Status: All</strong></button>'+
       '    <ul class="form-select-dropdown" ng-class="{ visible: $ctrl.showStatusMenu === true }">' +
@@ -76,7 +76,7 @@ angularIO.directive('apiList', function () {
         { cssClass: 'function', title: 'Function', matches: ['function'] },
         { cssClass: 'enum', title: 'Enum', matches: ['enum'] },
         { cssClass: 'type-alias', title: 'Type Alias', matches: ['type-alias'] },
-        { cssClass: 'const', title: 'Const', matches: ['var', 'let', 'const'] }
+        { cssClass: 'const', title: 'Const', matches: ['const', 'var', 'let'] }
       ];
 
       // STATUSES
@@ -140,8 +140,10 @@ angularIO.directive('apiList', function () {
       // UPDATE VALUES IF DART API
       var isForDart = $attrs.lang === 'dart';
       if (isForDart) {
-        $ctrl.apiTypes = $ctrl.apiTypes.filter(function (t) {
-          return !t.cssClass.match(/^(stable|directive|decorator|interface|enum)$/);
+        $ctrl.isForDart = true;
+        $ctrl.statuses = [];
+        $ctrl.types = $ctrl.types.filter(function (t) {
+          return t.cssClass.match(/^(class|function|const)$/);
         });
       }
 
