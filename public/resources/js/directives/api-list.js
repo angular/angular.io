@@ -39,6 +39,7 @@ angularIO.directive('apiList', function () {
 
       $ctrl.apiTypes = [
         { cssClass: 'stable', title: 'Only Stable', matches: ['stable']},
+        { cssClass: 'experimental', title: 'Experimental', matches: ['experimental']},
         { cssClass: 'directive', title: 'Directive', matches: ['directive'] },
         { cssClass: 'pipe', title: 'Pipe', matches: ['pipe'] },
         { cssClass: 'decorator', title: 'Decorator', matches: ['decorator'] },
@@ -79,13 +80,13 @@ angularIO.directive('apiList', function () {
 
         section.items.forEach(function(item) {
 
-          // Filter by stability (ericjim: only 'stable' for now)
+          // Filter by stability (ericjim: only 'stable' or 'experimental' for now)
           if ($ctrl.apiType && $ctrl.apiType.matches.length === 1 &&
-              $ctrl.apiType.matches[0] === 'stable' && item.stability === 'stable') {
+              $ctrl.apiType.matches[0] === item.stability) {
             item.show = true;
             isVisible = true;
             return isVisible;
-          }  // NOTE: other checks can be performed for stability (experimental, deprecated, etc)
+          }
 
           // Filter by docType
           var matchesDocType = !$ctrl.apiType || $ctrl.apiType.matches.indexOf(item.docType) !== -1;
