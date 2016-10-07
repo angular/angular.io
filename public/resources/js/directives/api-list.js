@@ -130,8 +130,6 @@ angularIO.directive('apiList', function () {
 
       // TOGGLE MENU
       $ctrl.toggleMenu = function(kind) {
-        console.log(kind);
-
         switch(kind) {
           case 'type': $ctrl.showTypeMenu = !$ctrl.showTypeMenu; ; break;
           case 'status': $ctrl.showStatusMenu = !$ctrl.showStatusMenu; ; break;
@@ -170,7 +168,7 @@ angularIO.directive('apiList', function () {
       );
 
 
-      // GET VALUES FORM URL
+      // GET VALUES FROM URL
       function getFilterValues() {
         var urlParams =  $location.search();
 
