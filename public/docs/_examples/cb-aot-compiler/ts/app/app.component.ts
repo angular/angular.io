@@ -13,5 +13,4 @@ export class AppComponent {
   toggleHeading() {
     this.showHeading = !this.showHeading;
   }
-
 }
