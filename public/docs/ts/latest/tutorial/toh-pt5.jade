@@ -645,16 +645,66 @@ block extract-id
 
 .l-main-section
 :marked
+  ## Refactor routes to a _Routing Module_
+
+  Almost 20 lines of `AppModule` are devoted to configuring four routes. 
+  Most application have many more routes and they [add guard services](../guide/router.html#guards) 
+  to protect against unwanted or unauthorized navigations. 
+  Routing considerations could quickly dominate this module and obscure its primary purpose which is to 
+  establish key facts about the entire app for the Angular compiler.
+
+  We should refactor the routing configuration into its own class.
+  What kind of class? 
+  The current `RouterModule.forRoot()` produces an Angular `ModuleWithProviders` which suggests that a
+  class dedicated to routing should be some kind of module.
+  It should be a [_Routing Module_](../guide/router.htm#routing-module).
+
+  By convention the name of a _Routing Module_ contains the word "Routing" and 
+  aligns with the name of the module that declares the components navigated to".
+  
+  Create an `app-routing.module.ts` file as a sibling to `app.module.ts`. Give it the following contents extracted from the `AppModule` class:
+
++makeExample('app/app-routing.module.ts')
+:marked
+  Noteworthy points, typical of _Routing Modules_:
+  * Pull the routes into a variable. You might export it in future and it clarifies the _Routing Module_ pattern.
+
+  * Add `RouterModule.forRoot(routes)` to `imports`.
+    
+  * Add `RouterModule` to `exports` so that the components in the companion module have access to Router declarables 
+  such as `RouterLink` and `RouterOutlet`.
+  
+  * No `declarations`!  Declarations are the responsibility of the companion module.
+
+  * Add module `providers` for guard services if you have them; there are none in this example.
+
+  ### Update _AppModule_
+
+  Now delete the routing configuration from `AppModule` and import the `AppRoutingModule` 
+  (_both_ with an ES `import` statement _and_ by adding it to the `NgModule.imports` list).
+
+  Here is the revised `AppModule`, compared to its pre-refactor state:
++makeTabs(
+  `toh-5/ts/app/app.module.ts, toh-5/ts/app/app.module.3.ts`,
+   null,
+  `app/app.module.ts (after), app/app.module.ts (before)`)
+:marked
+  It's simpler and focused on indentifying the key pieces of the application.
+.l-main-section
+:marked
   ## Select a Hero in the *HeroesComponent*
 
+  Earlier we added the ability to select a hero from the dashboard.
   We'll do something similar in the `HeroesComponent`.
 
-  That component's current template exhibits a "master/detail" style with the list of heroes
+  The `HeroesComponent` template exhibits a "master/detail" style with the list of heroes
   at the top and details of the selected hero below.
 
 +makeExample('toh-4/ts/app/app.component.ts','template', 'app/heroes.component.ts (current template)')(format=".")
 
 :marked
+  Our goal is to move the detail to its own view and navigate to it when the user decides to edit a selected hero.
+
   Delete the `<h1>` at the top (forgot about it during the `AppComponent`-to-`HeroesComponent` conversion).
 
   Delete the last line of the template with the `<my-hero-detail>` tags.
@@ -663,8 +713,9 @@ block extract-id
   We're going to display the hero detail on its own page and route to it as we did in the dashboard.
 
   But we'll throw in a small twist for variety.
-  When the user selects a hero from the list, we *won't* go to the detail page.
-  We'll show a *mini-detail* on *this* page instead and make the user click a button to navigate to the *full detail *page.
+  We are keeping the "master/detail" style but shrinking the detail to a "mini", read-only version.
+  When the user selects a hero from the list, we *don't* go to the detail page.
+  We show a *mini-detail* on *this* page instead and make the user click a button to navigate to the *full detail *page.
 
   ### Add the *mini-detail*
 
@@ -859,6 +910,7 @@ block file-tree-end
         .file app.component.css
         .file app.component.ts
         .file app.module.ts
+        .file app-routing.module.ts
         .file dashboard.component.css
         .file dashboard.component.html
         .file dashboard.component.ts
@@ -895,6 +947,7 @@ block file-tree-end
   - We shared the `HeroService` among multiple components.
   - We moved HTML and CSS out of the component file and into their own files.
   - We added the `uppercase` pipe to format data.
+  - We refactored routes into a `Routing Module` that we import.
 
   ### The Road Ahead
 
