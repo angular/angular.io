@@ -341,27 +341,29 @@ a#toh
 
   Fortunately, the source code can be compiled either way without change _if_ you account for a few key differences.
 
-  *Index.html*
+  ***Index.html***
 
-  The JiT and AoT apps are launched and bootstrapped differently. This example has separate JiT and AoT `index.html` files. 
-
-  The JiT version relies on `SystemJS` to load individual modules and requires the `reflect-metadata` shim. 
-  Both scripts appear in its `index.html`.
-
-  The AoT version loads the entire application in a single script, `dist/build.js`.
-  It does not need `SystemJS` or the `reflect-metadata` shim; those scripts are absent from its `index.html`
-
-  Here are the two index.html files for comparison:
+  The JiT and AoT apps are setup and launched so differently that they require their own `index.html` files. 
+  Here they are for comparison:
 
 +makeTabs(
-  `toh-6-aot/ts/index.html,
+  `toh-6/ts/aot/index.html,
    toh-6/ts/index.html`,
   null,
-  `index.html (AoT),
+  `aot/index.html (AoT),
    index.html (JiT)`
 )
 
 :marked
+  They can't be in the same folder. 
+  ***Put the AoT version in the `/aot` folder***.
+
+  The JiT version relies on `SystemJS` to load individual modules and requires the `reflect-metadata` shim. 
+  Both scripts appear in its `index.html`.
+
+  The AoT version loads the entire application in a single script, `aot/dist/build.js`.
+  It does not need `SystemJS` or the `reflect-metadata` shim; those scripts are absent from its `index.html`
+
   *Component-relative Template URLS*
 
   The AoT compiler requires that `@Component` URLS for external templates and css files be _component-relative_.
@@ -373,7 +375,7 @@ a#toh
   JiT-compiled apps, using the SystemJS loader and _component-relative_ URLs *must set the* `@Component.moduleId` *property to* `module.id`.
   The `module` object is undefined when an AoT-compiled app runs. 
   The app fails unless you assign a global `module` value in the `index.html` like this:
-+makeExample('toh-6-aot/ts/index.html','moduleId')(format='.')  
++makeExample('toh-6/ts/aot/index.html','moduleId')(format='.')  
 .l-sub-section
   :marked
     Setting a global `module` is a temporary expedient. 
@@ -392,7 +394,7 @@ a#toh
   null,
   `tsconfig.json (AoT),
    tsconfig-aot.json (JiT)`
-)   
+)
 
 :marked
   ### Tree Shaking
@@ -411,11 +413,47 @@ a#toh
 :marked
   ### Running the application
 
+.alert.is-important
+  :marked
+    The general audience instructions for running the AoT build of the Tour of Heroes app are not ready.
+
+    The following instructions presuppose that you have cloned the 
+    <a href="https://github.com/angular/angular.io" target="_blank">angular.io</a> 
+    github repository and prepared it for development as explained in the repo's README.md.
+
+    The _Tour of Heroes_ source code is in the `public/docs/_examples/toh-6/ts` folder.
+:marked
   Run the JiT-compiled app with `npm start` as for all other JiT examples.
 
-  Launch the AoT-compiled app in the `toh-6-aot/ts` folder with the following command :
+  Compiling with AoT presupposes certain supporting files, most of them discussed above.
++makeTabs(
+  `toh-6/ts/aot/index.html,
+   toh-6/ts/aot/bs-config.json,
+   toh-6/ts/copy-dist-files.js,
+   toh-6/ts/rollup-config.js,
+   toh-6/ts/tsconfig-aot.json`,
+  null,
+  `aot/index.html,
+   aot/bs-config.json,
+   copy-dist-files.js,
+   rollup-config.js,
+   tsconfig-aot.json`)
+:marked
+  Extend the `scripts` section of the `package.json` with these npm scripts:
 code-example(format='.').
-  npm run build:toh-aot && npm run lite
+  "build:aot": "ngc -p tsconfig-aot.json && rollup -c rollup-config.js",
+  "lite:aot": "lite-server -c aot/bs-config.json",
+:marked
+  Copy the AoT distribution files into the `/aot` folder with the node script:
+code-example(format='.').
+  node copy-dist-files
+.l-sub-section
+  :marked
+    You won't do that again until there are updates to `zone.js` or the `core-js` shim for old browsers.
+:marked
+  Now AoT-compile the app and launch it with the `lite` server:
+code-example(format='.').
+  npm run build:aot && npm run lite:aot
 
 :marked
   ### Inspect the Bundle
@@ -432,7 +470,7 @@ code-example(format='.').
   Run the following command to generate the map.
 
 code-example(format='.').
-  node_modules/.bin/source-map-explorer dist/build.js
+  node_modules/.bin/source-map-explorer aot/dist/build.js
 
 :marked
   The `source-map-explorer` analyzes the source map generated with the bundle and draws a map of all dependencies,

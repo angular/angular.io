@@ -296,7 +296,12 @@ function runE2eTsTests(appDir, outputFile) {
   var appBuildSpawnInfo = spawnExt('npm', ['run', config.build], { cwd: appDir });
   var appRunSpawnInfo = spawnExt('npm', ['run', config.run, '--', '-s'], { cwd: appDir });
 
-  return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
+  var run = runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
+
+  if (fs.existsSync(appDir + '/aot/index.html')) {
+    run = run.then(() => runProtractorAoT(appDir, outputFile));
+  }
+  return run;
 }
 
 function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
@@ -339,6 +344,20 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
       treeKill(appRunSpawnInfo.proc.pid);
       return ok;
     }
+}
+
+function runProtractorAoT(appDir, outputFile) {
+  fs.appendFileSync(outputFile, '++ AoT version ++\n');
+  var aotBuildSpawnInfo = spawnExt('npm', ['run', 'build:aot'], { cwd: appDir });
+  var promise = aotBuildSpawnInfo.promise;
+
+  var copyFileCmd = 'copy-dist-files.js';
+  if (fs.existsSync(appDir + '/' + copyFileCmd)) {
+    promise = promise.then(() =>
+     spawnExt('node', [copyFileCmd], { cwd: appDir }).promise );
+  }
+  var aotRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', 'aot', '--', '-s'], { cwd: appDir });
+  return runProtractor(promise, appDir, aotRunSpawnInfo, outputFile);
 }
 
 // start the server in appDir/build/web; then run protractor with the specified
@@ -883,7 +902,7 @@ function harpCompile() {
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
 
   if(argv.page) harpJsonSetJade2NgTo(true);
-  
+
   if(skipLangs && fs.existsSync(WWW) && backupApiHtmlFilesExist(WWW)) {
     gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
     gutil.log(`API docs will be copied from existing ${WWW} folder.`)
