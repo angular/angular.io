@@ -9,6 +9,8 @@ import { AppRoutingModule }    from './app-routing.module';
 import { HeroesModule }        from './heroes/heroes.module';
 import { CrisisCenterModule }  from './crisis-center/crisis-center.module';
 import { LoginRoutingModule }  from './login-routing.module';
+import { LoginComponent }       from './login.component';
+
 import { DialogService }       from './dialog.service';
 
 @NgModule({
@@ -21,7 +23,8 @@ import { DialogService }       from './dialog.service';
     AppRoutingModule
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    LoginComponent
   ],
   providers: [
     DialogService

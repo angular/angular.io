@@ -1,11 +1,15 @@
 // #docplaster
 // #docregion, preload-v1
 import { NgModule }     from '@angular/core';
-import { RouterModule } from '@angular/router';
+import {
+  RouterModule,
+// #enddocregion preload-v1
+  PreloadAllModules
+// #docregion preload-v1
+} from '@angular/router';
 
 import { CanDeactivateGuard } from './can-deactivate-guard.service';
 import { AuthGuard }          from './auth-guard.service';
-import { PreloadSelectedModules } from './selective-preload-strategy';
 
 @NgModule({
   imports: [
@@ -20,25 +24,21 @@ import { PreloadSelectedModules } from './selective-preload-strategy';
         redirectTo: '/heroes',
         pathMatch: 'full'
       },
-      // #docregion preload-v2
       {
         path: 'crisis-center',
-        loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule',
-        data: {
-          moduleName: 'Crisis Center',
-          preload: true
-        }
-      }
-      // #enddocregion preload-v2
+        loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
+      },
     ],
-    { preloadingStrategy: PreloadSelectedModules })
+    // #enddocregion preload-v1
+    { preloadingStrategy: PreloadAllModules }
+    // #docregion preload-v1
+    )
   ],
   exports: [
     RouterModule
   ],
   providers: [
-    CanDeactivateGuard,
-    PreloadSelectedModules
+    CanDeactivateGuard
   ]
 })
 export class AppRoutingModule {}
