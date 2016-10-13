@@ -7,17 +7,18 @@ import { Router } from '@angular/router';
 
 import { Hero } from './hero';
 import { HeroService } from './hero.service';
-
+  // #docregion metadata
 @Component({
   moduleId: module.id,
   selector: 'my-dashboard',
-  // #docregion templateUrl
   templateUrl: 'dashboard.component.html',
-  // #enddocregion templateUrl
+  // #enddocregion metadata
   // #docregion css
   styleUrls: [ 'dashboard.component.css' ]
   // #enddocregion css
+  // #docregion metadata
 })
+// #enddocregion metadata
 // #docregion component
 export class DashboardComponent implements OnInit {
 
