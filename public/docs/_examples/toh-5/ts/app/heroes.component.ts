@@ -8,7 +8,9 @@ import { HeroService } from './hero.service';
 
 // #docregion renaming, metadata
 @Component({
+  // #enddocregion renaming
   moduleId: module.id,
+  // #docregion renaming
   selector: 'my-heroes',
   // #enddocregion renaming
   templateUrl: 'heroes.component.html',

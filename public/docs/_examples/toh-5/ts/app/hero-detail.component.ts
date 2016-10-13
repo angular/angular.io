@@ -6,16 +6,16 @@ import { Location }               from '@angular/common';
 
 import { Hero }         from './hero';
 import { HeroService }  from './hero.service';
-
+// #docregion metadata
 @Component({
   moduleId: module.id,
   selector: 'my-hero-detail',
-  // #docregion templateUrl
   templateUrl: 'hero-detail.component.html',
-  // #enddocregion templateUrl, v2
+  // #enddocregion metadata, v2
   styleUrls: [ 'hero-detail.component.css' ]
-  // #docregion v2
+  // #docregion metadata, v2
 })
+// #enddocregion metadata
 // #docregion implement
 export class HeroDetailComponent implements OnInit {
 // #enddocregion implement
