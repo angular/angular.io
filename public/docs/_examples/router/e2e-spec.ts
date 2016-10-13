@@ -114,7 +114,7 @@ describe('Router', function () {
       return page.loginButton.click();
     }).then(function() {
       expect(page.adminPreloadList.count()).toBe(1, 'should be 1 preloaded module');
-      expect(page.adminPreloadList.first().getText()).toBe('Crisis Center', 'first preload should be crisis center');
+      expect(page.adminPreloadList.first().getText()).toBe('crisis-center', 'first preload should be crisis center');
     });
   });
 

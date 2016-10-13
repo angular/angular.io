@@ -25,7 +25,6 @@ import { PreloadSelectedModules } from './selective-preload-strategy';
         path: 'crisis-center',
         loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule',
         data: {
-          moduleName: 'Crisis Center',
           preload: true
         }
       }
