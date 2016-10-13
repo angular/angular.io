@@ -25,7 +25,7 @@
     .Class({
       constructor: function() {}
     });
-  
+
 })(window.app = window.app || {});
 
 (function(app) {
@@ -35,11 +35,12 @@
     template: '<h1>Hero: {{name}}</h1>'
   })
   .Class({
-    constructor:
-      [new ng.core.Inject('heroName'), 
-       function(name) {
-         this.name = name;
-       }]
+    constructor: [
+      new ng.core.Inject('heroName'),
+      function(name) {
+        this.name = name;
+      }
+    ]
   });
 // #enddocregion ctor
 

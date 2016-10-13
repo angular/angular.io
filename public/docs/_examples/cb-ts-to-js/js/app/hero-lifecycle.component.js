@@ -10,10 +10,9 @@
     })
   ];
   // #docregion
-  HeroComponent.prototype.ngOnInit =
-    function() {
-      this.name = 'Windstorm';
-    };
+  HeroComponent.prototype.ngOnInit = function() {
+    this.name = 'Windstorm';
+  };
   // #enddocregion
 
   app.HeroesLifecycleModule =

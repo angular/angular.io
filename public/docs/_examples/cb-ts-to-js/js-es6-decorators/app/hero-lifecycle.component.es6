@@ -10,8 +10,8 @@ import { BrowserModule } from '@angular/platform-browser';
   template: `<h1>Hero: {{name}}</h1>`
 })
 // #docregion
-class HeroComponent implements OnInit {
-  name: string;
+class HeroComponent{
+  name;
   ngOnInit() {
     this.name = 'Windstorm';
   }

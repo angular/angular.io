@@ -247,15 +247,16 @@ function findAndRunE2eTests(filter, outputFile) {
    e2eSpecPaths.forEach(function(specPath) {
     // get all of the examples under each dir where a pcFilename is found
     localExamplePaths = getExamplePaths(specPath, true);
-    // Filter by language
-    localExamplePaths = localExamplePaths.filter(function (fn) {
-      return fn.match('/'+lang+'$') != null;
-    });
+    // Filter by example name
     if (filter) {
       localExamplePaths = localExamplePaths.filter(function (fn) {
         return fn.match(filter) != null;
       })
     }
+    // Filter by language, also supports variations like js-es6
+    localExamplePaths = localExamplePaths.filter(function (fn) {
+      return fn.match('/'+lang+'(?:-[^/]*)?$') != null;
+    });
     localExamplePaths.forEach(function(examplePath) {
       examplePaths.push(examplePath);
     })
@@ -1270,7 +1271,7 @@ function apiExamplesWatch(postShredAction) {
 }
 
 function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
-  var watchPattern = focus ? '**/{' + focus + ',cb-' + focus+ '}/**/*.*' : '**/*.*';
+  var watchPattern = focus ? '{' + focus + ',cb-' + focus+ '}/**/*.*' : '**/*.*';
   var includePattern = path.join(shredOptions.examplesDir, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');

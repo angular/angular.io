@@ -5,11 +5,12 @@
     template: '<h1>Hero: {{name}}</h1>'
   })
   .Class({
-    constructor:
-      [app.DataService, 
-       function(service) {
-         this.name = service.getHeroName();
-       }]
+    constructor: [
+      app.DataService,
+      function(service) {
+        this.name = service.getHeroName();
+      }
+    ]
   });
   // #enddocregion
 

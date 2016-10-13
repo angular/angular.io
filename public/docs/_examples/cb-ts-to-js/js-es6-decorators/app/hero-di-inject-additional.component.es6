@@ -17,11 +17,14 @@ import { BrowserModule } from '@angular/platform-browser';
   `
 })
 class TitleComponent {
-  private msg: string = '';
+  msg = '';
   constructor(
-    @Inject('titlePrefix') @Optional() private titlePrefix: string,
-    @Attribute('title') private title: string
-  ) { }
+    @Inject('titlePrefix') @Optional() titlePrefix,
+    @Attribute('title') title
+  ) {
+    this.titlePrefix = titlePrefix;
+    this.title = title;
+  }
 
   ok() {
     this.msg = 'OK!';

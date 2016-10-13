@@ -10,7 +10,7 @@ import { DataService } from './data.service';
 })
 
 class HeroComponent {
-  name: string;
+  name;
   constructor(dataService: DataService) {
     this.name = dataService.getHeroName();
   }

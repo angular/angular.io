@@ -18,7 +18,7 @@ import { BrowserModule } from '@angular/platform-browser';
 class HeroesComponent {
   @HostBinding() title = 'Tooltip content';
   @HostBinding('class.heading') hClass = true;
-  active: boolean;
+  active;
 
   constructor() {}
 
@@ -28,7 +28,7 @@ class HeroesComponent {
   }
 
   @HostListener('dblclick', ['$event'])
-  doubleClicked(evt: Event) {
+  doubleClicked(evt) {
     this.active = true;
   }
 }

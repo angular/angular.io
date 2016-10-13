@@ -6,9 +6,11 @@
   function HeroComponent(dataService) {
     this.name = dataService.getHeroName();
   }
+  
   HeroComponent.parameters = [
     app.DataService
   ];
+
   HeroComponent.annotations = [
     new ng.core.Component({
       selector: 'hero-di',

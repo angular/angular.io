@@ -4,12 +4,9 @@
   // #enddocregion appimport
 
   // #docregion ng2import
-  var platformBrowserDynamic =
-    ng.platformBrowserDynamic.platformBrowserDynamic;
-  var LocationStrategy =
-    ng.common.LocationStrategy;
-  var HashLocationStrategy =
-    ng.common.HashLocationStrategy;
+  var platformBrowserDynamic = ng.platformBrowserDynamic.platformBrowserDynamic;
+  var LocationStrategy = ng.common.LocationStrategy;
+  var HashLocationStrategy = ng.common.HashLocationStrategy;
   // #enddocregion ng2import
 
   // #docregion appimport

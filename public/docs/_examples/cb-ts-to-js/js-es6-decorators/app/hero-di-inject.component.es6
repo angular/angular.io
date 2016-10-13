@@ -7,7 +7,9 @@ import { BrowserModule } from '@angular/platform-browser';
   template: `<h1>Hero: {{name}}</h1>`
 })
 class HeroComponent {
-  constructor(@Inject('heroName') private name: string) { }
+  constructor(@Inject('heroName') name) {
+    this.name = name;
+  }
 }
 // #enddocregion
 

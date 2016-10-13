@@ -9,10 +9,7 @@
       '<p>{{ msg }}</p>'
   }).Class({
     constructor: [
-      [
-        new ng.core.Optional(),
-        new ng.core.Inject('titlePrefix')
-      ],
+      [ new ng.core.Optional(), new ng.core.Inject('titlePrefix') ],
       new ng.core.Attribute('title'),
       function(titlePrefix, title) {
         this.titlePrefix = titlePrefix;
@@ -33,7 +30,7 @@
   }).Class({
     constructor: function() { }
   });
- 
+
   app.HeroesDIInjectAdditionalModule =
     ng.core.NgModule({
       imports: [ ng.platformBrowser.BrowserModule ],

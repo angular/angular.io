@@ -15,13 +15,12 @@
   HeroComponent.annotations = [
     new ng.core.Component({
       selector: 'hero-view',
-      template:
-        '<h1>Hero: {{getName()}}</h1>'
+      template: '<h1>Hero: {{getName()}}</h1>'
     })
   ];
   // #docregion constructorproto
-  HeroComponent.prototype.getName =
-    function() {return 'Windstorm';};
+  
+  HeroComponent.prototype.getName = function() {return 'Windstorm';};
   // #enddocregion constructorproto
   // #enddocregion metadata
 
