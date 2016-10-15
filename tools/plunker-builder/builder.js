@@ -216,7 +216,7 @@ class PlunkerBuilder {
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
     this.systemjsConfig +=  this.copyrights.jsCss;
-    this.tsconfig = fs.readFileSync(`${this.basePath}/tsconfig.json`, 'utf-8');
+    this.tsconfig = fs.readFileSync(`${this.basePath}/_boilerplate/tsconfig.json`, 'utf-8');
   }
 
   _htmlToElement(document, html) {
