@@ -15,16 +15,18 @@ angularIO.directive('announcementBar', ['$interval', function($interval) {
     replace: true,
     template:
       '<div class="announcement-bar">' +
+        '<em>{{scope.slides.length}}</em>' +
         '<div class="announcement-bar-slides" ng-transclude></div>' +
-        '<nav class="announcement-bar-nav">'+
+        '<nav class="announcement-bar-nav" ng-if="slides.length > 1">'+
           '<button ng-class="{ selected: currentSlide === key }" ng-repeat="(key, slide) in slides" ng-click="changeSlide($event, key)">{{key}}</button>' +
         '</nav>' +
       '</div>',
 
     link: function(scope, element, attrs) {
       // REGISTER ELEMENTS
+      var $ctrl = this;
       scope.slides = angular.element(element[0].getElementsByClassName('announcement-bar-slide'));
-      var slideLenth = scope.slides.length;
+      var slideLength = scope.slides.length;
 
       // SHOW FIRST SLIDE
       scope.currentSlide = 0;
@@ -58,7 +60,7 @@ angularIO.directive('announcementBar', ['$interval', function($interval) {
         scope.slides.removeClass('is-visible');
 
         // RESET ON LAST SLIDE
-        if((scope.currentSlide) > (slideLenth - 1))  {
+        if((scope.currentSlide) > (slideLength - 1))  {
           scope.currentSlide = 0;
         }
 
