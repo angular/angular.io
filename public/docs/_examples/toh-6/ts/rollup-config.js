@@ -12,13 +12,10 @@ export default {
   sourceMapFile: 'aot/dist/build.js.map',
   format: 'iife',
   plugins: [
-      nodeResolve({jsnext: true, module: true}),
-      commonjs({
-        include: [
-          'node_modules/rxjs/**',
-          'node_modules/angular-in-memory-web-api/**'
-          ],
-      }),
-      uglify()
+    nodeResolve({jsnext: true, module: true}),
+    commonjs({
+      include: ['node_modules/rxjs/**']
+    }),
+    uglify()
   ]
 }

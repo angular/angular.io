@@ -51,7 +51,7 @@
 
       // other libraries
       'rxjs':                      'npm:rxjs',
-      'angular-in-memory-web-api': 'npm:angular-in-memory-web-api',
+      'angular-in-memory-web-api': 'npm:angular-in-memory-web-api/bundles/in-memory-web-api.umd.js',
       'ts':                        'npm:plugin-typescript@4.0.10/lib/plugin.js',
       'typescript':                'npm:typescript@2.0.2/lib/typescript.js',
 
@@ -63,10 +63,6 @@
         defaultExtension: 'ts'
       },
       rxjs: {
-        defaultExtension: 'js'
-      },
-      'angular-in-memory-web-api': {
-        main: './index.js',
         defaultExtension: 'js'
       }
     }
