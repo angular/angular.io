@@ -32,6 +32,6 @@ template: '''
 // #docregion app-component-1
 class AppComponent {
   String title = 'Tour of Heroes';
-  Hero hero = 'Windstorm';
+  var hero = 'Windstorm';
 }
 // #enddocregion app-component-1

@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Style Guide', function () {
   it('01-01', function () {
     browser.get('#/01-01');
@@ -57,19 +59,6 @@ describe('Style Guide', function () {
     expect(buttons.get(1).getText()).toBe('Hide toast');
   });
 
-  it('03-05', function () {
-    browser.get('#/03-05');
-
-    let div = element(by.tagName('sg-app > div'));
-    expect(div.getText()).toBe('Actual favorite: Windstorm');
-
-    let lis = element.all(by.tagName('sg-app > ul > li'));
-    expect(lis.get(0).getText()).toBe('Windstorm');
-    expect(lis.get(1).getText()).toBe('Bombasto');
-    expect(lis.get(2).getText()).toBe('Magneta');
-    expect(lis.get(3).getText()).toBe('Tornado');
-  });
-
   it('03-06', function () {
     browser.get('#/03-06');
 
@@ -88,13 +77,6 @@ describe('Style Guide', function () {
 
     let div = element(by.tagName('sg-app > toh-heroes > div'));
     expect(div.getText()).toBe('This is heroes component');
-  });
-
-  it('04-14', function () {
-    browser.get('#/04-14');
-
-    let h2 = element(by.tagName('sg-app > toh-heroes > div > h2'));
-    expect(h2.getText()).toBe('My Heroes');
   });
 
   it('05-02', function () {

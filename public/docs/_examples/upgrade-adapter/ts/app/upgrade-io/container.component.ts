@@ -1,9 +1,6 @@
 // #docregion
 import { Component } from '@angular/core';
-import { upgradeAdapter } from './upgrade_adapter';
 import { Hero } from '../hero';
-
-const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
 
 @Component({
   selector: 'my-container',
@@ -12,8 +9,7 @@ const HeroDetail = upgradeAdapter.upgradeNg1Component('heroDetail');
     <hero-detail [hero]="hero"
                  (deleted)="heroDeleted($event)">
     </hero-detail>
-  `,
-  directives: [HeroDetail]
+  `
 })
 export class ContainerComponent {
   hero = new Hero(1, 'Windstorm');

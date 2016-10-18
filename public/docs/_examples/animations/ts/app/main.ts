@@ -1,5 +1,4 @@
-import { bootstrap }      from '@angular/platform-browser-dynamic';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule } from './app.module';
 
-import { HeroTeamBuilderComponent } from './hero-team-builder.component';
-
-bootstrap(HeroTeamBuilderComponent);
+platformBrowserDynamic().bootstrapModule(AppModule);

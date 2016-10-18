@@ -1,10 +1,8 @@
 // #docregion
-import { Component }         from '@angular/core';
-import { HeroFormComponent } from './hero-form.component';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
-  template: '<hero-form></hero-form>',
-  directives: [HeroFormComponent]
+  template: '<hero-form></hero-form>'
 })
 export class AppComponent { }

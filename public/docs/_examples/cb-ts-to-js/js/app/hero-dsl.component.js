@@ -17,7 +17,15 @@
     });
   // #enddocregion component
 
-  app.HeroComponentDsl = HeroComponent;
+  app.HeroesDslModule =
+    ng.core.NgModule({
+      imports: [ ng.platformBrowser.BrowserModule ],
+      declarations: [ HeroComponent ],
+      bootstrap: [ HeroComponent ]
+    })
+    .Class({
+      constructor: function() {}
+    });
 
 })(window.app = window.app || {});
 // #enddocregion appexport

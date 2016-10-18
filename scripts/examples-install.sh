@@ -3,6 +3,5 @@
 set -ex -o pipefail
 
 (cd public/docs/_examples && npm install --no-optional)
-(cd public/docs/_examples/_protractor && npm install --no-optional)
-npm run webdriver:update --prefix public/docs/_examples/_protractor
+npm run webdriver:update --prefix public/docs/_examples
 gulp add-example-boilerplate

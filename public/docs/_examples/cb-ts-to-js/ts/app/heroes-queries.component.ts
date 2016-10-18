@@ -3,8 +3,10 @@ import {
   ViewChildren,
   ContentChild,
   QueryList,
-  Input
+  Input,
+  NgModule
 } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'active-label',
@@ -55,13 +57,9 @@ class HeroComponent {
     <button (click)="activate()">
       Activate
     </button>
-  `,
-  directives: [
-    HeroComponent,
-    ActiveLabelComponent
-  ]
+  `
 })
-export class HeroesQueriesComponent {
+class HeroesQueriesComponent {
   heroData = [
     {id: 1, name: 'Windstorm'},
     {id: 2, name: 'Superman'}
@@ -77,3 +75,14 @@ export class HeroesQueriesComponent {
   }
 }
 // #enddocregion view
+
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [
+    HeroesQueriesComponent,
+    HeroComponent,
+    ActiveLabelComponent
+  ],
+  bootstrap: [ HeroesQueriesComponent ]
+})
+export class HeroesQueriesModule { }

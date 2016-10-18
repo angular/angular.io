@@ -45,7 +45,7 @@ include ../_util-fns
   [Break circularities with a forward class reference (*forwardRef*)](#forwardref)
   
 :marked
-   **See the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)**
+   **See the <live-example name="cb-dependency-injection"></live-example>**
    of the code supporting this cookbook.        
    
 .l-main-section
@@ -80,25 +80,16 @@ include ../_util-fns
 .l-main-section
 :marked
   ## External module configuration
-  We can register _certain_ module providers when bootstrapping rather than in the root application component. 
+  We often register providers in the `NgModule` rather than in the root application component.
   
-  We'd do this when we expect to select or configure external modules that support our application
-  but (a) aren't conceptually part of the application and (b) that we could change later without
-  altering the essential logic of the application.
+  We do this when (a) we expect the service to be injectable everywhere
+  or (b) we must configure another application global service _before it starts_.
   
-  For example, we might configure the Component Router with different 
-  [location strategies](../guide/router.html#location-strategy)  based on environmental factors. 
-  The choice of location strategy doesn't matter to the application itself.
+  We see an example of the second case here, where we configure the Component Router with a non-default
+  [location strategy](../guide/router.html#location-strategy) by listing its provider 
+  in the `providers` list of the `AppModule`.
   
-  We could sneak in a fake HTTP backend with sample data during development rather than 
-  allow http calls to a remote server (that might not yet exist). 
-  We'll switch to the real backend in production. 
-  The application shouldn't know or care one way or the other.
-  
-  See both examples in the following `main.ts`
-  where we list their service providers in an array in the second parameter of the `bootstrap` method.
-  
-+makeExample('cb-dependency-injection/ts/app/main.ts','bootstrap','app/main.ts')(format='.') 
++makeExample('cb-dependency-injection/ts/app/app.module.ts','providers','app/app.module.ts (providers)')(format='.') 
 
 a(id="injectable")
 a(id="nested-dependencies")
@@ -236,7 +227,7 @@ figure.image-display
   The getter for the `hero` property pulls the cached hero from the service.
   And the template displays this data-bound property.
   
-  Find this example in [live code](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)
+  Find this example in <live-example name="cb-dependency-injection">live code</live-example>
   and confirm that the three `HeroBioComponent` instances have their own cached hero data. 
 figure.image-display
   img(src="/resources/images/cookbooks/dependency-injection/hero-bios.png" alt="Bios")    
@@ -535,7 +526,7 @@ a(id='usefactory')
   :marked
     The function retrieves candidate heroes from the `HeroService`, 
     takes `2` of them to be the runners-up, and returns their concatenated names.
-    Look at the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)
+    Look at the <live-example name="cb-dependency-injection"></live-example>
     for the full source code.
 
 a(id="tokens")
@@ -703,7 +694,7 @@ a(id='alex')
 +makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','cathy','parent-finder.component.ts (CathyComponent)')(format='.')
 :marked
   We added the [@Optional](#optional) qualifier for safety but
-  the [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)
+  the <live-example name="cb-dependency-injection"></live-example>
   confirms that the `alex` parameter is set.
 
   <a id="base-parent"></a>
@@ -737,7 +728,7 @@ a(id='alex')
 +makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','craig','parent-finder.component.ts (CraigComponent)')(format='.')
 :marked
   Unfortunately, this does not work. 
-  The [live example](/resources/live-examples/cb-dependency-injection/ts/plnkr.html)
+  The <live-example name="cb-dependency-injection"></live-example>
   confirms that the `alex` parameter is null.
   *We cannot inject a parent by its base class.*
   
@@ -872,33 +863,12 @@ a(id="forwardref")
   
   The *Parent Finder* sample is full of circular class references that are impossible to break.
   
-  In the [*Alex/Cathy* example](#known-parent) above:
-  
-  * the `AlexComponent` lists the `CathyComponent` in its component metadata `directives` array
-  so it can display *Cathy* in its template.
-  
-  * the `CathyComponent` constructor injects the parent `AlexComponent` which means that the `alex` parameter
-  of its constructor has the `AlexComponent` type.
-  
-  *Alex* refers to *Cathy* and *Cathy* refers to *Alex*. We're stuck. We must define one of them first. 
-  
-  We defined *Alex* first and built its `C_DIRECTIVES` array with a forward reference to *Cathy*: 
-+makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','C_DIRECTIVES','parent-finder.component.ts (C_DIRECTIVES)')(format='.')
 :marked
-.l-sub-section
-  :marked
-    Defining *Alex* and *Cathy* in separate files won't help. 
-    *Alex* would have to import *Cathy* and *Cathy* would have to import *Alex*.
-    
-    We *had* to define *Alex* first because, 
-    while we can add `forwardRef(CathyComponent)` to *Alex*'s `directives` array,
-    we can't write `public alex: forwardRef(AlexComponent))` in *Cathy*'s constructor. 
-:marked
-  We face a similar dilemma when a class makes *a reference to itself*
+  We face this dilemma when a class makes *a reference to itself*
   as does the `AlexComponent` in its `providers` array. 
   The `providers` array is a property of the `@Component` decorator function which must
   appear *above* the class definition.
   
-  Again we break the circularity with `forwardRef`:
+  We break the circularity with `forwardRef`:
 +makeExample('cb-dependency-injection/ts/app/parent-finder.component.ts','alex-providers','parent-finder.component.ts (AlexComponent providers)')(format='.')
 :marked

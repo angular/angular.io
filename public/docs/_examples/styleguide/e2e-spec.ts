@@ -1,8 +1,10 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Documentation StyleGuide E2E Tests', function() {
 
-  let expectedMsg = 'My First Angular 2 App';
+  let expectedMsg = 'My First Angular App';
 
   beforeEach(function () {
     browser.get('');

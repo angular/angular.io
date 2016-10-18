@@ -1,7 +1,9 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, ActivatedRoute }       from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+// #docregion imports
+import { Router, ActivatedRoute, Params } from '@angular/router';
+// #enddocregion imports
 
 import { Hero, HeroService } from './hero.service';
 
@@ -20,35 +22,27 @@ import { Hero, HeroService } from './hero.service';
       <button (click)="gotoHeroes()">Back</button>
     </p>
   </div>
-  `,
+  `
 })
-export class HeroDetailComponent implements OnInit, OnDestroy  {
+export class HeroDetailComponent implements OnInit  {
   hero: Hero;
-  // #docregion ngOnInit
-  private sub: any;
 
-  // #enddocregion ngOnInit
   // #docregion ctor
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private service: HeroService) {}
+    private service: HeroService
+  ) {}
   // #enddocregion ctor
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.sub = this.route.params.subscribe(params => {
-       let id = +params['id']; // (+) converts string 'id' to a number
-       this.service.getHero(id).then(hero => this.hero = hero);
-     });
+    this.route.params.forEach((params: Params) => {
+      let id = +params['id']; // (+) converts string 'id' to a number
+      this.service.getHero(id).then(hero => this.hero = hero);
+    });
   }
   // #enddocregion ngOnInit
-
-  // #docregion ngOnDestroy
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
-  // #enddocregion ngOnDestroy
 
   // #docregion gotoHeroes
   gotoHeroes() { this.router.navigate(['/heroes']); }

@@ -19,7 +19,7 @@ export class FlyingHeroesPipe implements PipeTransform {
 // #docregion impure
 // #docregion pipe-decorator
 @Pipe({
-  name: 'flyingHeroes',
+  name: 'flyingHeroesImpure',
   pure: false
 })
 // #enddocregion pipe-decorator

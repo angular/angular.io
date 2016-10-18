@@ -18,7 +18,7 @@ import { HeroService } from './hero.service';
   <div *ngFor="let hero of heroes">
     {{hero.id}} - {{hero.name}}
   </div>
-  `,
+  `
 })
 export class HeroListComponent {
   heroes: Hero[];

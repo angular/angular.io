@@ -6,9 +6,8 @@ import { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 
 import { Hero } from './hero';
-import { HeroDetailComponent } from './hero-detail.component';
 // #docregion hero-service-import
-import { HeroService } from './hero.service.1';
+import { HeroService } from './hero.service.2';
 // #enddocregion hero-service-import
 
 // Testable but never shown
@@ -20,7 +19,6 @@ import { HeroService } from './hero.service.1';
   </div>
   <my-hero-detail [hero]="selectedHero"></my-hero-detail>
   `,
-  directives: [HeroDetailComponent],
   // #docregion providers
   providers: [HeroService]
   // #enddocregion providers
@@ -43,7 +41,7 @@ export class AppComponent implements OnInit {
   constructor(private heroService: HeroService) { }
   // #enddocregion ctor
   // #docregion getHeroes
-  getHeroes() {
+  getHeroes(): void {
     // #docregion get-heroes
     this.heroes = this.heroService.getHeroes();
     // #enddocregion get-heroes
@@ -52,7 +50,7 @@ export class AppComponent implements OnInit {
 
   // #docregion ng-on-init
   // #docregion on-init
-  ngOnInit() {
+  ngOnInit(): void {
     // #enddocregion on-init
     this.getHeroes();
     // #docregion on-init
@@ -60,6 +58,8 @@ export class AppComponent implements OnInit {
   // #enddocregion on-init
   // #enddocregion ng-on-init
 
-  onSelect(hero: Hero) { this.selectedHero = hero; }
+  onSelect(hero: Hero): void {
+    this.selectedHero = hero;
+  }
   // #docregion on-init
 }

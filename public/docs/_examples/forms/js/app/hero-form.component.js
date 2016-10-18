@@ -9,7 +9,7 @@
     })
     .Class({
       // #docregion submitted
-      constructor: function() {
+      constructor: [function() {
         // #enddocregion submitted
         this.powers = ['Really Smart', 'Super Flexible',
           'Super Hot', 'Weather Changer'
@@ -20,7 +20,7 @@
 
         // #docregion submitted
         this.submitted = false;
-      },
+      }],
       onSubmit: function() {
         this.submitted = true;
       },
@@ -48,5 +48,5 @@
 
       // #docregion first, final
     });
-  // #enddocregion first, final
 })(window.app || (window.app = {}));
+// #enddocregion first, final

@@ -1,14 +1,11 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { HighlightDirective } from './highlight.directive';
-
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app/app.component.html',
-  directives: [HighlightDirective]
+  templateUrl: 'app.component.html'
 })
 
 export class AppComponent { }
-
 // #enddocregion

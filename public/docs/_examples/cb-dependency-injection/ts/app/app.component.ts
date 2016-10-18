@@ -1,33 +1,17 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { HeroBiosComponent,
-         HeroBiosAndContactsComponent } from './hero-bios.component';
-import { HeroOfTheMonthComponent }     from './hero-of-the-month.component';
-import { HeroesBaseComponent,
-         SortedHeroesComponent }       from './sorted-heroes.component';
-import { HighlightDirective }          from './highlight.directive';
-import { ParentFinderComponent }       from './parent-finder.component';
-
-const DIRECTIVES = [
-    HeroBiosComponent, HeroBiosAndContactsComponent,
-    HeroesBaseComponent, SortedHeroesComponent,
-    HeroOfTheMonthComponent,
-    HighlightDirective,
-    ParentFinderComponent
-];
-
 // #docregion import-services
 import { LoggerService }      from './logger.service';
 import { UserContextService } from './user-context.service';
 import { UserService }        from './user.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'app/app.component.html',
-  directives: DIRECTIVES,
+  templateUrl: 'app.component.html',
 // #docregion providers
-  providers: [LoggerService, UserContextService, UserService]
+  providers: [ LoggerService, UserContextService, UserService ]
 // #enddocregion providers
 })
 export class AppComponent {

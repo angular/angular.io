@@ -20,7 +20,7 @@ import { Hero, HeroService } from './hero.service';
       <button (click)="gotoHeroes()">Back</button>
     </p>
   </div>
-  `,
+  `
 })
 export class HeroDetailComponent implements OnInit  {
   hero: Hero;

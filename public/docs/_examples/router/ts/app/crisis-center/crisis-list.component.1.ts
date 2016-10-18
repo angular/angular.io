@@ -4,6 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router }       from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
+import { Subscription }          from 'rxjs/Subscription';
 
 @Component({
   // #docregion template
@@ -20,12 +21,14 @@ import { Crisis, CrisisService } from './crisis.service';
 export class CrisisListComponent implements OnInit, OnDestroy {
   crises: Crisis[];
   selectedId: number;
-  private sub: any;
+  private sub: Subscription;
 
+  // #docregion relative-navigation-ctor
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router) {}
+  // #enddocregion relative-navigation-ctor
 
   ngOnInit() {
     this.sub = this.route
@@ -44,7 +47,14 @@ export class CrisisListComponent implements OnInit, OnDestroy {
   // #docregion select
   onSelect(crisis: Crisis) {
     // Absolute link
-    this.router.navigate(['/crisis-center', crisis.id]);
+    this.router.navigate([crisis.id]);
   }
   // #enddocregion select
 }
+// #enddocregion
+
+/*
+// #docregion relative-navigation-router-link
+<a [routerLink]="[crisis.id]">{{ crisis.name }}</a>
+// #enddocregion relative-navigation-router-link
+*/

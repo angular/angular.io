@@ -50,9 +50,7 @@ class HeroService {
   // #docregion extract-data
   dynamic _extractData(Response res) {
     var body = JSON.decode(res.body);
-    // TODO: https://github.com/adaojunior/http-in-memory-web-api/issues/1
-    // Once #1 is fixed, drop the `?? body` term:
-    return body['data'] ?? body;
+    return body['data'];
   }
   // #enddocregion extract-data
   // #docregion error-handling

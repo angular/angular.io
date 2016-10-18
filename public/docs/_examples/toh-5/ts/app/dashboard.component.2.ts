@@ -7,8 +7,9 @@ import { HeroService } from './hero.service';
 // #enddocregion imports
 
 @Component({
+  moduleId: module.id,
   selector: 'my-dashboard',
-  templateUrl: 'app/dashboard.component.html'
+  templateUrl: 'dashboard.component.html'
 })
 // #docregion component
 export class DashboardComponent implements OnInit {
@@ -17,10 +18,10 @@ export class DashboardComponent implements OnInit {
 
   constructor(private heroService: HeroService) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.heroService.getHeroes()
       .then(heroes => this.heroes = heroes.slice(1, 5));
   }
 
-  gotoDetail() { /* not implemented yet */}
+  gotoDetail(hero: Hero): void { /* not implemented yet */}
 }

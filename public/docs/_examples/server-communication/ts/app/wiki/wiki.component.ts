@@ -1,6 +1,5 @@
 // #docregion
 import { Component }        from '@angular/core';
-import { JSONP_PROVIDERS }  from '@angular/http';
 import { Observable }       from 'rxjs/Observable';
 
 import { WikipediaService } from './wikipedia.service';
@@ -17,7 +16,7 @@ import { WikipediaService } from './wikipedia.service';
       <li *ngFor="let item of items | async">{{item}}</li>
     </ul>
   `,
-  providers: [JSONP_PROVIDERS, WikipediaService]
+  providers: [WikipediaService]
 })
 export class WikiComponent {
   items: Observable<string[]>;

@@ -19,7 +19,6 @@ import { CountdownTimerComponent }  from './countdown-timer.component';
   <div class="seconds">{{timer.seconds}}</div>
   <countdown-timer #timer></countdown-timer>
   `,
-  directives: [CountdownTimerComponent],
   styleUrls: ['demo.css']
 })
 export class CountdownLocalVarParentComponent { }
@@ -36,7 +35,6 @@ export class CountdownLocalVarParentComponent { }
   <div class="seconds">{{ seconds() }}</div>
   <countdown-timer></countdown-timer>
   `,
-  directives: [CountdownTimerComponent],
   styleUrls: ['demo.css']
 })
 export class CountdownViewChildParentComponent implements AfterViewInit {

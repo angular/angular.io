@@ -7,7 +7,7 @@ import 'logger_service.dart';
 //////////////////
 // #docregion child-view
 @Component(
-  selector: 'my-child',
+  selector: 'my-child-view',
   template: '<input [(ngModel)]="hero">')
 class ChildViewComponent {
   String hero = 'Magneta';
@@ -20,7 +20,7 @@ class ChildViewComponent {
 // #docregion template
   template: '''
     <div>-- child view begins --</div>
-      <my-child></my-child>
+      <my-child-view></my-child-view>
     <div>-- child view ends --</div>
     <p *ngIf="comment.isNotEmpty" class="comment">{{comment}}</p>''',
 // #enddocregion template

@@ -1,6 +1,7 @@
 // #docplaster
 // #docregion final
 import { Component } from '@angular/core';
+
 import { Hero } from './hero';
 
 @Component({
