@@ -1,12 +1,12 @@
 // #docplaster
 // #docregion
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 // #docregion import-router
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 // #enddocregion import-router
 
-import { Hero, HeroService }  from './hero.service';
+import { Hero, HeroService }   from './hero.service';
 
 @Component({
   // #docregion template
@@ -22,25 +22,31 @@ import { Hero, HeroService }  from './hero.service';
   `
   // #enddocregion template
 })
-export class HeroListComponent implements OnInit {
+export class HeroListComponent implements OnInit, OnDestroy {
   heroes: Hero[];
 
   // #docregion ctor
   private selectedId: number;
+  private sub: any;
 
   constructor(
     private service: HeroService,
     private route: ActivatedRoute,
-    private router: Router
-  ) {}
+    private router: Router) {}
   // #enddocregion ctor
 
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
+    this.sub = this.route
+      .params
+      .subscribe(params => {
         this.selectedId = +params['id'];
         this.service.getHeroes()
           .then(heroes => this.heroes = heroes);
       });
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
   // #enddocregion ctor
 

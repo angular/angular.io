@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Dependency Injection Cookbook', function () {
 
     beforeAll(function () {
@@ -73,7 +71,7 @@ describe('Dependency Injection Cookbook', function () {
       let yellow = 'rgba(255, 255, 0, 1)';
 
       expect(target.getCssValue('background-color')).not.toEqual(yellow);
-      browser.actions().mouseMove(target.getWebElement()).perform();
+      browser.actions().mouseMove(target as any as webdriver.WebElement).perform();
       expect(target.getCssValue('background-color')).toEqual(yellow);
     });
 

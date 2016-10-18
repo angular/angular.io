@@ -22,5 +22,5 @@ class DashboardComponent implements OnInit {
     heroes = (await _heroService.getHeroes()).skip(1).take(4).toList();
   }
 
-  gotoDetail(Hero hero) {/* not implemented yet */}
+  gotoDetail() {/* not implemented yet */}
 }

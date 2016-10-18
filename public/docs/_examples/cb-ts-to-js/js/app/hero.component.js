@@ -25,16 +25,6 @@
   // #enddocregion constructorproto
   // #enddocregion metadata
 
-  app.HeroesModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
-
   // #docregion appexport
   app.HeroComponent = HeroComponent;
 

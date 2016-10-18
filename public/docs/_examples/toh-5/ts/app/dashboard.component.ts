@@ -7,18 +7,16 @@ import { Router } from '@angular/router';
 
 import { Hero } from './hero';
 import { HeroService } from './hero.service';
-  // #docregion metadata
+
 @Component({
-  moduleId: module.id,
   selector: 'my-dashboard',
-  templateUrl: 'dashboard.component.html',
-  // #enddocregion metadata
+  // #docregion template-url
+  templateUrl: 'app/dashboard.component.html',
+  // #enddocregion template-url
   // #docregion css
-  styleUrls: [ 'dashboard.component.css' ]
+  styleUrls: ['app/dashboard.component.css']
   // #enddocregion css
-  // #docregion metadata
 })
-// #enddocregion metadata
 // #docregion component
 export class DashboardComponent implements OnInit {
 
@@ -31,15 +29,15 @@ export class DashboardComponent implements OnInit {
   }
   // #enddocregion ctor
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.heroService.getHeroes()
       .then(heroes => this.heroes = heroes.slice(1, 5));
   }
 
-  // #docregion gotoDetail
-  gotoDetail(hero: Hero): void {
+  // #docregion goto-detail
+  gotoDetail(hero: Hero) {
     let link = ['/detail', hero.id];
     this.router.navigate(link);
   }
-  // #enddocregion gotoDetail
+  // #enddocregion goto-detail
 }

@@ -25,15 +25,6 @@
     }
   });
   // #enddocregion
-
-  app.HeroesHostBindingsModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      declarations: [ HeroesComponent ],
-      bootstrap: [ HeroesComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+  app.HeroesHostBindingsComponent = HeroesComponent;
 
 })(window.app = window.app || {});

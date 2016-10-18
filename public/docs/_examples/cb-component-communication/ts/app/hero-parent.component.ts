@@ -1,6 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
+import { HeroChildComponent } from './hero-child.component';
 import { HEROES } from './hero';
 
 @Component({
@@ -11,7 +12,8 @@ import { HEROES } from './hero';
       [hero]="hero"
       [master]="master">
     </hero-child>
-  `
+  `,
+  directives: [HeroChildComponent]
 })
 export class HeroParentComponent {
   heroes = HEROES;

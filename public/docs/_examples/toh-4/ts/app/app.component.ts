@@ -3,6 +3,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { Hero } from './hero';
+import { HeroDetailComponent } from './hero-detail.component';
 // #docregion hero-service-import
 import { HeroService } from './hero.service';
 // #enddocregion hero-service-import
@@ -72,6 +73,7 @@ import { HeroService } from './hero.service';
       border-radius: 4px 0 0 4px;
     }
   `],
+  directives: [HeroDetailComponent],
   providers: [HeroService]
 })
 export class AppComponent implements OnInit {
@@ -82,16 +84,14 @@ export class AppComponent implements OnInit {
   constructor(private heroService: HeroService) { }
 
 // #docregion get-heroes
-  getHeroes(): void {
+  getHeroes() {
     this.heroService.getHeroes().then(heroes => this.heroes = heroes);
   }
 // #enddocregion get-heroes
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.getHeroes();
   }
 
-  onSelect(hero: Hero): void {
-    this.selectedHero = hero;
-  }
+  onSelect(hero: Hero) { this.selectedHero = hero; }
 }

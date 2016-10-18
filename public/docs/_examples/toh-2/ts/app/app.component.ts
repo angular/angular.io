@@ -102,8 +102,6 @@ export class AppComponent {
   // #enddocregion selected-hero
 
   // #docregion on-select
-  onSelect(hero: Hero): void {
-    this.selectedHero = hero;
-  }
+  onSelect(hero: Hero) { this.selectedHero = hero; }
   // #enddocregion on-select
 }

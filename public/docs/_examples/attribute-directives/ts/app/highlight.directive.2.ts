@@ -1,6 +1,6 @@
 /* tslint:disable:no-unused-variable */
 // #docregion
-import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
   selector: '[myHighlight]'
@@ -8,7 +8,9 @@ import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/c
 
 export class HighlightDirective {
   // #docregion ctor
-  constructor(private el: ElementRef, private renderer: Renderer) { }
+  private el: HTMLElement;
+
+  constructor(el: ElementRef) { this.el = el.nativeElement; }
   // #enddocregion ctor
 
   // #docregion mouse-methods, host
@@ -26,7 +28,7 @@ export class HighlightDirective {
   // #enddocregion host
 
   private highlight(color: string) {
-    this.renderer.setElementStyle(this.el.nativeElement, 'backgroundColor', color);
+    this.el.style.backgroundColor = color;
   }
   // #enddocregion mouse-methods
 

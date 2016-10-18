@@ -1,10 +1,10 @@
-'use strict'; // necessary for es6 output in node 
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 
-import { browser, element, by, ElementFinder } from 'protractor';
-import { promise } from 'selenium-webdriver';
+type WPromise<T> = webdriver.promise.Promise<T>;
 
 const expectedH1 = 'Tour of Heroes';
-const expectedTitle = `Angular ${expectedH1}`;
+const expectedTitle = `Angular 2 ${expectedH1}`;
 
 class Hero {
   id: number;
@@ -12,22 +12,22 @@ class Hero {
 
   // Factory method
   // Get hero id and name from the given detail element.
-  static async fromDetail(detail: ElementFinder): Promise<Hero> {
+  static async fromDetail(detail: protractor.ElementFinder): Promise<Hero> {
     // Get hero id from the first <div>
     let _id = await detail.all(by.css('div')).first().getText();
     // Get name from the h2
     let _name = await detail.element(by.css('h2')).getText();
     return {
       id: +_id.substr(_id.indexOf(' ') + 1),
-      name: _name.substr(0, _name.lastIndexOf(' '))
+      name: _name.substr(0, _name.indexOf(' '))
     };
   }
 }
 
 const nameSuffix = 'X';
-function addToHeroName(text: string): promise.Promise<void> {
+function addToHeroName(text: string): WPromise<void> {
   let input = element(by.css('input'));
-  return input.sendKeys(text);
+  return sendKeys(input, text);
 }
 
 describe('Tutorial part 1', () => {

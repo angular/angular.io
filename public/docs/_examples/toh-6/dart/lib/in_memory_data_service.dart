@@ -1,8 +1,8 @@
-// #docregion , init
+// #docregion
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
+// #docregion init
 import 'package:angular2/core.dart';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
@@ -23,19 +23,18 @@ class InMemoryDataService extends MockClient {
     {'id': 19, 'name': 'Magma'},
     {'id': 20, 'name': 'Tornado'}
   ];
+  // #enddocregion init
+
   static final List<Hero> _heroesDb =
       _initialHeroes.map((json) => new Hero.fromJson(json)).toList();
-  static int _nextId = _heroesDb.map((hero) => hero.id).reduce(max) + 1;
+  static int _nextId = 21;
 
   static Future<Response> _handler(Request request) async {
     var data;
     switch (request.method) {
       case 'GET':
-        String prefix = request.url.queryParameters['name'] ?? '';
-        final regExp = new RegExp(prefix, caseSensitive: false);
-        data = _heroesDb.where((hero) => hero.name.contains(regExp)).toList();
+        data = _heroesDb;
         break;
-      // #enddocregion init-disabled
       case 'POST':
         var name = JSON.decode(request.body)['name'];
         var newHero = new Hero(_nextId++, name);
@@ -53,7 +52,6 @@ class InMemoryDataService extends MockClient {
         _heroesDb.removeWhere((hero) => hero.id == id);
         // No data, so leave it as null.
         break;
-      // #docregion init-disabled
       default:
         throw 'Unimplemented HTTP method ${request.method}';
     }
@@ -62,4 +60,5 @@ class InMemoryDataService extends MockClient {
   }
 
   InMemoryDataService() : super(_handler);
+  // #docregion init
 }

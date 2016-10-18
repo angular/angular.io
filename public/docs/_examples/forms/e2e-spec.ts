@@ -1,7 +1,6 @@
-import { browser, element, by } from 'protractor';
-import { appLang, describeIf } from '../protractor-helpers';
-
-describeIf(appLang.appIsTs || appLang.appIsJs, 'Forms Tests', function () {
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
+describeIf(browser.appIsTs || browser.appIsJs, 'Forms Tests', function () {
 
   beforeEach(function () {
     browser.get('');
@@ -46,10 +45,12 @@ describeIf(appLang.appIsTs || appLang.appIsJs, 'Forms Tests', function () {
     let test = 'testing 1 2 3';
     let newValue: string;
     let alterEgoEle = element.all(by.css('input[name=alterEgo]')).get(0);
-    alterEgoEle.getAttribute('value').then(function(value: string) {
-      alterEgoEle.sendKeys(test);
+    alterEgoEle.getAttribute('value').then(function(value) {
+      // alterEgoEle.sendKeys(test);
+      sendKeys(alterEgoEle, test);
       newValue = value + test;
       expect(alterEgoEle.getAttribute('value')).toEqual(newValue);
+    }).then(function() {
       let b = element.all(by.css('button[type=submit]')).get(0);
       return b.click();
     }).then(function() {

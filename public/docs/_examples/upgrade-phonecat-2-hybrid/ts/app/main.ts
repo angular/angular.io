@@ -1,8 +1,9 @@
 // #docregion import-adapter
 import { UpgradeAdapter } from '@angular/upgrade';
-
-import { AppModule } from './app.module';
 // #enddocregion import-adapter
+// #docregion import-http
+import { HTTP_PROVIDERS } from '@angular/http';
+// #enddocregion import-http
 // #docregion phone-service
 import { Phone } from './core/phone/phone.service';
 
@@ -16,9 +17,17 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
 
 // #enddocregion phone-detail
 // #docregion init-adapter
-let upgradeAdapter = new UpgradeAdapter(AppModule);
+let upgradeAdapter = new UpgradeAdapter();
 // #enddocregion init-adapter
 
+// #docregion add-http
+upgradeAdapter.addProvider(HTTP_PROVIDERS);
+// #enddocregion add-http
+// #docregion phone-service
+
+upgradeAdapter.addProvider(Phone);
+
+// #enddocregion phone-service
 // #docregion routeparams
 upgradeAdapter.upgradeNg1Provider('$routeParams');
 // #enddocregion routeparams
@@ -33,7 +42,8 @@ angular.module('core.phone')
 angular.module('phoneList')
   .directive(
     'phoneList',
-    upgradeAdapter.downgradeNg2Component(PhoneListComponent) as angular.IDirectiveFactory
+    <angular.IDirectiveFactory>
+      upgradeAdapter.downgradeNg2Component(PhoneListComponent)
   );
 // #enddocregion phone-list
 // #docregion phone-detail
@@ -41,7 +51,8 @@ angular.module('phoneList')
 angular.module('phoneDetail')
   .directive(
     'phoneDetail',
-    upgradeAdapter.downgradeNg2Component(PhoneDetailComponent) as angular.IDirectiveFactory
+    <angular.IDirectiveFactory>
+      upgradeAdapter.downgradeNg2Component(PhoneDetailComponent)
   );
 // #enddocregion phone-detail
 

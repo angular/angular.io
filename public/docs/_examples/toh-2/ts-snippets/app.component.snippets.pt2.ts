@@ -40,7 +40,7 @@
 // #enddocregion ng-if
 
 // #docregion hero-array-1
-heroes = HEROES;
+public heroes = HEROES;
 // #enddocregion hero-array-1
 
 // #docregion heroes-template-1

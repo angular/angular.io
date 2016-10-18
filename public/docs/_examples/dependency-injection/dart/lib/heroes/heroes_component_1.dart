@@ -7,11 +7,11 @@ import 'package:angular2/core.dart';
 import 'hero_list_component_2.dart';
 import 'hero_service_1.dart';
 /*
-// #docregion full, v1
+// #docregion full
 import 'hero_list_component.dart';
-// #enddocregion v1
+// #docregion v1
 import 'hero_service.dart';
-// #enddocregion full
+// #enddocregion full, v1
 */
 // #docregion full, v1
 

@@ -1,13 +1,10 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by, ElementFinder } from 'protractor';
-import { logging, promise } from 'selenium-webdriver';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 /**
  * The tests here basically just checking that the end styles
  * of each animation are in effect.
  *
- * Relies on the Angular testability only becoming stable once
+ * Relies on the Angular 2 testability only becoming stable once
  * animation(s) have finished.
  *
  * Ideally we'd use https://developer.mozilla.org/en-US/docs/Web/API/Document/getAnimations
@@ -26,7 +23,7 @@ describe('Animation Tests', () => {
 
   describe('basic states', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-basic'));
@@ -55,7 +52,7 @@ describe('Animation Tests', () => {
 
   describe('styles inline in transitions', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(function() {
       host = element(by.css('hero-list-inline-styles'));
@@ -76,7 +73,7 @@ describe('Animation Tests', () => {
 
   describe('combined transition syntax', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-combined-transitions'));
@@ -105,7 +102,7 @@ describe('Animation Tests', () => {
 
   describe('two-way transition syntax', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-twoway'));
@@ -134,7 +131,7 @@ describe('Animation Tests', () => {
 
   describe('enter & leave', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-enter-leave'));
@@ -154,7 +151,7 @@ describe('Animation Tests', () => {
 
   describe('enter & leave & states', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(function() {
       host = element(by.css('hero-list-enter-leave-states'));
@@ -183,7 +180,7 @@ describe('Animation Tests', () => {
 
   describe('auto style calc', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(function() {
       host = element(by.css('hero-list-auto'));
@@ -203,7 +200,7 @@ describe('Animation Tests', () => {
 
   describe('different timings', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-timings'));
@@ -224,7 +221,7 @@ describe('Animation Tests', () => {
 
   describe('multiple keyframes', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-multistep'));
@@ -245,7 +242,7 @@ describe('Animation Tests', () => {
 
   describe('parallel groups', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-groups'));
@@ -266,7 +263,7 @@ describe('Animation Tests', () => {
 
   describe('adding active heroes', () => {
 
-    let host: ElementFinder;
+    let host: protractor.ElementFinder;
 
     beforeEach(() => {
       host = element(by.css('hero-list-basic'));
@@ -292,20 +289,6 @@ describe('Animation Tests', () => {
     });
   });
 
-  describe('callbacks', () => {
-    it('fires a callback on start and done', () => {
-      addActiveHero();
-      browser.manage().logs().get(logging.Type.BROWSER)
-        .then((logs: webdriver.logging.Entry[]) => {
-          const animationMessages = logs.filter((log) => {
-            return log.message.indexOf('Animation') !== -1 ? true : false;
-          });
-
-          expect(animationMessages.length).toBeGreaterThan(0);
-        });
-    });
-  });
-
   function addActiveHero(sleep?: number) {
     sleep = sleep || 500;
     element(by.buttonText('Add active hero')).click();
@@ -324,8 +307,8 @@ describe('Animation Tests', () => {
     browser.driver.sleep(sleep);
   }
 
-  function getScaleX(el: ElementFinder) {
-    return Promise.all([
+  function getScaleX(el: protractor.ElementFinder) {
+    return protractor.promise.all([
       getBoundingClientWidth(el),
       getOffsetWidth(el)
     ]).then(function(promiseResolutions) {
@@ -335,17 +318,18 @@ describe('Animation Tests', () => {
     });
   }
 
-  function getBoundingClientWidth(el: ElementFinder): promise.Promise<number> {
+  function getBoundingClientWidth(el: protractor.ElementFinder): protractor.promise.Promise<number> {
     return browser.executeScript(
       'return arguments[0].getBoundingClientRect().width',
       el.getWebElement()
     );
   }
 
-  function getOffsetWidth(el: ElementFinder): promise.Promise<number> {
+  function getOffsetWidth(el: protractor.ElementFinder): protractor.promise.Promise<number> {
     return browser.executeScript(
       'return arguments[0].offsetWidth',
       el.getWebElement()
     );
   }
+
 });

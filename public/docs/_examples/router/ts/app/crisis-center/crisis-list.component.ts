@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { Component, OnInit }      from '@angular/core';
-import { ActivatedRoute, Router, Params } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router }       from '@angular/router';
 
 import { Crisis, CrisisService } from './crisis.service';
 
@@ -14,38 +14,38 @@ import { Crisis, CrisisService } from './crisis.service';
         <span class="badge">{{crisis.id}}</span> {{crisis.name}}
       </li>
     </ul>
-
-    <router-outlet></router-outlet>
-  `
+  `,
 })
-export class CrisisListComponent implements OnInit {
+export class CrisisListComponent implements OnInit, OnDestroy {
   crises: Crisis[];
-  public selectedId: number;
+  private selectedId: number;
+  private sub: any;
 
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
-    private router: Router
-  ) { }
+    private router: Router) { }
 
-  isSelected(crisis: Crisis) {
-    return crisis.id === this.selectedId;
-  }
+  isSelected(crisis: Crisis) { return crisis.id === this.selectedId; }
 
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
-      this.selectedId = params['id'];
-      this.service.getCrises()
-        .then(crises => this.crises = crises);
-    });
+    this.sub = this.route
+      .params
+      .subscribe(params => {
+        this.selectedId = +params['id'];
+        this.service.getCrises()
+          .then(crises => this.crises = crises);
+      });
   }
 
-  // #docregion relative-navigation
+  ngOnDestroy() {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
+  }
+
   onSelect(crisis: Crisis) {
-    this.selectedId = crisis.id;
-
-    // Navigate with relative link
-    this.router.navigate([crisis.id], { relativeTo: this.route });
+    // Navigate with Absolute link
+    this.router.navigate(['/crisis-center', crisis.id]);
   }
-  // #enddocregion relative-navigation
 }

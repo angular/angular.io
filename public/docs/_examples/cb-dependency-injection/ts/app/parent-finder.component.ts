@@ -2,7 +2,7 @@
 /* tslint:disable:*/
 // #docplaster
 // #docregion
-import { Component, forwardRef, Optional, SkipSelf } from '@angular/core';
+import { Component, forwardRef, Optional, provide, SkipSelf } from '@angular/core';
 
 // A component base class (see AlexComponent)
 export abstract class Base { name = 'Count Basie'; }
@@ -85,6 +85,13 @@ export class CraigComponent {
 }
 // #enddocregion craig
 
+// #docregion C_DIRECTIVES
+const C_DIRECTIVES = [
+  CarolComponent, ChrisComponent, CraigComponent,
+  forwardRef(() => CathyComponent)
+];
+// #enddocregion C_DIRECTIVES
+
 //////// B - Parent /////////
 // #docregion barry
 const templateB = `
@@ -100,6 +107,7 @@ const templateB = `
 @Component({
   selector:   'barry',
   template:   templateB,
+  directives: C_DIRECTIVES,
   providers:  [{ provide: Parent, useExisting: forwardRef(() => BarryComponent) }]
 })
 export class BarryComponent implements Parent {
@@ -113,6 +121,7 @@ export class BarryComponent implements Parent {
 @Component({
   selector:   'bob',
   template:   templateB,
+  directives: C_DIRECTIVES,
   providers:  [ provideParent(BobComponent) ]
 })
 export class BobComponent implements Parent {
@@ -123,6 +132,7 @@ export class BobComponent implements Parent {
 @Component({
   selector:   'beth',
   template:   templateB,
+  directives: C_DIRECTIVES,
 // #docregion beth-providers
   providers:  [ provideParent(BethComponent, DifferentParent) ]
 // #enddocregion beth-providers
@@ -131,6 +141,8 @@ export class BethComponent implements Parent {
   name= 'Beth';
   constructor( @SkipSelf() @Optional() public parent: Parent ) { }
 }
+
+const B_DIRECTIVES = [ BarryComponent, BethComponent, BobComponent ];
 
 ///////// A - Grandparent //////
 
@@ -149,6 +161,7 @@ export class BethComponent implements Parent {
   providers: [{ provide: Parent, useExisting: forwardRef(() => AlexComponent) }],
 // #enddocregion alex-providers
 // #docregion alex-1
+  directives: C_DIRECTIVES
 })
 // #enddocregion alex-1
 // Todo: Add `... implements Parent` to class signature
@@ -174,6 +187,7 @@ export class AlexComponent extends Base
       <bob></bob>
       <carol></carol>
     </div> `,
+  directives: [ B_DIRECTIVES, C_DIRECTIVES ],
 // #docregion alice-providers
   providers:  [ provideParent(AliceComponent) ]
 // #enddocregion alice-providers
@@ -210,6 +224,7 @@ export class CathyComponent {
   template: `
     <h2>Parent Finder</h2>
     <alex></alex>
-    <alice></alice>`
+    <alice></alice>`,
+  directives: [ AlexComponent, AliceComponent ]
 })
 export class ParentFinderComponent { }

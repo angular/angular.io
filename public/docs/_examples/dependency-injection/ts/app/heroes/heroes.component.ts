@@ -1,6 +1,7 @@
 // #docregion
 import { Component }          from '@angular/core';
 
+import { HeroListComponent }  from './hero-list.component';
 import { heroServiceProvider } from './hero.service.provider';
 
 @Component({
@@ -9,6 +10,7 @@ import { heroServiceProvider } from './hero.service.provider';
   <h2>Heroes</h2>
   <hero-list></hero-list>
   `,
-  providers: [heroServiceProvider]
+  providers: [heroServiceProvider],
+  directives: [HeroListComponent]
 })
 export class HeroesComponent { }

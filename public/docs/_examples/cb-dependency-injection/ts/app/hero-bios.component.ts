@@ -2,6 +2,8 @@
 // #docregion
 import { Component }             from '@angular/core';
 
+import { HeroContactComponent } from './hero-contact.component';
+import { HeroBioComponent }     from './hero-bio.component';
 import { HeroService }          from './hero.service';
 import { LoggerService }        from './logger.service';
 
@@ -13,6 +15,7 @@ import { LoggerService }        from './logger.service';
     <hero-bio [heroId]="1"></hero-bio>
     <hero-bio [heroId]="2"></hero-bio>
     <hero-bio [heroId]="3"></hero-bio>`,
+  directives: [HeroBioComponent],
   providers: [HeroService]
 })
 export class HeroBiosComponent {
@@ -36,6 +39,7 @@ export class HeroBiosComponent {
     <hero-bio [heroId]="2"> <hero-contact></hero-contact> </hero-bio>
     <hero-bio [heroId]="3"> <hero-contact></hero-contact> </hero-bio>`,
   // #enddocregion template
+  directives: [HeroBioComponent, HeroContactComponent],
   // #docregion class-provider
   providers: [HeroService]
   // #enddocregion class-provider

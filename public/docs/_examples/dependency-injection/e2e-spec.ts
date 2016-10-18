@@ -1,8 +1,7 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by, ElementFinder } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Dependency Injection Tests', function () {
+
 
   let expectedMsg: string;
   let expectedMsgRx: RegExp;
@@ -148,13 +147,14 @@ describe('Dependency Injection Tests', function () {
       let heroes = element.all(by.css('#unauthorized hero-list div'));
       expect(heroes.count()).toBeGreaterThan(0);
 
-      let filteredHeroes = heroes.filter((elem: ElementFinder, index: number) => {
-        return elem.getText().then((text: string) => {
+      heroes.filter(function(elem, index){
+        return elem.getText().then(function(text) {
           return /secret/.test(text);
         });
+      }).then(function(filteredElements) {
+        // console.log("******Secret heroes count: "+filteredElements.length);
+        expect(filteredElements.length).toEqual(0);
       });
-
-      expect(filteredHeroes.count()).toEqual(0);
     });
 
     it('unauthorized user should have no authorized heroes listed', function () {
@@ -182,13 +182,14 @@ describe('Dependency Injection Tests', function () {
         let heroes = element.all(by.css('#authorized hero-list div'));
         expect(heroes.count()).toBeGreaterThan(0);
 
-        let filteredHeroes = heroes.filter(function(elem: ElementFinder, index: number){
-         return elem.getText().then(function(text: string) {
+        heroes.filter(function(elem, index){
+         return elem.getText().then(function(text) {
             return /secret/.test(text);
           });
+        }).then(function(filteredElements) {
+          // console.log("******Secret heroes count: "+filteredElements.length);
+          expect(filteredElements.length).toBeGreaterThan(0);
         });
-
-        expect(filteredHeroes.count()).toBeGreaterThan(0);
       });
 
       it('authorized user should have no unauthorized heroes listed', function () {

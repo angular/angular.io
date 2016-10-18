@@ -2,7 +2,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { Hero } from '../shared/hero.model';
+import { Hero } from '../shared/hero.model.ts';
 
 // #docregion example
 @Component({
@@ -10,8 +10,8 @@ import { Hero } from '../shared/hero.model';
   template: `
     <section>
       Our list of heroes:
-      <toh-hero *ngFor="let hero of heroes" [hero]="hero">
-      </toh-hero>
+      <hero-profile *ngFor="let hero of heroes" [hero]="hero">
+      </hero-profile>
       Total powers: {{totalPowers}}<br>
       Average power: {{avgPower}}
     </section>

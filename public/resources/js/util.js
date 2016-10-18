@@ -4,9 +4,9 @@ var NgIoUtil = (function () {
 
     function NgIoUtil() { }
 
-    NgIoUtil.isDoc = function ($location, lang) {
+    NgIoUtil.isDartDoc = function ($location) {
         var loc = $location.absUrl();
-        return loc.includes('/docs/' + lang + '/');
+        return loc.includes('/docs/dart/');
     };
 
     // The following util functions are adapted from _utils-fn.jade.

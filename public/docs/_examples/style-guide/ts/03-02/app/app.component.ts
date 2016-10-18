@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { heroesUrl, mockHeroes, VILLAINS_URL } from './core';
+import { heroesUrl, mockHeroes, VILLAINS_URL } from './shared';
 
 @Component({
   selector: 'sg-app',

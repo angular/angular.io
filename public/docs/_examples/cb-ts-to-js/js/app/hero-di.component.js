@@ -17,15 +17,4 @@
   ];
   // #enddocregion
 
-  app.HeroesDIModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ app.DataService ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
-
 })(window.app = window.app || {});

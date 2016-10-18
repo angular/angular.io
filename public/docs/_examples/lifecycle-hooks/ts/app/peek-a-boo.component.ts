@@ -21,7 +21,7 @@ export class PeekABoo implements OnInit {
   // implement OnInit's `ngOnInit` method
   ngOnInit() { this.logIt(`OnInit`); }
 
-  logIt(msg: string) {
+  protected logIt(msg: string) {
     this.logger.log(`#${nextId++} ${msg}`);
   }
 }

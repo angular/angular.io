@@ -1,6 +1,8 @@
 // #docregion
 import { Component }      from '@angular/core';
 
+import { VoterComponent } from './voter.component';
+
 @Component({
   selector: 'vote-taker',
   template: `
@@ -10,7 +12,8 @@ import { Component }      from '@angular/core';
       [name]="voter"
       (onVoted)="onVoted($event)">
     </my-voter>
-  `
+  `,
+  directives: [VoterComponent]
 })
 export class VoteTakerComponent {
   agreed = 0;

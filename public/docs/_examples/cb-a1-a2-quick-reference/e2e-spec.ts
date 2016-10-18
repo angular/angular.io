@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Angular 1 to 2 Quick Reference Tests', function () {
 
   beforeAll(function () {
@@ -102,14 +100,15 @@ describe('Angular 1 to 2 Quick Reference Tests', function () {
     let resultLabel = movieListComp.element(by.css('span > p'));
 
     heroInput.clear().then(function () {
-      heroInput.sendKeys(heroName || '');
-      expect(resultLabel.getText()).toBe(expectedLabel);
-      if (heroName) {
-        expect(favoriteHeroLabel.isDisplayed()).toBe(true);
-        expect(favoriteHeroLabel.getText()).toContain(heroName);
-      } else {
-        expect(favoriteHeroLabel.isDisplayed()).toBe(false);
-      }
+      sendKeys(heroInput, heroName || '').then(function () {
+        expect(resultLabel.getText()).toBe(expectedLabel);
+        if (heroName) {
+          expect(favoriteHeroLabel.isDisplayed()).toBe(true);
+          expect(favoriteHeroLabel.getText()).toContain(heroName);
+        } else {
+          expect(favoriteHeroLabel.isDisplayed()).toBe(false);
+        }
+      });
     });
   }
 });

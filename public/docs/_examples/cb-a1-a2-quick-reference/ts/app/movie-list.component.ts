@@ -3,18 +3,22 @@
 // #docregion import
 import { Component } from '@angular/core';
 // #enddocregion import
-import { IMovie } from './movie';
 import { MovieService } from './movie.service';
+import { IMovie } from './movie';
+import { StringSafeDatePipe } from './date.pipe';
+
 
 // #docregion component
 @Component({
-  moduleId: module.id,
   selector: 'movie-list',
-  templateUrl: 'movie-list.component.html',
+  templateUrl: 'app/movie-list.component.html',
 // #enddocregion component
 // #docregion style-url
-  styleUrls: [ 'movie-list.component.css' ],
+  styleUrls: ['app/movie-list.component.css'],
 // #enddocregion style-url
+// #docregion date-pipe
+  pipes: [StringSafeDatePipe]
+// #enddocregion date-pipe
 })
 // #enddocregion component
 // #docregion class

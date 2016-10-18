@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Server Communication', function () {
 
   beforeAll(function () {
@@ -37,7 +35,7 @@ describe('Server Communication', function () {
     it('should add a new hero to the list', function () {
       expect(heroNameInput).toBeDefined('<input> for hero name must exist');
       expect(addButton).toBeDefined('"Add Hero" button must be defined');
-      heroNameInput.sendKeys(newHeroName);
+      sendKeys(heroNameInput, newHeroName);
       addButton.click().then(function() {
         expect(heroTags.count()).toBe(heroCountAfterAdd, 'A new hero should be added');
         let newHeroInList = heroTags.get(heroCountAfterAdd - 1).getText();

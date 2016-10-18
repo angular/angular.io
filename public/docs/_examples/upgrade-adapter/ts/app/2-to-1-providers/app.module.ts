@@ -5,6 +5,8 @@ import { upgradeAdapter } from './upgrade_adapter';
 declare var angular: any;
 
 // #docregion register
+upgradeAdapter.addProvider(Heroes);
+
 angular.module('heroApp', [])
   .factory('heroes', upgradeAdapter.downgradeNg2Provider(Heroes))
   .component('heroDetail', heroDetailComponent);

@@ -1,66 +1,66 @@
-/* tslint:disable */
 // #docregion
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { SpyLocation } from '@angular/common/testing';
+import {
+  describe,
+  beforeEachProviders,
+  inject,
+  it,
+  expect
+} from '@angular/core/testing';
+import {
+  TestComponentBuilder,
+  ComponentFixture
+} from '@angular/compiler/testing';
 
 import { PhoneListComponent } from './phone-list.component';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
-class ActivatedRouteMock {
-  constructor(public snapshot: any) {}
-}
-
-class MockPhone {
+class MockPhone extends Phone {
   query(): Observable<PhoneData[]> {
-    return Observable.of([
-      {name: 'Nexus S', snippet: '', images: []},
-      {name: 'Motorola DROID', snippet: '', images: []}
-    ]);
+    console.log('mocking here');
+    return Observable.of(
+      [
+        {name: 'Nexus S', snippet: '', images: []},
+        {name: 'Motorola DROID', snippet: '', images: []}
+      ]
+    );
   }
 }
 
-let fixture: ComponentFixture<PhoneListComponent>;
-
 describe('PhoneList', () => {
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ PhoneListComponent ],
-      providers: [
-        { provide: ActivatedRoute, useValue: new ActivatedRouteMock({ params: { 'phoneId': 1 } }) },
-        { provide: Location, useClass: SpyLocation },
-        { provide: Phone, useClass: MockPhone },
-      ],
-      schemas: [ NO_ERRORS_SCHEMA ]
-    })
-    .compileComponents();
+  beforeEachProviders(() => [
+    { provide: Phone, useClass: MockPhone },
+    HTTP_PROVIDERS
+  ]);
+
+  it('should create "phones" model with 2 phones fetched from xhr',
+      inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    return tcb.createAsync(PhoneListComponent)
+        .then((fixture: ComponentFixture<PhoneListComponent>) => {
+      fixture.detectChanges();
+      let compiled = fixture.debugElement.nativeElement;
+      expect(compiled.querySelectorAll('.phone-list-item').length).toBe(2);
+      expect(
+        compiled.querySelector('.phone-list-item:nth-child(1)').textContent
+      ).toContain('Motorola DROID');
+      expect(
+        compiled.querySelector('.phone-list-item:nth-child(2)').textContent
+      ).toContain('Nexus S');
+    });
   }));
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(PhoneListComponent);
-  });
-
-  it('should create "phones" model with 2 phones fetched from xhr', () => {
-    fixture.detectChanges();
-    let compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelectorAll('.phone-list-item').length).toBe(2);
-    expect(
-      compiled.querySelector('.phone-list-item:nth-child(1)').textContent
-    ).toContain('Motorola DROID');
-    expect(
-      compiled.querySelector('.phone-list-item:nth-child(2)').textContent
-    ).toContain('Nexus S');
-  });
-
-  xit('should set the default value of orderProp model', () => {
-    fixture.detectChanges();
-    let compiled = fixture.debugElement.nativeElement;
-    expect(
-      compiled.querySelector('select option:last-child').selected
-    ).toBe(true);
-  });
+  it('should set the default value of orderProp model',
+      inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    return tcb.createAsync(PhoneListComponent)
+        .then((fixture: ComponentFixture<PhoneListComponent>) => {
+      fixture.detectChanges();
+      let compiled = fixture.debugElement.nativeElement;
+      expect(
+        compiled.querySelector('select option:last-child').selected
+      ).toBe(true);
+    });
+  }));
 
 });

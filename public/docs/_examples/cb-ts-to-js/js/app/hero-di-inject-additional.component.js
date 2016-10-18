@@ -6,7 +6,7 @@
     template:
       '<h1>{{titlePrefix}} {{title}}</h1>' +
       '<button (click)="ok()">OK</button>' +
-      '<p>{{ msg }}</p>'
+      '<ng-content></ng-content>'
   }).Class({
     constructor: [
       [
@@ -14,14 +14,20 @@
         new ng.core.Inject('titlePrefix')
       ],
       new ng.core.Attribute('title'),
-      function(titlePrefix, title) {
+      [
+        new ng.core.Query('okMsg'),
+        ng.core.ElementRef
+      ],
+      function(titlePrefix, title, msg) {
         this.titlePrefix = titlePrefix;
         this.title  = title;
-        this.msg = '';
+        this.msg = msg;
       }
     ],
     ok: function() {
-      this.msg = 'OK!';
+      var msgEl =
+        this.msg.first.nativeElement;
+      msgEl.textContent = 'OK!';
     }
   });
   // #enddocregion
@@ -29,22 +35,13 @@
   var AppComponent = ng.core.Component({
     selector: 'hero-di-inject-additional',
     template: '<hero-title title="Tour of Heroes">' +
-    '</hero-title>'
+      '<span #okMsg class="ok-msg"></span>' +
+    '</hero-title>',
+    directives: [TitleComponent]
   }).Class({
     constructor: function() { }
   });
- 
-  app.HeroesDIInjectAdditionalModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      declarations: [
-        AppComponent,
-        TitleComponent
-      ],
-      bootstrap: [ AppComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+
+  app.HeroDIInjectAdditionalComponent = AppComponent;
 
 })(window.app = window.app || {});

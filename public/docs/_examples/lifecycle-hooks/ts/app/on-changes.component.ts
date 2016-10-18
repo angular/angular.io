@@ -5,6 +5,7 @@ import {
   SimpleChange, ViewChild
 } from '@angular/core';
 
+
 class Hero {
   constructor(public name: string) {}
 }
@@ -49,10 +50,10 @@ export class OnChangesComponent implements OnChanges {
 /***************************************/
 
 @Component({
-  moduleId: module.id,
   selector: 'on-changes-parent',
-  templateUrl: 'on-changes-parent.component.html',
-  styles: ['.parent {background: Lavender;}']
+  templateUrl: 'app/on-changes-parent.component.html',
+  styles: ['.parent {background: Lavender;}'],
+  directives: [OnChangesComponent]
 })
 export class OnChangesParentComponent {
   hero: Hero;

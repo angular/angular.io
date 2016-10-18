@@ -1,5 +1,5 @@
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Hierarchical dependency injection', function () {
 
   beforeEach(function () {
@@ -38,7 +38,8 @@ describe('Hierarchical dependency injection', function () {
     let editButtonEle = heroEle.element(by.cssContainingText('button', 'edit'));
     editButtonEle.click().then(function() {
       let inputEle = heroEle.element(by.css('hero-editor input'));
-      return inputEle.sendKeys('foo');
+      // return inputEle.sendKeys("foo");
+      return sendKeys(inputEle, 'foo');
     }).then(function() {
       let buttonName = shouldSave ? 'save' : 'cancel';
       let buttonEle = heroEle.element(by.cssContainingText('button', buttonName));

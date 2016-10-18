@@ -8,7 +8,7 @@ app.AppComponent =
       selector: 'my-app',
     // #enddocregion
     // #docregion view
-      template: '<h1 id="output">My First Angular App</h1>'
+      template: '<h1 id="output">My First Angular 2 App</h1>'
     })
     // #enddocregion
     // #docregion class
@@ -19,20 +19,8 @@ app.AppComponent =
 // #enddocregion
 
 // #docregion bootstrap
-app.AppModule =
-  ng.core.NgModule({
-    imports: [ ng.platformBrowser.BrowserModule ],
-    declarations: [ app.AppComponent ],
-    bootstrap: [ app.AppComponent ]
-  })
-  .Class({
-    constructor: function() {}
-  });
-
 document.addEventListener('DOMContentLoaded', function() {
-  ng.platformBrowserDynamic
-    .platformBrowserDynamic()
-    .bootstrapModule(app.AppModule);
+  ng.platformBrowserDynamic.bootstrap(app.AppComponent);
 });
 // #enddocregion
 // #enddocregion
@@ -48,7 +36,7 @@ app.AppComponent = function  AppComponent () {}
 app.AppComponent.annotations = [
   new ng.core.Component({
     selector: 'my-app',
-    template: '<h1 id="output">My First Angular App</h1>'
+    template: '<h1 id="output">My First Angular 2 App</h1>'
   })
 ];
 // #enddocregion

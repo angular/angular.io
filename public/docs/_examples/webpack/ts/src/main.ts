@@ -1,8 +1,8 @@
 // #docregion
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { bootstrap } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
 
-import { AppModule } from './app/app.module';
+import { AppComponent } from './app/app.component';
 
 // #docregion enable-prod
 if (process.env.ENV === 'production') {
@@ -10,5 +10,5 @@ if (process.env.ENV === 'production') {
 }
 // #enddocregion enable-prod
 
-platformBrowserDynamic().bootstrapModule(AppModule);
+bootstrap(AppComponent, []);
 // #enddocregion

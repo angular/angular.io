@@ -1,6 +1,8 @@
 // #docregion
 import { Component } from '@angular/core';
 
+import { UiTabsComponent, UiPaneDirective } from './ui_tabs';
+
 class Detail {
   title: string;
   text: string;
@@ -24,7 +26,8 @@ class Detail {
     </ui-tabs>
     <hr>
     <button class="btn" (click)="addDetail()">Add Detail</button>
-    `
+    `,
+    directives: [UiTabsComponent, UiPaneDirective]
 })
 export class DiDemoComponent {
   details: Detail[] = [];

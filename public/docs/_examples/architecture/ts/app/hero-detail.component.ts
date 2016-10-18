@@ -3,9 +3,9 @@ import { Component, Input } from '@angular/core';
 import { Hero } from './hero';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-detail',
-  templateUrl: 'hero-detail.component.html'
+  templateUrl: 'app/hero-detail.component.html',
+  directives: [HeroDetailComponent]
 })
 export class HeroDetailComponent {
   @Input() hero: Hero;

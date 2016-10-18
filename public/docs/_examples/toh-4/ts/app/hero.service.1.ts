@@ -1,24 +1,19 @@
 // #docplaster
 // #docregion
-// #docregion empty-class, full
+// #docregion empty-class
 import { Injectable } from '@angular/core';
 
 // #enddocregion empty-class
-import { Hero } from './hero';
 import { HEROES } from './mock-heroes';
 
 // #docregion empty-class, getHeroes-stub
 @Injectable()
 export class HeroService {
-  // #enddocregion empty-class, getHeroes-stub, full
-  /*
-  // #docregion getHeroes-stub
-  getHeroes(): void {} // stub
-  // #enddocregion getHeroes-stub
-  */
-  // #docregion full
-  getHeroes(): Hero[] {
+  // #enddocregion empty-class
+  getHeroes() {
+    // #enddocregion getHeroes-stub
     return HEROES;
+    // #docregion getHeroes-stub
   }
-  // #docregion empty-class, getHeroes-stub
+  // #docregion empty-class
 }

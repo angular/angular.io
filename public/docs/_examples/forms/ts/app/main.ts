@@ -1,8 +1,11 @@
 // #docregion
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { AppModule } from './app.module';
+import { bootstrap }    from '@angular/platform-browser-dynamic';
+import { disableDeprecatedForms, provideForms } from '@angular/forms';
 
-// Compiles the module (asynchronously) with the runtime compiler
-// which generates a compiled module factory in memory.
-// Then bootstraps with that factory, targeting the browser.
-platformBrowserDynamic().bootstrapModule(AppModule);
+import { AppComponent } from './app.component';
+
+bootstrap(AppComponent, [
+  disableDeprecatedForms(),
+  provideForms()
+ ])
+ .catch((err: any) => console.error(err));

@@ -1,7 +1,7 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { HeroService } from './heroes';
+import { HeroesComponent, HeroService } from './heroes';
 
 @Component({
   moduleId: module.id,
@@ -10,6 +10,7 @@ import { HeroService } from './heroes';
       <toh-heroes></toh-heroes>
     `,
   styleUrls: ['app.component.css'],
-  providers: [ HeroService ]
+  directives: [HeroesComponent],
+  providers: [HeroService]
 })
 export class AppComponent { }

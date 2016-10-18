@@ -12,9 +12,9 @@ import 'hero_service.dart';
 
 @Component(
     selector: 'my-dashboard',
-    // #docregion templateUrl
+    // #docregion template-url
     templateUrl: 'dashboard_component.html',
-    // #enddocregion templateUrl
+    // #enddocregion template-url
     // #docregion css
     styleUrls: const ['dashboard_component.css']
     // #enddocregion css
@@ -35,7 +35,7 @@ class DashboardComponent implements OnInit {
     heroes = (await _heroService.getHeroes()).skip(1).take(4).toList();
   }
 
-  // #docregion gotoDetail
+  // #docregion goto-detail
   void gotoDetail(Hero hero) {
     var link = [
       'HeroDetail',
@@ -43,5 +43,5 @@ class DashboardComponent implements OnInit {
     ];
     _router.navigate(link);
   }
-// #enddocregion gotoDetail
+// #enddocregion goto-detail
 }

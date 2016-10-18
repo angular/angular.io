@@ -1,0 +1,718 @@
+include ../_util-fns
+
+.alert.is-important
+  :marked
+    This guide is using the deprecated forms API. 
+    
+    We have created a new version using the new API <a href='/docs/ts/latest/guide/forms.html'>here</a>.
+
+:marked
+  We’ve all used a form to login, submit a help request, place an order, book a flight,
+  schedule a meeting and perform countless other data entry tasks.
+  Forms are the mainstay of business applications.
+
+  Any seasoned web developer can slap together an HTML form with all the right tags.
+  It's more challenging to create a cohesive data entry experience that guides the
+  user efficiently and effectively through the workflow behind the form.
+
+  *That* takes design skills that are, to be frank, well out of scope for this chapter.
+
+  It also takes framework support for
+  **two-way data binding, change tracking, validation, and error handling**
+  ... which we shall cover in this chapter on Angular forms.
+
+  We will build a simple form from scratch, one step at a time. Along the way we'll learn
+
+  - to build an Angular form with a component and template
+
+  - two-way data binding with `[(ngModel)]` syntax for reading and writing values to input controls
+
+  - using `ngControl` to track the change state and validity of form controls
+
+  - the special CSS classes that `ngControl` adds to form controls and how we can use them to provide strong visual feedback
+
+  - displaying validation errors to users and enable/disable form controls
+
+  - sharing information among controls with template reference variables
+  
+  [Live Example](/resources/live-examples/forms-deprecated/ts/plnkr.html)
+.l-main-section
+:marked
+  ## Template-Driven Forms
+
+  Many of us will build forms by writing templates in the Angular [template syntax](./template-syntax.html) with
+  the form-specific directives and techniques described in this chapter.
+.l-sub-section
+  :marked
+    That's not the only way to create a form but it's the way we'll cover in this chapter.
+:marked
+  We can build almost any form we need with an Angular template &mdash; login forms, contact forms ... pretty much any business forms.
+  We can lay out the controls creatively, bind them to data, specify validation rules and display validation errors,
+  conditionally enable or disable specific controls, trigger built-in visual feedback, and much more.
+
+  It will be pretty easy because Angular handles many of the repetitive, boiler plate tasks we'd
+  otherwise wrestle with ourselves.
+
+  We'll discuss and learn to build the following template-driven form:
+
+figure.image-display
+  img(src="/resources/images/devguide/forms/hero-form-1.png" width="400px" alt="Clean Form")
+
+:marked
+  Here at the *Hero Employment Agency* we use this form to maintain personal information about the
+  heroes in our stable. Every hero needs a job. It's our company mission to match the right hero with the right crisis!
+
+  Two of the three fields on this form are required. Required fields have a green bar on the left to make them easy to spot.
+
+  If we delete the hero name, the form displays a validation error in an attention grabbing style:
+
+figure.image-display
+  img(src="/resources/images/devguide/forms/hero-form-2.png" width="400px" alt="Invalid, Name Required")
+
+:marked
+  Note that the submit button is disabled and the "required" bar to the left of the input control changed from green to red.
+
+.l-sub-section
+  p We'll customize the colors and location of the "required" bar with standard CSS.
+
+:marked
+  We will build this form in the following sequence of small steps
+
+  1. Create the `Hero` model class
+  1. Create the component that controls the form
+  1. Create a template with the initial form layout
+  1. Bind data properties to each form input control with the `ngModel` two-way data binding syntax
+  1. Add the **ngControl** directive to each form input control
+  1. Add custom CSS to provide visual feedback
+  1. Show and hide validation error messages
+  1. Handle form submission with **ngSubmit**
+  1. Disable the form’s submit button until the form is valid
+
+:marked
+  ## Setup
+  Create a new project folder (`angular2-forms`) and follow the steps in the [QuickStart](../quickstart.html).
+
+include ../_quickstart_repo
+:marked
+  ## Create the Hero Model Class
+
+  As users enter form data, we capture their changes and update an instance of a model.
+  We can't layout the form until we know what the model looks like.
+
+  A model can be as simple as a "property bag" that holds facts about a thing of application importance.
+  That describes well our `Hero` class with its three required fields (`id`, `name`, `power`)
+  and one optional field (`alterEgo`).
+
+  Create a new file in the app folder called `hero.ts` and give it the following class definition:
+
++makeExample('forms-deprecated/ts/app/hero.ts', null, 'app/hero.ts')
+
+:marked
+  It's an anemic model with few requirements and no behavior. Perfect for our demo.
+
+  The TypeScript compiler generates a public field for each `public` constructor parameter and
+  assigns the parameter’s value to that field automatically when we create new heroes.
+  
+  The `alterEgo` is optional and the constructor lets us omit it; note the (?) in `alterEgo?`.
+
+  We can create a new hero like this:
+code-example(format="").
+  let myHero =  new Hero(42, 'SkyDog', 
+                         'Fetch any object at any distance', 'Leslie Rollover');
+  console.log('My hero is called ' + myHero.name); // "My hero is called SkyDog"
+:marked
+
+.l-main-section
+:marked
+  ## Create a Form component
+
+  An Angular form has two parts: an HTML-based template and a code-based Component to handle data and user interactions.
+
+  We begin with the Component because it states, in brief, what the Hero editor can do.
+
+  Create a new file called `hero-form.component.ts` and give it the following definition:
+
++makeExample('forms-deprecated/ts/app/hero-form.component.ts', 'first', 'app/hero-form.component.ts')
+
+:marked
+  There’s nothing special about this component, nothing form-specific, nothing to distinguish it from any component we've written before.
+
+  Understanding this component requires only the Angular 2 concepts we’ve learned in previous chapters
+
+  1. We import the `Component` decorator from the Angular library as we usually do.
+
+  1. The `@Component` selector value of "hero-form" means we can drop this form in a parent template with a `<hero-form>` tag.
+
+  1. The `templateUrl` property points to a separate file for template HTML called `hero-form.component.html`.
+
+  1. We defined dummy data for `model` and `powers` as befits a demo.
+  Down the road, we can inject a data service to get and save real data
+  or perhaps expose these properties as [inputs and outputs](./template-syntax.html#inputs-outputs) for binding to a
+  parent component. None of this concerns us now and these future changes won't affect our form.
+
+  1. We threw in a `diagnostic` property at the end to return a JSON representation of our model.
+  It'll help us see what we're doing during our development; we've left ourselves a cleanup note to discard it later.
+
+  Why don't we write the template inline in the component file as we often do
+  elsewhere in the Developer Guide?
+
+  There is no “right” answer for all occasions. We like inline templates when they are short.
+  Most form templates won't be short. TypeScript and JavaScript files generally aren't the best place to
+  write (or read) large stretches of HTML and few editors are much help with files that have a mix of HTML and code.
+  We also like short files with a clear and obvious purpose like this one.
+
+  We made a good choice to put the HTML template elsewhere. 
+  We'll write that template in a moment. Before we do, we'll take a step back
+  and revise the `app.component.ts` to make use of our new `HeroFormComponent`.
+
+.l-main-section
+:marked
+  ## Revise the *app.component.ts*
+
+  `app.component.ts` is the application's root component. It will host our new `HeroFormComponent`.
+
+  Replace the contents of the "QuickStart" version with the following:
++makeExample('forms-deprecated/ts/app/app.component.ts', null, 'app/app.component.ts')
+
+:marked
+.l-sub-section
+  :marked
+    There are only three changes:
+
+    1. We import the new `HeroFormComponent`.
+
+    1. The `template` is simply the new element tag identified by the component's `selector` property.
+
+    1. The `directives` array tells Angular that our template depends upon the `HeroFormComponent`
+    which is itself a Directive (as are all Components).
+
+.l-main-section
+:marked
+  ## Create an initial HTML Form Template
+
+  Create a new template file called `hero-form.component.html` and give it the following definition:
+
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'start', 'app/hero-form.component.html')
+
+:marked
+  That is plain old HTML 5. We're presenting two of the `Hero` fields, `name` and `alterEgo`, and
+  opening them up for user input in input boxes.
+
+  The *Name* `<input>` control has the HTML5 `required` attribute;
+  the *Alter Ego* `<input>` control does not because `alterEgo` is optional.
+
+  We've got a *Submit* button at the bottom with some classes on it.
+
+  **We are not using Angular yet**. There are no bindings. No extra directives. Just layout.
+
+  The `container`,`form-group`, `form-control`, and `btn` classes 
+  come from [Twitter Bootstrap](http://getbootstrap.com/css/). Purely cosmetic.
+  We're using Bootstrap to gussy up our form.
+  Hey, what's a form without a little style!
+
+.callout.is-important
+  header Angular Forms Do Not Require A Style Library
+  :marked
+    Angular makes no use of the `container`, `form-group`, `form-control`, and `btn` classes or
+    the styles of any external library. Angular apps can use any CSS library
+    ... or none at all.
+
+:marked
+  Let's add the stylesheet.
+
+ol
+  li Open a terminal window in the application root folder and enter the command:
+    code-example(language="html" escape="html").
+      npm install bootstrap --save
+  li Open <code>index.html</code> and add the following link to the <code>&lt;head></code>.
+      +makeExample('forms-deprecated/ts/index.html', 'bootstrap')(format=".")
+:marked
+.l-main-section
+:marked
+  ## Add Powers with ***ngFor**
+  Our hero may choose one super power from a fixed list of Agency-approved powers.
+  We maintain that list internally (in `HeroFormComponent`).
+
+  We'll add a `select` to our
+  form and bind the options to the `powers` list using `ngFor`,
+  a technique we might have seen before in the [Displaying Data](./displaying-data.html) chapter.
+
+  Add the following HTML *immediately below* the *Alter Ego* group.
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'powers', 'app/hero-form.component.html (excerpt)')(format=".")
+
+:marked
+  We are repeating the `<options>` tag for each power in the list of Powers.
+  The `p` template input variable is a different power in each iteration;
+  we display its name using the interpolation syntax with the double-curly-braces.
+
+<a id="ngModel"></a>
+.l-main-section
+:marked
+  ## Two-way data binding with **ngModel**
+  Running the app right now would be disappointing.
+
+figure.image-display
+  img(src="/resources/images/devguide/forms/hero-form-3.png" width="400px" alt="Early form with no binding")
+:marked
+  We don't see hero data because we are not binding to the `Hero` yet.
+  We know how to do that from earlier chapters.
+  [Displaying Data](./displaying-data.html) taught us Property Binding.
+  [User Input](./user-input.html) showed us how to listen for DOM events with an
+  Event Binding and how to update a component property with the displayed value.
+
+  Now we need to display, listen, and extract at the same time.
+
+  We could use those techniques again in our form.
+  Instead we'll introduce something new, the `[(ngModel)]` syntax, that
+  makes binding our form to the model super-easy.
+
+  Find the `<input>` tag for the "Name" and update it like this
+
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngModel-1','app/hero-form.component.html (excerpt)')(format=".")
+
+.l-sub-section
+  :marked
+    We appended a diagnostic interpolation after the input tag
+    so we can see what we're doing.
+    We left ourselves a note to throw it away when we're done.
+
+:marked
+  Focus on the binding syntax: `[(ngModel)]="..."`.
+
+  If we ran the app right now and started typing in the *Name* input box,
+  adding and deleting characters, we'd see them appearing and disappearing
+  from the interpolated text.
+  At some point it might look like this.
+figure.image-display
+  img(src="/resources/images/devguide/forms/ng-model-in-action.png" width="400px" alt="ngModel in action")
+:marked
+  The diagnostic is evidence that we really are flowing values from the input box to the model and
+  back again. **That's two-way data binding!**
+
+  Let's add similar `[(ngModel)]` bindings to *Alter Ego* and *Hero Power*.
+  We'll ditch the input box binding message
+  and add a new binding at the top to the component's `diagnostic` property.
+  Then we can confirm that two-way data binding works *for the entire Hero model*.
+
+  After revision the core of our form should have three `[(ngModel)]` bindings that
+  look much like this:
+
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngModel-2', 'app/hero-form.component.html (excerpt)')
+
+:marked
+  If we ran the app right now and changed every Hero model property, the form might display like this:
+figure.image-display
+  img(src="/resources/images/devguide/forms/ng-model-in-action-2.png" width="400px" alt="ngModel in super action")
+:marked
+  The diagnostic near the top of the form
+  confirms that all of our changes are reflected in the model.
+
+  **Delete** the `{{diagnostic}}` binding at the top as it has served its purpose.
+
+.l-sub-section
+  :marked
+    ### Inside [(ngModel)]
+    *This section is an optional deep dive into [(ngModel)]. Not interested? Skip ahead!*
+    
+    The punctuation in the binding syntax, <span style="font-family:courier"><b>[()]</b></span>, is a good clue to what's going on.
+
+    In a Property Binding, a value flows from the model to a target property on screen.
+    We identify that target property by surrounding its name in brackets, <span style="font-family:courier"><b>[]</b></span>.
+    This is a one-way data binding **from the model to the view**.
+
+    In an Event Binding, we flow the value from the target property on screen to the model.
+    We identify that target property by surrounding its name in parentheses, <span style="font-family:courier"><b>()</b></span>.
+    This is a one-way data binding in the opposite direction **from the view to the model**.
+
+    No wonder Angular chose to combine the punctuation as <span style="font-family:courier"><b>[()]</b></span>
+    to signify a two-way data binding and a **flow of data in both directions**.
+
+    In fact, we can break the `NgModel` binding into its two separate modes
+    as we do in this re-write of the "Name" `<input>` binding:
+  +makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngModel-3','app/hero-form.component.html (excerpt)')(format=".")
+
+  :marked
+    <br>The Property Binding should feel familiar. The Event Binding might seem strange.
+
+    The `ngModelChange` is not an `<input>` element event.
+    It is actually an event property of the `NgModel` directive.
+    When Angular sees a binding target in the form <span style="font-family:courier">[(x)]</span>,
+    it expects the `x` directive to have an `x` input property and an `xChange` output property.
+
+    The other oddity is the template expression, `model.name = $event`.
+    We're used to seeing an `$event` object coming from a DOM event.
+    The `ngModelChange` property doesn't produce a DOM event; it's an Angular `EventEmitter`
+    property that returns the input box value when it fires &mdash; which is precisely what
+    we should assign to the model's `name` property.
+
+    Nice to know but is it practical? We almost always prefer `[(ngModel)]`.
+    We might split the binding if we had to do something special in
+    the event handling such as debounce or throttle the key strokes.
+
+    Learn more about `NgModel` and other template syntax in the
+    [Template Syntax](./template-syntax.html) chapter.
+
+.l-main-section
+:marked
+  ## Track change-state and validity with **ngControl**
+
+  A form isn't just about data binding. We'd also like to know the state of the controls on our form.
+
+  By setting `ngControl` we create a directive that can tell if the user touched the control,
+  if the value changed, or if the value became invalid.
+
+  This directive doesn't just track state; it updates the control with special
+  Angular CSS classes from the set we listed above.
+  We can leverage those class names to change the appearance of the
+  control and make messages appear or disappear.
+
+  We'll explore those effects soon. Right now
+  we should **add `ngControl` to all three form controls**,
+  starting with the *Name* input box
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngControl-1', 'app/hero-form.component.html (excerpt)')(format=".")
+:marked
+  We set this particular `ngControl` to "name" which makes sense for our app. Any unique value will do.
+
+.l-sub-section
+  :marked
+    Internally Angular creates `Controls` and registers them under their `ngControl` names
+    with an `NgForm` directive that Angular attached to the `<form>` tag.
+    We'll talk about `NgForm` [later in the chapter](#ngForm).
+
+    The `ngControl` *attribute* in our template actually maps to the 
+    [NgControlName](../api/common/index/NgControlName-directive.html) directive.
+    There is also a `NgControl` *abstract* directive which is *not the same thing*.
+    We often ignore this technical distinction and refer to `NgControlName` more conveniently (albeit incorrectly) as the *NgControl* directive.
+    
+    While we're under the hood, we might as well note that the `ngModel` in the 
+    two-way binding syntax is now a property of the `NgControlName` directive. 
+    The `NgModel` directive is no longer involved. We only need one directive to manage the DOM element
+    and there is no practical difference in the way either directive handles data binding.     
+
+.l-main-section
+:marked
+  ## Add Custom CSS for Visual Feedback
+
+  The *NgControl* directive doesn't just track state. 
+  It updates the control with three classes that reflect the state.
+  
+table
+  tr
+    th State
+    th Class if true
+    th Class if false
+  tr
+    td Control has been visited
+    td <code>ng-touched</code>
+    td <code>ng-untouched</code>
+  tr
+    td Control's value has changed
+    td <code>ng-dirty</code>
+    td <code>ng-pristine</code>
+  tr
+    td Control's value is valid
+    td <code>ng-valid</code>
+    td <code>ng-invalid</code>
+:marked
+  Let's add a temporary [template reference variable](./template-syntax.html#ref-vars) named **spy**
+  to the "Name" `<input>` tag and use the spy to display those classes.
+
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngControl-2','app/hero-form.component.html (excerpt)')(format=".")
+
+:marked
+  Now run the app and focus on the *Name* input box.
+  Follow the next four steps *precisely*
+
+  1. Look but don't touch
+  1. Click in the input box, then click outside the text input box
+  1. Add slashes to the end of the name
+  1. Erase the name
+
+  The actions and effects are as follows:
+figure.image-display
+  img(src="/resources/images/devguide/forms/control-state-transitions-anim.gif"  alt="Control State Transition")
+:marked
+  We should be able to see the following four sets of class names and their transitions:
+figure.image-display
+  img(src="/resources/images/devguide/forms/ng-control-class-changes.png" width="400px" alt="Control State Transitions")
+
+:marked
+  The (`ng-valid` | `ng-invalid`) pair are most interesting to us. We want to send a
+  strong visual signal when the data are invalid and we want to mark required fields.
+
+  We realize we can do both at the same time with a colored bar on the left of the input box:
+
+figure.image-display
+  img(src="/resources/images/devguide/forms/validity-required-indicator.png" width="400px" alt="Invalid Form")
+
+:marked
+  We achieve this effect by adding two styles to a new `forms.css` file
+  that we add to our project as a sibling to `index.html`.
+
++makeExample('forms-deprecated/ts/forms.css',null,'forms.css')(format=".")
+:marked
+  These styles select for the two Angular validity classes and the HTML 5 "required" attribute.
+
+  We update the `<head>` of the `index.html` to include this style sheet.
++makeExample('forms-deprecated/ts/index.html', 'styles', 'index.html (excerpt)')(format=".")
+:marked
+  ## Show and Hide Validation Error messages
+
+  We can do better.
+
+  The "Name" input box is required. Clearing it turns the bar red. That says *something* is wrong but we
+  don't know *what* is wrong or what to do about it.
+  We can leverage the `ng-invalid` class to reveal a helpful message.
+
+  Here's the way it should look when the user deletes the name:
+figure.image-display
+  img(src="/resources/images/devguide/forms/name-required-error.png" width="400px" alt="Name required")
+
+:marked
+  To achieve this effect we extend the `<input>` tag with
+  1. a [template reference variable](./template-syntax.html#ref-vars)
+  1. the "*is required*" message in a nearby `<div>` which we'll display only if the control is invalid.
+
+  Here's how we do it for the *name* input box:
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 
+  'name-with-error-msg', 
+  'app/hero-form.component.html (excerpt)')(format=".")
+:marked
+  We need a template reference variable to access the input box's Angular control from within the template.
+  Here we created a variable called `name` and gave it the value "ngForm".
+.l-sub-section
+  :marked
+    Why "ngForm"? 
+    A directive's [exportAs](../api/core/index/DirectiveMetadata-class.html#!#exportAs) property 
+    tells Angular how to link the reference variable to the directive.
+    We set `name` to `ngForm` because the `NgControlName` directive's `exportAs` property happens to be "ngForm".
+    
+    This seems unintuitive at first until we realize that *all* control directives in the 
+    Angular form family &mdash; including `NgForm`, `NgModel`, `NgControlName` and `NgControlGroup` &mdash; *exportAs* "ngForm"
+    and we only ever apply *one* of these directives to an element tag.
+    Consistency rules!
+
+    Now we can control visibility of the "name" error message by binding properties of the `name` control to the message `<div>` element's `hidden` property.
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 
+  'hidden-error-msg', 
+  'app/hero-form.component.html (excerpt)')
+:marked
+  In this example, we hide the message when the control is valid or pristine; 
+  pristine means the user hasn't changed the value since it was displayed in this form. 
+  
+  This user experience is the developer's choice. Some folks want to see the message at all times.
+  If we ignore the `pristine` state, we would hide the message only when the value is valid.
+  If we arrive in this component with a new (blank) hero or an invalid hero, 
+  we'll see the error message immediately, before we've done anything.
+   
+  Some folks find that behavior disconcerting. They only want to see the message when the user makes an invalid change.
+  Hiding the message while the control is "pristine" achieves that goal.
+  We'll see the significance of this choice when we [add a new hero](#new-hero) to the form.
+
+  The Hero *Alter Ego* is optional so we can leave that be.
+
+  Hero *Power* selection is required.
+  We can add the same kind of error handling to the `<select>` if we  want
+  but it's not imperative because the selection box already constrains the
+  power to valid value.
+  
+<a id="new-hero"></a>
+<a id="reset"></a>  
+.l-main-section
+:marked
+  ## Add a hero and reset the form
+  We'd like to add a new hero in this form. 
+  We place a "New Hero" button at the bottom of the form and bind its click event to a component method.
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 
+  'new-hero-button', 
+  'app/hero-form.component.html (New Hero button)')
+:marked
++makeExample('forms-deprecated/ts/app/hero-form.component.ts', 
+  'new-hero-v1', 
+  'app/hero-form.component.ts (New Hero method - v1)')(format=".")
+:marked
+  Run the application again, click the *New Hero* button, and the form clears.
+  The *required* bars to the left of the input box are red, indicating invalid `name` and `power` properties.
+  That's understandable as these are required fields. 
+  The error messages are hidden because the form is pristine; we haven't changed anything yet.
+  
+  Enter a name and click *New Hero* again.
+  This time we see an error message! Why? We don't want that when we display a new (empty) hero.
+  
+  Inspecting the element in the browser tools reveals that the *name* input box is no longer pristine.
+  Replacing the hero *did not restore the pristine state* of the control.
+.l-sub-section
+  :marked
+    Upon reflection, we realize that Angular cannot distinguish between
+    replacing the entire hero and clearing the `name` property programmatically.
+    Angular makes no assumptions and leaves the control in its current, dirty state.
+:marked
+  We'll have to reset the form controls manually with a small trick. 
+  We add an `active` flag to the component, initialized to `true`. When we add a new hero,
+  we toggle `active` false and then immediately back to true with a quick `setTimeout`.
++makeExample('forms-deprecated/ts/app/hero-form.component.ts', 
+  'new-hero', 
+  'app/hero-form.component.ts (New Hero method - final)')(format=".")
+:marked
+  Then we bind the form element to this `active` flag.
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 
+  'form-active', 
+  'app/hero-form.component.html (Form tag)')
+:marked
+  With `NgIf` bound to the `active` flag, 
+  clicking "New Hero" removes the form from the DOM and recreates it in a blink of an eye.
+  The re-created form is in a pristine state. The error message is hidden.
+.l-sub-section
+  :marked
+    This is a temporary workaround while we await a proper form reset feature.
+:marked
+  
+.l-main-section
+:marked
+  ## Submit the form with **ngSubmit**
+  The user should be able to submit this form after filling it in.
+  The Submit button at the bottom of the form
+  does nothing on its own but it will
+  trigger a form submit because of its type (`type="submit"`).
+
+  A "form submit" is useless at the moment.
+  To make it useful, we'll update the `<form>` tag with another Angular directive, `NgSubmit`,
+  and bind it to the `HeroFormComponent.submit()` method with an  event binding
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'ngSubmit')(format=".")
+
+:marked
+  We slipped in something extra there at the end!  We defined a
+  template reference variable, **`#heroForm`**, and initialized it with the value, "ngForm".
+
+  The variable `heroForm` is now a reference to the `NgForm` directive that governs the form as a whole.
+<a id="ngForm"></a>
+.l-sub-section
+  :marked
+    ### The NgForm directive
+    What `NgForm` directive? We didn't add an [NgForm](../api/common/index/NgForm-directive.html) directive!
+    
+    Angular did. Angular creates and attaches an `NgForm` directive to the `<form>` tag automatically.
+
+    The `NgForm` directive  supplements the `form` element with additional features.
+    It holds the controls we created for the elements with `ngControl` attributes
+    and monitors their properties including their validity.
+    It also has its own `valid` property which is true only *if every contained
+    control* is valid.
+    
+:marked
+  Later in the template we bind the button's `disabled` property to the form's over-all validity via
+  the `heroForm` variable. Here's that bit of markup:
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'submit-button')
+:marked
+  Re-run the application. The form opens in a valid state and the button is enabled.
+
+  Now delete the *Name*. We violate the "name required" rule which
+  is duly noted in our error message as before. And now the Submit button is also disabled.
+
+  Not impressed?  Think about it for a moment. What would we have to do to
+  wire the button's enable/disabled state to the form's validity without Angular's help?
+
+  For us, it was as simple as
+  1. Define a template reference variable on the (enhanced) form element
+  2. Reference that variable in a button some 50 lines away.
+
+.l-main-section
+:marked
+  ## Toggle two form regions (extra credit)
+  Submitting the form isn't terribly dramatic at the moment.
+.l-sub-section
+  :marked
+    An unsurprising observation for a demo. To be honest,
+    jazzing it up won't teach us anything new about forms.
+    But this is an opportunity to exercise some of our newly won
+    binding skills.
+    If you're not interested, you can skip to the chapter's conclusion
+    and not miss a thing.
+:marked
+  Let's do something more strikingly visual.
+  Let's hide the data entry area and display something else.
+
+  Start by wrapping the form in a `<div>` and bind
+  its `hidden` property to the `HeroFormComponent.submitted` property.
+
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'edit-div', 'app/hero-form.component.html (excerpt)')(format=".")
+
+:marked
+  The main form is visible from the start because the
+  the `submitted` property is false until we submit the form,
+  as this fragment from the `HeroFormComponent` reminds us:
+
++makeExample('forms-deprecated/ts/app/hero-form.component.ts', 'submitted')(format=".")
+
+:marked
+  When we click the Submit button, the `submitted` flag becomes true and the form disappears
+  as planned.
+
+  Now we need to show something else while the form is in the submitted state.
+  Add the following block of HTML below the `<div>` wrapper we just wrote:
++makeExample('forms-deprecated/ts/app/hero-form.component.html', 'submitted', 'app/hero-form.component.html (excerpt)')
+
+:marked
+  There's our hero again, displayed read-only with interpolation bindings.
+  This slug of HTML only appears while the component is in the submitted state.
+
+  We added an Edit button whose click event is bound to an expression
+  that clears the `submitted` flag.
+
+  When we click it, this block disappears and the editable form reappears.
+
+  That's as much drama as we can muster for now.
+
+.l-main-section
+:marked
+  ## Conclusion
+
+  The Angular 2 form discussed in this chapter takes advantage of the following framework features to provide support for data modification, validation and more:
+
+  - An Angular HTML form template.
+  - A form component class with a `Component` decorator.
+  - The `ngSubmit` directive for handling the form submission.
+  - Template reference variables such as `#heroForm`, `#name`, `#alter-ego` and `#power`.
+  - The `[(ngModel)]` syntax for two-way data binding.
+  - The `ngControlName` directive for validation and form element change tracking.
+  - The reference variable’s `valid` property on input controls to check if a control is valid and show/hide error messages.
+  - Controlling the submit button's enabled state by binding to `NgForm` validity.
+  - Custom CSS classes that provide visual feedback to users about invalid controls.
+
+  Our final project folder structure should look like this:
+.filetree
+  .file angular2-forms
+  .children
+    .file app
+    .children
+      .file app.component.ts
+      .file hero.ts
+      .file hero-form.component.html
+      .file hero-form.component.ts
+      .file main.ts
+    .file node_modules ...
+    .file typings ...      
+    .file index.html
+    .file package.json
+    .file tsconfig.json
+    .file typings.json
+:marked
+  Here’s the final version of the source:
+
++makeTabs(
+  `forms-deprecated/ts/app/hero-form.component.ts,
+   forms-deprecated/ts/app/hero-form.component.html,
+   forms-deprecated/ts/app/hero.ts,
+   forms-deprecated/ts/app/app.component.ts,
+   forms-deprecated/ts/app/main.ts,   
+   forms-deprecated/ts/index.html,
+   forms-deprecated/ts/forms.css`,
+  'final, final,,,,,',
+  `hero-form.component.ts,
+   hero-form.component.html,   
+   hero.ts,
+   app.component.ts,
+   main.ts,
+   index.html,
+   forms.css`)
+:marked

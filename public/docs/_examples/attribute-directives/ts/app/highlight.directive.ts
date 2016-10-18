@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion full
-import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
   selector: '[myHighlight]'
@@ -8,8 +8,9 @@ import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/c
 // #docregion class
 export class HighlightDirective {
   private _defaultColor = 'red';
+  private el: HTMLElement;
 
-  constructor(private el: ElementRef, private renderer: Renderer) { }
+  constructor(el: ElementRef) { this.el = el.nativeElement; }
   // #enddocregion class
 
   // #docregion defaultColor
@@ -33,7 +34,7 @@ export class HighlightDirective {
   }
 
   private highlight(color: string) {
-    this.renderer.setElementStyle(this.el.nativeElement, 'backgroundColor', color);
+    this.el.style.backgroundColor = color;
   }
 }
 // #enddocregion class

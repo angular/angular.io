@@ -18,7 +18,7 @@ export class WikipediaService {
 
     return this.jsonp
                .get(wikiUrl + queryString)
-               .map(response => <string[]> response.json()[1]);
+               .map(request => <string[]> request.json()[1]);
     // #enddocregion query-string
   }
 }

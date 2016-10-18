@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Component Communication Cookbook Tests', function () {
 
   // Note: '?e2e' which app can read to know it is running in protractor

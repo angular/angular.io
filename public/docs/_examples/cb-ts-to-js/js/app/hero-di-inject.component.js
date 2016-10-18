@@ -15,16 +15,7 @@
   ];
 // #enddocregion parameters
 
-  app.HeroesDIInjectModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ { provide: 'heroName', useValue: 'Windstorm' } ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+  app.HeroDIInjectComponent = HeroComponent;
   
 })(window.app = window.app || {});
 
@@ -43,15 +34,6 @@
   });
 // #enddocregion ctor
 
-  app.HeroesDIInjectModule2 =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ { provide: 'heroName', useValue: 'Bombasto' } ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+  app.HeroDIInjectComponent2 = HeroComponent;
 
 })(window.app = window.app || {});

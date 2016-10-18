@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('Pipes', function () {
 
   beforeAll(function () {
@@ -55,16 +53,18 @@ describe('Pipes', function () {
     let factorInputEle = eles.get(1);
     let outputEle = element(by.css('power-boost-calculator p'));
     baseInputEle.clear().then(function() {
-      baseInputEle.sendKeys('7');
+      return sendKeys(baseInputEle, '7');
+    }).then(function() {
       return factorInputEle.clear();
     }).then(function() {
-      factorInputEle.sendKeys('3');
+      return sendKeys(factorInputEle, '3');
+    }).then(function() {
       expect(outputEle.getText()).toContain('343');
     });
   });
 
 
-  xit('should support flying heroes (pure) ', function () {
+  it('should support flying heroes (pure) ', function () {
     let nameEle = element(by.css('flying-heroes input[type="text"]'));
     let canFlyCheckEle = element(by.css('flying-heroes #can-fly'));
     let mutateCheckEle = element(by.css('flying-heroes #mutate'));
@@ -75,10 +75,15 @@ describe('Pipes', function () {
     expect(mutateCheckEle.getAttribute('checked')).toEqual('true', 'should default to mutating array');
     expect(flyingHeroesEle.count()).toEqual(2, 'only two of the original heroes can fly');
 
-    nameEle.sendKeys('test1\n');
-    expect(flyingHeroesEle.count()).toEqual(2, 'no change while mutating array');
-    mutateCheckEle.click().then(function() {
-      nameEle.sendKeys('test2\n');
+    return sendKeys(nameEle, 'test1\n')
+    .then(function(){
+       expect(flyingHeroesEle.count()).toEqual(2, 'no change while mutating array');
+       return mutateCheckEle.click();
+    })
+    .then(function() {
+      return sendKeys(nameEle, 'test2\n');
+    })
+    .then(function() {
       expect(flyingHeroesEle.count()).toEqual(4, 'not mutating; should see both adds');
       expect(flyingHeroesEle.get(2).getText()).toContain('test1');
       expect(flyingHeroesEle.get(3).getText()).toContain('test2');
@@ -90,7 +95,7 @@ describe('Pipes', function () {
   });
 
 
-  xit('should support flying heroes (impure) ', function () {
+  it('should support flying heroes (impure) ', function () {
     let nameEle = element(by.css('flying-heroes-impure input[type="text"]'));
     let canFlyCheckEle = element(by.css('flying-heroes-impure #can-fly'));
     let mutateCheckEle = element(by.css('flying-heroes-impure #mutate'));
@@ -100,8 +105,10 @@ describe('Pipes', function () {
     expect(mutateCheckEle.getAttribute('checked')).toEqual('true', 'should default to mutating array');
     expect(flyingHeroesEle.count()).toEqual(2, 'only two of the original heroes can fly');
 
-    nameEle.sendKeys('test1\n');
-    expect(flyingHeroesEle.count()).toEqual(3, 'new flying hero should show in mutating array');
+    return sendKeys(nameEle, 'test1\n')
+    .then(function(){
+       expect(flyingHeroesEle.count()).toEqual(3, 'new flying hero should show in mutating array');
+    });
   });
 
   it('should show an async hero message', function () {

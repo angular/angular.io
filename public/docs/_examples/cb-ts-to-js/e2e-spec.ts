@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 describe('TypeScript to Javascript tests', function () {
 
   beforeAll(function () {
@@ -27,7 +25,7 @@ describe('TypeScript to Javascript tests', function () {
   it('should support optional, attribute, and query injections', function () {
     let app = element(by.css('hero-di-inject-additional'));
     let h1 = app.element(by.css('h1'));
-    let okMsg = app.element(by.css('p'));
+    let okMsg = app.element(by.css('.ok-msg'));
 
     expect(h1.getText()).toBe('Tour of Heroes');
     app.element(by.buttonText('OK')).click();
@@ -56,7 +54,7 @@ describe('TypeScript to Javascript tests', function () {
     expect(h1.getAttribute('class')).toBe('active');
 
     h1.click();
-    browser.actions().doubleClick(h1.getWebElement()).perform();
+    browser.actions().doubleClick(h1 as any as webdriver.WebElement).perform();
     expect(h1.getAttribute('class')).toBe('active');
   });
 

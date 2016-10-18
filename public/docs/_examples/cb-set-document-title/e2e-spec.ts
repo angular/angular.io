@@ -1,7 +1,5 @@
-'use strict'; // necessary for es6 output in node 
-
-import { browser, element, by, ElementFinder } from 'protractor';
-
+/// <reference path='../_protractor/e2e.d.ts' />
+'use strict';
 // gulp run-e2e-tests --filter=cb-set-document-title
 describe('Set Document Title', function () {
 
@@ -18,7 +16,7 @@ describe('Set Document Title', function () {
       ];
 
       element.all( by.css( 'ul li a' ) ).each(
-        function iterator( element: ElementFinder, i: number ) {
+        function iterator( element, i ) {
 
           element.click();
           expect( browser.getTitle() ).toEqual( titles[ i ] );

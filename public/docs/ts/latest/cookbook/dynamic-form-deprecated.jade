@@ -1,0 +1,149 @@
+include ../_util-fns
+
+.alert.is-important
+  :marked
+    This cookbook is using the deprecated forms API. 
+    
+    We have created a new version of this cookbook using the new API <a href='/docs/ts/latest/cookbook/dynamic-form.html'>here</a>. 
+
+:marked
+   We can't always justify the cost and time to build handcrafted forms, 
+   especially if we'll need a great number of them, they're similar to each other, and they change frequently 
+   to meet rapidly changing business and regulatory requirements.
+   
+   It may be more economical to create the forms dynamically, based on metadata that describe the business object model.
+   
+   In this cookbook we show how to use `ngFormModel` to dynamically render a simple form with different control types and validation.
+   It's a primitive start. 
+   It might evolve to support a much richer variety of questions, more graceful rendering, and superior user experience.
+   All such greatness has humble beginnings.
+  
+   In our example we use a dynamic form to build an online application experience for heroes seeking employment.
+   The agency is constantly tinkering with the application process.
+   We can create the forms on the fly *without changing our application code*. 
+   
+<a id="toc"></a>
+:marked
+   ## Table of contents
+
+      [Question Model](#object-model)
+
+      [Form Component](#form-component)
+
+      [Questionnaire Metadata](#questionnaire-metadata)
+      
+      [Dynamic Template](#dynamic-template)
+
+:marked
+   **See the [live example](/resources/live-examples/cb-dynamic-form-deprecated/ts/plnkr.html)**.
+
+.l-main-section
+<a id="object-model"></a>
+:marked
+   ## Question Model
+
+   The first step is to define an object model that can describe all scenarios needed by the form functionality.
+   The hero application process involves a form with a lot of questions. 
+   The "question" is the most fundamental object in the model.
+
+   We have created `QuestionBase` as the most fundamental question class.
+
++makeExample('cb-dynamic-form-deprecated/ts/app/question-base.ts','','app/question-base.ts')
+
+:marked
+   From this base we derived two new classes in `TextboxQuestion` and `DropdownQuestion` that represent Textbox and Dropdown questions. 
+   The idea is that the form will be bound to specific question types and render the appropriate controls dynamically. 
+   
+   `TextboxQuestion` supports multiple html5 types like text, email, url etc via the `type` property.
+
++makeExample('cb-dynamic-form-deprecated/ts/app/question-textbox.ts',null,'app/question-textbox.ts')(format='.')
+
+:marked
+   `DropdownQuestion` presents a list of choices in a select box.
+   
++makeExample('cb-dynamic-form-deprecated/ts/app/question-dropdown.ts',null,'app/question-dropdown.ts')(format='.')
+
+:marked
+   Next we have defined `QuestionControlService`, a simple service for transforming our questions to an ngForm control group. 
+   In a nutshell, the control group consumes the metadata from the question model and allows us to specify default values and validation rules.
+
++makeExample('cb-dynamic-form-deprecated/ts/app/question-control.service.ts',null,'app/question-control.service.ts')(format='.')
+
+<a id="form-component"></a>
+:marked
+   ## Question form components
+   Now that we have defined the complete model we are ready to create components to represent the dynamic form.
+
+:marked
+  `DynamicFormComponent` is the entry point and the main container for the form. 
++makeTabs(
+  `cb-dynamic-form-deprecated/ts/app/dynamic-form.component.html,
+   cb-dynamic-form-deprecated/ts/app/dynamic-form.component.ts`,
+  null,
+  `dynamic-form.component.html,
+   dynamic-form.component.ts`
+)  
+:marked
+  It presents a list of questions, each question bound to a `<df-question>` component element.
+  The `<df-question>` tag matches the `DynamicFormQuestionComponent`,
+  the component responsible for rendering the details of each _individual_ question based on values in the data-bound question object.  
+
++makeTabs(
+  `cb-dynamic-form-deprecated/ts/app/dynamic-form-question.component.html,
+   cb-dynamic-form-deprecated/ts/app/dynamic-form-question.component.ts`,
+  null,
+  `dynamic-form-question.component.html,
+   dynamic-form-question.component.ts`
+)
+:marked
+  Notice this component can present any type of question in our model. 
+  We only have two types of questions at this point but we can imagine many more.
+  The `ngSwitch` determines which type of question to display.
+  
+  In both components  we're relying on Angular's **ngFormModel** to connect the template HTML to the
+  underlying control objects, populated from the question model with display and validation rules.
+
+<a id="questionnaire-metadata"></a>
+:marked
+   ## Questionnaire data
+:marked
+  `DynamicFormComponent` expects the list of questions in the form of an array bound to  `@Input() questions`.
+
+   The set of questions we have defined for the job application is returned from the `QuestionService`. 
+   In a real app we'd retrieve these questions from storage.
+   
+   The key point is that we control the hero job application questions entirely through the objects returned from `QuestionService`. 
+   Questionnaire maintenance is a simple matter of adding, updating, and removing objects from the `questions` array.
+   
++makeExample('cb-dynamic-form-deprecated/ts/app/question.service.ts','','app/question.service.ts')  
+
+:marked
+  Finally, we display an instance of the form in the `AppComponent` shell.
+
++makeExample('cb-dynamic-form-deprecated/ts/app/app.component.ts','','app.component.ts')
+
+<a id="dynamic-template"></a>
+:marked
+   ## Dynamic Template
+   Although in this example we're modelling a job application for heroes, there are no references to any specific hero question 
+   outside the objects returned by `QuestionService`. 
+   
+   This is very important since it allows us to repurpose the components for any type of survey
+   as long as it's compatible with our *question* object model. 
+   The key is the dynamic data binding of metadata used to render the form 
+   without making any hardcoded assumptions about specific questions. 
+   In addition to control metadata, we are also adding validation dynamically.
+
+   The *Save* button is disabled until the form is in a valid state. 
+   When the form is valid, we can click *Save* and the app renders the current form values as JSON. 
+   This proves that any user input is bound back to the data model.
+   Saving and retrieving the data is an exercise for another time.
+
+:marked
+   The final form looks like this:
+figure.image-display
+   img(src="/resources/images/cookbooks/dynamic-form/dynamic-form.png" alt="Dynamic-Form")
+
+
+:marked
+   [Back to top](#top)

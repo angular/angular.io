@@ -1,7 +1,7 @@
 # Angular.io
 [![Build Status][travis-badge]][travis-badge-url]
 
-Angular.io is site for Angular **documentation** . 
+Angular.io is site for Angular 2 **documentation** . 
 
 This site also includes links to other helpful angular resources including 
 Angular 2, Angular 1, Angular Material, and AngularFire.
@@ -21,23 +21,21 @@ Filing issues is helpful but **pull requests** that improve the docs are even be
 
 Learn how to [contribute to Angular.io](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md).
 
-> **IMPORTANT**: Do _NOT_ make changes to cached files under `public/docs/ts/_cache`. Cached files are updated through a separate workflow.
-
 ## Development Setup
 This site relies heavily on node and npm.
 
-1. Make sure you are using at least node v.5+ and latest npm; 
+1. Make sure you are using the latest node and npm; 
 if not install [nvm](https://github.com/creationix/nvm) to get node going on your machine.
 
-1. Install these npm packages *globally*: `npm install -g harp gulp`
+1. install these npm packages *globally*: `npm install -g harp gulp`
 
-1. Clone this repo, the [angular/angular source code repo](https://github.com/angular/angular), and the [dart-lang/angular2 source code repo](https://github.com/dart-lang/angular2) to the same parent directory.
-The three cloned repo directories must be siblings, with the latter two repo directories named **angular** and **angular-dart**, respectively.
+1. clone this repo and the [angular source code repo](https://github.com/angular/angular) to the same parent directory.
+The two cloned repo directories must be sibling.
 
 1. cd into root directory `angular.io/`
 
 1. install the *all-docs* local packages by running `npm install`
-> You probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
+> If running node v.5+, you probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
 
 1. See [below](#code-sample-development) for code sample development preparation.
 
@@ -73,11 +71,11 @@ If you are only going to work on a specific part of the docs, such as the dev gu
 ## Code Sample Development
 
 All documentation is supported by sample code and plunkers. 
-Such code resides in the `public/docs/_examples` directory, under page-specific directories, further divided by language track.
+Such code resides in the `public/docs/_examples` directory, under chapter-specific directories, further divided by language track.
 
 For example, the TypeScript QuickStart sample is in `public/docs/_examples/quickstart/ts`.
 
-All samples are in a consistent directory structure using the same styles and the same npm packages, including the latest release of Angular.
+All samples are in a consistent directory structure using the same styles and the same npm packages, including the latest release of Angular 2.
 This consistency is possible in part thanks to gulp-driven tooling. 
 To run the samples locally and confirm that they work properly, 
 take the following extra steps to prepare the environment:

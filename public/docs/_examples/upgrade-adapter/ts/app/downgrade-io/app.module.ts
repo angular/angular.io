@@ -1,21 +1,11 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
 import { MainController } from './main.controller';
 // #docregion downgradecomponent
 import { HeroDetailComponent } from './hero-detail.component';
 
 // #enddocregion downgradecomponent
-
-@NgModule({
-  imports: [ BrowserModule ],
-  declarations: [ HeroDetailComponent ]
-})
-export class AppModule {}
-
 import { UpgradeAdapter } from '@angular/upgrade';
 
-const upgradeAdapter = new UpgradeAdapter(AppModule);
+const upgradeAdapter = new UpgradeAdapter();
 
 // #docregion downgradecomponent
 

@@ -4,59 +4,70 @@ import { Router }            from '@angular/router';
 
 import { Hero }                from './hero';
 import { HeroService }         from './hero.service';
+// #docregion hero-detail-component
+import { HeroDetailComponent } from './hero-detail.component';
 
 @Component({
-  moduleId: module.id,
   selector: 'my-heroes',
-  templateUrl: 'heroes.component.html',
-  styleUrls: [ 'heroes.component.css' ]
+  templateUrl: 'app/heroes.component.html',
+  styleUrls:  ['app/heroes.component.css'],
+  directives: [HeroDetailComponent]
 })
+// #enddocregion hero-detail-component
 export class HeroesComponent implements OnInit {
   heroes: Hero[];
   selectedHero: Hero;
+  addingHero = false;
+  // #docregion error
+  error: any;
+  // #enddocregion error
 
   constructor(
-    private heroService: HeroService,
-    private router: Router) { }
+    private router: Router,
+    private heroService: HeroService) { }
 
-  getHeroes(): void {
+  getHeroes() {
     this.heroService
         .getHeroes()
-        .then(heroes => this.heroes = heroes);
+        .then(heroes => this.heroes = heroes)
+        .catch(error => this.error = error);
   }
 
-  // #docregion add
-  add(name: string): void {
-    name = name.trim();
-    if (!name) { return; }
-    this.heroService.create(name)
-      .then(hero => {
-        this.heroes.push(hero);
-        this.selectedHero = null;
-      });
+  // #docregion addHero
+  addHero() {
+    this.addingHero = true;
+    this.selectedHero = null;
   }
-  // #enddocregion add
 
-  // #docregion delete
-  delete(hero: Hero): void {
+  close(savedHero: Hero) {
+    this.addingHero = false;
+    if (savedHero) { this.getHeroes(); }
+  }
+  // #enddocregion addHero
+
+  // #docregion deleteHero
+  deleteHero(hero: Hero, event: any) {
+    event.stopPropagation();
     this.heroService
-        .delete(hero.id)
-        .then(() => {
+        .delete(hero)
+        .then(res => {
           this.heroes = this.heroes.filter(h => h !== hero);
           if (this.selectedHero === hero) { this.selectedHero = null; }
-        });
+        })
+        .catch(error => this.error = error);
   }
-  // #enddocregion delete
+  // #enddocregion deleteHero
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.getHeroes();
   }
 
-  onSelect(hero: Hero): void {
+  onSelect(hero: Hero) {
     this.selectedHero = hero;
+    this.addingHero = false;
   }
 
-  gotoDetail(): void {
+  gotoDetail() {
     this.router.navigate(['/detail', this.selectedHero.id]);
   }
 }

@@ -2,13 +2,13 @@
 // #docregion
 // #docregion first, final
 import { Component } from '@angular/core';
+import { NgForm }    from '@angular/forms';
 
 import { Hero }    from './hero';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-form',
-  templateUrl: 'hero-form.component.html'
+  templateUrl: 'app/hero-form.component.html'
 })
 export class HeroFormComponent {
 
@@ -51,7 +51,7 @@ export class HeroFormComponent {
 
   // Reveal in html:
   //   Name via form.controls = {{showFormControls(heroForm)}}
-  showFormControls(form: any) {
+  showFormControls(form: NgForm) {
 
     return form && form.controls['name'] &&
     // #docregion form-controls

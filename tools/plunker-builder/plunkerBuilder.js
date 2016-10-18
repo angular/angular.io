@@ -10,9 +10,9 @@ var mkdirp = require('mkdirp');
 var indexHtmlTranslator = require('./indexHtmlTranslator');
 var regionExtractor = require('../doc-shredder/regionExtractor');
 var COPYRIGHT, COPYRIGHT_JS_CSS, COPYRIGHT_HTML;
-var README; // content of plunker.README.md for plunkers
 var SYSTEMJS_CONFIG; // content of systemjs.config.js for plunkers that use systemjs
 var TSCONFIG;  // content of tsconfig.json for plunkers that use systemjs
+
 
 module.exports = {
   buildPlunkers: buildPlunkers
@@ -30,7 +30,7 @@ function buildCopyrightStrings() {
 }
 
 function buildPlunkers(basePath, destPath, options) {
-  getPlunkerFiles(basePath, options);
+  getSystemJsConfigPlunker(basePath);
   var errFn = options.errFn || function(e) { console.log(e); };
   var plunkerPaths = path.join(basePath, '**/*plnkr.json');
   var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
@@ -59,7 +59,7 @@ function buildPlunkerFrom(configFileName, basePath, destPath) {
   try {
     var config = initConfigAndCollectFileNames(configFileName);
     var postData = createPostData(config);
-    addPlunkerFiles(config, postData);
+    addSystemJsConfig(config, postData);
     var html = createPlunkerHtml(postData);
     fs.writeFileSync(outputFileName, html, 'utf-8');
     if (altFileName) {
@@ -81,8 +81,10 @@ function buildPlunkerFrom(configFileName, basePath, destPath) {
   }
 }
 
-function addPlunkerFiles(config, postData) {
-  addReadme(config, postData);
+/**
+ * Add plunker versions of systemjs.config and tsconfig.json
+ */
+function addSystemJsConfig(config, postData){
   if (config.basePath.indexOf('/ts') > -1) {
      // uses systemjs.config.js so add plunker version
      postData['files[systemjs.config.js]'] = SYSTEMJS_CONFIG;
@@ -90,25 +92,9 @@ function addPlunkerFiles(config, postData) {
   }
 }
 
-function addReadme(config, postData) {
-  var existingFiles = config.fileNames.map(function(file) {
-    return file.substr(file.lastIndexOf('/') + 1);
-  });
-
-  if (existingFiles.indexOf('README.md') === -1) {
-    var plunkerReadme = README + config.description;
-    postData['files[README.md]'] = plunkerReadme;
-  }
-}
-
-function getPlunkerFiles(basePath, options) {
+function getSystemJsConfigPlunker(basePath) {
   // Assume plunker version is sibling of node_modules version
-  README = fs.readFileSync(basePath +  '/plunker.README.md', 'utf-8');
-  var systemJsConfigPath = '/systemjs.config.plunker.js';
-  if (options.build) {
-    systemJsConfigPath = '/systemjs.config.plunker.build.js';
-  }
-  SYSTEMJS_CONFIG = fs.readFileSync(basePath + systemJsConfigPath, 'utf-8');
+  SYSTEMJS_CONFIG = fs.readFileSync(basePath + '/systemjs.config.plunker.js', 'utf-8');
   SYSTEMJS_CONFIG +=  COPYRIGHT_JS_CSS;
   TSCONFIG = fs.readFileSync(basePath + '/tsconfig.json', 'utf-8');
 }
@@ -132,13 +118,11 @@ function initConfigAndCollectFileNames(configFileName) {
   } else {
     config.files = defaultIncludes;
   }
-  var includeSpec = false;
   var gpaths = config.files.map(function(fileName) {
     fileName = fileName.trim();
     if (fileName.substr(0,1) == '!') {
       return "!" + path.join(basePath, fileName.substr(1));
     } else {
-      includeSpec = includeSpec || /.*\.spec.(ts|js)$/.test(fileName);
       return path.join(basePath, fileName);
     }
   });
@@ -151,17 +135,15 @@ function initConfigAndCollectFileNames(configFileName) {
     '!**/*plnkr.*',
     '!**/package.json',
     '!**/example-config.json',
+    '!**/*.spec.*',
     '!**/tslint.json',
     '!**/.editorconfig',
     '!**/systemjs.config.js',
     '!**/wallaby.js',
     '!**/karma-test-shim.js',
-    '!**/karma.conf.js'
-  ];
-  // exclude all specs if no spec is mentioned in `files[]`
-  if (!includeSpec) {
-    defaultExcludes = defaultExcludes.concat(['!**/*.spec.*','!**/spec.js']);
-  }
+    '!**/karma.conf.js',
+    '!**/spec.js'
+   ];
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
@@ -213,7 +195,7 @@ function createPostData(config) {
   // Leave here in case we want to add a md file later.
   // postData['files[license.md]'] = fs.readFileSync(path.join(__dirname, "license.md"));
 
-  var tags = ['angular', 'example'].concat(config.tags || []);
+  var tags = ['angular2', 'example'].concat(config.tags || []);
   tags.forEach(function(tag,ix) {
     postData['tags[' + ix + ']'] = tag;
   });
@@ -221,7 +203,7 @@ function createPostData(config) {
   // postData['tags[1]'] = "example";
   postData.private = true;
 
-  postData.description = "Angular Example - " + config.description;
+  postData.description = "Angular 2 Example - " + config.description;
   return postData;
 }
 

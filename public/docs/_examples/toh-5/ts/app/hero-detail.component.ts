@@ -1,47 +1,61 @@
 // #docplaster
-// #docregion , v2
-import { Component, OnInit }      from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
-import { Location }               from '@angular/common';
+// #docregion
+// #docregion import-oninit, v2
+import { Component, OnInit, OnDestroy } from '@angular/core';
+// #enddocregion import-oninit
+// #docregion import-activated-route
+import { ActivatedRoute } from '@angular/router';
+// #enddocregion import-activated-route
 
-import { Hero }         from './hero';
-import { HeroService }  from './hero.service';
-// #docregion metadata
+import { Hero } from './hero';
+// #docregion import-hero-service
+import { HeroService } from './hero.service';
+// #enddocregion import-hero-service
+
+// #docregion extract-template
 @Component({
-  moduleId: module.id,
   selector: 'my-hero-detail',
-  templateUrl: 'hero-detail.component.html',
-  // #enddocregion metadata, v2
-  styleUrls: [ 'hero-detail.component.css' ]
-  // #docregion metadata, v2
+  // #docregion template-url
+  templateUrl: 'app/hero-detail.component.html',
+  // #enddocregion template-url, v2
+  styleUrls: ['app/hero-detail.component.css']
+  // #docregion v2
 })
-// #enddocregion metadata
+// #enddocregion extract-template
 // #docregion implement
-export class HeroDetailComponent implements OnInit {
-// #enddocregion implement
+export class HeroDetailComponent implements OnInit, OnDestroy {
+  // #enddocregion implement
   hero: Hero;
+  sub: any;
 
   // #docregion ctor
   constructor(
     private heroService: HeroService,
-    private route: ActivatedRoute,
-    private location: Location
-  ) {}
+    private route: ActivatedRoute) {
+  }
   // #enddocregion ctor
 
-  // #docregion ngOnInit
-  ngOnInit(): void {
-    this.route.params.forEach((params: Params) => {
+  // #docregion ng-oninit
+  ngOnInit() {
+    // #docregion get-id
+    this.sub = this.route.params.subscribe(params => {
       let id = +params['id'];
       this.heroService.getHero(id)
         .then(hero => this.hero = hero);
     });
+    // #enddocregion get-id
   }
-  // #enddocregion ngOnInit
+  // #enddocregion ng-oninit
 
-  // #docregion goBack
-  goBack(): void {
-    this.location.back();
+  // #docregion ng-ondestroy
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
-// #enddocregion goBack
+  // #enddocregion ng-ondestroy
+
+  // #docregion go-back
+  goBack() {
+    window.history.back();
+  }
+// #enddocregion go-back
 }

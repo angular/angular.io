@@ -16,14 +16,6 @@
     };
   // #enddocregion
 
-  app.HeroesLifecycleModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+  app.HeroLifecycleComponent = HeroComponent;
 
 })(window.app = window.app || {});

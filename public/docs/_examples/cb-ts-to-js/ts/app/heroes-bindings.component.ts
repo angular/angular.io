@@ -1,19 +1,13 @@
-import {
-  Component,
-  HostBinding,
-  HostListener,
-  NgModule
-} from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { Component, HostBinding, HostListener } from '@angular/core';
 
 // #docregion
 @Component({
   selector: 'heroes-bindings',
   template: `<h1 [class.active]="active">
-    Tour of Heroes
+    Tour ofHeroes
   </h1>`
 })
-class HeroesComponent {
+export class HeroesComponent {
   @HostBinding() title = 'Tooltip content';
   @HostBinding('class.heading')
     hClass = true;
@@ -32,10 +26,3 @@ class HeroesComponent {
   }
 }
 // #enddocregion
-
-@NgModule({
-  imports: [ BrowserModule ],
-  declarations: [ HeroesComponent ],
-  bootstrap: [ HeroesComponent ]
-})
-export class HeroesHostBindingsModule { }

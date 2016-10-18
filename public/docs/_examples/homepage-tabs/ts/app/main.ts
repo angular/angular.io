@@ -1,6 +1,6 @@
 // #docregion
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { bootstrap } from '@angular/platform-browser-dynamic';
 
-import { AppModule } from './app.module';
+import { DiDemoComponent }    from './di_demo';
 
-platformBrowserDynamic().bootstrapModule(AppModule);
+bootstrap(DiDemoComponent);

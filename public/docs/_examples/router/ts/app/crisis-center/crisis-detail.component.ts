@@ -1,12 +1,12 @@
 // #docplaster
 // #docregion
-import { Component, OnInit, HostBinding,
-         trigger, transition,
-         animate, style, state }  from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, ActivatedRoute }       from '@angular/router';
+import { Observable }                   from 'rxjs/Observable';
+import 'rxjs/add/observable/fromPromise';
 
-import { Crisis }         from './crisis.service';
-import { DialogService }  from '../dialog.service';
+import { Crisis, CrisisService }  from './crisis.service';
+import { DialogService }          from '../dialog.service';
 
 @Component({
   template: `
@@ -24,62 +24,43 @@ import { DialogService }  from '../dialog.service';
     </p>
   </div>
   `,
-  styles: ['input {width: 20em}'],
-  // #enddocregion template
-  animations: [
-    trigger('routeAnimation', [
-      state('*',
-        style({
-          opacity: 1,
-          transform: 'translateX(0)'
-        })
-      ),
-      transition('void => *', [
-        style({
-          opacity: 0,
-          transform: 'translateX(-100%)'
-        }),
-        animate('0.2s ease-in')
-      ]),
-      transition('* => void', [
-        animate('0.5s ease-out', style({
-          opacity: 0,
-          transform: 'translateY(100%)'
-        }))
-      ])
-    ])
-  ]
+  styles: ['input {width: 20em}']
 })
-export class CrisisDetailComponent implements OnInit {
-  @HostBinding('@routeAnimation') get routeAnimation() {
-    return true;
-  }
 
-  @HostBinding('style.display') get display() {
-    return 'block';
-  }
-
-  @HostBinding('style.position') get position() {
-    return 'absolute';
-  }
-
+export class CrisisDetailComponent implements OnInit, OnDestroy {
   crisis: Crisis;
   editName: string;
+  private sub: any;
 
   constructor(
+    private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router,
-    public dialogService: DialogService
-  ) { }
+    private dialogService: DialogService
+    ) { }
 
-// #docregion crisis-detail-resolve
   ngOnInit() {
-    this.route.data.forEach((data: { crisis: Crisis }) => {
-      this.editName = data.crisis.name;
-      this.crisis = data.crisis;
-    });
+    this.sub = this.route
+      .params
+      .subscribe(params => {
+        let id = +params['id'];
+        this.service.getCrisis(id)
+          .then(crisis => {
+            if (crisis) {
+              this.editName = crisis.name;
+              this.crisis = crisis;
+            } else { // id not found
+              this.gotoCrises();
+            }
+          });
+      });
   }
-// #enddocregion crisis-detail-resolve
+
+  ngOnDestroy() {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
+  }
 
   cancel() {
     this.gotoCrises();
@@ -90,25 +71,27 @@ export class CrisisDetailComponent implements OnInit {
     this.gotoCrises();
   }
 
-  canDeactivate(): Promise<boolean> | boolean {
+  canDeactivate(): Observable<boolean> | boolean {
     // Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged
     if (!this.crisis || this.crisis.name === this.editName) {
       return true;
     }
     // Otherwise ask the user with the dialog service and return its
     // promise which resolves to true or false when the user decides
-    return this.dialogService.confirm('Discard changes?');
+    let p = this.dialogService.confirm('Discard changes?');
+    let o = Observable.fromPromise(p);
+    return o;
   }
 
   // #docregion gotoCrises
   gotoCrises() {
     let crisisId = this.crisis ? this.crisis.id : null;
-    // Pass along the crisis id if available
-    // so that the CrisisListComponent can select that crisis.
+    // Pass along the hero id if available
+    // so that the CrisisListComponent can select that hero.
     // Add a totally useless `foo` parameter for kicks.
     // #docregion gotoCrises-navigate
-    // Relative navigation back to the crises
-    this.router.navigate(['../', { id: crisisId, foo: 'foo' }], { relativeTo: this.route });
+    // Absolute link
+    this.router.navigate(['/crisis-center', {id: crisisId, foo: 'foo'}]);
     // #enddocregion gotoCrises-navigate
   }
   // #enddocregion gotoCrises

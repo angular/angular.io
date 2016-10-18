@@ -10,13 +10,14 @@ import 'mock_heroes.dart';
 class HeroService {
   Future<List<Hero>> getHeroes() async => mockHeroes;
 
+  // See the "Take it slow" appendix
   Future<List<Hero>> getHeroesSlowly() {
     return new Future<List<Hero>>.delayed(
-        const Duration(seconds: 2), getHeroes);
+        const Duration(seconds: 2), () => mockHeroes);
   }
 
-  // #docregion getHero
+  // #docregion get-hero
   Future<Hero> getHero(int id) async =>
       (await getHeroes()).firstWhere((hero) => hero.id == id);
-  // #enddocregion getHero
+  // #enddocregion get-hero
 }

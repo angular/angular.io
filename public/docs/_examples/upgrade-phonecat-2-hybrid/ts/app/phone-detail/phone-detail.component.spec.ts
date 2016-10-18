@@ -1,15 +1,21 @@
 // #docregion
-// #docregion activatedroute
-import { ActivatedRoute } from '@angular/router';
-
-// #enddocregion activatedroute
+import { HTTP_PROVIDERS } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
 
-import { async, TestBed } from '@angular/core/testing';
+import {
+  describe,
+  beforeEachProviders,
+  inject,
+  it,
+  expect
+} from '@angular/core/testing';
+import {
+  TestComponentBuilder,
+  ComponentFixture
+} from '@angular/compiler/testing';
 
 import { PhoneDetailComponent } from './phone-detail.component';
 import { Phone, PhoneData } from '../core/phone/phone.service';
-import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
 function xyzPhoneData(): PhoneData {
   return {
@@ -19,41 +25,28 @@ function xyzPhoneData(): PhoneData {
   };
 }
 
-class MockPhone {
+class MockPhone extends Phone {
   get(id: string): Observable<PhoneData> {
     return Observable.of(xyzPhoneData());
   }
 }
 
-// #docregion activatedroute
-
-class ActivatedRouteMock {
-  constructor(public snapshot: any) {}
-}
-
-// #enddocregion activatedroute
-
 describe('PhoneDetailComponent', () => {
 
-  // #docregion activatedroute
+  beforeEachProviders(() => [
+    { provide: Phone, useClass: MockPhone },
+    { provide: '$routeParams', useValue: {phoneId: 'xyz'}},
+    HTTP_PROVIDERS
+  ]);
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CheckmarkPipe, PhoneDetailComponent ],
-      providers: [
-        { provide: Phone, useClass: MockPhone },
-        { provide: ActivatedRoute, useValue: new ActivatedRouteMock({ params: { 'phoneId': 1 } }) }
-      ]
-    })
-    .compileComponents();
+  it('should fetch phone detail',
+      inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
+    return tcb.createAsync(PhoneDetailComponent)
+        .then((fixture: ComponentFixture<PhoneDetailComponent>) => {
+      fixture.detectChanges();
+      let compiled = fixture.debugElement.nativeElement;
+      expect(compiled.querySelector('h1')).toHaveText(xyzPhoneData().name);
+    });
   }));
-  // #enddocregion activatedroute
-
-  it('should fetch phone detail', () => {
-    const fixture = TestBed.createComponent(PhoneDetailComponent);
-    fixture.detectChanges();
-    let compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain(xyzPhoneData().name);
-  });
 
 });

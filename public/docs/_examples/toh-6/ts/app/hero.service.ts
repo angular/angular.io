@@ -1,5 +1,5 @@
 // #docplaster
-// #docregion , imports
+// #docregion
 import { Injectable }    from '@angular/core';
 import { Headers, Http } from '@angular/http';
 
@@ -8,20 +8,16 @@ import 'rxjs/add/operator/toPromise';
 // #enddocregion rxjs
 
 import { Hero } from './hero';
-// #enddocregion imports
 
 @Injectable()
 export class HeroService {
 
-  // #docregion update
-  private headers = new Headers({'Content-Type': 'application/json'});
-  // #enddocregion update
   // #docregion getHeroes
   private heroesUrl = 'app/heroes';  // URL to web api
 
   constructor(private http: Http) { }
 
-  getHeroes(): Promise<Hero[]> {
+  getHeroes() {
     return this.http.get(this.heroesUrl)
     // #docregion to-promise
                .toPromise()
@@ -35,45 +31,67 @@ export class HeroService {
   }
   // #enddocregion getHeroes
 
-  getHero(id: number): Promise<Hero> {
+  getHero(id: number) {
     return this.getHeroes()
                .then(heroes => heroes.find(hero => hero.id === id));
   }
 
+  // #docregion save
+  save(hero: Hero): Promise<Hero>  {
+    if (hero.id) {
+      return this.put(hero);
+    }
+    return this.post(hero);
+  }
+  // #enddocregion save
+
   // #docregion delete
-  delete(id: number): Promise<void> {
-    const url = `${this.heroesUrl}/${id}`;
-    return this.http.delete(url, {headers: this.headers})
-      .toPromise()
-      .then(() => null)
-      .catch(this.handleError);
+  delete(hero: Hero) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    let url = `${this.heroesUrl}/${hero.id}`;
+
+    return this.http
+               .delete(url, {headers: headers})
+               .toPromise()
+               .catch(this.handleError);
   }
   // #enddocregion delete
 
-  // #docregion create
-  create(name: string): Promise<Hero> {
-    return this.http
-      .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers})
-      .toPromise()
-      .then(res => res.json().data)
-      .catch(this.handleError);
-  }
-  // #enddocregion create
-  // #docregion update
+  // #docregion post
+  // Add new Hero
+  private post(hero: Hero): Promise<Hero> {
+    let headers = new Headers({
+      'Content-Type': 'application/json'});
 
-  update(hero: Hero): Promise<Hero> {
-    const url = `${this.heroesUrl}/${hero.id}`;
     return this.http
-      .put(url, JSON.stringify(hero), {headers: this.headers})
-      .toPromise()
-      .then(() => hero)
-      .catch(this.handleError);
+               .post(this.heroesUrl, JSON.stringify(hero), {headers: headers})
+               .toPromise()
+               .then(res => res.json().data)
+               .catch(this.handleError);
   }
-  // #enddocregion put, update
+  // #enddocregion post
+
+  // #docregion put
+  // Update existing Hero
+  private put(hero: Hero) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    let url = `${this.heroesUrl}/${hero.id}`;
+
+    return this.http
+               .put(url, JSON.stringify(hero), {headers: headers})
+               .toPromise()
+               .then(() => hero)
+               .catch(this.handleError);
+  }
+  // #enddocregion put
 
   // #docregion handleError
-  private handleError(error: any): Promise<any> {
-    console.error('An error occurred', error); // for demo purposes only
+  private handleError(error: any) {
+    console.error('An error occurred', error);
     return Promise.reject(error.message || error);
   }
   // #enddocregion handleError

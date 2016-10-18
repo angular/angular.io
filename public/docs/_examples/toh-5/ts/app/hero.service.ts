@@ -6,20 +6,21 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class HeroService {
-  getHeroes(): Promise<Hero[]> {
+  getHeroes() {
     return Promise.resolve(HEROES);
   }
 
-  getHeroesSlowly(): Promise<Hero[]> {
+  // See the "Take it slow" appendix
+  getHeroesSlowly() {
     return new Promise<Hero[]>(resolve =>
-      setTimeout(resolve, 2000)) // delay 2 seconds
-      .then(() => this.getHeroes());
+      setTimeout(() => resolve(HEROES), 2000) // 2 seconds
+    );
   }
 
-  // #docregion getHero
-  getHero(id: number): Promise<Hero> {
+  // #docregion get-hero
+  getHero(id: number) {
     return this.getHeroes()
                .then(heroes => heroes.find(hero => hero.id === id));
   }
-  // #enddocregion getHero
+  // #enddocregion get-hero
 }

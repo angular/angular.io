@@ -9,5 +9,4 @@ module.exports = [
   require('./experimental'),
   require('./docsNotRequired'),
   require('./security'),
-  require('./ngModule'),
 ];

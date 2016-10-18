@@ -1,16 +1,15 @@
 // #docplaster
 // #docregion
-import { Component, OnInit } from '@angular/core';
-// #enddocregion
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { Component, OnInit }
+  from '@angular/core';
+  // #enddocregion
 
 @Component({
   selector: 'hero-lifecycle',
   template: `<h1>Hero: {{name}}</h1>`
 })
 // #docregion
-class HeroComponent
+export class HeroComponent
     implements OnInit {
   name: string;
   ngOnInit() {
@@ -18,11 +17,3 @@ class HeroComponent
   }
 }
 // #enddocregion
-
-@NgModule({
-  imports: [ BrowserModule ],
-  declarations: [ HeroComponent ],
-  bootstrap: [ HeroComponent ]
-})
-export class HeroesLifecycleModule { }
-

@@ -1,6 +1,10 @@
 // #docregion
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+// main entry point
+import { bootstrap }          from '@angular/platform-browser-dynamic';
+import { AppComponent }       from './app.component';
+import { appRouterProviders } from './app.routes';
 
-import { AppModule } from './app.module';
-
-platformBrowserDynamic().bootstrapModule(AppModule);
+bootstrap(AppComponent, [
+  appRouterProviders
+])
+.catch(err => console.error(err));

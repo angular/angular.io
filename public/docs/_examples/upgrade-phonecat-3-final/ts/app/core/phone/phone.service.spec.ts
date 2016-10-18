@@ -1,4 +1,10 @@
-import { inject, TestBed } from '@angular/core/testing';
+import {
+  describe,
+  beforeEach,
+  beforeEachProviders,
+  it,
+  inject
+} from '@angular/core/testing';
 import {
   Http,
   BaseRequestOptions,
@@ -17,19 +23,15 @@ describe('Phone', function() {
   ];
   let mockBackend: MockBackend;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        Phone,
-        MockBackend,
-        BaseRequestOptions,
-        { provide: Http,
-          useFactory: (backend: MockBackend, options: BaseRequestOptions) => new Http(backend, options),
-          deps: [MockBackend, BaseRequestOptions]
-        }
-      ]
-    });
-  });
+  beforeEachProviders(() => [
+    Phone,
+    MockBackend,
+    BaseRequestOptions,
+    { provide: Http,
+      useFactory: (backend: MockBackend, options: BaseRequestOptions) => new Http(backend, options),
+      deps: [MockBackend, BaseRequestOptions]
+    }
+  ]);
 
   beforeEach(inject([MockBackend, Phone], (_mockBackend_: MockBackend, _phone_: Phone) => {
     mockBackend = _mockBackend_;

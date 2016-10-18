@@ -12,16 +12,5 @@
        }]
   });
   // #enddocregion
-
-  app.HeroDIInlineModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ app.DataService ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
-
+  app.HeroDIInlineComponent = HeroComponent;
 })(window.app = window.app || {});

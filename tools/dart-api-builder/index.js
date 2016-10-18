@@ -9,8 +9,7 @@ var PROJECT_PATH = path.resolve(__dirname, "../..");
 var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
 var ANGULAR_REPO_PATH = path.resolve(__dirname, '../../../angular-dart');
-// The 'docs' folder is actually named 'doc' for angular2 Dart.
-var ANGULAR2_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'doc');
+var ANGULAR2_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'docs');
 var NG_IO_PKG_PATH = path.resolve(__dirname, "../api-builder/angular.io-package");
 
 function requireNgIoPkg(_path) { return require(path.resolve(NG_IO_PKG_PATH, _path)); }
@@ -52,7 +51,7 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
 
   .config(function (convertPrivateClassesToInterfacesProcessor,
     createOverviewDump,
-    extractDecoratedClassesProcessor,
+    extractDirectiveClassesProcessor,
     extractJSDocCommentsProcessor,
     extractTitleFromGuides,
     generateNavigationDoc,
@@ -62,7 +61,7 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
     // Clear out unwanted processors
     createOverviewDump.$enabled = false;
     convertPrivateClassesToInterfacesProcessor.$enabled = false;
-    extractDecoratedClassesProcessor.$enabled = false;
+    extractDirectiveClassesProcessor.$enabled = false;
     extractJSDocCommentsProcessor.$enabled = false;
     extractTitleFromGuides.$enabled = false;
     generateNavigationDoc.$enabled = false;

@@ -5,9 +5,8 @@ import { Hero }              from './hero';
 import { HeroService }       from './hero.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-list',
-  templateUrl: 'hero-list.component.html',
+  templateUrl: 'app/toh/hero-list.component.html',
   providers: [ HeroService ]
 })
 // #docregion component

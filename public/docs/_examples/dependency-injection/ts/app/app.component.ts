@@ -3,10 +3,18 @@
 // #docregion imports
 import { Component, Inject } from '@angular/core';
 
-import { APP_CONFIG, AppConfig }    from './app.config';
-import { Logger } from './logger.service';
+import { CarComponent }      from './car/car.component';
+import { HeroesComponent }   from './heroes/heroes.component';
+
+import { APP_CONFIG, AppConfig,
+         HERO_DI_CONFIG }    from './app.config';
+import { Logger }            from './logger.service';
+
 import { UserService } from './user.service';
 // #enddocregion imports
+import { InjectorComponent } from './injector.component';
+import { TestComponent }     from './test.component';
+import { ProvidersComponent } from './providers.component';
 
 @Component({
   selector: 'my-app',
@@ -23,7 +31,15 @@ import { UserService } from './user.service';
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
   `,
-  providers: [Logger]
+  directives: [CarComponent, HeroesComponent,
+              InjectorComponent, TestComponent, ProvidersComponent],
+  // #docregion providers
+  providers: [
+    Logger,
+    UserService,
+    { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
+  ]
+  // #enddocregion providers
 })
 export class AppComponent {
   title: string;

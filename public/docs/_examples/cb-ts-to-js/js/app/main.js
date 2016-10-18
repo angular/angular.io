@@ -4,8 +4,8 @@
   // #enddocregion appimport
 
   // #docregion ng2import
-  var platformBrowserDynamic =
-    ng.platformBrowserDynamic.platformBrowserDynamic;
+  var bootstrap =
+    ng.platformBrowserDynamic.bootstrap;
   var LocationStrategy =
     ng.common.LocationStrategy;
   var HashLocationStrategy =
@@ -17,17 +17,21 @@
   // #enddocregion appimport
 
   document.addEventListener('DOMContentLoaded', function() {
-    platformBrowserDynamic().bootstrapModule(app.HeroesModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesDslModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesLifecycleModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesDIModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroDIInlineModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesDIInjectModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesDIInjectModule2);
-    platformBrowserDynamic().bootstrapModule(app.HeroesDIInjectAdditionalModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesIOModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesHostBindingsModule);
-    platformBrowserDynamic().bootstrapModule(app.HeroesQueriesModule);
+    bootstrap(HeroComponent);
+    bootstrap(app.HeroComponentDsl);
+    bootstrap(app.HeroLifecycleComponent);
+    bootstrap(app.HeroDIComponent, [app.DataService]);
+    bootstrap(app.HeroDIInlineComponent, [app.DataService]);
+    bootstrap(app.HeroDIInjectComponent, [
+      { provide: 'heroName', useValue: 'Windstorm' }
+    ]);
+    bootstrap(app.HeroDIInjectComponent2, [
+      { provide: 'heroName', useValue: 'Bombasto' }
+    ]);
+    bootstrap(app.HeroDIInjectAdditionalComponent);
+    bootstrap(app.HeroIOComponent);
+    bootstrap(app.HeroesHostBindingsComponent);
+    bootstrap(app.HeroesQueriesComponent);
   });
 
   // #docregion appimport
