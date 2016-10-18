@@ -22,7 +22,7 @@ var globby = require("globby");
 // - because childProcess.kill does not work properly on windows
 var treeKill = require("tree-kill");
 var blc = require("broken-link-checker");
-
+var less = require('gulp-less');
 var tslint = require('gulp-tslint');
 
 // TODO:
@@ -37,15 +37,20 @@ var TEMP_PATH = './_temp';
 var DOCS_PATH = path.join(PUBLIC_PATH, 'docs');
 
 var EXAMPLES_PATH = path.join(DOCS_PATH, '_examples');
-var EXAMPLES_PROTRACTOR_PATH = path.join(EXAMPLES_PATH, '_protractor');
+var BOILERPLATE_PATH = path.join(EXAMPLES_PATH, '_boilerplate');
+var EXAMPLES_TESTING_PATH = path.join(EXAMPLES_PATH, 'testing/ts');
 var NOT_API_DOCS_GLOB = path.join(PUBLIC_PATH, './{docs/*/latest/!(api),!(docs)}/**/*.*');
 var RESOURCES_PATH = path.join(PUBLIC_PATH, 'resources');
 var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
+var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
 var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
-var plunkerBuilder = require(path.resolve(TOOLS_PATH, 'plunker-builder/plunkerBuilder'));
+var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPlunker'));
+var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
+
+const WWW = argv.page ? 'www-pages' : 'www'
 
 const isSilent = !!argv.silent;
 if (isSilent) gutil.log = gutil.noop;
@@ -71,9 +76,10 @@ var _apiShredOptions =  {
   logLevel: _dgeniLogLevel
 };
 
+const relDartDocApiDir = path.join('doc', 'api');
 var _apiShredOptionsForDart =  {
   lang: 'dart',
-  examplesDir: path.resolve(ngPathFor('dart'), 'examples'),
+  examplesDir: path.resolve(ANGULAR_PROJECT_PATH + '2_api_examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api'),
   logLevel: _dgeniLogLevel
@@ -86,49 +92,62 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
-  '.editorconfig',
-  'karma.conf.js',
-  'karma-test-shim.js',
+  'a2docs.css',
   'package.json',
   'styles.css',
   'systemjs.config.js',
   'tsconfig.json',
-  'tslint.json',
-  'typings.json',
-  'wallaby.js'
- ];
+  'tslint.json'
+];
 
-var _exampleDartWebBoilerPlateFiles = ['styles.css'];
+var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
 
-var _exampleProtractorBoilerplateFiles = [
-  'tsconfig.json'
+var _exampleUnitTestingBoilerplateFiles = [
+  'karma-test-shim.js',
+  'karma.conf.js'
 ];
 
 var _exampleConfigFilename = 'example-config.json';
 
+var _styleLessName = 'a2docs.less';
+
 // Gulp flags:
 //
-//   --lang=[all | ts | js | dart | (ts|js) | (ts|js|dart) | ...]
+//   --lang=[all | ts | js | dart | 'ts|js' | 'ts|js|dart' | ...]
 //
 //    This affects which language API docs and E2E tests are run. Can be 'all',
 //    or a regex pattern to match any one of 'ts', 'js', or 'dart'.
-//    Default: '(ts|js)' except for check-deploy for which it is 'all'.
-//
-var lang, langs, buildDartApiDocs = false;
+//    Default: 'ts|js' except for the "full site build" tasks (see below),
+//    for which it is 'all'.
+
+// langs and skipLangs partition ['ts', 'js', 'dart'].
+var lang, langs, skipLangs, buildDartApiDocs = false;
 function configLangs(langOption) {
-  const fullSiteBuildTasks = ['build-compile', 'check-serve', 'check-deploy'];
-  const buildAllDocs = argv['_'] && 
+  const fullSiteBuildTasks = ['build-compile', 'check-deploy', 'harp-compile'];
+  const buildAllDocs = argv['_'] &&
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
-  const langDefault = buildAllDocs ? 'all' : '(ts|js)';
-  lang = (langOption || langDefault).toLowerCase();
-  if (lang === 'all') lang = '(ts|js|dart)';
-  langs = lang.match(/\w+/g); // the languages in `lang` as an array
-  gutil.log('Building docs for: ' + lang);
+  const langDefault = buildAllDocs ? 'all' : 'ts|js';
+  if (langOption === '') {
+    lang = '';
+    langs = [];
+  } else {
+    lang = (langOption || langDefault).toLowerCase();
+    if (lang === 'all') lang = 'ts|js|dart';
+    langs = lang.match(/\w+/g); // the languages in `lang` as an array
+  }
+  gutil.log(`Building docs for: [${langs}]`);
   if (langs.indexOf('dart') >= 0) {
     buildDartApiDocs = true;
     // For Dart, be proactive about checking for the repo
     checkAngularProjectPath(ngPathFor('dart'));
+  } else {
+    argv.pub = false;
   }
+  skipLangs = [];
+  ['ts', 'js', 'dart'].forEach(lang => {
+    if (langs.indexOf(lang) < 0) skipLangs.push(lang);
+  });
+  gutil.log(`Skipped languages: [${skipLangs}]`);
 }
 configLangs(argv.lang);
 
@@ -161,10 +180,8 @@ gulp.task('run-e2e-tests', runE2e);
  *    Use it for repeated test runs (but not the FIRST run)
  *    e.g. gulp e2e --fast
  *
- *   --lang to filter by code language
+ *   --lang to filter by code language (see above for details)
  *     e.g. gulp e2e --lang=ts  // only TypeScript apps
- *     default is (ts|js)
- *     all means (ts|js|dart)
  */
 function runE2e() {
   var promise;
@@ -182,18 +199,13 @@ function runE2e() {
     });
     */
     // Not 'fast'; do full setup
-    gutil.log('runE2e: install _protractor stuff');
-    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PROTRACTOR_PATH});
+    gutil.log('runE2e: install _examples stuff');
+    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
     promise = spawnInfo.promise
       .then(function() {
-        gutil.log('runE2e: install _examples stuff');
-        spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH})
-        return spawnInfo.promise;
-      })
-      .then(function() {
-        copyExampleBoilerplate();
+        buildStyles(copyExampleBoilerplate, _.noop);
         gutil.log('runE2e: update webdriver');
-        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PROTRACTOR_PATH});
+        spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
         return spawnInfo.promise;
       });
   };
@@ -228,11 +240,10 @@ function findAndRunE2eTests(filter, outputFile) {
   fs.writeFileSync(outputFile, header);
 
   // create an array of combos where each
-  // combo consists of { examplePath: ... , protractorConfigFilename:  ... }
+  // combo consists of { examplePath: ... }
   var examplePaths = [];
   var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
    e2eSpecPaths.forEach(function(specPath) {
-    var destConfig = path.join(specPath, 'protractor.config.js');
     // get all of the examples under each dir where a pcFilename is found
     localExamplePaths = getExamplePaths(specPath, true);
     // Filter by language
@@ -274,16 +285,23 @@ function runE2eTsTests(appDir, outputFile) {
   try {
     var exampleConfig = fs.readJsonSync(`${appDir}/${_exampleConfigFilename}`);
   } catch (e) {
-    exampleConfig = {
-      build: 'tsc',
-      run: 'http-server:e2e'
-    };
+    exampleConfig = {};
   }
 
-  var appBuildSpawnInfo = spawnExt('npm', ['run', exampleConfig.build], { cwd: appDir });
-  var appRunSpawnInfo = spawnExt('npm', ['run', exampleConfig.run, '--', '-s'], { cwd: appDir });
+  var config = {
+    build: exampleConfig.build || 'tsc',
+    run: exampleConfig.run || 'http-server:e2e'
+  };
 
-  return runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
+  var appBuildSpawnInfo = spawnExt('npm', ['run', config.build], { cwd: appDir });
+  var appRunSpawnInfo = spawnExt('npm', ['run', config.run, '--', '-s'], { cwd: appDir });
+
+  var run = runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
+
+  if (fs.existsSync(appDir + '/aot/index.html')) {
+    run = run.then(() => runProtractorAoT(appDir, outputFile));
+  }
+  return run;
 }
 
 function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
@@ -301,7 +319,7 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
       // start protractor
 
       var spawnInfo = spawnExt('npm', [ 'run', 'protractor', '--', 'protractor.config.js',
-        `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PROTRACTOR_PATH });
+        `--specs=${specFilename}`, '--params.appDir=' + appDir, '--params.outputFile=' + outputFile], { cwd: EXAMPLES_PATH });
 
       spawnInfo.proc.stderr.on('data', function (data) {
         transpileError = transpileError || /npm ERR! Exit status 100/.test(data.toString());
@@ -328,6 +346,20 @@ function runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile) {
     }
 }
 
+function runProtractorAoT(appDir, outputFile) {
+  fs.appendFileSync(outputFile, '++ AoT version ++\n');
+  var aotBuildSpawnInfo = spawnExt('npm', ['run', 'build:aot'], { cwd: appDir });
+  var promise = aotBuildSpawnInfo.promise;
+
+  var copyFileCmd = 'copy-dist-files.js';
+  if (fs.existsSync(appDir + '/' + copyFileCmd)) {
+    promise = promise.then(() =>
+     spawnExt('node', [copyFileCmd], { cwd: appDir }).promise );
+  }
+  var aotRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', 'aot', '--', '-s'], { cwd: appDir });
+  return runProtractor(promise, appDir, aotRunSpawnInfo, outputFile);
+}
+
 // start the server in appDir/build/web; then run protractor with the specified
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
@@ -341,10 +373,15 @@ function runE2eDartTests(appDir, outputFile) {
     gutil.log('http-server failed to launch over ' + deployDir);
     return false;
   }
-  var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
-  var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
-    return spawnExt('pub', ['build'], { cwd: appDir }).promise;
-  });
+  if (argv.pub === false) {
+    var prepPromise = Promise.resolve(true);
+    gutil.log('Skipping pub upgrade and pub build (--no-pub flag present)');
+  } else {
+    var pubUpgradeSpawnInfo = spawnExt('pub', ['upgrade'], { cwd: appDir });
+    var prepPromise = pubUpgradeSpawnInfo.promise.then(function (data) {
+      return spawnExt('pub', ['build'], { cwd: appDir }).promise;
+    });
+  }
   return runProtractor(prepPromise, appDir, appRunSpawnInfo, outputFile);
 }
 
@@ -415,7 +452,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access because it adds symlinks
-gulp.task('add-example-boilerplate', function() {
+gulp.task('add-example-boilerplate', function(done) {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = excludeDartPaths(getNodeModulesPaths(EXAMPLES_PATH));
 
@@ -431,16 +468,26 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  return copyExampleBoilerplate();
+  return buildStyles(copyExampleBoilerplate, done);
 });
 
 
 // copies boilerplate files to locations
 // where an example app is found
-gulp.task('_copy-example-boilerplate', function () {
-  if (!argv.fast) copyExampleBoilerplate();
+gulp.task('_copy-example-boilerplate', function (done) {
+  return argv.fast ? done() : buildStyles(copyExampleBoilerplate, done);
 });
 
+//Builds Angular Docs CSS file from Bootstrap npm LESS source
+//and copies the result to the _examples folder to be included as
+//part of the example boilerplate.
+function buildStyles(cb, done){
+  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
+    .pipe(less())
+    .pipe(gulp.dest(BOILERPLATE_PATH)).on('end', function(){
+      cb().then(function() { done(); });
+    });
+}
 
 // copies boilerplate files to locations
 // where an example app is found
@@ -448,12 +495,12 @@ gulp.task('_copy-example-boilerplate', function () {
 function copyExampleBoilerplate() {
   gutil.log('Copying example boilerplate files');
   var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
-    return path.join(EXAMPLES_PATH, fn);
+    return path.join(BOILERPLATE_PATH, fn);
   });
   var examplePaths = excludeDartPaths(getExamplePaths(EXAMPLES_PATH));
 
   var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
-    return path.join(EXAMPLES_PATH, fn);
+    return path.join(BOILERPLATE_PATH, fn);
   });
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
@@ -463,13 +510,17 @@ function copyExampleBoilerplate() {
     .then(function() {
       return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
     })
-    // copy certain files from _examples/_protractor dir to each subdir that contains an e2e-spec file.
+    // copy the unit test boilerplate
     .then(function() {
-      var protractorSourceFiles =
-        _exampleProtractorBoilerplateFiles
-          .map(function(name) {return path.join(EXAMPLES_PROTRACTOR_PATH, name);});;
-      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return copyFiles(protractorSourceFiles, e2eSpecPaths, destFileMode);
+      var unittestSourceFiles =
+        _exampleUnitTestingBoilerplateFiles
+          .map(function(name) { return path.join(EXAMPLES_TESTING_PATH, name); });
+      var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
+      return copyFiles(unittestSourceFiles, unittestPaths, destFileMode);
+    })
+    .catch(function(err) {
+      gutil.log(err);
+      throw err;
     });
 }
 
@@ -491,23 +542,42 @@ gulp.task('remove-example-boilerplate', function() {
 // either release or current build packages
 // Examples:
 //   gulp install-example-angular --build  // use current build packages
+//   gulp install-example-angular --build=2.0.0-b43f954  // use tagged packages
 //   gulp install-example-angular          // restore release packages
+//
+// Find the tags here: https://github.com/angular/core-builds/releases
 gulp.task('install-example-angular', installExampleAngular);
 
 function installExampleAngular() {
   var sources;
   var template;
   var libs = [
-    'core', 'common', 'compiler',
+    'core', 'common', 'compiler', 'compiler-cli',
     'platform-browser', 'platform-browser-dynamic',
     'forms', 'http', 'router', 'upgrade'];
 
+  var build = argv.build;
+  if (build) {
+    if (typeof build === 'string') {
+      build = (build[0]==='#' ? '' : '#') + build;
+    } else {
+      build = '';
+    }
+  } else{
+    build = 'npm';
+  }
   // Like: "angular/core-builds" or "@angular/core"
-  sources = libs.map( lib => argv.build ? `angular/${lib}-builds` : `@angular/${lib}`);
+  sources = libs.map( lib => {
+    return build === 'npm'
+      ? `@angular/${lib}`
+      : `git+https://github.com/angular/${lib}-builds${build}`;
+  });
+
+  if (argv.build) { sources.push('@angular/tsc-wrapped');} // tsc-wrapped needed for builds
 
   sources.push('@angular/router-deprecated');
 
-  gutil.log(`Installing Angular npm packages from ${argv.build ? 'BUILD' : 'RELEASE'}`);
+  gutil.log(`Installing Angular packages from ${build === 'npm' ? 'NPM' : 'BUILD ' + build}`);
 
   var spawnInfo = spawnExt('rm', ['-rf', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
   return spawnInfo.promise
@@ -529,11 +599,6 @@ function deleteExampleBoilerPlate() {
   return deleteFiles(_exampleBoilerplateFiles, examplePaths)
     .then(function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
-    })
-    .then(function() {
-      var protractorFiles = _exampleProtractorBoilerplateFiles;
-      var e2eSpecPaths = getE2eSpecPaths(EXAMPLES_PATH);
-      return deleteFiles(protractorFiles, e2eSpecPaths);
     });
 }
 
@@ -581,8 +646,10 @@ gulp.task('build-dart-api-docs', ['_shred-api-examples', 'dartdoc'], function() 
   return buildApiDocsForDart();
 });
 
+// Using the --build flag will use systemjs.config.plunker.build.js (for preview builds)
 gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
-  return plunkerBuilder.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log });
+  regularPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build });
+  return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build, targetSelf: argv.targetSelf });
 });
 
 gulp.task('build-dart-cheatsheet', [], function() {
@@ -591,13 +658,21 @@ gulp.task('build-dart-cheatsheet', [], function() {
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
   const ngRepoPath = ngPathFor('dart');
-  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'doc'))) {
-    gutil.log('Skipping dartdoc: --fast flag enabled and "doc" dir exists');
+  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, relDartDocApiDir))) {
+    gutil.log(`Skipping dartdoc: --fast flag enabled and api dir exists (${relDartDocApiDir})`);
     return true;
   }
   checkAngularProjectPath(ngRepoPath);
-  const dartdoc = spawnExt('dartdoc', ['--output', 'doc/api', '--add-crossdart'], { cwd: ngRepoPath});
-  return dartdoc.promise;
+  const topLevelLibFilePath = path.resolve(ngRepoPath, 'lib', 'angular2.dart');
+  const tmpPath = topLevelLibFilePath + '.disabled';
+  renameIfExistsSync(topLevelLibFilePath, tmpPath);
+  gutil.log(`Hiding top-level angular2 library: ${topLevelLibFilePath}`);
+  // Remove dartdoc '--add-crossdart' flag while we are fixing links to API pages.
+  const dartdoc = spawnExt('dartdoc', ['--output', relDartDocApiDir], { cwd: ngRepoPath});
+  return dartdoc.promise.finally(() => {
+      gutil.log(`Restoring top-level angular2 library: ${topLevelLibFilePath}`);
+      renameIfExistsSync(tmpPath, topLevelLibFilePath);
+  })
 });
 
 gulp.task('pub upgrade', [], function() {
@@ -657,12 +732,12 @@ gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   });
 });
 
-gulp.task('harp-compile', [], function() {
+gulp.task('harp-compile', () => {
   return harpCompile()
 });
 
-gulp.task('serve', [], function() {
-  // Harp will serve files from workspace.
+gulp.task('harp-serve', () => {
+  // Harp will watch and serve workspace files.
   const cmd = 'npm run harp -- server .';
   gutil.log('Launching harp server (over project files)');
   gutil.log(`  > ${cmd}`);
@@ -670,27 +745,20 @@ gulp.task('serve', [], function() {
   return execPromise(cmd);
 });
 
-gulp.task('serve-www', [], function() {
+gulp.task('serve-www', () => {
   // Serve generated site.
-  return execPromise('npm run live-server ./www');
+  return execPromise(`npm run live-server ${WWW}`);
 });
 
 gulp.task('build-compile', ['build-docs'], function() {
   return harpCompile();
 });
 
-gulp.task('check-serve', ['build-docs'], function() {
-  return harpCompile().then(function() {
-    gutil.log('Launching live-server over ./www');
-    return execPromise('npm run live-server ./www');
-  });
-});
-
 gulp.task('check-deploy', ['build-docs'], function() {
   return harpCompile().then(function() {
     gutil.log('compile ok');
     gutil.log('running live server ...');
-    execPromise('npm run live-server ./www');
+    execPromise(`npm run live-server ${WWW}`);
     return askDeploy();
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
@@ -750,7 +818,7 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   // Split big shredding task into partials 2016-06-14
-  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/', '_protractor/']});
+  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/']});
   var promise = Promise.resolve(true);
   examplePaths.forEach(function (examplePath) {
     promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));
@@ -781,7 +849,7 @@ gulp.task('_shred-clean-devguide', function(cb) {
 gulp.task('_shred-api-examples', ['_shred-clean-api'], function() {
   const promises = [];
   gutil.log('Shredding API examples for languages: ' + langs.join(', '));
-  langs.forEach((lang) => {
+  langs.forEach(lang => {
     if (lang === 'js') return; // JS is handled via TS.
     checkAngularProjectPath(ngPathFor(lang));
     const options = lang == 'dart' ? _apiShredOptionsForDart : _apiShredOptions;
@@ -809,7 +877,6 @@ gulp.task('lint', function() {
       '!./public/docs/_examples/**/ts-snippets/*.ts',
       '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts',
       '!./public/docs/_examples/**/node_modules/**/*',
-      '!./public/docs/_examples/_protractor/**/*',
       '!./public/docs/_examples/**/typings/**/*',
       '!./public/docs/_examples/**/typings-ng1/**/*',
       '!./public/docs/_examples/**/build/**/*',
@@ -831,26 +898,44 @@ gulp.task('lint', function() {
 function harpCompile() {
   // Supposedly running in production makes harp faster
   // and less likely to drown in node_modules.
-  env({
-    vars: { NODE_ENV: "production" }
-  });
+  env({ vars: { NODE_ENV: "production" } });
   gutil.log("NODE_ENV: " + process.env.NODE_ENV);
+
+  if(argv.page) harpJsonSetJade2NgTo(true);
+
+  if(skipLangs && fs.existsSync(WWW) && backupApiHtmlFilesExist(WWW)) {
+    gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
+    gutil.log(`API docs will be copied from existing ${WWW} folder.`)
+    del.sync(`${WWW}-backup`); // remove existing backup if it exists
+    renameIfExistsSync(WWW, `${WWW}-backup`);
+  } else {
+    gutil.log(`Harp full site compile, including API docs for all languages.`);
+    if (skipLangs)
+      gutil.log(`Ignoring API docs skip set (${skipLangs}) because full ` +
+      `site has not been built yet or some API HTML files are missing.`);
+  }
 
   var deferred = Q.defer();
   gutil.log('running harp compile...');
   showHideExampleNodeModules('hide');
-  var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', './www' ]);
+  showHideApiDir('hide');
+  var spawnInfo = spawnExt('npm',['run','harp', '--', 'compile', '.', WWW ]);
   spawnInfo.promise.then(function(x) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
+    showHideApiDir('show');
+    harpJsonSetJade2NgTo(false);
     if (x !== 0) {
       deferred.reject(x)
     } else {
+      restoreApiHtml();
       deferred.resolve(x);
     }
   }).catch(function(e) {
     gutil.log("NODE_ENV: " + process.env.NODE_ENV);
     showHideExampleNodeModules('show');
+    showHideApiDir('show');
+    harpJsonSetJade2NgTo(false);
     deferred.reject(e);
   });
   return deferred.promise;
@@ -949,6 +1034,62 @@ function showHideExampleNodeModules(showOrHide) {
   }
 }
 
+// Show/hide the API docs harp source folder for every lang in skipLangs.
+function showHideApiDir(showOrHide) {
+  skipLangs.forEach(lang => {
+    _showHideApiDir(lang, showOrHide);
+  });
+}
+
+// Rename the API docs harp source folder for lang to/from 'api' to '_api-tmp-foo'.
+function _showHideApiDir(lang, showOrHide) {
+  const vers = 'latest';
+  const basePath = path.join(DOCS_PATH, lang, vers);
+  const apiDirPath = path.join(basePath, 'api');
+  const disabledApiDirPath = path.join(basePath, '_api-tmp-hide-from-jade');
+  const args = showOrHide == 'hide'
+    ? [apiDirPath, disabledApiDirPath]
+    : [disabledApiDirPath, apiDirPath];
+  renameIfExistsSync(...args);
+}
+
+// For each lang in skipLangs, copy the API dir from ${WWW}-backup to WWW.
+function restoreApiHtml() {
+  const vers = 'latest';
+  skipLangs.forEach(lang => {
+    const relApiDir = path.join('docs', lang, vers, 'api');
+    const apiSubdir = path.join(WWW, relApiDir);
+    const backupApiSubdir = path.join(`${WWW}-backup`, relApiDir);
+    if (fs.existsSync(backupApiSubdir) || argv.forceSkipApi !== true) {
+      gutil.log(`cp ${backupApiSubdir} ${apiSubdir}`)
+      fs.copySync(backupApiSubdir, apiSubdir);
+    }
+  });
+}
+
+// For each lang in skipLangs, ensure API dir exists in folderName
+function backupApiHtmlFilesExist(folderName) {
+  const vers = 'latest';
+  var result = 1;
+  skipLangs.forEach(lang => {
+    const relApiDir = path.join('docs', lang, vers, 'api');
+    const backupApiSubdir = path.join(folderName, relApiDir);
+    if (!fs.existsSync(backupApiSubdir)) {
+      gutil.log(`WARNING: API docs HTML folder doesn't exist: ${backupApiSubdir}`);
+      result = 0;
+    }
+  });
+  return result;
+}
+
+function harpJsonSetJade2NgTo(v) {
+  const execSync = require('child_process').execSync;
+  const harpJsonPath = path.join(ANGULAR_IO_PROJECT_PATH, 'harp.json');
+  execSync(`perl -pi -e 's/("jade2ng": *)\\w+/$1${v}/' ${harpJsonPath}`);
+  const harpJson = require(harpJsonPath);
+  gutil.log(`jade2ng: ${harpJson.globals.jade2ng}`);
+}
+
 // Copies fileNames into destPaths, setting the mode of the
 // files at the destination as optional_destFileMode if given.
 // returns a promise
@@ -1008,12 +1149,20 @@ function getTypingsPaths(basePath) {
 
 function getExamplePaths(basePath, includeBase) {
   // includeBase defaults to false
-  return getPaths(basePath, _exampleConfigFilename, includeBase)
+  return getPaths(basePath, _exampleConfigFilename, includeBase);
 }
 
 function getDartExampleWebPaths(basePath) {
   var paths = globby.sync([path.join(basePath,"**/dart/**/web")])
   return paths;
+}
+
+function getUnitTestingPaths(basePath) {
+  var examples = getPaths(basePath, _exampleConfigFilename, true);
+  return examples.filter((example) => {
+    var exampleConfig = fs.readJsonSync(`${example}/${_exampleConfigFilename}`, {throws: false});
+    return exampleConfig && !!exampleConfig.unittesting;
+  });
 }
 
 function getPaths(basePath, filename, includeBase) {
@@ -1031,6 +1180,8 @@ function getFilenames(basePath, filename, includeBase) {
     // ignore (skip) the top level version.
     includePatterns.push("!" + path.join(basePath, "/" + filename));
   }
+  // ignore (skip) the files in BOILERPLATE_PATH.
+  includePatterns.push("!" + path.join(BOILERPLATE_PATH, "/" + filename));
   var nmPattern = path.join(basePath, "**/node_modules/**");
   var filenames = globby.sync(includePatterns, {ignore: [nmPattern]});
   return filenames;
@@ -1048,11 +1199,16 @@ function watchAndSync(options, cb) {
   var browserSync = require('browser-sync').create();
   browserSync.init({proxy: 'localhost:9000'});
 
+  // When using the --focus=name flag, only **/name/**/*.* example files and
+  // **/name.jade files are watched. This is useful for performance reasons.
+  // Example: gulp serve-and-sync --focus=architecture
+  var focus = argv.focus;
+
   if (options.devGuide) {
-    devGuideExamplesWatch(_devguideShredOptions, browserSync.reload);
+    devGuideExamplesWatch(_devguideShredOptions, browserSync.reload, focus);
   }
   if (options.devGuideJade) {
-    devGuideSharedJadeWatch( { jadeDir: DOCS_PATH}, browserSync.reload);
+    devGuideSharedJadeWatch( { jadeDir: DOCS_PATH}, browserSync.reload, focus);
   }
   if (options.apiDocs) {
     apiSourceWatch(browserSync.reload);
@@ -1067,11 +1223,10 @@ function watchAndSync(options, cb) {
 
 // returns a promise;
 function askDeploy() {
-
   prompt.start();
   var schema = {
     name: 'shouldDeploy',
-    description: 'Deploy to Firebase? (y/n): ',
+    description: 'Deploy to Firebase? (y/n)',
     type: 'string',
     pattern: /Y|N|y|n/,
     message: "Respond with either a 'y' or 'n'",
@@ -1093,7 +1248,7 @@ function filterOutExcludedPatterns(fileNames, excludeMatchers) {
 }
 
 function apiSourceWatch(postBuildAction) {
-  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/src/**/*.*')];
+  var srcPattern = [path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/**/*.*')];
   gulp.watch(srcPattern, {readDelay: 500}, function (event, done) {
     gutil.log('API source changed');
     gutil.log('Event type: ' + event.event); // added, changed, or deleted
@@ -1120,8 +1275,9 @@ function apiExamplesWatch(postShredAction) {
   });
 }
 
-function devGuideExamplesWatch(shredOptions, postShredAction) {
-  var includePattern = path.join(shredOptions.examplesDir, '**/*.*');
+function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
+  var watchPattern = focus ? '**/{' + focus + ',cb-' + focus+ '}/**/*.*' : '**/*.*';
+  var includePattern = path.join(shredOptions.examplesDir, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
@@ -1137,8 +1293,9 @@ function devGuideExamplesWatch(shredOptions, postShredAction) {
   });
 }
 
-function devGuideSharedJadeWatch(shredOptions, postShredAction) {
-  var includePattern = path.join(DOCS_PATH, '**/*.jade');
+function devGuideSharedJadeWatch(shredOptions, postShredAction, focus) {
+  var watchPattern = focus ? '**/' + focus + '.jade' : '**/*.jade';
+  var includePattern = path.join(DOCS_PATH, watchPattern);
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.jadeDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
@@ -1214,15 +1371,14 @@ function buildDartCheatsheet() {
 
 
 function buildApiDocsForDart() {
-  const apiDir = 'api';
   const vers = 'latest';
   const dab = require('./tools/dart-api-builder/dab')(ANGULAR_IO_PROJECT_PATH);
   const log = dab.log;
 
   log.level = _dgeniLogLevel;
   const dabInfo = dab.dartPkgConfigInfo;
-  dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, apiDir);
-  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), 'doc', apiDir);
+  dabInfo.ngIoDartApiDocPath = path.join(DOCS_PATH, 'dart', vers, 'api');
+  dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), relDartDocApiDir);
   // Exclude API entries for developer/internal libraries. Also exclude entries for
   // the top-level catch all "angular2" library (otherwise every entry appears twice).
   dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
@@ -1244,7 +1400,7 @@ function buildApiDocsForDart() {
       dab.createApiDataAndJadeFiles(apiEntries);
 
     }).catch((err) => {
-      console.log(err);    
+      console.error(err);
     });
 
   } catch(err) {
@@ -1433,4 +1589,13 @@ function checkAngularProjectPath(_ngPath) {
   var ngPath = path.resolve(_ngPath || ngPathFor('ts'));
   if (fs.existsSync(ngPath)) return;
   throw new Error('API related tasks require the angular2 repo to be at ' + ngPath);
+}
+
+function renameIfExistsSync(oldPath, newPath) {
+  if (fs.existsSync(oldPath)) {
+    gutil.log(`Rename: mv ${oldPath} ${newPath}`);
+    fs.renameSync(oldPath, newPath);
+  } else {
+    gutil.log(`renameIfExistsSync cannot rename, path not found: ${oldPath}`);
+  }
 }
