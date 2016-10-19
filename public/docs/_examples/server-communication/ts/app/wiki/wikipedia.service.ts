@@ -12,7 +12,7 @@ export class WikipediaService {
 
     // #docregion search-parameters
     let params = new URLSearchParams();
-params.set('search', term); // the user's search value
+    params.set('search', term); // the user's search value
     params.set('action', 'opensearch');
     params.set('format', 'json');
     params.set('callback', 'JSONP_CALLBACK');
@@ -22,7 +22,7 @@ params.set('search', term); // the user's search value
     // TODO: Add error handling
     return this.jsonp
                .get(wikiUrl, { search: params })
-               .map(request => <string[]> request.json()[1]);
+               .map(response => <string[]> response.json()[1]);
     // #enddocregion call-jsonp
   }
 }

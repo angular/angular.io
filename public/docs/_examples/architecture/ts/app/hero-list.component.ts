@@ -1,18 +1,16 @@
 import { Component, OnInit }   from '@angular/core';
 
 import { Hero }                from './hero';
-import { HeroDetailComponent } from './hero-detail.component';
 import { HeroService }         from './hero.service';
 
-// #docregion metadata
+// #docregion metadata, providers
 @Component({
+  moduleId: module.id,
   selector:    'hero-list',
-  templateUrl: 'app/hero-list.component.html',
-  directives:  [HeroDetailComponent],
-  // #docregion providers
-  providers:   [HeroService]
-  // #enddocregion providers
+  templateUrl: 'hero-list.component.html',
+  providers:  [ HeroService ]
 })
+// #enddocregion providers
 // #docregion class
 export class HeroListComponent implements OnInit {
   // #enddocregion metadata

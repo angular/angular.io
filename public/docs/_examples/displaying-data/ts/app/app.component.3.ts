@@ -1,5 +1,6 @@
 // #docregion
 import { Component } from '@angular/core';
+
 // #docregion import
 import { Hero } from './hero';
 // #enddocregion import

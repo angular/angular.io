@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Homepage Hello World', function () {
 
   beforeAll(function () {
@@ -15,9 +17,8 @@ describe('Homepage Hello World', function () {
   it('should display entered name', function () {
     let testName = 'Bobby Joe';
     let nameEle = element.all(by.css('input')).get(0);
-    nameEle.getAttribute('value').then(function(value) {
-      // nameEle.sendKeys(testName); // should work but doesn't
-      sendKeys(nameEle, testName); // utility that does work
+    nameEle.getAttribute('value').then(function(value: string) {
+      nameEle.sendKeys(testName);
       let newValue = value + testName; // old input box value + new name
       expect(nameEle.getAttribute('value')).toEqual(newValue);
     }).then(function() {

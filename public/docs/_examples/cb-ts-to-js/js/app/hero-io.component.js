@@ -42,8 +42,7 @@
         '(cancel)="onCancel()">' +
         '</my-confirm>' +
         '<span *ngIf="okClicked">OK clicked</span>' +
-        '<span *ngIf="cancelClicked">Cancel clicked</span>',
-      directives: [ConfirmComponent]
+        '<span *ngIf="cancelClicked">Cancel clicked</span>'
     })
   ];
   AppComponent.prototype.onOk = function() {
@@ -52,6 +51,18 @@
   AppComponent.prototype.onCancel = function() {
     this.cancelClicked = true;
   }
-  app.HeroIOComponent = AppComponent;
+
+  app.HeroesIOModule =
+    ng.core.NgModule({
+      imports: [ ng.platformBrowser.BrowserModule ],
+      declarations: [
+        AppComponent,
+        ConfirmComponent
+      ],
+      bootstrap: [ AppComponent ]
+    })
+    .Class({
+      constructor: function() {}
+    });
 
 })(window.app = window.app || {});

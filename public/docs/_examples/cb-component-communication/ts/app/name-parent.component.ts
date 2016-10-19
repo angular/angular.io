@@ -1,8 +1,6 @@
 // #docregion
 import { Component } from '@angular/core';
 
-import { NameChildComponent } from './name-child.component';
-
 @Component({
   selector: 'name-parent',
   template: `
@@ -10,8 +8,7 @@ import { NameChildComponent } from './name-child.component';
     <name-child *ngFor="let name of names"
       [name]="name">
     </name-child>
-  `,
-  directives: [NameChildComponent]
+  `
 })
 export class NameParentComponent {
   // Displays 'Mr. IQ', '<no name set>', 'Bombasto'

@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Structural Directives', function () {
 
   // tests interact - so we need beforeEach instead of beforeAll
@@ -34,7 +36,7 @@ describe('Structural Directives', function () {
     let cssButtonEle = element(by.cssContainingText('button', 'show | hide'));
     let cssSiblingEle = cssButtonEle.element(by.xpath('..')).element(by.css('heavy-loader'));
     let setConditionText: string;
-    setConditionButtonEle.getText().then(function(text) {
+    setConditionButtonEle.getText().then(function(text: string) {
       setConditionText = text;
       expect(ngIfButtonEle.isPresent()).toBe(true, 'should be able to find ngIfButton');
       expect(cssButtonEle.isPresent()).toBe(true, 'should be able to find cssButton');

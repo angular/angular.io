@@ -2,16 +2,15 @@
 import { Component } from '@angular/core';
 
 import { LoggerService }  from './logger.service';
-import { SpyDirective } from './spy.directive';
 
 @Component({
+  moduleId: module.id,
   selector: 'spy-parent',
-  templateUrl: 'app/spy.component.html',
+  templateUrl: 'spy.component.html',
   styles: [
      '.parent {background: khaki;}',
      '.heroes {background: LightYellow; padding: 0 8px}'
   ],
-  directives: [SpyDirective],
   providers:  [LoggerService]
 })
 export class SpyParentComponent {

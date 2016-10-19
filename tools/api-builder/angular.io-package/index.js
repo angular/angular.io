@@ -15,8 +15,6 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
 .factory(require('./services/renderMarkdown'))
 .processor(require('./processors/addJadeDataDocsProcessor'))
-.processor(require('./processors/filterUnwantedDecorators'))
-.processor(require('./processors/extractDirectiveClasses'))
 .processor(require('./processors/matchUpDirectiveDecorators'))
 .processor(require('./processors/filterMemberDocs'))
 
@@ -44,37 +42,29 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   var angular_repo_path =  path.resolve(__dirname, '../../../../angular');
   // confirm that the angular repo is actually there.
   if (!fs.existsSync(angular_repo_path)) {
-    throw new Error('build-api-docs task requires the angular2 repo to be at ' + angular_repo_path);
+    throw new Error('build-api-docs task requires the angular repo to be at ' + angular_repo_path);
   }
   readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
-  readTypeScriptModules.ignoreExportsMatching = [
-    '___esModule',
-    '___core_private_types__',
-    '___platform_browser_private__',
-    '___platform_browser_private_types__',
-    '___platform_browser_dynamic_private__',
-    '___platform_browser_dynamic_private_types__',
-    '___compiler_private__',
-    '__core_private__',
-    '___core_private__'
-  ];
+  readTypeScriptModules.ignoreExportsMatching = [/^_/];
 
   readTypeScriptModules.sourceFiles = [
     '@angular/common/index.ts',
-    '@angular/common/testing.ts',
+    '@angular/common/testing/index.ts',
     '@angular/core/index.ts',
-    '@angular/core/testing.ts',
+    '@angular/core/testing/index.ts',
     '@angular/forms/index.ts',
     '@angular/http/index.ts',
-    '@angular/http/testing.ts',
+    '@angular/http/testing/index.ts',
     '@angular/platform-browser/index.ts',
-    '@angular/platform-browser/testing.ts',
+    '@angular/platform-browser/testing/index.ts',
     '@angular/platform-browser-dynamic/index.ts',
-    '@angular/platform-browser-dynamic/testing.ts',
+    '@angular/platform-browser-dynamic/testing/index.ts',
     '@angular/platform-server/index.ts',
-    '@angular/platform-server/testing.ts',
+    '@angular/platform-server/testing/index.ts',
+    '@angular/platform-webworker/index.ts',
+    '@angular/platform-webworker-dynamic/index.ts',
     '@angular/router/index.ts',
-    '@angular/router-deprecated/index.ts',
+    '@angular/router/testing/index.ts',
     '@angular/upgrade/index.ts',
   ];
   readTypeScriptModules.hidePrivateMembers = true;
@@ -92,7 +82,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 })
 
 
-.config(function(readFilesProcessor, generateNavigationDoc, createOverviewDump) {
+.config(function(readFilesProcessor, generateNavigationDoc) {
   // Clear out unwanted processors
   generateNavigationDoc.$enabled = false;
 })
@@ -135,9 +125,9 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     pathTemplate: 'api-list.json',
     outputPathTemplate: '${path}'
   });
-  
+
   computePathsProcessor.pathTemplates.push({
-    docTypes: ['api-list-data'],
+    docTypes: ['api-list-audit'],
     pathTemplate: 'api-list-audit.json',
     outputPathTemplate: '${path}'
   });
@@ -160,12 +150,4 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     require('./rendering/toId'),
     require('./rendering/indentForMarkdown')
   ]));
-})
-
-.config(function(filterUnwantedDecorators) {
-  filterUnwantedDecorators.decoratorsToIgnore = [
-    'CONST',
-    'IMPLEMENTS',
-    'ABSTRACT'
-  ];
 });

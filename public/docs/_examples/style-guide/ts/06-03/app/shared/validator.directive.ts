@@ -1,7 +1,6 @@
 // #docregion
 import { Directive, HostBinding, HostListener } from '@angular/core';
 
-// #docregion example
 @Directive({
   selector: '[tohValidator]'
 })
@@ -11,4 +10,3 @@ export class ValidatorDirective {
     // do work
   }
 }
-// #enddocregion example

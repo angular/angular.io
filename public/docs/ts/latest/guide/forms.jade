@@ -1,15 +1,7 @@
 include ../_util-fns
 
-.alert.is-important
-  :marked
-    This guide is using the new forms API. To use this API, you must opt in by adding special
-    providers to your bootstrap file (see the Bootstrap seection below).
-    
-    The old forms API is deprecated, but we still maintain a separate version of the guide using
-    the deprecated forms API <a href='/docs/ts/latest/guide/forms-deprecated.html'>here</a>.
-
 :marked
-  We’ve all used a form to login, submit a help request, place an order, book a flight,
+  We’ve all used a form to log in, submit a help request, place an order, book a flight,
   schedule a meeting and perform countless other data entry tasks.
   Forms are the mainstay of business applications.
 
@@ -23,37 +15,21 @@ include ../_util-fns
   **two-way data binding, change tracking, validation, and error handling**
   ... which we shall cover in this chapter on Angular forms.
 
-  We will build a simple form from scratch, one step at a time. Along the way we'll learn
+  We will build a simple form from scratch, one step at a time. Along the way we'll learn how to
 
-  - to build an Angular form with a component and template
+  - build an Angular form with a component and template
 
-  - two-way data binding with `[(ngModel)]` syntax for reading and writing values to input controls
+  - two-way data bind with `[(ngModel)]` syntax for reading and writing values to input controls
 
-  - using `ngModel` in combination with a form lets us track the change state and validity of form controls
+  - track the change state and validity of form controls using `ngModel` in combination with a form
 
-  - special CSS classes that follow the state of the controls and can be used to provide strong visual feedback
+  - provide strong visual feedback using special CSS classes that track the state of the controls
 
-  - displaying validation errors to users and enable/disable form controls
+  - display validation errors to users and enable/disable form controls
 
-  - sharing information among controls with template reference variables
-  
-  [Live Example](/resources/live-examples/forms/ts/plnkr.html)
+  - use [template reference variables](./template-syntax.html#ref-vars) for sharing information among HTML elements
 
-.l-main-section
-:marked
-   ## Bootstrap
-
-   We start by showing how to bootstrap the application and add the necessary dependencies to use forms.
-
-   During bootstrap we have to register the new forms module by calling `provideForms()` and pass the result to the provider array. 
-+makeExample('forms/ts/app/main.ts','','app/main.ts')   
-
-:marked
-   The old forms API is going through a deprecation phase. During this transition Angular is supporting both form modules. 
-
-   To remind us that the old API is deprecated, Angular will print a warning message to the console. 
-   
-   Since we are converting to the new API, and no longer need the old API, we call `disableDeprecatedForms()` to disable the old form functionality and the warning message. 
+  Run the <live-example></live-example>.
 
 .l-main-section
 :marked
@@ -101,7 +77,7 @@ figure.image-display
   1. Create the component that controls the form
   1. Create a template with the initial form layout
   1. Bind data properties to each form input control with the `ngModel` two-way data binding syntax
-  1. Add the **#name** attribute to each form input control
+  1. Add the `name` attribute to each form input control
   1. Add custom CSS to provide visual feedback
   1. Show and hide validation error messages
   1. Handle form submission with **ngSubmit**
@@ -109,7 +85,7 @@ figure.image-display
 
 :marked
   ## Setup
-  Create a new project folder (`angular2-forms`) and follow the steps in the [QuickStart](../quickstart.html).
+  Create a new project folder (`angular-forms`) and follow the steps in the [QuickStart](../quickstart.html).
 
 include ../_quickstart_repo
 :marked
@@ -131,13 +107,14 @@ include ../_quickstart_repo
 
   The TypeScript compiler generates a public field for each `public` constructor parameter and
   assigns the parameter’s value to that field automatically when we create new heroes.
-  
+
   The `alterEgo` is optional and the constructor lets us omit it; note the (?) in `alterEgo?`.
 
   We can create a new hero like this:
 code-example(format="").
-  let myHero =  new Hero(42, 'SkyDog', 
-                         'Fetch any object at any distance', 'Leslie Rollover');
+  let myHero =  new Hero(42, 'SkyDog',
+                         'Fetch any object at any distance',
+                         'Leslie Rollover');
   console.log('My hero is called ' + myHero.name); // "My hero is called SkyDog"
 :marked
 
@@ -156,13 +133,17 @@ code-example(format="").
 :marked
   There’s nothing special about this component, nothing form-specific, nothing to distinguish it from any component we've written before.
 
-  Understanding this component requires only the Angular 2 concepts we’ve learned in previous chapters
+  Understanding this component requires only the Angular concepts we’ve learned in previous chapters
 
   1. We import the `Component` decorator from the Angular library as we usually do.
 
+  1. We import the `Hero` model we just created.
+
   1. The `@Component` selector value of "hero-form" means we can drop this form in a parent template with a `<hero-form>` tag.
 
-  1. The `templateUrl` property points to a separate file for template HTML called `hero-form.component.html`.
+  1. The `moduleId: module.id` property sets the base for module-relative loading of the `templateUrl`.
+  
+  1. The `templateUrl` property points to a separate file for the template HTML called `hero-form.component.html`.
 
   1. We defined dummy data for `model` and `powers` as befits a demo.
   Down the road, we can inject a data service to get and save real data
@@ -180,9 +161,40 @@ code-example(format="").
   write (or read) large stretches of HTML and few editors are much help with files that have a mix of HTML and code.
   We also like short files with a clear and obvious purpose like this one.
 
-  We made a good choice to put the HTML template elsewhere. 
+  We made a good choice to put the HTML template elsewhere.
   We'll write that template in a moment. Before we do, we'll take a step back
-  and revise the `app.component.ts` to make use of our new `HeroFormComponent`.
+  and revise the `app.module.ts` and `app.component.ts` to make use of our new `HeroFormComponent`.
+
+.l-main-section
+:marked
+  ## Revise the *app.module.ts*
+
+  `app.module.ts` defines the application's root module. In it we identify the external modules we'll use in our application
+  and declare the components that belong to this module, such as our `HeroFormComponent`.
+
+  Because template-driven forms are in their own module, we need to add the `FormsModule` to the array of
+  `imports` for our application module before we can use forms.
+
+  Replace the contents of the "QuickStart" version with the following:
++makeExample('forms/ts/app/app.module.ts', null, 'app/app.module.ts')
+
+:marked
+.l-sub-section
+  :marked
+    There are three changes:
+
+    1. We import `FormsModule` and our new `HeroFormComponent`.
+
+    1. We add the `FormsModule` to the list of `imports` defined in the `ngModule` decorator. This gives our application
+    access to all of the template-driven forms features, including `ngModel`.
+
+    1. We add the `HeroFormComponent` to the list of `declarations` defined in the `ngModule` decorator. This makes
+    the `HeroFormComponent` component visible throughout this module.
+
+.alert.is-important
+  :marked
+    If a component, directive, or pipe belongs to a module in the `imports` array, ​_DON'T_​ declare it in the `declarations` array.
+    If you wrote it and it should belong to this module, ​_DO_​ declare it in the `declarations` array.
 
 .l-main-section
 :marked
@@ -196,14 +208,10 @@ code-example(format="").
 :marked
 .l-sub-section
   :marked
-    There are only three changes:
-
-    1. We import the new `HeroFormComponent`.
+    There is only one change:
 
     1. The `template` is simply the new element tag identified by the component's `selector` property.
-
-    1. The `directives` array tells Angular that our template depends upon the `HeroFormComponent`
-    which is itself a Directive (as are all Components).
+    This will display the hero form when the application component is loaded.
 
 .l-main-section
 :marked
@@ -220,11 +228,11 @@ code-example(format="").
   The *Name* `<input>` control has the HTML5 `required` attribute;
   the *Alter Ego* `<input>` control does not because `alterEgo` is optional.
 
-  We've got a *Submit* button at the bottom with some classes on it.
+  We've got a *Submit* button at the bottom with some classes on it for styling.
 
   **We are not using Angular yet**. There are no bindings. No extra directives. Just layout.
 
-  The `container`,`form-group`, `form-control`, and `btn` classes 
+  The `container`, `form-group`, `form-control`, and `btn` classes
   come from [Twitter Bootstrap](http://getbootstrap.com/css/). Purely cosmetic.
   We're using Bootstrap to gussy up our form.
   Hey, what's a form without a little style!
@@ -294,7 +302,6 @@ figure.image-display
     We appended a diagnostic interpolation after the input tag
     so we can see what we're doing.
     We left ourselves a note to throw it away when we're done.
-    
 
 :marked
   Focus on the binding syntax: `[(ngModel)]="..."`.
@@ -309,17 +316,32 @@ figure.image-display
   The diagnostic is evidence that we really are flowing values from the input box to the model and
   back again. **That's two-way data binding!**
 
-  Notice that we also added a `name` attribute to our `<input>` tag. This is a requirement when using `[(ngModel)]` in combination with a form, so that we can easily refer to it in the aggregate form value and validity state.
+  Notice that we also added a `name` attribute to our `<input>` tag and set it to "name"
+  which makes sense for the hero's name. Any unique value will do, but using a descriptive name is helpful.
+  Defining a `name` attribute is a requirement when using `[(ngModel)]` in combination with a form.
 
-  Let's add similar `[(ngModel)]` bindings to *Alter Ego* and *Hero Power*.
+.l-sub-section
+  :marked
+    Internally Angular creates `FormControls` and registers them with an `NgForm` directive that Angular
+    attached to the `<form>` tag. Each `FormControl` is registered under the name we assigned to the `name` attribute.
+    We'll talk about `NgForm` [later in this chapter](#ngForm).
+
+:marked
+  Let's add similar `[(ngModel)]` bindings and `name` attributes to *Alter Ego* and *Hero Power*.
   We'll ditch the input box binding message
   and add a new binding at the top to the component's `diagnostic` property.
   Then we can confirm that two-way data binding works *for the entire Hero model*.
 
-  After revision the core of our form should have three `[(ngModel)]` bindings that
+  After revision the core of our form should have three `[(ngModel)]` bindings and `name` attributes that
   look much like this:
 
 +makeExample('forms/ts/app/hero-form.component.html', 'ngModel-2', 'app/hero-form.component.html (excerpt)')
+
+.l-sub-section
+  :marked
+    - Each input element has an `id` property that is used by the `label` element's `for` attribute
+    to match the label to it's input control.
+    - Each input element has a `name` property that is required by Angular Forms to register the control with the form.
 
 :marked
   If we ran the app right now and changed every Hero model property, the form might display like this:
@@ -335,7 +357,7 @@ figure.image-display
   :marked
     ### Inside [(ngModel)]
     *This section is an optional deep dive into [(ngModel)]. Not interested? Skip ahead!*
-    
+
     The punctuation in the binding syntax, <span style="font-family:courier"><b>[()]</b></span>, is a good clue to what's going on.
 
     In a Property Binding, a value flows from the model to a target property on screen.
@@ -382,29 +404,10 @@ figure.image-display
 
   Using `ngModel` in a form gives us more than just two way data binding. It also tells us if the user touched the control, if the value changed, or if the value became invalid.
 
-  `ngModel` doesn't just track state; it updates the control with special Angular CSS classes from the set we listed above.
+  The *NgModel* directive doesn't just track state; it updates the control with special Angular CSS classes that reflect the state.
   We can leverage those class names to change the appearance of the
   control and make messages appear or disappear.
 
-  We'll explore those effects soon. Right now
-  let's make sure we have `ngModel` and the corresponding name attribute on all three form controls,
-  starting with the *Name* input box.
-+makeExample('forms/ts/app/hero-form.component.html', 'ngModelName-1', 'app/hero-form.component.html (excerpt)')(format=".")
-:marked
-  We set the `name` attribute to "name" which makes sense for our app. Any unique value will do.
-
-.l-sub-section
-  :marked
-    Internally Angular creates `FormControls` and registers them with an `NgForm` directive that Angular attached to the `<form>` tag. Each `FormControl` is registered under the name we assigned to the `name` attribute.
-    We'll talk about `NgForm` [later in the chapter](#ngForm).
-
-.l-main-section
-:marked
-  ## Add Custom CSS for Visual Feedback
-
-  The *NgModel* directive doesn't just track state. 
-  It updates the control with three classes that reflect the state.
-  
 table
   tr
     th State
@@ -448,8 +451,15 @@ figure.image-display
 :marked
   The (`ng-valid` | `ng-invalid`) pair are most interesting to us. We want to send a
   strong visual signal when the data are invalid and we want to mark required fields.
+  So we add custom CSS for visual feedback.
 
-  We realize we can do both at the same time with a colored bar on the left of the input box:
+  **Delete** the `#spy` template reference variable and `TODO` as they have served their purpose.
+
+.l-main-section
+:marked
+  ## Add Custom CSS for Visual Feedback
+  We realize we can mark required fields and invalid data at the same time with a colored bar
+  on the left of the input box:
 
 figure.image-display
   img(src="/resources/images/devguide/forms/validity-required-indicator.png" width="400px" alt="Invalid Form")
@@ -483,32 +493,32 @@ figure.image-display
   1. the "*is required*" message in a nearby `<div>` which we'll display only if the control is invalid.
 
   Here's how we do it for the *name* input box:
-+makeExample('forms/ts/app/hero-form.component.html', 
-  'name-with-error-msg', 
++makeExample('forms/ts/app/hero-form.component.html',
+  'name-with-error-msg',
   'app/hero-form.component.html (excerpt)')(format=".")
 :marked
   We need a template reference variable to access the input box's Angular control from within the template.
   Here we created a variable called `name` and gave it the value "ngModel".
 .l-sub-section
   :marked
-    Why "ngModel"? 
-    A directive's [exportAs](../api/core/index/DirectiveMetadata-class.html#!#exportAs-anchor) property
+    Why "ngModel"?
+    A directive's [exportAs](../api/core/index/Directive-decorator.html) property
     tells Angular how to link the reference variable to the directive.
     We set `name` to `ngModel` because the `ngModel` directive's `exportAs` property happens to be "ngModel".
 
     Now we can control visibility of the "name" error message by binding properties of the `name` control to the message `<div>` element's `hidden` property.
-+makeExample('forms/ts/app/hero-form.component.html', 
-  'hidden-error-msg', 
++makeExample('forms/ts/app/hero-form.component.html',
+  'hidden-error-msg',
   'app/hero-form.component.html (excerpt)')
 :marked
-  In this example, we hide the message when the control is valid or pristine; 
-  pristine means the user hasn't changed the value since it was displayed in this form. 
-  
+  In this example, we hide the message when the control is valid or pristine;
+  pristine means the user hasn't changed the value since it was displayed in this form.
+
   This user experience is the developer's choice. Some folks want to see the message at all times.
   If we ignore the `pristine` state, we would hide the message only when the value is valid.
-  If we arrive in this component with a new (blank) hero or an invalid hero, 
+  If we arrive in this component with a new (blank) hero or an invalid hero,
   we'll see the error message immediately, before we've done anything.
-   
+
   Some folks find that behavior disconcerting. They only want to see the message when the user makes an invalid change.
   Hiding the message while the control is "pristine" achieves that goal.
   We'll see the significance of this choice when we [add a new hero](#new-hero) to the form.
@@ -519,30 +529,30 @@ figure.image-display
   We can add the same kind of error handling to the `<select>` if we  want
   but it's not imperative because the selection box already constrains the
   power to valid value.
-  
+
 <a id="new-hero"></a>
-<a id="reset"></a>  
+<a id="reset"></a>
 .l-main-section
 :marked
   ## Add a hero and reset the form
-  We'd like to add a new hero in this form. 
+  We'd like to add a new hero in this form.
   We place a "New Hero" button at the bottom of the form and bind its click event to a component method.
-+makeExample('forms/ts/app/hero-form.component.html', 
-  'new-hero-button', 
++makeExample('forms/ts/app/hero-form.component.html',
+  'new-hero-button',
   'app/hero-form.component.html (New Hero button)')
 :marked
-+makeExample('forms/ts/app/hero-form.component.ts', 
-  'new-hero-v1', 
++makeExample('forms/ts/app/hero-form.component.ts',
+  'new-hero-v1',
   'app/hero-form.component.ts (New Hero method - v1)')(format=".")
 :marked
   Run the application again, click the *New Hero* button, and the form clears.
   The *required* bars to the left of the input box are red, indicating invalid `name` and `power` properties.
-  That's understandable as these are required fields. 
+  That's understandable as these are required fields.
   The error messages are hidden because the form is pristine; we haven't changed anything yet.
-  
+
   Enter a name and click *New Hero* again.
   This time we see an error message! Why? We don't want that when we display a new (empty) hero.
-  
+
   Inspecting the element in the browser tools reveals that the *name* input box is no longer pristine.
   Replacing the hero *did not restore the pristine state* of the control.
 .l-sub-section
@@ -551,26 +561,26 @@ figure.image-display
     replacing the entire hero and clearing the `name` property programmatically.
     Angular makes no assumptions and leaves the control in its current, dirty state.
 :marked
-  We'll have to reset the form controls manually with a small trick. 
+  We'll have to reset the form controls manually with a small trick.
   We add an `active` flag to the component, initialized to `true`. When we add a new hero,
   we toggle `active` false and then immediately back to true with a quick `setTimeout`.
-+makeExample('forms/ts/app/hero-form.component.ts', 
-  'new-hero', 
++makeExample('forms/ts/app/hero-form.component.ts',
+  'new-hero',
   'app/hero-form.component.ts (New Hero method - final)')(format=".")
 :marked
   Then we bind the form element to this `active` flag.
-+makeExample('forms/ts/app/hero-form.component.html', 
-  'form-active', 
++makeExample('forms/ts/app/hero-form.component.html',
+  'form-active',
   'app/hero-form.component.html (Form tag)')
 :marked
-  With `NgIf` bound to the `active` flag, 
+  With `NgIf` bound to the `active` flag,
   clicking "New Hero" removes the form from the DOM and recreates it in a blink of an eye.
   The re-created form is in a pristine state. The error message is hidden.
 .l-sub-section
   :marked
     This is a temporary workaround while we await a proper form reset feature.
 :marked
-  
+
 .l-main-section
 :marked
   ## Submit the form with **ngSubmit**
@@ -593,16 +603,16 @@ figure.image-display
 .l-sub-section
   :marked
     ### The NgForm directive
-    What `NgForm` directive? We didn't add an [NgForm](../api/common/index/NgForm-directive.html) directive!
-    
+    What `NgForm` directive? We didn't add an [NgForm](../api/forms/index/NgForm-directive.html) directive!
+
     Angular did. Angular creates and attaches an `NgForm` directive to the `<form>` tag automatically.
 
-    The `NgForm` directive  supplements the `form` element with additional features.
+    The `NgForm` directive supplements the `form` element with additional features.
     It holds the controls we created for the elements with `ngModel` directive and `name` attribute
     and monitors their properties including their validity.
     It also has its own `valid` property which is true only *if every contained
     control* is valid.
-    
+
 :marked
   Later in the template we bind the button's `disabled` property to the form's over-all validity via
   the `heroForm` variable. Here's that bit of markup:
@@ -671,30 +681,32 @@ figure.image-display
 :marked
   ## Conclusion
 
-  The Angular 2 form discussed in this chapter takes advantage of the following framework features to provide support for data modification, validation and more:
+  The Angular form techniques discussed in this chapter take
+  advantage of the following framework features to provide support for data modification, validation and more:
 
   - An Angular HTML form template.
   - A form component class with a `Component` decorator.
   - The `ngSubmit` directive for handling the form submission.
-  - Template reference variables such as `#heroForm`, `#name`, `#alter-ego` and `#power`.
-  - The `[(ngModel)]` syntax for two-way data binding, validation and change tracking. 
+  - Template reference variables such as `#heroForm`, `#name` and `#power`.
+  - The `[(ngModel)]` syntax and a `name` attribute for two-way data binding, validation and change tracking.
   - The reference variable’s `valid` property on input controls to check if a control is valid and show/hide error messages.
   - Controlling the submit button's enabled state by binding to `NgForm` validity.
   - Custom CSS classes that provide visual feedback to users about invalid controls.
 
   Our final project folder structure should look like this:
 .filetree
-  .file angular2-forms
+  .file angular-forms
   .children
     .file app
     .children
       .file app.component.ts
+      .file app.module.ts
       .file hero.ts
       .file hero-form.component.html
       .file hero-form.component.ts
       .file main.ts
     .file node_modules ...
-    .file typings ...      
+    .file typings ...
     .file index.html
     .file package.json
     .file tsconfig.json
@@ -706,14 +718,16 @@ figure.image-display
   `forms/ts/app/hero-form.component.ts,
    forms/ts/app/hero-form.component.html,
    forms/ts/app/hero.ts,
+   forms/ts/app/app.module.ts,
    forms/ts/app/app.component.ts,
-   forms/ts/app/main.ts,   
+   forms/ts/app/main.ts,
    forms/ts/index.html,
    forms/ts/forms.css`,
   'final, final,,,,,',
   `hero-form.component.ts,
-   hero-form.component.html,   
+   hero-form.component.html,
    hero.ts,
+   app.module.ts,
    app.component.ts,
    main.ts,
    index.html,

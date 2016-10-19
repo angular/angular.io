@@ -1,25 +1,15 @@
 // #docregion
-import { HTTP_PROVIDERS } from '@angular/http';
-// #docregion routeparams
-import { RouteParams } from '@angular/router-deprecated';
+// #docregion activatedroute
+import { ActivatedRoute } from '@angular/router';
 
-// #enddocregion routeparams
+// #enddocregion activatedroute
 import { Observable } from 'rxjs/Rx';
 
-import {
-  describe,
-  beforeEachProviders,
-  inject,
-  it,
-  expect
-} from '@angular/core/testing';
-import {
-  TestComponentBuilder,
-  ComponentFixture
-} from '@angular/compiler/testing';
+import { async, TestBed } from '@angular/core/testing';
 
 import { PhoneDetailComponent } from './phone-detail.component';
 import { Phone, PhoneData } from '../core/phone/phone.service';
+import { CheckmarkPipe } from '../core/checkmark/checkmark.pipe';
 
 function xyzPhoneData(): PhoneData {
   return {
@@ -29,31 +19,41 @@ function xyzPhoneData(): PhoneData {
   };
 }
 
-class MockPhone extends Phone {
+class MockPhone {
   get(id: string): Observable<PhoneData> {
     return Observable.of(xyzPhoneData());
   }
 }
 
+// #docregion activatedroute
+
+class ActivatedRouteMock {
+  constructor(public snapshot: any) {}
+}
+
+// #enddocregion activatedroute
+
 describe('PhoneDetailComponent', () => {
 
-  // #docregion routeparams
+  // #docregion activatedroute
 
-  beforeEachProviders(() => [
-    { provide: Phone, useClass: MockPhone },
-    { provide: RouteParams, useValue: new RouteParams({phoneId: 'xyz'})},
-    HTTP_PROVIDERS
-  ]);
-  // #enddocregion routeparams
-
-  it('should fetch phone detail',
-      inject([TestComponentBuilder], (tcb: TestComponentBuilder) => {
-    return tcb.createAsync(PhoneDetailComponent)
-        .then((fixture: ComponentFixture<PhoneDetailComponent>) => {
-      fixture.detectChanges();
-      let compiled = fixture.debugElement.nativeElement;
-      expect(compiled.querySelector('h1')).toHaveText(xyzPhoneData().name);
-    });
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ CheckmarkPipe, PhoneDetailComponent ],
+      providers: [
+        { provide: Phone, useClass: MockPhone },
+        { provide: ActivatedRoute, useValue: new ActivatedRouteMock({ params: { 'phoneId': 1 } }) }
+      ]
+    })
+    .compileComponents();
   }));
+  // #enddocregion activatedroute
+
+  it('should fetch phone detail', () => {
+    const fixture = TestBed.createComponent(PhoneDetailComponent);
+    fixture.detectChanges();
+    let compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('h1').textContent).toContain(xyzPhoneData().name);
+  });
 
 });

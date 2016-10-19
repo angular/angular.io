@@ -1,6 +1,4 @@
 // #docregion
-import 'dart:convert';
-
 import 'package:angular2/core.dart';
 
 class Hero {
@@ -23,7 +21,7 @@ class Hero {
       '.hero {background: LightYellow; padding: 8px; margin-top: 8px}',
       'p {background: Yellow; padding: 8px; margin-top: 8px}'
     ])
-class DoCheckComponent implements DoCheck, OnChanges {
+class DoCheckComponent implements DoCheck {
   @Input()
   Hero hero;
   @Input()
@@ -72,16 +70,6 @@ class DoCheckComponent implements DoCheck, OnChanges {
   }
   // #enddocregion ng-do-check
 
-  // Copied from OnChangesComponent
-  ngOnChanges(Map<String, SimpleChange> changes) {
-    changes.forEach((String propName, SimpleChange change) {
-      String cur = JSON.encode(change.currentValue);
-      String prev =
-          change.isFirstChange() ? "{}" : JSON.encode(change.previousValue);
-      changeLog.add('$propName: currentValue = $cur, previousValue = $prev');
-    });
-  }
-
   void reset() {
     changeDetected = true;
     changeLog.clear();
@@ -92,7 +80,7 @@ class DoCheckComponent implements DoCheck, OnChanges {
 
 @Component(
     selector: 'do-check-parent',
-    templateUrl: 'on_changes_parent_component.html',
+    templateUrl: 'do_check_parent_component.html',
     styles: const ['.parent {background: Lavender}'],
     directives: const [DoCheckComponent])
 class DoCheckParentComponent {

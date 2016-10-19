@@ -1,5 +1,6 @@
-/// <reference path="../_protractor/e2e.d.ts" />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, By } from 'protractor';
 
 describe('Security E2E Tests', () => {
   beforeAll(() => browser.get(''));

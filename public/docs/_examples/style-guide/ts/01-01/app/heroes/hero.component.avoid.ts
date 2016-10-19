@@ -1,8 +1,9 @@
 // #docregion
 /* avoid */
 
-import { bootstrap }         from '@angular/platform-browser-dynamic';
-import { Component, OnInit } from '@angular/core';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule, Component, OnInit } from '@angular/core';
 
 class Hero {
   id: number;
@@ -27,7 +28,15 @@ class AppComponent implements OnInit {
   }
 }
 
-bootstrap(AppComponent, []);
+@NgModule({
+  imports: [ BrowserModule ],
+  declarations: [ AppComponent ],
+  exports: [ AppComponent ],
+  bootstrap: [ AppComponent ]
+})
+export class AppModule { }
+
+platformBrowserDynamic().bootstrapModule(AppModule);
 
 const HEROES: Hero[] = [
   {id: 1, name: 'Bombasto'},

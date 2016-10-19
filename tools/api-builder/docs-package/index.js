@@ -11,14 +11,14 @@ module.exports = new Package('angular-v2-docs', [jsdocPackage, nunjucksPackage, 
 
 // Register the processors
 .processor(require('./processors/convertPrivateClassesToInterfaces'))
-.processor(require('./processors/extractDirectiveClasses'))
 .processor(require('./processors/generateNavigationDoc'))
 .processor(require('./processors/extractTitleFromGuides'))
 .processor(require('./processors/createOverviewDump'))
 .processor(require('./processors/checkUnbalancedBackTicks'))
 .processor(require('./processors/convertBackticksToCodeBlocks'))
 .processor(require('./processors/addNotYetDocumentedProperty'))
-.processor(require('./processors/createDecoratorDocs'))
+.processor(require('./processors/mergeDecoratorDocsEmpty'))
+.processor(require('./processors/extractDecoratedClasses'))
 
 .config(function(parseTagsProcessor) {
   parseTagsProcessor.tagDefinitions.push({ name: 'internal', transforms: function() { return true; } });

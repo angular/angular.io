@@ -2,6 +2,8 @@
 
 set -e -o pipefail
 
+[[ -z "$NGIO_ENV_DEFS" ]] && . ./scripts/env-set.sh
+
 travis_fold start env_info
 echo ENVIRONMENT INFO
 travis_fold start env_info.path
@@ -11,7 +13,7 @@ echo
 travis_fold end env_info.path
 travis_fold start env_info.home
 echo Home: $HOME
-ls ~ -la
+ls -la ~
 echo 
 travis_fold end env_info.home
 travis_fold start env_info.pwd

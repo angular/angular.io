@@ -4,9 +4,6 @@ import { Component } from '@angular/core';
 // #docregion hero-import
 import { Hero } from './hero';
 // #enddocregion hero-import
-// #docregion hero-detail-import
-import { HeroDetailComponent } from './hero-detail.component';
-// #enddocregion hero-detail-import
 
 const HEROES: Hero[] = [
   { id: 11, name: 'Mr. Nice' },
@@ -85,15 +82,14 @@ const HEROES: Hero[] = [
       margin-right: .8em;
       border-radius: 4px 0 0 4px;
     }
-  `],
-// #docregion directives
-  directives: [HeroDetailComponent]
-// #enddocregion directives
+  `]
 })
 export class AppComponent {
   title = 'Tour of Heroes';
   heroes = HEROES;
   selectedHero: Hero;
 
-  onSelect(hero: Hero) { this.selectedHero = hero; }
+  onSelect(hero: Hero): void {
+    this.selectedHero = hero;
+  }
 }

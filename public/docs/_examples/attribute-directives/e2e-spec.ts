@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
-'use strict';
+'use strict'; // necessary for es6 output in node 
+
+import { browser, element, by } from 'protractor';
+
 describe('Attribute directives', function () {
 
   let _title = 'My First Attribute Directive';

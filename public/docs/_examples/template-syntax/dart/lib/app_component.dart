@@ -108,8 +108,7 @@ class AppComponent implements OnInit, AfterViewInit {
 
   bool onSave([UIEvent event = null]) {
     HtmlElement el = event?.target;
-    var evtMsg =
-        event != null ? ' Event target is ${el.innerHtml}.' : '';
+    var evtMsg = event != null ? ' Event target is ${el.innerHtml}.' : '';
     alerter('Saved. $evtMsg');
     return false;
   }
@@ -126,8 +125,12 @@ class AppComponent implements OnInit, AfterViewInit {
   }
 
   String getStyles(Element el) {
-    var showStyles = setStyles();
-    return JSON.encode(showStyles);
+    final style = el.style;
+    final Map styles = <String, String>{};
+    for (var i = 0; i < style.length; i++) {
+      styles[style.item(i)] = style.getPropertyValue(style.item(i));
+    }
+    return JSON.encode(styles);
   }
 
   Map<String, bool> _previousClasses = {};
@@ -140,8 +143,8 @@ class AppComponent implements OnInit, AfterViewInit {
     };
     // #docregion setClasses
     // compensate for DevMode (sigh)
-    if (JSON.encode(_previousClasses) ==
-        JSON.encode(classes)) return _previousClasses;
+    if (JSON.encode(_previousClasses) == JSON.encode(classes))
+      return _previousClasses;
     _previousClasses = classes;
     // #enddocregion setClasses
     return classes;
@@ -149,8 +152,8 @@ class AppComponent implements OnInit, AfterViewInit {
   // #enddocregion setClasses
 
   // #docregion setStyles
-  Map setStyles() {
-    return {
+  Map<String, String> setStyles() {
+    return <String, String>{
       'font-style': canSave ? 'italic' : 'normal', // italic
       'font-weight': !isUnchanged ? 'bold' : 'normal', // normal
       'font-size': isSpecial ? '24px' : '8px' // 24px
@@ -158,8 +161,27 @@ class AppComponent implements OnInit, AfterViewInit {
   }
   // #enddocregion setStyles
 
+  // #docregion NgStyle
+  bool isItalic = false;
+  bool isBold = false;
+  String fontSize = 'large';
+
+  Map<String, String> setStyle() {
+    return {
+      'font-style': isItalic ? 'italic' : 'normal',
+      'font-weight': isBold ? 'bold' : 'normal',
+      'font-size': fontSize
+    };
+  }
+  // #enddocregion NgStyle
+
   String title = 'Template Syntax';
+  // #docregion evil-title
+  String evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';
+  // #enddocregion evil-title
+
   String toeChoice;
+
   String toeChooser(Element picker) {
     List<Element> choices = picker.children;
     for (var i = 0; i < choices.length; i++) {
@@ -187,13 +209,16 @@ class AppComponent implements OnInit, AfterViewInit {
   int heroesNoTrackByChangeCount = 0;
   int heroesWithTrackByChangeCount = 0;
 
-  @ViewChildren('noTrackBy') QueryList<ElementRef> childrenNoTrackBy;
-  @ViewChildren('withTrackBy') QueryList<ElementRef> childrenWithTrackBy;
+  @ViewChildren('noTrackBy')
+  QueryList<ElementRef> childrenNoTrackBy;
+  @ViewChildren('withTrackBy')
+  QueryList<ElementRef> childrenWithTrackBy;
 
   void _detectNgForTrackByEffects() {
     /// Converts [viewChildren] to a list of [Element].
     List<Element> _extractChildren(QueryList<ElementRef> viewChildren) =>
-        viewChildren.toList()[0].nativeElement.children.toList() as List<Element>;
+        viewChildren.toList()[0].nativeElement.children.toList()
+        as List<Element>;
 
     {
       // Updates 'without TrackBy' statistics.

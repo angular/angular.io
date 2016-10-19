@@ -1,10 +1,7 @@
 import { Component } from '@angular/core';
 
-import { HeroButtonComponent } from './heroes';
-
 @Component({
   selector: 'sg-app',
-  template: '<toh-hero-button label="OK"></toh-hero-button>',
-  directives: [HeroButtonComponent]
+  template: '<toh-hero-button label="OK"></toh-hero-button>'
 })
 export class AppComponent { }

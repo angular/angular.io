@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { Hero } from './hero';
-import { HeroTeamComponent } from './hero-team.component';
 
 // #docregion styleurls
 @Component({
@@ -10,8 +9,7 @@ import { HeroTeamComponent } from './hero-team.component';
     <hero-team [hero]=hero></hero-team>
     <ng-content></ng-content>
   `,
-  styleUrls: ['app/hero-details.component.css'],
-  directives: [HeroTeamComponent]
+  styleUrls: ['app/hero-details.component.css']
 })
 export class HeroDetailsComponent {
   // #enddocregion styleurls

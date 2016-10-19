@@ -45,7 +45,8 @@ module.exports = function linkDocsInlineTagDef(parseArgString, createDocMessage,
         var vers = _self.vers;
         var prevUri = uri;
         uri = path.join(lang, vers, uri);
-        log.info('Ajusted linkDocs chapter-relative uri (' + doc.fileInfo.baseName + '): ' + prevUri + ' -> ' + uri);
+        var fileName = doc.fileInfo ? (' (' + doc.fileInfo.baseName + ')') : '';
+        log.info('Ajusted linkDocs chapter-relative uri' + fileName + ': ' + prevUri + ' -> ' + uri);
       }
 
       var isValid = false;

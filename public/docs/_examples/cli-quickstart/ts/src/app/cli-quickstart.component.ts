@@ -12,6 +12,6 @@ import { Component } from '@angular/core';
 // #enddocregion metadata
 // #docregion title, class
 export class CliQuickstartAppComponent {
-  title = 'My First Angular 2 App';
+  title = 'My First Angular App';
 }
 // #enddocregion title, class

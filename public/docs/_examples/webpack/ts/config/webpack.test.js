@@ -1,4 +1,6 @@
 // #docregion
+var helpers = require('./helpers');
+
 module.exports = {
   devtool: 'inline-source-map',
 
@@ -10,7 +12,7 @@ module.exports = {
     loaders: [
       {
         test: /\.ts$/,
-        loaders: ['ts', 'angular2-template-loader']
+        loaders: ['awesome-typescript-loader', 'angular2-template-loader']
       },
       {
         test: /\.html$/,
@@ -23,7 +25,13 @@ module.exports = {
       },
       {
         test: /\.css$/,
+        exclude: helpers.root('src', 'app'),
         loader: 'null'
+      },
+      {
+        test: /\.css$/,
+        include: helpers.root('src', 'app'),
+        loader: 'raw'
       }
     ]
   }
