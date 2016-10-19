@@ -3,7 +3,7 @@
 import { Component }         from '@angular/core';
 
 // #docregion import-rxjs
-// Add the RxJS Observable operators we need in this app.
+// Add the RxJS Observable operators.
 import './rxjs-operators';
 // #enddocregion import-rxjs
 

@@ -8,7 +8,8 @@ import { HeroService }       from './hero.service';
   moduleId: module.id,
   selector: 'hero-list',
   templateUrl: 'hero-list.component.html',
-  providers: [ HeroService ]
+  providers: [ HeroService ],
+  styles: ['.error {color:red;}']
 })
 // #docregion component
 export class HeroListComponent implements OnInit {

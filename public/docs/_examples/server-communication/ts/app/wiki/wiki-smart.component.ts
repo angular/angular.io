@@ -1,3 +1,5 @@
+/* tslint:disable: member-ordering forin */
+// #docplaster
 // #docregion
 import { Component }        from '@angular/core';
 import { Observable }       from 'rxjs/Observable';
@@ -8,33 +10,27 @@ import { Subject }          from 'rxjs/Subject';
 import { WikipediaService } from './wikipedia.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-wiki-smart',
-  template: `
-    <h1>Smarter Wikipedia Demo</h1>
-    <p><i>Fetches when typing stops</i></p>
-
-    <input #term (keyup)="search(term.value)"/>
-
-    <ul>
-      <li *ngFor="let item of items | async">{{item}}</li>
-    </ul>
-  `,
-  providers: [WikipediaService]
+  templateUrl: 'wiki.component.html',
+  providers: [ WikipediaService ]
 })
 export class WikiSmartComponent {
-
-  constructor (private wikipediaService: WikipediaService) { }
+  title   = 'Smarter Wikipedia Demo';
+  fetches = 'Fetches when typing stops';
+  items: Observable<string[]>;
 
   // #docregion subject
   private searchTermStream = new Subject<string>();
-
   search(term: string) { this.searchTermStream.next(term); }
   // #enddocregion subject
 
-  // #docregion observable-operators
-  items: Observable<string[]> = this.searchTermStream
-    .debounceTime(300)
-    .distinctUntilChanged()
-    .switchMap((term: string) => this.wikipediaService.search(term));
-// #enddocregion observable-operators
+  constructor (private wikipediaService: WikipediaService) {
+    // #docregion observable-operators
+    this.items = this.searchTermStream
+      .debounceTime(300)
+      .distinctUntilChanged()
+      .switchMap((term: string) => this.wikipediaService.search(term));
+    // #enddocregion observable-operators
+  }
 }

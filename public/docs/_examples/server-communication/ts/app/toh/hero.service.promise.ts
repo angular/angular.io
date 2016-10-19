@@ -9,7 +9,7 @@ import { Hero }           from './hero';
 @Injectable()
 export class HeroService {
   // URL to web api
-  private heroesUrl = 'app/heroes.json';
+  private heroesUrl = 'app/heroes';
 
   constructor (private http: Http) {}
 
@@ -22,11 +22,10 @@ export class HeroService {
   }
 
   addHero (name: string): Promise<Hero> {
-    let body = JSON.stringify({ name });
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
-    return this.http.post(this.heroesUrl, body, options)
+    return this.http.post(this.heroesUrl, { name }, options)
                .toPromise()
                .then(this.extractData)
                .catch(this.handleError);
@@ -37,12 +36,17 @@ export class HeroService {
     return body.data || { };
   }
 
-  private handleError (error: any) {
+  private handleError (error: Response | any) {
     // In a real world app, we might use a remote logging infrastructure
-    // We'd also dig deeper into the error to get a better message
-    let errMsg = (error.message) ? error.message :
-      error.status ? `${error.status} - ${error.statusText}` : 'Server error';
-    console.error(errMsg); // log to console instead
+    let errMsg: string;
+    if (error instanceof Response) {
+      const body = error.json() || '';
+      const err = body.error || JSON.stringify(body);
+      errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
+    } else {
+      errMsg = error.message ? error.message : error.toString();
+    }
+    console.error(errMsg);
     return Promise.reject(errMsg);
   }
 
