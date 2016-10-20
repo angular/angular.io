@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -29,5 +29,16 @@ describe('Template Syntax', function () {
   it('should be able to use style binding syntax', function () {
     let specialButtonEle = element(by.cssContainingText('div.special~button', 'button'));
     expect(specialButtonEle.getAttribute('style')).toMatch('color: red');
+  });
+
+  it('should two-way bind to sizer', function () {
+    let buttons = element.all(by.css('div#two-way-1 my-sizer button'));
+    let input = element(by.css('input#fontsize'));
+
+    input.getAttribute('value').then(size => {
+      buttons.get(1).click();
+      browser.waitForAngular();
+      expect(input.getAttribute('value')).toEqual((+size + 1).toString());
+    });
   });
 });

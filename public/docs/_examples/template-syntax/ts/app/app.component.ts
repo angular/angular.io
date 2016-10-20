@@ -1,4 +1,4 @@
-/* tslint:disable forin */
+/* tslint:disable:forin member-ordering */
 // #docplaster
 
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
@@ -49,6 +49,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   deleteHero(hero: Hero) {
     this.alert('Deleted hero: ' + (hero && hero.firstName));
   }
+
+  fontSize = 10;
 
   // #docregion evil-title
   evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';

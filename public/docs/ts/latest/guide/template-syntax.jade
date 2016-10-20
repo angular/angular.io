@@ -21,6 +21,7 @@ block includes
   * [Property binding](#property-binding)
   * [Attribute, class, and style bindings](#other-bindings)
   * [Event binding](#event-binding)
+  * [Two-way data binding](#two-way)
   * [Two-way data binding with `NgModel`](#ngModel)
   * [Built-in directives](#directives)
     * [NgClass](#ngClass)
@@ -841,19 +842,64 @@ block style-property-name-dart-diff
     and the outer `<div>`, causing a double save.
   +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-propagation')(format=".")
 
-
+#two-way
 .l-main-section
 :marked
-  <a id="ngModel"></a>
+  ## Two-way binding
+  We often want to both display a data property and update that property when the user makes changes.
+
+  On the element side that takes a combination of setting a specific element property
+  and listening for an element change event.
+
+  Angular offers a special _two-way data binding_ syntax for this purpose, **`[(x)]`**.
+  The `[(x)]` syntax combines the brackets 
+  of _Property Binding_, `[x]`, with the parentheses of _Event Binding_, `(x)`.
+.callout.is-important
+  header [( )] = banana in a box
+  :marked
+    Visualize a *banana in a box* to remember that the parentheses go _inside_ the brackets.
+:marked
+  The `[(x)]` syntax is easy to demonstrate when the element has a settable property called `x`
+  and a corresponding event named `xChange`. 
+  Here's a `SizerComponent` that fits the pattern.
+  It has a `size` value property and a companion `sizeChange` event:
++makeExample('template-syntax/ts/app/sizer.component.ts', null, 'app/sizer.component.ts')
+:marked
+  The initial `size` is an input value from a property binding.
+  Clicking the buttons increases or decreases the `size`, within min/max values constraints,
+  and then raises (_emits_) the `sizeChange` event with the adjusted size.
+
+  Here's an example in which the `AppComponent.fontSize` is two-way bound to the `SizerComponent`:
++makeExample('template-syntax/ts/app/app.component.html', 'two-way-1')(format=".")
+:marked
+  The `AppComponent.fontSize` establishes the initial `SizerComponent.size` value.
+  Clicking the buttons updates the `AppComponent.fontSize` via the two-way binding.
+  The revised `AppComponent.fontSize` value flows through to the _style_ binding, making the displayed text bigger or smaller.
+  Try it in the <live-example>live example</live-example>.
+
+  The two-way binding syntax is really just syntactic sugar for a _property_ binding and an _event_ binding.
+  Angular _desugars_ the `SizerComponent` binding into this:
++makeExample('template-syntax/ts/app/app.component.html', 'two-way-2')(format=".")
+:marked
+  The `$event` variable contains the payload of the `SizerComponent.sizeChange` event.
+  Angular assigns the `$event` value to the `AppComponent.fontSize` when the user clicks the buttons.
+
+  Clearly the two-way binding syntax is a great convenience compared to separate property and event bindings.
+
+  We'd like to use two-way binding with HTML form elements like `<input>` and `<select>`.
+  Sadly, no native HTML element follows the `x` value and `xChange` event pattern.
+
+  Fortunately, the Angular [_NgModel_](#ngModel) directive is a bridge that enables two-way binding to form elements.
+
+a#ngModel
+.l-main-section
+:marked
   ## Two-way binding with NgModel
   When developing data entry forms, we often want to both display a data property and update that property when the user makes changes.
 
-  The `[(ngModel)]` two-way data binding syntax makes that easy. Here's an example:
+  Two-way data binding with the `NgModel` directive makes that easy. Here's an example:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
-.callout.is-important
-  header [()] = banana in a box
-  :marked
-    To remember that the parentheses go inside the brackets, visualize a *banana in a box*.
+
 
 +ifDocsFor('ts|js')
   .callout.is-important
@@ -863,18 +909,18 @@ block style-property-name-dart-diff
       we must import the `FormsModule` and add it to the Angular module's `imports` list.
       Learn more about the `FormsModule` and `ngModel` in the
       [Forms](../guide/forms.html#ngModel) chapter.
-
+  :marked
+    Here's how to import the `FormsModule` to make `[(ngModel)]` available.
   +makeExample('template-syntax/ts/app/app.module.1.ts', '', 'app.module.ts (FormsModule import)')
 
 :marked
-  There’s a story behind this construction, a story that builds on the property and event binding techniques we learned previously.
-
   ### Inside `[(ngModel)]`
-  We could have achieved the same result with separate bindings to
+  Looking back at the `firstName` binding, it's important to note that
+  we could have achieved the same result with separate bindings to
   the `<input>` element's  `value` property and `input` event.
 +makeExample('template-syntax/ts/app/app.component.html', 'without-NgModel')(format=".")
 :marked
-  That’s cumbersome. Who can remember which element property to set and what event reports user changes?
+  That’s cumbersome. Who can remember which element property to set and which element event emits user changes?
   How do we extract the currently displayed text from the input box so we can update the data property?
   Who wants to look that up each time?
 
@@ -882,35 +928,29 @@ block style-property-name-dart-diff
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-3')(format=".")
 .l-sub-section
   :marked
-    The `ngModel` input property sets the element's value property and the `ngModelChange` output property
+    The `ngModel` data property sets the element's value property and the `ngModelChange` event property
     listens for changes to the element's value.
-    The details are specific to each kind of element and therefore the `NgModel` directive only works for elements,
+    
+    The details are specific to each kind of element and therefore the `NgModel` directive only works for specific form elements,
     such as the input text box, that are supported by a [ControlValueAccessor](../api/forms/index/ControlValueAccessor-interface.html).
-    We can't apply `[(ngModel)]` to our custom components until we write a suitable *value accessor*,
+
+    We can't apply `[(ngModel)]` to a custom component until we write a suitable *value accessor*,
     a technique that is beyond the scope of this chapter.
+    That's something we might want to do for an Angular component or a WebComponent whose API we can't control.
+    
+    It's completely unnecessary for an Angular component that we _do_ control ... because we can name the value and event properties
+    to suit Angular's basic [two-way binding syntax](#two-way) and skip `NgModel` altogether.
 
 :marked
-  Separate `ngModel` bindings is an improvement. We can do better.
+  Separate `ngModel` bindings is an improvement over binding to the element's native properties. We can do better.
 
   We shouldn't have to mention the data property twice. Angular should be able to capture the component’s data property and set it
-  with a single declaration &mdash; which it can with the `[( )]` syntax:
+  with a single declaration &mdash; which it can with the `[(ngModel)]` syntax:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
-
-.l-sub-section
-  :marked
-    `[(ngModel)]` is a specific example of a more general pattern in which Angular "de-sugars" the `[(x)]` syntax
-    into an `x` input property for property binding and an `xChange` output property for event binding.
-    Angular constructs the event property binding's template statement by appending `=$event`
-    to the literal string of the template expression.
-
-    > <span style="font-family:courier">[(_x_)]="_e_" &lt;==> [_x_]="_e_" (<i>x</i>Change)="_e_=$event"</span>
-
-    We can write a two-way binding directive of our own to exploit this behavior.
-
 :marked
   Is `[(ngModel)]` all we need? Is there ever a reason to fall back to its expanded form?
 
-  The `[( )]` syntax can only _set_ a data-bound property.
+  The `[(ngModel)]` syntax can only _set_ a data-bound property.
   If we need to do something more or something different, we need to write the expanded form ourselves.
 
   Let's try something silly like forcing the input value to uppercase:
@@ -1201,7 +1241,7 @@ block remember-the-brackets
 
 :marked
   ### Expanding `*ngSwitch`
-  A similar transformation applies to `*ngSwitch`. We can de-sugar the syntax ourselves.
+  A similar transformation applies to `*ngSwitch`. We can unfold the syntax ourselves.
   Here's an example, first with `*ngSwitchCase` and `*ngSwitchDefault` and then again with `<template>` tags:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgSwitch-expanded')(format=".")
 :marked
