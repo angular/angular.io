@@ -1381,14 +1381,14 @@ function buildApiDocsForDart() {
   dabInfo.ngDartDocPath = path.join(ngPathFor('dart'), relDartDocApiDir);
   // Exclude API entries for developer/internal libraries. Also exclude entries for
   // the top-level catch all "angular2" library (otherwise every entry appears twice).
-  dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|\.testing|_|codegen|^angular2$/);
+  dabInfo.excludeLibRegExp = new RegExp(/^(?!angular2)|testing|_|codegen|^angular2$/);
 
   try {
     checkAngularProjectPath(ngPathFor('dart'));
     var destPath = dabInfo.ngIoDartApiDocPath;
     var sourceDirs = fs.readdirSync(dabInfo.ngDartDocPath)
-      .filter((name) => !name.match(/^index/))
-      .map((name) => path.join(dabInfo.ngDartDocPath, name));
+      .filter(name => !name.match(/^index|^(?!angular2)|testing|codegen/))
+      .map(name => path.join(dabInfo.ngDartDocPath, name));
     log.info(`Building Dart API pages for ${sourceDirs.length} libraries`);
 
     return copyFiles(sourceDirs, [destPath]).then(() => {
@@ -1398,7 +1398,6 @@ function buildApiDocsForDart() {
       const tmpDocsPath = path.resolve(path.join(process.env.HOME, 'tmp/docs.json'));
       if (argv.dumpDocsJson) fs.writeFileSync(tmpDocsPath, JSON.stringify(apiEntries, null, 2));
       dab.createApiDataAndJadeFiles(apiEntries);
-
     }).catch((err) => {
       console.error(err);
     });
