@@ -59,6 +59,8 @@ include ../_util-fns
   * providing optional information across routes with [query parameters](#query-parameters)
   * jumping to anchor elements using a [fragment](#fragment)
   * loading feature areas [asynchronously](#asynchronous-routing)
+  * pre-loading feature areas [during navigation](#preloading)
+  * using a [custom strategy](#custom-preloading) to only pre-load certain features
   * choosing the "HTML5" or "hash" [URL style](#browser-url-styles)
 
   We proceed in phases marked by milestones building from a simple two-pager with placeholder views
@@ -620,17 +622,17 @@ h3#router-directives <i>Router Directives</i>
 a#why-routing-module
 :marked
   ### Do you need a _Routing Module_?
-  
-  The _Routing Module_ *replaces* the routing configuration in the root or feature module. 
+
+  The _Routing Module_ *replaces* the routing configuration in the root or feature module.
   _Either_ configure routes in the Routing Module _or_ within the module itself but not in both.
 
   The Routing Module is a design choice whose value is most obvious when the configuration is complex
   and includes specialized guard and resolver services.
   It can seem like overkill when the actual configuration is dead simple.
 
-  Some developers skip the Routing Module (e.g., `AppRoutingModule`) when the configuration is simple and 
+  Some developers skip the Routing Module (e.g., `AppRoutingModule`) when the configuration is simple and
   merge the routing configuration directly into the companion module (e.g., `AppModule`).
-  
+
   We recommend that you choose one pattern or the other and follow that pattern consistently.
 
   Most developers should always implement a Routing Module for the sake of consistency.
@@ -1140,8 +1142,8 @@ h3#route-animation Adding animations to the route component
 :marked
   Next, we'll use a **host binding** for route animations named *@routeAnimation*. There is nothing special
   about the choice of the binding name, but since we are controlling route animation, we'll go with `routeAnimation`.
-  The binding value is set to `true` because we only care about the `*` and `void` states which are
-  [entering and leaving](../guide/animations.html#example-entering-and-leaving) animation states.
+  The binding value is set to `true` because we only care about the `:enter` and `:leave` states which are
+  [entering and leaving](../api/core/index/transition-function.html#transition-aliases-enter-and-leave-) transition aliases.
 
   We'll also add some display and positioning bindings for styling.
 
@@ -1150,8 +1152,8 @@ h3#route-animation Adding animations to the route component
 :marked
   Now we can build our animation trigger, which we'll call *routeAnimation* to match the binding we previously
   setup. We'll use the **wildcard state** that matches any animation state our route component is in, along with
-  two *transitions*. One transition animates the component as it enters the application view (`void => *`), while the other
-  animates the component as it leaves the application view (`* => void`).
+  two *transitions*. One transition animates the component as it enters the application view (`:enter`), while the other
+  animates the component as it leaves the application view (`:leave`).
 
   We could add different transitions to different route components depending on our needs. We'll just animate our `HeroDetailComponent` for this milestone.
 
@@ -1903,7 +1905,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
 
   We need the `Resolve` guard.
 
-  ### Preload route information
+  ### Fetch data before navigating
 
   We'll update our `Crisis Detail` route to resolve our Crisis before loading the route, or if the user happens to
   navigate to an invalid crisis center `:id`, we'll navigate back to our list of existing crises.
@@ -1935,7 +1937,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
 
   We'll add the `CrisisDetailResolve` service to our `CrisisCenterRoutingModule`'s `providers`, so its available to the `Router` during the navigation process.
 
-+makeExcerpt('app/crisis-center/crisis-center-routing.module.ts (resolve)', 'crisis-detail-resolve')
++makeExcerpt('app/crisis-center/crisis-center-routing.module.4.ts (resolve)', 'crisis-detail-resolve')
 
 :marked
   Now that we've added our `Resolve` guard to fetch data before the route loads, we no longer need to do this once we get into our `CrisisDetailComponent`.
@@ -1959,7 +1961,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
    `router/ts/app/app.component.ts,
    router/ts/app/crisis-center/crisis-center-home.component.ts,
    router/ts/app/crisis-center/crisis-center.component.ts,
-   router/ts/app/crisis-center/crisis-center-routing.module.ts,
+   router/ts/app/crisis-center/crisis-center-routing.module.4.ts,
    router/ts/app/crisis-center/crisis-list.component.ts,
    router/ts/app/crisis-center/crisis-detail.component.ts,
    router/ts/app/crisis-center/crisis-detail-resolve.service.ts,
@@ -2017,7 +2019,7 @@ a#fragment
   Since we'll be navigating to our *Admin Dashboard* route after logging in, we'll update it to handle our
   query parameters and fragment.
 
-+makeExcerpt('app/admin/admin-dashboard.component.ts (v2)', '')
++makeExcerpt('app/admin/admin-dashboard.component.2.ts (v2)', '')
 
 :marked
   *Query Parameters* and *Fragments* are also available through the `ActivatedRoute` service available to route components.
@@ -2075,7 +2077,7 @@ a#fragment
   our child routes.
 
 +makeTabs(
-  `router/ts/app/app-routing.module.ts,
+  `router/ts/app/app-routing.module.5.ts,
   router/ts/app/admin/admin-routing.module.ts`,
   'lazy-load-admin,',
   `app-routing.module.ts (load children),
@@ -2107,7 +2109,7 @@ a#fragment
   to break our `AdminModule` into a completely separate module. In our `app.module.ts`, we'll remove our `AdminModule` from the
   `imports` array since we'll be loading it on-demand an we'll remove the imported `AdminModule`.
 
-+makeExcerpt('app/app.module.ts (async admin module)', '')
++makeExcerpt('app/app.module.7.ts (async admin module)', '')
 
 h3#can-load-guard <i>CanLoad Guard</i>: guarding against loading of feature modules
 :marked
@@ -2133,7 +2135,111 @@ h3#can-load-guard <i>CanLoad Guard</i>: guarding against loading of feature modu
   Next, we'll import the `AuthGuard` into our `app-routing.module.ts` and add the `AuthGuard` to the `canLoad` array for
   our `admin` route. Now our `admin` feature area is only loaded when the proper access has been granted.
 
-+makeExcerpt('app/app-routing.module.ts (can load guard)', 'can-load-guard')
++makeExcerpt('app/app-routing.module.5.ts (can load guard)', 'can-load-guard')
+
+h3#preloading <i>Pre-Loading</i>: background loading of feature areas
+:marked
+  We've learned how to load modules on-demand, but we can also take advantage of loading feature areas modules in *advance*. The *Router*
+  supports **pre-loading** of asynchronous feature areas prior to navigation to their respective URL. Pre-loading allows us to to load our initial route
+  quickly, while other feature modules are loaded in the background. Once we navigate to those areas, they will have already been loaded
+  as if our they were included in our initial bundle.
+
+  Each time a **successful** navigation happens, the *Router* will look through our configuration for lazy loaded feature areas
+  and react based on the provided strategy.
+
+  The *Router* supports two pre-loading strategies by default:
+
+  * No pre-loading at all which is the default. Lazy loaded feature areas are still loaded on demand.
+  * Pre-loading of all lazy loaded feature areas.
+
+  The *Router* also supports [custom preloading strategies](#custom-preloading) to give us control of what we want to pre-load.
+
+  We'll update our *CrisisCenterModule* to be loaded lazily by default and use the `PreloadAllModules` strategy to eagerly
+  it them up initial navigation.
+
+<a id="preload-canload"></a>
+.l-sub-section
+  :marked
+    The **PreloadAllModules** strategy does not eagerly load feature areas protected by the [Can Load](#can-load-guard) and this is by design.
+    The *CanLoad* guard protects against loading feature area assets until authorized to do so. If you want to eagerly load all modules and guard
+    them against unauthorized access, use the [CanActivate](#can-activate-guard) guard instead.
+
+:marked
+  We'll update our route configuration to eagerly load the *CrisisCenterModule*. We follow the same process as we did when we loaded the *AdminModule* asynchronously.
+  In the *crisis-center-routing.module.ts*, we'll change the *crisis-center* path to an *empty path* route.
+
+  We'll move our redirect and *crisis-center* route to our `AppRoutingModule` routes and use the `loadChildren` string to load the *CrisisCenterModule*.
+  The redirect is also changed to load the `/heroes` route on initial load.
+
+  Once we're finished, we'll remove the `CrisisCenterModule` from our `AppModule`'s imports.
+
+  Here are our updated modules:
+
++makeTabs(
+   `router/ts/app/app.module.ts,
+    router/ts/app/app-routing.module.6.ts,
+    router/ts/app/crisis-center/crisis-center-routing.module.ts
+  `,
+  ',preload-v1,',
+   `app.module.ts,
+    app-routing.module.ts,
+    crisis-center-routing.module.ts
+  `)
+
+:marked
+  In order to enable pre-loading of all modules, we'll import the `PreloadAllModules` token from the router package. The second argument in the
+  `RouterModule.forRoot` method takes an object where we can provide additional configuration options. We'll use the `preloadingStrategy` property
+  with the `PreloadAllModules` token. This enables the built-in *Router* pre-loader to eagerly load **all** [unguarded](#preload-canload) feature areas that use `loadChildren`.
+
++makeExcerpt('app/app-routing.module.6.ts (preload all)', '')
+
+:marked
+  Now when we visit `http://localhost:3000`, the `/heroes` route will load in the foreground, while the *CrisisCenterModule* and any other asynchronous feature
+  modules we could have are _eagerly_ loaded in the background, waiting for us to navigate to them.
+
+<a id="custom-preloading"></a>
+:marked
+  ### Custom Pre-Loading Strategy
+
+  Pre-loading all modules works well in some situations, but in some cases we need more control over what gets loaded eagerly. This becomes more clear
+  as we load our application on a mobile device, or a low bandwidth connection. We may only want to preload certain feature modules based on user metrics
+  or other data points we gather over time. The *Router* lets us have more control with a **custom** preloading strategy.
+
+  We can define our own strategy the same way the **PreloadAllModules** modules strategy was provided to our *RouterModule.forRoot* configuration object.
+
+  Since we want to take advantage of this, we'll add a custom strategy that _only_ preloads the modules we select. We'll enable the preloading by using the *Route Data*,
+  which we learned is an object to store arbitrary route data and and [resolve data](#resolve-guard).
+
+  We'll add a custom `preload` boolean to our `crisis-center` route data that we'll use with our custom strategy. To see it in action, we'll add to
+  the `route.path` to the `preloadedModules` array in our custom strategy service. We'll also log a message
+  to the console for the preloaded module.
+
++makeExcerpt('app/app-routing.module.ts (route data preload)', 'preload-v2')
+
+:marked
+  To create our custom strategy we'll need to implement the abstract `PreloadingStrategy` class and the `preload` method. The `preload` method is called for each route
+  that loads its feature module asynchronously and determines whether to preload it. The `preload` method takes two arguments, the first being the `Route` that provides
+  the route configuration and a function that preloads the feature module.
+
+  We'll name our strategy **PreloadSelectedModules** since we _only_ want to preload based on certain criteria. Our custom strategy looks for the **`preload`** boolean
+  value in our `Route Data` and if its true, it calls the `load` function provided by the built-in `Router` pre-loader that eagerly loads feature modules.
+
++makeExcerpt('app/selective-preload-strategy.ts (preload selected modules)', '')
+
+:marked
+  In order to use our custom preloading strategy, we import it into our `app-routing.module.ts` and replace the `PreloadAllModules` strategy. We also add
+  the `PreloadSelectedModules` strategy to the `AppRoutingModule` providers array. This allows the *Router* pre-loader to inject our custom strategy.
+
+  To confirm our *CrisisCenterModule* is being pre-loaded, we'll display our `preloadedModules` in the `Admin` dashboard. We already know how to use
+  an *ngFor* loop, so we'll skip over the details here. Since the `PreloadSelectedModules` is just a service, we can inject it into the `AdminDashboardComponent`
+  and wire it up to our list.
+
++makeExcerpt('app/admin/admin-dashboard.component.ts (preloaded modules)', '')
+
+:marked
+  Once our application is loaded to our initial route, the *CrisisCenterModule* is loaded eagerly. We can verify this by logging in to the `Admin` feature area and
+  noting that the `crisis-center` is listed in the `Preloaded Modules` and logged to the console. We can continue to add feature modules to be selectively loaded eagerly.
+
 
 <a id="final-app"></a>
 .l-main-section

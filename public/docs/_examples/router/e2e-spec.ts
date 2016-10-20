@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by, ElementFinder } from 'protractor';
 
@@ -27,7 +27,10 @@ describe('Router', function () {
       heroDetailTitle: element(by.css('my-app > ng-component > div > h3')),
 
       adminHref: hrefEles.get(2),
-      loginHref: hrefEles.get(3)
+      adminPreloadList: element.all(by.css('my-app > ng-component > ng-component > ul > li')),
+      loginHref: hrefEles.get(3),
+      loginButton: element.all(by.css('my-app > ng-component > p > button')),
+
     };
   }
 
@@ -102,6 +105,16 @@ describe('Router', function () {
       return buttonEle.click();
     }).then(function() {
       expect(heroEle.getText()).toContain(heroText + '-foo');
+    });
+  });
+
+  it('should be able to see the preloaded modules', function () {
+    let page = getPageStruct();
+    page.loginHref.click().then(function() {
+      return page.loginButton.click();
+    }).then(function() {
+      expect(page.adminPreloadList.count()).toBe(1, 'should be 1 preloaded module');
+      expect(page.adminPreloadList.first().getText()).toBe('crisis-center', 'first preload should be crisis center');
     });
   });
 

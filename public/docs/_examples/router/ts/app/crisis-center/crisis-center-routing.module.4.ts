@@ -16,8 +16,15 @@ import { CrisisDetailResolve }   from './crisis-detail-resolve.service';
 @NgModule({
   imports: [
     RouterModule.forChild([
+      // #docregion redirect
       {
         path: '',
+        redirectTo: '/crisis-center',
+        pathMatch: 'full'
+      },
+      // #enddocregion redirect
+      {
+        path: 'crisis-center',
         component: CrisisCenterComponent,
         children: [
           {
