@@ -14,7 +14,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 // #enddocregion v1
 // Imports for loading & configuring the in-memory web api
-import { InMemoryWebApiModule } from 'angular-in-memory-web-api/in-memory-web-api.module';
+import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDataService }  from './in-memory-data.service';
 
 // #docregion v1
