@@ -135,7 +135,7 @@ module.exports = function dabFactory(ngIoProjPath) {
         assert(depth === 1 || depth == 2, 'depth ' + depth);
         const jadeFilePath = path.resolve(outFileNoExtn + '.jade');
         const breadcrumbs = $('header > nav ol.breadcrumbs');
-        fs.writeFileSync(jadeFilePath, apiEntryJadeTemplate(depth, breadcrumbs, div));
+        fs.writeFileSync(jadeFilePath, apiEntryJadeTemplate($, depth, breadcrumbs, div));
         // In case harp cached the .html version, remove it since it will be generated.
         try {
             fs.unlinkSync(path.resolve(outFileNoExtn + '.html'));
@@ -197,6 +197,16 @@ module.exports = function dabFactory(ngIoProjPath) {
     return _self;
 };
 
+function _adjustAnchorHref($, $elt, hrefPathPrefix) {
+  if (!hrefPathPrefix) return;
+  $elt.find('a[href]').each((i, e) => {
+    let href = $(e).attr('href')
+    // Do nothing to absolute or external links
+    if (href.match(/^\/|^[a-z]+:/)) return;
+    $(e).attr('href', `${hrefPathPrefix}/${href}`);
+  });
+}
+
 function _indentedEltHtml($elt, i, filterFnOpt) {
     let lines = $elt.html().split('\n');
     if (filterFnOpt) lines = lines.filter(filterFnOpt);
@@ -204,10 +214,12 @@ function _indentedEltHtml($elt, i, filterFnOpt) {
     return lines.map((line) => `${indent}| ${line}`).join('\n');
 }
 
-function apiEntryJadeTemplate(baseHrefDepth, $breadcrumbs, $mainDiv) {
+function apiEntryJadeTemplate($, baseHrefDepth, $breadcrumbs, $mainDiv) {
     const baseHref = path.join(...Array(baseHrefDepth).fill('..'));
     // TODO/investigate: for some reason $breadcrumbs.html() is missing the <ol></ol>. We add it back in the template below.
+    _adjustAnchorHref($, $breadcrumbs, baseHref);
     const breadcrumbs = _indentedEltHtml($breadcrumbs, 6, (line) => !line.match(/^\s*$/));
+    _adjustAnchorHref($, $mainDiv, baseHref);
     const mainDivHtml = _indentedEltHtml($mainDiv, 4);
     // WARNING: since the following is Jade, indentation is significant.
     const result = `
@@ -217,8 +229,8 @@ include ${baseHref}/../_util-fns
 
 block head-extra
   // generated Dart API page template: head-extra
-  //- <base> is required because all the links in dartdoc generated pages are "pseudo-absolute"
-  base(href="${baseHref}")
+  //- <base> is no longer required
+  //- base(href="${baseHref}")
 
 block breadcrumbs
   // generated Dart API page template: breadcrumbs
