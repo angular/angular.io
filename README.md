@@ -89,7 +89,7 @@ take the following extra steps to prepare the environment:
 1. cd back up to `angular.io` root: `cd ../../..`
 
 1. run `gulp add-example-boilerplate` (elevate to admin on Windows) 
-to copy canonical files to the sample directories and create symlinks there for node_modules and typings. 
+to copy canonical files to the sample directories and create symlinks there for node_modules. 
 
 Now cd into any particular sample's language directory (e.g., `public/docs/_examples/quickstart/ts`) and try:
 - `npm start`  to simultaneously compile-with-watch and serve-in-browser-with-watch

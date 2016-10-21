@@ -1,5 +1,6 @@
 // #docregion
 import { Phone, PhoneData } from '../core/phone/phone.service';
+declare var angular: any;
 
 class PhoneListController {
   phones: PhoneData[];

@@ -85,7 +85,7 @@ var _apiShredOptionsForDart =  {
   logLevel: _dgeniLogLevel
 };
 
-var _excludePatterns = ['**/node_modules/**', '**/typings/**', '**/packages/**'];
+var _excludePatterns = ['**/node_modules/**', '**/packages/**'];
 
 var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
@@ -461,13 +461,6 @@ gulp.task('add-example-boilerplate', function(done) {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  realPath = path.join(EXAMPLES_PATH, '/typings');
-  var typingsPaths = excludeDartPaths(getTypingsPaths(EXAMPLES_PATH));
-  typingsPaths.forEach(function(linkPath) {
-    gutil.log("symlinking " + linkPath + ' -> ' + realPath)
-    fsUtils.addSymlink(realPath, linkPath);
-  });
-
   return buildStyles(copyExampleBoilerplate, done);
 });
 
@@ -527,11 +520,6 @@ function copyExampleBoilerplate() {
 gulp.task('remove-example-boilerplate', function() {
   var nodeModulesPaths = getNodeModulesPaths(EXAMPLES_PATH);
   nodeModulesPaths.forEach(function(linkPath) {
-    fsUtils.removeSymlink(linkPath);
-  });
-
-  var typingsPaths = getTypingsPaths(EXAMPLES_PATH);
-  typingsPaths.forEach(function(linkPath) {
     fsUtils.removeSymlink(linkPath);
   });
 
@@ -818,7 +806,7 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   // Split big shredding task into partials 2016-06-14
-  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules', 'typings/']});
+  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules']});
   var promise = Promise.resolve(true);
   examplePaths.forEach(function (examplePath) {
     promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));
@@ -877,8 +865,6 @@ gulp.task('lint', function() {
       '!./public/docs/_examples/**/ts-snippets/*.ts',
       '!./public/docs/_examples/style-guide/ts/**/*.avoid.ts',
       '!./public/docs/_examples/**/node_modules/**/*',
-      '!./public/docs/_examples/**/typings/**/*',
-      '!./public/docs/_examples/**/typings-ng1/**/*',
       '!./public/docs/_examples/**/build/**/*',
       // temporary until codelyzer is fixed mgechev/codelyzer#60
       '!./public/docs/_examples/animations/ts/app/hero.service.ts'
@@ -1140,13 +1126,6 @@ function getNodeModulesPaths(basePath) {
   return paths;
 }
 
-function getTypingsPaths(basePath) {
-  var paths = getExamplePaths(basePath).map(function(examplePath) {
-    return path.join(examplePath, "/typings");
-  });
-  return paths;
-}
-
 function getExamplePaths(basePath, includeBase) {
   // includeBase defaults to false
   return getPaths(basePath, _exampleConfigFilename, includeBase);
@@ -1281,7 +1260,7 @@ function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
   // removed this version because gulp.watch has the same glob issue that dgeni has.
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
-  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**', '**/typings/**',
+  var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**',
                       '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
   ignoreThese = ignoreThese.concat(_exampleBoilerplateFiles.map((file) => `public/docs/_examples/*/*/${file}`));
   var files = globby.sync( [includePattern], { ignore: ignoreThese });
