@@ -50,7 +50,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/reflect-metadata/Reflect.js',
-    to:   'https://unpkg.com/reflect-metadata@0.1.3'
+    to:   'https://unpkg.com/reflect-metadata@0.1.8'
   },
   {
     pattern: 'script',
@@ -60,7 +60,7 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   'https://unpkg.com/systemjs@0.19.27/dist/system.src.js'
+    to:   'https://unpkg.com/systemjs@0.19.39/dist/system.src.js'
   },
   {
     pattern: 'script',
