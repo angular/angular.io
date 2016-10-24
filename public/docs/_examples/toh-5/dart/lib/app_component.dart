@@ -28,7 +28,7 @@ import 'heroes_component.dart';
     directives: const [ROUTER_DIRECTIVES],
     providers: const [HeroService, ROUTER_PROVIDERS])
 // #enddocregion directives-and-providers
-// #docregion heroes
+// #docregion heroes, routes
 @RouteConfig(const [
   // #enddocregion heroes
   // #docregion dashboard
@@ -45,7 +45,7 @@ import 'heroes_component.dart';
   // #docregion heroes
   const Route(path: '/heroes', name: 'Heroes', component: HeroesComponent)
 ])
-// #enddocregion heroes
+// #enddocregion heroes, routes
 class AppComponent {
   String title = 'Tour of Heroes';
 }
