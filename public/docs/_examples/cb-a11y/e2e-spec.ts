@@ -1,5 +1,7 @@
-/// <reference path='../_protractor/e2e.d.ts' />
 'use strict';
+
+import { browser, element, by } from 'protractor';
+
 declare module jasmine {
 
   interface Matchers {

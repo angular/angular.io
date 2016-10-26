@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 
 @Component({
+  moduleId: module.id,
   selector: 'a11y-fails',
-  templateUrl: './app/dev-tools/a11y-fails/a11y-fails.component.html',
+  templateUrl: 'a11y-fails.component.html',
   styles: [
     `
       input {
       font-weight: bold;
       }
-      
+
       label {
       color: #808080;
       }
@@ -16,10 +17,9 @@ import { Component } from '@angular/core';
   ]
 })
 export class A11yFailsComponent {
-
   model: any = {};
 
-  hideSuccessConfirmation: boolean = true;
+  hideSuccessConfirmation = true;
 
   submit(): void {
     this.hideSuccessConfirmation = false;

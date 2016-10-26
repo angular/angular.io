@@ -1,16 +1,9 @@
 import { Component } from '@angular/core';
-import { ROUTER_DIRECTIVES } from '@angular/router';
-import { A11yHelperService } from './services/a11y-helper.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'a11y-app',
-  templateUrl: 'app/app.component.html',
-  directives: [
-    ROUTER_DIRECTIVES
-  ],
-  providers: [
-    A11yHelperService
-  ]
+  templateUrl: 'app.component.html',
 })
 export class AppComponent {
 }

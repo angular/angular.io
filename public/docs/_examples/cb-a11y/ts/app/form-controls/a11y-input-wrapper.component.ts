@@ -2,15 +2,15 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
 // #docregion
 @Component({
+  moduleId: module.id,
   selector: 'a11y-input-wrapper',
-  templateUrl: './app/form-controls/a11y-input-wrapper.component.html',
-  styleUrls: ['./app/form-controls/a11y-input-wrapper.component.css']
+  templateUrl: 'a11y-input-wrapper.component.html',
+  styleUrls: ['a11y-input-wrapper.component.css']
 })
 export class A11yInputWrapperComponent {
+  @Output() onSave = new EventEmitter();
 
-  @Output() onSave: EventEmitter<any> = new EventEmitter();
-
-  save() {
+  save(): void {
     this.onSave.emit(null);
   }
 }

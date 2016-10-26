@@ -89,7 +89,7 @@ export class A11yHelperService {
       .replace(new RegExp('<br>', 'g'), '');
   }
 
-  guidPartial(s?: boolean) {
+  guidPartial(s?: boolean): string {
     let p = (Math.random().toString(16) + '000000000').substr(2, 8);
     return s ? '-' + p.substr(0, 4) + '-' + p.substr(4, 4) : p;
   }

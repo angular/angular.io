@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
+  moduleId: module.id,
   selector: 'a11y-value-helper',
-  templateUrl: './app/shared/a11y-value-helper.component.html',
+  templateUrl: 'a11y-value-helper.component.html',
   styles: [`
     .value-label {
       position:relative;
@@ -11,7 +12,6 @@ import { Component, Input } from '@angular/core';
 `]
 })
 export class A11yValueHelperComponent {
-
   @Input() displayValue: any;
 
 }

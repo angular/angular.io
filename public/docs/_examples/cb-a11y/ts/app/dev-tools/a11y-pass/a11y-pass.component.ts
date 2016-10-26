@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 
 @Component({
+  moduleId: module.id,
   selector: 'a11y-fails',
-  templateUrl: './app/dev-tools/a11y-pass/a11y-pass.component.html'
+  templateUrl: 'a11y-pass.component.html'
 })
 export class A11yPassComponent {
-
   model: any = {};
 
-  hideSuccessConfirmation: boolean = true;
+  hideSuccessConfirmation = true;
 
   submit(messageElement: any): void {
     this.hideSuccessConfirmation = false;
