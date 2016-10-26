@@ -364,11 +364,13 @@ function runProtractorAoT(appDir, outputFile) {
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
 function runE2eDartTests(appDir, outputFile) {
-  var deployDir = path.resolve(path.join(appDir, 'build/web'));
+  // Launch http server out of ts directory because all the config files are there.
+  var httpLaunchDir = path.resolve(appDir, '../ts');
+  var deployDir = path.resolve(appDir, 'build/web');
   gutil.log('AppDir for Dart e2e: ' + appDir);
   gutil.log('Deploying from: ' + deployDir);
 
-  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: EXAMPLES_PATH });
+  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: httpLaunchDir });
   if (!appRunSpawnInfo.proc.pid) {
     gutil.log('http-server failed to launch over ' + deployDir);
     return false;
