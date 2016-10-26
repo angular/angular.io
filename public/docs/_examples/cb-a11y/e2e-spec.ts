@@ -1,25 +1,8 @@
+///<reference path="e2e-spec.d.ts" />
+
 'use strict';
 
 import { browser, element, by } from 'protractor';
-
-declare module jasmine {
-
-  interface Matchers {
-    toHaveTextByCss(expected: any): boolean;
-    toHaveText(expected: any): boolean;
-    toBeDisplayed(expectationFailOutput?: any): boolean;
-    toBePresent(expectationFailOutput?: any): boolean;
-    toHaveValue(expected: any): boolean;
-    toContainText(expected: any): boolean;
-    toBeSelected(expectationFailOutput?: any): boolean;
-  }
-
-  interface ProtractorCustomMatcherResult {
-    pass: webdriver.promise.Promise<boolean>;
-    message?: string;
-  }
-
-}
 
 let matchers: any = {
   toHaveTextByCss: toHaveTextByCss,
@@ -224,16 +207,19 @@ function toHaveClass() {
 
 }
 
-describe('A11y Cookbook', () => {
+describe('A11y Cookbook', function() {
 
-  describe('A11y Cookbook main index', () => {
+  beforeEach(function() {
+    jasmine.addMatchers(matchers);
+  })
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+  describe('A11y Cookbook main index', function() {
+
+    beforeAll(function() {
       browser.get('');
     });
 
-    it('should display the main heading and links', () => {
+    it('should display the main heading and links', function() {
       expect('h1').toHaveTextByCss('Angular 2 a11y cookbook');
       expect(element.all(by.tagName('a')).get(0)).toHaveText('Accessible form control labels');
       expect(element.all(by.tagName('a')).get(1)).toHaveText('Managing focus');
@@ -241,7 +227,7 @@ describe('A11y Cookbook', () => {
       expect(element.all(by.tagName('a')).get(3)).toHaveText('Developer tools');
     });
 
-    it('should display the dev tool deeplinks', () => {
+    it('should display the dev tool deeplinks', function() {
       element.all(by.tagName('a')).get(3).click();
       expect(element.all(by.tagName('a')).get(0)).toHaveText('Demo with a11y errors');
       expect(element.all(by.tagName('a')).get(1)).toHaveText('Demo with full a11y features');
@@ -249,19 +235,18 @@ describe('A11y Cookbook', () => {
 
   });
 
-  describe('A11y Cookbook control labels', () => {
+  describe('A11y Cookbook control labels', function() {
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+    beforeAll(function() {
       browser.get('');
       element.all(by.tagName('a')).get(0).click();
     });
 
-    it('should have the correct page heading', () => {
+    it('should have the correct page heading', function() {
       expect('h2').toHaveTextByCss('Accessible form control labels');
     });
 
-    it('should have the correct sections', () => {
+    it('should have the correct sections', function() {
       let headings = element.all(by.tagName('h3'));
       expect(headings.get(0)).toHaveText('Implicit labeling');
       expect(headings.get(1)).toHaveText('Explicit labeling');
@@ -269,27 +254,27 @@ describe('A11y Cookbook', () => {
       expect(headings.get(3)).toHaveText('Labeling custom controls');
     });
 
-    it('should have a working implicitly labelled input', () => {
+    it('should have a working implicitly labelled input', function() {
       let testVal = 'Some text';
       expect(element.all(by.tagName('label')).get(0)).toHaveText('Type something:');
       let input = element.all(by.css('label > input')).first();
       expect(input).toHaveValue('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveValue(testVal);
       testValueDecorator(0, testVal);
     });
 
-    it('should have a working implicitly labelled textarea', () => {
+    it('should have a working implicitly labelled textarea', function() {
       let testVal = 'Some text';
       expect(element.all(by.tagName('label')).get(1)).toHaveText('Type some text:');
       let textarea = element.all(by.css('label > textarea')).first();
       expect(textarea).toHaveValue('');
-      sendKeys(textarea, testVal);
+      textarea.sendKeys(testVal);
       expect(textarea).toHaveValue(testVal);
       testValueDecorator(1, testVal);
     });
 
-    it('should have working implicitly labelled checkboxes', () => {
+    it('should have working implicitly labelled checkboxes', function() {
       expect('fieldset legend').toHaveTextByCss('What do you like most about Angular 2?');
       let fieldSet = element.all(by.css('fieldset')).first();
       expect(fieldSet.all(by.css('label')).get(0)).toHaveText('Template syntax');
@@ -307,7 +292,7 @@ describe('A11y Cookbook', () => {
       testValueDecorator(2, '[ "Components", "Template syntax" ]');
     });
 
-    it('should have working implicitly labelled radiobuttons', () => {
+    it('should have working implicitly labelled radiobuttons', function() {
       expect(element.all(by.css('fieldset legend')).get(1)).toHaveText('Choose your favourite Angular 2 language:');
       let fieldSet = element.all(by.css('fieldset')).get(1);
       expect(fieldSet.all(by.css('label')).get(0)).toHaveText('TypeScript');
@@ -323,74 +308,73 @@ describe('A11y Cookbook', () => {
       testValueDecorator(3, 'JavaScript');
     });
 
-    it('should have a working implicitly labelled select', () => {
+    it('should have a working implicitly labelled select', function() {
       expect(element.all(by.tagName('label')).get(10)).toContainText('Why are you interested in a11y?');
       expect(element.all(by.tagName('select')).get(0)).toHaveValue('Curiosity');
       testValueDecorator(4, 'Curiosity');
     });
 
-    it('should have a working explicitly labelled input', () => {
+    it('should have a working explicitly labelled input', function() {
       let testVal = 'Some text';
       expect(element.all(by.tagName('label[for="inputexplicit"]')).first()).toHaveText('Label for input:');
       let input = element.all(by.css('#inputexplicit')).get(0);
       expect(input).toHaveValue('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveValue(testVal);
       testValueDecorator(5, testVal);
     });
 
-    it('should have a working input with hidden label', () => {
+    it('should have a working input with hidden label', function() {
       let testVal = 'Some text';
       expect(element.all(by.tagName('label.visually-hidden')).first()).toHaveText('Search:');
       let input = element.all(by.css('#inputsearch')).first();
       expect(input).toHaveValue('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveValue(testVal);
       testValueDecorator(6, testVal);
     });
 
-    it('should have a working input with aria-label', () => {
+    it('should have a working input with aria-label', function() {
       let testVal = 'Some text';
       let input = element.all(by.css('input[aria-label="Filter:"')).first();
       expect(input).toHaveValue('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveValue(testVal);
       testValueDecorator(7, testVal);
     });
 
-    it('should have a working editable div with label', () => {
+    it('should have a working editable div with label', function() {
       let testVal = 'Value';
       expect(element.all(by.tagName('div.col-xs-6 label')).first()).toHaveText('Write in this labeled div:');
       let input = element.all(by.css('div.col-xs-6 div.edit-box')).first();
       expect(input).toHaveText('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveText(testVal);
     });
 
-    it('should have a working wrapped input', () => {
+    it('should have a working wrapped input', function() {
       let testVal = 'Test';
       expect(element.all(by.tagName('div.col-xs-6 label span')).first()).toHaveText('Write in this wrapped input:');
       let input = element.all(by.css('div.input-group input')).first();
       expect(input).toHaveValue('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveValue(testVal);
     });
 
   });
 
-  describe('A11y Cookbook managing focus', () => {
+  describe('A11y Cookbook managing focus', function() {
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+    beforeAll(function() {
       browser.get('');
       element.all(by.tagName('a')).get(1).click();
     });
 
-    it('should have the correct page heading', () => {
+    it('should have the correct page heading', function() {
       expect('h2').toHaveTextByCss('Managing focus');
     });
 
-    it('should have the correct sections', () => {
+    it('should have the correct sections', function() {
       let headings = element.all(by.tagName('h3'));
       expect(headings.get(0)).toHaveText('The focus outline');
       expect(headings.get(1)).toHaveText('Focus flow');
@@ -398,12 +382,12 @@ describe('A11y Cookbook', () => {
       expect(headings.get(3)).toHaveText('Internal focus in a component');
     });
 
-    it('should have the focus outline elements', () => {
+    it('should have the focus outline elements', function() {
       expect(element.all(by.cssContainingText('label', 'Focus me for the standard browser outline:')).first()).toBePresent();
       expect(element.all(by.cssContainingText('label', 'Focus me for a new and unusual outline:')).first()).toBePresent();
     });
 
-    it('should have the focus flow elements', () => {
+    it('should have the focus flow elements', function() {
       expect(element.all(by.cssContainingText('label', 'Which city of The USA did you work in:')).first()).toBePresent();
       expect(element.all(by.cssContainingText('label', 'How many months did you work in The USA:')).first()).toBePresent();
       expect(element.all(by.cssContainingText('label', 'Which city of The Netherlands did you work in:')).first()).toBePresent();
@@ -416,12 +400,12 @@ describe('A11y Cookbook', () => {
       expect(element.all(by.cssContainingText('label', 'How many months did you work in The UK:')).first()).toBePresent();
     });
 
-    it('should have a clickable custom button component', () => {
+    it('should have a clickable custom button component', function() {
       element.all(by.tagName('a11y-custom-button')).get(0).click();
       testValueDecorator(0, 'Button has been clicked 1 times');
     });
 
-    it('should have an error toggling component', () => {
+    it('should have an error toggling component', function() {
       let showErrorButton = element(by.css('a11y-error-demo button.btn.btn-primary'));
       expect(showErrorButton).toHaveText('Show error');
       let errorBanner = element(by.css('a11y-error-demo div.alert'));
@@ -434,81 +418,78 @@ describe('A11y Cookbook', () => {
 
   });
 
-  describe('A11y Cookbook roles for custom components', () => {
+  describe('A11y Cookbook roles for custom components', function() {
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+    beforeAll(function() {
       browser.get('');
       element.all(by.tagName('a')).get(2).click();
     });
 
-    it('should have the correct page heading', () => {
+    it('should have the correct page heading', function() {
       expect('h2').toHaveTextByCss('Roles for custom component widgets');
     });
 
-    it('should have the correct sections', () => {
+    it('should have the correct sections', function() {
       let headings = element.all(by.tagName('h3'));
       expect(headings.get(0)).toHaveText('Roles in the template');
       expect(headings.get(1)).toHaveText('Roles of the host element');
     });
 
-    it('should have a working editable div with label and internal role', () => {
+    it('should have a working editable div with label and internal role', function() {
       let testVal = 'Test';
       expect(element.all(by.tagName('div.col-xs-6 label')).first()).toHaveText('I set the role in my template:');
       let input = element.all(by.css('div[role="textbox"]')).get(0);
       expect(input).toHaveText('');
-      sendKeys(input, testVal);
+      input.sendKeys(testVal);
       expect(input).toHaveText(testVal);
     });
 
-    it('should have a clickable custom button component with role', () => {
+    it('should have a clickable custom button component with role', function() {
       element.all(by.css('a11y-custom-button[role="button"]')).get(0).click();
       testValueDecorator(1, 'Button has been clicked 1 times');
     });
 
   });
 
-  describe('A11y Cookbook a11y errors page', () => {
+  describe('A11y Cookbook a11y errors page', function() {
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+    beforeAll(function() {
       browser.get('');
       element.all(by.tagName('a')).get(3).click();
       element.all(by.tagName('a')).first().click();
     });
 
-    it('should have the correct page heading', () => {
+    it('should have the correct page heading', function() {
       expect('h3').toHaveTextByCss('Demo with a11y errors');
     });
 
-    it('should have the required form elements', () => {
+    it('should have the required form elements', function() {
       testDemoPageLabels();
     });
 
-    it('should have basic form functionality', () => {
+    it('should have basic form functionality', function() {
       testDemoPageFunction();
     });
 
   });
 
-  describe('A11y Cookbook a11y features page', () => {
+  describe('A11y Cookbook a11y features page', function() {
 
-    beforeAll(() => {
-      jasmine.addMatchers(matchers);
+    beforeAll(function() {
       browser.get('');
       element.all(by.tagName('a')).get(3).click();
       element.all(by.tagName('a')).get(1).click();
     });
 
-    it('should have the correct page heading', () => {
+    it('should have the correct page heading', function() {
       expect('h2').toHaveTextByCss('Demo with full a11y features');
     });
 
-    it('should have the required form elements', () => {
+    it('should have the required form elements', function() {
       testDemoPageLabels();
     });
 
-    it('should have basic form functionality', () => {
+    it('should have basic form functionality', function() {
       testDemoPageFunction();
     });
 
@@ -526,11 +507,11 @@ describe('A11y Cookbook', () => {
     let submitButton = element(by.css('button.btn.btn-primary'));
     expect(statusBanner).not.toBeDisplayed();
     let nameInput = element.all(by.css('input')).get(0);
-    sendKeys(nameInput, 'John');
+    nameInput.sendKeys('John');
     let surnameInput = element.all(by.css('input')).get(1);
-    sendKeys(surnameInput, 'Smith');
+    surnameInput.sendKeys('Smith');
     let reasonInput = element.all(by.css('input')).get(2);
-    sendKeys(reasonInput, 'It is awesome!!');
+    reasonInput.sendKeys('It is awesome!!');
     submitButton.click();
     expect(statusBanner).toBeDisplayed();
     expect(element.all(by.cssContainingText('div.alert.alert-success',
