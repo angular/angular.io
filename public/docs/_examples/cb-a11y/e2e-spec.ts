@@ -211,7 +211,7 @@ describe('A11y Cookbook', function() {
 
   beforeEach(function() {
     jasmine.addMatchers(matchers);
-  })
+  });
 
   describe('A11y Cookbook main index', function() {
 
