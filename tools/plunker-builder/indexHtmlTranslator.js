@@ -91,14 +91,6 @@ var _rxData = [
     from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
     to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.css'
   },
-
-
-  {
-    pattern: 'link',
-    from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    // Official source per http://getbootstrap.com/getting-started/
-    to:   'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
-  },
   {
     pattern: 'angular_pkg',
   },
