@@ -1,15 +1,17 @@
 // #docplaster
 // #docregion
-import { NgModule }     from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 import { CrisisListComponent }  from './crisis-list.component';
 
+const appRoutes: Routes = [
+  { path: 'crisis-center', component: CrisisListComponent }
+];
+
 @NgModule({
   imports: [
-    RouterModule.forRoot([
-      { path: 'crisis-center', component: CrisisListComponent },
-    ])
+    RouterModule.forRoot(appRoutes)
   ],
   exports: [
     RouterModule

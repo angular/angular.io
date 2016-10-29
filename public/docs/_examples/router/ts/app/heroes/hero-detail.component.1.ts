@@ -1,5 +1,8 @@
 // #docplaster
 // #docregion
+// #docregion rxjs-operator-import
+import 'rxjs/add/operator/switchMap';
+// #enddocregion rxjs-operator-import
 import { Component, OnInit } from '@angular/core';
 // #docregion imports
 import { Router, ActivatedRoute, Params } from '@angular/router';
@@ -11,9 +14,9 @@ import { Hero, HeroService } from './hero.service';
   template: `
   <h2>HEROES</h2>
   <div *ngIf="hero">
-    <h3>"{{hero.name}}"</h3>
+    <h3>"{{ hero.name }}"</h3>
     <div>
-      <label>Id: </label>{{hero.id}}</div>
+      <label>Id: </label>{{ hero.id }}</div>
     <div>
       <label>Name: </label>
       <input [(ngModel)]="hero.name" placeholder="name"/>
@@ -37,14 +40,16 @@ export class HeroDetailComponent implements OnInit  {
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
-      let id = +params['id']; // (+) converts string 'id' to a number
-      this.service.getHero(id).then(hero => this.hero = hero);
-    });
+    this.route.params
+      // (+) converts string 'id' to a number
+      .switchMap((params: Params) => this.service.getHero(+params['id']))
+      .subscribe((hero: Hero) => this.hero = hero);
   }
   // #enddocregion ngOnInit
 
   // #docregion gotoHeroes
-  gotoHeroes() { this.router.navigate(['/heroes']); }
+  gotoHeroes() {
+    this.router.navigate(['/heroes']);
+  }
   // #enddocregion gotoHeroes
 }

@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { NgModule }      from '@angular/core';
-import { RouterModule }  from '@angular/router';
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 import { AdminComponent }           from './admin.component';
 import { AdminDashboardComponent }  from './admin-dashboard.component';
@@ -12,26 +12,28 @@ import { ManageHeroesComponent }    from './manage-heroes.component';
 import { AuthGuard }                from '../auth-guard.service';
 
 // #docregion can-activate-child
-@NgModule({
-  imports: [
-    RouterModule.forChild([
+const adminRoutes: Routes = [
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard],
+    children: [
       {
-        path: 'admin',
-        component: AdminComponent,
-        canActivate: [AuthGuard],
+        path: '',
+        canActivateChild: [AuthGuard],
         children: [
-          {
-            path: '',
-            canActivateChild: [AuthGuard],
-            children: [
-              { path: 'crises', component: ManageCrisesComponent },
-              { path: 'heroes', component: ManageHeroesComponent },
-              { path: '', component: AdminDashboardComponent }
-            ]
-          }
+          { path: 'crises', component: ManageCrisesComponent },
+          { path: 'heroes', component: ManageHeroesComponent },
+          { path: '', component: AdminDashboardComponent }
         ]
       }
-    ])
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(adminRoutes)
   ],
   exports: [
     RouterModule

@@ -445,7 +445,7 @@ h4#define-routes Define routes
   :marked
     Adding the configured `RouterModule` to the `AppModule` is sufficient for simple route configurations.
     As our application grows, we'll want to refactor our routing configuration into a separate file
-    and create a **[Routing Module](#routing-module)**, a special type of `Service Module` dedicating for the purpose
+    and create a **[Routing Module](#routing-module)**, a special type of `Service Module` dedicated for the purpose
     of routing in feature modules.
 
 :marked
@@ -874,6 +874,11 @@ h3#activated-route ActivatedRoute: the one-stop-shop for route information
 
 +makeExcerpt('app/heroes/hero-detail.component.1.ts (activated route)', 'imports')
 
+:marked
+  We import the `switchMap` operator because we need it later to process the `Observable` route parameters.
+
++makeExcerpt('app/heroes/hero-detail.component.1.ts (switchMap operator import)', 'rxjs-operator-import')
+
 a#hero-detail-ctor
 :marked
   As usual, we write a constructor that asks Angular to inject services
@@ -882,12 +887,21 @@ a#hero-detail-ctor
 +makeExcerpt('app/heroes/hero-detail.component.ts (constructor)', 'ctor')
 
 :marked
-  Later, in the `ngOnInit` method,
-  we use the `ActivatedRoute` service to retrieve the parameters for our route.
-  Since our parameters are provided as an `Observable`, we use the _forEach_ method to retrieve them for the `id` parameter by name and
-  tell the `HeroService` to fetch the hero with that `id`.
+  Later, in the `ngOnInit` method, we use the `ActivatedRoute` service to retrieve the parameters
+  for our route. Since our parameters are provided as an `Observable`, we use the _switchMap_ operator to
+  provide them for the `id` parameter by name and tell the `HeroService` to fetch the hero with that `id`.
 
 +makeExcerpt('app/heroes/hero-detail.component.ts (ngOnInit)', 'ngOnInit')
+
+.l-sub-section
+  :marked
+    The `switchMap` operator allows you to perform an action with the current value of the `Observable`,
+    and map it to a new `Observable`. As with many `rxjs` operators, `switchMap` handles
+    an `Observable` as well as a `Promise` to retrieve the value they emit.
+
+    The `switchMap` operator will also cancel any in-flight requests if our user re-navigates to the route
+    while still retrieving a hero. Our `Observable` is _cold_ until subscribed to, so we use the `subscribe` method
+    to get and set our retrieved `Hero`.
 
 .l-sub-section
   :marked
@@ -1096,10 +1110,20 @@ code-example(language="bash").
 +makeExcerpt('app/heroes/hero-list.component.ts (import)', 'import-router')
 
 :marked
-  Then we use the `ActivatedRoute` to access the `params` _Observable_ so we can subscribe
-  and extract the `id` parameter as the `selectedId`:
+  We'll import the `switchMap` operator to perform an operation on our `Observable`
+  of route parameters.
 
-+makeExcerpt('app/heroes/hero-list.component.ts (constructor)', 'ctor')
++makeExcerpt('app/heroes/hero-list.component.ts (rxjs imports)', 'rxjs-imports')
+
+:marked
+  Then we inject the `ActivatedRoute` in the `HeroListComponent` constructor.
+
++makeExcerpt('app/heroes/hero-list.component.ts (constructor and ngOnInit)', 'ctor')
+
+:marked
+  The ActivatedRoute.params property is an Observable of route parameters. The params emits new id values
+  when the user navigates to the component. In ngOnInit we subscribe to those values, set the selectedId,
+  and get the heroes.
 
 .l-sub-section
   :marked
@@ -2150,7 +2174,7 @@ h3#preloading <i>Pre-Loading</i>: background loading of feature areas
 
   The *Router* also supports [custom preloading strategies](#custom-preloading) for fine control over which modules to pre-load.
 
-  We'll update our *CrisisCenterModule* to be loaded lazily by default and use the `PreloadAllModules` strategy 
+  We'll update our *CrisisCenterModule* to be loaded lazily by default and use the `PreloadAllModules` strategy
   to load _all_ lazy loaded modules as soon as possible.
 
 <a id="preload-canload"></a>
@@ -2183,9 +2207,9 @@ h3#preloading <i>Pre-Loading</i>: background loading of feature areas
   `)
 
 :marked
-  The second argument in the `RouterModule.forRoot` method takes an object for additional configuration options. 
+  The second argument in the `RouterModule.forRoot` method takes an object for additional configuration options.
   We import the `PreloadAllModules` token from the router package and set the configuration option's `preloadingStrategy` property
-  with this `PreloadAllModules` token. 
+  with this `PreloadAllModules` token.
   This tells the built-in *Router* pre-loader to immediately load **all** [unguarded](#preload-canload) feature areas that use `loadChildren`.
 
 +makeExcerpt('app/app-routing.module.6.ts (preload all)', '')
@@ -2207,7 +2231,7 @@ h3#preloading <i>Pre-Loading</i>: background loading of feature areas
   Since we want to take advantage of this, we'll add a custom strategy that _only_ preloads the modules we select. We'll enable the preloading by using the *Route Data*,
   which, as we learned, is an object to store arbitrary route data and and [resolve data](#resolve-guard).
 
-  We'll add a custom `preload` boolean to our `crisis-center` route data that we'll use with our custom strategy. To see it in action, we'll add 
+  We'll add a custom `preload` boolean to our `crisis-center` route data that we'll use with our custom strategy. To see it in action, we'll add
   the `route.path` to the `preloadedModules` array in our custom strategy service. We'll also log a message
   to the console for the preloaded module.
 

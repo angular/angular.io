@@ -512,6 +512,11 @@ block route-params
 +makeExcerpt('app/hero-detail.component.ts (constructor)', 'ctor')
 
 :marked
+  We'll also import the `switchMap` operator to use later with the route parameters `Observable`.
+
++makeExcerpt('app/hero-detail.component.ts (switchMap import)', 'rxjs-import')
+
+:marked
   We tell the class that we want to implement the `OnInit` interface.
 
 +makeExcerpt('app/hero-detail.component.ts', 'implement', '')(format=".")
@@ -526,14 +531,26 @@ block ngOnInit
 
 block extract-id
   :marked
-    Notice how we extract the `id` by calling the `forEach` method
-    which will deliver our !{_array} of route parameters.
+    Note how the `switchMap` operator maps the id in the observable route parameters
+    to a new `Observable`, the result of the `HeroService.getHero` method.
+
+    If the user re-navigates to this component while a getHero request is still inflight,
+    switchMap cancels that old request before calling `HeroService.getHero` again.
 
 - var _str2int = _docsFor == 'dart' ? '<code>int.parse</code> static method' : 'JavaScript (+) operator'
 :marked
   The hero `id` is a number. Route parameters are *always strings*.
   So we convert the route parameter value to a number with the !{_str2int}.
 
+.l-sub-section
+  :marked
+    ### Do I need to unsubscribe?
+
+    The `Router` manages the [observables](../guide/router.html#activated-route) it provides and localizes
+    the subscriptions. The subscriptions are cleaned up when the component is destroyed, protecting against
+    memory leaks, so we don't need to _unsubscribe_ from the route params `Observable`.
+
+:marked
   ### Add *HeroService.getHero*
 
   The problem with this bit of code is that `HeroService` doesn't have a `getHero` method!
@@ -654,16 +671,16 @@ block extract-id
   +makeExample('app/app-routing.module.ts')
   :marked
     Noteworthy points, typical of _Routing Modules_:
-    * Pull the routes into a variable. You might export it in future and it clarifies the _Routing Module_ pattern.
+    * Pulls the routes into a variable. You might export it in future and it clarifies the _Routing Module_ pattern.
 
-    * Add `RouterModule.forRoot(routes)` to `imports`.
+    * Adds `RouterModule.forRoot(routes)` to `imports`.
 
-    * Add `RouterModule` to `exports` so that the components in the companion module have access to Router declarables 
+    * Adds `RouterModule` to `exports` so that the components in the companion module have access to Router declarables 
     such as `RouterLink` and `RouterOutlet`.
 
     * No `declarations`!  Declarations are the responsibility of the companion module.
 
-    * Add module `providers` for guard services if you have them; there are none in this example.
+    * Adds module `providers` for guard services if you have them; there are none in this example.
 
     ### Update _AppModule_
 
