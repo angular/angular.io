@@ -11,6 +11,7 @@ import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.compo
 import { CodeExampleComponent } from './code-example/code-example.component';
 import { CopyContainerComponent } from './copy-container/copy-container.component';
 import { CodeTabsComponent } from './code-tabs/code-tabs.component';
+import { ApiListComponent } from './api-list/api-list.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { CodeTabsComponent } from './code-tabs/code-tabs.component';
     CodeTabsComponent,
     LiveExampleComponent,
     NgioCheatsheetComponent,
+    ApiListComponent,
   ],
   imports: [
     BrowserModule,
