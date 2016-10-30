@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
+import { Location } from '@angular/common';
 
 export type NgLang = 'ts' | 'js' | 'dart'
 
@@ -13,17 +13,13 @@ export class DocInfoService {
   private _vers: string | null;
   private _rest: string | null;
 
-  constructor(private router: Router) {
-    router.events.subscribe(s => {
-      if (!(s instanceof NavigationEnd)) return;
-      this._update();
-    });
+  constructor(private loc: Location) {
     this._update();
   }
 
   private _update(): void {
     this._reset();
-    const url = this.router.url; // e.g. '/docs/ts/latest/...'
+    const url = this.loc.path(); // e.g. '/docs/ts/latest/...'
     const routes = url.split('/'); // e.g. ['', 'docs', 'ts', 'latest', ...]
     if (routes[0] === '') routes.shift();
 
@@ -47,6 +43,10 @@ export class DocInfoService {
   /** Capitalized (full) name equivalent of `this.ngLang`. */
   get ngLangName(): string | null {
     return this.ngLangToName(this._ngLang);
+  }
+  
+  get path(): string {
+    return this.loc.path();
   }
   
   ngLangToName(lang: string): string | null {
