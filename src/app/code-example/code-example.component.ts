@@ -2,7 +2,7 @@ import { Component, OnInit, Input, AfterViewInit, ElementRef, ViewChild } from '
 
 const _codeExampleInputs = ['language', 'escape', 'format', 'showcase', 'animated'];
 
-// index.html includes prettify.js from the vendor folder.
+// prettify.js from the vendor folder.
 declare var prettyPrint;
 
 /**
