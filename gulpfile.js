@@ -50,7 +50,7 @@ var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPl
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
-const WWW = argv.page ? 'www-pages' : 'www'
+const WWW = argv.page ? 'www-pages' : argv.ng2 ? 'www-ng2' : 'www'
 
 const isSilent = !!argv.silent;
 if (isSilent) gutil.log = gutil.noop;
@@ -645,6 +645,18 @@ gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
 gulp.task('build-dart-cheatsheet', [], function() {
   return buildDartCheatsheet();
 });
+
+function cpNg2App(destDir) {
+  const baseDir = 'dist';
+  // Skipping styles.bundle for now.
+  return gulp.src([`${baseDir}/{inline,main.bundle}.js`], { base: baseDir })
+          .pipe(gulp.dest(destDir));
+}
+
+gulp.task('cp-ng2-app', ['_cp-ng2-app-public', '_cp-ng2-app-www-ng2']);
+gulp.task('_cp-ng2-app-public', () => cpNg2App('public'));
+gulp.task('_cp-ng2-app-www-ng2', cb => 
+    argv.ng2 && fs.existsSync(WWW) ? cpNg2App(WWW) : cb())
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
   const ngRepoPath = ngPathFor('dart');
