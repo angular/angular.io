@@ -1,13 +1,13 @@
-import {Component, OnInit, ElementRef, ComponentFactoryResolver} from '@angular/core';
+import {Component, ElementRef, ComponentFactoryResolver} from '@angular/core';
 
-// index.html includes prettify.js from the vendor folder.
+// prettify.js from the vendor folder.
 declare var prettyPrint;
 
 @Component({
   selector: 'code-tabs',
   templateUrl: 'code-tabs.component.html',
 })
-export class CodeTabsComponent implements OnInit {
+export class CodeTabsComponent {
   panes: any;
   
   constructor(
@@ -28,12 +28,9 @@ export class CodeTabsComponent implements OnInit {
     });
   
     // Remove the code-panes from DOM, and let this component's template take over.
-    this.elementRef.nativeElement.innerHTML = ""; //
+    this.elementRef.nativeElement.innerHTML = '';
   }
   
-  ngOnInit() {
-  }
-
   selectPane(pane) {
     this.panes.forEach((pane) => {
       pane.active = false;
