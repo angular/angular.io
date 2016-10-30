@@ -10,14 +10,16 @@ import { DocInfoService } from './doc-info.service';
 import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.component';
 import { CodeExampleComponent } from './code-example/code-example.component';
 import { CopyContainerComponent } from './copy-container/copy-container.component';
+import { CodeTabsComponent } from './code-tabs/code-tabs.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    CopyContainerComponent,
+    CodeExampleComponent,
+    CodeTabsComponent,
     LiveExampleComponent,
     NgioCheatsheetComponent,
-    CodeExampleComponent,
-    CopyContainerComponent
   ],
   imports: [
     BrowserModule,
