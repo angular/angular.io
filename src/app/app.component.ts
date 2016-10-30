@@ -1,4 +1,5 @@
 import { Component, ComponentRef, DoCheck, ElementRef, Injector, ComponentFactory, ComponentFactoryResolver, OnDestroy } from '@angular/core';
+import { ApiListComponent } from './api-list/api-list.component';
 import { CodeExampleComponent } from './code-example/code-example.component';
 import { CodeTabsComponent } from './code-tabs/code-tabs.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
@@ -11,6 +12,7 @@ interface NgioComp {
 }
 
 const ngioComp: [NgioComp] = [
+  { selector: 'api-list', componentType: ApiListComponent },
   { selector: 'code-example', componentType: CodeExampleComponent },
   { selector: 'code-tabs', componentType: CodeTabsComponent },
   { selector: 'live-example', componentType: LiveExampleComponent },
@@ -22,6 +24,7 @@ const ngioComp: [NgioComp] = [
   selector: 'app-root',
   template: '',
   entryComponents: [
+    ApiListComponent,
     CodeExampleComponent,
     CodeTabsComponent,
     LiveExampleComponent,
