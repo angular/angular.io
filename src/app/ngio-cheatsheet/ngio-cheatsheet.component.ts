@@ -7,38 +7,25 @@ import { DocInfoService, NgLang } from '../doc-info.service';
   selector: 'ngio-cheatsheet',
   templateUrl: 'ngio-cheatsheet.component.html'
 })
-export class NgioCheatSheetComponent implements OnInit {
-  private url: string;
-  isLoaded: boolean = false;
-  currentEnvironment: any;
-  version: any;
-  sections: any;
+export class NgioCheatsheetComponent implements OnInit {
+  language: string;
+  version: string;
+  sections: any[] = [];
 
   // NOTE (ericjim): the src input from the old project is not being used. We are hardcoding the json
   // file name in `URL` for now. 
 
-  constructor(
-    private http: Http,
-    private docInfoSvc: DocInfoService
-  ) {
-    this.url = `assets/${docInfoSvc.ngLang}/${docInfoSvc.vers}/guide/cheatsheet.json`
-  }
-
-  ngOnInit() {
-    this.tryUrlAndSetToSrc();
-  }
-
-  tryUrlAndSetToSrc() {
-    this.http.get(this.url)
-      .map(resp => resp.json())
-      .subscribe((data) => {
-        this.currentEnvironment = data.currentEnvironment;
-        this.version = data.version;
+  constructor(private http: Http, private docInfoSvc: DocInfoService) {
+    const url = `/docs/${this.docInfoSvc.ngLang}/${this.docInfoSvc.vers}/guide/cheatsheet.json`
+    this.http.get(url)
+      .subscribe(resp => {
+        const data = resp.json();
+        this.language = data.currentEnvironment;
+        this.version = data.version.raw;
         this.sections = data.sections;
-        this.isLoaded = true;
-      }, 
-      (e) => { 
-        console.error(e); 
-      });
+      },
+      e => { console.error(e); });
   }
+
+  ngOnInit() { }
 }
