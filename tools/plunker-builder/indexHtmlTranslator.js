@@ -71,6 +71,8 @@ var _rxData = [
   // Test libraries
 
   // Plunker recommends getting jasmine from cloudfare
+  // Don't upgrade to 2.5.x until following issue resolved
+  // https://github.com/jasmine/jasmine/issues/1231
   {
     pattern: 'script',
     from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
