@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Attribute, ElementRef } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Http } from '@angular/http';
-import { DocInfoService, NgLang } from '../../../../shared';
+import { DocInfoService, NgLang } from '../doc-info.service';
 
 const _liveExampleInputs = ['img', 'lang', 'name', 'plnkr', 'srcText'];
 
@@ -33,10 +33,10 @@ const _liveExampleInputs = ['img', 'lang', 'name', 'plnkr', 'srcText'];
 @Component({
   selector: 'live-example',
   templateUrl: 'live-example.component.html',
-  styleUrls: ['live-example.component.scss'],
+  styleUrls: ['live-example.component.css'], // use .css rather than .scss for now
   inputs: _liveExampleInputs
 })
-export class LiveExample implements OnInit {
+export class LiveExampleComponent implements OnInit {
   /*@Input()*/ name: string;
   /*@Input()*/ plnkr: string;
   /*@Input()*/ img: string;
@@ -56,7 +56,6 @@ export class LiveExample implements OnInit {
   constructor(
     elementRef: ElementRef,
     private sanitizer: DomSanitizer,
-    private router: Router,
     private http: Http,
     private docInfoSvc: DocInfoService,
   ) {
@@ -66,27 +65,26 @@ export class LiveExample implements OnInit {
     _liveExampleInputs.forEach(inputName => {
       if (!this[inputName]) this[inputName] = elementRef.nativeElement.getAttribute(inputName);
     });
+    if (!this.lang) this.lang = docInfoSvc.ngLang;
   }
-
-  get ngLang(): NgLang { return this.docInfoSvc.ngLang; }
 
   ngOnInit() {
     // TODO: use something like a path lib to be able to extra basename, etc.
-    const routeUrlSplit = this.router.url.replace(/(\.html|_html)([#;].*)?$/, '').split('/');
-    const ex = this.name || this.exampleName(routeUrlSplit[routeUrlSplit.length - 1]);
+    const urlSegs = this.docInfoSvc.path.replace(/(\.html|_html)([#;].*)?$/, '').split('/');
+    const ex = this.name || this.exampleName(urlSegs[urlSegs.length - 1]);
 
-    const isForDart = this.lang === 'dart' || this.docInfoSvc.ngLang == 'dart';
-    const isForJs = this.lang === 'js' || this.docInfoSvc.ngLang == 'js';
+    const isForDart = this.lang === 'dart';
+    const isForJs = this.lang === 'js';
     const exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
 
     let plnkr = this.embedded ? 'eplnkr' : 'plnkr';
     if (this.plnkr) plnkr = this.plnkr + '.' + plnkr;
-    let href = '/assets/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html';
+    let href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html';
 
     if (this.embedded && !isForDart) {
       this.src = this.sanitizer.bypassSecurityTrustResourceUrl(href);
       const defaultImg = 'plunker/placeholder.png';
-      this.imgSrc = `assets/images/${this.img || defaultImg}`;
+      this.imgSrc = `/resources/images/${this.img || defaultImg}`;
       // template = embeddedTemplate(href, img);
     } else {
       if (isForDart) href = 'http://angular-examples.github.io/' + ex;
