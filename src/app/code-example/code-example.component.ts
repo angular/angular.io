@@ -21,7 +21,7 @@ declare var prettyPrint;
   templateUrl: 'code-example.component.html',
   inputs: _codeExampleInputs
 })
-export class CodeExample implements OnInit, AfterViewInit {
+export class CodeExampleComponent implements OnInit, AfterViewInit {
   @ViewChild('innerContent') innerContent: ElementRef;
   
   /*@Input()*/ language: string; // could be javascript, dart, typescript
@@ -34,15 +34,13 @@ export class CodeExample implements OnInit, AfterViewInit {
   animatedClasses: string;
   
   constructor(private elementRef: ElementRef) {
-  }
-
-  ngOnInit() {
-  
     // Manually get @Input's:
     _codeExampleInputs.forEach(inputName => {
       if (!this[inputName]) this[inputName] = this.elementRef.nativeElement.getAttribute(inputName);
     });
-    
+  }
+
+  ngOnInit() {    
     const showcaseClass = this.showcase === 'true' ? ' is-showcase' : '';
     this.classes = `
       prettyprint 
