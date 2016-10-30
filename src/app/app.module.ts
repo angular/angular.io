@@ -7,11 +7,13 @@ import { APP_BASE_HREF, Location, LocationStrategy, PathLocationStrategy } from 
 import { AppComponent } from './app.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
 import { DocInfoService } from './doc-info.service';
+import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    LiveExampleComponent
+    LiveExampleComponent,
+    NgioCheatsheetComponent
   ],
   imports: [
     BrowserModule,

@@ -1,5 +1,6 @@
 import { Component, ComponentRef, DoCheck, ElementRef, Injector, ComponentFactory, ComponentFactoryResolver, OnDestroy } from '@angular/core';
 import { LiveExampleComponent } from './live-example/live-example.component';
+import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.component';
 
 interface NgioComp {
   selector: string,   // e.g., 'live-example'
@@ -9,6 +10,7 @@ interface NgioComp {
 
 const ngioComp: [NgioComp] = [
   { selector: 'live-example', componentType: LiveExampleComponent },
+  { selector: 'ngio-cheatsheet', componentType: NgioCheatsheetComponent },
   // TODO: don't forget to add each component in entryComponents.
 ];
 
@@ -16,7 +18,7 @@ const ngioComp: [NgioComp] = [
   selector: 'app-root',
   template: '',
   // styleUrls: ['./app.component.css']
-  entryComponents: [LiveExampleComponent],
+  entryComponents: [LiveExampleComponent, NgioCheatsheetComponent],
 })
 export class AppComponent implements DoCheck, OnDestroy {
   private pageComponents: ComponentRef<any>[] = [];
