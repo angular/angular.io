@@ -8,12 +8,14 @@ import { AppComponent } from './app.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
 import { DocInfoService } from './doc-info.service';
 import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.component';
+import { CodeExampleComponent } from './code-example/code-example.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LiveExampleComponent,
-    NgioCheatsheetComponent
+    NgioCheatsheetComponent,
+    CodeExampleComponent
   ],
   imports: [
     BrowserModule,
