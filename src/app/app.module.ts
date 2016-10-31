@@ -12,6 +12,7 @@ import { CodeExampleComponent } from './code-example/code-example.component';
 import { CopyContainerComponent } from './copy-container/copy-container.component';
 import { CodeTabsComponent } from './code-tabs/code-tabs.component';
 import { ApiListComponent } from './api-list/api-list.component';
+import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.component';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { ApiListComponent } from './api-list/api-list.component';
     LiveExampleComponent,
     NgioCheatsheetComponent,
     ApiListComponent,
+    AnnouncementBarComponent,
   ],
   imports: [
     BrowserModule,
