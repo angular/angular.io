@@ -4,6 +4,7 @@ import { CodeExampleComponent } from './code-example/code-example.component';
 import { CodeTabsComponent } from './code-tabs/code-tabs.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
 import { NgioCheatsheetComponent } from './ngio-cheatsheet/ngio-cheatsheet.component';
+import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.component';
 
 interface NgioComp {
   selector: string,   // e.g., 'live-example'
@@ -17,6 +18,7 @@ const ngioComp: [NgioComp] = [
   { selector: 'code-tabs', componentType: CodeTabsComponent },
   { selector: 'live-example', componentType: LiveExampleComponent },
   { selector: 'ngio-cheatsheet', componentType: NgioCheatsheetComponent },
+  { selector: 'announcement-bar', componentType: AnnouncementBarComponent },
   // TODO: don't forget to add each component in entryComponents.
 ];
 
@@ -29,6 +31,7 @@ const ngioComp: [NgioComp] = [
     CodeTabsComponent,
     LiveExampleComponent,
     NgioCheatsheetComponent,
+    AnnouncementBarComponent
   ],
 })
 export class AppComponent implements DoCheck, OnDestroy {
