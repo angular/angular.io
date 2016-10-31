@@ -52,7 +52,8 @@ var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPl
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
-const WWW = argv.page ? 'www-pages' : argv.ng1 ? 'www' : 'www-ng2'
+const WWW = argv.page ? 'www-pages'
+  : (argv.ng1 || process.env.TRAVIS) ? 'www' : 'www-ng2'
 
 const isSilent = !!argv.silent;
 if (isSilent) gutil.log = gutil.noop;
