@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { APP_BASE_HREF, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
-
+import {MaterialModule} from '@angular/material';
 import { AppComponent } from './app.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
 import { DocInfoService } from './doc-info.service';
@@ -13,6 +13,8 @@ import { CopyContainerComponent } from './copy-container/copy-container.componen
 import { CodeTabsComponent } from './code-tabs/code-tabs.component';
 import { ApiListComponent } from './api-list/api-list.component';
 import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.component';
+import { AboutCardComponent } from './about-card/about-card.component';
+import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 
 @NgModule({
   declarations: [
@@ -24,12 +26,16 @@ import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.co
     NgioCheatsheetComponent,
     ApiListComponent,
     AnnouncementBarComponent,
+    AboutCardComponent,
+    AboutDialogComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    MaterialModule.forRoot()
   ],
+  entryComponents: [AboutDialogComponent],
   providers: [
     DocInfoService,
     Location,

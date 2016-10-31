@@ -665,8 +665,7 @@ gulp.task('ng-build', cb => {
 
 function cpNg2App(destDir) {
   const baseDir = 'dist';
-  // Skipping styles.bundle for now.
-  return gulp.src([`${baseDir}/{inline,main.bundle}.js`], { base: baseDir })
+  return gulp.src([`${baseDir}/{inline,main.bundle,styles.bundle}.js`], { base: baseDir })
           .pipe(gulp.dest(destDir));
 }
 const cpNg2AppBuildDep = argv.build === false ? [] : ['ng-build'];
