@@ -24,6 +24,7 @@ var treeKill = require("tree-kill");
 var blc = require("broken-link-checker");
 var less = require('gulp-less');
 var tslint = require('gulp-tslint');
+const replace = require('gulp-replace');
 
 // TODO:
 //  1. Think about using runSequence
@@ -657,6 +658,17 @@ gulp.task('cp-ng2-app', ['_cp-ng2-app-public', '_cp-ng2-app-www-ng2']);
 gulp.task('_cp-ng2-app-public', () => cpNg2App('public'));
 gulp.task('_cp-ng2-app-www-ng2', cb => 
     argv.ng2 && fs.existsSync(WWW) ? cpNg2App(WWW) : cb())
+
+gulp.task('ng2-adj-api', cb => {
+  const baseDir = argv.ng2 ? WWW : DOCS_PATH;
+  gutil.log(`Stripping ng-cloak from HTML & Jade files under ${baseDir} for all languages.`);
+  return gulp.src([
+      `${baseDir}/*/latest/api/**/*.html`,
+      `${baseDir}/*/latest/api/**/*.jade`,
+    ], { base: baseDir })
+    .pipe(replace(/ng-cloak/g, ''))
+    .pipe(gulp.dest(baseDir));
+});
 
 gulp.task('dartdoc', ['pub upgrade'], function() {
   const ngRepoPath = ngPathFor('dart');
