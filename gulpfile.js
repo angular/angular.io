@@ -25,6 +25,7 @@ var blc = require("broken-link-checker");
 var less = require('gulp-less');
 var tslint = require('gulp-tslint');
 const replace = require('gulp-replace');
+const npmbin = path.resolve('node_modules/.bin');
 
 // TODO:
 //  1. Think about using runSequence
@@ -51,7 +52,7 @@ var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPl
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
-const WWW = argv.page ? 'www-pages' : argv.ng2 ? 'www-ng2' : 'www'
+const WWW = argv.page ? 'www-pages' : argv.ng1 ? 'www' : 'www-ng2'
 
 const isSilent = !!argv.silent;
 if (isSilent) gutil.log = gutil.noop;
@@ -647,20 +648,39 @@ gulp.task('build-dart-cheatsheet', [], function() {
   return buildDartCheatsheet();
 });
 
+function execp(cmdAndArgs, options) {
+  const cmd_and_args_arr = cmdAndArgs.split(' ');
+  const pp = spawnExt(cmd_and_args_arr[0], cmd_and_args_arr.splice(1), options);
+  return pp.promise;
+}
+
+gulp.task('ng-build-and-copy', ['ng-build', 'cp-ng2-app']);
+
+gulp.task('ng-build', cb => {
+  let flags = [argv.prod ? '--prod' : '', argv.aot ? '--aot' : ''];
+  return execp(`${npmbin}/ng build ${flags.join(' ')}`);
+});
+
 function cpNg2App(destDir) {
   const baseDir = 'dist';
   // Skipping styles.bundle for now.
   return gulp.src([`${baseDir}/{inline,main.bundle}.js`], { base: baseDir })
           .pipe(gulp.dest(destDir));
 }
+const cpNg2AppBuildDep = argv.build === false ? [] : ['ng-build'];
 
+// Note: to run the cp-ng2-* tasks w/o forcing a build use `--no-build`.
 gulp.task('cp-ng2-app', ['_cp-ng2-app-public', '_cp-ng2-app-www-ng2']);
-gulp.task('_cp-ng2-app-public', () => cpNg2App('public'));
-gulp.task('_cp-ng2-app-www-ng2', cb => 
-    argv.ng2 && fs.existsSync(WWW) ? cpNg2App(WWW) : cb())
+gulp.task('_cp-ng2-app-public', cpNg2AppBuildDep, () => cpNg2App('public'));
+gulp.task('_cp-ng2-app-www-ng2', cpNg2AppBuildDep,
+  cb => !argv.ng1 && fs.existsSync(WWW) ? cpNg2App(WWW) : cb())
 
 gulp.task('ng2-adj-api', cb => {
-  const baseDir = argv.ng2 ? WWW : DOCS_PATH;
+  if (argv.ng1) {
+    gutil.log(`Invalid task for '--ng1'. Aborting.`);
+    return false;
+  }
+  const baseDir = argv.docs ? DOCS_PATH : WWW;
   gutil.log(`Stripping ng-cloak from HTML & Jade files under ${baseDir} for all languages.`);
   return gulp.src([
       `${baseDir}/*/latest/api/**/*.html`,
