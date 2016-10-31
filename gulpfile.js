@@ -649,8 +649,7 @@ gulp.task('build-dart-cheatsheet', [], function() {
 
 function cpNg2App(destDir) {
   const baseDir = 'dist';
-  // Skipping styles.bundle for now.
-  return gulp.src([`${baseDir}/{inline,main.bundle}.js`], { base: baseDir })
+  return gulp.src([`${baseDir}/{inline,main.bundle,styles.bundle}.js`], { base: baseDir })
           .pipe(gulp.dest(destDir));
 }
 
