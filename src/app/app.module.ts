@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { APP_BASE_HREF, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 
+import {MaterialModule} from '@angular/material';
 import { AppComponent } from './app.component';
 import { LiveExampleComponent } from './live-example/live-example.component';
 import { DocInfoService } from './doc-info.service';
@@ -29,6 +30,8 @@ import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.co
     BrowserModule,
     FormsModule,
     HttpModule
+    HttpModule,
+    MaterialModule.forRoot()
   ],
   providers: [
     DocInfoService,
