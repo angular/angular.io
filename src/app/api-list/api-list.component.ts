@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Http} from '@angular/http';
 import {Router, NavigationExtras} from '@angular/router';
-import {DocInfoService} from '../../../../shared';
+import { DocInfoService, NgLang } from '../doc-info.service';
 import 'rxjs/add/operator/toPromise';
 
 type Lang = 'dart' | 'ts' | 'js';
@@ -58,23 +58,21 @@ export class ApiListComponent implements OnInit {
 
   constructor(
     private http: Http,
-    private router: Router,
     private docInfoSvc: DocInfoService
   ) {
-    router.events.subscribe((event) => {
-      this.applyFilterOnSections();
-    });
+    this.applyFilterOnSections();
+    // router.events.subscribe((event) => { ... });
   }
 
   get ngLang() { return this.docInfoSvc.ngLang; }
 
   ngOnInit(): void {
-    const urlPrefix = this.router.url.split('?')[0].replace(/^\/docs\//, '/assets/');
+    const urlPrefix = this.docInfoSvc.path.split('?')[0]; // .replace(/^\/docs\//, '/assets/');
     const url = `${urlPrefix}/${this.src}`;
     this.fetchUrl(url);
 
     // extract type and status from url
-    var split = this.router.url.split('?');
+    var split = this.docInfoSvc.path.split('?'); // FIXME: path doesn't currently contain query params
     if (split.length > 1) {
       const paramsRaw = split[1].split('&');
       const type = paramsRaw[0] ? paramsRaw[0].split('=')[1] : '';
@@ -125,7 +123,7 @@ export class ApiListComponent implements OnInit {
 
   applyFilterOnSections() {
     // Cannot guarantee that <param> in queryParam=<param> is an ApiMatch so we union type check it with a string.
-    const selectedApiMatchOnUrl: string | ApiMatch = this.router.url.split('=')[1];
+    const selectedApiMatchOnUrl: string | ApiMatch = this.docInfoSvc.path.split('=')[1];
     this.changeSelectedApiTypeForApiMatch(selectedApiMatchOnUrl);
     if (this.isApiLoaded) {
       this.groupedSections.forEach((s) => {
@@ -204,9 +202,7 @@ export class ApiListComponent implements OnInit {
         status: status
       }
     };
-
-    this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
-
+    // FIXME, was: this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
     this.toggleApiMenu();
   }
 
@@ -222,9 +218,7 @@ export class ApiListComponent implements OnInit {
         status: status
       }
     };
-
-    this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
-
+    // FIXME, was: this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
     this.toggleStatusMenu();
   }
 
@@ -236,7 +230,4 @@ export class ApiListComponent implements OnInit {
     this.showStatusMenu = !this.showStatusMenu;
   }
 
-  clearType() {
-
-  }
 }
