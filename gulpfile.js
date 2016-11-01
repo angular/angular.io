@@ -682,7 +682,7 @@ gulp.task('ng2-adj-api', cb => {
     gutil.log(`Invalid task for '--ng1'. Aborting.`);
     return false;
   }
-  const baseDir = argv.docs ? DOCS_PATH : WWW;
+  const baseDir = argv.docs ? DOCS_PATH : `${WWW}/docs`;
   gutil.log(`Stripping ng-cloak from HTML & Jade files under ${baseDir} for all languages.`);
   return gulp.src([
       `${baseDir}/*/latest/api/**/*.html`,
