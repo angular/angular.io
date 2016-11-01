@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {Location} from '@angular/common';
 import {Http} from '@angular/http';
-import {Router, NavigationExtras} from '@angular/router';
 import { DocInfoService, NgLang } from '../doc-info.service';
 import 'rxjs/add/operator/toPromise';
 
@@ -58,10 +58,10 @@ export class ApiListComponent implements OnInit {
 
   constructor(
     private http: Http,
-    private docInfoSvc: DocInfoService
+    private docInfoSvc: DocInfoService,
+    private location: Location
   ) {
     this.applyFilterOnSections();
-    // router.events.subscribe((event) => { ... });
   }
 
   get ngLang() { return this.docInfoSvc.ngLang; }
@@ -72,7 +72,7 @@ export class ApiListComponent implements OnInit {
     this.fetchUrl(url);
 
     // extract type and status from url
-    var split = this.docInfoSvc.path.split('?'); // FIXME: path doesn't currently contain query params
+    var split = this.docInfoSvc.path.split('?');
     if (split.length > 1) {
       const paramsRaw = split[1].split('&');
       const type = paramsRaw[0] ? paramsRaw[0].split('=')[1] : '';
@@ -196,13 +196,8 @@ export class ApiListComponent implements OnInit {
     const type = t.matches[0];
     const status = this.selectedApiStatus.matches[0];
 
-    let navigationExtras: NavigationExtras = {
-      queryParams: {
-        type: type,
-        status: status
-      }
-    };
-    // FIXME, was: this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
+    this.location.go('', `${ type ? 'type=' + type : ''}${ status ? '&status=' + status : ''}`);
+    this.applyFilterOnSections();
     this.toggleApiMenu();
   }
 
@@ -212,13 +207,8 @@ export class ApiListComponent implements OnInit {
     const type = this.selectedApiType.matches[0];
     const status = s.matches[0];
 
-    let navigationExtras: NavigationExtras = {
-      queryParams: {
-        type: type,
-        status: status
-      }
-    };
-    // FIXME, was: this.router.navigate([`/docs/${this.ngLang}/latest/api`], navigationExtras);
+    this.location.go('', `${ type ? 'type=' + type : ''}${ status ? '&status=' + status : ''}`);
+    this.applyFilterOnSections();
     this.toggleStatusMenu();
   }
 
