@@ -83,10 +83,9 @@ var NgIoUtil = (function () {
         return NgIoUtil._exampleName;
     };
 
-    NgIoUtil.showHideMenu = function (menu) {
-      if (!menu) return;
-      console.log('menu tag: ' + menu.tagName);
-      if (menu.className.indexOf('is-visible') > -1) {
+    NgIoUtil.toggleMenu = function (menu) {
+      if (typeof menu === 'string') menu = document.getElementById(menu);
+      if (menu.classList.contains('is-visible')) {
         menu.classList.remove('is-visible');
       } else {
         menu.classList.add('is-visible');
