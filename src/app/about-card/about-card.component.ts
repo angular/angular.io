@@ -2,6 +2,8 @@ import { Component, OnInit, ViewContainerRef, ElementRef } from '@angular/core';
 import { MdDialogRef, MdDialog, MdDialogConfig } from '@angular/material';
 import { AboutDialogComponent } from '../about-dialog/about-dialog.component';
 
+const _aboutCardInputs = ['picture', 'name', 'twitter', 'bio', 'website'];
+
 @Component({
   selector: 'about-card',
   templateUrl: './about-card.component.html',
@@ -9,18 +11,19 @@ import { AboutDialogComponent } from '../about-dialog/about-dialog.component';
 })
 export class AboutCardComponent {
   dialogRef: MdDialogRef<AboutDialogComponent>;
-  picture: string;
-  name: string;
-  twitter: string;
-  bio: string;
-  website: string;
+  
+  /*@Input()*/ picture: string;
+  /*@Input()*/ name: string;
+  /*@Input()*/ twitter: string;
+  /*@Input()*/ bio: string;
+  /*@Input()*/ website: string;
 
   constructor(public elementRef: ElementRef, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
-    this.picture = elementRef.nativeElement.getAttribute('picture');
-    this.name = elementRef.nativeElement.getAttribute('name');
-    this.twitter = elementRef.nativeElement.getAttribute('twitter');
-    this.bio = elementRef.nativeElement.getAttribute('bio');
-    this.website = elementRef.nativeElement.getAttribute('website');
+    
+    // Manually get @Input's:
+    _aboutCardInputs.forEach(inputName => {
+      if (!this[inputName]) this[inputName] = elementRef.nativeElement.getAttribute(inputName);
+    });
   }
   
   openDialog(picture, name, twitter, bio, website) {
