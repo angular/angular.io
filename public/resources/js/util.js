@@ -83,5 +83,15 @@ var NgIoUtil = (function () {
         return NgIoUtil._exampleName;
     };
 
+    NgIoUtil.showHideMenu = function (menu) {
+      if (!menu) return;
+      console.log('menu tag: ' + menu.tagName);
+      if (menu.className.indexOf('is-visible') > -1) {
+        menu.classList.remove('is-visible');
+      } else {
+        menu.classList.add('is-visible');
+      }
+    }
+
     return NgIoUtil;
 } ());
