@@ -18,20 +18,11 @@ import 'hero_search_component.dart';
 class DashboardComponent implements OnInit {
   List<Hero> heroes;
 
-  final Router _router;
   final HeroService _heroService;
 
-  DashboardComponent(this._heroService, this._router);
+  DashboardComponent(this._heroService);
 
   Future<Null> ngOnInit() async {
     heroes = (await _heroService.getHeroes()).skip(1).take(4).toList();
-  }
-
-  void gotoDetail(Hero hero) {
-    var link = [
-      'HeroDetail',
-      {'id': hero.id.toString()}
-    ];
-    _router.navigate(link);
   }
 }

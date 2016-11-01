@@ -370,15 +370,11 @@ block redirect-vs-use-as-default
 :marked
   Create that file with this content:
 
-+makeExcerpt('app/dashboard.component.html')
++makeExample('app/dashboard.component.1.html', '', 'app/dashboard.component.html')
 
 :marked
   We use `*ngFor` once again to iterate over a list of heroes and display their names.
   We added extra `<div>` elements to help with styling later in this chapter.
-
-  There's a `(click)` binding to a `gotoDetail` method we haven't written yet and
-  we're displaying a list of heroes that we don't have.
-  We have work to do, starting with those heroes.
 
   ### Share the *HeroService*
 
@@ -394,12 +390,12 @@ block redirect-vs-use-as-default
 
   Open <span ngio-ex>dashboard.component.ts</span> and add the requisite `import` statements.
 
-+makeExcerpt('app/dashboard.component.2.ts','imports')
++makeExcerpt('app/dashboard.component.ts','imports')
 
 :marked
   Now implement the `DashboardComponent` class like this:
 
-+makeExcerpt('app/dashboard.component.2.ts (class)', 'component')
++makeExcerpt('app/dashboard.component.ts (class)', 'class')
 
 :marked
   We've seen this kind of logic before in the `HeroesComponent`:
@@ -408,8 +404,7 @@ block redirect-vs-use-as-default
   * Inject the `HeroService` in the constructor and hold it in a private `!{_priv}heroService` field.
   * Call the service to get heroes inside the Angular `ngOnInit` lifecycle hook.
 
-  The noteworthy differences: we cherry-pick four heroes (2nd, 3rd, 4th, and 5th)
-  and stub the `gotoDetail` method until we're ready to implement it.
+  In this dashboard we cherry-pick four heroes (2nd, 3rd, 4th, and 5th) with the `Array.slice` method.
 
   Refresh the browser and see four heroes in the new dashboard.
 
@@ -580,7 +575,7 @@ block extract-id
   incremental improvement and migrate the template to its own file,
   called <span ngio-ex>hero-detail.component.html</span>:
 
-+makeExample('app/hero-detail.component.html')
++makeExample('app/hero-detail.component.html')(format='.')
 
 :marked
   We update the component metadata with a `moduleId` and a `templateUrl` pointing to the template file that we just created.
@@ -596,32 +591,26 @@ block extract-id
 
   When a user selects a hero in the dashboard, the app should navigate to the `HeroDetailComponent` to view and edit the selected hero.
 
-  In the dashboard template we bound each hero's click event to the `gotoDetail` method, passing along the selected `hero` entity.
+  Although the dashboard heroes are presented as button-like blocks, they should behave like anchor tags.
+  When hovering over a hero block, the target URL should display in the browser status bar 
+  and the user should be able to copy the link or open the hero detail view in a new tab.
 
-+makeExcerpt('app/dashboard.component.html', 'click')
+  To achieve this effect, reopen the `dashboard.component.html` and replace the repeated `<div *ngFor...>` tags
+  with `<a>` tags. The opening `<a>` tag looks like this:
 
-:marked
-  We stubbed the `gotoDetail` method when we rewrote the `DashboardComponent`.
-  Now we give it a real implementation.
-
-+makeExcerpt('app/dashboard.component.ts','gotoDetail')
++makeExample('app/dashboard.component.html', 'click', 'app/dashboard.component.html (repeated <a> tag)')
 
 - var _pathVsName = _docsFor == 'dart' ? 'name' : 'path'
 :marked
-  The `gotoDetail` method navigates in two steps:
+  Notice the `[routerLink]` binding.
 
-  1. Set a route *link parameters !{_array}*
-  1. Pass the !{_array} to the router's navigate method
+  In the top level navigation in the [`AppComponent`
+  template](#router-links) has router links set to fixed !{_pathVsName}s of the
+  destination routes, "/dashboard" and "/heroes".
 
-  For navigation, we wrote router links <span if-docs="dart">as *link
-  parameters !{_array}s*</span> in the [`AppComponent`
-  template](#router-links).  Those link<span if-docs="dart"> parameters
-  !{_array}</span>s had only one element, the !{_pathVsName} of the
-  destination route.
-
-  This link parameters !{_array} has two elements, the ***!{_pathVsName}*** of
-  the destination route and a ***route parameter*** <span if-docs="dart">with
-  an `id` field</span> set to the value of the selected hero's `id`.
+  This time, we're binding to an expression containing a **link parameters !{_array}**.
+  The !{_array} has two elements, the ***!{_pathVsName}*** of
+  the destination route and a ***route parameter*** set to the value of the current hero's `id`.
 
   The two !{_array} items align with the ***!{_pathVsName}*** and ***:id***
   token in the parameterized hero detail route definition we added to
@@ -629,14 +618,6 @@ block extract-id
 
 - var _file = _docsFor == 'dart' ? 'app/app.component.ts' : 'app/app.module.3.ts'
 +makeExcerpt(_file + ' (hero detail)', 'hero-detail')
-
-:marked
-  The `DashboardComponent` doesn't have the router yet. We obtain it in the usual way:
-  import the `router` reference and inject it in the constructor (along with the `HeroService`):
-
-+makeExcerpt('app/dashboard.component.ts ()','import-router', '')
-
-+makeExcerpt('app/dashboard.component.ts', 'ctor', '')
 
 :marked
   Refresh the browser and select a hero from the dashboard; the app should navigate directly to that hero’s details.
@@ -703,14 +684,14 @@ block extract-id
 :marked
   Our goal is to move the detail to its own view and navigate to it when the user decides to edit a selected hero.
 
-  Delete the `<h1>` at the top (forgot about it during the `AppComponent`-to-`HeroesComponent` conversion).
+  Delete the `<h1>` at the top (we forgot about it during the `AppComponent`-to-`HeroesComponent` conversion).
 
   Delete the last line of the template with the `<my-hero-detail>` tags.
 
   We'll no longer show the full `HeroDetailComponent` here.
   We're going to display the hero detail on its own page and route to it as we did in the dashboard.
 
-  But we'll throw in a small twist for variety.
+  We'll throw in a small twist for variety.
   We are keeping the "master/detail" style but shrinking the detail to a "mini", read-only version.
   When the user selects a hero from the list, we *don't* go to the detail page.
   We show a *mini-detail* on *this* page instead and make the user click a button to navigate to the *full detail *page.
@@ -770,15 +751,25 @@ block heroes-component-cleanup
 +makeExcerpt('app/heroes.component.ts (revised metadata)', 'metadata')
 
 :marked
-  Now we can see what's going on as we update the component class along the same lines as the dashboard:
+  ### Update the _HeroesComponent_ class.
 
-  1. Import the `router`
+  The `HeroesComponent` navigates to the `HeroesDetailComponent` in response to a button click. 
+  The button's _click_ event is bound to a `gotoDetail` method that navigates _imperatively_
+  by telling the router where to go.
+
+  This approach requires some changes to the component class:
+
+  1. Import the `router` from the Angular router library
   1. Inject the `router` in the constructor (along with the `HeroService`)
-  1. Implement the `gotoDetail` method by calling the `router.navigate` method
+  1. Implement `gotoDetail` by calling the `router.navigate` method
 
-  with a two-part hero-detail link parameters !{_array}.
-
-  Here's the revised component class:
++makeExcerpt('app/heroes.component.ts', 'gotoDetail')
+:marked
+  Note that we're passing a two-element **link parameters !{_array}**
+  &mdash; a path and the route parameter &mdash; to
+  the `router.navigate` method just as we did in the `[routerLink]` binding
+  back in the `DashboardComponent`
+  Here's the fully revised `HeroesComponent` class:
 
 +makeExcerpt('app/heroes.component.ts', 'class')
 
