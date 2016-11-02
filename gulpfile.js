@@ -658,7 +658,7 @@ function execp(cmdAndArgs, options) {
 gulp.task('ng-build-and-copy', ['ng-build', 'cp-ng2-app']);
 
 gulp.task('ng-build', cb => {
-  let flags = [argv.prod ? '--prod' : '', argv.aot ? '--aot' : ''];
+  let flags = [argv.prod ? '--prod --env=prod' : '', argv.aot ? '--aot' : ''];
   return execp(`${npmbin}/ng build ${flags.join(' ')}`);
 });
 
