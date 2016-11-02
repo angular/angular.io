@@ -15,19 +15,21 @@ import { ApiListComponent } from './api-list/api-list.component';
 import { AnnouncementBarComponent } from './announcement-bar/announcement-bar.component';
 import { AboutCardComponent } from './about-card/about-card.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
+import { ResourcesPageComponent } from './resources-page/resources-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    AboutCardComponent,
+    AboutDialogComponent,
+    AnnouncementBarComponent,
+    ApiListComponent,
     CopyContainerComponent,
     CodeExampleComponent,
     CodeTabsComponent,
     LiveExampleComponent,
     NgioCheatsheetComponent,
-    ApiListComponent,
-    AnnouncementBarComponent,
-    AboutCardComponent,
-    AboutDialogComponent,
+    ResourcesPageComponent,
   ],
   imports: [
     BrowserModule,
