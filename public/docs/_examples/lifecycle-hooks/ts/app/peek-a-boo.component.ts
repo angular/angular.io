@@ -7,7 +7,7 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChange
+  SimpleChanges
 } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { LoggerService }    from './logger.service';
@@ -51,7 +51,7 @@ export class PeekABooComponent extends PeekABoo implements
   }
 
   // only called for/if there is an @input variable set by parent.
-  ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
+  ngOnChanges(changes: SimpleChanges) {
     let changesMsgs: string[] = [];
     for (let propName in changes) {
       if (propName === 'name') {
