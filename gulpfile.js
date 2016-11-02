@@ -14,6 +14,7 @@ var fsExtra = require('fs-extra');
 var fs = fsExtra;
 var exec = require('child_process').exec;
 var execPromise = Q.denodeify(exec);
+var execSync = require('child_process').execSync;
 // cross platform version of spawn that also works on windows.
 var xSpawn = require('cross-spawn');
 var prompt = require('prompt');
@@ -744,7 +745,7 @@ gulp.task('build-compile', ['build-docs'], function() {
   return harpCompile();
 });
 
-gulp.task('check-deploy', ['build-docs'], function() {
+gulp.task('check-deploy', ['firebase-use-proj-check', 'build-docs'], () => {
   return harpCompile().then(function() {
     gutil.log('compile ok');
     gutil.log('running live server ...');
@@ -753,7 +754,7 @@ gulp.task('check-deploy', ['build-docs'], function() {
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
       gutil.log('deploying...');
-      return execPromise('firebase deploy');
+      return execPromise(`firebase deploy -p ${WWW}`);
     } else {
       return ['Not deploying'];
     }
@@ -762,6 +763,17 @@ gulp.task('check-deploy', ['build-docs'], function() {
   }).catch(function(e) {
     gutil.log(e);
   });
+});
+
+gulp.task('firebase-use-proj-check', cb => {
+  try {
+    execSync('firebase use');
+  } catch (e) {
+    // Rerun command so user gets project + alias info
+    execSync('firebase use', {stdio:[0,1,2]});
+    throw `\nAborting: no firebase project selected. Run:\n\n  firebase use <project-or-alias-name>\n\n`;
+  }
+  return cb();
 });
 
 gulp.task('test-api-builder', function (cb) {
@@ -1071,7 +1083,6 @@ function backupApiHtmlFilesExist(folderName) {
 }
 
 function harpJsonSetJade2NgTo(v) {
-  const execSync = require('child_process').execSync;
   const harpJsonPath = path.join(ANGULAR_IO_PROJECT_PATH, 'harp.json');
   execSync(`perl -pi -e 's/("jade2ng": *)\\w+/$1${v}/' ${harpJsonPath}`);
   const harpJson = require(harpJsonPath);
@@ -1204,10 +1215,12 @@ function watchAndSync(options, cb) {
 
 // returns a promise;
 function askDeploy() {
+  // Show user what the currently active firebase project is:
+  execSync('firebase use', {stdio:[0,1,2]});
   prompt.start();
   var schema = {
     name: 'shouldDeploy',
-    description: 'Deploy to Firebase? (y/n)',
+    description: `Deploy ${WWW} to firebase? (y/n)`,
     type: 'string',
     pattern: /Y|N|y|n/,
     message: "Respond with either a 'y' or 'n'",
