@@ -8,6 +8,9 @@ include ../_util-fns
     
     * [Angular and i18n template translation](#angular-i18n)
     * [Mark text with the _i18n_ attribute](#i18n-attribute)
+    * [Translate attributes with _i18n-x_](#translate-attributes)
+    * [Plurals](#plural)
+    * [Selects](#select)
     * [Create a translation source file with the _ng-xi18n_ tool](#ng-xi18n)
     * [Translate](#translate)
     * [Merge the completed translation file into the app](#merge)
@@ -15,7 +18,7 @@ include ../_util-fns
       * [AoT configuration](#aot)
 
 :marked
-  **Try this** <live-example name="cb-i18n">live example</live-example> of a JiT-compiled app, translated into French.
+  **Try this** <live-example name="cb-i18n">live example</live-example> of a JiT-compiled app, translated into Spanish.
 
   
 a#angular-i18n
@@ -67,7 +70,7 @@ a#i18n-attribute
     It will be removed by the compiler _after_ translation.
 
 :marked
-  In the accompanying sample, an `<h1>` tag displays a simple English language greeting which you will translate to French:
+  In the accompanying sample, an `<h1>` tag displays a simple English language greeting which you will translate to Spanish:
 +makeExample('cb-i18n/ts/app/app.component.1.html', 'greeting', 'app/app.component.html')(format=".")
 :marked
   Add the `i18n` attribute to the tag to mark it for translation.
@@ -87,10 +90,84 @@ a#i18n-attribute
 +makeExample('cb-i18n/ts/app/app.component.html', 'i18n-attribute-meaning', 'app/app.component.html')(format=".")
 
 :marked
-  While all appearance of a message with the _same_ meaning should have the _same_ translation, 
+  While all appearance of a message with the _same_ meaning have the _same_ translation, 
   a message with *different meanings* could have different translations.
   The Angular extraction tool preserves both the _meaning_ and the _description_ in the translation source file
   to facilitiate contextually-specific translations.
+
+  Also, if you want to translate some content without having to create a new element, you can use a `<ng-container>`
+  which doesn't get renderered in the DOM:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-ng-container', 'app/app.component.html')(format=".")
+
+:marked
+  You can also use a pair of comments to get the same result:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-with-comment', 'app/app.component.html')(format=".")
+
+a#translate-attributes
+:marked
+  ## Translating attributes with _i18n-x_
+  Now you add an image to your html and since you are concerned with a11y, you add an `alt` tag to it:
+
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-alt', 'app/app.component.html')(format=".")
+
+:marked
+  Such attribute needs to be translated as well, and `Angular` provides you another attribute: `i18n-x` where `x` is the
+  name of the attribute to translate. In order to translate the `alt` on the `img` tag from the previous ex, you would write:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-alt-translate', 'app/app.component.html')(format=".")
+
+:marked
+  This attribute also supports the notation `i18n-x="m|d"`.
+
+a#plural
+:marked
+  ## Plurals
+  You have an application that counts animals. You need to keep in mind that it is `one wolf` but also `two wolves`.
+  Also different languages could have different number of plural forms. Let's see how can you do that:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-plural', 'app/app.component.html')(format=".")
+
+:marked
+  * The first parameter is the key, which is a variable in your component that counts how many wolves we have.
+  * The second parameter indicates that you are using the `plural form`.
+  * The third parameter is the matches, in other words, how you define your plurals.
+
+  So how do you define your plurals? It uses [CLDR data](https://en.wikipedia.org/wiki/Common_Locale_Data_Repository).
+
+  CLDR uses some tags to define plural categories, here is a few of them:
+
+  * zero
+  * =1
+  * five / =5
+  * =9
+  * few
+  * other
+
+  A category like `=1` matches the number `1` but a category like `one` could match `1` as well as `21` in Belarusian.
+  Keep in mind that categories like `=1` will take precedence over one like `one`.
+
+  Along the category, you add the default _English_ translation, so for 2 wolves you can say `two {two wolves}` or `=2 {two wolves}`.
+  If you use `other`, any non matched number will use the `other` translation.
+
+.l-sub-section
+  :marked
+    The syntax for doing plurals is defined in [ICU](https://en.wikipedia.org/wiki/International_Components_for_Unicode).
+
+a#select
+:marked
+  ## Select
+  A select uses ICU syntax as well, but instead of giving a different value based on a number, you give
+  different values based on a string.
+
+  A hero can be male or female and you distinguish them with a variable that is either `m` or `f`. To translate that, you can do:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-select', 'app/app.component.html')(format=".")
+
+:marked
+  It has the same syntax as plural. First we define our variable, then the `select form` and last how we define our select.
+  In this case the category is the content of the variable, in other words either `m` or `f`.
 
 a#ng-xi18n
 .l-main-section
@@ -115,9 +192,6 @@ code-example(language="sh" class="code-shell").
 :marked
   By default the tool generates a translation file named **`messages.xlf`** in the
   <a href="https://en.wikipedia.org/wiki/XLIFF" target="_blank">XML Localisation Interchange File Format (XLIFF, version 1.2)</a>.
-
-code-example(language="sh" class="code-shell").
-  ./node_modules/.bin/ng-xi18n  --i18nFormat=xmb
 
 .l-sub-section
   :marked
@@ -144,16 +218,20 @@ code-example(language="sh" class="code-shell").
   <a href="http://cldr.unicode.org/development/development-process/design-proposals/xmb"  target="_blank">XML Message Bundle (XMB)</a> format
   by adding the `--i18nFormat=xmb` switch.
 
+code-example(language="sh" class="code-shell").
+  ./node_modules/.bin/ng-xi18n  --i18nFormat=xmb
+
+:marked
   This sample sticks with the _XLIFF_ format.
 
 a#translate
 .l-main-section
 :marked
-  ## Translate _le message textuel_
+  ## Translate _los mensajes de texto_
   
   The `ng-xi18n` command generated a translation source file in the project root folder named `messages.xlf`.
   The next step is to translate the English language template text into the specific language translation
-  files. The cookbook sample creates a French translation file.
+  files. The cookbook sample creates a Spanish translation file.
 
 a#localization-folder
 :marked
@@ -174,29 +252,66 @@ a#localization-folder
   <a href="https://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx" target="_blank">well-known codeset</a>.
 
   Move `messages.xlf` into the `locale` folder where it will become the source for all language-specific translations.
-  Then make a copy for the French language named `messages.fr.xlf` .
+  Then make a copy for the Spanish language named `messages.es.xlf` .
 
   Follow the same convention for each target language.
 
-  ### Translate
-  In the real world, you send the `messages.fr.xlf` file to a French translator who would fill in the translations
+  ### Translate text nodes
+  In the real world, you send the `messages.es.xlf` file to a Spanish translator who would fill in the translations
   using one of the 
   <a href="https://en.wikipedia.org/wiki/XLIFF#Editors" target="_blank">many XLIFF file editors</a>.
 
-  This sample file is easy to translate without a special editor or knowledge of French.
-  Open `messages.fr.xlf` and find the `<trans-unit>` section:
+  This sample file is easy to translate without a special editor or knowledge of Spanish.
+  Open `messages.es.xlf` and find the first `<trans-unit>` section:
 
-+makeExample('cb-i18n/ts/locale/trans-unit.html', '', 'locale/messages.fr.xlf (<trans-unit>)')(format=".")
++makeExample('cb-i18n/ts/locale/trans-unit.html', 'translate-hello', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
 :marked
   This XML element represents the translation of the `<h1>` greeting tag you marked with the `i18n` attribute. 
   
   Using the _source_, _description_, and _meaning_ elements to guide your translation,
-  replace the `<target/>` tag with the French greeting:
-+makeExample('cb-i18n/ts/locale/messages.fr.xlf.html', 'trans-unit', 'locale/messages.fr.xlf (<trans-unit>, after translation)')(format=".")
+  replace the `<target/>` tag with the Spanish greeting:
++makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-hello', 'locale/messages.es.xlf (<trans-unit>, after translation)')(format=".")
 :marked
   Note that the `id` is generated by the tool. Don't touch it.
   Its value depends on the content of the message and its assigned meaning.
   Change either factor and the `id` changes as well.
+
+  Translating the text nodes within the `<ng-container>`, `<!--i18n-->` and also the attributes with `i18n-x` are done in the same way:
+
++makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-other-nodes', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
+
+:marked
+  ### Translate plural and select
+  To translate a `plural` or a `select`, you provide the same ICU string but changing the matches:
+
++makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-plural', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
+
+:marked
+  For `select` is the same, but let's check the `select` again:
+
++makeExample('cb-i18n/ts/app/app.component.html', 'i18n-select', 'app/app.component.html')(format=".")
+
+:marked
+  It contains some text apart from the ICU. That text will appear as a separate `trans-unit`:
+
++makeExample('cb-i18n/ts/locale/trans-unit.html', 'translate-select-node', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
+
+:marked
+  So, what is that `<x id="ICU">`? That tag is a _placeholder_ that represents the ICU. Translate the text
+  and leave the tag in place. Here is both the text and `select` translated:
+
++makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-select', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
+
+.alert.is-helpful
+  :marked
+    Notice that for plural and select, there is nothing in the `<source>` tag.
+    As today, ICU are not supported with xliff, but they are with xmb.
+    Support will come soon.
+
+.l-main-content
+:marked
+  The application is fully translated. Let's make use of it.
+
 .alert.is-helpful
   :marked
     Repeat the extraction process whenever you add new app messages or edit existing ones.
@@ -214,13 +329,13 @@ a#localization-folder
   cb-i18n/ts/app/app.component.ts,
   cb-i18n/ts/app/app.module.ts,
   cb-i18n/ts/app/main.1.ts,
-  cb-i18n/ts/locale/messages.fr.xlf.html
+  cb-i18n/ts/locale/messages.es.xlf.html
 `, '', `
   app/app.component.html,
   app/app.component.ts,
   app/app.module.ts,
   app/main.ts,
-  locale/messages.fr.xlf
+  locale/messages.es.xlf
 `)
 
 a#merge
@@ -237,7 +352,7 @@ a#merge
     * the translation file
     * the translation file format 
     * the   <a href="https://en.wikipedia.org/wiki/XLIFF" target="_blank">_Locale ID_</a>
-    (`fr` or `en-US` for instance)
+    (`es` or `en-US` for instance)
   
   _How_ you provide this information depends upon whether you compile with
   the JiT (_Just-in-Time_) compiler or the AoT (_Ahead-of-Time_) compiler. 
@@ -320,7 +435,7 @@ a#text-plugin
   Notice that it waits for the `getTranslationProviders` promise to resolve before
   bootstrapping the app.
 
-  The app is now _internationalized_ for English and French and there is a clear path for adding
+  The app is now _internationalized_ for English and Spanish and there is a clear path for adding
   more languages.
 
 a#aot
@@ -352,12 +467,12 @@ a#aot
     * `--locale`: the name of the locale
     * `--i18nFormat`: the format of the localization file
   
-  For this sample, the French language command would be
+  For this sample, the Spanish language command would be
 code-example(language="sh" class="code-shell").
-  ./node_modules/.bin/ngc --i18nFile=./locale/messages.fr.xlf --locale=fr --i18nFormat=xlf
+  ./node_modules/.bin/ngc --i18nFile=./locale/messages.es.xlf --locale=es --i18nFormat=xlf
 
 .l-sub-section
   :marked
     Windows users may have to quote the command:
   code-example(language="sh" class="code-shell").
-    "./node_modules/.bin/ngc" --i18nFile=./locale/messages.fr.xlf --locale=fr --i18nFormat=xlf
+    "./node_modules/.bin/ngc" --i18nFile=./locale/messages.es.xlf --locale=es --i18nFormat=xlf

@@ -6,5 +6,10 @@ import { Component } from '@angular/core';
   selector: 'my-app',
   templateUrl: 'app.component.html'
 })
-export class AppComponent { }
+export class AppComponent {
+  wolves = 5;
+  sex = 'f';
+  fly = true;
+  logo = 'https://angular.io/resources/images/logos/angular2/angular.png';
+}
 
