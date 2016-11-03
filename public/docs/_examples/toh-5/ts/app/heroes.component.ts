@@ -40,8 +40,10 @@ export class HeroesComponent implements OnInit {
     this.selectedHero = hero;
   }
 
+  // #docregion gotoDetail
   gotoDetail(): void {
     this.router.navigate(['/detail', this.selectedHero.id]);
   }
+  // #enddocregion gotoDetail
   // #docregion renaming
 }
