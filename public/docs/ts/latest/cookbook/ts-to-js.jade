@@ -1,1 +1,545 @@
-include ../../../js/latest/cookbook/ts-to-js
+include ../../../../_includes/_util-fns
+
+:marked
+  Anything you can do with Angular in _TypeScript_, you can also do
+  in JavaScript. Translating from one language to the other is mostly a
+  matter of changing the way you organize your code and access Angular APIs.
+
+  _TypeScript_ is a popular language option for Angular development. 
+  Most code examples on the Internet as well as on this site are written in _TypeScript_. 
+  This cookbook contains recipes for translating _TypeScript_
+  code examples to _ES6_ and to _ES5_ so that JavaScript developers
+  can read and write Angular apps in their preferred dialect.
+
+a#toc
+:marked
+  ## Table of contents
+
+  [_TypeScript_ to _ES6_ to _ES5_](#from-ts)
+
+  [Modularity: imports and exports](#modularity)
+
+  [Classes and Class Metadata](#class-metadata)
+  
+  [Input and Output Metadata](#property-metadata)
+  
+  [Dependency Injection](#dependency-injection)
+  
+  [Host and Query Metadata](#host-query-metadata)
+
+  [AoT compilation in _TypeScript_ Only](#aot)
+
+  **Run and compare the live <live-example name="cb-ts-to-js">_TypeScript_</live-example> and <live-example name="cb-ts-to-js" lang="js">JavaScript</live-example>
+  code shown in this cookbook.**
+
+a#from-ts
+.l-main-section
+:marked
+  ## _TypeScript_ to _ES6_ to _ES5_
+  
+  _TypeScript_ 
+  <a href="https://www._TypeScript_lang.org" target="_blank" title='"TypeScript is a typed, superset of JavaScript"'>is a typed superset of _ES6 JavaScript_</a>.
+  &nbsp; _ES6 JavaScript_ is a superset of _ES5 JavaScript_. &nbsp; _ES5_ is the kind of JavaScript that runs natively in all modern browsers.
+  The transformation of _TypeScript_ code all the way down to _ES5_ code can be seen as "shedding" features.
+
+  The downgrade progression is
+  * _TypeScript_ to _ES6-with-decorators_
+  * _ES6-with-decorators_ to _ES6-without-decorators_ ("_plain ES6_")
+  * _ES6-without-decorators_ to _ES5_
+
+  When translating from _TypeScript_ to _ES6-with-decorators_, remove 
+  [class property access modifiers](http://www._TypeScript_lang.org/docs/handbook/classes.html#public-private-and-protected-modifiers)
+  such as `public` and `private`.
+  Remove most of the 
+  [type annotations](https://www._TypeScript_lang.org/docs/handbook/basic-types.html), 
+  such as `string` and `boolean`
+  but **keep type annotations used for dependency injection**.
+   
+
+  From _ES6-with-decorators_ to _plain ES6_, remove all 
+  [decorators](https://www._TypeScript_lang.org/docs/handbook/decorators.html)
+  and the remaining type annotations.
+  You must declare properties in the class constructor (`this.title = '...'`) rather than in the body of the class.
+
+  Finally, from _plain ES6_ to _ES5_, the main missing features are `import`
+  statements and `class` declarations. 
+
+  For _plain ES6_ transpilation you can _start_ with a setup similar to the 
+  [_TypeScript_ quickstart](https://github.com/angular/quickstart) and adjust the application code accordingly. 
+  Transpile with [Babel](https://babeljs.io/) using the `es2015` preset. 
+  To use decorators and annotations with Babel, install the 
+  [`angular2`](https://github.com/shuhei/babel-plugin-angular2-annotations) preset as well.
+   
+
+a#modularity
+.l-main-section
+:marked
+  ## Importing and Exporting
+
+  ### Importing Angular Code
+
+  In both _TypeScript_ and _ES6_, you import Angular classes, functions, and other members with _ES6_ `import` statements.
+
+  In _ES5_, you access the Angular entities of the [the Angular packages](../glossary.html#!#scoped-package),
+  through the global `ng` object. 
+  Everything you would have imported from `@angular` is a nested member of this `ng` object:
+
++makeTabs(`
+    cb-ts-to-js/ts/app/main.ts,
+    cb-ts-to-js/js-es6-decorators/app/main.es6,
+    cb-ts-to-js/js-es6/app/main.es6,
+    cb-ts-to-js/js/app/main.js
+  `,`
+    ng2import,
+    ng2import,
+    ng2import,
+    ng2import
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+:marked
+  ### Importing and Exporting Application Code
+
+  Each file in a _TypeScript_ or _ES6_ Angular application constitutes an _ES6_ module.
+  When you want to make something available to other modules, you `export` it.
+
+  _ES5_ lacks native support for modules. 
+  In an Angular _ES5_ application, you load each file manually by adding a `<script>` tag to the host web page, `index.html`. 
+  
+  Each code file can make selected entities available to other files via the shared global `window` scope.
+  But this is widely thought to be a bad practice.
+  Instead, you should add one application namespace object (such as `app`) to `window`.
+  Then attach everything you need to share to that namespace object.
+  
+  You should also wrap your code in an 
+  [Immediately Invoked Function Expression (IIFE)](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression).
+  
+  These practices together help you avoid polluting the global scope.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero.component.es6,
+    cb-ts-to-js/js-es6/app/hero.component.es6,
+    cb-ts-to-js/js/app/hero.component.js
+  `,`
+    appexport,
+    appexport,
+    appexport,
+    appexport
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+:marked
+  In _TypeScript_ and _ES6_ apps, you `import` things that have been exported from other modules.
+
+  In _ES5_ you use the shared namespace object to access "exported" entities in other files.
+  Note that the order of `<script>` tags on the page is often significant. 
+  You must load a file that defines a shared member before a file that uses that member.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/main.ts,
+    cb-ts-to-js/js-es6-decorators/app/main.es6,
+    cb-ts-to-js/js-es6/app/main.es6,
+    cb-ts-to-js/js/app/main.js
+  `,`
+    appimport,
+    appimport,
+    appimport,
+    appimport
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)(format='.')
+
+.alert.is-helpful
+  :marked
+    Alternatively, you can use a module loader such as Webpack or
+    Browserify in an Angular JavaScript project. In such a project, you would
+    use _CommonJS_ modules and the `require` function to load Angular framework code.
+    Then use `module.exports` and `require` to export and import application  code.
+
+
+a#class-metadata
+.l-main-section
+:marked
+  ## Classes and Class Metadata
+
+  ### Classes
+
+  Most Angular _TypeScript_ and _ES6_ code is written as classes.
+  In _ES6-without-decorators_, properties of classes must be assigned inside the constructor.
+
+  _ES5_ JavaScript has no classes. 
+  Use the constructor function pattern instead adding methods to the prototype.
+  This works with Angular as well as classes do.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero.component.es6,
+    cb-ts-to-js/js-es6/app/hero.component.es6,
+    cb-ts-to-js/js/app/hero.component.js
+  `,`
+    class,
+    class,
+    class,
+    constructorproto
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+:marked
+  ### Metadata
+
+  When writing in _TypeScript_ or _ES6-with-decorators_, 
+  provide configuration and metadata by adorning a class with one or more *decorators*. 
+  For example, you supply metadata to a component class by preceding its definition with a
+  [`@Component`](../api/core/index/Component-decorator.html) decorator.
+
+  In _plain ES6_, you provide metadata by attaching an `annotations` array to the _class_.
+  Each item in the array corresponds to a decorator property value.
+  
+  In _ES5_, you also provide an `annotations` array but you attach it to the _constructor function_ rather than a class.
+
+  See these variations side-by-side:
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero.component.es6,
+    cb-ts-to-js/js-es6/app/hero.component.es6,
+    cb-ts-to-js/js/app/hero.component.js
+  `,`
+    metadata,
+    metadata,
+    metadata,
+    metadata
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+:marked
+  ***Angular class API***
+
+  This _ES5_ pattern of creating a constructor and annotating it with metadata is so common that Angular 
+  provides a convenience API to make it a little more compact and put the metadata first, 
+  as it would be if you wrote in _TypeScript_ or _ES6-with-decorators_.
+
+  Set a component variable to the result of an `ng.core.Component` function call.
+  Pass the same metadata object to `ng.core.Component` as you did before.
+  
+  Then chain a call to the `Class` method which takes an object defining the class constructor and instance methods.
+
+  Here is an example of the component class API next to the annotated function version for comparison:
+
++makeTabs(`
+    cb-ts-to-js/js/app/hero-dsl.component.js,
+    cb-ts-to-js/js/app/hero.component.js
+  `,`
+    component,
+    metadata
+  `,`
+    ES5 JavaScript with Class API,
+    ES5 JavaScript
+  `)
+:marked
+  There are similar APIs for other decorated classes. 
+  You can define a directive with `ng.core.Directive`: 
+
+code-example.
+  var MyDirective = ng.core.Directive({
+    selector: '[myDirective]'
+  }).Class({
+    ...
+  });
+:marked
+  and a pipe with `ng.core.Pipe`:
+code-example.  
+  var MyPipe = ng.core.Pipe({
+    name: 'myPipe'
+  }).Class({
+    ...
+  });
+
+:marked
+  ### Interfaces
+
+  When defining classes that need to implement a certain method, it is common to use _TypeScript_
+  interfaces that enforce that the method signature is correct. 
+  Component lifecycle methods like `ngOnInit` are one example of this pattern.
+  `ngOnInit` is defined in the `OnInit` interface.
+
+  _TypeScript_ interfaces are purely for developer convenience and are not used by Angular at runtime.
+  This means that in _ES5_/_ES6_ JavaScript code you don't need to substitute anything for interfaces.
+  Just implement the methods.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero-lifecycle.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero-lifecycle.component.es6,
+    cb-ts-to-js/js-es6/app/hero-lifecycle.component.es6,
+    cb-ts-to-js/js/app/hero-lifecycle.component.js
+  `,`
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)  
+
+a#property-metadata
+.l-main-section
+:marked
+  ## Input and Output Metadata
+
+  ### Input and Output Decorators
+
+  In _TypeScript_ and _ES6_ with decorators, property decorators are often used to provide additional 
+  metadata for components and directives.
+  For [inputs and outputs](../guide/template-syntax.html#inputs-outputs), you use `@Input` and 
+  `@Output` property decorators. 
+  Specify input and output binding names if you want the public-facing names to differ
+  from the class property names.
+
+  There is no equivalent of a property decorator in _ES5_/_ES6_ JavaScript. 
+  Instead, you add comparable information to the `Component` (or `Directive`) metadata.
+  
+  In this example, you add `inputs` and `outputs` array attributes containing the input and
+  output property names. 
+  If you need a binding name that is different from the property itself, use the 
+  `propertyName: bindingName` syntax.  
+  
++makeTabs(`
+    cb-ts-to-js/ts/app/hero-io.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero-io.component.es6,
+    cb-ts-to-js/js-es6/app/hero-io.component.es6,
+    cb-ts-to-js/js/app/hero-io.component.js
+  `,`
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+.l-main-section
+:marked
+  ## Dependency Injection
+
+  ### Injection by Type
+
+  Angular can often use _TypeScript_ type information to determine what needs to be injected.
+  _ES6_ with decorators can also make use of type information.
+
+  Since no type information is available in _ES5_/_ES6_ JavaScript, you must identify "injectables" in 
+  some other way.
+
+  Attach a `parameters` array to the constructor function. 
+  Each array item is the dependency injection token that identifies the thing to be injected. 
+  Often the token is the constructor function for the class-like dependency.
+  
+  In _ES6_ the decorators need to be inside a nested array.
+  When writing in the _ES5_ class convenience API, you can supply the parameter tokens by wrapping 
+  the constructor in an array.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero-di.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero-di.component.es6,
+    cb-ts-to-js/js-es6/app/hero-di.component.es6,
+    cb-ts-to-js/js/app/hero-di.component.js,
+    cb-ts-to-js/js/app/hero-di-inline.component.js
+  `,`
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript,
+    ES5 JavaScript with Class API
+  `)
+
+:marked
+  ### Injection with the @Inject decorator
+
+  When the thing being injected doesn't correspond directly to a type, you use the 
+  `@Inject()` decorator to supply the injection token.
+  In this example, you are injecting a string identified by the "heroName" token. 
+
+  In _ES5_/_ES6_ JavaScript you add the token string to the injection parameters array.
+  Alternatively, when using the _ES5_ convenience class API you can create a token with the 
+  `Inject` method and add that to the constructor array in the annotations.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/hero-di-inject.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero-di-inject.component.es6,
+    cb-ts-to-js/js-es6/app/hero-di-inject.component.es6,
+    cb-ts-to-js/js/app/hero-di-inject.component.js,
+    cb-ts-to-js/js/app/hero-di-inject.component.js
+  `,`
+  ,
+  ,
+  ,
+  parameters,
+  ctor
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript,
+    ES5 JavaScript with Class API
+  `)
+
+:marked
+  ### Additional Injection Decorators
+
+  You can attach additional decorators to constructor parameters to qualify the injection behavior. 
+  You can mark optional dependencies with the [`@Optional`](../api/core/index/Optional-decorator.html),
+  inject host element attributes with [`@Attribute`](../api/core/index/Attribute-interface.html),
+  inject content child queries with [`@ContentChild`](../api/core/index/ContentChild-decorator.html)
+  and inject view child queries with [`@ViewChild`](../api/core/index/ViewChild-decorator.html)).
+
+  In ES6 JavaScript you just add the extra decorators to the nested injection parameters array.
+
+  To achieve the same effect in _ES5_ JavaScript, use a nested array with the constructor 
+  array notation in which the injection information precedes the constructor function itself.
+  
+  You can apply other additional parameter decorators such as
+  [`@Host`](../api/core/index/Host-decorator.html) and
+  [`@SkipSelf`](../api/core/index/SkipSelf-decorator.html) in the same way -
+  by adding `new ng.core.Host()` or `ng.core.SkipSelf()` in the
+  parameters array.
++makeTabs(`
+    cb-ts-to-js/ts/app/hero-di-inject-additional.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/hero-di-inject-additional.component.es6,
+    cb-ts-to-js/js-es6/app/hero-di-inject-additional.component.es6,
+    cb-ts-to-js/js/app/hero-di-inject-additional.component.js
+  `,`
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)  
+
+a#host-query-metadata
+.l-main-section
+:marked
+  ## Host and Query Metadata
+
+  ### Host Decorators
+
+  In _TypeScript_ and _ES6-with-decorators_ you can use host property decorators to bind a host
+  element to a component or directive.
+  The [`@HostBinding`](../api/core/index/HostBinding-interface.html) decorator
+  binds host element properties to component data properties. 
+  The [`@HostListener`](../api/core/index/HostListener-interface.html) decorator binds
+  host element events to component event handlers.
+
+  When using _ES5_/_ES6_, add a `host` attribute to the component metadata to achieve the
+  same effect as `@HostBinding` and `@HostListener`. 
+  
+  The  `host` value is an object whose properties are host property and listener bindings:
+  
+  * Each key follows regular Angular binding syntax: `[property]` for host bindings
+    or `(event)` for host listeners.
+  * Each value identifies the corresponding component property or method.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/heroes-bindings.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/heroes-bindings.component.es6,
+    cb-ts-to-js/js-es6/app/heroes-bindings.component.es6,
+    cb-ts-to-js/js/app/heroes-bindings.component.js
+  `,`
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+.alert.is-helpful
+  :marked
+    In _TypeScript_ and _ES6-with-decorators_ you can also use the `queries` metadata 
+    instead of the `@ViewChild` and `@ContentChild` property decorators.    
+
+:marked
+  ### Query Decorators
+  
+  There are several property decorators for querying the descendants of
+  a component or directive.
+  
+  The [`@ViewChild`](../api/core/index/ViewChild-decorator.html) and
+  [`@ViewChildren`](../api/core/index/ViewChildren-decorator.html) property decorators
+  allow a component to query instances of other components that are used in
+  its view. 
+
+  In _ES5_/_ES6_ JavaScript you access a component's view children by adding a `queries` attribute to
+  the component metadata. It should be an object where:
+  
+  * Each key is the name of a component property that will hold the view children
+  * Each value is an instance of either `ViewChild` or `ViewChildren`.
+
++makeTabs(`
+    cb-ts-to-js/ts/app/heroes-queries.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/heroes-queries.component.es6,
+    cb-ts-to-js/js-es6/app/heroes-queries.component.es6,
+    cb-ts-to-js/js/app/heroes-queries.component.js
+  `,`
+    view,
+    view,
+    view,
+    view
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+:marked
+  The [`@ContentChild`](../api/core/index/ContentChild-decorator.html) and
+  [`@ContentChildren`](../api/core/index/ContentChildren-decorator.html) property decorators
+  allow a component to query instances of other components that have been projected
+  into its view from elsewhere.
+
+  They can be added in the same way as [`@ViewChild`](../api/core/index/ViewChild-decorator.html) and
+  [`@ViewChildren`](../api/core/index/ViewChildren-decorator.html).
+
++makeTabs(`
+    cb-ts-to-js/ts/app/heroes-queries.component.ts,
+    cb-ts-to-js/js-es6-decorators/app/heroes-queries.component.es6,
+    cb-ts-to-js/js-es6/app/heroes-queries.component.es6,
+    cb-ts-to-js/js/app/heroes-queries.component.js
+  `,`
+    content,
+    content,
+    content,
+    content
+  `,`
+    TypeScript,
+    ES6 JavaScript with decorators,
+    ES6 JavaScript,
+    ES5 JavaScript
+  `)
+
+a#aot
+.l-main-section
+:marked
+  ## AoT Compilation in _TypeScript_ only
+
+  Angular offers two modes of template compilation, JiT (_Just-in-Time_) and 
+  [AoT (_Ahead-of-Time_)](aot-compiler.html).
+  Currently the AoT compiler only works with _TypeScript_ applications because, in part, it generates
+  _TypeScript_ files as an intermediate result.
+  **AoT is not an option for pure JavaScript applications** at this time.

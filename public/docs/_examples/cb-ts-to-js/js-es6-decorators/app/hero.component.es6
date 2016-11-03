@@ -4,8 +4,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'hero-view',
-  template:
-    '<h1>Hero: {{getName()}}</h1>'
+  template: '<h1>{{title}}: {{getName()}}</h1>'
 })
 // #docregion appexport
 // #docregion class

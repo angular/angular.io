@@ -9,19 +9,16 @@
   function HeroComponent() {
     this.title = "Hero Detail";
   }
-  
+  HeroComponent.prototype.getName = function() { return 'Windstorm'; };
   // #enddocregion constructorproto
+
   // #enddocregion appexport
   HeroComponent.annotations = [
     new ng.core.Component({
       selector: 'hero-view',
-      template: '<h1>Hero: {{getName()}}</h1>'
+      template: '<h1>{{title}}: {{getName()}}</h1>'
     })
   ];
-  // #docregion constructorproto
-  
-  HeroComponent.prototype.getName = function() {return 'Windstorm';};
-  // #enddocregion constructorproto
   // #enddocregion metadata
 
   app.HeroesModule =

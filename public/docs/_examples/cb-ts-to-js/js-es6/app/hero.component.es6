@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
 // #docregion class
 // #docregion appexport
 export class HeroComponent {
-  construct() {
+  constructor() {
     this.title = 'Hero Detail';
   }
   getName() {return 'Windstorm'; }
@@ -16,7 +16,7 @@ export class HeroComponent {
 HeroComponent.annotations = [
   new Component({
     selector: 'hero-view',
-    template: '<h1>Hero: {{getName()}}</h1>'
+    template: '<h1>{{title}}: {{getName()}}</h1>'
   })
 ];
 // #enddocregion metadata
