@@ -3,11 +3,17 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { CanDeactivateGuard } from './can-deactivate-guard.service';
-import { AuthGuard }          from './auth-guard.service';
-import { PreloadSelectedModules } from './selective-preload-strategy';
+import { ComposeMessageComponent }  from './compose-message.component';
+import { CanDeactivateGuard }       from './can-deactivate-guard.service';
+import { AuthGuard }                from './auth-guard.service';
+import { PreloadSelectedModules }   from './selective-preload-strategy';
 
 const appRoutes: Routes = [
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'modal'
+  },
   {
     path: 'admin',
     loadChildren: 'app/admin/admin.module#AdminModule',
@@ -25,7 +31,7 @@ const appRoutes: Routes = [
     data: {
       preload: true
     }
-  }
+  },
   // #enddocregion preload-v2
 ];
 

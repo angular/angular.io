@@ -49,6 +49,7 @@ include ../_util-fns
   * refactoring routing into a [routing module](#routing-module)
   * add [child routes](#child-routing-component) under a feature section
   * [grouping child routes](#component-less-route) without a component
+  * displaying [multiple routes](#named-outlets) in separate outlets
   * [redirecting](#redirect) from one route to another
   * confirming or canceling navigation with [guards](#guards)
     * [CanActivate](#can-activate-guard) to prevent navigation to a route
@@ -475,7 +476,7 @@ a#router-outlet
 .l-sub-section
   :marked
     A template may hold exactly one ***unnamed*** `<router-outlet>`.
-    The router supports multiple *named* outlets, a feature we'll cover in future.
+    The router supports multiple [named outlets](#named-outlets), covered later in the chapter.
 
 a#router-link
 :marked
@@ -1274,7 +1275,7 @@ h3#merge-hero-routes Import hero module into AppModule
    router/ts/app/heroes/hero.service.ts,
    router/ts/app/heroes/heroes.module.ts,
    router/ts/app/heroes/heroes-routing.module.ts`,
-   null,
+   'null,null,v3,null,null,null,null,null',
   `app.component.ts,
   app.module.ts,
   app-routing.module.ts,
@@ -1313,6 +1314,8 @@ h3#merge-hero-routes Import hero module into AppModule
   * The user should be able to cancel unwanted changes.
 
   * The router should block access to certain features until the user logs-in.
+
+  * The application should display multiple routes indepdently of each other.
 
   * Changes to a feature module such as *Crisis Center* shouldn't provoke changes to the `AppModule` or
   any other feature's component.
@@ -1439,7 +1442,7 @@ h3#import-crisis-module Import crisis center module into the AppModule routes
   are now being provided by our `HeroesModule` and our `CrisisCenter` feature modules. We'll keep our `app-routing.module.ts` file
   for general routes which we'll cover later in the chapter.
 
-+makeExcerpt('app/app-routing.module.3.ts (v3)', '')
++makeExcerpt('app/app-routing.module.3.ts (v3)', 'v3')
 
 a#redirect
 :marked
@@ -1563,6 +1566,103 @@ h2#relative-navigation Relative Navigation
   is implicit in the `RouterLink` directive.
 
 +makeExcerpt('app/crisis-center/crisis-list.component.1.ts (relative routerLink)', 'relative-navigation-router-link')
+
+<a id="secondary-routes"></a>
+.l-main-section
+h3#named-outlets Displaying Multiple Routes: Named Outlets and Secondary Routes
+:marked
+  Up until now, we've used a single outlet and we've nested child routes under that outlet to group routes together.
+  The `Router` supports one primary `unnamed` outlet, but we can display multiple routes together, each displaying their own component
+  using one or more **named outlets**.
+
+  These named outlets are used to display **secondary routes**, which are configured the same way as a primary route, but
+  are independent of each other and can work in combination with each other routes. By using named outlets with secondary routes,
+  we can display multiple route components simultaneously. Secondary routes can also have their own child routes. This allows us to reflect the state of multiple
+  views in our application using the browser URL.
+
+  In our application, we want to give our users a way to contact the `Crisis Center` displayed through a modal. We also want this modal
+  to be displayed even when switching between pages in our application. We'll use a named outlet to display the modal and control its lifecycle
+  alongside our currently displayed route.
+
+  We'll create a new route component named `ComposeMessageComponent` in `app/compose-message.component.ts` to display our modal view the users will
+  use to contact the `Crisis Center`. We'll display a simple form to enter a message and a use an `Observable` to simulate a delay to handle the modal after
+  sending the message.
+
++makeExcerpt('app/compose-message.component.1.ts (compose message component)', 'v1')
+
+:marked
+  We'll add a `compose` route to our `AppRoutingModule`, using a route `path` and `component`. In order to use a named outlet, we add an additional property
+  to our route configuration called **outlet**. This outlet matches the name given to our `RouterOutlet` where we are going to to display the component. The `Router`
+  will place each route next to its intended `RouterOutlet` during the navigation process.
+
++makeExcerpt('app/app-routing.module.3.ts (compose route)', '')
+
+:marked
+  As with our other components, the `ComposeMessageComponent` is imported and added to our `AppModule`'s declarations.
+
++makeExcerpt('app/app.module.5.ts (compose component)', '')
+
+:marked
+  As we did in our initial template, we'll add a `RouterOutlet` with an additional **name** attribute and provide our named **modal** outlet. This matches the
+  name of the `outlet` we used in our `AppRoutingModule`.
+
++makeExcerpt('app/app.component.4.ts (named outlet)', '')
+
+:marked
+  Now we have two independent `RouterOutlet`s to display our routes. Routes without a specified `outlet` will use our primary `unnamed` outlet. Our `compose` outlet
+  will display our `ComposeMessageComponent`. Secondary routes are also reflected in our URL surrounded by parenthesis but are are seamlessly
+  handled by the `Router` across browsers the same way it handles [route parameters with matrix notation](#optional-route-parameters). We can visit any primary route in our application
+  and have our `compose` route displayed in combination with the primary route. An example URL displaying the `Crisis Center` list and `Compose` modal is displayed below.
+
+.l-sub-section
+  :marked
+    http://localhost:3000/crisis-center(modal:compose)
+
+:marked
+  If we break down the URL, we see the following parts.
+  * The primary route with the `crisis-center` path
+  * The parenthesis where our secondary route grouping starts and ends
+  * The name of the outlet (`modal`) split by a `colon` and followed with the secondary route path `compose`
+
+  Secondary routes are not limited to top level routes. Each level in our route configuration can contain a primary route in an unnamed outlet,
+  followed by any number of secondary routes displayed in named outlets. Secondary routes have all the same features of a primary route, including
+  access to their own [activated route](#activated-route).
+
+h3#secondary-route-navigation <i>Secondary Route Navigation</i>: merging routes during navigation
+:marked
+  We learned how the `Router` handles incoming URLs for secondary routes, but we can also navigate declaratively and imperatively using secondary routes
+  in the [link parameters array](#link-parameters-array). Let's update our application to display our `compose` route using `RouterLink` and navigating
+  away from a secondary route using the `Router` service.
+
+  The `Link Parameters Array` supports secondary routes with an object as the last index in our array. This object uses an **outlets** that lets us build
+  our links including secondary outlets in the same way we build more dynamic router links. We'll add a `Contact` link to our `Crisis Center` menu to display our
+  secondary route.
+
++makeExcerpt('app/app.component.ts (contact)', '')
+
+:marked
+  The `outlets` property within our object contains the named outlets that will be updated during the navigation process. We'll add a key for the `modal` outlet
+  and the value for the outlet is the same link parameters array we use with primary routes. When using a `RouterLink` or navigating imperatively, the `Router`
+  will **merge** the current URL with our provided secondary route. As we navigate around our application, the `Contact` link will be updated with the current URL
+  and the secondary `(modal:compose)` route, so that we can open our `compose` route independently of our currently displayed route. Once we visit the secondary route,
+  it will be merged with the current URL across each navigation as long as they're under the same parent path.
+
+.l-sub-section
+  :marked
+    When using router's `navigateByUrl` method, secondary routes will **not** be merged into the current URL and will need to be explicitly
+    provided.
+
+:marked
+  #### Clearing Secondary Routes
+  Secondary outlets persist across navigation under the same parent route. We can also remove secondary outlets using a `RouterLink` or imperatively
+  with the `Router` service using the [link parameters array](#link-parameters-array). We'll update our `ComposeMessageComponent` to remove the
+  secondary `compose` route when our user cancels the message or its sent successfully.
+
+  We'll add a `closeModal` method to our `ComposeMessageComponent` that navigates imperatively using the `router.navigate` method. Since we only want to modify the
+  secondary route, we only need to provide the secondary route object and `null` out the `modal` outlet. This will remove the secondary route from named `modal` `RouterOutlet`
+  and update the current URL.
+
++makeExcerpt('app/compose-message.component.ts (remove secondary route)', '')
 
 <a id="guards"></a>
 .l-main-section

@@ -1,20 +1,22 @@
+// #docplaster
 // #docregion
 import { NgModule }       from '@angular/core';
-import { BrowserModule }  from '@angular/platform-browser';
+import { CommonModule }   from '@angular/common';
 import { FormsModule }    from '@angular/forms';
 
-import { AppComponent }        from './app.component';
-import { AppRoutingModule }    from './app-routing.module';
+import { AppComponent }         from './app.component';
+import { AppRoutingModule }     from './app-routing.module';
 
-import { HeroesModule }        from './heroes/heroes.module';
-import { CrisisCenterModule }  from './crisis-center/crisis-center.module';
-import { AdminModule }         from './admin/admin.module';
+import { HeroesModule }             from './heroes/heroes.module';
+import { CrisisCenterModule }       from './crisis-center/crisis-center.module';
+import { ComposeMessageComponent }  from './compose-message.component';
 
-import { DialogService }       from './dialog.service';
+import { AdminModule }            from './admin/admin.module';
+import { DialogService }          from './dialog.service';
 
 @NgModule({
   imports: [
-    BrowserModule,
+    CommonModule,
     FormsModule,
     HeroesModule,
     CrisisCenterModule,
@@ -22,7 +24,8 @@ import { DialogService }       from './dialog.service';
     AppRoutingModule
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    ComposeMessageComponent
   ],
   providers: [
     DialogService
@@ -31,3 +34,4 @@ import { DialogService }       from './dialog.service';
 })
 export class AppModule {
 }
+// #enddocregion

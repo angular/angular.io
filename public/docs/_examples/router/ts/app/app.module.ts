@@ -6,9 +6,10 @@ import { FormsModule }    from '@angular/forms';
 import { AppComponent }         from './app.component';
 import { AppRoutingModule }     from './app-routing.module';
 
-import { HeroesModule }         from './heroes/heroes.module';
-import { LoginRoutingModule }   from './login-routing.module';
-import { LoginComponent }       from './login.component';
+import { HeroesModule }             from './heroes/heroes.module';
+import { ComposeMessageComponent }  from './compose-message.component';
+import { LoginRoutingModule }       from './login-routing.module';
+import { LoginComponent }           from './login.component';
 
 import { DialogService }        from './dialog.service';
 
@@ -22,7 +23,8 @@ import { DialogService }        from './dialog.service';
   ],
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    ComposeMessageComponent
   ],
   providers: [
     DialogService

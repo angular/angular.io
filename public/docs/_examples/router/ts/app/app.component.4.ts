@@ -12,6 +12,9 @@ import { Component } from '@angular/core';
       <a routerLink="/admin" routerLinkActive="active">Admin</a>
     </nav>
     <router-outlet></router-outlet>
+  // #enddocregion template
+    <router-outlet name="modal"></router-outlet>
+  // #enddocregion template    
   `
   // #enddocregion template
 })

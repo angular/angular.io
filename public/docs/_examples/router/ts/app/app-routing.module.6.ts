@@ -8,10 +8,16 @@ import {
 // #docregion preload-v1
 } from '@angular/router';
 
-import { CanDeactivateGuard } from './can-deactivate-guard.service';
-import { AuthGuard }          from './auth-guard.service';
+import { ComposeMessageComponent } from './compose-message.component';
+import { CanDeactivateGuard }      from './can-deactivate-guard.service';
+import { AuthGuard }               from './auth-guard.service';
 
 const appRoutes: Routes = [
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'modal'
+  },
   {
     path: 'admin',
     loadChildren: 'app/admin/admin.module#AdminModule',

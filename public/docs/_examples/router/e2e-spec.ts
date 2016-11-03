@@ -31,16 +31,21 @@ describe('Router', function () {
       loginHref: hrefEles.get(3),
       loginButton: element.all(by.css('my-app > ng-component > p > button')),
 
+      contactHref: hrefEles.get(4),
+      contactCancelButton: element.all(by.buttonText('Cancel')),
+
+      outletComponents: element.all(by.css('my-app > ng-component'))
     };
   }
 
   it('should be able to see the start screen', function () {
     let page = getPageStruct();
-    expect(page.hrefs.count()).toEqual(4, 'should be 4 dashboard choices');
+    expect(page.hrefs.count()).toEqual(5, 'should be 5 dashboard choices');
     expect(page.crisisHref.getText()).toEqual('Crisis Center');
     expect(page.heroesHref.getText()).toEqual('Heroes');
     expect(page.adminHref.getText()).toEqual('Admin');
     expect(page.loginHref.getText()).toEqual('Login');
+    expect(page.contactHref.getText()).toEqual('Contact');
   });
 
   it('should be able to see crises center items', function () {
@@ -115,6 +120,15 @@ describe('Router', function () {
     }).then(function() {
       expect(page.adminPreloadList.count()).toBe(1, 'should be 1 preloaded module');
       expect(page.adminPreloadList.first().getText()).toBe('crisis-center', 'first preload should be crisis center');
+    });
+  });
+
+  it('should be able to see the secondary route', function () {
+    let page = getPageStruct();
+    page.heroesHref.click().then(function() {
+      return page.contactHref.click();
+    }).then(function() {
+      expect(page.outletComponents.count()).toBe(2, 'should be 2 displayed routes');
     });
   });
 

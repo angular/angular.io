@@ -12,11 +12,14 @@ import { HeroesModule }           from './heroes/heroes.module';
 // #docregion crisis-center-module
 import { CrisisCenterModule }     from './crisis-center/crisis-center.module';
 // #enddocregion crisis-center-module
+
+import { ComposeMessageComponent } from './compose-message.component';
 // #docregion admin-module
 import { AdminModule }            from './admin/admin.module';
 // #docregion crisis-center-module
 
 import { DialogService }          from './dialog.service';
+
 
 @NgModule({
   imports: [
@@ -25,12 +28,16 @@ import { DialogService }          from './dialog.service';
     HeroesModule,
     CrisisCenterModule,
 // #enddocregion crisis-center-module
+// #enddocregion admin-module
     AdminModule,
 // #docregion crisis-center-module
     AppRoutingModule
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+// #enddocregion admin-module, crisis-center-module
+    ComposeMessageComponent
+// #docregion admin-module, crisis-center-module
   ],
   providers: [
     DialogService
