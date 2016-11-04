@@ -808,7 +808,7 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   // Split big shredding task into partials 2016-06-14
-  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['/node_modules']});
+  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['**/node_modules', '**/_boilerplate']});
   var promise = Promise.resolve(true);
   examplePaths.forEach(function (examplePath) {
     promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));

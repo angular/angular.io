@@ -4,7 +4,7 @@ var del = require('del');
 var Dgeni = require('dgeni');
 var _ = require('lodash');
 var globby = require('globby');
-var ignoreDirs = ['**/node_modules/**', '**/dist/**'];
+var ignoreDirs = ['**/node_modules/**', '**/dist/**', '**/dart/**/build/**', '**/.pub/**'];
 
 var _getLogLevel = function (options) { return options.logLevel || 'info'; }
 
