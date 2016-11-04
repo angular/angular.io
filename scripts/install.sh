@@ -16,9 +16,6 @@ fi
 echo "Installing main packages ..."
 npm install --no-optional
 
-echo "Patching ..."
-source ./scripts/patch.sh
-
 if [ -z "$TRAVIS" ]; then
     echo "Rebuilding node-sass, just in case ..."
     npm rebuild node-sass;
