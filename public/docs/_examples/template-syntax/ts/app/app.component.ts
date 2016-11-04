@@ -50,8 +50,6 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.alert('Deleted hero: ' + (hero && hero.firstName));
   }
 
-  fontSize = 10;
-
   // #docregion evil-title
   evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';
   // #enddocregion evil-title
@@ -179,6 +177,21 @@ export class AppComponent implements AfterViewInit, OnInit {
     return styles;
   }
   // #enddocregion setStyles
+
+  // #docregion NgStyle
+  isItalic = false;
+  isBold = false;
+  fontSize: string = 'large';
+  fontSizePx: number | string = 14;
+
+  setStyle() {
+    return {
+      'font-style': this.isItalic ? 'italic' : 'normal',
+      'font-weight': this.isBold ? 'bold' : 'normal',
+      'font-size': this.fontSize
+    };
+  }
+  // #enddocregion NgStyle
 
   toeChoice = '';
   toeChooser(picker: HTMLFieldSetElement) {

@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { BigHeroDetailComponent, HeroDetailComponent } from './hero-detail.component';
 import { MyClickDirective, MyClickDirective2 } from './my-click.directive';
-import { SizerComponent } from './sizer.component';
+import { MySizerComponent } from './my-sizer.component';
 
 @NgModule({
   imports: [
@@ -18,7 +18,7 @@ import { SizerComponent } from './sizer.component';
     HeroDetailComponent,
     MyClickDirective,
     MyClickDirective2,
-    SizerComponent
+    MySizerComponent
   ],
   bootstrap: [ AppComponent ]
 })
