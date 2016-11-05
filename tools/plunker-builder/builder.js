@@ -37,21 +37,11 @@ class PlunkerBuilder {
   }
 
   _addPlunkerFiles(config, postData) {
-    this._addReadme(config, postData);
     if (config.basePath.indexOf('/ts') > -1) {
-      // uses systemjs.config.js so add plunker version
-      this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
-    }
-  }
-
-  _addReadme(config, postData) {
-    var existingFiles = config.fileNames.map(function(file) {
-      return file.substr(file.lastIndexOf('/') + 1);
-    });
-
-    if (existingFiles.indexOf('README.md') === -1) {
-      var plunkerReadme = this.readme + config.description;
-      this.options.addField(postData, 'README.md', plunkerReadme);
+      if (config.includeSystemConfig) {
+        // uses systemjs.config.js so add plunker version
+        this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
+      }
     }
   }
 
@@ -156,7 +146,7 @@ class PlunkerBuilder {
       this.options.addField(postData, relativeFileName, content);
     });
 
-    var tags = ['angular2', 'example'].concat(config.tags || []);
+    var tags = ['angular', 'example'].concat(config.tags || []);
     tags.forEach(function(tag,ix) {
       postData['tags[' + ix + ']'] = tag;
     });
@@ -207,8 +197,6 @@ class PlunkerBuilder {
   }
 
   _getPlunkerFiles() {
-    // Assume plunker version is sibling of node_modules version
-    this.readme = fs.readFileSync(this.basePath +  '/_boilerplate/plunker.README.md', 'utf-8');
     var systemJsConfigPath = '/_boilerplate/systemjs.config.web.js';
     if (this.options.build) {
       systemJsConfigPath = '/_boilerplate/systemjs.config.web.build.js';
@@ -255,6 +243,7 @@ class PlunkerBuilder {
 
     var defaultExcludes = [
       '!**/app/main.ts',
+      '!**/a2docs.css',
       '!**/tsconfig.json',
       '!**/*plnkr.*',
       '!**/package.json',

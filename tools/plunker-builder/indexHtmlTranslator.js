@@ -19,6 +19,18 @@ var _rxRules = {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to:    '<link rel="stylesheet" href="%tag%">'
   },
+  systemjs: {
+    from: /<script src="systemjs.config.js"><\/script>/,
+    to:   '<script src="https://cdn.rawgit.com/angular/angular.io/74ef87f/public/docs/_examples/_boilerplate/systemjs.config.web.js"></script>'
+  },
+  // Clear script like this:
+  // <script>
+  //   System.import('app').catch(function(err){ console.error(err); });
+  // </script>
+  system_strip_import_app: {
+   from: /<script>[^]?\s*System.import\('app[^]*\/script>/,
+   to:   ''
+  },
   system_extra_main: {
     from: /main:\s*[\'|\"]index.js[\'|\"]/,
     to:   'main: "index.ts"'
@@ -98,6 +110,12 @@ var _rxData = [
   },
   {
     pattern: 'zone_pkg',
+  },
+  {
+    pattern: 'systemjs',
+  },
+  {
+    pattern: 'system_strip_import_app',
   },
   {
     pattern: 'system_extra_main'
