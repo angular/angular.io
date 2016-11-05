@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
 // #docregion metadata
 @Component({
   selector: 'my-app',
-  template: '<h1>My First Angular App</h1>'
+  template: '<h1>Hello Angular!</h1>'
 })
 // #enddocregion metadata
 // #docregion class
