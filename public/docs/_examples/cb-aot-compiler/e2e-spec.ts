@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -11,7 +11,7 @@ describe('AOT Compilation', function () {
 
     it('should load page and click button', function (done) {
       let headingSelector = element.all(by.css('h1')).get(0);
-      expect(headingSelector.getText()).toEqual('My First Angular App');
+      expect(headingSelector.getText()).toEqual('Hello Angular');
 
       expect(element.all(by.xpath('//div[text()="Magneta"]')).get(0).isPresent()).toBe(true);
       expect(element.all(by.xpath('//div[text()="Bombasto"]')).get(0).isPresent()).toBe(true);
