@@ -1,5 +1,22 @@
 //- WARNING: _layout.jade and _layout-dart-api.jade should match in terms of content
 //- except that one uses Harp partial/yield and the other uses Jade extends/include.
+
+- function tsApiHrefToDart(match, hrefApi, dontcare1, urlRest) {
+-   // Simple argument values:
+-   // hrefApi: href="../api/
+-   // urlRest: core/index/ViewChild-var.html"
+-   // console.log(`got match on ${match}, 1: ${hrefApi}, 3: ${urlRest}`);
+-   var matches = urlRest.match(/^(\w*)\/index\/(\w*)-(\w*)(\.html")$/);
+-   // console.log(`urlRest matches ${matches}`);
+-   if (!matches) return match; // leave unchanged
+-   var i = 1; // matches[0] corresponds to the fully matched result
+-   var libName = matches[i++];
+-   var apiPageEntryName = matches[i++];
+-   var apiEntryKind = matches[i++];
+-   var suffix = matches[i++];
+-   return hrefApi + 'angular2.' + libName + '/' + apiPageEntryName + '-class' + suffix;
+- }
+
 if jade2ng
   .side-nav--offset
     != partial("../_includes/_hero")
@@ -35,8 +52,10 @@ else
           article(class="l-content-small grid-fluid docs-content")
             != yield
         else
+          - var isDart = current.path[1] === 'dart';
+          - var regex = /(href=\"(\.?\.\/)*api\/)(.*")/g;
           article(class="l-content-small grid-fluid docs-content")
-            != yield
+            != !isDart ? yield : yield.replace(regex, tsApiHrefToDart)
               if (current.path[3] == 'guide' || current.path[3] == 'tutorial') && current.path[4]
                 != partial("../_includes/_next-item")
 
