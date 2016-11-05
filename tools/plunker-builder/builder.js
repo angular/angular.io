@@ -41,7 +41,6 @@ class PlunkerBuilder {
     if (config.basePath.indexOf('/ts') > -1) {
       // uses systemjs.config.js so add plunker version
       this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
-      this.options.addField(postData, 'tsconfig.json', this.tsconfig);
     }
   }
 
@@ -210,13 +209,12 @@ class PlunkerBuilder {
   _getPlunkerFiles() {
     // Assume plunker version is sibling of node_modules version
     this.readme = fs.readFileSync(this.basePath +  '/_boilerplate/plunker.README.md', 'utf-8');
-    var systemJsConfigPath = '/_boilerplate/systemjs.config.plunker.js';
+    var systemJsConfigPath = '/_boilerplate/systemjs.config.web.js';
     if (this.options.build) {
-      systemJsConfigPath = '/_boilerplate/systemjs.config.plunker.build.js';
+      systemJsConfigPath = '/_boilerplate/systemjs.config.web.build.js';
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
     this.systemjsConfig +=  this.copyrights.jsCss;
-    this.tsconfig = fs.readFileSync(`${this.basePath}/_boilerplate/tsconfig.json`, 'utf-8');
   }
 
   _htmlToElement(document, html) {
@@ -255,8 +253,8 @@ class PlunkerBuilder {
       }
     });
 
-    // var defaultExcludes = [ '!**/node_modules/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
     var defaultExcludes = [
+      '!**/app/main.ts',
       '!**/tsconfig.json',
       '!**/*plnkr.*',
       '!**/package.json',

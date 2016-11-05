@@ -1,5 +1,5 @@
 /**
- * PLUNKER VERSION FOR CURRENT ANGULAR BUILD
+ * WEB VERSION FOR CURRENT ANGULAR BUILD
  * (based on systemjs.config.js in angular.io)
  * System configuration for Angular samples
  * Adjust as necessary for your application needs.
@@ -11,7 +11,19 @@
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
     transpiler: 'ts',
     typescriptOptions: {
-      tsconfig: true
+      // Complete copy of compiler options in standard tsconfig.json
+      "target": "es5",
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "removeComments": false,
+      "noImplicitAny": true,
+      "suppressImplicitAnyIndexErrors": true,
+      "typeRoots": [
+        "../../node_modules/@types/"
+      ]
     },
     meta: {
       'typescript': {
@@ -67,4 +79,26 @@
       }
     }
   });
+
+  if (!global.noBootstrap) { bootstrap(); }
+
+  // Bootstrap the `AppModule`(skip the `app/main.ts` that normally does this)
+  function bootstrap() {
+
+    // Stub out `app/main.ts` so System.import('app') doesn't fail if called in the index.html
+    System.set(System.normalizeSync('app/main.ts'), System.newModule({ }));
+
+    // bootstrap and launch the app (equivalent to standard main.ts)
+    Promise.all([
+      System.import('@angular/platform-browser-dynamic'),
+      System.import('app/app.module')
+    ])
+    .then(function (imports) {
+      var platform = imports[0];
+      var app      = imports[1];
+      platform.platformBrowserDynamic().bootstrapModule(app.AppModule);
+    })
+    .catch(function(err){ console.error(err); });
+  }
+
 })(this);
