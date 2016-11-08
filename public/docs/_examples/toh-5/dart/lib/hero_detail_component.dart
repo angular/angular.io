@@ -2,12 +2,12 @@
 // #docregion , v2
 // #docregion added-imports
 import 'dart:async';
-import 'dart:html' show window;
 
 // #enddocregion added-imports
 import 'package:angular2/core.dart';
 // #docregion added-imports
 import 'package:angular2/router.dart';
+import 'package:angular2/platform/common.dart';
 
 // #enddocregion added-imports
 import 'hero.dart';
@@ -17,9 +17,9 @@ import 'hero_service.dart';
 
 @Component(
     selector: 'my-hero-detail',
-    // #docregion templateUrl
+    // #docregion metadata, templateUrl
     templateUrl: 'hero_detail_component.html',
-    // #enddocregion templateUrl, v2
+    // #enddocregion metadata, templateUrl, v2
     styleUrls: const ['hero_detail_component.css']
     // #docregion v2
     )
@@ -30,8 +30,9 @@ class HeroDetailComponent implements OnInit {
   // #docregion ctor
   final HeroService _heroService;
   final RouteParams _routeParams;
+  final Location _location;
 
-  HeroDetailComponent(this._heroService, this._routeParams);
+  HeroDetailComponent(this._heroService, this._routeParams, this._location);
   // #enddocregion ctor
 
   // #docregion ngOnInit
@@ -44,7 +45,7 @@ class HeroDetailComponent implements OnInit {
 
   // #docregion goBack
   void goBack() {
-    window.history.back();
+    _location.back();
   }
   // #enddocregion goBack
 }
