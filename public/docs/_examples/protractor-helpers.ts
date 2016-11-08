@@ -1,3 +1,5 @@
+import { browser } from 'protractor';
+
 export var appLang = {
   appIsTs: false,
   appIsJs: false,
@@ -21,11 +23,10 @@ export function itIf(cond: boolean, name: string, func: (done: DoneFn) => void):
   }
 }
 
-  // TODO Jesus - figure out what's needed here for the new upgrade chapters
+// TODO Jesus - figure out what's needed here for the new upgrade chapters
 // Allow changing bootstrap mode to NG1 for upgrade tests
 export function setProtractorToNg1Mode(): void {
-  // browser.rootEl = 'body';
-
+  browser.rootEl = 'body';
   // let disableNgAnimate = function() {
   //   angular.module('disableNgAnimate', []).run(['$animate', function($animate: any) {
   //     $animate.enabled(false);

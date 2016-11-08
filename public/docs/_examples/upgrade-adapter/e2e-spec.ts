@@ -1,6 +1,7 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
+import { setProtractorToNg1Mode } from '../protractor-helpers';
 
 describe('Upgrade Tests', function () {
 
@@ -32,6 +33,7 @@ describe('Upgrade Tests', function () {
     beforeAll(function () {
       browser.get('/index-bootstrap.html');
       setProtractorToNg1Mode();
+      waitForNg1AsyncBootstrap();
     });
 
     it('bootstraps as expected', function () {
@@ -45,6 +47,7 @@ describe('Upgrade Tests', function () {
     beforeAll(function () {
       browser.get('/index-1-2-hybrid-bootstrap.html');
       setProtractorToNg1Mode();
+      waitForNg1AsyncBootstrap();
     });
 
     it('bootstraps as expected', function () {
