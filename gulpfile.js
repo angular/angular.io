@@ -754,7 +754,7 @@ gulp.task('check-deploy', ['firebase-use-proj-check', 'build-docs'], () => {
   }).then(function(shouldDeploy) {
     if (shouldDeploy) {
       gutil.log('deploying...');
-      return execPromise(`firebase deploy -p ${WWW}`);
+      return execPromise('firebase deploy');
     } else {
       return ['Not deploying'];
     }
