@@ -1,19 +1,9 @@
 'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
-import { setProtractorToNg1Mode } from '../protractor-helpers';
+import { setProtractorToNg1Mode, waitForNg1AsyncBootstrap } from '../protractor-helpers';
 
 describe('Upgrade Tests', function () {
-
-  // Protractor doesn't support the UpgradeAdapter's asynchronous
-  // bootstrap with Angular 1 at the moment. Get around it by
-  // waiting for an element to get `ng-scope` class.
-  function waitForNg1AsyncBootstrap() {
-    browser.ignoreSynchronization = true;
-    browser.driver.wait(function() {
-      return element(by.css('.ng-scope')).isPresent();
-    }, 5000);
-  }
 
   describe('NG1 Auto-bootstrap', function() {
 

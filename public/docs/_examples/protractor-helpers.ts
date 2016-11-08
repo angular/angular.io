@@ -1,4 +1,4 @@
-import { browser } from 'protractor';
+import { browser, element, by } from 'protractor';
 
 export var appLang = {
   appIsTs: false,
@@ -34,4 +34,14 @@ export function setProtractorToNg1Mode(): void {
   // };
 
   // browser.addMockModule('disableNgAnimate', disableNgAnimate);
+}
+
+// Protractor doesn't support the UpgradeAdapter's asynchronous
+// bootstrap with Angular 1 at the moment. Get around it by
+// waiting for an element to get `ng-scope` class.
+export function waitForNg1AsyncBootstrap() {
+  browser.ignoreSynchronization = true;
+  browser.driver.wait(function() {
+    return element(by.css('.ng-scope')).isPresent();
+  }, 5000);
 }
