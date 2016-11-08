@@ -72,7 +72,7 @@ class PlunkerBuilder {
       var config = this._initConfigAndCollectFileNames(configFileName);
       var postData = this._createPostData(config);
       this._addPlunkerFiles(config, postData);
-      var html = this._createPlunkerHtml(postData);
+      var html = this._createPlunkerHtml(config, postData);
       if (this.options.writeNoLink) {
         fs.writeFileSync(outputFileName, html, 'utf-8');
       }
@@ -95,13 +95,19 @@ class PlunkerBuilder {
     }
   }
 
-  _createBasePlunkerHtml(embedded) {
-    var html = '<!DOCTYPE html><html lang="en"><body>'
-    html += `<form id="mainForm" method="post" action="${this.options.url}" target="_self">`
+  _createBasePlunkerHtml(config, embedded) {
+    var open = '';
+
+    if (config.open) {
+      open = embedded ? `&show=${config.open}` : `&open=${config.open}`;
+    }
+    var action = `${this.options.url}${open}`;
+    var html = '<!DOCTYPE html><html lang="en"><body>';
+    html += `<form id="mainForm" method="post" action="${action}" target="_self">`;
 
     // html += '<div class="button"><button id="formButton" type="submit">Create Plunker</button></div>'
     // html += '</form><script>document.getElementById("formButton").click();</script>'
-    html +=  '</form><script>document.getElementById("mainForm").submit();</script>'
+    html +=  '</form><script>document.getElementById("mainForm").submit();</script>';
     html += '</body></html>';
     return html;
   }
@@ -166,8 +172,8 @@ class PlunkerBuilder {
     return postData;
   }
 
-  _createPlunkerHtml(postData) {
-    var baseHtml = this._createBasePlunkerHtml(this.options.embedded);
+  _createPlunkerHtml(config, postData) {
+    var baseHtml = this._createBasePlunkerHtml(config, this.options.embedded);
     var doc = jsdom.jsdom(baseHtml);
     var form = doc.querySelector('form');
     _.forEach(postData, (value, key) => {
