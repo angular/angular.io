@@ -51,6 +51,7 @@ describe('Upgrade Tests', function () {
     beforeAll(function () {
       browser.get('/index-1-2-hybrid-shared-adapter-bootstrap.html');
       setProtractorToNg1Mode();
+      waitForNg1AsyncBootstrap();
     });
 
     it('bootstraps as expected', function () {
