@@ -45,20 +45,6 @@ describe('Upgrade Tests', function () {
 
   });
 
-  describe('NG1-2 Hybrid Bootstrap with Shared UpgradeAdapter', function() {
-
-    beforeAll(function () {
-      browser.get('/index-1-2-hybrid-shared-adapter-bootstrap.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
-    });
-
-    it('bootstraps as expected', function () {
-      expect(element(by.css('#message')).getText()).toEqual('Hello world');
-    });
-
-  });
-
   describe('Upgraded static component', function() {
 
     beforeAll(function () {
