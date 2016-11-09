@@ -48,9 +48,8 @@ describe('Upgrade Tests', function () {
   describe('Upgraded static component', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-upgrade-static.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('renders', function () {

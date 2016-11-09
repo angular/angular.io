@@ -8,6 +8,4 @@ import { Component } from '@angular/core';
     <hero-detail></hero-detail>
   `
 })
-export class ContainerComponent {
-
-}
+export class ContainerComponent { }
