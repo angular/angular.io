@@ -35,6 +35,11 @@ export function waitForNg1AsyncBootstrap() {
   browser.driver.wait(function() {
     return element(by.css('.ng-scope')).isPresent();
   }, 5000);
-  // Use this instead when upgrading to protractor > 4.0.10
-  // browser.ng12Hybrid = true;
+}
+
+export function setProtractorToHybridMode() {
+  setProtractorToNg1Mode();
+  browser.ng12Hybrid = true;
+  // remove once waitForNg1AsyncBootstrap() is removed as well
+  browser.ignoreSynchronization = false;
 }
