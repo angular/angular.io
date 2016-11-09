@@ -31,7 +31,7 @@ export function setProtractorToNg1Mode(): void {
 // bootstrap with Angular 1 at the moment. Get around it by
 // waiting for an element to get `ng-scope` class.
 export function waitForNg1AsyncBootstrap() {
-  browser.ng12Hybrid = true;
+  browser.ignoreSynchronization = true;
   browser.driver.wait(function() {
     return element(by.css('.ng-scope')).isPresent();
   }, 5000);
