@@ -6,10 +6,10 @@ import { setProtractorToHybridMode } from '../protractor-helpers';
 describe('Upgrade Tests', function () {
 
   beforeAll(function () {
-    // setProtractorToHybridMode();
+    setProtractorToHybridMode();
   });
 
-  fdescribe('NG1 Auto-bootstrap', function() {
+  describe('NG1 Auto-bootstrap', function() {
 
     beforeAll(function () {
       browser.get('/index-ng-app.html');
