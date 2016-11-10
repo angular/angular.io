@@ -4,7 +4,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule, downgradeComponent } from '@angular/upgrade/static';
 
-import { heroDetail, HeroDetailComponent } from './hero-detail.component';
+import { heroDetail, HeroDetailDirective } from './hero-detail.component';
 import { ContainerComponent } from './container.component';
 
 // #docregion heroupgrade
@@ -15,7 +15,7 @@ import { ContainerComponent } from './container.component';
   ],
   declarations: [
     ContainerComponent,
-    HeroDetailComponent
+    HeroDetailDirective
   ],
   entryComponents: [
     ContainerComponent

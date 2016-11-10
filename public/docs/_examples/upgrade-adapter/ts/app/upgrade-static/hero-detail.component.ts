@@ -15,7 +15,7 @@ import { UpgradeComponent } from '@angular/upgrade/static';
 @Directive({
   selector: 'hero-detail'
 })
-export class HeroDetailComponent extends UpgradeComponent {
+export class HeroDetailDirective extends UpgradeComponent {
   constructor(elementRef: ElementRef, injector: Injector) {
     super('heroDetail', elementRef, injector);
   }

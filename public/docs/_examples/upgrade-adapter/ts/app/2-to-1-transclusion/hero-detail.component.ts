@@ -18,7 +18,7 @@ import { Hero } from '../hero';
 @Directive({
   selector: 'hero-detail'
 })
-export class HeroDetailComponent extends UpgradeComponent {
+export class HeroDetailDirective extends UpgradeComponent {
   @Input() hero: Hero;
 
   constructor(elementRef: ElementRef, injector: Injector) {
