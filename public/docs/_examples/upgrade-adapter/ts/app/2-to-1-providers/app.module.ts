@@ -1,17 +1,30 @@
+declare var angular: any;
+// #docregion ngmodule
+import { NgModule } from '@angular/core';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { BrowserModule } from '@angular/platform-browser';
+import { UpgradeModule, downgradeInjectable } from '@angular/upgrade/static';
+
 import { heroDetailComponent } from './hero-detail.component';
 import { Heroes } from './heroes';
-import { upgradeAdapter } from './upgrade_adapter';
 
-declare var angular: any;
-
+@NgModule({
+  imports: [
+    BrowserModule,
+    UpgradeModule
+  ],
+  providers: [ Heroes ]
+})
+export class AppModule {
+  ngDoBootstrap() {}
+}
 // #docregion register
 angular.module('heroApp', [])
-  .factory('heroes', upgradeAdapter.downgradeNg2Provider(Heroes))
+  .factory('heroes', downgradeInjectable(Heroes))
   .component('heroDetail', heroDetailComponent);
 // #enddocregion register
 
-upgradeAdapter.bootstrap(
-  document.querySelector('hero-app'),
-  ['heroApp'],
-  {strictDi: true}
-);
+platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
+  let upgrade = platformRef.injector.get(UpgradeModule);
+  upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
+});
