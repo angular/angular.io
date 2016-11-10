@@ -15,3 +15,20 @@ export const heroDetail = {
     };
   }
 };
+
+
+import { Directive, ElementRef, Injector, Input, Output, EventEmitter } from '@angular/core';
+import { UpgradeComponent } from '@angular/upgrade/static';
+import { Hero } from '../hero';
+
+@Directive({
+  selector: 'hero-detail'
+})
+export class HeroDetailComponent extends UpgradeComponent {
+  @Input() hero: Hero;
+  @Output() deleted: EventEmitter<Hero>;
+
+  constructor(elementRef: ElementRef, injector: Injector) {
+    super('heroDetail', elementRef, injector);
+  }
+}

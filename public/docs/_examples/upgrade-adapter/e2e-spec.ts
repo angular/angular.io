@@ -62,9 +62,8 @@ describe('Upgrade Tests', function () {
   describe('Upgraded component with IO', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-upgrade-io.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('has inputs', function () {
