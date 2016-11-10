@@ -81,9 +81,8 @@ describe('Upgrade Tests', function () {
   describe('Downgraded static component', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-downgrade-static.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('renders', function () {

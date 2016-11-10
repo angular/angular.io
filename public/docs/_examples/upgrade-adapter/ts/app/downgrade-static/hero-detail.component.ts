@@ -8,6 +8,4 @@ import { Component } from '@angular/core';
     <div><label>id: </label>1</div>
   `
 })
-export class HeroDetailComponent {
-
-}
+export class HeroDetailComponent { }
