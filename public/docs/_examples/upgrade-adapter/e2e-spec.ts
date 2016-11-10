@@ -117,9 +117,8 @@ describe('Upgrade Tests', function () {
   describe('Downgraded component with content projection', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-1-to-2-projection.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('can be transcluded into', function () {
