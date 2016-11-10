@@ -1,5 +1,5 @@
 // #docregion
-export const heroDetailComponent = {
+export const heroDetail = {
   bindings: {
     hero: '='
   },
@@ -10,3 +10,18 @@ export const heroDetailComponent = {
     </div>
   `
 };
+
+import { Directive, ElementRef, Injector, Input } from '@angular/core';
+import { UpgradeComponent } from '@angular/upgrade/static';
+import { Hero } from '../hero';
+
+@Directive({
+  selector: 'hero-detail'
+})
+export class HeroDetailComponent extends UpgradeComponent {
+  @Input() hero: Hero;
+
+  constructor(elementRef: ElementRef, injector: Injector) {
+    super('heroDetail', elementRef, injector);
+  }
+}

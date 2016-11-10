@@ -131,9 +131,8 @@ describe('Upgrade Tests', function () {
   describe('Upgraded component with transclusion', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-2-to-1-transclusion.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('can be projected into', function () {
