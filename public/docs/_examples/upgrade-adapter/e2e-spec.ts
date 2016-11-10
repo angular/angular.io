@@ -145,9 +145,8 @@ describe('Upgrade Tests', function () {
   describe('Upgrading NG1 Providers', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-1-to-2-providers.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('works', function () {
