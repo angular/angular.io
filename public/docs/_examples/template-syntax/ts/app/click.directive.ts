@@ -3,10 +3,10 @@
 import { Directive, ElementRef, EventEmitter, Output } from '@angular/core';
 
 @Directive({selector: '[myClick]'})
-export class MyClickDirective {
-  // #docregion my-click-output-1
+export class ClickDirective {
+  // #docregion output-myClick
   @Output('myClick') clicks = new EventEmitter<string>(); //  @Output(alias) propertyName = ...
- // #enddocregion my-click-output-1
+ // #enddocregion output-myClick
 
   toggle = false;
 
@@ -19,15 +19,15 @@ export class MyClickDirective {
   }
 }
 
-// #docregion my-click-output-2
+// #docregion output-myClick2
 @Directive({
-// #enddocregion my-click-output-2
+  // #enddocregion output-myClick2
   selector: '[myClick2]',
-// #docregion my-click-output-2
+  // #docregion output-myClick2
   outputs: ['clicks:myClick']  // propertyName:alias
 })
-// #enddocregion my-click-output-2
-export class MyClickDirective2 {
+// #enddocregion output-myClick2
+export class ClickDirective2 {
   clicks = new EventEmitter<string>();
   toggle = false;
 

@@ -10,7 +10,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     <label [style.font-size.px]="size">FontSize: {{size}}px</label>
   </div>`
 })
-export class MySizerComponent {
+export class SizerComponent {
   @Input()  size: number | string;
   @Output() sizeChange = new EventEmitter<number>();
 
