@@ -1,15 +1,18 @@
 'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
-import { setProtractorToNg1Mode, waitForNg1AsyncBootstrap, setProtractorToHybridMode } from '../protractor-helpers';
+import { setProtractorToHybridMode } from '../protractor-helpers';
 
 describe('Upgrade Tests', function () {
 
-  describe('NG1 Auto-bootstrap', function() {
+  beforeAll(function () {
+    // setProtractorToHybridMode();
+  });
+
+  fdescribe('NG1 Auto-bootstrap', function() {
 
     beforeAll(function () {
       browser.get('/index-ng-app.html');
-      setProtractorToNg1Mode();
     });
 
     it('bootstraps as expected', function () {
@@ -22,8 +25,6 @@ describe('Upgrade Tests', function () {
 
     beforeAll(function () {
       browser.get('/index-bootstrap.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('bootstraps as expected', function () {
@@ -35,7 +36,6 @@ describe('Upgrade Tests', function () {
   describe('NG1-2 Hybrid Bootstrap', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-1-2-hybrid-bootstrap.html');
     });
 
@@ -48,7 +48,6 @@ describe('Upgrade Tests', function () {
   describe('Upgraded static component', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-upgrade-static.html');
     });
 
@@ -62,7 +61,6 @@ describe('Upgrade Tests', function () {
   describe('Upgraded component with IO', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-upgrade-io.html');
     });
 
@@ -81,7 +79,6 @@ describe('Upgrade Tests', function () {
   describe('Downgraded static component', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-downgrade-static.html');
     });
 
@@ -94,7 +91,6 @@ describe('Upgrade Tests', function () {
   describe('Downgraded component with IO', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-downgrade-io.html');
     });
 
@@ -117,7 +113,6 @@ describe('Upgrade Tests', function () {
   describe('Downgraded component with content projection', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-1-to-2-projection.html');
     });
 
@@ -131,7 +126,6 @@ describe('Upgrade Tests', function () {
   describe('Upgraded component with transclusion', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-2-to-1-transclusion.html');
     });
 
@@ -145,7 +139,6 @@ describe('Upgrade Tests', function () {
   describe('Upgrading NG1 Providers', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-1-to-2-providers.html');
     });
 
@@ -159,7 +152,6 @@ describe('Upgrade Tests', function () {
   describe('Downgrading NG2 Providers', function() {
 
     beforeAll(function () {
-      setProtractorToHybridMode();
       browser.get('/index-2-to-1-providers.html');
     });
 
