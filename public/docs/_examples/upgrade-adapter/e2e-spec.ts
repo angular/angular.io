@@ -94,9 +94,8 @@ describe('Upgrade Tests', function () {
   describe('Downgraded component with IO', function() {
 
     beforeAll(function () {
+      setProtractorToHybridMode();
       browser.get('/index-downgrade-io.html');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('has inputs', function () {
