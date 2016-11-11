@@ -31,14 +31,13 @@ describe('Template Syntax', function () {
     expect(specialButtonEle.getAttribute('style')).toMatch('color: red');
   });
 
-  it('should two-way bind to sizer', function () {
-    let buttons = element.all(by.css('div#two-way-1 my-sizer button'));
-    let input = element(by.css('input#fontsize'));
-
-    input.getAttribute('value').then(size => {
-      buttons.get(1).click();
-      browser.waitForAngular();
-      expect(input.getAttribute('value')).toEqual((+size + 1).toString());
-    });
+  it('should two-way bind to sizer', async () => {
+    let div = element(by.css('div#two-way-1'));
+    let incButton = div.element(by.buttonText('+'));
+    let input = div.element(by.css('input'));
+    let initSize = await input.getAttribute('value');
+    incButton.click();
+    expect(input.getAttribute('value')).toEqual((+initSize + 1).toString());
   });
 });
+
