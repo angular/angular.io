@@ -1,9 +1,11 @@
 // #docplaster
 // #docregion bare
 import { NgModule } from '@angular/core';
-import { UpgradeModule } from '@angular/upgrade/static';
 import { BrowserModule } from '@angular/platform-browser';
 // #enddocregion bare
+// #docregion upgrademodule
+import { UpgradeModule } from '@angular/upgrade/static';
+// #enddocregion upgrademodule
 // #docregion httpmodule
 import { HttpModule } from '@angular/http';
 // #enddocregion httpmodule
@@ -23,19 +25,20 @@ import { PhoneListComponent } from './phone-list/phone-list.component';
 import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
 // #enddocregion phonedetail
 
-// #docregion bare, httpmodule, phone, phonelist, phonedetail, checkmarkpipe
+// #docregion bare, upgrademodule, httpmodule, phone, phonelist, phonedetail, checkmarkpipe
 
 @NgModule({
   imports: [
     BrowserModule,
-    UpgradeModule,
     // #enddocregion bare
+    UpgradeModule,
+    // #enddocregion upgrademodule
     HttpModule,
     // #enddocregion httpmodule, phone
     FormsModule,
-  // #docregion bare, httpmodule, phone
+  // #docregion bare, upgrademodule, httpmodule, phone
   ],
-  // #enddocregion bare, httpmodule, phone
+  // #enddocregion bare, upgrademodule, httpmodule, phone
   declarations: [
     PhoneListComponent,
     // #enddocregion phonelist
@@ -61,10 +64,11 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     }
     // #enddocregion routeparams
   ]
-// #docregion bare, httpmodule, phonelist
+// #docregion bare, upgrademodule, httpmodule, phonelist
 })
 export class AppModule {
+  // #enddocregion bare
   ngDoBootstrap() {}
+  // #docregion bare
 }
-// #enddocregion httpmodule, phone, phonelist, phonedetail, checkmarkpipe
-// #enddocregion bare
+// #enddocregion bare, upgrademodule, httpmodule, phone, phonelist, phonedetail, checkmarkpipe

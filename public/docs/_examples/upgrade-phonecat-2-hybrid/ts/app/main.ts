@@ -17,9 +17,6 @@ import { PhoneListComponent } from './phone-list/phone-list.component';
 import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
 
 // #enddocregion phone-detail
-// #docregion init-adapter
-// let upgradeAdapter = new UpgradeAdapter(AppModule);
-// #enddocregion init-adapter
 
 // #docregion routeparams
 // upgradeAdapter.upgradeNg1Provider('$routeParams');
@@ -48,9 +45,8 @@ angular.module('phoneDetail')
 // #enddocregion phone-detail
 
 // #docregion bootstrap
-// upgradeAdapter.bootstrap(document.documentElement, ['phonecatApp']);
 platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
   let upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
-  upgrade.bootstrap(document.body, ['phonecatApp'], {strictDi: true});
+  upgrade.bootstrap(document.documentElement, ['phonecatApp']);
 });
 // #enddocregion bootstrap
