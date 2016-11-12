@@ -1,4 +1,4 @@
-import { browser, element, by } from 'protractor';
+import { browser } from 'protractor';
 
 export var appLang = {
   appIsTs: false,
