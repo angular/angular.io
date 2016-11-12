@@ -1,6 +1,7 @@
 // #docplaster
 // #docregion bare
 import { NgModule } from '@angular/core';
+import { UpgradeModule } from '@angular/upgrade/static';
 import { BrowserModule } from '@angular/platform-browser';
 // #enddocregion bare
 // #docregion httpmodule
@@ -27,6 +28,7 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
 @NgModule({
   imports: [
     BrowserModule,
+    UpgradeModule,
     // #enddocregion bare
     HttpModule,
     // #enddocregion httpmodule, phone
@@ -42,10 +44,27 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     CheckmarkPipe
     // #docregion phonelist, phonedetail
   ],
+  entryComponents: [
+    PhoneListComponent,
+    // #enddocregion phonelist
+    PhoneDetailComponent
+    // #enddocregion phonedetail
+  ],
   // #docregion phone
-  providers: [ Phone ]
+  providers: [
+    Phone,
+    // #docregion routeparams
+    {
+      provide: '$routeParams',
+      useFactory: (i: any) => i.get('$routeParams'),
+      deps: ['$injector']
+    }
+    // #enddocregion routeparams
+  ]
 // #docregion bare, httpmodule, phonelist
 })
-export class AppModule {}
+export class AppModule {
+  ngDoBootstrap() {}
+}
 // #enddocregion httpmodule, phone, phonelist, phonedetail, checkmarkpipe
 // #enddocregion bare

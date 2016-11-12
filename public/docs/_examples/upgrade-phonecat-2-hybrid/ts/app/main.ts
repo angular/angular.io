@@ -1,6 +1,7 @@
 // #docregion import-adapter
-import { UpgradeAdapter } from '@angular/upgrade';
 declare var angular: any;
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { UpgradeModule, downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 
 import { AppModule } from './app.module';
 // #enddocregion import-adapter
@@ -17,24 +18,24 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
 
 // #enddocregion phone-detail
 // #docregion init-adapter
-let upgradeAdapter = new UpgradeAdapter(AppModule);
+// let upgradeAdapter = new UpgradeAdapter(AppModule);
 // #enddocregion init-adapter
 
 // #docregion routeparams
-upgradeAdapter.upgradeNg1Provider('$routeParams');
+// upgradeAdapter.upgradeNg1Provider('$routeParams');
 // #enddocregion routeparams
 
 // #docregion phone-service
 
 angular.module('core.phone')
-  .factory('phone', upgradeAdapter.downgradeNg2Provider(Phone));
+  .factory('phone', downgradeInjectable(Phone));
 // #enddocregion phone-service
 // #docregion phone-list
 
 angular.module('phoneList')
   .directive(
     'phoneList',
-    upgradeAdapter.downgradeNg2Component(PhoneListComponent) as angular.IDirectiveFactory
+    downgradeComponent({component: PhoneListComponent}) as angular.IDirectiveFactory
   );
 // #enddocregion phone-list
 // #docregion phone-detail
@@ -42,10 +43,14 @@ angular.module('phoneList')
 angular.module('phoneDetail')
   .directive(
     'phoneDetail',
-    upgradeAdapter.downgradeNg2Component(PhoneDetailComponent) as angular.IDirectiveFactory
+    downgradeComponent({component: PhoneDetailComponent}) as angular.IDirectiveFactory
   );
 // #enddocregion phone-detail
 
 // #docregion bootstrap
-upgradeAdapter.bootstrap(document.documentElement, ['phonecatApp']);
+// upgradeAdapter.bootstrap(document.documentElement, ['phonecatApp']);
+platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
+  let upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
+  upgrade.bootstrap(document.body, ['phonecatApp'], {strictDi: true});
+});
 // #enddocregion bootstrap

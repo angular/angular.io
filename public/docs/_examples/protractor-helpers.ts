@@ -32,17 +32,4 @@ export function setProtractorToNg1Mode(): void {
 export function setProtractorToHybridMode() {
   setProtractorToNg1Mode();
   browser.ng12Hybrid = true;
-  // remove once waitForNg1AsyncBootstrap() is removed as well
-  browser.ignoreSynchronization = false;
-}
-
-// TODO remove once all update adapter tests are moved to setProtractorToHybridMode
-// Protractor doesn't support the UpgradeAdapter's asynchronous
-// bootstrap with Angular 1 at the moment. Get around it by
-// waiting for an element to get `ng-scope` class.
-export function waitForNg1AsyncBootstrap() {
-  browser.ignoreSynchronization = true;
-  browser.driver.wait(function() {
-    return element(by.css('.ng-scope')).isPresent();
-  }, 5000);
 }

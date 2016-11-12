@@ -1,17 +1,19 @@
 'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
-import { setProtractorToNg1Mode, waitForNg1AsyncBootstrap } from '../protractor-helpers';
+import { setProtractorToHybridMode } from '../protractor-helpers';
 
 // Angular E2E Testing Guide:
 // https://docs.angularjs.org/guide/e2e-testing
 
 describe('PhoneCat Application', function() {
 
+  beforeAll(function () {
+    setProtractorToHybridMode();
+  });
+
   it('should redirect `index.html` to `index.html#!/phones', function() {
     browser.get('index.html');
-    setProtractorToNg1Mode();
-    waitForNg1AsyncBootstrap();
     expect(browser.getLocationAbsUrl()).toBe('/phones');
   });
 
@@ -19,8 +21,6 @@ describe('PhoneCat Application', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('should filter the phone list as a user types into the search box', function() {
@@ -64,12 +64,12 @@ describe('PhoneCat Application', function() {
       ]);
     });
 
-    fit('should render phone specific links', function() {
+    it('should render phone specific links', function() {
       let query = element(by.css('input'));
       query.sendKeys('nexus');
 
       element.all(by.css('.phones li a')).first().click();
-      waitForNg1AsyncBootstrap(); // Not sure why this is needed but it is. The route change works fine.
+      browser.sleep(200); // Not sure why this is needed but it is. The route change works fine.
       expect(browser.getLocationAbsUrl()).toBe('/phones/nexus-s');
     });
 
@@ -79,8 +79,6 @@ describe('PhoneCat Application', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones/nexus-s');
-      setProtractorToNg1Mode();
-      waitForNg1AsyncBootstrap();
     });
 
     it('should display the `nexus-s` page', function() {
