@@ -18,22 +18,24 @@ import { HeroesService } from './heroes.service';
     useFactory: (i: any) => i.get('heroes'),
     deps: ['$injector']
   }],
+  // #enddocregion register
   declarations: [
     HeroDetailComponent
   ],
   entryComponents: [
     HeroDetailComponent
   ]
+// #docregion register
 })
 export class AppModule {
   ngDoBootstrap() {}
 }
+// #enddocregion register
 
 angular.module('heroApp', [])
   .service('heroes', HeroesService)
   .directive('heroDetail', downgradeComponent({component: HeroDetailComponent}));
 
-// #enddocregion register
 
 platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
   let upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;

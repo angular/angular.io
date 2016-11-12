@@ -1,7 +1,6 @@
 declare var angular: any;
 // #docregion ngmodule
 import { NgModule } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 
@@ -21,6 +20,8 @@ angular.module('heroApp', [])
   });
 
 // #docregion bootstrap
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
 platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
   let upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
   upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});

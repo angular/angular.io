@@ -1,11 +1,12 @@
 declare var angular: any;
-// #docregion ngmodule
 import { NgModule } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
-import { UpgradeModule, downgradeInjectable } from '@angular/upgrade/static';
+import { UpgradeModule } from '@angular/upgrade/static';
 
 import { heroDetailComponent } from './hero-detail.component';
+
+// #docregion ngmodule
 import { Heroes } from './heroes';
 
 @NgModule({
@@ -18,7 +19,10 @@ import { Heroes } from './heroes';
 export class AppModule {
   ngDoBootstrap() {}
 }
+// #enddocregion ngmodule
 // #docregion register
+import { downgradeInjectable } from '@angular/upgrade/static';
+
 angular.module('heroApp', [])
   .factory('heroes', downgradeInjectable(Heroes))
   .component('heroDetail', heroDetailComponent);

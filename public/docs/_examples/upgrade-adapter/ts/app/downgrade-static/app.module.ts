@@ -2,7 +2,7 @@ declare var angular: any;
 import { NgModule } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
-import { UpgradeModule, downgradeComponent } from '@angular/upgrade/static';
+import { UpgradeModule } from '@angular/upgrade/static';
 
 // #docregion downgradecomponent, ngmodule
 import { HeroDetailComponent } from './hero-detail.component';
@@ -25,6 +25,8 @@ export class AppModule {
 }
 // #enddocregion ngmodule
 // #docregion downgradecomponent
+
+import { downgradeComponent } from '@angular/upgrade/static';
 
 angular.module('heroApp', [])
   .directive('heroDetail', downgradeComponent({component: HeroDetailComponent}));

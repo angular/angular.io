@@ -216,11 +216,11 @@ include ../_util-fns
 
   ## How The Upgrade Adapter Works
 
-  The primary tool provided by the upgrade module is called the `UpgradeAdapter`.
+  The primary tool provided by the upgrade module is called the `UpgradeModule`.
   This is a service that can bootstrap and manage hybrid applications that support
   both Angular 2 and Angular 1 code.
 
-  When we use `UpgradeAdapter`, what we're really doing is *running both versions
+  When we use `UpgradeModule`, what we're really doing is *running both versions
   of Angular at the same time*. All Angular 2 code is running in the Angular 2
   framework, and Angular 1 code in the Angular 1 framework. Both of these are the
   actual, fully featured versions of the frameworks. There is no emulation going on,
@@ -260,7 +260,7 @@ table
 
 :marked
   Even accounting for these differences we can still have dependency injection
-  interoperability. The `UpgradeAdapter` resolves the differences and makes
+  interoperability. The `UpgradeModule` resolves the differences and makes
   everything work seamlessly:
 
   * We can make Angular 1 services available for injection to Angular 2 code
@@ -283,7 +283,7 @@ figure.image-display
   What we'll find in the DOM of a hybrid application are components and
   directives from both Angular 1 and Angular 2. These components
   communicate with each other by using the input and output bindings
-  of their respective frameworks, which the `UpgradeAdapter` bridges
+  of their respective frameworks, which the `UpgradeModule` bridges
   together. They may also communicate through shared injected dependencies,
   as described above.
 
@@ -311,7 +311,7 @@ figure.image-display
      using an Angular 2 component, or an Angular 2 template using an
      Angular 1 component.
   2. By transcluding or projecting content from the other framework. The
-    `UpgradeAdapter` bridges the related concepts of  Angular 1 transclusion
+    `UpgradeModule` bridges the related concepts of  Angular 1 transclusion
      and Angular 2 content projection together.
 
 figure.image-display
@@ -351,13 +351,13 @@ figure.image-display
   change detection. The code itself doesn't have to call `scope.$apply()`
   or anything like it.
 
-  In the case of hybrid applications, the `UpgradeAdapter` bridges the
+  In the case of hybrid applications, the `UpgradeModule` bridges the
   Angular 1 and Angular 2 approaches. Here's what happens:
 
   * Everything that happens in the application runs inside the Angular 2 zone.
     This is true whether the event originated in Angular 1 or Angular 2 code.
     The zone triggers Angular 2 change detection after every event.
-  * The `UpgradeAdapter` will invoke the Angular 1 `$rootScope.$apply()` after
+  * The `UpgradeModule` will invoke the Angular 1 `$rootScope.$apply()` after
     every turn of the Angular zone. This also triggers Angular 1 change
     detection after every event.
 
@@ -367,7 +367,7 @@ figure.image-display
 :marked
   What this means in practice is that we do not need to call `$apply()` in
   our code, regardless of whether it is in Angular 1 on Angular 2. The
-  `UpgradeAdapter` does it for us. We *can* still call `$apply()` so there
+  `UpgradeModule` does it for us. We *can* still call `$apply()` so there
   is no need to remove such calls from existing code. Those calls just don't
   have any effect in a hybrid application.
 
@@ -386,7 +386,7 @@ figure.image-display
   as regular Angular 2 inputs and set onto the scope (or controller) when
   they change.
 
-  ## Using the Upgrade Adapter with Angular 2 _NgModules_
+  ## Using UpgradeModule with Angular 2 _NgModules_
 
   Both Angular 1 and Angular 2 have their own concept of modules
   to help organize an application into cohesive blocks of funcionality.
@@ -398,8 +398,8 @@ figure.image-display
 
   In a hybrid application we run both versions of Angular at the same time.
   That means that we need at least one module each from both Angular 1 and Angular 2.
-  We will give the Angular 2 module to the `UpgradeAdapter` while we use the
-  Angular 1 module for bootstrapping. Let's see how.
+  We will import `UpgradeModule` inside our Angular 2 module, and then use it for 
+  bootstrapping our Angular 1 module. Let's see how.
 
 .l-sub-section
   :marked
@@ -408,7 +408,7 @@ figure.image-display
 :marked
   ## Bootstrapping Hybrid Angular 1+2 Applications
 
-  The first step to upgrading an application using the `UpgradeAdapter` is
+  The first step to upgrading an application using the `UpgradeModule` is
   always to bootstrap it as a hybrid that supports both Angular 1 and
   Angular 2.
 
@@ -443,34 +443,19 @@ figure.image-display
 :marked
   This bare minimum `NgModule` imports `BrowserModule`, the module every Angular browser-based app must have.
 
-  Import and instantiate the `UpgradeAdapter` with the new `AppModule` and call its `bootstrap` method. 
-  That method takes the exact same arguments as [angular.bootstrap](https://docs.angularjs.org/api/ng/function/angular.bootstrap):
+  It also imports `UpgradeModule` from `@angular/upgrade/static`, and adds an override to prevent
+  Angular 2 from bootstrapping itself in the form of the `ngDoBootstrap` empty class method.
+
+  Now we bootstrap `AppModule` using `platformBrowserDynamic`'s `bootstrapModule` method.
+  Then we use dependency injection to get a hold of the `UpgradeModule` instance in `AppModule`,
+  and use it to bootstrap our Angular 1 app. 
+  The `upgrade.bootstrap` method takes the exact same arguments as [angular.bootstrap](https://docs.angularjs.org/api/ng/function/angular.bootstrap):
 
 +makeExample('upgrade-adapter/ts/app/1-2-hybrid-bootstrap/app.module.ts', 'bootstrap')
 
 :marked
   Congratulations! You're running a hybrid Angular 1+2 application! The
   existing Angular 1 code works as before _and_ you're ready to run Angular 2 code.
-
-.alert.is-helpful
-  :marked
-    Note that, unlike `angular.bootstrap`, the `upgradeAdapter.bootstrap` runs *asynchronously*.
-    The application is not launched immediately. Some time must pass after the bootstrap call returns.
-
-:marked
-  As we begin to migrate components to Angular 2, we'll be using the
-  `UpgradeAdapter` for more than just bootstrapping. It'll be important
-  to use the **same** instance of the adapter across the whole application,
-  because it stores internal information about what's going on in the application.
-  It'll be useful to have a module for a shared `UpgradeAdapter` instance in
-  the project:
-
-+makeExample('upgrade-adapter/ts/app/1-2-hybrid-shared-adapter-bootstrap/upgrade_adapter.ts', null, 'upgrade_adapter.ts')
-
-:marked
-  This shared instance can then be pulled in to all the modules that need it:
-
-+makeExample('upgrade-adapter/ts/app/1-2-hybrid-shared-adapter-bootstrap/app.module.ts', 'bootstrap')
 
 :marked
   ## Using Angular 2 Components from Angular 1 Code
@@ -488,13 +473,18 @@ figure
 
 :marked
   If we want to use this component from Angular 1, we need to *downgrade* it
-  using the upgrade adapter. What we get when we do that is an Angular 1
+  using the `downgradeComponent()` method. What we get when we do that is an Angular 1
   *directive*, which we can then register into our Angular 1 module:
 
 +makeExample('upgrade-adapter/ts/app/downgrade-static/app.module.ts', 'downgradecomponent')
 
 :marked
-  Because `HeroDetailComponent` is an Angular 2 component, we must also add it to the `declarations` in the `AppModule`.
+  Because `HeroDetailComponent` is an Angular 2 component, we must also add it to the 
+  `declarations` in the `AppModule`.
+
+  And because this component is being used from the Angular 1 module, and is an entry point into 
+  our Angular 2 application, we also need to add it to the `entryComponents` for our 
+  Angular 2 module.
 
 +makeExample('upgrade-adapter/ts/app/downgrade-static/app.module.ts', 'ngmodule')
 .l-sub-section
@@ -524,8 +514,10 @@ figure
 
 :marked
   These inputs and outputs can be supplied from the Angular 1 template, and the
-  `UpgradeAdapter` takes care of bridging them over:
+  `downgradeComponent()` method takes care of bridging them over via the `inputs` 
+  and `outputs` arrays:
 
++makeExample('upgrade-adapter/ts/app/downgrade-io/app.module.ts', 'downgradecomponent')
 +makeExample('upgrade-adapter/ts/index-downgrade-io.html', 'usecomponent')
 
 :marked
@@ -566,7 +558,7 @@ figure
   code. This is very useful when we start our migration from lower-level
   components and work our way up. But in some cases it is more convenient
   to do things in the opposite order: To start with higher-level components
-  and work our way down. This too can be done using the `UpgradeAdapter`.
+  and work our way down. This too can be done using the `UpgradeModule`.
   We can *upgrade* Angular 1 component directives and then use them from
   Angular 2.
 
@@ -580,7 +572,7 @@ figure
   A simple example of an upgradable component is one that just has a template
   and a controller:
 
-+makeExample('upgrade-adapter/ts/app/upgrade-static/hero-detail.component.ts', null, 'hero-detail.component.ts')
++makeExample('upgrade-adapter/ts/app/upgrade-static/hero-detail.component.ts', 'hero-detail', 'hero-detail.component.ts')
 
 :marked
   We can *upgrade* this component to Angular 2 using the `UpgradeAdapter`'s
@@ -588,12 +580,18 @@ figure
   directive and returns an Angular 2 **component class**. 
   Declare it in an `NgModule` as with other  Angular 2 components:
 
-+makeExample('upgrade-adapter/ts/app/upgrade-static/upgrade_adapter.ts', 'heroupgrade', 'app.module.ts')
+  We can *upgrade* this component to Angular 2 using the `UpgradeComponent` class. 
+  By creating a new Angular 2 **directive** that extends `UpgradeComponent` and doing a `super` call
+  inside it's constructor, we have a fully upgrade Angular 1 component to be used inside Angular 2.
+  All that is left is to add it to `AppModule`'s `declarations` array.
+
++makeExample('upgrade-adapter/ts/app/upgrade-static/hero-detail.component.ts', 'hero-detail-upgrade', 'hero-detail.component.ts')
++makeExample('upgrade-adapter/ts/app/upgrade-static/app.module.ts', 'hero-detail-upgrade', 'hero-detail.component.ts')
 
 .alert.is-helpful
   :marked
-    Upgraded components always have an element selector, which is based
-    on the original name of the original Angular 1 component directive.
+    Upgraded componentes are Angular 2 **directives**, instead of **components**, because Angular 2
+    is unaware that Angular 1 will create elements under it.
 
 :marked
   An upgraded component may also have inputs and outputs, as defined by
@@ -646,12 +644,13 @@ table
   As an example, say we have a hero detail Angular 1 component directive
   with one input and one output:
 
-+makeExample('upgrade-adapter/ts/app/upgrade-io/hero-detail.component.ts', null, 'hero-detail.component.ts')
++makeExample('upgrade-adapter/ts/app/upgrade-io/hero-detail.component.ts', 'hero-detail-io', 'hero-detail.component.ts')
 
 :marked
-  We can upgrade this component to Angular 2, and then provide the input
-  and output using Angular 2 template syntax:
+  We can upgrade this component to Angular 2, annotate inputs and outputs in the upgrade directive, 
+  and then provide the input and output using Angular 2 template syntax:
 
++makeExample('upgrade-adapter/ts/app/upgrade-io/hero-detail.component.ts', 'hero-detail-io-upgrade', 'hero-detail.component.ts')
 +makeExample('upgrade-adapter/ts/app/upgrade-io/container.component.ts', null, 'container.component.ts')
 
 
@@ -725,14 +724,13 @@ figure
 +makeExample('upgrade-adapter/ts/app/1-to-2-providers/heroes.service.ts', null, 'heroes.service.ts')
 
 :marked
-  We can upgrade the service using the `UpgradeAdapter`'s `upgradeNg1Provider` method
-  by giving it the name of the service. This adds the service into Angular 2's root injector.
+  We can upgrade the service using a Angular 2 [Factory provider](../guide/dependency-injection.html#!#factory-providers)
+  that requests the service from the Angular 1 `$injector`. The name of the Angular 2 dependency is up to you:
 
 +makeExample('upgrade-adapter/ts/app/1-to-2-providers/app.module.ts', 'register', 'app.module.ts')
 
 :marked
-  We can then inject it in Angular 2 using a string token that matches
-  its original name in Angular 1:
+  We can then inject it in Angular 2 using a string token:
 
 +makeExample('upgrade-adapter/ts/app/1-to-2-providers/hero-detail.component.ts', null, 'hero-detail.component.ts')
 
@@ -759,10 +757,10 @@ figure
 :marked
   Again, as with Angular 2 components, register the provider with the `NgModule` by adding it to the module's `providers` list.
 
-+makeExample('upgrade-adapter/ts/app/2-to-1-providers/upgrade_adapter.ts', 'ngmodule', 'app.module.ts')
++makeExample('upgrade-adapter/ts/app/2-to-1-providers/app.module.ts', 'ngmodule', 'app.module.ts')
 
 :marked
-  Now wrap the Angular 2 `Heroes` in an *Angular 1 factory function* using `upgradeAdapter.downgradeNg2Provider()`. 
+  Now wrap the Angular 2 `Heroes` in an *Angular 1 factory function* using `downgradeInjectable()`. 
   and plug the factory into an Angular 1 module. 
   The name of the Angular 1 dependency is up to you:
 

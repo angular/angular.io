@@ -1,4 +1,5 @@
 // #docregion
+// #docregion hero-detail
 export const heroDetail = {
   template: `
     <h2>Windstorm details!</h2>
@@ -7,8 +8,9 @@ export const heroDetail = {
   controller: function() {
   }
 };
+// #enddocregion hero-detail
 
-// #docregion heroupgrade
+// #docregion hero-detail-upgrade
 import { Directive, ElementRef, Injector } from '@angular/core';
 import { UpgradeComponent } from '@angular/upgrade/static';
 
@@ -20,4 +22,4 @@ export class HeroDetailDirective extends UpgradeComponent {
     super('heroDetail', elementRef, injector);
   }
 }
-// #enddocregion heroupgrade
+// #enddocregion hero-detail-upgrade

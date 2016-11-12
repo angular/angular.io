@@ -10,6 +10,7 @@ export const heroDetail = {
     </div>
   `
 };
+// #enddocregion
 
 import { Directive, ElementRef, Injector, Input } from '@angular/core';
 import { UpgradeComponent } from '@angular/upgrade/static';

@@ -1,4 +1,5 @@
 // #docregion
+// #docregion hero-detail-io
 export const heroDetail = {
   bindings: {
     hero: '<',
@@ -15,7 +16,9 @@ export const heroDetail = {
     };
   }
 };
+// #enddocregion hero-detail-io
 
+// #docregion hero-detail-io-upgrade
 import { Directive, ElementRef, Injector, Input, Output, EventEmitter } from '@angular/core';
 import { UpgradeComponent } from '@angular/upgrade/static';
 import { Hero } from '../hero';
@@ -31,3 +34,4 @@ export class HeroDetailDirective extends UpgradeComponent {
     super('heroDetail', elementRef, injector);
   }
 }
+// #enddocregion hero-detail-io-upgrade
