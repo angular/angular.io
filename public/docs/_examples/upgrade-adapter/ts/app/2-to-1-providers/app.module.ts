@@ -25,6 +25,6 @@ angular.module('heroApp', [])
 // #enddocregion register
 
 platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
-  let upgrade = platformRef.injector.get(UpgradeModule);
+  let upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
   upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
 });
