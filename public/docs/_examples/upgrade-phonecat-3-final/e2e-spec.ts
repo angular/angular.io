@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -67,11 +67,7 @@ describe('PhoneCat Application', function() {
     // #docregion links
     it('should render phone specific links', function() {
       let query = element(by.css('input'));
-      // https://github.com/angular/protractor/issues/2019
-      let str = 'nexus';
-      for (let i = 0; i < str.length; i++) {
-        query.sendKeys(str.charAt(i));
-      }
+      query.sendKeys('nexus');
       element.all(by.css('.phones li a')).first().click();
       browser.getCurrentUrl().then(function(url: string) {
         expect(url.endsWith('/phones/nexus-s')).toBe(true);
