@@ -1,4 +1,8 @@
 // #docplaster
+// #docregion
+declare var angular: angular.IAngularStatic;
+import { downgradeComponent } from '@angular/upgrade/static';
+
 // #docregion initialclass
 import { Component, Inject } from '@angular/core';
 
@@ -33,3 +37,9 @@ export class PhoneDetailComponent {
   }
 }
 // #enddocregion initialclass
+
+angular.module('phoneDetail')
+  .directive(
+    'phoneDetail',
+    downgradeComponent({component: PhoneDetailComponent}) as angular.IDirectiveFactory
+  );

@@ -1179,6 +1179,12 @@ code-example(format="").
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/core/phone/phone.service.ts', 'phonedata-interface', 'app/core/phone/phone.service.ts (interface)')(format='.')
 
 :marked
+  `@angular/upgrade/static` has a `downgradeInjectable` method for the purpose of making
+  Angular 2 services available to Angular 1 code. Use it to plug in the `Phone` service:
+
++makeExample('upgrade-phonecat-2-hybrid/ts/app/core/phone/phone.service.ts', 'downgrade-injectable', 'app/core/phone/phone.service.ts (downgrade)')(format='.')
+
+:marked
   Here's the full, final code for the service:
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/core/phone/phone.service.ts', null, 'app/core/phone/phone.service.ts')
@@ -1192,11 +1198,6 @@ code-example(format="").
   Because it's an Angular 2 service, we register it with the `NgModule` providers:
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/app.module.ts', 'phone', 'app.module.ts')
-:marked
-  `UpgradeAdapter` has a `downgradeNg2Provider` method for the purpose of making
-  Angular 2 services available to Angular 1 code. Use it to plug in the `Phone` service:
-
-+makeExample('upgrade-phonecat-2-hybrid/ts/app/main.ts', 'phone-service', 'app/main.ts (excerpt)')(format='.')
 
 :marked
   Now that we are loading `phone.service.ts` through an import that is resolved
@@ -1271,28 +1272,28 @@ code-example(format="").
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-list/phone-list.component.ts', 'getphones', 'app/phone-list/phone-list.component.ts')
 
 :marked
+  Now we need to downgrade our Angular 2 component so we can use it in Angular 1. 
+  Instead of registering a component, we register a `phoneList` *directive*, 
+  a downgraded version of the Angular 2 component.
+
+  The `as angular.IDirectiveFactory` cast tells the TypeScript compiler
+  that the return value of the `downgradeComponent` method is a directive factory.
+
++makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-list/phone-list.component.ts', 'downgrade-component', 'app/phone-list/phone-list.component.ts')
+
+:marked
   The new `PhoneListComponent` uses the Angular 2 `ngModel` directive, located in the `FormsModule`. 
-  Add the `FormsModule` to `NgModule` imports and declare the new `PhoneListComponent` :
+  Add the `FormsModule` to `NgModule` imports, declare the new `PhoneListComponent` and
+  finally add it to `entryComponents` since we downgraded it:
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/app.module.ts', 'phonelist', 'app.module.ts')
 
 :marked
-  In the entrypoint file `main.ts` we'll plug this component into the Angular 1 module. 
-  
-  Instead of registering a component, we register a `phoneList` *directive*, a downgraded version of the Angular 2 component.
-  The `UpgradeAdapter` creates the bridge between the two:
-
-+makeExample('upgrade-phonecat-2-hybrid/ts/app/main.ts', 'phone-list', 'app/main.ts (excerpt)')(format='.')
-
-:marked
-  The `as angular.IDirectiveFactory` cast tells the TypeScript compiler
-  that the return value of the downgrade method is a directive factory.
-
   Remove the &lt;script&gt; tag for the phone list component from `index.html`.
 
   Now set the remaining `phone-detail.component.ts` as follows:
 
-+makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-detail/phone-detail.component.ts', 'initialclass', 'app/phone-detail/phone-detail.component.ts')
++makeExample('upgrade-phonecat-2-hybrid/ts/app/phone-detail/phone-detail.component.ts', null, 'app/phone-detail/phone-detail.component.ts')
 
 :marked
   This is similar to the phone list component. 
@@ -1303,14 +1304,11 @@ code-example(format="").
   We intend to inject it into the new `PhoneDetailsComponent`.
   
   Unfortunately, Angular 1 dependencies are not automatically available to Angular 2 components.
-  We must use the `UpgradeAdapter` to make the `$routeParams` an Angular 2 provider.
-  Do that in `main.ts`:
+  We must use a [Factory provider](#making-angular-1-dependencies-injectable-to-angular-2)
+  to make `$routeParams` an Angular 2 provider.
+  Do that in `app.module.ts`:
 
-+makeExample('upgrade-phonecat-2-hybrid/ts/app/main.ts', 'routeparams', 'app/main.ts ($routeParms)')(format='.')
-
-.l-sub-section
-  :marked
-    Do not register an upgraded Angular 1 provider in the `NgModule`.
++makeExample('upgrade-phonecat-2-hybrid/ts/app/app.module.ts', 'routeparams', 'app/app.module.ts ($routeParms)')(format='.')
 
 :marked
   Convert the phone detail component template into Angular 2 syntax as follows:
@@ -1337,16 +1335,9 @@ code-example(format="").
     when we try to refer to properties on undefined objects. We need to be explicit
     about cases where this is expected.
 
-  Add this component to the `NgModule` _declarations_:
+  Add `PhoneDetailComponent` component to the `NgModule` _declarations_ and _entryComponents_:
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/app.module.ts', 'phonedetail', 'app.module.ts')
-
-:marked
-  In `main.ts` we'll now register a `phoneDetail` directive instead of a
-  component. The directive is a downgraded version of the `PhoneDetail` Angular 2
-  component.
-
-+makeExample('upgrade-phonecat-2-hybrid/ts/app/main.ts', 'phone-detail', 'app/main.ts (excerpt)')(format='.')
 
 :marked
   We should now also remove the phone detail component &lt;script&gt; tag from `index.html`.
@@ -1354,7 +1345,7 @@ code-example(format="").
   ### Add the _CheckmarkPipe_
 
   The Angular 1 directive had a `checkmark` _filter_.
-  Turn that into an Angular 2 **pipe**.
+  Let's turn that into an Angular 2 **pipe**.
 
   There is no upgrade adapter method to convert filters into pipes.
   You won't miss it.
@@ -1457,8 +1448,6 @@ code-example(format="").
 
   Now switch the bootstrap method of the application from the `UpgradeAdapter` 
   to the Angular 2 way. 
-  Because this is a browser application, compiled with the Just-in-Time (JiT) compiler,
-  use the `platformBrowserDynamic` function to bootstrap the `AppModule`:
 
 +makeExample('upgrade-phonecat-3-final/ts/app/main.ts', null, 'main.ts')
 

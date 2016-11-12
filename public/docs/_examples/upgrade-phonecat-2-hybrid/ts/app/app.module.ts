@@ -53,18 +53,19 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     PhoneDetailComponent
     // #enddocregion phonedetail
   ],
-  // #docregion phone
+  // #docregion phone, routeparams
   providers: [
     Phone,
-    // #docregion routeparams
+    // #enddocregion phone
     {
       provide: '$routeParams',
       useFactory: (i: any) => i.get('$routeParams'),
       deps: ['$injector']
     }
-    // #enddocregion routeparams
+    // #docregion phone
   ]
-// #docregion bare, upgrademodule, httpmodule, phonelist
+  // #enddocregion routeparams
+// #docregion bare, upgrademodule, httpmodule, phone, phonelist
 })
 export class AppModule {
   // #enddocregion bare
