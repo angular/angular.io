@@ -1,4 +1,4 @@
-declare var angular: any;
+declare var angular: angular.IAngularStatic;
 // #docregion ngmodule
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';

@@ -1,4 +1,4 @@
-declare var angular: any;
+declare var angular: angular.IAngularStatic;
 import { NgModule } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
@@ -29,7 +29,10 @@ export class AppModule {
 import { downgradeComponent } from '@angular/upgrade/static';
 
 angular.module('heroApp', [])
-  .directive('heroDetail', downgradeComponent({component: HeroDetailComponent}));
+  .directive(
+    'heroDetail',
+    downgradeComponent({component: HeroDetailComponent}) as angular.IDirectiveFactory
+  );
 
 // #enddocregion downgradecomponent
 

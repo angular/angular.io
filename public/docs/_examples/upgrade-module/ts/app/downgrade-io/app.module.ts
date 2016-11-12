@@ -1,4 +1,4 @@
-declare var angular: any;
+declare var angular: angular.IAngularStatic;
 import { NgModule } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserModule } from '@angular/platform-browser';
@@ -33,7 +33,7 @@ angular.module('heroApp', [])
     component: HeroDetailComponent,
     inputs: ['hero'],
     outputs: ['deleted']
-  }));
+  }) as angular.IDirectiveFactory);
 
 // #enddocregion downgradecomponent
 

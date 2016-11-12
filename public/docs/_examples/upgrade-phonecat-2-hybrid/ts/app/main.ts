@@ -1,5 +1,5 @@
 // #docregion import-adapter
-declare var angular: any;
+declare var angular: angular.IAngularStatic;
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { UpgradeModule, downgradeComponent, downgradeInjectable } from '@angular/upgrade/static';
 
