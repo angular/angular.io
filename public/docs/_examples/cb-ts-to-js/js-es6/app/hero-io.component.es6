@@ -23,15 +23,9 @@ class ConfirmComponent {
 
 ConfirmComponent.annotations = [
   new Component({
+    moduleId: module.id,
     selector: 'my-confirm',
-    template: `
-      <button (click)="onOkClick()">
-        {{okMsg}}
-      </button>
-      <button (click)="onNotOkClick()">
-        {{notOkMsg}}
-      </button>
-    `,
+    templateUrl: 'confirm.component.html',
     inputs: [
       'okMsg',
       'notOkMsg: cancelMsg'

@@ -80,7 +80,7 @@ a#modularity
 
   In both _TypeScript_ and _ES6_, you import Angular classes, functions, and other members with _ES6_ `import` statements.
 
-  In _ES5_, you access the Angular entities of the [the Angular packages](../glossary.html#!#scoped-package),
+  In _ES5_, you access the Angular entities of the [the Angular packages](../glossary.html#!#scoped-package)
   through the global `ng` object. 
   Everything you would have imported from `@angular` is a nested member of this `ng` object:
 
@@ -102,23 +102,29 @@ a#modularity
   `)
 
 :marked
-  ### Importing and Exporting Application Code
+  ### Exporting Application Code
 
   Each file in a _TypeScript_ or _ES6_ Angular application constitutes an _ES6_ module.
   When you want to make something available to other modules, you `export` it.
 
   _ES5_ lacks native support for modules. 
-  In an Angular _ES5_ application, you load each file manually by adding a `<script>` tag to the host web page, `index.html`. 
+  In an Angular _ES5_ application, you load each file manually by adding a `<script>` tag to `index.html`. 
+.alert.is-important
+  :marked
+    The order of `<script>` tags is often significant. 
+    You must load a file that defines a public JavaScript entity before a file that references that entity.
+:marked
+  The best practice in _ES5_ is to create a form of modularity that avoids polluting the global scope. 
+  Add one application namespace object such as `app` to the global `document`.
+  Then each code file "exports" public entities by attaching them to that namespace object, e.g., `app.HeroComponent`.
+  You could factor a large application into several sub-namespaces 
+  which leads to "exports" along the lines of `app.heroes.HeroComponent`.
   
-  Each code file can make selected entities available to other files via the shared global `window` scope.
-  But this is widely thought to be a bad practice.
-  Instead, you should add one application namespace object (such as `app`) to `window`.
-  Then attach everything you need to share to that namespace object.
+  Every file should wrap _ES5_ code in an 
+  [Immediately Invoked Function Expression (IIFE)](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
+  to limit unintentional leaking of private symbols into the global scope.
   
-  You should also wrap your code in an 
-  [Immediately Invoked Function Expression (IIFE)](https://en.wikipedia.org/wiki/Immediately-invoked_function_expression).
-  
-  These practices together help you avoid polluting the global scope.
+  Here is a `HeroComponent` as it might be defined and "exported" in each of the four language variants.
 
 +makeTabs(`
     cb-ts-to-js/ts/app/hero.component.ts,
@@ -138,11 +144,11 @@ a#modularity
   `)
 
 :marked
+  ### Importing Application Code
+
   In _TypeScript_ and _ES6_ apps, you `import` things that have been exported from other modules.
 
-  In _ES5_ you use the shared namespace object to access "exported" entities in other files.
-  Note that the order of `<script>` tags on the page is often significant. 
-  You must load a file that defines a shared member before a file that uses that member.
+  In _ES5_ you use the shared namespace object to access "exported" entities from other files.
 
 +makeTabs(`
     cb-ts-to-js/ts/app/main.ts,
@@ -180,8 +186,7 @@ a#class-metadata
   In _ES6-without-decorators_, properties of classes must be assigned inside the constructor.
 
   _ES5_ JavaScript has no classes. 
-  Use the constructor function pattern instead adding methods to the prototype.
-  This works with Angular as well as classes do.
+  Use the constructor function pattern instead, adding methods to the prototype.
 
 +makeTabs(`
     cb-ts-to-js/ts/app/hero.component.ts,
@@ -206,12 +211,13 @@ a#class-metadata
   When writing in _TypeScript_ or _ES6-with-decorators_, 
   provide configuration and metadata by adorning a class with one or more *decorators*. 
   For example, you supply metadata to a component class by preceding its definition with a
-  [`@Component`](../api/core/index/Component-decorator.html) decorator.
+  [`@Component`](../api/core/index/Component-decorator.html) decorator function whose
+  argument is an object literal with metadata properties.
 
   In _plain ES6_, you provide metadata by attaching an `annotations` array to the _class_.
-  Each item in the array corresponds to a decorator property value.
+  Each item in the array is a new instance of a metadata decorator created with a similar metadata object literal.
   
-  In _ES5_, you also provide an `annotations` array but you attach it to the _constructor function_ rather than a class.
+  In _ES5_, you also provide an `annotations` array but you attach it to the _constructor function_ rather than to a class.
 
   See these variations side-by-side:
 
@@ -233,11 +239,41 @@ a#class-metadata
   `)
 
 :marked
+  ***External Template file***
+
+  A large component template is often kept in a separate template file.
++makeExample('cb-ts-to-js/ts/app/title.component.html', '', 'app/title.component.html')(format='.')
+:marked
+  The component (`TitleComponent` in this case) then references the template file in its metadata `templateUrl` property:
++makeTabs(`
+  cb-ts-to-js/ts/app/hero-di-inject-additional.component.ts,
+  cb-ts-to-js/js-es6-decorators/app/hero-di-inject-additional.component.es6,
+  cb-ts-to-js/js-es6/app/hero-di-inject-additional.component.es6,
+  cb-ts-to-js/js/app/hero-di-inject-additional.component.js`,
+  'metadata, metadata, metadata, metadata',
+  `TypeScript,
+  ES6 JavaScript with decorators,
+  ES6 JavaScript,
+  ES5 JavaScript`)(format='.')
+
+:marked
+  Note that the _TypeScript_ and both _ES6_ file `templateUrl` properties identify the location of the template file _relative to the component module_.
+  All three metadata configurations specify the `moduleId` property 
+  so that Angular can calculate the proper module address.
+.l-sub-section
+  :marked
+    The `moduleId` may not be needed with certain tooling but it's safest to provide it anyway.
+:marked
+  The _ES5_ approach shown here does not support modules and therefore there is no way to calculate a _module-relative URL_.
+  The `templateUrl` for the _ES5_ code must specify the _path from the project root_ and 
+  omits the irrelevant `moduleId` property. 
+  
+
   ***Angular class API***
 
   This _ES5_ pattern of creating a constructor and annotating it with metadata is so common that Angular 
-  provides a convenience API to make it a little more compact and put the metadata first, 
-  as it would be if you wrote in _TypeScript_ or _ES6-with-decorators_.
+  provides a convenience API to make it a little more compact and locates the metadata above the constructor, 
+  as you would if you wrote in _TypeScript_ or _ES6-with-decorators_.
 
   Set a component variable to the result of an `ng.core.Component` function call.
   Pass the same metadata object to `ng.core.Component` as you did before.
@@ -278,14 +314,14 @@ code-example.
 :marked
   ### Interfaces
 
-  When defining classes that need to implement a certain method, it is common to use _TypeScript_
-  interfaces that enforce that the method signature is correct. 
-  Component lifecycle methods like `ngOnInit` are one example of this pattern.
-  `ngOnInit` is defined in the `OnInit` interface.
+  A _TypeScript_ interface helps ensure that a class implements the interface's members correctly.
+  We strongly recommend Angular interfaces where appropriate. 
+  For example, a component that implements the `ngOnInit` lifecycle hook method
+  should implement the `OnInit` interface.
 
-  _TypeScript_ interfaces are purely for developer convenience and are not used by Angular at runtime.
-  This means that in _ES5_/_ES6_ JavaScript code you don't need to substitute anything for interfaces.
-  Just implement the methods.
+  _TypeScript_ interfaces exist for developer convenience and are not used by Angular at runtime.
+  They have no physical manifestation in the generated JavaScript code.
+  Just implement the methods and ignore interfaces when translating code samples from _TypeScript_ to JavaScript.
 
 +makeTabs(`
     cb-ts-to-js/ts/app/hero-lifecycle.component.ts,
@@ -307,21 +343,19 @@ a#property-metadata
 
   ### Input and Output Decorators
 
-  In _TypeScript_ and _ES6_ with decorators, property decorators are often used to provide additional 
-  metadata for components and directives.
-  For [inputs and outputs](../guide/template-syntax.html#inputs-outputs), you use `@Input` and 
-  `@Output` property decorators. 
-  Specify input and output binding names if you want the public-facing names to differ
-  from the class property names.
+  In _TypeScript_ and _ES6-with-decorators_, you often add metadata to class _properties_ with _property decorators_.
+  For example, you apply [`@Input` and `@Output` property decorators](../guide/template-syntax.html#inputs-outputs) 
+  to public class properties that will be the target of data binding expressions in parent components.
 
-  There is no equivalent of a property decorator in _ES5_/_ES6_ JavaScript. 
-  Instead, you add comparable information to the `Component` (or `Directive`) metadata.
+  There is no equivalent of a property decorator in _ES5_ or _plain ES6_. 
+  Fortunately, every property decorator has an equivalent representation in a class decorator metadata property.
+  A _TypeScript_ `@Input` property decorator can be represented by an item in the `Component` metadata's `inputs` array.
   
-  In this example, you add `inputs` and `outputs` array attributes containing the input and
-  output property names. 
-  If you need a binding name that is different from the property itself, use the 
-  `propertyName: bindingName` syntax.  
-  
+  You already know how to add `Component` or `Directive` class metadata in _any_ JavaScript dialect so
+  there's nothing fundamentally new about adding another property. 
+  But note that what would have been _separate_ `@Input` and `@Output` property decorators for each class property are
+  combined in the metadata `inputs` and `outputs` _arrays_.
+
 +makeTabs(`
     cb-ts-to-js/ts/app/hero-io.component.ts,
     cb-ts-to-js/js-es6-decorators/app/hero-io.component.es6,
@@ -334,7 +368,16 @@ a#property-metadata
     ES6 JavaScript,
     ES5 JavaScript
   `)
-
+:marked
+  In the previous example, one of the public-facing binding names (`cancelMsg`) 
+  differs from the corresponding class property name (`notOkMsg`).
+  That's OK but you must tell Angular about it so that it can map an external binding of `cancelMsg`
+  to the component's `notOkMsg` property.
+  
+  In _TypeScript_ and _ES6-with-decorators_, 
+  you specify the special binding name in the argument to the property decorator.
+  In _ES5_ and _plain ES6_ code, convey this pairing with the `propertyName: bindingName` syntax in the class metadata.
+  
 .l-main-section
 :marked
   ## Dependency Injection
@@ -342,7 +385,7 @@ a#property-metadata
   ### Injection by Type
 
   Angular can often use _TypeScript_ type information to determine what needs to be injected.
-  _ES6_ with decorators can also make use of type information.
+  _ES6-with-decorators_ can also make use of type information.
 
   Since no type information is available in _ES5_/_ES6_ JavaScript, you must identify "injectables" in 
   some other way.

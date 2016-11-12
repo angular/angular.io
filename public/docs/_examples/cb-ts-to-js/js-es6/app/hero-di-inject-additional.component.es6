@@ -20,16 +20,15 @@ class TitleComponent {
   }
 }
 
+// #docregion metadata
 TitleComponent.annotations = [
   new Component({
+    moduleId: module.id,
     selector: 'hero-title',
-    template: `
-      <h1>{{titlePrefix}} {{title}}</h1>
-      <button (click)="ok()">OK</button>
-      <p>{{ msg }}</p>
-    `
+    templateUrl: 'title.component.html'
   })
 ];
+// #enddocregion metadata
 
 TitleComponent.parameters = [
   [new Optional(), new Inject('titlePrefix')],

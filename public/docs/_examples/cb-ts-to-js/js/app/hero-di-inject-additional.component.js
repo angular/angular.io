@@ -1,13 +1,13 @@
 (function(app) {
 
   // #docregion
+  // #docregion metadata
   var TitleComponent = ng.core.Component({
     selector: 'hero-title',
-    template:
-      '<h1>{{titlePrefix}} {{title}}</h1>' +
-      '<button (click)="ok()">OK</button>' +
-      '<p>{{ msg }}</p>'
-  }).Class({
+    templateUrl: 'app/title.component.html'
+  })
+  // #enddocregion metadata
+  .Class({
     constructor: [
       [ new ng.core.Optional(), new ng.core.Inject('titlePrefix') ],
       new ng.core.Attribute('title'),

@@ -2,6 +2,7 @@
   // #docregion
   var ConfirmComponent = ng.core.Component({
     selector: 'my-confirm',
+    templateUrl: 'app/confirm.component.html',
     inputs: [
       'okMsg',
       'notOkMsg: cancelMsg'
@@ -9,14 +10,7 @@
     outputs: [
       'ok',
       'notOk: cancel'
-    ],
-    template:
-      '<button (click)="onOkClick()">' +
-        '{{okMsg}}' +
-      '</button>' +
-      '<button (click)="onNotOkClick()">' +
-        '{{notOkMsg}}' +
-      '</button>'
+    ]
   }).Class({
     constructor: function() {
       this.ok = new ng.core.EventEmitter();

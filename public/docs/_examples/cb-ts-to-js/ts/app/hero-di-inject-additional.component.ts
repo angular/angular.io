@@ -8,14 +8,13 @@ import {
 import { BrowserModule } from '@angular/platform-browser';
 
 // #docregion
+// #docregion metadata
 @Component({
+  moduleId: module.id,
   selector: 'hero-title',
-  template: `
-    <h1>{{titlePrefix}} {{title}}</h1>
-    <button (click)="ok()">OK</button>
-    <p>{{ msg }}</p>
-  `
+  templateUrl: 'title.component.html'
 })
+// #enddocregion metadata
 class TitleComponent {
   private msg: string = '';
   constructor(

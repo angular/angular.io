@@ -9,15 +9,9 @@ import { BrowserModule } from '@angular/platform-browser';
 
 // #docregion
 @Component({
+  moduleId: module.id,
   selector: 'my-confirm',
-  template: `
-    <button (click)="onOkClick()">
-      {{okMsg}}
-    </button>
-    <button (click)="onNotOkClick()">
-      {{notOkMsg}}
-    </button>
-  `
+  templateUrl: 'confirm.component.html'
 })
 class ConfirmComponent {
   @Input() okMsg: string;
