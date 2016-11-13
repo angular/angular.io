@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion metadata
 import { Component } from '@angular/core';
 
@@ -6,24 +5,10 @@ import { Component } from '@angular/core';
   selector: 'hero-view',
   template: '<h1>{{title}}: {{getName()}}</h1>'
 })
-// #docregion appexport
-// #docregion class
+// #docregion appexport, class
 export class HeroComponent {
   title = 'Hero Detail';
   getName() {return 'Windstorm'; }
 }
-// #enddocregion class
-// #enddocregion appexport
+// #enddocregion appexport, class
 // #enddocregion metadata
-
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
-@NgModule({
-  imports: [ BrowserModule ],
-  declarations: [ HeroComponent ],
-  bootstrap: [ HeroComponent ]
-})
-export class HeroesModule { }
-
-

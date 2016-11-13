@@ -2,16 +2,14 @@
 // #docregion metadata
 import { Component } from '@angular/core';
 
-// #docregion class
-// #docregion appexport
+// #docregion appexport, class
 export class HeroComponent {
   constructor() {
     this.title = 'Hero Detail';
   }
   getName() {return 'Windstorm'; }
 }
-// #enddocregion appexport
-// #enddocregion class
+// #enddocregion appexport, class
 
 HeroComponent.annotations = [
   new Component({
@@ -20,18 +18,3 @@ HeroComponent.annotations = [
   })
 ];
 // #enddocregion metadata
-
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
-export class HeroesModule { }
-
-HeroesModule.annotations = [
-  new NgModule({
-    imports: [ BrowserModule ],
-    declarations: [ HeroComponent ],
-    bootstrap: [ HeroComponent ]
-  })
-];
-
-

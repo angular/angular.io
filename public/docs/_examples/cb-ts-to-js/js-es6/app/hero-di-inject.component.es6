@@ -1,8 +1,7 @@
-import { Component, Inject, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { Component, Inject } from '@angular/core';
 
 // #docregion
-class HeroComponent {
+export class HeroComponent {
   constructor(name) {
     this.name = name;
   }
@@ -19,14 +18,3 @@ HeroComponent.parameters = [
   [new Inject('heroName')]
 ];
 // #enddocregion
-
-export class HeroesDIInjectModule { }
-
-HeroesDIInjectModule.annotations = [
-  new NgModule({
-    imports: [ BrowserModule ],
-    providers: [ { provide: 'heroName', useValue: 'Windstorm' } ],
-    declarations: [ HeroComponent ],
-    bootstrap: [ HeroComponent ]
-  })
-];

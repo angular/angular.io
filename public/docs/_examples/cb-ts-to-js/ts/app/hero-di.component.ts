@@ -1,6 +1,4 @@
-import { Component, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-
+import { Component }   from '@angular/core';
 import { DataService } from './data.service';
 
 // #docregion
@@ -8,19 +6,10 @@ import { DataService } from './data.service';
   selector: 'hero-di',
   template: `<h1>Hero: {{name}}</h1>`
 })
-
-class HeroComponent {
-  name: string;
+export class HeroComponent {
+  name = '';
   constructor(dataService: DataService) {
     this.name = dataService.getHeroName();
   }
 }
 // #enddocregion
-
-@NgModule({
-  imports: [ BrowserModule ],
-  providers: [ DataService ],
-  declarations: [ HeroComponent ],
-  bootstrap: [ HeroComponent ]
-})
-export class HeroesDIModule { }

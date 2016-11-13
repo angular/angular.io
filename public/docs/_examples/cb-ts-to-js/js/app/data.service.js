@@ -1,13 +1,10 @@
 (function(app) {
 
-  function DataService() {
-  }
-  DataService.annotations = [
-    new ng.core.Injectable()
-  ];
+  app.DataService = DataService;
+  function DataService() { }
+
   DataService.prototype.getHeroName = function() {
     return 'Windstorm';
   };
-  app.DataService = DataService;
 
 })(window.app = window.app || {});
