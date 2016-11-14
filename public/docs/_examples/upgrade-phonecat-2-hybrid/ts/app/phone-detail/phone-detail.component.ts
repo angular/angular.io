@@ -23,9 +23,7 @@ export class PhoneDetailComponent {
   phone: PhoneData;
   mainImageUrl: string;
 
-  constructor(@Inject('$routeParams')
-                $routeParams: angular.route.IRouteParamsService,
-              phone: Phone) {
+  constructor(@Inject('$routeParams') $routeParams: any, phone: Phone) {
     phone.get($routeParams['phoneId']).subscribe(phone => {
       this.phone = phone;
       this.setImage(phone.images[0]);

@@ -59,7 +59,7 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     // #enddocregion phone
     {
       provide: '$routeParams',
-      useFactory: (i: any) => i.get('$routeParams'),
+      useFactory: routeParamsFactory,
       deps: ['$injector']
     }
     // #docregion phone
@@ -73,3 +73,9 @@ export class AppModule {
   // #docregion bare
 }
 // #enddocregion bare, upgrademodule, httpmodule, phone, phonelist, phonedetail, checkmarkpipe
+
+// #docregion routeparams
+export function routeParamsFactory(i: any) {
+  return i.get('$routeParams');
+}
+// #enddocregion routeparams
