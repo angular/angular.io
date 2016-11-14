@@ -1,7 +1,7 @@
 // #docplaster
 // #docregion
-import { NgModule }     from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { NgModule }             from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 import { CrisisCenterHomeComponent } from './crisis-center-home.component';
 import { CrisisListComponent }       from './crisis-list.component';
@@ -11,36 +11,38 @@ import { CrisisDetailComponent }     from './crisis-detail.component';
 // #docregion can-deactivate-guard
 import { CanDeactivateGuard }    from '../can-deactivate-guard.service';
 
-@NgModule({
-  imports: [
-    RouterModule.forChild([
+const crisisCenterRoutes: Routes = [
+  {
+    path: '',
+    redirectTo: '/crisis-center',
+    pathMatch: 'full'
+  },
+  {
+    path: 'crisis-center',
+    component: CrisisCenterComponent,
+    children: [
       {
         path: '',
-        redirectTo: '/crisis-center',
-        pathMatch: 'full'
-      },
-      {
-        path: 'crisis-center',
-        component: CrisisCenterComponent,
+        component: CrisisListComponent,
         children: [
           {
+            path: ':id',
+            component: CrisisDetailComponent,
+            canDeactivate: [CanDeactivateGuard]
+          },
+          {
             path: '',
-            component: CrisisListComponent,
-            children: [
-              {
-                path: ':id',
-                component: CrisisDetailComponent,
-                canDeactivate: [CanDeactivateGuard]
-              },
-              {
-                path: '',
-                component: CrisisCenterHomeComponent
-              }
-            ]
+            component: CrisisCenterHomeComponent
           }
         ]
       }
-    ])
+    ]
+  }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forChild(crisisCenterRoutes)
   ],
   exports: [
     RouterModule

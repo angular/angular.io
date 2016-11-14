@@ -11,9 +11,9 @@ import { DialogService }  from '../dialog.service';
 @Component({
   template: `
   <div *ngIf="crisis">
-    <h3>"{{editName}}"</h3>
+    <h3>"{{ editName }}"</h3>
     <div>
-      <label>Id: </label>{{crisis.id}}</div>
+      <label>Id: </label>{{ crisis.id }}</div>
     <div>
       <label>Name: </label>
       <input [(ngModel)]="editName" placeholder="name"/>
@@ -70,14 +70,15 @@ export class CrisisDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public dialogService: DialogService
-  ) { }
+  ) {}
 
 // #docregion crisis-detail-resolve
   ngOnInit() {
-    this.route.data.forEach((data: { crisis: Crisis }) => {
-      this.editName = data.crisis.name;
-      this.crisis = data.crisis;
-    });
+    this.route.data
+      .subscribe((data: { crisis: Crisis }) => {
+        this.editName = data.crisis.name;
+        this.crisis = data.crisis;
+      });
   }
 // #enddocregion crisis-detail-resolve
 

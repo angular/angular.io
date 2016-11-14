@@ -10,7 +10,7 @@ export class CrisisDetailResolve implements Resolve<Crisis> {
   constructor(private cs: CrisisService, private router: Router) {}
 
   resolve(route: ActivatedRouteSnapshot): Promise<Crisis>|boolean {
-    let id = +route.params['id'];
+    let id = route.params['id'];
 
     return this.cs.getCrisis(id).then(crisis => {
       if (crisis) {
