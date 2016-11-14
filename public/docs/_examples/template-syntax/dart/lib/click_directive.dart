@@ -5,11 +5,11 @@ import 'package:angular2/core.dart';
 
 @Directive(selector: '[myClick]')
 class MyClickDirective {
-  // #docregion my-click-output-1
+  // #docregion output-myClick
   // @Output(alias) [type info] propertyName = ...
   @Output('myClick') final EventEmitter clicks = new EventEmitter<String>();
 
-  // #enddocregion my-click-output-1
+  // #enddocregion output-myClick
   bool _toggle = false;
 
   MyClickDirective(ElementRef el) {
@@ -21,14 +21,14 @@ class MyClickDirective {
   }
 }
 
-// #docregion my-click-output-2
+// #docregion output-myClick2
 @Directive(
-// #enddocregion my-click-output-2
+// #enddocregion output-myClick2
     selector: '[myClick2]',
-// #docregion my-click-output-2
+// #docregion output-myClick2
     // ...
     outputs: const ['clicks:myClick']) // propertyName:alias
-// #enddocregion my-click-output-2
+// #enddocregion output-myClick2
 class MyClickDirective2 {
   final EventEmitter clicks = new EventEmitter<String>();
   bool _toggle = false;

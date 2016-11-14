@@ -7,8 +7,8 @@ import 'package:angular2/common.dart';
 
 import 'hero.dart';
 import 'hero_detail_component.dart';
-import 'my_click_directive.dart';
-import 'my_sizer_component.dart';
+import 'click_directive.dart';
+import 'sizer_component.dart';
 
 enum Color { red, green, blue }
 
