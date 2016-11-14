@@ -343,7 +343,9 @@ a#toh
 
   ***index.html***
 
-  The JiT and AoT apps are setup and launched so differently that they require their own `index.html` files. 
+  The JiT and AoT apps require their own `index.html` files because they setup and launch so differently. 
+  **Put the AoT version in the `/aot` folder** because two `index.html` files can't be in the same folder. 
+  
   Here they are for comparison:
 
 +makeTabs(
@@ -355,9 +357,6 @@ a#toh
 )
 
 :marked
-  They can't be in the same folder. 
-  ***Put the AoT version in the `/aot` folder***.
-
   The JiT version relies on `SystemJS` to load individual modules and requires the `reflect-metadata` shim. 
   Both scripts appear in its `index.html`.
 
@@ -366,8 +365,9 @@ a#toh
   
   ***main.ts***
   
-  The JiT and AoT apps are also bootstraped differently that they require their own `main.ts` files. 
-  Here they are for comparison:
+  JiT and AoT applications boot in much the same way but require different Angular libraries to do so.
+  The key differences, covered in the [Bootstrap](#bootstrap) section above,
+  are evident in these `main` files which can and should reside in the same folder: 
 
 +makeTabs(
   `toh-6/ts/app/main-aot.ts,
@@ -378,32 +378,26 @@ a#toh
 )
 
 :marked
-  They can and should exist in the same folder.
-  
-  The `app/main-aot.ts` file is used by the AoT config scripts (`tsconfig-aot.json` and `rollup-config.js`).
-  
-  Key differences are discussed in the [Bootstrap](#bootstrap) section, above.
-
-  *Component-relative Template URLS*
+  ***Component-relative Template URLS***
 
   The AoT compiler requires that `@Component` URLS for external templates and css files be _component-relative_.
-  That means that the value of `@Component.templateUrl` is a URL value relative to the component class file:
-  `foo.component.html` no matter where `foo.component.ts` sits in the project folder structure.
+  That means that the value of `@Component.templateUrl` is a URL value _relative_ to the component class file.
+  For example, a `'hero.component.html'` URL means that the template file is a sibling of its companion `hero.component.ts` file.
 
   While JiT app URLs are more flexible, stick with _component-relative_ URLs for compatibility with AoT compilation.
   
-  JiT-compiled apps, using the SystemJS loader and _component-relative_ URLs *must set the* `@Component.moduleId` *property to* `module.id`.
+  JiT-compiled applications that use the SystemJS loader and _component-relative_ URLs *must set the* `@Component.moduleId` *property to* `module.id`.
   The `module` object is undefined when an AoT-compiled app runs. 
-  The app fails unless you assign a global `module` value in the `index.html` like this:
+  The app fails with a null reference error unless you assign a global `module` value in the `index.html` like this:
 +makeExample('toh-6/ts/aot/index.html','moduleId')(format='.')  
 .l-sub-section
   :marked
     Setting a global `module` is a temporary expedient. 
 :marked
-  *TypeScript configuration*
+  ***TypeScript configuration***
 
-  JiT-compiled apps transpile to `commonjs` modules.
-  AoT-compiled apps transpile to _ES2015_/_ES6_ modules to facilitate Tree Shaking. 
+  JiT-compiled applications transpile to `commonjs` modules.
+  AoT-compiled applications transpile to _ES2015_/_ES6_ modules to facilitate Tree Shaking. 
   AoT requires its own TypeScript configuration settings as well.
 
   You'll need separate TypeScript configuration files such as these:
@@ -416,12 +410,16 @@ a#toh
    tsconfig.json (JiT)`
 )
 
-.l-sub-section
+.callout.is-helpful
+  header @Types and node modules
   :marked
-    _Note_ that the specific file structure of this project needs `typeRoots` to include `../../node_modules/@types/`, 
-    whereas in a typical setting it should include `node_modules/@types/` instead.
+    In the file structure of _this particular sample project_,
+    the `node_modules` folder happens to be two levels up from the project root. 
+    Therefore, `"typeRoots"` must be set to `"../../node_modules/@types/"`. 
     
-    Make sure to edit accordingly to your project needs.
+    In a more typical project, `node_modules` would be a sibling of `tsconfig-aot.json`
+    and `"typeRoots"` would be set to `"node_modules/@types/"`.
+    Edit your `tsconfig-aot.json` to fit your project's file structure.
 
 :marked
   ### Tree Shaking
