@@ -21,6 +21,7 @@ block includes
   * [Property binding](#property-binding)
   * [Attribute, class, and style bindings](#other-bindings)
   * [Event binding](#event-binding)
+  * [Two-way data binding](#two-way)
   * [Two-way data binding with `NgModel`](#ngModel)
   * [Built-in directives](#directives)
     * [NgClass](#ngClass)
@@ -44,7 +45,7 @@ block includes
   HTML is the language of the Angular template. Our [QuickStart](../quickstart.html) application has a template that is pure HTML:
 
 code-example(language="html" escape="html").
-  <h1>My First Angular 2 App</h1>
+  <h1>My First Angular App</h1>
 
 :marked
   Almost all HTML syntax is valid template syntax. The `<script>` element is a notable exception; it is forbidden, eliminating the risk of script injection attacks. (In practice, `<script>` is simply ignored.)
@@ -387,7 +388,7 @@ table
 .callout.is-helpful
   header A world without attributes
   :marked
-    In the world of Angular 2, the only role of attributes is to initialize element and directive state.
+    In the world of Angular, the only role of attributes is to initialize element and directive state.
     When we data bind, we're dealing exclusively with element and directive properties and events.
     Attributes effectively disappear.
 :marked
@@ -489,8 +490,8 @@ table
     If we must read a target element property or call one of its methods,
     we'll need a different technique.
     See the API reference for
-    [viewChild](../api/core/index/ViewChild-var.html) and
-    [contentChild](../api/core/index/ContentChild-var.html).
+    [ViewChild](../api/core/index/ViewChild-decorator.html) and
+    [ContentChild](../api/core/index/ContentChild-decorator.html).
 
 :marked
   ### Binding target
@@ -580,7 +581,7 @@ a(id="one-time-initialization")
 
 
 :marked
-  #### Content Security
+  #### Content security
   Imagine the following *malicious content*.
 +makeExample('template-syntax/ts/app/app.component.ts', 'evil-title')(format=".")    
 :marked
@@ -598,10 +599,10 @@ figure.image-display
 .l-main-section
 :marked
   <a id="other-bindings"></a>
-  ## Attribute, Class, and Style Bindings
+  ## Attribute, class, and style bindings
   The template syntax provides specialized one-way bindings for scenarios less well suited to property binding.
 
-  ### Attribute Binding
+  ### Attribute binding
   We can set the value of an attribute directly with an **attribute binding**.
 .l-sub-section
   :marked
@@ -651,7 +652,7 @@ code-example(format="nocode").
   is to set ARIA attributes, as in this example:
 +makeExample('template-syntax/ts/app/app.component.html', 'attrib-binding-aria')(format=".")
 :marked
-  ### Class Binding
+  ### Class binding
 
   We can add and remove CSS class names from an element’s `class` attribute with
   a **class binding**.
@@ -667,9 +668,6 @@ code-example(format="nocode").
   We can replace that with a binding to a string of the desired class names; this is an all-or-nothing, replacement binding.
 +makeExample('template-syntax/ts/app/app.component.html', 'class-binding-2')(format=".")
 
-block dart-class-binding-bug
-  //- N/A
-
 :marked
   Finally, we can bind to a specific class name.
   Angular adds the class when the template expression evaluates to #{_truthy}.
@@ -682,7 +680,7 @@ block dart-class-binding-bug
     we generally prefer the [NgClass directive](#ngClass) for managing multiple class names at the same time.
 
 :marked
-  ### Style Binding
+  ### Style binding
 
   We can set inline styles with a **style binding**.
 
@@ -711,12 +709,12 @@ block style-property-name-dart-diff
 
 .l-main-section
 :marked
-  ## Event Binding
-  The bindings we’ve met so far flow data in one direction: *from the component to an element*.
+  ## Event binding
+  The bindings we’ve met so far flow data in one direction: **from a component to an element**.
 
   Users don’t just stare at the screen. They enter text into input boxes. They pick items from lists.
   They click buttons. Such user actions may result in a flow of data in the opposite direction:
-  *from an element to the component*.
+  **from an element to a component**.
 
   The only way to know about a user action is to listen for certain events such as
   keystrokes, mouse movements, clicks, and touches.
@@ -728,12 +726,12 @@ block style-property-name-dart-diff
   the component's `onSave()` method whenever a click occurs:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
 :marked
-  ### Target Event
-  A **name between enclosing parentheses** &mdash; for example, `(click)` &mdash;
+  ### Target event
+  A **name between parentheses** &mdash; for example, `(click)` &mdash;
   identifies the target event. In the following example, the target is the button’s click event.
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
 :marked
-  Some people prefer the `on-` prefix alternative, known as the *canonical form*:
+  Some people prefer the `on-` prefix alternative, known as the **canonical form**:
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-2')(format=".")
 :marked
   Element events may be the more common targets, but Angular looks first to see if the name matches an event property
@@ -742,8 +740,8 @@ block style-property-name-dart-diff
 
 .l-sub-section
   :marked
-    The `myClick` directive is further described below in the section
-    on [Aliasing input/output properties](#aliasing-io).
+    The `myClick` directive is further described in the section
+    on [aliasing input/output properties](#aliasing-io).
 
 :marked
   If the name fails to match an element event or an output property of a known directive,
@@ -753,36 +751,35 @@ block style-property-name-dart-diff
   In an event binding, Angular sets up an event handler for the target event.
 
   When the event is raised, the handler executes the template statement.
-  The template statement typically involves a receiver that wants to do something
-  in response to the event, such as take a value from the HTML control and store it
-  in a model.
+  The template statement typically involves a receiver, which performs an action
+  in response to the event, such as storing a value from the HTML control
+  into a model.
 
   The binding conveys information about the event, including data values, through
   an **event object named `$event`**.
 
-  The shape of the event object is determined by the target event itself.
-  If the target event is a native DOM element event, the `$event` is a
+  The shape of the event object is determined by the target event.
+  If the target event is a native DOM element event, then `$event` is a
   [DOM event object]( https://developer.mozilla.org/en-US/docs/Web/Events),
   with properties such as `target` and `target.value`.
 
   Consider this example:
 +makeExample('template-syntax/ts/app/app.component.html', 'without-NgModel')(format=".")
 :marked
-  We’re binding the input box `value` to a `firstName` property, and we’re listening for changes by binding to the input box’s `input` event.
+  This code sets the input box `value` property by binding to the `firstName` property. To listen for changes to the value, the code binds to the input box's `input` event.
   When the user makes changes, the `input` event is raised, and the binding executes the statement within a context that includes the DOM event object, `$event`.
 
-  To update the `firstName` property, we must get the changed text by following
-  the path `$event.target.value`.
+  To update the `firstName` property, the changed text is retrieved by following the path `$event.target.value`.
 
-  If the event belongs to a directive (remember: components are directives), `$event` has whatever shape the directive chose to produce.
+  If the event belongs to a directive (recall that components are directives), `$event` has whatever shape the directive decides to produce.
 
   <a id="eventemitter"></a>
   <a id="custom-event"></a>
-  ### Custom Events with EventEmitter
+  ### Custom events with *EventEmitter*
 
   Directives typically raise custom events with an Angular [EventEmitter](../api/core/index/EventEmitter-class.html).
-  A directive creates an `EventEmitter` and exposes it as a property.
-  The directive calls `EventEmitter.emit(payload)` to fire an event, passing in a message payload that can be anything.
+  The directive creates an `EventEmitter` and exposes it as a property.
+  The directive calls `EventEmitter.emit(payload)` to fire an event, passing in a message payload, which can be anything.
   Parent directives listen for the event by binding to this property and accessing the payload through the `$event` object.
 
   Consider a `HeroDetailComponent` that presents hero information and responds to user actions.
@@ -797,8 +794,8 @@ block style-property-name-dart-diff
 
 :marked
   The component defines a `deleteRequest` property that returns an `EventEmitter`.
-  When the user clicks *delete*, the component invokes the `delete()` method
-  which tells the `EventEmitter` to emit a `Hero` object.
+  When the user clicks *delete*, the component invokes the `delete()` method, 
+  telling the `EventEmitter` to emit a `Hero` object.
 
   Now imagine a hosting parent component that binds to the `HeroDetailComponent`'s `deleteRequest` event.
 
@@ -810,12 +807,11 @@ block style-property-name-dart-diff
 
   ### Template statements have side effects
   The `deleteHero` method has a side effect: it deletes a hero.
-  Template statement side effects are not just OK, they are expected.
+  Template statement side effects are not just OK, but expected.
 
   Deleting the hero updates the model, perhaps triggering other changes
   including queries and saves to a remote server.
   These changes percolate through the system and are ultimately displayed in this and other views.
-  It's all good.
 
 //
   :marked
@@ -843,19 +839,72 @@ block style-property-name-dart-diff
     and the outer `<div>`, causing a double save.
   +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-propagation')(format=".")
 
-
+#two-way
 .l-main-section
 :marked
-  <a id="ngModel"></a>
+  ## Two-way binding
+  We often want to both display a data property and update that property when the user makes changes.
+
+  On the element side that takes a combination of setting a specific element property
+  and listening for an element change event.
+
+  Angular offers a special _two-way data binding_ syntax for this purpose, **`[(x)]`**.
+  The `[(x)]` syntax combines the brackets 
+  of _property binding_, `[x]`, with the parentheses of _event binding_, `(x)`.
+
+.callout.is-important
+  header [( )] = banana in a box
+  :marked
+    Visualize a *banana in a box* to remember that the parentheses go _inside_ the brackets.
+
+:marked
+  The `[(x)]` syntax is easy to demonstrate when the element has a settable property called `x`
+  and a corresponding event named `xChange`. 
+  Here's a `SizerComponent` that fits the pattern.
+  It has a `size` value property and a companion `sizeChange` event:
+
++makeExample('app/sizer.component.ts')
+
+:marked
+  The initial `size` is an input value from a property binding.
+  Clicking the buttons increases or decreases the `size`, within min/max values constraints,
+  and then raises (_emits_) the `sizeChange` event with the adjusted size.
+
+  Here's an example in which the `AppComponent.fontSizePx` is two-way bound to the `SizerComponent`:
+
++makeExcerpt('app/app.component.html', 'two-way-1', '')
+
+:marked
+  The `AppComponent.fontSizePx` establishes the initial `SizerComponent.size` value.
+  Clicking the buttons updates the `AppComponent.fontSizePx` via the two-way binding.
+  The revised `AppComponent.fontSizePx` value flows through to the _style_ binding, making the displayed text bigger or smaller.
+  Try it in the <live-example></live-example>.
+
+  The two-way binding syntax is really just syntactic sugar for a _property_ binding and an _event_ binding.
+  Angular _desugars_ the `SizerComponent` binding into this:
+
++makeExcerpt('app/app.component.html', 'two-way-2', '')
+
+:marked
+  The `$event` variable contains the payload of the `SizerComponent.sizeChange` event.
+  Angular assigns the `$event` value to the `AppComponent.fontSizePx` when the user clicks the buttons.
+
+  Clearly the two-way binding syntax is a great convenience compared to separate property and event bindings.
+
+  We'd like to use two-way binding with HTML form elements like `<input>` and `<select>`.
+  Sadly, no native HTML element follows the `x` value and `xChange` event pattern.
+
+  Fortunately, the Angular [_NgModel_](#ngModel) directive is a bridge that enables two-way binding to form elements.
+
+a#ngModel
+.l-main-section
+:marked
   ## Two-way binding with NgModel
   When developing data entry forms, we often want to both display a data property and update that property when the user makes changes.
 
-  The `[(ngModel)]` two-way data binding syntax makes that easy. Here's an example:
+  Two-way data binding with the `NgModel` directive makes that easy. Here's an example:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
-.callout.is-important
-  header [()] = banana in a box
-  :marked
-    To remember that the parentheses go inside the brackets, visualize a *banana in a box*.
+
 
 +ifDocsFor('ts|js')
   .callout.is-important
@@ -865,18 +914,18 @@ block style-property-name-dart-diff
       we must import the `FormsModule` and add it to the Angular module's `imports` list.
       Learn more about the `FormsModule` and `ngModel` in the
       [Forms](../guide/forms.html#ngModel) chapter.
-
+  :marked
+    Here's how to import the `FormsModule` to make `[(ngModel)]` available.
   +makeExample('template-syntax/ts/app/app.module.1.ts', '', 'app.module.ts (FormsModule import)')
 
 :marked
-  There’s a story behind this construction, a story that builds on the property and event binding techniques we learned previously.
-
   ### Inside `[(ngModel)]`
-  We could have achieved the same result with separate bindings to
+  Looking back at the `firstName` binding, it's important to note that
+  we could have achieved the same result with separate bindings to
   the `<input>` element's  `value` property and `input` event.
 +makeExample('template-syntax/ts/app/app.component.html', 'without-NgModel')(format=".")
 :marked
-  That’s cumbersome. Who can remember which element property to set and what event reports user changes?
+  That’s cumbersome. Who can remember which element property to set and which element event emits user changes?
   How do we extract the currently displayed text from the input box so we can update the data property?
   Who wants to look that up each time?
 
@@ -884,35 +933,29 @@ block style-property-name-dart-diff
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-3')(format=".")
 .l-sub-section
   :marked
-    The `ngModel` input property sets the element's value property and the `ngModelChange` output property
+    The `ngModel` data property sets the element's value property and the `ngModelChange` event property
     listens for changes to the element's value.
-    The details are specific to each kind of element and therefore the `NgModel` directive only works for elements,
-    such as the input text box, that are supported by a [ControlValueAccessor](../api/common/index/ControlValueAccessor-interface.html).
-    We can't apply `[(ngModel)]` to our custom components until we write a suitable *value accessor*,
+    
+    The details are specific to each kind of element and therefore the `NgModel` directive only works for specific form elements,
+    such as the input text box, that are supported by a [ControlValueAccessor](../api/forms/index/ControlValueAccessor-interface.html).
+
+    We can't apply `[(ngModel)]` to a custom component until we write a suitable *value accessor*,
     a technique that is beyond the scope of this chapter.
+    That's something we might want to do for an Angular component or a WebComponent whose API we can't control.
+    
+    It's completely unnecessary for an Angular component that we _do_ control ... because we can name the value and event properties
+    to suit Angular's basic [two-way binding syntax](#two-way) and skip `NgModel` altogether.
 
 :marked
-  Separate `ngModel` bindings is an improvement. We can do better.
+  Separate `ngModel` bindings is an improvement over binding to the element's native properties. We can do better.
 
   We shouldn't have to mention the data property twice. Angular should be able to capture the component’s data property and set it
-  with a single declaration &mdash; which it can with the `[( )]` syntax:
+  with a single declaration &mdash; which it can with the `[(ngModel)]` syntax:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgModel-1')(format=".")
-
-.l-sub-section
-  :marked
-    `[(ngModel)]` is a specific example of a more general pattern in which Angular "de-sugars" the `[(x)]` syntax
-    into an `x` input property for property binding and an `xChange` output property for event binding.
-    Angular constructs the event property binding's template statement by appending `=$event`
-    to the literal string of the template expression.
-
-    > <span style="font-family:courier">[(_x_)]="_e_" &lt;==> [_x_]="_e_" (<i>x</i>Change)="_e_=$event"</span>
-
-    We can write a two-way binding directive of our own to exploit this behavior.
-
 :marked
   Is `[(ngModel)]` all we need? Is there ever a reason to fall back to its expanded form?
 
-  The `[( )]` syntax can only _set_ a data-bound property.
+  The `[(ngModel)]` syntax can only _set_ a data-bound property.
   If we need to do something more or something different, we need to write the expanded form ourselves.
 
   Let's try something silly like forcing the input value to uppercase:
@@ -931,8 +974,8 @@ figure.image-display
   The community contributed many more, and countless private directives
   have been created for internal applications.
 
-  We don’t need many of those directives in Angular 2.
-  Quite often we can achieve the same results with the more capable and expressive Angular 2 binding system.
+  We don’t need many of those directives in Angular.
+  Quite often we can achieve the same results with the more capable and expressive Angular binding system.
   Why create a directive to handle a click when we can write a simple binding such as this?
 +makeExample('template-syntax/ts/app/app.component.html', 'event-binding-1')(format=".")
 :marked
@@ -1203,7 +1246,7 @@ block remember-the-brackets
 
 :marked
   ### Expanding `*ngSwitch`
-  A similar transformation applies to `*ngSwitch`. We can de-sugar the syntax ourselves.
+  A similar transformation applies to `*ngSwitch`. We can unfold the syntax ourselves.
   Here's an example, first with `*ngSwitchCase` and `*ngSwitchDefault` and then again with `<template>` tags:
 +makeExample('template-syntax/ts/app/app.component.html', 'NgSwitch-expanded')(format=".")
 :marked
@@ -1241,14 +1284,18 @@ figure.image-display
 
   A **template reference variable** is a reference to a DOM element or directive within a template.
 
-  It can be used with native DOM elements but also with Angular 2 components &mdash; in fact, it will work with any custom web component.
+  It can be used with native DOM elements but also with Angular components &mdash; in fact, it will work with any custom web component.
 
 :marked
   ### Referencing a template reference variable
 
-  We can reference a template reference variable on the same element, on a sibling element, or on
-  any child elements.
+  We can refer to a template reference variable _anywhere_ in the current template.
+.l-sub-section
+  :marked
+    Do not define the same variable name more than once in the same template.
+    The runtime value will be unpredictable.
 
+:marked
   Here are two other examples of creating and consuming a Template reference variable:
 +makeExample('template-syntax/ts/app/app.component.html', 'ref-phone')(format=".")
 :marked
@@ -1376,7 +1423,7 @@ h3#aliasing-io Aliasing input/output properties
   Directive consumers expect to bind to the name of the directive.
   For example, when we apply a directive with a `myClick` selector to a `<div>` tag,
   we expect to bind to an event property that is also called `myClick`.
-+makeExample('template-syntax/ts/app/app.component.html', 'my-click')(format=".")
++makeExample('template-syntax/ts/app/app.component.html', 'myClick')(format=".")
 :marked
   However, the directive name is often a poor choice for the name of a property within the directive class.
   The directive name rarely describes what the property does.
@@ -1389,14 +1436,14 @@ h3#aliasing-io Aliasing input/output properties
 
   We can specify the alias for the property name by passing it into the input/output decorator like this:
 
-+makeExample('template-syntax/ts/app/my-click.directive.ts', 'my-click-output-1')(format=".")
++makeExample('template-syntax/ts/app/click.directive.ts', 'output-myClick')(format=".")
 
 .l-sub-section
   :marked
     We can also alias property names in the `inputs` and `outputs` #{_array}s.
     We write a colon-delimited (`:`) string with
     the directive property name on the *left* and the public alias on the *right*:
-  +makeExample('template-syntax/ts/app/my-click.directive.ts', 'my-click-output-2')(format=".")
+  +makeExample('template-syntax/ts/app/click.directive.ts', 'output-myClick2')(format=".")
 
 <a id="expression-operators"></a>
 .l-main-section
