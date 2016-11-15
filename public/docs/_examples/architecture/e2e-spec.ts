@@ -71,9 +71,7 @@ function salesTaxTests() {
   it('shows sales tax', async function () {
     let page = getPageElts();
     page.salesTaxAmountInput.sendKeys('10', protractor.Key.ENTER);
-    // Note: due to Dart bug USD is shown instead of $
-    let re = /The sales tax is (\$|USD)1.00/;
-    expect(page.salesTaxDetail.getText()).toMatch(re);
+    expect(page.salesTaxDetail.getText()).toEqual('The sales tax is $1.00');
   });
 }
 
