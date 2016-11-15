@@ -11,10 +11,7 @@ import 'tax_rate_service.dart';
 
       <div *ngIf="amountBox.value != ''">
       The sales tax is
-       {{ getTax(amountBox.value) | currency:'USD':false:'1.2-2' }}
-      <!-- would like to write currency:'USD':true:'1.2-2' but
-        currency as symbol is not currently supported; see
-        https://github.com/dart-lang/intl/issues/59 -->
+       {{ getTax(amountBox.value) | currency:'USD':true:'1.2-2' }}
       </div>
     ''',
     providers: const [SalesTaxService, TaxRateService])
