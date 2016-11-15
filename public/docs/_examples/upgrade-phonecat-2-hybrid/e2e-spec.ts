@@ -1,23 +1,23 @@
 'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
+import { setProtractorToHybridMode } from '../protractor-helpers';
 
 // Angular E2E Testing Guide:
 // https://docs.angularjs.org/guide/e2e-testing
 
 describe('PhoneCat Application', function() {
 
-  // #docregion redirect
+  beforeAll(function () {
+    setProtractorToHybridMode();
+  });
+
   it('should redirect `index.html` to `index.html#!/phones', function() {
     browser.get('index.html');
-    browser.waitForAngular();
-    browser.getCurrentUrl().then(function(url: string) {
-      expect(url.endsWith('/phones')).toBe(true);
-    });
+    expect(browser.getLocationAbsUrl()).toBe('/phones');
   });
-  // #enddocregion redirect
 
-  describe('View: Phone list', function() {
+  xdescribe('View: Phone list', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones');
@@ -64,20 +64,18 @@ describe('PhoneCat Application', function() {
       ]);
     });
 
-    // #docregion links
     it('should render phone specific links', function() {
       let query = element(by.css('input'));
       query.sendKeys('nexus');
+
       element.all(by.css('.phones li a')).first().click();
-      browser.getCurrentUrl().then(function(url: string) {
-        expect(url.endsWith('/phones/nexus-s')).toBe(true);
-      });
+      browser.sleep(200); // Not sure why this is needed but it is. The route change works fine.
+      expect(browser.getLocationAbsUrl()).toBe('/phones/nexus-s');
     });
-    // #enddocregion links
 
   });
 
-  describe('View: Phone detail', function() {
+  xdescribe('View: Phone detail', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones/nexus-s');

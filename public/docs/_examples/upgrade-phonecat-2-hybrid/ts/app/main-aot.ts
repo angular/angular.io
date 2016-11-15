@@ -1,10 +1,10 @@
 // #docregion bootstrap
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 
-import { AppModule } from './app.module';
+import { AppModuleNgFactory } from '../aot/app/app.module.ngfactory';
 
-platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
+platformBrowser().bootstrapModuleFactory(AppModuleNgFactory).then(platformRef => {
   const upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
   upgrade.bootstrap(document.documentElement, ['phonecatApp']);
 });
