@@ -22,7 +22,9 @@ import 'providers_component.dart';
         <button (click)="nextUser()">Next User</button>
       <p>
       <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
-      <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>''',
+      <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
+      <my-providers></my-providers>
+      ''',
     directives: const [
       CarComponent,
       HeroesComponent,

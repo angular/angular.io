@@ -224,7 +224,11 @@ class Provider9Component implements OnInit {
 
 // Sample providers 1 to 7 illustrate a required logger dependency.
 // Optional logger, can be null.
-@Component(selector: 'provider-10', template: '{{log}}')
+@Component(
+    selector: 'provider-10',
+    template: '{{log}}',
+    providers: const [const Provider(Logger, useValue: null)]
+)
 class Provider10Component implements OnInit {
   final Logger _logger;
   String log;

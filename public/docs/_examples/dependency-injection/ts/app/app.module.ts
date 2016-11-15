@@ -53,7 +53,7 @@ import {
     { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
   ],
   // #enddocregion ngmodule-providers
-  bootstrap: [ AppComponent, ProvidersComponent ]
+  bootstrap: [ AppComponent ]
 })
 export class AppModule { }
 // #enddocregion ngmodule

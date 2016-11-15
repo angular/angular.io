@@ -229,7 +229,8 @@ let some_message = 'Hello from the injected logger';
 
 @Component({
   selector: 'provider-10',
-  template: template
+  template: template,
+  providers: [{ provide: Logger, useValue: null }]
 })
 export class Provider10Component implements OnInit {
   log: string;
