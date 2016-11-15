@@ -98,7 +98,7 @@ describe('Upgrade Tests', function () {
       expect(element.all(by.css('h2')).first().getText()).toEqual('Windstorm details!');
     });
 
-    it('has outputs', function () {
+    xit('has outputs', function () {
       element.all(by.buttonText('Delete')).first().click();
       expect(element.all(by.css('h2')).first().getText()).toEqual('Ex-Windstorm details!');
     });

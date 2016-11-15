@@ -17,7 +17,7 @@ describe('PhoneCat Application', function() {
     expect(browser.getLocationAbsUrl()).toBe('/phones');
   });
 
-  describe('View: Phone list', function() {
+  xdescribe('View: Phone list', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones');
@@ -75,7 +75,7 @@ describe('PhoneCat Application', function() {
 
   });
 
-  describe('View: Phone detail', function() {
+  xdescribe('View: Phone detail', function() {
 
     beforeEach(function() {
       browser.get('index.html#!/phones/nexus-s');
