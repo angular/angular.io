@@ -22,6 +22,7 @@ import { UserService } from './user.service';
     <p>
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
+    <my-providers></my-providers>
   `,
   providers: [Logger]
 })
