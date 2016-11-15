@@ -9,8 +9,6 @@ block includes
   - var _redirectTo = 'redirectTo'
 
 :marked
-  # Routing Around the App
-
   We received new requirements for our Tour of Heroes application:
 
   * Add a *Dashboard* view.
@@ -205,7 +203,6 @@ block router-config-intro
 
 - var _are = _docsFor == 'dart' ? 'takes' : 'are'
 - var _routePathPrefix = _docsFor == 'dart' ? '/' : ''
-
 :marked
   The `!{_RoutesVsAtRouteConfig}` !{_are} !{_an} !{_array} of *route definitions*.
   We have only one route definition at the moment but rest assured, we'll add more.
@@ -362,10 +359,14 @@ block redirect-vs-use-as-default
 
   Replace the `template` metadata with a `templateUrl` property that points to a new
   template file.
-
-  Set the `moduleId` property to `module.id` for module-relative loading of the `templateUrl`.
++ifDocsFor('ts|js')
+  :marked
+    Set the `moduleId` property to `module.id` for module-relative loading of the `templateUrl`.
 
 +makeExcerpt('app/dashboard.component.ts', 'metadata')
+
+block templateUrl-path-resolution
+  //- N/A for TS
 
 :marked
   Create that file with this content:
@@ -404,7 +405,7 @@ block redirect-vs-use-as-default
   * Inject the `HeroService` in the constructor and hold it in a private `!{_priv}heroService` field.
   * Call the service to get heroes inside the Angular `ngOnInit` lifecycle hook.
 
-  In this dashboard we cherry-pick four heroes (2nd, 3rd, 4th, and 5th) with the `Array.slice` method.
+  In this dashboard we cherry-pick four heroes (2nd, 3rd, 4th, and 5th)<span if-docs="ts"> with the `Array.slice` method</span>.
 
   Refresh the browser and see four heroes in the new dashboard.
 
@@ -511,6 +512,11 @@ block route-params
 +makeExcerpt('app/hero-detail.component.ts (constructor)', 'ctor')
 
 :marked
+  We'll also import the `switchMap` operator to use later with the route parameters `Observable`.
+
++makeExcerpt('app/hero-detail.component.ts (switchMap import)', 'rxjs-import')
+
+:marked
   We tell the class that we want to implement the `OnInit` interface.
 
 +makeExcerpt('app/hero-detail.component.ts', 'implement', '')(format=".")
@@ -525,14 +531,26 @@ block ngOnInit
 
 block extract-id
   :marked
-    Notice how we extract the `id` by calling the `forEach` method
-    which will deliver our !{_array} of route parameters.
+    Note how the `switchMap` operator maps the id in the observable route parameters
+    to a new `Observable`, the result of the `HeroService.getHero` method.
+
+    If the user re-navigates to this component while a getHero request is still inflight,
+    switchMap cancels that old request before calling `HeroService.getHero` again.
 
 - var _str2int = _docsFor == 'dart' ? '<code>int.parse</code> static method' : 'JavaScript (+) operator'
 :marked
   The hero `id` is a number. Route parameters are *always strings*.
   So we convert the route parameter value to a number with the !{_str2int}.
 
+.l-sub-section
+  :marked
+    ### Do I need to unsubscribe?
+
+    The `Router` manages the [observables](../guide/router.html#activated-route) it provides and localizes
+    the subscriptions. The subscriptions are cleaned up when the component is destroyed, protecting against
+    memory leaks, so we don't need to _unsubscribe_ from the route params `Observable`.
+
+:marked
   ### Add *HeroService.getHero*
 
   The problem with this bit of code is that `HeroService` doesn't have a `getHero` method!
@@ -575,10 +593,10 @@ block extract-id
   incremental improvement and migrate the template to its own file,
   called <span ngio-ex>hero-detail.component.html</span>:
 
-+makeExample('app/hero-detail.component.html')(format='.')
++makeExample('app/hero-detail.component.html')
 
 :marked
-  We update the component metadata with a `moduleId` and a `templateUrl` pointing to the template file that we just created.
+  We update the component metadata with a <span if-docs="ts">`moduleId` and a </span>`templateUrl` pointing to the template file that we just created.
 
 +makeExcerpt('app/hero-detail.component.ts', 'metadata')
 
@@ -600,11 +618,17 @@ block extract-id
 
 +makeExample('app/dashboard.component.html', 'click', 'app/dashboard.component.html (repeated <a> tag)')
 
++ifDocsFor('dart')
+  .alert.is-important
+    :marked
+      Router links in the dashboard are currently not operational, as reported in issue
+      [dart-lang/angular2/issues/186](https://github.com/dart-lang/angular2/issues/186).
+
 - var _pathVsName = _docsFor == 'dart' ? 'name' : 'path'
 :marked
   Notice the `[routerLink]` binding.
 
-  In the top level navigation in the [`AppComponent`
+  Top level navigation in the [`AppComponent`
   template](#router-links) has router links set to fixed !{_pathVsName}s of the
   destination routes, "/dashboard" and "/heroes".
 
@@ -622,53 +646,55 @@ block extract-id
 :marked
   Refresh the browser and select a hero from the dashboard; the app should navigate directly to that hero’s details.
 
-.l-main-section
-:marked
-  ## Refactor routes to a _Routing Module_
++ifDocsFor('ts')
+  .l-main-section
+  :marked
+    ## Refactor routes to a _Routing Module_
 
-  Almost 20 lines of `AppModule` are devoted to configuring four routes. 
-  Most application have many more routes and they [add guard services](../guide/router.html#guards) 
-  to protect against unwanted or unauthorized navigations. 
-  Routing considerations could quickly dominate this module and obscure its primary purpose which is to 
-  establish key facts about the entire app for the Angular compiler.
+    Almost 20 lines of `AppModule` are devoted to configuring four routes. 
+    Most applications have many more routes and they [add guard services](../guide/router.html#guards) 
+    to protect against unwanted or unauthorized navigations. 
+    Routing considerations could quickly dominate this module and obscure its primary purpose which is to 
+    establish key facts about the entire app for the Angular compiler.
 
-  We should refactor the routing configuration into its own class.
-  What kind of class? 
-  The current `RouterModule.forRoot()` produces an Angular `ModuleWithProviders` which suggests that a
-  class dedicated to routing should be some kind of module.
-  It should be a [_Routing Module_](../guide/router.html#routing-module).
+    We should refactor the routing configuration into its own class.
+    What kind of class? 
+    The current `RouterModule.forRoot()` produces an Angular `ModuleWithProviders` which suggests that a
+    class dedicated to routing should be some kind of module.
+    It should be a [_Routing Module_](../guide/router.html#routing-module).
 
-  By convention the name of a _Routing Module_ contains the word "Routing" and 
-  aligns with the name of the module that declares the components navigated to".
-  
-  Create an `app-routing.module.ts` file as a sibling to `app.module.ts`. Give it the following contents extracted from the `AppModule` class:
+    By convention the name of a _Routing Module_ contains the word "Routing" and 
+    aligns with the name of the module that declares the components navigated to.
 
-+makeExample('app/app-routing.module.ts')
-:marked
-  Noteworthy points, typical of _Routing Modules_:
-  * Pull the routes into a variable. You might export it in future and it clarifies the _Routing Module_ pattern.
+    Create an `app-routing.module.ts` file as a sibling to `app.module.ts`. Give it the following contents extracted from the `AppModule` class:
 
-  * Add `RouterModule.forRoot(routes)` to `imports`.
-    
-  * Add `RouterModule` to `exports` so that the components in the companion module have access to Router declarables 
-  such as `RouterLink` and `RouterOutlet`.
-  
-  * No `declarations`!  Declarations are the responsibility of the companion module.
+  +makeExample('app/app-routing.module.ts')
+  :marked
+    Noteworthy points, typical of _Routing Modules_:
+    * Pulls the routes into a variable. You might export it in future and it clarifies the _Routing Module_ pattern.
 
-  * Add module `providers` for guard services if you have them; there are none in this example.
+    * Adds `RouterModule.forRoot(routes)` to `imports`.
 
-  ### Update _AppModule_
+    * Adds `RouterModule` to `exports` so that the components in the companion module have access to Router declarables 
+    such as `RouterLink` and `RouterOutlet`.
 
-  Now delete the routing configuration from `AppModule` and import the `AppRoutingModule` 
-  (_both_ with an ES `import` statement _and_ by adding it to the `NgModule.imports` list).
+    * No `declarations`!  Declarations are the responsibility of the companion module.
 
-  Here is the revised `AppModule`, compared to its pre-refactor state:
-+makeTabs(
-  `toh-5/ts/app/app.module.ts, toh-5/ts/app/app.module.3.ts`,
-   null,
-  `app/app.module.ts (after), app/app.module.ts (before)`)
-:marked
-  It's simpler and focused on indentifying the key pieces of the application.
+    * Adds module `providers` for guard services if you have them; there are none in this example.
+
+    ### Update _AppModule_
+
+    Now delete the routing configuration from `AppModule` and import the `AppRoutingModule` 
+    (_both_ with an ES `import` statement _and_ by adding it to the `NgModule.imports` list).
+
+    Here is the revised `AppModule`, compared to its pre-refactor state:
+  +makeTabs(
+    `toh-5/ts/app/app.module.ts, toh-5/ts/app/app.module.3.ts`,
+     null,
+    `app/app.module.ts (after), app/app.module.ts (before)`)
+  :marked
+    It's simpler and focused on indentifying the key pieces of the application.
+
 .l-main-section
 :marked
   ## Select a Hero in the *HeroesComponent*
@@ -738,7 +764,7 @@ figure.image-display
   1. *Cut-and-paste* the template contents into a new <span ngio-ex>heroes.component.html</span> file.
   1. *Cut-and-paste* the styles contents into a new <span ngio-ex>heroes.component.css</span> file.
   1. *Set* the component metadata's `templateUrl` and `styleUrls` properties to refer to both files.
-  1. *Set* the `moduleId` property to `module.id` so that `templateUrl` and `styleUrls` are relative to the component.
+  <li if-docs="ts">. *Set* the `moduleId` property to `module.id` so that `templateUrl` and `styleUrls` are relative to the component.</li>
 
 .l-sub-section
   :marked
@@ -764,11 +790,12 @@ block heroes-component-cleanup
   1. Implement `gotoDetail` by calling the `router.navigate` method
 
 +makeExcerpt('app/heroes.component.ts', 'gotoDetail')
+
 :marked
   Note that we're passing a two-element **link parameters !{_array}**
   &mdash; a path and the route parameter &mdash; to
   the `router.navigate` method just as we did in the `[routerLink]` binding
-  back in the `DashboardComponent`
+  back in the `DashboardComponent`.
   Here's the fully revised `HeroesComponent` class:
 
 +makeExcerpt('app/heroes.component.ts', 'class')
@@ -934,7 +961,7 @@ block file-tree-end
   - We shared the `HeroService` among multiple components.
   - We moved HTML and CSS out of the component file and into their own files.
   - We added the `uppercase` pipe to format data.
-  - We refactored routes into a `Routing Module` that we import.
+  <li if-docs="ts"> We refactored routes into a `Routing Module` that we import.</li>
 
   ### The Road Ahead
 

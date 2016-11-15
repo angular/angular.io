@@ -1,57 +1,41 @@
 (function(app) {
 
-// #docregion parameters
-  function HeroComponent(name) {
-    this.name = name;
-  }
-  HeroComponent.parameters = [
-    'heroName'
-  ];
-  HeroComponent.annotations = [
-    new ng.core.Component({
-      selector: 'hero-di-inject',
-      template: '<h1>Hero: {{name}}</h1>'
-    })
-  ];
-// #enddocregion parameters
+// #docregion
+app.HeroDIInjectComponent = HeroDIInjectComponent;
 
-  app.HeroesDIInjectModule =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ { provide: 'heroName', useValue: 'Windstorm' } ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
-  
-})(window.app = window.app || {});
-
-(function(app) {
-// #docregion ctor
-  var HeroComponent = ng.core.Component({
-    selector: 'hero-di-inline2',
+HeroDIInjectComponent.annotations = [
+  new ng.core.Component({
+    selector: 'hero-di-inject',
     template: '<h1>Hero: {{name}}</h1>'
   })
-  .Class({
-    constructor:
-      [new ng.core.Inject('heroName'), 
-       function(name) {
-         this.name = name;
-       }]
-  });
-// #enddocregion ctor
+];
 
-  app.HeroesDIInjectModule2 =
-    ng.core.NgModule({
-      imports: [ ng.platformBrowser.BrowserModule ],
-      providers: [ { provide: 'heroName', useValue: 'Bombasto' } ],
-      declarations: [ HeroComponent ],
-      bootstrap: [ HeroComponent ]
-    })
-    .Class({
-      constructor: function() {}
-    });
+HeroDIInjectComponent.parameters = [ 'heroName' ];
+
+function HeroDIInjectComponent(name) {
+  this.name = name;
+}
+// #enddocregion
+
+})(window.app = window.app || {});
+
+/////// DSL version ////////
+
+(function(app) {
+
+// #docregion dsl
+app.HeroDIInjectDslComponent = ng.core.Component({
+  selector: 'hero-di-inject-dsl',
+  template: '<h1>Hero: {{name}}</h1>'
+})
+.Class({
+  constructor: [
+    new ng.core.Inject('heroName'),
+    function HeroDIInjectDslComponent(name) {
+      this.name = name;
+    }
+  ]
+});
+// #enddocregion dsl
 
 })(window.app = window.app || {});

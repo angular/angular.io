@@ -28,7 +28,7 @@ var _rxRules = {
   //   System.import('app').catch(function(err){ console.error(err); });
   // </script>
   system_strip_import_app: {
-   from: /<script>[^]?\s*System.import\('app[^]*\/script>/,
+   from: /<script>[^]?\s*System.import\('app'\)[^]*\/script>/,
    to:   ''
   },
   system_extra_main: {

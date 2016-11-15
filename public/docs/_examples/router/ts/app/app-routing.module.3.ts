@@ -1,13 +1,15 @@
 // #docplaster
 // #docregion
 import { NgModule }     from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+
+const appRoutes: Routes = [
+
+];
 
 @NgModule({
   imports: [
-    RouterModule.forRoot([
-
-    ])
+    RouterModule.forRoot(appRoutes)
   ],
   exports: [
     RouterModule

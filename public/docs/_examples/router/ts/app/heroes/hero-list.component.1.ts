@@ -11,25 +11,26 @@ import { Hero, HeroService }   from './hero.service';
   template: `
     <h2>HEROES</h2>
     <ul class="items">
-      <li *ngFor="let hero of heroes"
+      <li *ngFor="let hero of heroes | async"
         (click)="onSelect(hero)">
-        <span class="badge">{{hero.id}}</span> {{hero.name}}
+        <span class="badge">{{ hero.id }}</span> {{ hero.name }}
       </li>
     </ul>
   `
   // #enddocregion template
 })
 export class HeroListComponent implements OnInit {
-  heroes: Hero[];
+  heroes: Promise<Hero[]>;
 
   // #docregion ctor
   constructor(
     private router: Router,
-    private service: HeroService) { }
+    private service: HeroService
+  ) {}
   // #enddocregion ctor
 
   ngOnInit() {
-    this.service.getHeroes().then(heroes => this.heroes = heroes);
+    this.heroes = this.service.getHeroes();
   }
 
   // #docregion select

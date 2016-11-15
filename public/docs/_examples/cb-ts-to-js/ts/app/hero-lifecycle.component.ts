@@ -1,28 +1,14 @@
-// #docplaster
 // #docregion
 import { Component, OnInit } from '@angular/core';
-// #enddocregion
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 
 @Component({
   selector: 'hero-lifecycle',
   template: `<h1>Hero: {{name}}</h1>`
 })
-// #docregion
-class HeroComponent
-    implements OnInit {
+export class HeroComponent implements OnInit {
   name: string;
   ngOnInit() {
-    this.name = 'Windstorm';
+    // todo: fetch from server async
+    setTimeout(() => this.name = 'Windstorm', 0);
   }
 }
-// #enddocregion
-
-@NgModule({
-  imports: [ BrowserModule ],
-  declarations: [ HeroComponent ],
-  bootstrap: [ HeroComponent ]
-})
-export class HeroesLifecycleModule { }
-

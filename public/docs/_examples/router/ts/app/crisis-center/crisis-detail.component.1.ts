@@ -1,5 +1,6 @@
 // #docplaster
 // #docregion
+import 'rxjs/add/operator/switchMap';
 import { Component, OnInit,
          HostBinding, trigger, transition,
          animate, style, state }          from '@angular/core';
@@ -12,9 +13,9 @@ import { DialogService }          from '../dialog.service';
   // #docregion template
   template: `
   <div *ngIf="crisis">
-    <h3>"{{editName}}"</h3>
+    <h3>"{{ editName }}"</h3>
     <div>
-      <label>Id: </label>{{crisis.id}}</div>
+      <label>Id: </label>{{ crisis.id }}</div>
     <div>
       <label>Name: </label>
       <input [(ngModel)]="editName" placeholder="name"/>
@@ -74,21 +75,19 @@ export class CrisisDetailComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     public dialogService: DialogService
-  ) { }
+  ) {}
 
   // #docregion ngOnInit
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
-        let id = +params['id'];
-        this.service.getCrisis(id)
-          .then(crisis => {
-            if (crisis) {
-              this.editName = crisis.name;
-              this.crisis = crisis;
-            } else { // id not found
-              this.gotoCrises();
-            }
-          });
+    this.route.params
+      .switchMap((params: Params) => this.service.getCrisis(params['id']))
+      .subscribe((crisis: Crisis) => {
+        if (crisis) {
+          this.editName = crisis.name;
+          this.crisis = crisis;
+        } else { // id not found
+          this.gotoCrises();
+        }
       });
   }
   // #enddocregion ngOnInit

@@ -1,6 +1,10 @@
 // #docplaster
 // #docregion
 // TODO SOMEDAY: Feature Componetized like CrisisCenter
+// #docregion rxjs-imports
+import 'rxjs/add/operator/switchMap';
+import { Observable } from 'rxjs/Observable';
+// #enddocregion rxjs-imports
 import { Component, OnInit } from '@angular/core';
 // #docregion import-router
 import { Router, ActivatedRoute, Params } from '@angular/router';
@@ -13,19 +17,19 @@ import { Hero, HeroService }  from './hero.service';
   template: `
     <h2>HEROES</h2>
     <ul class="items">
-      <li *ngFor="let hero of heroes"
+      <li *ngFor="let hero of heroes | async"
         [class.selected]="isSelected(hero)"
         (click)="onSelect(hero)">
-        <span class="badge">{{hero.id}}</span> {{hero.name}}
+        <span class="badge">{{ hero.id }}</span> {{ hero.name }}
       </li>
     </ul>
   `
   // #enddocregion template
 })
+// #docregion ctor
 export class HeroListComponent implements OnInit {
-  heroes: Hero[];
+  heroes: Observable<Hero[]>;
 
-  // #docregion ctor
   private selectedId: number;
 
   constructor(
@@ -36,10 +40,10 @@ export class HeroListComponent implements OnInit {
   // #enddocregion ctor
 
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
+    this.heroes = this.route.params
+      .switchMap((params: Params) => {
         this.selectedId = +params['id'];
-        this.service.getHeroes()
-          .then(heroes => this.heroes = heroes);
+        return this.service.getHeroes();
       });
   }
   // #enddocregion ctor
@@ -53,6 +57,6 @@ export class HeroListComponent implements OnInit {
     this.router.navigate(['/hero', hero.id]);
   }
   // #enddocregion select
-
+// #docregion ctor
 }
 // #enddocregion
