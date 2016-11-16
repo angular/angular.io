@@ -77,7 +77,7 @@ var NgIoUtil = (function () {
             // TODO: use $location.path() instead(?). It seems to be empty.
             var loc = $location.absUrl();
             // E.g., https://example.com/docs/dart/latest/guide/displaying-data.html
-            var matches = loc.match(/.*\/([\w\-]+)(\.html)?$/);
+            var matches = loc.match(/.*\/([\w\-]+)(\.html)?/);
             if (matches) NgIoUtil.setExampleName(matches[1]); // cache name
         }
         return NgIoUtil._exampleName;
