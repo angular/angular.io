@@ -3,11 +3,11 @@
 import 'package:angular2/core.dart';
 import 'package:angular2/router.dart';
 
-import 'package:angular2_tour_of_heroes/heroes_component.dart';
-import 'package:angular2_tour_of_heroes/hero_service.dart';
-import 'package:angular2_tour_of_heroes/dashboard_component.dart';
+import 'package:angular_tour_of_heroes/heroes_component.dart';
+import 'package:angular_tour_of_heroes/hero_service.dart';
+import 'package:angular_tour_of_heroes/dashboard_component.dart';
 // #docregion hero-detail-import
-import 'package:angular2_tour_of_heroes/hero_detail_component.dart';
+import 'package:angular_tour_of_heroes/hero_detail_component.dart';
 // #enddocregion hero-detail-import
 
 @Component(
