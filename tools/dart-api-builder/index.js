@@ -10,7 +10,7 @@ var PUBLIC_PATH = path.resolve(PROJECT_PATH, 'public');
 var DOCS_PATH = path.resolve(PUBLIC_PATH, 'docs');
 var ANGULAR_REPO_PATH = path.resolve(__dirname, '../../../angular-dart');
 // The 'docs' folder is actually named 'doc' for angular2 Dart.
-var ANGULAR2_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'doc');
+var ANGULAR_DOCS_PATH = path.resolve(ANGULAR_REPO_PATH, 'doc');
 var NG_IO_PKG_PATH = path.resolve(__dirname, "../api-builder/angular.io-package");
 
 function requireNgIoPkg(_path) { return require(path.resolve(NG_IO_PKG_PATH, _path)); }
@@ -45,8 +45,8 @@ module.exports = new Package('dart-api-and-cheatsheet-builder', [basePackage, ta
     }
     readFilesProcessor.basePath = DOCS_PATH;
     readFilesProcessor.sourceFiles = [{
-      basePath: ANGULAR2_DOCS_PATH,
-      include: path.resolve(ANGULAR2_DOCS_PATH, 'cheatsheet/*.md')
+      basePath: ANGULAR_DOCS_PATH,
+      include: path.resolve(ANGULAR_DOCS_PATH, 'cheatsheet/*.md')
     }];
   })
 
