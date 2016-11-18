@@ -11,19 +11,15 @@
     // DEMO ONLY! REAL CODE SHOULD NOT TRANSPILE IN THE BROWSER
     transpiler: 'ts',
     typescriptOptions: {
-      // Complete copy of compiler options in standard tsconfig.json
+      // Copy of compiler options in standard tsconfig.json
       "target": "es5",
       "module": "commonjs",
       "moduleResolution": "node",
       "sourceMap": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
-      "removeComments": false,
       "noImplicitAny": true,
-      "suppressImplicitAnyIndexErrors": true,
-      "typeRoots": [
-        "../../node_modules/@types/"
-      ]
+      "suppressImplicitAnyIndexErrors": true
     },
     meta: {
       'typescript': {
@@ -85,6 +81,7 @@
 
   // Bootstrap the `AppModule`(skip the `app/main.ts` that normally does this)
   function bootstrap() {
+    console.log('Auto-bootstrapping');
 
     // Stub out `app/main.ts` so System.import('app') doesn't fail if called in the index.html
     System.set(System.normalizeSync('app/main.ts'), System.newModule({ }));
@@ -92,7 +89,7 @@
     // bootstrap and launch the app (equivalent to standard main.ts)
     Promise.all([
       System.import('@angular/platform-browser-dynamic'),
-      System.import('app/app.module')
+      getAppModule()
     ])
     .then(function (imports) {
       var platform = imports[0];
@@ -102,4 +99,39 @@
     .catch(function(err){ console.error(err); });
   }
 
+  // Import AppModule or make the default AppModule if there isn't one
+  // returns a promise for the AppModule
+  function getAppModule() {
+    if (global.noAppModule) {
+      return makeAppModule();
+    }
+    return System.import('app/app.module').catch(makeAppModule)
+  }
+
+  function makeAppModule() {
+    console.log('No AppModule; making a bare-bones, default AppModule');
+
+    return Promise.all([
+      System.import('@angular/core'),
+      System.import('@angular/platform-browser'),
+      System.import('app/app.component')
+    ])
+    .then(function (imports) {
+
+      var core    = imports[0];
+      var browser = imports[1];
+      var appComp = imports[2].AppComponent;
+
+      var AppModule = function() {}
+
+      AppModule.annotations = [
+        new core.NgModule({
+          imports:      [ browser.BrowserModule ],
+          declarations: [ appComp ],
+          bootstrap:    [ appComp ]
+        })
+      ]
+      return {AppModule: AppModule};
+    })
+  }
 })(this);
