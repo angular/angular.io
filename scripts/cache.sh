@@ -15,6 +15,7 @@ guide/component-styles.jade
 guide/dependency-injection.jade
 guide/displaying-data.jade
 guide/hierarchical-dependency-injection.jade
+guide/index.jade
 guide/lifecycle-hooks.jade
 guide/pipes.jade
 guide/security.jade
@@ -23,6 +24,7 @@ guide/structural-directives.jade
 guide/template-syntax.jade
 glossary.jade
 quickstart.jade
+_quickstart_repo.jade
 tutorial/index.jade
 tutorial/toh-pt5.jade
 tutorial/toh-pt6.jade"
@@ -60,7 +62,7 @@ function cacheRefresh() {
 }
 
 function cacheDiffSummary() {
-    diff -qr -x "_*.*" "$CACHE/" "$LATEST/" | \
+    diff -qr -x "_util*.jade" "$CACHE/" "$LATEST/" | \
         grep -v "^Only in"
 }
 
