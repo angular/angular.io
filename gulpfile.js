@@ -793,7 +793,9 @@ gulp.task('link-checker', function(done) {
     'resources/%7B%7Bresource.url%7D%7D',
     // API docs have links directly into GitHub repo sources; these can
     // quickly become invalid, so ignore them for now:
-    '*/angular/tree/*'
+    '*/angular/tree/*',
+    // harp.json "bios" for "Ryan Schmukler", URL isn't valid:
+    'http://slingingcode.com'
   ];
   var blcOptions = { requestMethod: method, excludedKeywords: exclude};
   return linkChecker({ blcOptions: blcOptions });
