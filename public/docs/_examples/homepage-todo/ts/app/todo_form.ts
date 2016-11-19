@@ -17,7 +17,7 @@ export class TodoFormComponent {
 
   addTodo() {
     if (this.task) {
-      this.newTask.next({text: this.task, done: false});
+      this.newTask.emit({text: this.task, done: false});
     }
     this.task = '';
   }

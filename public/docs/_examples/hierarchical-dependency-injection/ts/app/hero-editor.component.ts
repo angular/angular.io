@@ -21,8 +21,8 @@ import { Hero } from './hero';
 })
 
 export class HeroEditorComponent {
-  @Output() canceled = new EventEmitter();
-  @Output() saved = new EventEmitter();
+  @Output() canceled = new EventEmitter<Hero>();
+  @Output() saved = new EventEmitter<Hero>();
 
   constructor(private restoreService: RestoreService<Hero>) {}
 
@@ -36,12 +36,12 @@ export class HeroEditorComponent {
   }
 
   onSaved () {
-    this.saved.next(this.restoreService.getItem());
+    this.saved.emit(this.restoreService.getItem());
   }
 
   onCanceled () {
     this.hero = this.restoreService.restoreItem();
-    this.canceled.next(this.hero);
+    this.canceled.emit(this.hero);
   }
 }
 // #enddocregion

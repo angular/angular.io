@@ -152,7 +152,7 @@ export class InputComponent {
 //   selector: 'input[value]',
 //   host: {
 //     '[value]': 'value',
-//     '(input)': 'valueChange.next($event.target.value)'
+//     '(input)': 'valueChange.emit($event.target.value)'
 //   },
 //   inputs:  ['value'],
 //   outputs: ['valueChange']
@@ -173,7 +173,7 @@ export class InputValueBinderDirective {
   valueChange: EventEmitter<any> = new EventEmitter();
 
   @HostListener('input', ['$event.target.value'])
-  onInput(value: any) { this.valueChange.next(value); }
+  onInput(value: any) { this.valueChange.emit(value); }
 }
 
 @Component({
