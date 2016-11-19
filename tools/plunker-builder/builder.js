@@ -248,7 +248,6 @@ class PlunkerBuilder {
     });
 
     var defaultExcludes = [
-      '!**/app/main.ts',
       '!**/a2docs.css',
       '!**/tsconfig.json',
       '!**/*plnkr.*',
