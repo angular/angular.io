@@ -64,9 +64,11 @@
     }
   });
 
-  if (!global.noBootstrap) { bootstrap(); }
+  if (global.autoBootstrap) { bootstrap(); }
 
-  // Bootstrap the `AppModule`(skip the `app/main.ts` that normally does this)
+  // Bootstrap with a default `AppModule`
+  // ignore an `app/app.module.ts` and `app/main.ts`, even if present
+  // This function exists primarily (exclusively?) for the QuickStart
   function bootstrap() {
     console.log('Auto-bootstrapping');
 
@@ -86,17 +88,10 @@
     .catch(function(err){ console.error(err); });
   }
 
-  // Import AppModule or make the default AppModule if there isn't one
+  // Make the default AppModule
   // returns a promise for the AppModule
   function getAppModule() {
-    if (global.noAppModule) {
-      return makeAppModule();
-    }
-    return System.import('app/app.module').catch(makeAppModule)
-  }
-
-  function makeAppModule() {
-    console.log('No AppModule; making a bare-bones, default AppModule');
+    console.log('Making a bare-bones, default AppModule');
 
     return Promise.all([
       System.import('@angular/core'),
@@ -122,3 +117,9 @@
     })
   }
 })(this);
+
+/*
+Copyright 2016 Google Inc. All Rights Reserved.
+Use of this source code is governed by an MIT-style license that
+can be found in the LICENSE file at http://angular.io/license
+*/

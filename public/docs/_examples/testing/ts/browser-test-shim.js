@@ -33,8 +33,6 @@ System.config({
   },
 });
 
-document['noBootstrap'] = true; // do not run system.config.web.js bootstrap
-
 System.import('systemjs.config.js')
   .then(importSystemJsExtras)
   .then(initTestBed)
