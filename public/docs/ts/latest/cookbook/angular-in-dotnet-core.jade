@@ -1,0 +1,267 @@
+include ../_util-fns
+
+:marked
+  This cookbook describes how to build a .NET Core Web application with an Angular app running inside the MVC architecture. 
+  .NET Core is cross platform. You can develop .NET Core application on Windows, MacOS or Linux, with tools of your own choices.  This cookbook will describe how to build the application with Visual Studio 2015 on Windows. You can develop and run the project created in Visual Studio 2015 on all supported platforms with .NET Core CLI, but it is out of this cookbook’s scope, please refer to .NET Core official documentations.
+
+  In this cookbook, you will create a new .NET Core Web Application project and then create an Angular app from scratch, using only visual studio 2015.
+
+  This cookbook is focused on getting Angular app to work within .NET Core application. How Angular works is out of the scope of this cookbook. Although this cookbook does not explain how and why the angular code works, it provides all the code snippet required for you. Therefore you will be able to follow through this cookbook even if you know nothing about Angular yet. However it is highly recommended that you should read the rest of the documentations to really understand how Angular works. 
+
+a#toc
+:marked
+  ## Table of contents
+  * [Prerequisite](#prerequisite)
+  * [Create a new .NET Core Web Application](#create-dotnet-core-application)
+  * [Create your Angular app](#create-angular-app)
+  * [Move Angular app to its own MVC Controller](#move-app)
+  * [Angular app with routes](#angular-app-with-routes)
+  * [Summary](#summary)
+
+a#prerequisite
+.l-main-section
+:marked
+  ## Prerequisite
+    1. Install Visual studio 2015 Update 3
+    1. Install .NET Core Tools for visual studio 2015
+    1. Install .Net Core SDK
+    1. Install Typescript 2 for visual studio 2015
+    1. Install Node.js Tools for visual studio 2015 (optional)
+
+a#create-dotnet-core-application
+.l-main-section
+:marked
+  ## Create a new .NET Core Web Application
+
+    1. Select `File` | `New` | `Project` from the menu
+    1. In the `New Project` dialog, select `Templates` | `Visual C#` | `.NET Core`
+    1. Select `ASP.NET Core Web Application (.NET Core)` template, give the project a name (this cookbook uses `AngularWithDotnetCore`), and click OK.
+    1. Select `Web Application` and click OK. Wait for visual studio to restore packages.
+
+a#create-angular-app
+.l-main-section
+:marked
+  ## Create your Angular app
+
+  ### Create Configuration files for your Angular app. 
+
+  In the root folder, create `package.json` and `tsconfig.json` files. Populate them by pasting the contents below.
+
++makeTabs(
+  `angular-in-dotnet-core/ts/package.json,
+   angular-in-dotnet-core/ts/tsconfig.json`,
+  null,
+  `package.json,
+   tsconfig.json`
+)(format='.')
+
+:marked
+  ### Create your Angular app
+
+  Create an `app` subfolder off the project root directory.
+
+  Create the following files in the `app` subfolder: 
+  
++makeTabs(
+  `angular-in-dotnet-core/ts/app/systemjs.config.js,
+   angular-in-dotnet-core/ts/app/app.module.ts,
+   angular-in-dotnet-core/ts/app/app.component.ts,
+   angular-in-dotnet-core/ts/app/main.ts`,
+  null,
+  `app/systemjs.config.js,
+   app/app.module.ts,
+   app/app.component.ts,
+   app/main.ts`
+)(format='.')
+
+:marked
+  ### Edit `Views/shared/_layout.cshtml` to host the Angular application
+
+  Open `Views/shared/_layout.cshtml` file and insert Angular app’s libraries and `systemjs.config.js` in the `head` section. 
+
+  In order to bootstrap the Angular app, also insert `<my-app>Loading…</my-app>` above `@RenderBody()` just after the navigation toolbar. 
+
+  The result should look like this: 
+
++makeExample('angular-in-dotnet-core/ts/_layout.html', null, 'Views/shared/_layout.cshtml')(format='.')
+
+:marked
+  Now, if you build and run the application, you will find that .NET Core MVC application works but the Angular app does not. Open the developer's tool, and in the console tab, you will find that the browser is complaining that it cannot find any of the scripts we inserted to `Views/Shared/_layout.cshtml` above.
+
+  #### 404 Errors
+
+  These 404 errors indicate that the browser could not find files in `app` folder and `node_modules` folder. But we have an `app` folder and `node_modules` at the root of the project, why the browser cannot find it?
+
+  #### Redirect request path to physical folder
+
+  .NET Core only exposes the `wwwroot` folder to browsers. All other contents in the project are private by default. It's designed as such so that you know exactly which part of the project is public. If the app asks for `/app` in a request, .NET Core looks for a physical folder in `wwwroot` folder named `app`.
+
+  In this case, the browser is search for `app` and `node_modules` physical folders in `wwwroot` folder. You do not want to move the `app` at root into `wwwroot` folder or move/copy `node_modules` folder into `wwwroot`, because: 
+  1. You would have to work exclusively inside `wwwroot` for angular app which is not ideal.
+  1. You would have to manage the npm packages outside of Visual Studio 2015. Becuase visual studio’s npm package manager only works when there is a `package.json` file in the root project folder and the package manager will install npm packages into `node_modules` at root.  
+
+  Fortunately, you can redirect the incoming request path of `/app` and `/node_modules` to any chosen physical folder within the project. Open your `startup.cs` file and insert the following code under line `app.UseStaticFiles();`.  
+
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'redirect', 'startup.cs')(format='.')
+
+:marked
+  Remember to insert the following using statement to `startup.cs`:
+
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'redirect-using', 'startup.cs')(format='.')
+
+:marked
+  The above code asks .NET Core to redirect any request asking for resources in `/app` and `/node_modules` to the physical `app` folder and `node_modules` folder at the root project folder.
+
+  Rebuid and run the application again, you will see "Hello Angular!" on top of the default MVC welcome message.
+
+a#move-app
+.l-main-section
+:marked
+  ## Move Angular app to its own Controller and View
+
+  Now, you have seen that the Angular app is working. However, By boostraping it inside `Views/Shared/_layout.cshtml` for a quick test, you will find that every MVC pages bootstraps your Angular app. Let's move your Angular app into its own Controller and View, so that user can click a navigation link in the navbar and go to `/app` to start the Angular app.
+
+  ### Create Controller and View for the Angular app
+
+  1. Create a MVC Controller called `AppController`
+
+    1. In Visual Studio, right click the `Controller` folder and select `Add` | `New Item...`
+    1. In the `Add New Item` dialog, choose `ASP.NET` on the left and then `MVC Controller Class` on the right.
+    1. Enter `AppController.cs` in the name box below and click `Add` button.
+
+    Angular app will use the `Index` action in side the generated `AppController` class, so you do not need to change anything in the `AppController` class.
+
+  1. Create the View for the `Index` action of `AppController`
+
+    1. Create a new `App` folder under `Views` folder at root
+    1. Right click the `App` folder and select `Add` | `New Item...`
+    1. In the `Add New Item` dialog, choose `ASP.NET` on the left and then `MVC View page` on the right
+    1. Leave the default name to `Index.cshtml` and click `Add` button.
+    1. Open `Views/Shared/_layout.cshtml` and cut and paste the following code into `Views/App/Index.cshtml`
+      ```
+      <!-- 2. Configure SystemJS -->
+      <script src="~/app/systemjs.config.js"></script>
+      <script>
+        System.import('app').catch(function(err){ console.error(err); });
+      </script>
+      ```
+    1. Cut and paste `<my-app>Loading…</my-app>` from `Views/Shared/_layout.cshtml` to `Views/App/Index.cshtml`. Wrap it in a `<div>` with minimum height of 300px.
+
+    The content of `Views/App/Index.cshtml` should look like this:
+
++makeExample('angular-in-dotnet-core/ts/index.html', null, 'Views/App/Index.cshtml')(format='.')
+:marked
+  ### Add a navigation link to the top navbar
+
+   Open `Views/Shared/_layout.cshtml`, under `<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>`, add:
+
++makeExample('angular-in-dotnet-core/ts/nav.html', null, 'Views/Shared/_layout.cshtml')(format='.')
+
+:marked
+  ### Build and run
+
+  Press `F5` to build and run the project. Click `Angular App` in the top navigation, you will see `Hello Angular!`. Click `About` and the app will navigate to the default `About` page and click `Angular App` again, you will be navigated back to the Angular app.
+
+  If the Angular app has only one page, this would be the end of this cookbook. However, a typical Angular app would have many pages with many modules. It would also lazy load modules via Angular router. 
+  
+  In the following sections, you will replace the above basic Angular app with the live example in [Router & Navigation](../guide/router.html) charpter and make it work inside .NET Core environment. 
+
+a#angular-app-with-routes
+.l-main-section
+:marked
+  ## Angular app with routes
+
+  ### Download and copy the sample application 
+
+  1. Click [here](https://angular.io/resources/live-examples/router/ts/plnkr.html) to open the live example of [Router & Navigation](../guide/router.html). Feel free to explore the app in Plunk before clicking the `Download your plunk as a ZIP file` button at the top right corner. 
+
+  1. Unzip the downloaded zip file to a folder and do the following: 
+    * Open the extracted folder from your downloaded zip file, you will find an `app` folder inside. Open this `app` folder and copy everything to clipboard.
+    * In Visual Studio, right click the `app` folder at the root, select `Open folder in File Explorer` to open your app folder, paste the above copied files, when promoted, select `Replace the files in the destination`. 
+    
+  1. Repeat the above steps, copy `styles.css` from the extracted folder into `wwwroot/css` folder in your project.  
+
+    Your `app` folder in the .NET Core project should contain everything in the downloaded `app` folder and `systemjs.config.js` file created previously.  
+
+  ### Add Styles
+
+  To style your Angular app the same way as the sample application, open `Views/Shared/_layout.cshtml` and insert the following `<link>` tag next to `<title>` tag in the `<head>` section:
+
++makeExample('angular-in-dotnet-core/ts/styles.html', null, 'Views/Shared/_layout.cshtml')(format='.')
+
+:marked
+  ### Set base href
+
+  Base href is required by Angular Router. Because the Angular app is under .NET Core's `App` route, you will set the base href to `/app/`. Open `Views/Shared/_layout.cshtml` and insert `<base href="/app/"/>` inside the `<head>` section as the first child.
+
+  If you build and run the application and go to `Angular App`, you will that your angular app is broken and there is an error in the console: `GET http://localhost:55771/app/app/main.js 404 (Not Found)`. Notice the double `/app/app`. It is because base href is set to `/app/` and as a result all JavaScript requests are prefixed with `/app/`. 
+
+  To fix the above error, open `/app/Systemjs.config.js` file, find ` main: './app/main.js'` and change it to `./main.js`.
+
+  Now, if you build and run the project and navigate to the Angular app, you will see that the app is bootstraped but it is stopped due to errors. In the `Console` tab of the browser's `Developer tools`, Angular is complaining that it `Cannot match any routes. URL Segment: 'App'`.
+
+  ### .NET Core's Pascal Case Urls
+
+  .NET Core parse urls to Pascale case by default. As you have seen, it does not work well with JavaScript frameworks like Angular. 
+
+  Fortunately, you can configure .NET Core to use lower case to parse its urls.
+
+  Open `startup.cs` file, in `ConfigureServices` method, insert the followling line before `service.AddMvc()`:
+
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'lowercaseurls', 'startup.cs')(format='.')
+:marked
+  Remember to insert the following `using` statement to `startup.cs`:
+
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'lowercaseurls-using', 'startup.cs')(format='.')
+:marked
+  Now rebuild and run your application, the above error goes away. However only `Heros` and `login` links work as intended. The lazy load module `Crisis Center` and `Admin` are broken. In the Console, the browser reports: `GET http://localhost:55771/crisis-center/crisis-center.module 404 (Not Found)`. Notice the absence of `/app/` in the path.
+
+  ### Fix Lazy Loaded Modules
+
+  The problem is that Angular could not find the lazy loaded modules. Let's check out `app-routing.module.ts` file in `app` folder, you can see the following: 
+
++makeExample('angular-in-dotnet-core/ts/app/app-routing.module.ts', 'absolute', 'app/app-routing.module.ts')(format='.')
+:marked
+  The above code shows that you have two lazy loaded modules: `crisis-center` and `admin`. Both are loaded using absolute paths with their `loadChildren` property value start with `app/`. Why is Angular requesting `crisis-center.module` via ` http://localhost:55771/crisis-center/crisis-center.module` without `app` in the path? It is because you set the base href to `/app/` previously. The Angular router automatically omit `app` in the path assuming that base path already has `app` in the path because of the base href. 
+
+  However, in the .NET Core environment, it works in a completely different way. It does not take base href into consideration.
+
+  To fix the issue, simple use relative path like this:
+
++makeExample('angular-in-dotnet-core/ts/app/app-routing.module.ts', 'relative', 'app/app-routing.module.ts')(format='.')
+:marked
+  Now, build and run, you will see that the Angular app is runing without errors until you refresh the browser. 
+
+  ## Configure .NET Core routes for Angular app
+
+  The Angular app has deep links, such as `/app/heros` and `/app/heros/11`. When you navigate inside the Angular app, it does not send any request to the .NET Core server. However, when you refresh the browser with deep links, the browser send request to .NET Core server and expect .NET Core to response.
+
+  When .NET Core a request url, it tries to match its routes configration. The current route setting is as follow in the `startup.cs` file:
+
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'route-default', 'startup.cs')(format='.')
+
+:marked
+  In this case, when .NET Core sees `/app/heros` url, it will try to excute `AppController`'s `Heros` action, which does not exist. 
+
+  In order to solve this problem, you can create a new route map and redirect all url starting with `/app` to `/app`. Change the routes to this: 
++makeExample('angular-in-dotnet-core/ts/startup.ts', 'route-new', 'startup.cs')(format='.')
+
+:marked
+  Notice the second `MapRoute`, it will ask .NET Core to excute `AppController`'s `Index` action for all urls starting with `app/`.
+
+  If you build and run the application and navigate to the Angular app, then refresh the browser, you will find that the Angular app is now working as intended. 
+
+a#summary
+.l-main-section
+:marked
+  ## Summary
+
+  Angular application can live inside of a larger .NET Core web application. There are a few challenges: 
+
+  1. .NET Core only exposes `wwwroot` to the client. This cookbook teaches you how to configure .NET Core to redirect request path to physical path in the root folder. It enables visual studio to manage npm packages for your. It also allow you to use any folder inside the project for your Angular app. 
+
+  1. .NET Core uses Pascal case to parse urls, which does not play well with Angular. You can configure .NET Core to parse lower case urls.
+
+  1. Angular router uses `base href` but .NET Core ignores it. Angular app has to use relative path for its lazy loaded modules.
+
+  1. Angular app's deep links does not play well with .NET Core server side routing. You can configure .NET Core routing to redirect all urls starting with `/app` to the same MVC Controller and Action.   
