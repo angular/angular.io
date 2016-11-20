@@ -123,7 +123,7 @@ Systemjs.config.js
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
       app: {
-        main: './main.js',
+        main: './app/main.js',
         defaultExtension: 'js'
       },
       rxjs: {
@@ -167,7 +167,11 @@ export class AppComponent { }
 
 ## Edit _layout.cshtml to host the Angular application
 
-Open `Views/shared/_layout.cshtml` file and insert Angular application’s scripts and `<my-app>` tag.
+Open `Views/shared/_layout.cshtml` file and insert Angular app’s libraries and `systemjs.config.js` in the `head` section. 
+
+In order to bootstrap the Angular app, also insert `<my-app>Loading…</my-app>` above `@RenderBody()` just after the navigation toolbar. 
+
+The result should look like this: 
 
 _layout.cshtml
 ```
@@ -177,7 +181,6 @@ _layout.cshtml
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - AngularWithDotnetCore</title>
-    <base href="/app/" />
     <environment names="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/css/site.css" />
@@ -197,7 +200,7 @@ _layout.cshtml
     <script src="~/node_modules/reflect-metadata/Reflect.js"></script>
     <script src="~/node_modules/systemjs/dist/system.src.js"></script>
 <!-- 2. Configure SystemJS -->
-    <script src="systemjs.config.js"></script>
+      <script src="~/app/systemjs.config.js"></script>
     <script>
       System.import('app').catch(function(err){ console.error(err); });
     </script>
@@ -257,19 +260,22 @@ _layout.cshtml
 
 ## Build and run the application.
 
-.NET Core MVC application works but the Angular app does not. If you open the developer's tool, and in the console tab, you will see a lot of 404 erros. 
+Now, if you build and run the application, you will find that .NET Core MVC application works but the Angular app does not. Open the developer's tool, and in the console tab, you will find that the browser is complaining that it cannot find any of the scripts we inserted to `_layout.cshtml` above.
+
 
 ### 404 Errors
 
-These 404 Errors indicate that the browser could not find a lot of files in `app` folder and `node_modules` folder. But we have an `app` folder and `node_modules` at the root of the project, why the browser cannot find it?
+These 404 errors indicate that the browser could not find files in `app` folder and `node_modules` folder. But we have an `app` folder and `node_modules` at the root of the project, why the browser cannot find it?
 
 ### Redirect request path to physical folder
 
 .NET Core only exposes the `wwwroot` folder to browsers. All other contents in the project are private by default. It's designed as such so that you know exactly which part of the project is public. If the app asks for `/app` in a request, .NET Core looks for a physical folder in `wwwroot` folder named `app`.
 
-Angular app runs in browser and therefore the app and its supporting libraries (`node_modules`) must be accessible to browsers. You can simply develop the angular app inside of `wwwroot`. Your `node_modules` folder would be a sub folder of `wwwroot`. Your `package.json` file would have to stay in `wwwroot` as well. However, visual studio’s npm package manager only works in the root project folder. Therefore, you would have to manage the npm packages outside of Visual Studio 2015. 
+In this case, the browser is search for `app` and `node_modules` physical folders in `wwwroot` folder. You do not want to move the `app` at root into `wwwroot` folder or move/copy `node_modules` folder into `wwwroot`, because: 
+1. You would have to work exclusively inside `wwwroot` for angular app which is not ideal.
+1. You would have to manage the npm packages outside of Visual Studio 2015. Becuase visual studio’s npm package manager only works when there is a `package.json` file in the root project folder and the package manager will install npm packages into `node_modules` at root.  
 
-Fortunately, you can redirect the request `/app` and `/node_modules` to any chosen physical folder within the project. Open your `startup.cs` file and insert the following code under line `app.UseStaticFiles();`.  
+Fortunately, you can redirect the incoming request path of `/app` and `/node_modules` to any chosen physical folder within the project. Open your `startup.cs` file and insert the following code under line `app.UseStaticFiles();`.  
 
 ```
 app.UseStaticFiles(new StaticFileOptions
@@ -283,13 +289,60 @@ app.UseStaticFiles(new StaticFileOptions
                 FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "node_modules"))
             });
 ```
-The above code asks .NET Core to redirect any request path starting with `/app` and `/node_modules` to the physical `app` folder and `node_modules` folder at the root project folder.
+The above code asks .NET Core to redirect any request asking for resources in `/app` and `/node_modules` to the physical `app` folder and `node_modules` folder at the root project folder.
 
-Rebuid and run the application again, you will see "Angular Works" at every page of the MVC application.
+Rebuid and run the application again, you will see "Hello Angular!" on top of the default MVC welcome message.
 
 ## Move Angular app to its own Controller and View
 
+Now, you have seen that the Angular app is working. However, By boostraping it inside `_layout.cshtml` for a quick test, you will find that every MVC pages bootstraps your Angular app. Let's move your Angular app into its own Controller and View, so that user can click a navigation link in the navbar and go to `/app` to start the Angular app.
+
+### Create Controller and View for the Angular app
+
+1. Create a MVC Controller called `AppController`
+
+  * In Visual Studio, right click the `Controller` folder and select `Add` | `New Item...`
+  * In the `Add New Item` dialog, choose `ASP.NET` on the left and then `MVC Controller Class` on the right.
+  * Enter `AppController.cs` in the name box below and click `Add` button.
+
+  Angular app will use the `Index` action in side the generated `AppController` class, so you do not need to change anything in the `AppController` class.
+
+1. Create the View for the `Index` action of `AppController`
+
+  * Create a new `App` folder under `Views` folder at root
+  * Right click the `App` folder and select `Add` | `New Item...`
+  * In the `Add New Item` dialog, choose `ASP.NET` on the left and then `MVC View page` on the right
+  * Leave the default name to `Index.cshtml` and click `Add` button.
+  * Open `_layout.cshtml` and cut and paste the following code into `Views/App/Index.cshtml`
+    ```
+    <!-- 2. Configure SystemJS -->
+    <script src="~/app/systemjs.config.js"></script>
+    <script>
+      System.import('app').catch(function(err){ console.error(err); });
+    </script>
+    ```
+  * Cut and paste `<my-app>Loading…</my-app>` from `_layout.cshtml` to `Views/App/Index.cshtml`
+
+  The content of `Views/App/Index.cshtml` should look like this:
+    ```
+    <!-- 2. Configure SystemJS -->
+    <script src="~/app/systemjs.config.js"></script>
+    <script>
+          System.import('app').catch(function(err){ console.error(err); });
+    </script>
+
+    <my-app>Loading…</my-app>
+    ```
+1. Add a navigation link to the top navbar
+
+  * Open `_layout.cshtml`, add `<li><a asp-area="" asp-controller="App" asp-action="Index">Angular App</a></li>` under `<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>`
+
+### Build and run
+
+Now click `F5` to build and run the project. Click `Angular App` in the top navigation, you will see `Hello Angular!`. Click `About` and the app will navigate to the default `About` page and click `Angular App` again, you will be navigated back to the Angular app.  
+
 ## Add Angular routes
+
 
 
 
