@@ -38,6 +38,15 @@ import { PeekABooComponent } from './peek-a-boo.component';
 import { SpyParentComponent } from './spy.component';
 import { SpyDirective } from './spy.directive';
 
+import {
+  ContentProjectionParentComponent,
+  TextPainterComponent,
+  GreenTextDirective,
+  RedTextDirective,
+  SuperTextPainterComponent,
+  BlueTextDirective
+} from './content-projection.component';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -60,7 +69,13 @@ import { SpyDirective } from './spy.directive';
     PeekABooParentComponent,
     PeekABooComponent,
     SpyParentComponent,
-    SpyDirective
+    SpyDirective,
+    ContentProjectionParentComponent,
+    TextPainterComponent,
+    GreenTextDirective,
+    RedTextDirective,
+    SuperTextPainterComponent,
+    BlueTextDirective
   ],
   bootstrap: [ AppComponent ]
 })
