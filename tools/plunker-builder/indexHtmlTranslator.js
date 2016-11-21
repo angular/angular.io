@@ -114,9 +114,9 @@ var _rxData = [
   {
     pattern: 'systemjs',
   },
-  {
-    pattern: 'system_strip_import_app',
-  },
+  // {
+  //   pattern: 'system_strip_import_app',
+  // },
   {
     pattern: 'system_extra_main'
   },
