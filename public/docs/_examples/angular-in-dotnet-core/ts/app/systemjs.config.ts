@@ -11,8 +11,6 @@
     },
     // map tells the System loader where to look for things
     map: {
-        // our app is within the app folder
-        // base href is set to "app" for routing which does the same thing "app:'app'" below, therefore we have to remove the "app" here.
       app: '',
       // angular bundles
       '@angular/core': 'npm:@angular/core/bundles/core.umd.js',
