@@ -20,15 +20,14 @@ export class KeyUpComponent_v1 {
 // #enddocregion key-up-component-1-class, key-up-component-1-class-no-type
   /*
   // #docregion key-up-component-1-class-no-type
-  // without strong typing
-  onKey(event:any) {
+  onKey(event:any) { // without type info
     this.values += event.target.value + ' | ';
   }
   // #enddocregion key-up-component-1-class-no-type
   */
   // #docregion key-up-component-1-class
-  // with strong typing
-  onKey(event: KeyboardEvent) {
+
+  onKey(event: KeyboardEvent) { // with type info
     this.values += (<HTMLInputElement>event.target).value + ' | ';
   }
 // #docregion key-up-component-1-class-no-type
@@ -53,22 +52,21 @@ export class KeyUpComponent_v2 {
 }
 // #enddocregion key-up-component-2
 
-
 //////////////////////////////////////////
 
 // #docregion key-up-component-3
 @Component({
   selector: 'key-up3',
   template: `
-    <input #box (keyup.enter)="values=box.value">
-    <p>{{values}}</p>
+    <input #box (keyup.enter)="onEnter(box.value)">
+    <p>{{value}}</p>
   `
 })
 export class KeyUpComponent_v3 {
-  values = '';
+  value = '';
+  onEnter(value: string) { this.value = value; }
 }
 // #enddocregion key-up-component-3
-
 
 //////////////////////////////////////////
 
@@ -77,13 +75,14 @@ export class KeyUpComponent_v3 {
   selector: 'key-up4',
   template: `
     <input #box
-      (keyup.enter)="values=box.value"
-      (blur)="values=box.value">
+      (keyup.enter)="update(box.value)"
+      (blur)="update(box.value)">
 
-    <p>{{values}}</p>
+    <p>{{value}}</p>
   `
 })
 export class KeyUpComponent_v4 {
-  values = '';
+  value = '';
+  update(value: string) { this.value = value; }
 }
 // #enddocregion key-up-component-4
