@@ -13,7 +13,7 @@ import 'hero_search_component.dart';
     selector: 'my-dashboard',
     templateUrl: 'dashboard_component.html',
     styleUrls: const ['dashboard_component.css'],
-    directives: const [HeroSearchComponent])
+    directives: const [HeroSearchComponent, ROUTER_DIRECTIVES])
 // #enddocregion search
 class DashboardComponent implements OnInit {
   List<Hero> heroes;

@@ -1,10 +1,10 @@
 // #docplaster
 // #docregion , v2
 import 'dart:async';
-import 'dart:html';
 
 import 'package:angular2/core.dart';
 import 'package:angular2/router.dart';
+import 'package:angular2/platform/common.dart';
 
 import 'hero.dart';
 import 'hero_service.dart';
@@ -18,12 +18,13 @@ class HeroDetailComponent implements OnInit {
   Hero hero;
   final HeroService _heroService;
   final RouteParams _routeParams;
+  final Location _location;
 
-  HeroDetailComponent(this._heroService, this._routeParams);
+  HeroDetailComponent(this._heroService, this._routeParams, this._location);
 
   Future<Null> ngOnInit() async {
-    var idString = _routeParams.get('id');
-    var id = int.parse(idString, onError: (_) => null);
+    var _id = _routeParams.get('id');
+    var id = int.parse(_id ?? '', onError: (_) => null);
     if (id != null) hero = await (_heroService.getHero(id));
   }
 
@@ -34,7 +35,5 @@ class HeroDetailComponent implements OnInit {
   }
   // #enddocregion save
 
-  void goBack() {
-    window.history.back();
-  }
+  void goBack() => _location.back();
 }
