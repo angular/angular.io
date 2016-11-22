@@ -54,13 +54,11 @@ class PlunkerBuilder {
     this.copyrights.html = `${pad}<!-- \n${copyright}\n-->`;
   }
 
-  // Build plunker from JSON configuration file (e.g., plnkr.json):
-  // all properties are optional
-  //   files: string[] - array of globs - defaults to all js, ts, html, json, css and md files (with certain files removed)
-  //   description: string - description of this plunker - defaults to the title in the index.html page.
-  //   tags: string[] - optional array of plunker tags (for searchability)
-  //   main: string - name of file that will become index.html in the plunker - defaults to index.html
-  //   open: string - name of file to display within the plunker as in "open": "app/app.module.ts"
+  // config has
+  //   files: [] - optional array of globs - defaults to all js, ts, html, json, css and md files (with certain files removed)
+  //   description: optional string - description of this plunker - defaults to the title in the index.html page.
+  //   tags: [] - optional array of strings
+  //   main: string - filename of what will become index.html in the plunker - defaults to index.html
   _buildPlunkerFrom(configFileName) {
     // replace ending 'plnkr.json' with 'plnkr.no-link.html' to create output file name;
     var outputFileName = `${this.options.plunkerFileName}.no-link.html`;

@@ -21,7 +21,7 @@ var _rxRules = {
   },
   systemjs: {
     from: /<script src="systemjs.config.js"><\/script>/,
-    to:   '<script src="https://cdn.rawgit.com/angular/angular.io/b3c65a9/public/docs/_examples/_boilerplate/systemjs.config.web.js"></script>'
+    to:   '<script src="https://cdn.rawgit.com/angular/angular.io/f2daab7/public/docs/_examples/_boilerplate/systemjs.config.web.js"></script>'
   },
   // Clear script like this:
   // <script>
