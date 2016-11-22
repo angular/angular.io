@@ -1,384 +1,56 @@
-block includes
-  include _util-fns
-  - var _Install = 'Install'
-  - var _prereq = 'Node.js and npm'
-  - var _angular_browser_uri = '@angular/platform-browser-dynamic'
-  - var _angular_core_uri = '@angular/core'
-  - var _stepInit = 4 // Step # after NgModule step
-  - var _quickstartSrcURL='https://github.com/angular/quickstart/blob/master/README.md'
-
-//- TS/Dart shared step counter
-- var step = _stepInit
-
-+ifDocsFor('ts')
-  aside.is-right
-    :marked
-      The live example link opens the finished application in
-      <a href="http://plnkr.co/" title="Plunker" target="_blank">Plunker</a> so that you can interact
-      with the code. You'll find live examples at the start of most sections.
+include _util-fns
 
 :marked
-  The QuickStart application has the structure of a real-world Angular application and
-  displays the simple message:
+  The **QuickStart playground** is the easiest way to discover Angular.
+  You don't need to install anything. 
+  Just click the image below, launch the live-coding environment, and start entering code.
 
-figure.image-display
-  img(src='/resources/images/devguide/quickstart/hello-angular.png' alt="Output of QuickStart app")
+  <live-example embedded img="devguide/quickstart/quickstart-plnkr-big.png"><live-example>
 
+  The QuickStart displays a super-simple Angular component, written in [TypeScript](#typescript):
+
++makeExample('app/app.component.ts','','app/app.component.ts')(format='.')
 :marked
-  **Try it out**. Here's a link to a <live-example></live-example>.
+  Angular applications are made of _components_.
+  A _component_ is the combination of an HTML template and a component class that controls a portion of the screen.
 
-+ifDocsFor('ts')
+  Every component begins with a `@Component` [_decorator_](glossary.html#decorator '"Decorator" explained') function 
+  that takes a _metadata_ object. The metadata describe how the HTML template and component class work together.
+  
+  The `selector` property tells Angular to display the component inside a custom `<my-app>` tag in the `index.html`.
++makeExample('index.html','my-app','index.html (inside <body>)')(format='.')
+:marked
+  The `template` property defines a message inside an `<h1>` header.
+  The message starts with "Hello" and ends with `{{name}}` 
+  which is an Angular [interpolation binding](guide/displaying-data.html) expression.
+  At runtime, Angular replaces `{{name}}` with the value of the component's `name` property. 
+  
+  Change the component class's `name` property from `'Angular'` to `'World'` and see what happens.
+  
+  Binding is one of many Angular features you'll discover in this documentation.
+  
+.l-sub-section
   :marked
-    You can also <a href="!{_quickstartSrcURL}" target="_blank">
-    clone the entire QuickStart application</a> from GitHub.
+    ### Next step
 
-h1 Build this application!
-
-:marked
-  - [Prerequisite](#prereq): Install #{_prereq}.
-  - [Step 1](#create-and-configure): Create and configure the project.
-  - [Step 2](#ngmodule): Create your application.
-  <li if-docs="ts">[Step 3](#root-component): Create a component and add it to your application.</li>
-  - [Step !{step++}](#main): Start up your application.
-  - [Step !{step++}](#index): Define the web page that hosts the application.
-  - [Step !{step++}](#build-and-run): Build and run the application.
-  - [Step !{step++}](#make-changes): Make some live changes.
-  - [Wrap up and next steps](#wrap-up)
-
-- var step = _stepInit // reinitialize step counter for headers to come
-
-.l-main-section#prereq
-h2 Prerequisite: Install #{_prereq}
-
-block setup-tooling
-  :marked
-    If Node.js and npm aren't already on your machine, <a href="http://blog.npmjs.org/post/85484771375/how-to-install-npm"
-    target="_blank">install them</a>. Our examples require node **v4.x.x** or higher and
-    npm **3.x.x** or higher. To check which version you are using, run `node -v` and `npm -v`
-    in a terminal window.
+    This QuickStart playground is fine for exploring Angular
+    but you won't develop a real application there.
+    
+    You'll want to develop locally on your own machine.
+    Visit the [**setup guide**](guide/setup.html "Install Angular for local development") to learn how.
 
 .l-main-section
-h2#create-and-configure Step 1: Create and configure the project
-
-- var _package_and_config_files = _docsFor == 'dart' ? 'pubspec.yaml' : 'configuration files'
-
+a#typescript
 :marked
-  In this step you will:
-  * [Create the project folder](#create-the-project-folder)
-  * [Create #{_package_and_config_files}](#add-config-files)
-  * [#{_Install} packages](#install-packages)
+  ## TypeScript
+  This example is written in <a href="http://www.typescriptlang.org/" target="_blank" title="TypeScript">TypeScript</a>,
+  a typed super-set of the latest JavaScript. 
+  TypeScript compiles into JavaScript that runs on any modern browser.
+  Most developers find it delightful which is why most Angular developers write applications in TypeScript.
+  You can write your application in 
+  [other versions of JavaScript](cookbook/ts-to-js.html "TypeScript to JavaScript")
+  if you prefer.
+// 
+  [Dart](../../dart/latest)
+  <a href="https://github.com/angular/dart/latest" target="_blank" title="Dart">Dart</a> if you prefer.
 
-h3 Create the project folder
-:marked
-  Using a terminal window, create a directory for the project, and change into this
-  directory.
-
-- var _ = _docsFor == 'dart' ? '_' : '-';
-code-example(language="sh" class="code-shell").
-  mkdir angular!{_}quickstart
-  cd    angular!{_}quickstart
-
-h3#add-config-files Create #{_package_and_config_files}
-block package-and-config-files
-  - var _tsconfigUri = 'guide/typescript-configuration.html#tsconfig'
-
-  p Our typical Angular project needs several configuration files:
-  ul
-    li.
-      #[b package.json] identifies npm package dependencies for the project.
-    li.
-      #[b tsconfig.json] defines how the TypeScript compiler generates JavaScript from the project's
-      files.
-    li.
-      #[b systemjs.config.js] provides information to a module loader about where to find
-      application modules, and registers all the necessary packages. It also
-      contains other packages that will be needed by later documentation examples.
-
-  p.
-    Create each of these files in your project directory. Populate them by pasting in text from
-    the tabs in the example box below.
-
-  a#config-files
-  +makeTabs(`
-      quickstart/ts/package.1.json,
-      quickstart/ts/tsconfig.1.json,
-      quickstart/ts/systemjs.config.1.js
-    `, '', `
-      package.json,
-      tsconfig.json,
-      systemjs.config.js
-    `)
-
-  p.
-    Learn more about these configuration files in the
-    #[a(href="guide/npm-packages.html") Npm Package Configuration] guide and the
-    #[a(href="#{_tsconfigUri}") TypeScript Configuration] guide.
-    A detailed discussion of module loading is beyond the scope of this guide.
-
-  .callout.is-helpful
-    header SystemJS or Webpack?
-    p.
-      Although we use SystemJS for illustrative purposes here, it's only one option for loading
-      modules. Use the module loader that you prefer. For Webpack and Angular, see <a
-      href="guide/webpack.html" >
-      Webpack: an Introduction</a>. Or, learn more about SystemJS configuration in general <a href="https://github.com/systemjs/systemjs/blob/master/docs/config-api.md" target="_blank">here</a>.
-
-
-  h3#install-packages #{_Install} packages
-block install-packages
-  :marked
-    Using npm from the command line, install the packages listed in `package.json` with the command:
-
-  code-example(language="sh" class="code-shell").
-    npm install
-
-  :marked
-    Error messages&mdash;in red&mdash;might appear during the install, and you might see `npm WARN` messages. As long as there are no `npm ERR!` messages at the end, you can assume success.
-
-  :marked
-    You should now have the following structure:
-
-  .filetree
-    .file angular-quickstart
-    .children
-      .file node_modules ...
-      .file package.json
-      .file systemjs.config.js
-      .file tsconfig.json
-
-:marked
-  You're now ready to write some code!
-
-.l-main-section
-h2#ngmodule Step 2: Create your application
-
-block create-your-app
-  :marked
-    You compose Angular applications into closely related blocks of functionality with
-    [NgModules](guide/ngmodule.html). Angular itself is split into separate Angular Modules. This
-    makes it possible for you to keep payload size small by only importing the parts of Angular
-    that your application needs.
-
-    Every Angular application has at least one module: the _root module_, named `AppModule` here.
-:marked
-  **Create #{_an} #{_appDir} subfolder** off the project root directory:
-
-code-example.code-shell.
-  mkdir #{_appDir}
-
-+ifDocsFor('ts')
-  :marked
-    Create the file `app/app.module.ts` with the following content:
-
-  +makeExample('app/app.module.1.ts')(format='.')
-
-  :marked
-    This is the entry point to your application.
-
-    Since the QuickStart application is a web application that runs in a browser, your root module
-    needs to import the
-    [`BrowserModule`](../latest/api/platform-browser/index/BrowserModule-class.html)
-    from `@angular/platform-browser` to the `imports` array.
-
-    This is the smallest amount of Angular that is needed for a minimal application to run in the
-    browser.
-
-    The QuickStart application doesn't do anything else, so you don't need any other modules. In a real
-    application, you'd likely import [`FormsModule`](../latest/api/forms/index/FormsModule-class.html) 
-    as well as [`RouterModule`](../latest/api/router/index/RouterModule-class.html) and
-    [`HttpModule`](../latest/api/http/index/HttpModule-class.html). These are introduced in the
-    [Tour of Heroes Tutorial](./tutorial/).
-
-  .l-main-section
-  h2#root-component Step 3: Create a component and add it to your application
-
-:marked
-  Every Angular application has at least one component: the _root component_, named `AppComponent`
-  here.
-
-  Components are the basic building blocks of Angular applications. A component controls a portion
-  of the screen&mdash;a *view*&mdash;through its associated template.
-
-#app-component
-:marked
-  **Create the component file** <span ngio-ex>app/app.component.ts</span> with the following content:
-
-+makeExample('app/app.component.ts')
-
-- var _decorator_function = _docsFor == 'dart' ? 'annotation' : 'decorator function';
-:marked
-  The QuickStart application has the same essential structure as any other Angular component:
-
-    * **An import statement**. Importing gives your component access to
-    Angular's core [`@Component` !{_decorator_function}](./api/core/index/Component-decorator.html).
-    * **A @Component #{_decorator}** that associates *metadata* with the
-        `AppComponent` component class:
-        
-      - a *selector* that specifies a simple CSS selector for an HTML element that represents
-        the component.
-      - a *template* that tells Angular how to render the component's view.
-    * **A component class** that controls the appearance and behavior of a view
-    through its template. Here, you only have the root component, `AppComponent`. Since you don't
-    need any application logic in the simple QuickStart example, it's empty.
-+ifDocsFor('ts')
-  :marked
-    You *export* the `AppComponent` class so that you can *import* it into the application that you
-    just created.
-
-    Edit the file `app/app.module.ts` to import your new `AppComponent` and add it in the
-    declarations and bootstrap fields in the `NgModule` decorator:
-
-  +makeExample('app/app.module.ts')
-
-.l-main-section
-h2#main Step !{step++}: Start up your application
-
-block create-main
-  :marked
-    Now you need to tell Angular to start up your application.
-
-    Create the file `app/main.ts` with the following content:
-
-+makeExample('app/main.ts')
-
-
-- var _pBD_bootstrapModule = _docsFor == 'dart' ? _bootstrapModule : 'platformBrowserDynamic().bootstrapModule'
-
-:marked
-  This code initializes the platform that your application runs in, then uses the platform to
-  bootstrap your `!{_AppModuleVsAppComp}`.
-
-  ### Why create separate *<span ngio-ex>main.ts</span>*<span if-docs="ts">, app module</span> and app component files?
-
-  App bootstrapping is a separate concern from<span if-docs="ts"> creating a module or</span>
-  presenting a view. Testing the component is much easier if it doesn't also try to run the entire application.
-
-
-.callout.is-helpful
-  header Bootstrapping is platform-specific
-
-  :marked
-    Because the QuickStart application runs directly in the browser, `main.ts` imports the
-    `!{_platformBrowserDynamicVsBootStrap}` function from `#{_angular_browser_uri}`, not
-    `#{_angular_core_uri}`. On a mobile device, you might load a !{_moduleVsComp} with
-    [Apache Cordova](https://cordova.apache.org/) or
-    [NativeScript](https://www.nativescript.org/), using a bootstrap function that's specific
-    to that platform.
-
-.l-main-section
-h2#index Step !{step++}: Define the web page that hosts the application
-:marked
-  In the *#{_indexHtmlDir}* folder,
-  create an `index.html` file and paste the following lines into it:
-
-+makeExample('index.html')
-
-
-block commentary-on-index-html
-  :marked
-    The noteworthy sections here are:
-
-    * JavaScript libraries: `core-js` polyfills for older browsers, the `zone.js` and
-    `reflect-metadata` libraries needed by Angular, and the `SystemJS` library for module loading.
-    * Configuration file for `SystemJS`, and a script
-      where you import and run the `app` module which refers to the `main` file that you just
-      wrote.
-    * The `<my-app>` tag in the `<body>` which is *where your app lives!*
-
-
-:marked
-  ### Add some style
-
-  Styles aren't essential, but they're nice, and `index.html` assumes that you have
-  a stylesheet called `styles.css`.
-
-  Create a `styles.css` file in the *#{_indexHtmlDir}* folder, and start styling,
-  perhaps with the minimal styles shown below.
-
-+makeExcerpt('styles.css (excerpt)', 'quickstart')
-
-.callout.is-helpful
-  :marked
-    For the full set of master styles used by the documentation samples,
-    see [styles.css](https://github.com/angular/angular.io/blob/master/public/docs/_examples/_boilerplate/styles.css).
-
-.l-main-section#build-and-run
-h2 Step !{step++}: Build and run the application
-block run-app
-  :marked
-    Open a terminal window and enter this command:
-  code-example.code-shell.
-    npm start
-  aside.is-right
-    :marked
-      [Read more](https://github.com/angular/quickstart/blob/master/README.md#npm-scripts) about
-      other useful npm scripts included in this example's `package.json`.
-
-  :marked
-    That command runs the following two parallel node processes:
-    * The TypeScript compiler in watch mode.
-    * A static file server called _lite-server_ that loads `index.html` in a browser
-    and refreshes the browser when application files change.
-
-    In a few moments, a browser tab should open and display the following:
-
-figure.image-display
-  img(src='/resources/images/devguide/quickstart/hello-angular.png' alt="Output of QuickStart app")
-
-
-block build-app
-  //- Nothing for ts.
-
-.l-main-section#make-changes
-h2 Step !{step++}: Make some live changes
-:marked
-  Try changing the message in <span ngio-ex>app/app.component.ts</span> to "Hello Again Angular!".
-
-block server-watching
-  :marked
-    The TypeScript compiler and `lite-server` will detect your change, recompile the TypeScript into JavaScript,
-    refresh the browser, and display your revised message.
-
-    Close the terminal window when you're done to terminate both the compiler and the server.
-
-.l-main-section
-h2#wrap-up Wrap up and next steps
-:marked
-  The final project folder structure looks like this:
-block project-file-structure
-  .filetree
-    .file angular-quickstart
-    .children
-      .file app
-      .children
-        .file app.component.ts
-        .file app.module.ts
-        .file main.ts
-      .file node_modules ...
-      .file index.html
-      .file package.json
-      .file styles.css
-      .file systemjs.config.js
-      .file tsconfig.json
-
-block project-files
-  :marked
-    To see the file contents, open the <live-example></live-example>.
-
-.l-main-section
-:marked
-  ## What next?
-  This first application doesn't do much. It's basically "Hello, World" for Angular.
-
-  You wrote a little Angular component, created a simple `index.html`, and launched with a
-  static file server.
-
-+ifDocsFor('ts')
-  :marked
-    You also created the basic application setup that you'll re-use for other
-    sections in this guide. From here, the changes you'll make in the
-    `package.json` or `index.html` files are only minor updates to add libraries or some css
-    stylesheets. You also won't need to revisit module loading again.
-:marked
-  To take the next step and build a small application that demonstrates real features that you can
-  build with Angular, carry on to the [Tour of Heroes tutorial](./tutorial)!
