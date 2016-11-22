@@ -30,11 +30,9 @@ export class HeroFormComponent {
 
   // #docregion final
   // #docregion new-hero
-  // #docregion new-hero-v1
   newHero() {
     this.model = new Hero(42, '', '');
   }
-  // #enddocregion new-hero-v1
   // #enddocregion new-hero
   // #enddocregion final
   //////// NOT SHOWN IN DOCS ////////
