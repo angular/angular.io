@@ -7,11 +7,10 @@ module.exports = function(config) {
     // #enddocregion basepath
 
     files: [
-      'https://code.angularjs.org/1.5.5/angular.js',
-      'https://code.angularjs.org/1.5.5/angular-animate.js',
-      'https://code.angularjs.org/1.5.5/angular-resource.js',
-      'https://code.angularjs.org/1.5.5/angular-route.js',
-      'https://code.angularjs.org/1.5.5/angular-mocks.js',
+      'https://unpkg.com/angular@1.5.8/angular.js',
+      'https://unpkg.com/angular-resource@1.5.8/angular-resource.js',
+      'https://unpkg.com/angular-route@1.5.8/angular-route.js',
+      'https://unpkg.com/angular-mocks@1.5.8/angular-mocks.js',
 
       // #docregion files
       // System.js for module loading
