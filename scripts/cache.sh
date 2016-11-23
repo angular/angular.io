@@ -8,6 +8,7 @@ BASE="public/docs/ts"
 LATEST="$BASE/latest"
 CACHE="$BASE/_cache"
 
+# setup-systemjs-anatomy.jade?
 FILES="
 guide/architecture.jade
 guide/attribute-directives.jade
@@ -16,10 +17,12 @@ guide/dependency-injection.jade
 guide/displaying-data.jade
 guide/hierarchical-dependency-injection.jade
 guide/index.jade
+guide/learning-angular.jade
 guide/lifecycle-hooks.jade
 guide/pipes.jade
 guide/security.jade
 guide/server-communication.jade
+guide/setup.jade
 guide/structural-directives.jade
 guide/template-syntax.jade
 glossary.jade
