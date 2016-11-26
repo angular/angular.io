@@ -32,6 +32,7 @@ import {
     AppComponent,
     CarComponent,
     HeroesComponent,
+    // #enddocregion ngmodule
     HeroListComponent,
     InjectorComponent,
     TestComponent,
@@ -46,6 +47,7 @@ import {
     Provider8Component,
     Provider9Component,
     Provider10Component,
+    // #docregion ngmodule
   ],
   // #docregion ngmodule-providers
   providers: [
@@ -56,4 +58,3 @@ import {
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }
-// #enddocregion ngmodule
