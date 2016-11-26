@@ -823,7 +823,8 @@ gulp.task('_harp-compile', function() {
 
 gulp.task('_shred-devguide-examples', ['_shred-clean-devguide', '_copy-example-boilerplate'], function() {
   // Split big shredding task into partials 2016-06-14
-  var examplePaths = globby.sync(EXAMPLES_PATH+'/*/', {ignore: ['**/node_modules', '**/_boilerplate']});
+  const exPath = path.join(EXAMPLES_PATH, (argv.filter || '') + '*');
+  var examplePaths = globby.sync(exPath, {ignore: ['**/node_modules', '**/_boilerplate']});
   var promise = Promise.resolve(true);
   examplePaths.forEach(function (examplePath) {
     promise = promise.then(() => docShredder.shredSingleExampleDir(_devguideShredOptions, examplePath));
@@ -847,7 +848,7 @@ gulp.task('_shred-clean-devguide-shared-jade', function(cb) {
 });
 
 gulp.task('_shred-clean-devguide', function(cb) {
-  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, '**/*.*')
+  var cleanPath = path.join(_devguideShredOptions.fragmentsDir, (argv.filter || '*') + '*/*.*')
   return del([ cleanPath, '!**/*.ovr.*', '!**/_api/**']);
 });
 
