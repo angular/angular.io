@@ -210,7 +210,9 @@ class PlunkerBuilder {
       systemJsConfigPath = '/_boilerplate/systemjs.config.web.build.js';
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
-    this.systemjsConfig +=  this.copyrights.jsCss;
+
+    // Copyright already added to web versions of systemjs.config
+    // this.systemjsConfig +=  this.copyrights.jsCss;
   }
 
   _htmlToElement(document, html) {

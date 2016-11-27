@@ -104,6 +104,7 @@ var _exampleBoilerplateFiles = [
 var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
 
 var _exampleUnitTestingBoilerplateFiles = [
+  'browser-test-shim.js',
   'karma-test-shim.js',
   'karma.conf.js'
 ];
@@ -587,10 +588,14 @@ function deleteExampleBoilerPlate() {
   gutil.log('Deleting example boilerplate files');
   var examplePaths = getExamplePaths(EXAMPLES_PATH);
   var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
+  var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
 
   return deleteFiles(_exampleBoilerplateFiles, examplePaths)
     .then(function() {
       return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
+    })
+    .then(function() {
+      return deleteFiles(_exampleUnitTestingBoilerplateFiles, unittestPaths);
     });
 }
 
