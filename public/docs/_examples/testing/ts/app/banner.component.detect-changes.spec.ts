@@ -4,7 +4,7 @@
 import { async } from '@angular/core/testing';
 // #enddocregion import-async
 // #docregion import-ComponentFixtureAutoDetect
-import { ComponentFixtureAutoDetect} from '@angular/core/testing';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 // #enddocregion import-ComponentFixtureAutoDetect
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By }              from '@angular/platform-browser';
