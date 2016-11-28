@@ -4,8 +4,8 @@ import { NgModule }     from '@angular/core';
 // #docregion import-router
 import { RouterModule, Routes } from '@angular/router';
 // #enddocregion import-router
-
-import { CanDeactivateGuard } from './can-deactivate-guard.service';
+import { PageNotFoundComponent }  from './not-found.component';
+import { CanDeactivateGuard }     from './can-deactivate-guard.service';
 // #docregion can-load-guard
 import { AuthGuard }          from './auth-guard.service';
 // #enddocregion can-load-guard
@@ -19,7 +19,8 @@ const appRoutes: Routes = [
 // #enddocregion lazy-load-admin
     canLoad: [AuthGuard]
 // #docregion lazy-load-admin
-  }
+  },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

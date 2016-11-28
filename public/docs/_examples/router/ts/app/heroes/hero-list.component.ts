@@ -23,6 +23,8 @@ import { Hero, HeroService }  from './hero.service';
         <span class="badge">{{ hero.id }}</span> {{ hero.name }}
       </li>
     </ul>
+
+    <button routerLink="/sidekicks">Go To Sidekicks</button>
   `
   // #enddocregion template
 })

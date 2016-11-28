@@ -31,6 +31,8 @@ describe('Router', function () {
       loginHref: hrefEles.get(3),
       loginButton: element.all(by.css('my-app > ng-component > p > button')),
 
+      sidekicksButton: element.all(by.css('my-app > ng-component > button')),
+
     };
   }
 
@@ -115,6 +117,15 @@ describe('Router', function () {
     }).then(function() {
       expect(page.adminPreloadList.count()).toBe(1, 'should be 1 preloaded module');
       expect(page.adminPreloadList.first().getText()).toBe('crisis-center', 'first preload should be crisis center');
+    });
+  });
+
+  it('should be able to handle 404 pages', function () {
+    let page = getPageStruct();
+    page.heroesHref.click().then(function() {
+      return page.sidekicksButton.click();
+    }).then(function() {
+      expect(page.routerTitle.getText()).toContain('Page Not Found');
     });
   });
 
