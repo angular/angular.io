@@ -14,7 +14,7 @@ import { AbstractControl, FormControl, FormGroup, FormBuilder} from '@angular/fo
 @Component({
   moduleId: module.id,
   selector: 'reactive-form',
-  templateUrl: './reactive-forms.component.html'
+  templateUrl: './hero-signup.component.1.html'
 })
 // #enddocregion reactive-comp-metadata-v1
 

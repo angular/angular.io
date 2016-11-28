@@ -1,15 +1,17 @@
 
-// #docplaster
-// #docregion
-// #docregion const
-const myControl = new FormControl();
-// #enddocregion const
+import { FormControl } from '@angular/forms';
 
-// #docregion inspect
-myControl.value
-myControl.status
-myControl.valid
-myControl.pristine
-myControl.untouched
-// #docregion inspect
+export class Snippets {
+  // #docregion const
+  const myControl = new FormControl();
+  // #enddocregion const
+
+  // #docregion inspect
+  myControl.value;
+  myControl.status;
+  myControl.valid;
+  myControl.pristine;
+  myControl.untouched;
+  // #docregion inspect
+}
 

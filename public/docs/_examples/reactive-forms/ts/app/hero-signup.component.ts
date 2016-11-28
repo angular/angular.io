@@ -15,11 +15,11 @@ function passwordMatcher(c: AbstractControl) {
 @Component({
   moduleId: module.id,
   selector: 'reactive-form',
-  templateUrl: './reactive-form.component.html'
+  templateUrl: './hero-signup.component.html'
 })
 // #enddocregion reactive-comp-metadata
 // #docregion form-array-class
-export class ReactiveFormComponent {
+export class HeroSignUpComponent {
 
   form: FormGroup;
   addresses: FormArray;
