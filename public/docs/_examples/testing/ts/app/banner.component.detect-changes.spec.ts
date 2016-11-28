@@ -1,31 +1,38 @@
 // #docplaster
 // #docregion
-import { ComponentFixtureAutoDetect, ComponentFixture, TestBed } from '@angular/core/testing';
+// #docregion import-async
+import { async } from '@angular/core/testing';
+// #enddocregion import-async
+// #docregion import-ComponentFixtureAutoDetect
+import { ComponentFixtureAutoDetect} from '@angular/core/testing';
+// #enddocregion import-ComponentFixtureAutoDetect
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By }              from '@angular/platform-browser';
 import { DebugElement }    from '@angular/core';
 
 import { BannerComponent } from './banner.component';
 
-describe('BannerComponent with AutoChangeDetect', () => {
+describe('BannerComponent (AutoChangeDetect)', () => {
   let comp:    BannerComponent;
   let fixture: ComponentFixture<BannerComponent>;
   let de:      DebugElement;
   let el:      HTMLElement;
 
-  beforeEach(() => {
+  beforeEach(async(() => {
     // #docregion auto-detect
-    fixture = TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       declarations: [ BannerComponent ],
       providers: [
         { provide: ComponentFixtureAutoDetect, useValue: true }
       ]
     })
     // #enddocregion auto-detect
-    .createComponent(BannerComponent);
+    .compileComponents();
+  }));
 
-    comp = fixture.componentInstance; // BannerComponent test instance
-
-    // query for the title <h1> by CSS element selector
+  beforeEach(() => {
+    fixture = TestBed.createComponent(BannerComponent);
+    comp = fixture.componentInstance;
     de = fixture.debugElement.query(By.css('h1'));
     el = de.nativeElement;
   });
