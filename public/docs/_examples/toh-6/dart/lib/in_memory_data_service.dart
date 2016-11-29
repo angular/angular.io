@@ -25,7 +25,7 @@ class InMemoryDataService extends MockClient {
   ];
   static final List<Hero> _heroesDb =
       _initialHeroes.map((json) => new Hero.fromJson(json)).toList();
-  static int _nextId = _heroesDb.map((hero) => hero.id).reduce(max) + 1;
+  static int _nextId = _heroesDb.map((hero) => hero.id).fold(0, max) + 1;
 
   static Future<Response> _handler(Request request) async {
     var data;
