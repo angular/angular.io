@@ -10,7 +10,7 @@
 *      [plnkr='...']
 *      [noSource]
 *      [embedded]
-*      [embedded-style]
+*      [embedded-style | flat-style]
 *      [srcText="..."]
 *      [title="..."]>text</live-example>
 * Example:
@@ -36,6 +36,10 @@
 *
 *   // Links to a *new* tab as an embedded style plunker editor
 *   <live-example embedded-style>this example</live-example>
+*   // ~/resources/live-examples/{page}//ts/eplnkr.html
+*
+*   // Links to a *new* tab in the flat (original editor) style plunker editor
+*   <live-example flat-style>this example</live-example>
 *   // ~/resources/live-examples/{page}//ts/eplnkr.html
 *
 *   // Displays in *same* tab as an embedded style plunker editor
@@ -68,8 +72,9 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       if (attrs['title'] == undefined) { tElement[0].setAttribute('title', text); } // set default title (tooltip)
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var embedded = attrs.hasOwnProperty('embedded');
+      var flatStyle = attrs.hasOwnProperty('flatstyle') || attrs.hasOwnProperty('flatStyle');
       var embeddedStyle = embedded || attrs.hasOwnProperty('embeddedstyle') || attrs.hasOwnProperty('embeddedStyle');
-      var plnkr = embeddedStyle ? 'eplnkr' : 'plnkr';
+      var plnkr = (embeddedStyle || !flatStyle) ? 'eplnkr' : 'plnkr';
       var imageBase  = '/resources/images/';
       var defaultImg = 'plunker/placeholder.png';
 
