@@ -35,10 +35,16 @@ export class HeroService {
   }
 
   // #enddocregion getHeroes
+
+  // #docregion getHero
   getHero(id: number): Promise<Hero> {
-    return this.getHeroes()
-               .then(heroes => heroes.find(hero => hero.id === id));
+    const url = `${this.heroesUrl}/${id}`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json().data as Hero)
+      .catch(this.handleError);
   }
+  // #enddocregion getHero
 
   // #docregion delete
   delete(id: number): Promise<void> {
