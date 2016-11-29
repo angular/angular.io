@@ -3,8 +3,7 @@
 // #docregion reactive-comp
 // #docregion reactive-comp-imports
 import { Component } from '@angular/core';
-import { AbstractControl, FormArray, FormGroup,
-         FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormGroup, FormBuilder } from '@angular/forms';
 // #enddocregion reactive-comp-imports
 
 function passwordMatcher(c: AbstractControl) {
@@ -14,7 +13,7 @@ function passwordMatcher(c: AbstractControl) {
 // #docregion reactive-comp-metadata
 @Component({
   moduleId: module.id,
-  selector: 'reactive-form',
+  selector: 'hero-signup',
   templateUrl: './hero-signup.component.html'
 })
 // #enddocregion reactive-comp-metadata
@@ -31,8 +30,10 @@ export class HeroSignUpComponent {
         username: '',
         password: '',
         confirm: ''
-      }, {validator:passwordMatcher}),
+      }, {validator: passwordMatcher}),
+      // #docregion use-build-array
       addresses: this.buildArray()
+      // #enddocregion use-build-array
     });
    }
 // #docregion build-array
@@ -61,12 +62,3 @@ export class HeroSignUpComponent {
 // #enddocregion add-group
 // #enddocregion reactive-comp
 // #docregion
-// #docregion form-array-class-constructor
-  constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
-      ...
-      addresses: this.buildArray()
-    });
-   }
-
-// #enddocregion form-array-class-constructor
