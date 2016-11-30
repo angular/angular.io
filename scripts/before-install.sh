@@ -6,7 +6,5 @@ set -e -o pipefail
 [[ -n "$TRAVIS" ]] && . ./scripts/env-info-and-check.sh
 
 if [ -z "$TRAVIS" ]; then
-    set -x
-    npm install -g gulp --no-optional
-    set +x
+  (set -x; npm install -g gulp --no-optional)
 fi

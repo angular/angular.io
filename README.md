@@ -29,15 +29,24 @@ This site relies heavily on node and npm.
 1. Make sure you are using at least node v.5+ and latest npm; 
 if not install [nvm](https://github.com/creationix/nvm) to get node going on your machine.
 
-1. Install npm `gulp` package *globally*: `npm install -g gulp`
+1. Install global npm packages by running `./scripts/before-install.sh`
 
-1. Clone this repo, the [angular/angular source code repo](https://github.com/angular/angular), and the [dart-lang/angular2 source code repo](https://github.com/dart-lang/angular2) to the same parent directory.
-The three cloned repo directories must be siblings, with the latter two repo directories named **angular** and **angular-dart**, respectively.
+1. Clone
+
+  - this repo
+  - [angular/angular source code repo](https://github.com/angular/angular)
+  - (OPTIONAL) [dart-lang/angular2 source code repo](https://github.com/dart-lang/angular2); 
+    cloning the Angular Dart repo is only necessary if you plan on doing full site builds
+
+  to the same parent directory. The **cloned repo directories must be siblings**, with the latter two repo directories named **angular** and **angular-dart**, respectively.
 
 1. cd into root directory `angular.io/`
 
-1. install the *all-docs* local packages by running `npm install`
-> You probably must rebuild `node-sass` in a separate step: `npm rebuild node-sass`
+1. Install local npm packages by running `./scripts/install.sh`
+
+1. (OPTIONAL) If you intend on doing **full site builds** then you must have the
+   Angular Dart repo (see the Clone step above), _and_ Dart tooling available.
+   Both can be installed by running `./scripts/deploy-install.sh`
 
 1. See [below](#code-sample-development) for code sample development preparation.
 
