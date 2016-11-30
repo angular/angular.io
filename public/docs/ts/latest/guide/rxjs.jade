@@ -1,0 +1,182 @@
+block includes
+  include ../_util-fns
+
+:marked
+  **Observables** provided by the Reactive Extensions for Javascript (RxJS) library provide applications with an extensive API
+  for handling asynchronous and event-based values produced over time.
+
+  An application is made up of many different streams of information. Whether it be user input into
+  a form, navigating from one route another, making an HTTP request to fetch some data, updating the application view with
+  new data as its received, or many other examples, each of these events happen over time. Observables provide a interface to
+  handle the many different sources of events and help to transform these events as they flow throughout an application.
+
+  This guide will serve as an introductory chapter to Observables, common uses cases for Observables in an Angular application
+  and how Observables are used and provided by the Angular framework.
+
+  ## Table of Contents
+  * [The Observable](#definition "")
+  * [Observables and Promises](#promises "")
+  * [Observable Lifecycle](#lifecycle "")
+  * [Observer](#lifecycle "")
+  * [Subscriptions](#subscriptions "")
+  * [Creating Observables](#creating "")
+  * [Operators](#transforming "")
+  * [Error Handling](#error-handling "")
+  * [Framework APIs](#apis "")
+  * [Impact on Change Detection](#change-detection "")
+  * [Further Reading](#reading "")
+
+:marked
+  The Observable: a function at its core
+
+  An Observable, simply put, is a specific type of function with a specific purpose. Its a function that accepts an `Observer` to produce values and
+  returns a function for cancellation. It represents an action that can be performed. This action may be performed right now, or at some point
+  in the future.
+
+  An action can be anything, from simply "return a constant" to "make an HTTP request". Here’s a simple "action" function that increments a counter
+  and returns the new value.
+
+  // Example of simple counter
+
+  The same functionality can be produced with an Observable. Observables don't return values directly, as they can be produced synchronously asynchronously.
+  An Observer is used by an Observable to consume its produced values.
+
+  // Example of observable counter
+
+  There is a key difference between these two examples. In the first counter example, the results of the action were produced when the function was called.
+  In the Observable counter, the Observable was created, with the [Observer](https://en.wikipedia.org/wiki/Observer_pattern) to produce values and the value incremented but the action hasn't been performed yet.
+  It represents an action we've defined, but it hasn't been executed.
+
+  // Example of subscribing to observable counter
+
+  Observable streams are **cold** or **lazy** by nature, meaning that until you invoke them, they will not produce
+  any values. Invoking an Observable is done using the `subscribe` method, which makes the Observable **hot** and calls the observer's method to produce
+  values. The `subscribe` function also returns an object with an `unsubscribe` from an Observable and no longer receive the values it produces.
+
+  // Example of unsubscribing
+
+  Managing the lifecycle of an Observable will be discussed later in the chapter.
+
+:marked
+  Observables and Promises: More different than alike
+
+  RxJS and Observables have been around for a long time, and they aren't the first concept of handling asynchronous events. Before Observables became more prevalent,
+  the `Promise` was the primary way of handling asynchronous events. Promises and Observables share some similarities as they both handle asynchronous events,
+  both implement a function to handle execution and error handling, but they are more different then alike.
+
+  Promises
+  * Produce a one-time value
+  * Can be composed
+  * Are always resolved/rejected asynchronously
+  * Are always multicast to multiple receivers
+
+  Observables
+  * Produce a number of values over time
+  * Can be composed
+  * Resolve synchronously/asynchronously
+  * Multicast when needed
+
+  The strength of Observables is producing and handling values over time, which is something a Promise wasn't designed to do. Observables also provide mechanisms
+  for easy cancellation, retrying upon failure and transformations. Observables include a rich library of operators, along with the extensibility to provide a more powerful
+  tool to handle the various streams of events in an application. So does this mean Promises are no longer needed? Absolutely not. Promises will continue to serve a purpose as the right tool for the job in some situations.
+  The good news is Observables support conversion to a Promise for instances where a one-off value needs to be produced without managing the lifecycle
+  of an Observable.
+
+:marked
+  Observable Anatomy: Next, Error, and Complete
+
+  Even though an Observable is a function that performs an action, it has a lifecycle. An Observable has 3 types of notifications it produces through its
+  lifetime: `next`, `error`, and `complete`.
+
+  The `next` is called whenever the observable produces a new value, notifying the Observer
+  that some value was produced. The `next` Observables may produce a single value, or multiple values over time. These values can be a number, string, object
+
+
+  Let's modify the HeroesReadyComponent to produce two values when subscribed.
+
+  // Example of Observable that produces 2 values
+
+  When click the `increment` button this time and subscribes to the Observable, the counter will be incremented twice and produce two values.
+
+  Whenever an Observable produces an error, it uses the `error` event. An error event can only happen once during the invocation of an Observable action.
+
+  // Example of Observable that errors
+
+  The Observable notifies its Observer through that an error has occurred.
+
+  Observables can also notify observers of completion. A completion event signals that no more values will be produced by the Observable. Like the error event,
+  a completion event can only happen once.
+
+  // Example of Observable that produces values, then completes
+
+:marked
+  Observer: The Observable's Consumer
+  An Observer is provided to an Observable to consume its values produced. An observer provides callbacks for the notification types produced by an Observable: `next`,
+  `error`, and `complete`.
+
+  An Observer is provided to an Observable through the `subscribe` method in 2 ways
+
+  * As a single object containing 3 callbacks for each notification.
+  * As 3 arguments in the subscribe method for each notification
+
+  // Example of single object and logging out each notification
+
+  // Example of 3 arguments to subscribe method
+
+:marked
+  Subscription: Maintaining of resources
+
+  As mentioned earlier, an Observable is not invoked until its `subscribed` to. This starts the execution of the Observable to produce values or events to an Observer.
+  This subscription is an allocation of resources for the action performed by the Observable. Naturally, you want to clean up resources used by the Observable when
+  finished with its execution. Each time an Observable is subscribed, it returns a `Subscription`. The `Subscription` is an object that handles the resources provided
+  by the Observable, along with the `unsubscribe`. The `unsubscribe` method provided by the `Subscription` disposes of the resources allocated by the Observable.
+
+  // Example of unsubscribing
+
+  As a general rule and good practice, resources that are allocated and used must be cleaned up, and the Observable subscription is no different. Angular provides
+  APIs that manage Observable lifecycles without the need to unsubscribe, but for those Observables you create, cleanup of resources is a must to protect against
+  memory leaks and other unwanted side effects.
+
+  // Example of unsubscribe in ngOnDestroy
+
+  In this example, only one subscription is used and disposed of. Managing multiple subscriptions using the `unsubscribe` method
+  has the potential to get unwieldy. You'll learn about different ways to to end subscriptions of multiple Observables later in the chapter.
+
+  // Example of unsubscribe using a Subject
+
+:marked
+  Operators: Observable functions
+
+  The Observable prototype contains many `operators`, which are methods that perform an operation. Operators are **pure functions**
+  that are stateless. Stateless operators are less error-prone as they are provided an Observable, in which an operation is performed on,
+  and return a new Observable, without modifying the original Observable. The Observable prototype comes with a minimal set of operators by default,
+  with a large set of operators that can be added. Operators are also used to (create Observable instances) from existing events.
+
+  There are different ways to access the operators provided by RxJS: By patching the Observable prototype or by importing the operator functions directly.
+  Each operator only needs to be patched on the prototype once, but where you choose to patch the Observable requires consideration. We'll examine a
+  few options below:
+
+  // Example of importing entire rxjs/Rx library
+
+  By importing `rxjs/Rx`, the **entire** set of RxJS operators are added to the Observable prototype. In most cases, you will only use a subset of
+  the available operators and adding the entire set increases the overall bundle size of your application. This is
+  only recommended for sample apps, and in testing environments.
+
+  // Example of patching the Observable prototype
+
+  Since minimizing bundle size is a recommended practice, you should only import the operators you need, where you need them.
+  This approach includes importing operators multiple times in different files, but safeguards against using operators
+  without having patched the Observable prototype first. Since feature areas can be loaded lazily, this also allows you the benefit
+  of keeping certain operators in separate bundles and only loaded them when needed.
+
+  // Example of importing operators directly
+
+  // Note about tree-shaking when pat
+
+  NOTE: Operators patched onto the Observable prototype that are unused will not be tree-shaken.
+
+  Operators can also be directly imported and used without patching the Observable prototype. This is the
+  recommended option for third-party libraries, staying with the approach to only import what you need. It
+  is also more suited for tree-shaking when bundling your Angular application.
+
+:marked
