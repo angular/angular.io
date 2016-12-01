@@ -19,6 +19,10 @@ function isSpecFile(path) {
   return /\.spec\.(.*\.)?js$/.test(path);
 }
 
+function isModuleFile(path) {
+  return /\.module\.js$/.test(path);
+}
+
 function isBuiltFile(path) {
   return isJsFile(path) && (path.substr(0, builtPath.length) == builtPath);
 }
@@ -27,8 +31,11 @@ var allSpecFiles = Object.keys(window.__karma__.files)
   .filter(isSpecFile)
   .filter(isBuiltFile);
 
+var allModuleFiles = Object.keys(window.__karma__.files)
+  .filter(isModuleFile);
+
 System.config({
-  baseURL: '/base',
+  baseURL: 'base',
   // Extend usual application package list with test folder
   packages: { 'testing': { main: 'index.js', defaultExtension: 'js' } },
 
@@ -80,10 +87,12 @@ function initTestBed(){
 
 // Import all spec files and start karma
 function initTesting () {
-  return Promise.all(
-    allSpecFiles.map(function (moduleName) {
+  var promises = allModuleFiles.map(function (moduleName) {
       return System.import(moduleName);
     })
-  )
+    .concat(allSpecFiles.map(function (moduleName) {
+      return System.import(moduleName);
+    }));
+  return Promise.all(promises)
   .then(__karma__.start, __karma__.error);
 }
