@@ -17,17 +17,17 @@ describe('i18n E2E Tests', () => {
     expect(element(by.css('my-app')).getText()).toContain('Yo tampoco genero ningún elemento');
   });
 
-  it('should display the translated alt attribute', function () {
-    const alt = element(by.css('img')).getAttribute('alt');
-    expect(alt).toBe('Logo de Angular 2');
+  it('should display the translated title attribute', function () {
+    const title = element(by.css('img')).getAttribute('title');
+    expect(title).toBe('Logo de Angular 2');
   });
 
   it('should display the plural of: a horde of wolves', function () {
-    expect(element.all(by.css('div')).get(0).getText()).toBe('una horda de lobos');
+    expect(element.all(by.css('span')).get(0).getText()).toBe('ningún lobo');
   });
 
-  it('should display the select of sex', function () {
-    expect(element.all(by.css('div')).get(1).getText()).toBe('El heroe es mujer');
+  it('should display the select of gender', function () {
+    expect(element.all(by.css('span')).get(1).getText()).toBe('El heroe es mujer');
   });
 
 });
