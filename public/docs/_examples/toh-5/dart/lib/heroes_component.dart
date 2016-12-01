@@ -26,7 +26,11 @@ class HeroesComponent implements OnInit {
   Hero selectedHero;
 
   // #docregion renaming
-  HeroesComponent(this._heroService, this._router);
+  HeroesComponent(this._heroService,
+  // #enddocregion renaming
+                  this._router
+  // #docregion renaming
+                  );
   // #enddocregion renaming
 
   Future<Null> getHeroes() async {
