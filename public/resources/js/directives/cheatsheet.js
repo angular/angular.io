@@ -1,21 +1,23 @@
 angularIO.directive('ngioCheatsheet', function() {
   return {
+    restrict: 'E',
+    scope: {},
     controllerAs: '$ctrl',
     controller: function($http, $attrs, $sce) {
       var $ctrl = this;
       $http.get($attrs.src).then(function(response) {
-        $ctrl.currentEnvironment = response.data.currentEnvironment;
-        $ctrl.version = response.data.version;
-        $ctrl.sections = response.data.sections;
+        if ($attrs.hasOwnProperty('versionOnly')) {
+          $ctrl.version = response.data.version.raw;
+        } else {
+          $ctrl.sections = response.data.sections;
+        }
       });
       $ctrl.getSafeHtml = function(html) {
         return $sce.trustAsHtml(html);
       };
     },
     template:
-      '<h2>Angular for {{$ctrl.currentEnvironment}} Cheat Sheet (v{{ $ctrl.version.raw }})</h2>' +
-      '<br>' +
-      '<div ng-if="!$ctrl.sections">Loading Cheatsheet...</div>\n' +
+      '<span ng-if="$ctrl.version">{{$ctrl.version}}</span>' +
       '<table ng-repeat="section in $ctrl.sections" ng-cloak>\n' +
       '<tr>\n' +
       '  <th>{{section.name}}</th>\n' +
