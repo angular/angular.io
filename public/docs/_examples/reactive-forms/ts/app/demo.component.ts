@@ -14,6 +14,7 @@ import { Component } from '@angular/core';
         <hero-signup-4></hero-signup-4>
         <hero-signup-5></hero-signup-5>
         <hero-signup-6></hero-signup-6>
+        <hero-signup-7></hero-signup-7>
       </div>`
 })
 export class DemoComponent { }

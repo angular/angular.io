@@ -1,17 +1,19 @@
 /* tslint:disable:component-class-suffix */
 // #docplaster
 // #docregion
+
 import { Component } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   moduleId: module.id,
   selector: 'hero-signup-1',
   templateUrl: './hero-signup-1.component.html'
 })
+
 // #docregion v1
 export class HeroSignUpComponent1 {
-  form = new FormGroup ({
+  heroForm = new FormGroup ({
     name: new FormControl(),
     username: new FormControl(),
     password: new FormControl(),
@@ -27,9 +29,9 @@ export class HeroSignUpComponent1 {
 })
 // #docregion v2
 export class HeroSignUpComponent2 {
-  form: FormGroup;
-  constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
+  heroForm: FormGroup; // <--- heroForm is of type FormGroup
+  constructor(private _fb: FormBuilder) { // <--- inject FormBuilder
+    this.heroForm = this._fb.group({ // <--- make this.form a FormBuilder group
       name: '',
       username: '',
       password: '',
@@ -44,11 +46,11 @@ export class HeroSignUpComponent2 {
   selector: 'hero-signup-3',
   templateUrl: './hero-signup-3.component.html'
 })
-// #enddocregion v3
+// #docregion v3
 export class HeroSignUpComponent3 {
-  form: FormGroup;
+  heroForm: FormGroup;
   constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
+    this.heroForm = this._fb.group({
       name: '',
       username: '',
       password: '',
@@ -67,16 +69,16 @@ export class HeroSignUpComponent3 {
   selector: 'hero-signup-4',
   templateUrl: './hero-signup-4.component.html'
 })
-// #enddocregion v4
+// #docregion v4
 export class HeroSignUpComponent4 {
-  form: FormGroup;
+  heroForm: FormGroup;
   constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
+    this.heroForm = this._fb.group({
       name: '',
       username: '',
       password: '',
       confirm: '',
-      address: this._fb.group({
+      address: this._fb.group({ // <-- Here's your nested FormGroup
         street: '',
         city: '',
         state: '',
@@ -90,13 +92,13 @@ export class HeroSignUpComponent4 {
 @Component({
   moduleId: module.id,
   selector: 'hero-signup-5',
-  templateUrl: './hero-signup-5.component.html'
+  templateUrl: './hero-signup-4.component.html'
 })
 // #docregion v5
 export class HeroSignUpComponent5 {
-  form: FormGroup;
+  heroForm: FormGroup;
   constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
+    this.heroForm = this._fb.group({
       name: '',
       username: '',
       password: '',
@@ -108,8 +110,7 @@ export class HeroSignUpComponent5 {
             zip: ''
       })
     });
-
-    this.form.patchValue({
+    this.heroForm.patchValue({
       name: 'Nancy'
     });
   }
@@ -119,13 +120,13 @@ export class HeroSignUpComponent5 {
 @Component({
   moduleId: module.id,
   selector: 'hero-signup-6',
-  templateUrl: './hero-signup-6.component.html'
+  templateUrl: './hero-signup-4.component.html'
 })
 // #docregion v6
 export class HeroSignUpComponent6 {
-  form: FormGroup;
+  heroForm: FormGroup;
   constructor(private _fb: FormBuilder) {
-    this.form = this._fb.group({
+    this.heroForm = this._fb.group({
       name: '',
       username: '',
       password: '',
@@ -137,8 +138,8 @@ export class HeroSignUpComponent6 {
             zip: ''
       })
     });
-
-    this.form.setValue({
+    // #docregion set-value
+    this.heroForm.setValue({
       name: 'Nancy',
       username: 'NancyD',
       password: '',
@@ -150,9 +151,60 @@ export class HeroSignUpComponent6 {
         zip: '12345'
       }
     });
+    // #enddocregion set-value
   }
 }
 // #enddocregion v6
+
+@Component({
+  moduleId: module.id,
+  selector: 'hero-signup-7',
+  templateUrl: './hero-signup-5.component.html'
+})
+// #docregion v7
+export class HeroSignUpComponent7 {
+  // #docregion addresses
+  heroForm: FormGroup;
+  addresses: FormArray; // <--add this under form
+  // #enddocregion addresses
+
+  constructor(private _fb: FormBuilder) {
+    this.heroForm = this._fb.group({
+      name: '',
+      username: '',
+      password: '',
+      confirm: '',
+      // #docregion addresses-refactor
+      addresses: this.buildArray()
+      // #enddocregion addresses-refactor
+    });
+  }
+  // #docregion build-array
+  buildArray(): FormArray {
+    this.addresses = this._fb.array([
+      this.buildGroup()
+    ]);
+    return this.addresses;
+  }
+  // #enddocregion build-array
+  // #docregion build-group
+  buildGroup(): FormGroup {
+    return this._fb.group({
+      street: '',
+      city: '',
+      state: '',
+      zip: ''
+    });
+  }
+  // #enddocregion build-group
+  // #docregion add
+  add() {
+    this.addresses.push(this.buildGroup());
+  }
+  // #enddocregion add
+}
+// #enddocregion v7
+
 
 export const components = [
   HeroSignUpComponent1,
@@ -161,4 +213,5 @@ export const components = [
   HeroSignUpComponent4,
   HeroSignUpComponent5,
   HeroSignUpComponent6,
+  HeroSignUpComponent7
 ];
