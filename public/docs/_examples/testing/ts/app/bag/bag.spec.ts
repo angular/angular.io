@@ -332,8 +332,8 @@ describe('TestBed Component Tests', () => {
     expect(inputEl.listeners.length).toBeGreaterThan(2, 'several listeners attached');
   });
 
-  // #docregion debug-dom-renderer
-  it('DebugDomRender should set attributes, styles, classes, and properties', () => {
+  // #docregion dom-attributes
+  it('BankAccountComponent should set attributes, styles, classes, and properties', () => {
     const fixture = TestBed.createComponent(BankAccountParentComponent);
     fixture.detectChanges();
     const comp = fixture.componentInstance;
@@ -351,12 +351,18 @@ describe('TestBed Component Tests', () => {
     expect(el.classes['closed']).toBe(true, 'closed class');
     expect(el.classes['open']).toBe(false, 'open class');
 
-    expect(el.properties['customProperty']).toBe(true, 'customProperty');
-
     expect(el.styles['color']).toBe(comp.color, 'color style');
     expect(el.styles['width']).toBe(comp.width + 'px', 'width style');
+  // #enddocregion dom-attributes
+
+    // Removed on 12/02/2016 when ceased public discussion of the `Renderer`. Revive in future?
+    // expect(el.properties['customProperty']).toBe(true, 'customProperty');
+
+  // #docregion dom-attributes
   });
-  // #enddocregion debug-dom-renderer
+  // #enddocregion dom-attributes
+
+
 });
 
 describe('TestBed Component Overrides:', () => {
