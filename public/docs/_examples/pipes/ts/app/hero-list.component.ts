@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'hero-list',
-  // #docregion template
   template: `
     <h2>Heroes from JSON File</h2>
 
@@ -12,9 +11,7 @@ import { Component } from '@angular/core';
     </div>
 
     <p>Heroes as JSON:
-    {{'heroes.json' | fetch | json}}
-    </p>
-  `
-  // #enddocregion template
+      {{'heroes.json' | fetch | json}}
+    </p>`
 })
 export class HeroListComponent { }
