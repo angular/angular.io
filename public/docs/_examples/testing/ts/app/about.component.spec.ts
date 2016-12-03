@@ -20,7 +20,8 @@ describe('AboutComponent (highlightDirective)', () => {
 
   it('should have skyblue <h2>', () => {
     const de = fixture.debugElement.query(By.css('h2'));
-    expect(de.styles['backgroundColor']).toBe('skyblue');
+    const bgColor = de.nativeElement.style.backgroundColor;
+    expect(bgColor).toBe('skyblue');
   });
   // #enddocregion tests
 });

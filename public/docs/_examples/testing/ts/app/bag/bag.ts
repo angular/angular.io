@@ -1,10 +1,10 @@
 /* tslint:disable:forin */
-import { Component, ContentChildren, Directive, ElementRef, EventEmitter,
+import { Component, ContentChildren, Directive, EventEmitter,
          Injectable, Input, Output, Optional,
          HostBinding, HostListener,
          OnInit, OnChanges, OnDestroy,
          Pipe, PipeTransform,
-         Renderer, SimpleChange } from '@angular/core';
+         SimpleChange } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
@@ -76,9 +76,10 @@ export class BankAccountComponent {
   @Input() bank: string;
   @Input('account') id: string;
 
-  constructor(private renderer: Renderer, private el: ElementRef ) {
-    renderer.setElementProperty(el.nativeElement, 'customProperty', true);
-  }
+  // Removed on 12/02/2016 when ceased public discussion of the `Renderer`. Revive in future?
+  // constructor(private renderer: Renderer, private el: ElementRef ) {
+  //   renderer.setElementProperty(el.nativeElement, 'customProperty', true);
+  // }
 }
 
 /** A component with attributes, styles, classes, and property setting */

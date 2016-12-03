@@ -1,6 +1,7 @@
+/* tslint:disable:member-ordering */
 // #docplaster
 // #docregion full
-import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
   selector: '[myHighlight]'
@@ -9,7 +10,7 @@ import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/c
 export class HighlightDirective {
   private _defaultColor = 'red';
 
-  constructor(private el: ElementRef, private renderer: Renderer) { }
+  constructor(private el: ElementRef) { }
   // #enddocregion class
 
   // #docregion defaultColor
@@ -33,7 +34,7 @@ export class HighlightDirective {
   }
 
   private highlight(color: string) {
-    this.renderer.setElementStyle(this.el.nativeElement, 'backgroundColor', color);
+    this.el.nativeElement.style.backgroundColor = color;
   }
 }
 // #enddocregion class

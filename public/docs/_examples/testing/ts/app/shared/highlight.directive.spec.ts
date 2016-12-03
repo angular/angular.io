@@ -44,12 +44,14 @@ describe('HighlightDirective', () => {
   });
 
   it('should color 1st <h2> background "yellow"', () => {
-    expect(des[0].styles['backgroundColor']).toBe('yellow');
+    const bgColor = des[0].nativeElement.style.backgroundColor;
+    expect(bgColor).toBe('yellow');
   });
 
   it('should color 2nd <h2> background w/ default color', () => {
     const dir = des[1].injector.get(HighlightDirective) as HighlightDirective;
-    expect(des[1].styles['backgroundColor']).toBe(dir.defaultColor);
+    const bgColor = des[1].nativeElement.style.backgroundColor;
+    expect(bgColor).toBe(dir.defaultColor);
   });
 
   it('should bind <input> background to value color', () => {
@@ -65,16 +67,18 @@ describe('HighlightDirective', () => {
     expect(input.style.backgroundColor).toBe('green', 'changed backgroundColor');
   });
 
-  // customProperty tests
-  it('all highlighted elements should have a true customProperty', () => {
-    const allTrue = des.map(de => !!de.properties['customProperty']).every(v => v === true);
-    expect(allTrue).toBe(true);
-  });
 
   it('bare <h2> should not have a customProperty', () => {
     expect(bareH2.properties['customProperty']).toBeUndefined();
   });
   // #enddocregion selected-tests
+
+  // Removed on 12/02/2016 when ceased public discussion of the `Renderer`. Revive in future?
+  // // customProperty tests
+  // it('all highlighted elements should have a true customProperty', () => {
+  //   const allTrue = des.map(de => !!de.properties['customProperty']).every(v => v === true);
+  //   expect(allTrue).toBe(true);
+  // });
 
   // injected directive
   // attached HighlightDirective can be injected
