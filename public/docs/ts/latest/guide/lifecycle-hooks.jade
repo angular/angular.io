@@ -7,8 +7,8 @@ figure
   img(src="/resources/images/devguide/lifecycle-hooks/hooks-in-sequence.png" alt="Us" align="left" style="width:200px; margin-left:-40px;margin-right:30px")
 
 :marked
-  A component has a lifecycle managed by Angular itself. 
-  
+  A component has a lifecycle managed by Angular itself.
+
   Angular creates it, renders it, creates and renders its children,
   checks it when its data-bound properties change, and destroys it before removing it from the DOM.
 
@@ -47,7 +47,7 @@ a#hooks-overview
   one or more of the *Lifecycle Hook* interfaces in the Angular `core` library.
 
   Each interface has a single hook method whose name is the interface name prefixed with `ng`.
-  For example, the `OnInit` interface has a hook method named `ngOnInit` 
+  For example, the `OnInit` interface has a hook method named `ngOnInit`
   that Angular calls shortly after creating the component:
 +makeExample('lifecycle-hooks/ts/app/peek-a-boo.component.ts', 'ngOnInit', 'peek-a-boo.component.ts (excerpt)')(format='.')
 :marked
@@ -73,7 +73,7 @@ table(width="100%")
       :marked
         Respond when Angular (re)sets data-bound input properties.
         The method receives a `SimpleChanges` object of current and previous property values.
-        
+
         Called before `ngOnInit` and whenever one or more data-bound input properties change.
 
   tr(style=top)
@@ -82,15 +82,15 @@ table(width="100%")
       :marked
         Initialize the directive/component after Angular first displays the data-bound properties
         and sets the directive/component's input properties.
-        
-        Called _once_, after the _first_ `ngOnChanges`. 
+
+        Called _once_, after the _first_ `ngOnChanges`.
 
   tr(style=top)
     td ngDoCheck
     td
       :marked
-        Detect and act upon changes that Angular can't or won't detect on its own. 
-        
+        Detect and act upon changes that Angular can't or won't detect on its own.
+
         Called during every change detection run, immediately after `ngOnChanges` and `ngOnInit`.
 
   tr(style=top)
@@ -138,13 +138,13 @@ table(width="100%")
     td
       :marked
         Cleanup just before Angular destroys the directive/component.
-        Unsubscribe observables and detach event handlers to avoid memory leaks.      
+        Unsubscribe observables and detach event handlers to avoid memory leaks.
 
         Called _just before_ Angular destroys the directive/component.
 
 +ifDocsFor('ts|js')
   a#interface-optional
-  .l-main-section  
+  .l-main-section
   :marked
     ## Interface are optional (technically)
 
@@ -160,7 +160,7 @@ table(width="100%")
 
     Nonetheless, it's good practice to add interfaces to TypeScript directive classes
     in order to benefit from strong typing and editor tooling.
-  
+
 a#other-lifecycle-hooks
 .l-main-section
 :marked
@@ -339,7 +339,7 @@ figure.image-display
 .l-sub-section
   :marked
     Misko Hevery, Angular team lead,
-    [explains why](http://misko.hevery.com/code-reviewers-guide/flaw-constructor-does-real-work/) 
+    [explains why](http://misko.hevery.com/code-reviewers-guide/flaw-constructor-does-real-work/)
     you should avoid complex constructor logic.
 
 :marked
@@ -347,7 +347,7 @@ figure.image-display
   You shouldn't worry that a new component will try to contact a remote server when
   created under test or before you decide to display it.
   Constructors should do no more than set the initial local variables to simple values.
-  
+
   An `ngOnInit` is a good place for a component to fetch its initial data. The
   [Tutorial](../tutorial/toh-pt4.html#oninit) and [HTTP](server-communication.html#oninit) chapter
   show how.
@@ -401,7 +401,7 @@ figure.image-display
   img(src='/resources/images/devguide/lifecycle-hooks/on-changes-anim.gif' alt="OnChanges")
 
 :marked
-  The log entries appear as the string value of the *power* property changes. 
+  The log entries appear as the string value of the *power* property changes.
   But the `ngOnChanges` does not catch changes to `hero.name`
   That's surprising at first.
 
@@ -470,7 +470,7 @@ figure.image-display
   Angular throws an error if the hook updates the component's data-bound `comment` property immediately (try it!).
 block tick-methods
   :marked
-    The `LoggerService.tick_then()` postpones the log update 
+    The `LoggerService.tick_then()` postpones the log update
     for one turn of the browser's JavaScript cycle ... and that's just long enough.
 
 :marked
@@ -513,14 +513,47 @@ figure.image-display
   In this case, the projected content is the `<my-child>` from the parent.
 figure.image-display
   img(src='/resources/images/devguide/lifecycle-hooks/projected-child-view.png' width="230" alt="Projected Content")
-:marked
+
 .l-sub-section
   :marked
     The tell-tale signs of *content projection* are (a) HTML between component element tags
     and (b) the presence of `<ng-content>` tags in the component's template.
+
+:marked
+  ### Selective content projection
+
+.l-sub-section
+  :marked
+    Angular 1 developers know this technique as *multi-slot transclusion* (Angular 1.5+).
+
+:marked
+  The content can be selectively projected into multiple locations using `select` attribute of `ng-content` tag.
+  Here is an example component that accepts text elements from the user and renders them in red and green color.
++makeExample('lifecycle-hooks/ts/app/content-projection.component.ts', 'text-painter-template', 'TextPainter Component (template)')(format=".")
+:marked
+  It can be used as follows:
++makeExample('lifecycle-hooks/ts/app/content-projection.component.ts', 'text-painter-usage', 'TextPainter Component Usage')(format=".")
+:marked
+  The user can mark *span* elements using *red-text* and *green-text* attributes. *TextPainter* component then uses `ng-content` tags with appropriate selector (*[red-text]* and *[green-text]*) in its template to cherry-pick elements and place them at desired location.
+
+:marked
+  ### ngProjectAs attribute
+  Let's assume we would like to extend the *TextPainter* component with ability to render blue text. We can create a new *SuperTextPainter* component that uses *textPainter* component internally.
++makeExample('lifecycle-hooks/ts/app/content-projection.component.ts', 'super-text-painter-template', 'SuperTextPainter Component (template)')(format=".")
+:marked
+  It can be used as follows:
++makeExample('lifecycle-hooks/ts/app/content-projection.component.ts', 'super-text-painter-usage', 'SuperTextPainter Component Usage')(format=".")
+:marked
+  The content is first projected into *SuperTextPainter* component template that uses selector *[blue-text]*
+  to render blue text and passes on the elements needed by the embedded *TextPainter* component template. It can be viewed as
+  two level projection and achieved by using `ngProjectAs` attribute in *SuperTextPainter* component template. The value of
+  this tag should match the `ng-content` selectors of the mebedded *TextPainter* component template.
+
+  Note that this example won't work if `ngProjectAs` attribute is omitted from *SuperTextPainter* component template.
+
 :marked
   ### AfterContent hooks
-  *AfterContent* hooks are similar to the *AfterView* hooks. 
+  *AfterContent* hooks are similar to the *AfterView* hooks.
   The key difference is in the child component
 
   * The *AfterView* hooks concern `ViewChildren`, the child components whose element tags
