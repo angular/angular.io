@@ -128,7 +128,7 @@ function configLangs(langOption) {
   const fullSiteBuildTasks = ['build-compile', 'check-deploy', 'harp-compile'];
   const buildAllDocs = argv['_'] &&
     fullSiteBuildTasks.some((task) => argv['_'].indexOf(task) >= 0);
-  const langDefault = buildAllDocs ? 'all' : 'ts|js';
+  const langDefault = /*buildAllDocs ? 'all' :*/ 'ts|js';
   if (langOption === '') {
     lang = '';
     langs = [];
@@ -914,7 +914,7 @@ function harpCompile() {
 
   if(skipLangs && fs.existsSync(WWW) && backupApiHtmlFilesExist(WWW)) {
     gutil.log(`Harp site recompile: skipping recompilation of API docs for [${skipLangs}]`);
-    gutil.log(`API docs will be copied from existing ${WWW} folder.`)
+    gutil.log(`API docs will be copied from existing ${WWW} folder (if they exist).`)
     del.sync(`${WWW}-backup`); // remove existing backup if it exists
     renameIfExistsSync(WWW, `${WWW}-backup`);
   } else {
@@ -1069,7 +1069,7 @@ function restoreApiHtml() {
     const relApiDir = path.join('docs', lang, vers, 'api');
     const apiSubdir = path.join(WWW, relApiDir);
     const backupApiSubdir = path.join(`${WWW}-backup`, relApiDir);
-    if (fs.existsSync(backupApiSubdir) || argv.forceSkipApi !== true) {
+    if (fs.existsSync(backupApiSubdir)) {
       gutil.log(`cp ${backupApiSubdir} ${apiSubdir}`)
       fs.copySync(backupApiSubdir, apiSubdir);
     }
@@ -1081,6 +1081,7 @@ function backupApiHtmlFilesExist(folderName) {
   const vers = 'latest';
   var result = 1;
   skipLangs.forEach(lang => {
+    if (lang === 'dart') return true;
     const relApiDir = path.join('docs', lang, vers, 'api');
     const backupApiSubdir = path.join(folderName, relApiDir);
     if (!fs.existsSync(backupApiSubdir)) {
