@@ -55,8 +55,10 @@ a#top
     - [Testing with the _Observable_ test double](#tests-w-observable-double)
   * [Use a _page_ object to simplify setup](#page-object)
   * [Setup with module imports](#import-module)
-  * [Override component providers](#component-override)
-  <br><br>  
+  <br><br>
+  * [Override a component's providers](#component-override)
+    - [_overrideComponent_](#override-component-method)
+    - [Provide a _spy-stub_](#spy-stub)
   * [Test a _RouterOutlet_ component](#router-outlet-component)
     - [stubbing unneeded components](#stub-component)
     - [Stubbing the _RouterLink_](#router-link-stub)
@@ -664,7 +666,7 @@ a#testbed-get
   :marked
     The [`inject`](#inject)  utility function is another way to get one or more services from the test root injector.
     
-    See the section "[_Override Component Providers_](#component-override)" for a use case
+    See the section "[_Override a component's providers_](#component-override)" for a use case
     in which `inject` and `TestBed.get` do not work and you must get the service from the component's injector.
 :marked
   ### Always get the service from an injector
@@ -734,7 +736,12 @@ a#service-spy
 .l-sub-section
   :marked
     Faking a service instance and spying on the real service are _both_ great options. 
-    Pick the one that seems easiest for the current test suite. Don't be afraid to change your mind.
+    Pick the one that seems easiest for the current test suite. 
+    Don't be afraid to change your mind.
+
+    Spying on the real service isn't always easy, especially when the real service has injected dependencies.
+    You can _stub and spy_ at the same time, as shown in [an example below](#spy-stub).
+
 :marked
   Here are the tests with commentary to follow:
 +makeExample('testing/ts/app/shared/twain.component.spec.ts', 'tests', 'app/shared/twain.component.spec.ts (tests)')
@@ -1196,7 +1203,7 @@ figure.image-display
   * to wait until a `hero` arrives before `*ngIf` allows any element in DOM
   * element references for the title name span and name input-box to inspect their values
   * two button references to click
-  * spies on services and component methods
+  * spies on component and router methods
 
   Even a small form such as this one can produce a mess of tortured conditional setup and CSS element selection.
 
@@ -1309,7 +1316,7 @@ a#component-override
   as seen in the following setup variation:
 +makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'setup-override', 'app/hero/hero-detail.component.spec.ts (Override setup)')(format='.')
 :marked
-  Notice that `TestBed.configureTestingModule` no longer provides a (fake) `HeroService` because it's [not needed](#stub-hero-detail-service).
+  Notice that `TestBed.configureTestingModule` no longer provides a (fake) `HeroService` because it's [not needed](#spy-stub).
 
 a#override-component-method
 :marked
@@ -1339,17 +1346,26 @@ code-example(format="." language="javascript").
     providers?: any[];
     ...
 
-a#stub-hero-detail-service
+a#spy-stub
 :marked
-  ### _StubHeroDetailService_
+  ### Provide a _spy stub_ (_HeroDetailServiceSpy_)
 
-  This example completely replaces the component's `providers` with an array containing the `StubHeroDetailService`.
-  The `StubHeroDetailService` is dead simple. It doesn't need a `HeroService` (fake or otherwise).
-+makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'stub-hds', 'app/hero/hero-detail.component.spec.ts (StubHeroDetailService)')(format='.')
+  This example completely replaces the component's `providers` array with a new array containing a `HeroDetailServiceSpy`.
+  
+  The `HeroDetailServiceSpy` is a stubbed version of the real `HeroDetailService` 
+  that fakes all necessary features of that service. 
+  It neither injects nor delegates to the lower level `HeroService` 
+  so there's no need to provide a test double for that.
+
+  The related `HeroDetailComponent` tests will assert that methods of the `HeroDetailService` 
+  were called by spying on the service methods.
+  Accordingly, the stub implements its methods as spies:
++makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'hds-spy', 'app/hero/hero-detail.component.spec.ts (HeroDetailServiceSpy)')(format='.')
 :marked
   ### The override tests
 
-  Now the tests can control the component's hero directly by manipulating the stub's `testHero`.
+  Now the tests can control the component's hero directly by manipulating the spy-stub's `testHero`
+  and confirm that service methods were called.
 +makeExample('testing/ts/app/hero/hero-detail.component.spec.ts', 'override-tests', 'app/hero/hero-detail.component.spec.ts (override tests)')(format='.')
 :marked
   ### More overrides

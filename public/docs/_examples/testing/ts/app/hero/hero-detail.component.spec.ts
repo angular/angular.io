@@ -34,19 +34,23 @@ describe('HeroDetailComponent', () => {
 
 ////////////////////
 function overrideSetup() {
-  // #docregion stub-hds
-  class StubHeroDetailService {
+  // #docregion hds-spy
+  class HeroDetailServiceSpy {
     testHero = new Hero(42, 'Test Hero');
 
-    getHero(id: number | string): Promise<Hero>  {
-      return Promise.resolve(true).then(() => Object.assign({}, this.testHero) );
-    }
+    getHero = jasmine.createSpy('getHero').and.callFake(
+      () => Promise
+        .resolve(true)
+        .then(() => Object.assign({}, this.testHero))
+    );
 
-    saveHero(hero: Hero): Promise<Hero> {
-      return Promise.resolve(true).then(() => Object.assign(this.testHero, hero) );
-    }
+    saveHero = jasmine.createSpy('saveHero').and.callFake(
+      (hero: Hero) => Promise
+        .resolve(true)
+        .then(() => Object.assign(this.testHero, hero))
+    );
   }
-  // #enddocregion stub-hds
+  // #enddocregion hds-spy
 
   // the `id` value is irrelevant because ignored by service stub
   beforeEach(() => activatedRoute.testParams = { id: 99999 } );
@@ -70,7 +74,7 @@ function overrideSetup() {
     .overrideComponent(HeroDetailComponent, {
       set: {
         providers: [
-          { provide: HeroDetailService, useClass: StubHeroDetailService }
+          { provide: HeroDetailService, useClass: HeroDetailServiceSpy }
         ]
       }
     })
@@ -81,31 +85,37 @@ function overrideSetup() {
   // #enddocregion setup-override
 
   // #docregion override-tests
-  let hds: StubHeroDetailService;
+  let hdsSpy: HeroDetailServiceSpy;
 
   beforeEach( async(() => {
     createComponent();
-    // get the component's injected StubHeroDetailService
-    hds = fixture.debugElement.injector.get(HeroDetailService);
+    // get the component's injected HeroDetailServiceSpy
+    hdsSpy = fixture.debugElement.injector.get(HeroDetailService);
   }));
 
+  it('should have called `getHero`', () => {
+    expect(hdsSpy.getHero.calls.count()).toBe(1, 'getHero called once');
+  });
+
   it('should display stub hero\'s name', () => {
-    expect(page.nameDisplay.textContent).toBe(hds.testHero.name);
+    expect(page.nameDisplay.textContent).toBe(hdsSpy.testHero.name);
   });
 
   it('should save stub hero change', fakeAsync(() => {
-    const origName = hds.testHero.name;
+    const origName = hdsSpy.testHero.name;
     const newName = 'New Name';
 
     page.nameInput.value = newName;
     page.nameInput.dispatchEvent(newEvent('input')); // tell Angular
 
     expect(comp.hero.name).toBe(newName, 'component hero has new name');
-    expect(hds.testHero.name).toBe(origName, 'service hero unchanged before save');
+    expect(hdsSpy.testHero.name).toBe(origName, 'service hero unchanged before save');
 
     click(page.saveBtn);
+    expect(hdsSpy.saveHero.calls.count()).toBe(1, 'saveHero called once');
+
     tick(); // wait for async save to complete
-    expect(hds.testHero.name).toBe(newName, 'service hero has new name after save');
+    expect(hdsSpy.testHero.name).toBe(newName, 'service hero has new name after save');
     expect(page.navSpy.calls.any()).toBe(true, 'router.navigate called');
   }));
   // #enddocregion override-tests
@@ -114,7 +124,7 @@ function overrideSetup() {
     inject([HeroDetailService], (service: HeroDetailService) => {
 
     expect(service).toEqual({}, 'service injected from fixture');
-    expect(hds).toBeTruthy('service injected into component');
+    expect(hdsSpy).toBeTruthy('service injected into component');
   }));
 }
 
@@ -164,8 +174,13 @@ function heroModuleSetup() {
     });
 
     it('should save when click save but not navigate immediately', () => {
+      // Get service injected into component and spy on its`saveHero` method.
+      // It delegates to fake `HeroService.updateHero` which delivers a safe test result.
+      const hds = fixture.debugElement.injector.get(HeroDetailService);
+      const saveSpy = spyOn(hds, 'saveHero').and.callThrough();
+
       click(page.saveBtn);
-      expect(page.saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
+      expect(saveSpy.calls.any()).toBe(true, 'HeroDetailService.save called');
       expect(page.navSpy.calls.any()).toBe(false, 'router.navigate not called');
     });
 
@@ -322,7 +337,6 @@ function createComponent() {
 class Page {
   gotoSpy:      jasmine.Spy;
   navSpy:       jasmine.Spy;
-  saveSpy:      jasmine.Spy;
 
   saveBtn:      DebugElement;
   cancelBtn:    DebugElement;
@@ -330,14 +344,9 @@ class Page {
   nameInput:    HTMLInputElement;
 
   constructor() {
-    // Use component's injector to see the services it injected.
-    const compInjector = fixture.debugElement.injector;
-    const hds          = compInjector.get(HeroDetailService);
-    const router       = compInjector.get(Router);
-
-    this.gotoSpy       = spyOn(comp, 'gotoList').and.callThrough();
-    this.navSpy        = spyOn(router, 'navigate');
-    this.saveSpy       = spyOn(hds, 'saveHero').and.callThrough();
+    const router = TestBed.get(Router); // get router from root injector
+    this.gotoSpy = spyOn(comp, 'gotoList').and.callThrough();
+    this.navSpy  = spyOn(router, 'navigate');
   }
 
   /** Add page elements after hero arrives */
