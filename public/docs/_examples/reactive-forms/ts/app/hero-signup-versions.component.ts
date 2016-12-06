@@ -165,7 +165,7 @@ export class HeroSignUpComponent6 {
 export class HeroSignUpComponent7 {
   // #docregion addresses
   heroForm: FormGroup;
-  addresses: FormArray; // <--add this under form
+  addresses: FormArray; // <--add this under heroForm
   // #enddocregion addresses
 
   constructor(private _fb: FormBuilder) {
