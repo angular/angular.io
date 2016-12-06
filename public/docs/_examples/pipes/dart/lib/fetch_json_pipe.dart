@@ -8,17 +8,17 @@ import 'package:angular2/angular2.dart';
 @Pipe(name: 'fetch', pure: false)
 // #enddocregion pipe-metadata
 class FetchJsonPipe extends PipeTransform {
-  dynamic _fetchedJson;
-  String _prevUrl;
+  dynamic _cachedData;
+  String _cachedUrl;
 
   dynamic transform(String url) {
-    if (url != _prevUrl) {
-      _prevUrl = url;
-      _fetchedJson = null;
+    if (url != _cachedUrl) {
+      _cachedUrl = url;
+      _cachedData = null;
       HttpRequest.getString(url).then((s) {
-          _fetchedJson = JSON.decode(s);
-        });
+        _cachedData = JSON.decode(s);
+      });
     }
-    return _fetchedJson;
+    return _cachedData;
   }
 }
