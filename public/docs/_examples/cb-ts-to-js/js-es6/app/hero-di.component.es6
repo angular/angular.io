@@ -1,7 +1,7 @@
+// #docregion
 import { Component }   from '@angular/core';
 import { DataService } from './data.service';
 
-// #docregion
 export class HeroComponent {
   constructor(dataService) {
     this.name = dataService.getHeroName();
@@ -18,5 +18,4 @@ HeroComponent.annotations = [
 HeroComponent.parameters = [
   [DataService]
 ];
-
 // #enddocregion

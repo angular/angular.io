@@ -1,23 +1,26 @@
 (function(app) {
 
-  // #docregion
-  app.HeroDIComponent = HeroDIComponent;
+  var old = app.HeroComponent;
 
-  HeroDIComponent.annotations = [
+  // #docregion
+  app.HeroComponent = HeroComponent;
+
+  HeroComponent.annotations = [
     new ng.core.Component({
       selector: 'hero-di',
       template: '<h1>Hero: {{name}}</h1>'
     })
   ];
 
-  HeroDIComponent.parameters = [ app.DataService ];
+  HeroComponent.parameters = [ app.DataService ];
 
-  function HeroDIComponent(dataService) {
+  function HeroComponent(dataService) {
     this.name = dataService.getHeroName();
   }
-
   // #enddocregion
 
+  app.HeroDIComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
 
@@ -25,19 +28,24 @@
 
 (function(app) {
 
-// #docregion dsl
-app.HeroDIDslComponent = ng.core.Component({
-  selector: 'hero-di-dsl',
-  template: '<h1>Hero: {{name}}</h1>'
-})
-.Class({
-  constructor: [
-    app.DataService,
-    function HeroDIDslComponent(service) {
-      this.name = service.getHeroName();
-    }
-  ]
-});
-// #enddocregion dsl
+  var old = app.HeroComponent;
+
+  // #docregion dsl
+  app.HeroComponent = ng.core.Component({
+    selector: 'hero-di-dsl',
+    template: '<h1>Hero: {{name}}</h1>'
+  })
+  .Class({
+    constructor: [
+      app.DataService,
+      function HeroComponent(service) {
+        this.name = service.getHeroName();
+      }
+    ]
+  });
+  // #enddocregion dsl
+
+  app.HeroDIDslComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});

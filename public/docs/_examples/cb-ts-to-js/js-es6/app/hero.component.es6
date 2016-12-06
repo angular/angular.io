@@ -1,4 +1,5 @@
 // #docplaster
+// #docregion
 // #docregion metadata
 import { Component } from '@angular/core';
 
