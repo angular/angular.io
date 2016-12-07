@@ -1,6 +1,5 @@
 // #docplaster
-// #docregion
-// #docregion imports
+// #docregion , imports
 import 'dart:async';
 
 import 'package:angular2/core.dart';
@@ -15,16 +14,16 @@ import 'hero_service.dart';
 // #docregion metadata
 @Component(
     selector: 'my-dashboard',
-    // #docregion templateUrl
     templateUrl: 'dashboard_component.html',
-    // #enddocregion templateUrl
+    // #enddocregion metadata
     // #docregion css
     styleUrls: const ['dashboard_component.css'],
     // #enddocregion css
+    // #docregion metadata
     directives: const [ROUTER_DIRECTIVES],
     )
 // #enddocregion metadata
-// #docregion class, component
+// #docregion class
 class DashboardComponent implements OnInit {
   List<Hero> heroes;
 
