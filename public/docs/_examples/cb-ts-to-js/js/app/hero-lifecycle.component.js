@@ -1,23 +1,28 @@
 // #docplaster
 (function(app) {
 
-// #docregion
-app.HeroLifecycleComponent = HeroComponent;
+  var old = app.HeroComponent;
 
-HeroComponent.annotations = [
-  new ng.core.Component({
-    selector: 'hero-lifecycle',
-    template: '<h1>Hero: {{name}}</h1>'
-  })
-];
+  // #docregion
+  app.HeroComponent = HeroComponent;
 
-function HeroComponent() { }
+  HeroComponent.annotations = [
+    new ng.core.Component({
+      selector: 'hero-lifecycle',
+      template: '<h1>Hero: {{name}}</h1>'
+    })
+  ];
 
-HeroComponent.prototype.ngOnInit = function() {
-  // todo: fetch from server async
-  setTimeout(() => this.name = 'Windstorm', 0);
-};
-// #enddocregion
+  function HeroComponent() { }
+
+  HeroComponent.prototype.ngOnInit = function() {
+    // todo: fetch from server async
+    setTimeout(() => this.name = 'Windstorm', 0);
+  };
+  // #enddocregion
+
+  app.HeroLifecycleComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
 
@@ -25,18 +30,23 @@ HeroComponent.prototype.ngOnInit = function() {
 
 (function(app) {
 
-// #docregion dsl
-app.HeroLifecycleDslComponent = ng.core.Component({
+  var old = app.HeroComponent;
+
+  // #docregion dsl
+  app.HeroComponent = ng.core.Component({
     selector: 'hero-lifecycle-dsl',
     template: '<h1>Hero: {{name}}</h1>'
   })
   .Class({
-    constructor: function HeroLifecycleDslComponent() { },
+    constructor: function HeroComponent() { },
     ngOnInit: function() {
       // todo: fetch from server async
       setTimeout(() => this.name = 'Windstorm', 0);
     }
   });
-// #enddocregion dsl
+  // #enddocregion dsl
+
+  app.HeroLifecycleDslComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
