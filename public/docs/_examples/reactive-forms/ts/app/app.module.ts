@@ -3,7 +3,7 @@ import { NgModule }            from '@angular/core';
 import { BrowserModule }       from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';  // <-- #1 import the module
 import { AppComponent }        from './app.component';
-import { HeroSignUpComponent } from './hero-signup.component'; // <-- #1 import the component you're making
+import { HeroDetailComponent } from './hero-detail.component'; // <-- #1 import the component you're making
 
 @NgModule({
   imports: [
@@ -12,7 +12,7 @@ import { HeroSignUpComponent } from './hero-signup.component'; // <-- #1 import 
   ],
   declarations: [
     AppComponent,
-    HeroSignUpComponent // <-- #3 declare the HeroSignUpComponent
+    HeroDetailComponent // <-- #3 declare the HeroDetailComponent
   ],
   bootstrap: [ AppComponent ]
 })

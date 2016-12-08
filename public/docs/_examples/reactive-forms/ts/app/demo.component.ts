@@ -1,20 +1,33 @@
+/* tslint:disable:member-ordering */
 // #docregion
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
+import { Hero, heroes } from './data-model';
+
+/*  Todo: Restore this one?
+      <hero-detail></hero-detail>
+*/
 @Component({
   moduleId: module.id,
-    selector: 'my-app',
-    template: `
-      <h1>Reactive-Forms</h1>
-      <div class="container">
-        <hero-signup></hero-signup>
-        <hero-signup-1></hero-signup-1>
-        <hero-signup-2></hero-signup-2>
-        <hero-signup-3></hero-signup-3>
-        <hero-signup-4></hero-signup-4>
-        <hero-signup-5></hero-signup-5>
-        <hero-signup-6></hero-signup-6>
-        <hero-signup-7></hero-signup-7>
-      </div>`
+  selector: 'my-app',
+  templateUrl: 'demo.component.html',
+  styles: [
+    '.selected {font-weight: bold; color: purple }',
+    '.demo {max-width: 30em;}'
+  ]
 })
-export class DemoComponent { }
+export class DemoComponent implements OnInit {
+
+  demos: string[] = [1, 2, 3, 4, 5 , 6, 7].map(n => 'Demo ' + n);
+  demo = this.demos.length; // Starting demo
+
+  heroes: Hero[];
+  selectedHero: Hero;
+
+  ngOnInit() {
+    // simulates latency of getting data from the server
+    setTimeout(() => this.heroes = heroes, 1000);
+  }
+
+  select(hero: Hero) { this.selectedHero = hero; }
+}

@@ -1,26 +1,25 @@
 // #docregion reactive-comp-imports
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray } from '@angular/forms';
 // #enddocregion reactive-comp-imports
+
+import { Hero } from './data-model';
 
 // #docregion reactive-comp-metadata
 @Component({
   moduleId: module.id,
-  selector: 'hero-signup',
-  templateUrl: './hero-signup.component.html'
+  selector: 'hero-detail',
+  templateUrl: './hero-detail.component.html'
 })
 // #enddocregion reactive-comp-metadata
 
-export class HeroSignUpComponent {
+export class HeroDetailComponent {
   form: FormGroup;
   addresses: FormArray;
 
   constructor(private _fb: FormBuilder) {
     this.form = this._fb.group({
       name: '',
-      username: '',
-      password: '',
-      confirm: '',
       addresses: this.buildArray()
     });
   }

@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
     selector: 'my-app',
     template: `
       <div class="container">
-        <reactive-form></reactive-form>
+        <hero-detail></hero-detail>
       </div>`
 })
 export class AppComponent { }
