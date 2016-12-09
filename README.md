@@ -35,18 +35,12 @@ if not install [nvm](https://github.com/creationix/nvm) to get node going on you
 
   - this repo
   - [angular/angular source code repo](https://github.com/angular/angular)
-  - (OPTIONAL) [dart-lang/angular2 source code repo](https://github.com/dart-lang/angular2); 
-    cloning the Angular Dart repo is only necessary if you plan on doing full site builds
 
-  to the same parent directory. The **cloned repo directories must be siblings**, with the latter two repo directories named **angular** and **angular-dart**, respectively.
+  to the same parent directory. The **cloned repo directories must be siblings**, with the latter named **angular**.
 
 1. cd into root directory `angular.io/`
 
 1. Install local npm packages by running `./scripts/install.sh`
-
-1. (OPTIONAL) If you intend on doing **full site builds** then you must have the
-   Angular Dart repo (see the Clone step above), _and_ Dart tooling available.
-   Both can be installed by running `./scripts/deploy-install.sh`
 
 1. See [below](#code-sample-development) for code sample development preparation.
 
@@ -116,8 +110,7 @@ You must check that your example is free of lint errors.
 
 All samples should be covered to some degree by end-to-end tests:
 - `gulp run-e2e-tests` to run all TypeScript and JavaScript tests
-- `gulp run-e2e-tests --lang=dart` to run all Dart tests
-- `gulp run-e2e-tests --lang=all` to run TypeScript, JavaScript, and Dart tests
+- `gulp run-e2e-tests --lang=all` to run TypeScript and JavaScript tests
 - `gulp run-e2e-tests --filter=quickstart` to filter the examples to run, by name
 - `gulp run-e2e-tests --fast` to ignore npm install, webdriver update and boilerplate copy
 
