@@ -122,6 +122,8 @@ class PlunkerBuilder {
       if (extn == '.png') {
         content = this._encodeBase64(fileName);
         fileName = fileName.substr(0, fileName.length - 4) + '.base64.png'
+      } else if (-1 < fileName.indexOf('systemjs.config.extras')) {
+        content = this._getSystemjsConfigExtras(config);
       } else {
         content = fs.readFileSync(fileName, 'utf-8');
       }
@@ -213,6 +215,26 @@ class PlunkerBuilder {
 
     // Copyright already added to web versions of systemjs.config
     // this.systemjsConfig +=  this.copyrights.jsCss;
+  }
+
+  // Try to replace `systemjs.config.extras.js` with the
+  // `systemjs.config.extras.web.js` web version that
+  // should default SystemJS barrels to `.ts` files rather than `.js` files
+  // Example: see docs `testing`.
+  // HACK-O-MATIC!
+  _getSystemjsConfigExtras(config) {
+    var extras =    config.basePath + '/systemjs.config.extras.js';
+    var webExtras = config.basePath + '/systemjs.config.extras.web.js';
+    if (fs.existsSync(webExtras)) {
+      // console.log('** Substituted "' + webExtras + '"  for "' + extras + '".');
+      return fs.readFileSync(webExtras, 'utf-8');
+    } else if (fs.existsSync(extras)){
+      console.log('** WARNING: no "' + webExtras + '" replacement for "' + extras + '".');
+      return fs.readFileSync(extras, 'utf-8');
+    } else {
+      console.log('** WARNING: no "' + extras + '" file; returning empty content.');
+      return '';
+    }
   }
 
   _htmlToElement(document, html) {
