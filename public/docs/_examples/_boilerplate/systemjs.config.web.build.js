@@ -18,6 +18,7 @@
       "sourceMap": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
+      "lib": ["es2015", "dom"],
       "noImplicitAny": true,
       "suppressImplicitAnyIndexErrors": true
     },
