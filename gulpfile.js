@@ -635,17 +635,6 @@ gulp.task('build-plunkers', ['_copy-example-boilerplate'], function() {
   return embeddedPlunker.buildPlunkers(EXAMPLES_PATH, LIVE_EXAMPLES_PATH, { errFn: gutil.log, build: argv.build, targetSelf: argv.targetSelf });
 });
 
-gulp.task('pub upgrade', [], function() {
-  const ngRepoPath = ngPathFor('dart');
-  if (argv.fast && fs.existsSync(path.resolve(ngRepoPath, 'packages'))) {
-    gutil.log('Skipping pub upgrade: --fast flag enabled and "packages" dir exists');
-    return true;
-  }
-  checkAngularProjectPath(ngRepoPath);
-  const pubUpgrade = spawnExt('pub', ['upgrade'], { cwd: ngRepoPath});
-  return pubUpgrade.promise;
-});
-
 gulp.task('git-changed-examples', ['_shred-devguide-examples'], function(){
   var after, sha, messageSuffix;
   if (argv.after) {
