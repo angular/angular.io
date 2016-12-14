@@ -33,6 +33,7 @@ block includes
       <li> [More fun with observables](#more-observables).</li>
     </ul>
   - [Guarding against Cross-Site Request Forgery](#xsrf).
+  - [Override default request headers (and other request options)](#override-default-request-options).
   - [Appendix: Tour of Heroes _in-memory web api_](#in-mem-web-api).
 
   A <live-example>live example</live-example> illustrates these topics.
@@ -647,10 +648,42 @@ a#xsrf
   
   See the [XSRF topic on the Security page](security.html#xsrf) for more information about XSRF and Angular's `XSRFStrategy` counter measures.
 
+a#override-default-request-options
+.l-main-section
+:marked
+  ## Override default request headers (and other request options)
+
+  Request options (such as headers) are merged into the
+  [default _RequestOptions_](https://angular.io/docs/ts/latest/api/http/index/BaseRequestOptions-class.html "API: BaseRequestOptions") 
+  before the request is processed.
+  The `HttpModule` provides these default options via the `RequestOptions` token.
+
+  You can override these defaults to suit your application needs.
+  The API docs suggest creating a custom sub-class of `RequestOptions`
+  and providing that as a replacement class for the `RequestOptions` token.
+
+  Perhaps an easier way is to inject the current `RequestOptions` instance
+  into an application module constructor and re-set its values directly.
+  This sample sets the default `Content-Type` header to JSON in the root `AppModule` constructor:
++makeExample('server-communication/ts/app/app.module.ts', 'override-default-request-options', 'app/app.module.ts (default request header override)')(format=".")
+:marked
+  After this change, the `header` option setting in `HeroService.addHero` is no longer necessary,
+
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
+:marked
+  You can confirm this works by looking at the network tab.
+  If you're short-circuiting the server call with something like the [_in-memory web api_](#in-mem-web-api),
+  try commenting-out the `addHero` header option, 
+  set a breakpoint on the POST call, and step through to the backend request
+  to verify the header is there.
+  
+  Individual requests options, like this one, take precedence over the default `RequestOptions`.
+  It might be wise to keep the `addHero` request header setting for extra safety.
+
 a#in-mem-web-api
 .l-main-section
 :marked
-  ## Appendix: Tour of Heroes in-memory server
+  ## Appendix: Tour of Heroes _in-memory web api_
 
   If the app only needed to retrieve data, you could get the heroes from a `heroes.json` file:
 - var _heroesJsonPath = (_docsFor == 'dart' ? 'web' : 'app') + '/heroes.json';
