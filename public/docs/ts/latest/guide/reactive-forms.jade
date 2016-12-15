@@ -1,0 +1,508 @@
+include ../_util-fns
+
+:marked
+  Reactive forms allow explicit control over **FormControls**, **FormArrays**, and 
+  **FormGroups**.
+
+.l-main-section
+a#toc
+:marked
+  ## Contents
+
+  - [Setup](#setup)
+  - [Create a _reactive forms_ component](#create-comp)
+  - [Create the template](#create-template)
+  - [Import the _ReactiveFormsModule_](#import)
+  - [Update the app to use the form component](#update)
+  - [Intro to _FormBuilder_](#formbuilder)
+  - [Grouping _FormControls_](#grouping)
+  - [Inspecting form properties](#properties)
+  - [Setting data using _patchValue_ and _setValue_](#set-data)
+  - [Use _FormArray_ to add groups dynamically](#form-array)
+
+
+  Run the <live-example></live-example>.
+
+a#setup
+:marked
+  ## Setup
+  Create a new project folder (`app`) and follow the steps in 
+  [QuickStart](../quickstart.html).
+
+include ../_quickstart_repo
+
+.l-main-section
+a#create-comp
+:marked
+  ## Create a _reactive forms_ component
+  The app needs a place for the form. Make a new file called 
+  `hero-signup.component.ts` in the `app` directory. 
+  Import `Component` from `@angular/core` and `FormControl`, 
+  `FormGroup`, `FormBuilder`, and `FormArray` from `@angular/forms`:
+
++makeExample('reactive-forms/ts/app/hero-signup.component.ts', 'reactive-comp-imports','app/hero-signup.component.ts')(format=".")
+
+:marked
+  Here’s what each of them do:
+
+  - `Component`: Angular’s component decorator.
+
+  - `FormArray`: Lets you instantiate **FormArrays**.
+
+  - `FormBuilder`: Helps you create **FormControls**, 
+  **FormGroups**, and **FormArrays**.
+
+  - `FormControl`: Allows you to instantiate individual 
+  **FormControls**. Also tracks the value and validity of 
+  an individual `FormControl`.
+
+  - `FormGroup`: Allows you to group **FormControls**, 
+  **FormArrays**, and other **FormGroups**.
+
+  Above the class, use the `@Component` decorator 
+  to provide metadata to Angular:
+
++makeExample('reactive-forms/ts/app/hero-signup.component.ts', 'reactive-comp-metadata','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  The first line, `moduleId: module.id` lets you use 
+  [relative paths](./cookbook/component-relative-paths.html). 
+  The `selector` tells Angular where to render the form. 
+  And the `templateUrl` is the location of the HTML, 
+  or the contents of the form.
+
+  Next, create the component class with some **FormControls** 
+  by exporting a class called `HeroSignUpComponent. The class name, 
+  `HeroSignUpComponent`, is arbitrary. You can 
+  name it whatever you like. The example code on this 
+  page has numbers after each iteration, but you don't 
+  need those numbers. **<-----IS 
+  THIS NECESSARY? MAYBE I'M NOT DOING THIS EXACTLY RIGHT**
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'v1','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  Inside the `FormGroup` called `form`, each `new FormControl()` 
+  instantiates a `FormControl` for the form. 
+  This way is repetitive, but it helps illustrate an 
+  important point later.
+
+  `FormControl` can take three arguments. The first parameter 
+  is the default value. The second parameter is an array of 
+  validators. The third parameter is an array of async validators. 
+  For more information on validation, see [Form Validation](../cookbook/form-validation.html). 
+
+  In order to make this form available to the user, the app needs a template.
+
+.l-main-section
+a#create-template
+:marked
+  ## Create the template
+  Now create `hero-signup.component.html` with the following 
+  code and save it in the `app` directory.
+
++makeExample('reactive-forms/ts/app/hero-signup-2.component.html', 'basic-form','app/hero-signup.component.html')(format=".")
+
+:marked
+  On the `<form>` tag, `novalidate` prevents the browser 
+  from attempting any native validations 
+  and `[formGroup]="heroForm"` lets Angular know that this is the 
+  form property you’re referring to in the component class.
+
+.l-sub-section
+  :marked
+    Disregard the bootstrap `form-group` and `form-control` 
+    _css_ classes. They are there to help with 
+    styling the project and in no way impact the logic of 
+    the form.
+
+a#import
+:marked
+  ## Import the _ReactiveFormsModule_
+
+:marked
+  Your hero sign up component template uses directives from 
+  the `ReactiveFormsModule` in the `@angular/forms` library
+  so you must add it to the `imports` array of the 
+  application module that declares your hero sign up 
+  component. That will be the `AppModule` in this case. 
+  The `AppModule` also needs to know about `HeroSignUpComponent`.
+
+  Do three things in `app.module.ts`:
+  1. Use a JavaScript `import` statement to access 
+  the `ReactiveFormsModule` and `HeroSignUpComponent`.
+  1. Add `ReactiveFormsModule` to the `AppModule`'s `imports` list.
+  1. Add `HeroSignUpComponent` to the declarations array.
+
++makeExample('reactive-forms/ts/app/app.module.ts', '','app/app.module.ts (excerpt)')(format=".")
+
+.l-main-section
+a#update
+:marked
+  It’s working but to give it some style, add bootstrap by 
+  putting this in the head of `index.html`:
+
++makeExample('reactive-forms/ts/index.html', 'bootstrap','index.html')(format=".")
+
+:marked
+  If you’ve copied the code snippets above, you already 
+  have the styles because they contain bootstrap classes.
+
+  Now that everything is wired up, you should have 
+  something like this in the browser:
+
+figure.image-display
+  img(src="/resources/images/devguide/reactive-forms/hero-signup.png" width="400px" alt="Basic reactive form")
+
+:marked
+  Great! You have the basics all set up, but in real life apps, 
+  forms can get big fast. The way the component class is 
+  currently creating **FormControls** doesn’t lend itself 
+  to ease of maintenance. `FormBuilder` helps you solve the problem.
+
+
+.l-main-section
+a#formbuilder
+:marked
+  ## Introduction to _FormBuilder_
+  `FormBuilder` is a class that helps reduce repetition and 
+  clutter by doing some of the heavy lifting behind the scenes. 
+  You've already imported `FormBuilder` into `hero-signup.component.ts`.
+
+  To take advantage of `FormBuilder`, `HeroSignUpComponent` 
+  needs refactoring. In the component class, let Angular 
+  know that `form` is of type `FormGroup`. 
+  
+  Then use the constructor method and inject `FormBuilder` with 
+  `constructor(public fb: FormBuilder)`. Inside the constructor, 
+  you can use `FormBuilder` to set the `heroForm` as a group, which 
+  lets you instantiate the **FormControls** by simply using the 
+  `formControlName` and in this case, an empty value.  In this 
+  way, `FormBuilder` instantiates each `FormControl` for you, 
+  reducing repetitive code. Now, you don't have to use `new` 
+  over and over.
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'v2','app/hero-signup.component.ts (excerpt)')(format=".")
+
+.alert.is-important
+  :marked
+     You could provide a value for any of the **FormControls**, for 
+     example `name: 'Nancy'` populates the input with "Nancy".
+
+:marked
+  This form looks great, but are the user's entries in the 
+  view reflected in the form model? 
+  To inspect what’s going on, add this after the 
+  closing `form` tag in `app.component.html`:
+
++makeExample('reactive-forms/ts/app/hero-signup-2.component.html', 'form-value-json','app/hero-signup.component.html')(format=".")
+
+:marked
+  This outputs the value of the form in JSON in the browser:
+
+figure.image-display
+  img(src="/resources/images/devguide/reactive-forms/json-output1.png" width="400px" alt="JSON output")
+
+:marked
+  Type a value into any of the inputs to see the value update dynamically.
+
+  This structure is ok for a small form, but what if you need 
+  to add a lot more inputs? Even adding an 
+  address could double the size of your form. If you’re 
+  suddenly managing lots of individual 
+  **FormControls**, you need a way to organize them.
+
+.l-main-section
+a#grouping
+:marked
+  ## Grouping FormControls
+  If a hero is signing up for work, the agency needs an 
+  address. In the component class add some 
+  address **FormControls** as below.
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'v3','app/hero-signup.component.ts (excerpt)')(format=".")
+
+
+:marked
+  Then add corresponding markup in `hero-signup.component.html` 
+  within the `form` element.
+
++makeExample('reactive-forms/ts/app/hero-signup-3.component.html', '','app/hero-signup.component.html')(format=".")
+
+:marked
+  The form is getting bigger, and in order to keep it maintainable 
+  you can group related **FormControls** using `FormGroup`. 
+  **FormGroups** are collections of **FormControls** that are 
+  registered  by name. Here, the **FormControls** are 
+  registered with the `formControlName` directive, as are 
+  the **FormControls** that are already in the form.
+
+  `FormGroup` is a class, so you can create an instance and 
+  pass in child controls. In case you hadn’t noticed, 
+  it’s already in the component class. `FormBuilder` uses it 
+  in `this.form = this._fb.group({})`. The `.group()` method 
+  uses the `FormGroup` class to make a new group using the 
+  arguments you pass in.
+
+  In the form right now, the arguments passed into the 
+  `.group()` method are the `FormControl`s such as 
+  `name: '', username: ''`,  etc. It's straightforward 
+  but this form needs more than just one big group 
+  to keep things clear. 
+
+  To make this form more manageable, you can group the 
+  address **FormControls**. Start by adding `address: this._fb.group({ })` 
+  to the constructor and moving the address related **FormControls** 
+  inside it like so:
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'v4','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  You’ve changed the structure of the form model, so head on over 
+  to the template, give the new section a title of 
+  _Fortress of Solitude_ and wrap the address related 
+  **FormControls** in a `div` using the `formGroupName` directive. 
+  Pass it the name you gave it in the component class, `address`. 
+  This registers a `FormGroup` instance on the `Form` instance.
+
++makeExample('reactive-forms/ts/app/hero-signup-4.component.html', 'add-group','app/hero-signup.component.html (excerpt)')(format=".")
+
+:marked
+  Now the JSON output in the browser shows that `FormBuilder` 
+  has created a `FormGroup` for `address` and it is 
+  returned as an object:
+
+figure.image-display
+  img(src="/resources/images/devguide/reactive-forms/address-group.png" width="400px" alt="JSON output")
+
+:marked
+  Great! You’ve made a group and you can see that the template 
+  and the model are talking to one another by inspecting the 
+  form’s value, but you don’t always need the whole form at once. 
+  Sometimes you need to see what’s happening on one 
+  `FormControl`. Time for an aside.
+
+.l-main-section
+a#properties
+:marked
+  ## Inspecting Form Properties
+  A `FormControl` is just a class and if you create an instance, 
+  you can inspect its properties. That means that you can 
+  check to see exactly what’s happening with a given `FormControl`. 
+  For example, say you instantiate a new `formControl` (you don’t 
+  need to put this in your app):
+
+code-example(format=".").
+  const myControl = new FormControl();
+
+:marked
+  You can easily look at its properties:
+style td, th {vertical-align: top}
+table(width="100%")
+  col(width="10%")
+  col(width="90%")
+  tr
+    th Property
+    th Description
+  tr
+    td <code>myControl.value</code>
+    td
+      :marked
+         Returns the value of a `FormControl`.
+  tr
+    td <code>myControl.status</code>
+    td
+      :marked
+         Returns the status of a `FormControl` as valid, 
+         invalid, pending, or disabled.
+  tr
+    td <code>myControl.pristine</code>
+    td
+      :marked
+         Returns a boolean dependant on whether or 
+         not the user has changed the value in the UI.
+  tr
+    td <code>myControl.untouched</code>
+    td
+      :marked
+         Returns a boolean. A control is untouched if 
+         the user has not yet triggered a blur event on it.
+                                  
+:marked
+  These are just a few examples to give you an idea of what's 
+  available. To read more about these and other properties,
+  see [AbstractControl](../api/forms/index/AbstractControl-class.html).
+
+  You can inspect an individual `FormControl` in the demo, such 
+  as the one for Name, by using the `.get()` method. 
+  If you're curious, add the following to the template 
+  after the `form.value | json` interpolation. 
+  It isn't necessary for this demo.
+
++makeExample('reactive-forms/ts/app/hero-signup-4.component.html', 'inspect-value','app/hero-signup.component.html')(format=".")
+
+:marked
+  To get data on a `FormControl` that’s in a `FormGroup`, use 
+  the same technique, but with dot notation.
+
++makeExample('reactive-forms/ts/app/hero-signup-4.component.html', 'inspect-child-control','app/hero-signup.component.html')(format=".")
+
+:marked
+  One reason for inspecting the properties of the form is to 
+  make sure users fill it out properly. To do that, the 
+  app needs validations. To read more about validating 
+  Angular forms, see 
+  [Form Validation](../cookbook/form-validation.html). 
+  Ok, back to the demo.
+
+
+.l-main-section
+a#set-data
+:marked
+  ## Setting data with patchValue and setValue
+  You can set default data in the form using `patchValue` 
+  or `setValue`. The main difference between the two is 
+  that `patchValue` allows you to provide values as needed, 
+  specifying only the fields you want to provide values 
+  for. On the other hand, `setValue` requires that you pass 
+  a value for every control in the form.
+
+  Another important difference is that `setValue` performs 
+  strict checks and if there’s a missing control or the 
+  arguments don’t match the group structure, it returns 
+  helpful errors. On the other hand, `patchValue` doesn’t 
+  return any errors.
+
+  To use `patchValue`, add it to the constructor in the 
+  component class and pass in an object of key value 
+  pairs for the **FormControls** you want to give 
+  default values. Here, the argument is an object 
+  that provides a value for the name `FormControl`.
+
+.alert.is-important
+  :marked
+     Normally, you set the defaut value for a `FormControl` 
+     when creating the form model. `setValue` and `patchValue`
+     are alternatives....**WHY USE THESE?**
+
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'v5','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  Here is the same approach but using `setValue`. Notice 
+  that you have to mirror the structure of the form 
+  model and provide a value for every single `FormControl`.
+
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'set-value','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  With `setValue`, you can give the `FormControl` an empty value as in the 
+  password and confirm **FormControls**.
+
+.l-main-section
+a#form-array
+:marked
+  ## Use _FormArray_ to add groups dynamically
+  So far, you've used a `FormGroup`, which is a 
+  collection of **FormControls** and other **FormGroups** that are 
+  keyed by _name_. A `FormArray` is still a 
+  collection of **FormControls** and 
+  **FormGroups** but it is _indexed_.
+
+  When you want to add _any number__ of **FormControls** or **FormGroups**, 
+  using a `FormArray` is easier because you can use a `for` loop to 
+  easily loop through the items in the array.
+
+  Working with a `FormArray` requires that you:
+  1. Build the array.
+  1. Define the items (**FormControls** or **FormGroups**) in the array.
+  1. Have a method for _adding_ a new item to the array.
+
+  Say you want to give the user the option to add another 
+  address, and another, and another, ad infinitum. 
+  This is the perfect task for `FormArray`. You imported 
+  it in `hero-signup.component.ts` when creating 
+  the [reactive forms component](#create-comp) at the 
+  beginning of this guide.
+
+  You’ll need to refactor a little. In the component class, 
+  add an `addresses` property as type `FormArray`.
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'addresses','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  Next, set up `addresses` in the constructor and take out the 
+  current address group:
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'addresses-refactor','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  Since there isn’t a `buildArray()` function in the app, you 
+  need to create it. A little further down in the component 
+  class, outside of the constructor, add a `buildArray()` method:
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'build-array','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  The `buildArray()` method is set to type `FormArray` and 
+  using `FormBuilder`, creates an array called `addresses`. 
+  The contents of the array comes from `buildGroup()`. Add 
+  `buildGroup()` to the component class with the following:
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'build-group','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  The `buildGroup()` method is of type `FormGroup` and returns 
+  the address related **FormControls**.
+
+  There’s one last thing to put into the component class and 
+  that’s the `add()` function which you’ll use in the 
+  template on an Add Secret Lair button. A hero can have more 
+  than one secret lair, right?
+
++makeExample('reactive-forms/ts/app/hero-signup-versions.component.ts', 'add','app/hero-signup.component.ts (excerpt)')(format=".")
+
+:marked
+  As you know, the template needs some work to take advantage 
+  of all these changes in the component class. 
+  First, change `formGroupName` to `formArrayName` and the 
+  name from `address` to `addresses`.
+
+  Then, wrap the address-related **FormControls** in a `div` 
+  and use the *ngFor directive to create a `FormGroup` 
+  for every address. The next part, `let i=index" [formGroupName]="i"`, 
+  helps the app keep track of the index. Because it is an array, each 
+  `FormGroup` will have an index, rather than a name.
+
+  Be sure to add the button before the `addresses` closing `div`.
+
++makeExample('reactive-forms/ts/app/hero-signup-5.component.html', 'form-array', 'app/hero-signup.component.html')(format=".")
+
+:marked
+  Now the browser shows addresses as an array:
+
+figure.image-display
+  img(src="/resources/images/devguide/reactive-forms/addresses-array.png" width="400px" alt="JSON output of addresses array")
+
+:marked
+  If you click the Add Another Secret Lair button, you’ll see a new 
+  object pushed by the `add()` method to the addresses array 
+  containing the address **FormControls** and a new section 
+  added to the UI. Ta-dah!!!
+
+.l-main-section
+:marked
+  ## Conclusion
+
+  This page covered:
+
+  - How to create a reactive form and its corresponding template.
+  - How to make your form component available to the app.
+  - How to use `FormBuilder` to simplify coding a reactive form.
+  - Grouping **FormControls**.
+  - Inspecting `FormControl` properties.
+  - Setting data with `patchValue` and `setValue`.
+  - Adding groups dynamically with `FormArray`.
+
+  You can download the complete source from the <live-example></live-example>.
