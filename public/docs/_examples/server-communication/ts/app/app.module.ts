@@ -3,12 +3,12 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-// #docregion override-default-options
-import { HttpModule, JsonpModule, RequestOptions }  from '@angular/http';
+import { HttpModule, JsonpModule } from '@angular/http';
 
-// #enddocregion override-default-options
+
 import { InMemoryWebApiModule }     from 'angular-in-memory-web-api';
 import { HeroData }                 from './hero-data';
+import { requestOptionsProvider }   from './default-request-options.service';
 
 import { AppComponent }             from './app.component';
 
@@ -35,16 +35,12 @@ import { WikiSmartComponent } from './wiki/wiki-smart.component';
     WikiComponent,
     WikiSmartComponent
   ],
+// #docregion provide-default-request-options
+  providers: [ requestOptionsProvider ],
+// #enddocregion provide-default-request-options
   bootstrap: [ AppComponent ]
 })
-// #docregion override-default-request-options
-export class AppModule {
-  constructor(requestOptions: RequestOptions) {
-    // Set the default 'Content-Type' header
-    requestOptions.headers.set('Content-Type', 'application/json');
-  }
-}
-// #enddocregion override-default-request-options
+export class AppModule {}
 
 
 
