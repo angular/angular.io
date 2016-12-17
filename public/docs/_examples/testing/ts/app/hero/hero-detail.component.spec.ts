@@ -201,6 +201,8 @@ function heroModuleSetup() {
       // dispatch a DOM event so that Angular learns of input value change.
       page.nameInput.dispatchEvent(newEvent('input'));
 
+      // NgModel updates asynchronously
+      tick();
       // Tell Angular to update the output span through the title pipe
       fixture.detectChanges();
 
