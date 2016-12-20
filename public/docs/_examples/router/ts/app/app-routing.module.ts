@@ -3,8 +3,9 @@
 import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { CanDeactivateGuard } from './can-deactivate-guard.service';
-import { AuthGuard }          from './auth-guard.service';
+import { PageNotFoundComponent }  from './not-found.component';
+import { CanDeactivateGuard }     from './can-deactivate-guard.service';
+import { AuthGuard }              from './auth-guard.service';
 import { PreloadSelectedModules } from './selective-preload-strategy';
 
 const appRoutes: Routes = [
@@ -25,6 +26,10 @@ const appRoutes: Routes = [
     data: {
       preload: true
     }
+  },
+  {
+    path: '**',
+    component: PageNotFoundComponent
   }
   // #enddocregion preload-v2
 ];
