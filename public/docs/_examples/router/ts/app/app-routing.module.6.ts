@@ -9,6 +9,8 @@ import {
 } from '@angular/router';
 
 import { ComposeMessageComponent } from './compose-message.component';
+import { PageNotFoundComponent }   from './not-found.component';
+
 import { CanDeactivateGuard }      from './can-deactivate-guard.service';
 import { AuthGuard }               from './auth-guard.service';
 
@@ -24,14 +26,10 @@ const appRoutes: Routes = [
     canLoad: [AuthGuard]
   },
   {
-    path: '',
-    redirectTo: '/heroes',
-    pathMatch: 'full'
-  },
-  {
     path: 'crisis-center',
     loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
   },
+  { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];
 

@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
     <h2>HEROES</h2>
     <p>Get your heroes here</p>
 
-    <button routerLink="/sidekicks">Go To Sidekicks</button>
+    <button routerLink="/sidekicks">Go to sidekicks</button>
   `
 })
 export class HeroListComponent { }

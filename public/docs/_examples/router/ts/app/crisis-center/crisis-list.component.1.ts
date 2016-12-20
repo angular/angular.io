@@ -1,5 +1,3 @@
-// #docplaster
-// #docregion
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/switchMap';
 import { Component, OnInit }              from '@angular/core';
@@ -9,28 +7,28 @@ import { Crisis, CrisisService } from './crisis.service';
 import { Observable }            from 'rxjs/Observable';
 
 @Component({
-  // #docregion template
+  // #docregion relative-navigation-router-link
   template: `
     <ul class="items">
-      <li *ngFor="let crisis of crises | async"
-        (click)="onSelect(crisis)">
-        <span class="badge">{{ crisis.id }}</span> {{ crisis.name }}
+      <li *ngFor="let crisis of crises | async">
+        <a [routerLink]="[crisis.id]"
+           [class.selected]="isSelected(crisis)">
+          <span class="badge">{{ crisis.id }}</span>
+          {{ crisis.name }}
+        </a>
       </li>
-    </ul>
-  `,
-  // #enddocregion template
+    </ul>`
+  // #enddocregion relative-navigation-router-link
 })
 export class CrisisListComponent implements OnInit {
   crises: Observable<Crisis[]>;
   selectedId: number;
 
-  // #docregion relative-navigation-ctor
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
-  // #enddocregion relative-navigation-ctor
 
   ngOnInit() {
     this.crises = this.route.params
@@ -40,17 +38,7 @@ export class CrisisListComponent implements OnInit {
       });
   }
 
-  // #docregion select
-  onSelect(crisis: Crisis) {
-    // Absolute link
-    this.router.navigate([crisis.id]);
+  isSelected(crisis: Crisis) {
+    return crisis.id === this.selectedId;
   }
-  // #enddocregion select
 }
-// #enddocregion
-
-/*
-// #docregion relative-navigation-router-link
-<a [routerLink]="[crisis.id]">{{ crisis.name }}</a>
-// #enddocregion relative-navigation-router-link
-*/

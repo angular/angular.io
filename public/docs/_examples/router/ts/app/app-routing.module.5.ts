@@ -6,6 +6,8 @@ import { RouterModule, Routes } from '@angular/router';
 // #enddocregion import-router
 
 import { ComposeMessageComponent } from './compose-message.component';
+import { PageNotFoundComponent }   from './not-found.component';
+
 import { CanDeactivateGuard }      from './can-deactivate-guard.service';
 // #docregion can-load-guard
 import { AuthGuard }               from './auth-guard.service';
@@ -26,6 +28,7 @@ const appRoutes: Routes = [
     canLoad: [AuthGuard]
 // #docregion lazy-load-admin
   },
+  { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];
 

@@ -4,6 +4,8 @@ import { NgModule }             from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { ComposeMessageComponent }  from './compose-message.component';
+import { PageNotFoundComponent }    from './not-found.component';
+
 import { CanDeactivateGuard }       from './can-deactivate-guard.service';
 import { AuthGuard }                from './auth-guard.service';
 import { PreloadSelectedModules }   from './selective-preload-strategy';
@@ -19,11 +21,6 @@ const appRoutes: Routes = [
     loadChildren: 'app/admin/admin.module#AdminModule',
     canLoad: [AuthGuard]
   },
-  {
-    path: '',
-    redirectTo: '/heroes',
-    pathMatch: 'full'
-  },
   // #docregion preload-v2
   {
     path: 'crisis-center',
@@ -31,8 +28,10 @@ const appRoutes: Routes = [
     data: {
       preload: true
     }
-  }
+  },
   // #enddocregion preload-v2
+  { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({
