@@ -31,7 +31,8 @@ const appRoutes: Routes = [
   {
     path: 'crisis-center',
     loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule'
-  }
+  },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

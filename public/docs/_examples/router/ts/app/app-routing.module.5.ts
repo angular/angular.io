@@ -5,11 +5,10 @@ import { NgModule }     from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 // #enddocregion import-router
 
-import { ComposeMessageComponent }  from './compose-message.component';
-import { CanDeactivateGuard }       from './can-deactivate-guard.service';
-
+import { ComposeMessageComponent } from './compose-message.component';
+import { CanDeactivateGuard }      from './can-deactivate-guard.service';
 // #docregion can-load-guard
-import { AuthGuard }          from './auth-guard.service';
+import { AuthGuard }               from './auth-guard.service';
 // #enddocregion can-load-guard
 
 // #docregion lazy-load-admin, can-load-guard
@@ -26,7 +25,8 @@ const appRoutes: Routes = [
 // #enddocregion lazy-load-admin
     canLoad: [AuthGuard]
 // #docregion lazy-load-admin
-  }
+  },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

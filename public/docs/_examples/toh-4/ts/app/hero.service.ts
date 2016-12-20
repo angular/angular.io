@@ -14,12 +14,14 @@ export class HeroService {
   }
   // #enddocregion get-heroes, just-get-heroes
   // #enddocregion
+
   // See the "Take it slow" appendix
   // #docregion get-heroes-slowly
   getHeroesSlowly(): Promise<Hero[]> {
-    return new Promise<Hero[]>(resolve =>
-      setTimeout(resolve, 2000)) // delay 2 seconds
-      .then(() => this.getHeroes());
+    return new Promise(resolve => {
+      // Simulate server latency with 2 second delay
+      setTimeout(() => resolve(this.getHeroes()), 2000);
+    });
   }
   // #enddocregion get-heroes-slowly
   // #docregion

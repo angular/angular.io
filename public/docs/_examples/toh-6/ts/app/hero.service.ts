@@ -17,7 +17,7 @@ export class HeroService {
   private headers = new Headers({'Content-Type': 'application/json'});
   // #enddocregion update
   // #docregion getHeroes
-  private heroesUrl = 'app/heroes';  // URL to web api
+  private heroesUrl = 'api/heroes';  // URL to web api
 
   constructor(private http: Http) { }
 
@@ -33,12 +33,18 @@ export class HeroService {
                .catch(this.handleError);
     // #enddocregion catch
   }
+
   // #enddocregion getHeroes
 
+  // #docregion getHero
   getHero(id: number): Promise<Hero> {
-    return this.getHeroes()
-               .then(heroes => heroes.find(hero => hero.id === id));
+    const url = `${this.heroesUrl}/${id}`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json().data as Hero)
+      .catch(this.handleError);
   }
+  // #enddocregion getHero
 
   // #docregion delete
   delete(id: number): Promise<void> {
@@ -71,11 +77,11 @@ export class HeroService {
   }
   // #enddocregion put, update
 
-  // #docregion handleError
+  // #docregion getHeroes, handleError
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only
     return Promise.reject(error.message || error);
   }
-  // #enddocregion handleError
+  // #enddocregion getHeroes, handleError
 }
 

@@ -31,7 +31,7 @@ const appRoutes: Routes = [
     data: {
       preload: true
     }
-  },
+  }
   // #enddocregion preload-v2
 ];
 

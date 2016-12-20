@@ -1,21 +1,26 @@
 (function(app) {
 
-// #docregion
-app.HeroDIInjectComponent = HeroDIInjectComponent;
+  var old = app.HeroComponent;
 
-HeroDIInjectComponent.annotations = [
-  new ng.core.Component({
-    selector: 'hero-di-inject',
-    template: '<h1>Hero: {{name}}</h1>'
-  })
-];
+  // #docregion
+  app.HeroComponent = HeroComponent;
 
-HeroDIInjectComponent.parameters = [ 'heroName' ];
+  HeroComponent.annotations = [
+    new ng.core.Component({
+      selector: 'hero-di-inject',
+      template: '<h1>Hero: {{name}}</h1>'
+    })
+  ];
 
-function HeroDIInjectComponent(name) {
-  this.name = name;
-}
-// #enddocregion
+  HeroComponent.parameters = [ 'heroName' ];
+
+  function HeroComponent(name) {
+    this.name = name;
+  }
+  // #enddocregion
+
+  app.HeroDIInjectComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
 
@@ -23,19 +28,24 @@ function HeroDIInjectComponent(name) {
 
 (function(app) {
 
-// #docregion dsl
-app.HeroDIInjectDslComponent = ng.core.Component({
-  selector: 'hero-di-inject-dsl',
-  template: '<h1>Hero: {{name}}</h1>'
-})
-.Class({
-  constructor: [
-    new ng.core.Inject('heroName'),
-    function HeroDIInjectDslComponent(name) {
-      this.name = name;
-    }
-  ]
-});
-// #enddocregion dsl
+  var old = app.HeroComponent;
+
+  // #docregion dsl
+  app.HeroComponent = ng.core.Component({
+    selector: 'hero-di-inject-dsl',
+    template: '<h1>Hero: {{name}}</h1>'
+  })
+  .Class({
+    constructor: [
+      new ng.core.Inject('heroName'),
+      function HeroComponent(name) {
+        this.name = name;
+      }
+    ]
+  });
+  // #enddocregion dsl
+
+  app.HeroDIInjectDslComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});

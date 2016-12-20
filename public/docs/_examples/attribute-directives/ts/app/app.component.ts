@@ -6,6 +6,9 @@ import { Component } from '@angular/core';
   selector: 'my-app',
   templateUrl: 'app.component.html'
 })
-
-export class AppComponent { }
+// #docregion class
+export class AppComponent {
+  color: string;
+}
+// #enddocregion class
 // #enddocregion

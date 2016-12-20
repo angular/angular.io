@@ -10,7 +10,8 @@ import { AppRoutingModule }  from './app-routing.module';
 
 import { HeroesModule }         from './heroes/heroes.module';
 
-import { CrisisListComponent }  from './crisis-list.component';
+import { CrisisListComponent }    from './crisis-list.component';
+import { PageNotFoundComponent }  from './not-found.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { CrisisListComponent }  from './crisis-list.component';
   ],
   declarations: [
     AppComponent,
-    CrisisListComponent
+    CrisisListComponent,
+    PageNotFoundComponent
   ],
   bootstrap: [ AppComponent ]
 })

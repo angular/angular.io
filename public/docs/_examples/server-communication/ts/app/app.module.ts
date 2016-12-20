@@ -1,11 +1,14 @@
+// #docplaster
 // #docregion
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule }  from '@angular/http';
+import { HttpModule, JsonpModule } from '@angular/http';
+
 
 import { InMemoryWebApiModule }     from 'angular-in-memory-web-api';
 import { HeroData }                 from './hero-data';
+import { requestOptionsProvider }   from './default-request-options.service';
 
 import { AppComponent }             from './app.component';
 
@@ -32,10 +35,12 @@ import { WikiSmartComponent } from './wiki/wiki-smart.component';
     WikiComponent,
     WikiSmartComponent
   ],
+// #docregion provide-default-request-options
+  providers: [ requestOptionsProvider ],
+// #enddocregion provide-default-request-options
   bootstrap: [ AppComponent ]
 })
-export class AppModule { }
-
+export class AppModule {}
 
 
 

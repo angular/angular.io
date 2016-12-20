@@ -32,8 +32,9 @@ block includes
       <li> [Search parameters](#search-parameters).</li>
       <li> [More fun with observables](#more-observables).</li>
     </ul>
-  - [Guarding against Cross-Site Request Forgery](#xsrf)
-  - [Appendix: Tour of Heroes in-memory server](#in-mem-web-api).
+  - [Guarding against Cross-Site Request Forgery](#xsrf).
+  - [Override default request headers (and other request options)](#override-default-request-options).
+  - [Appendix: Tour of Heroes _in-memory web api_](#in-mem-web-api).
 
   A <live-example>live example</live-example> illustrates these topics.
 
@@ -647,10 +648,48 @@ a#xsrf
   
   See the [XSRF topic on the Security page](security.html#xsrf) for more information about XSRF and Angular's `XSRFStrategy` counter measures.
 
+a#override-default-request-options
+.l-main-section
+:marked
+  ## Override default request headers (and other request options)
+
+  Request options (such as headers) are merged into the
+  [default _RequestOptions_](https://angular.io/docs/ts/latest/api/http/index/BaseRequestOptions-class.html "API: BaseRequestOptions") 
+  before the request is processed.
+  The `HttpModule` provides these default options via the `RequestOptions` token.
+
+  You can override these defaults to suit your application needs.
+  by creating a custom sub-class of `RequestOptions`
+  that sets the default options for the application.
+
+  This sample creates a class that sets the default `Content-Type` header to JSON.
+  It exports a constant with the necessary `RequestOptions` provider to simplify registration in `AppModule`.
+
++makeExample('server-communication/ts/app/default-request-options.service.ts', '', 'app/default-request-options.service.ts')(format=".")
+:marked
+  Then it registers the provider in the root `AppModule`.
++makeExample('server-communication/ts/app/app.module.ts', 'provide-default-request-options', 'app/app.module.ts (provide default request header)')(format=".")
+.l-sub-section
+ :marked
+   Remember to include this provider during setup when unit testing the app's HTTP services.
+:marked
+  After this change, the `header` option setting in `HeroService.addHero` is no longer necessary,
+
++makeExample('server-communication/ts/app/toh/hero.service.ts', 'addhero', 'app/toh/hero.service.ts (addHero)')(format=".")
+:marked
+  You can confirm that `DefaultRequestOptions` is working by examing HTTP requests in the browser developer tools' network tab.
+  If you're short-circuiting the server call with something like the [_in-memory web api_](#in-mem-web-api),
+  try commenting-out the `addHero` header option, 
+  set a breakpoint on the POST call, and step through the request processing
+  to verify the header is there.
+  
+  Individual requests options, like this one, take precedence over the default `RequestOptions`.
+  It might be wise to keep the `addHero` request header setting for extra safety.
+
 a#in-mem-web-api
 .l-main-section
 :marked
-  ## Appendix: Tour of Heroes in-memory server
+  ## Appendix: Tour of Heroes _in-memory web api_
 
   If the app only needed to retrieve data, you could get the heroes from a `heroes.json` file:
 - var _heroesJsonPath = (_docsFor == 'dart' ? 'web' : 'app') + '/heroes.json';
@@ -669,14 +708,18 @@ a#in-mem-web-api
   The *get heroes* scenario would work,
   but since the app can't save changes to a JSON file, it needs a web API server.
   Because there isn't a real server for this demo, 
-  it uses an *in-memory web API simulator* instead.
+  it substitutes the Angular _in-memory web api_ simulator for the actual XHR backend service.
 
 .l-sub-section
   :marked
-    The in-memory web api is not part of the Angular core.
-    It's an optional service in its own `angular-in-memory-web-api` library
-    installed with npm (see `package.json`) and
-    registered for module loading by SystemJS (see `systemjs.config.js`).
+    The in-memory web api is not part of Angular _proper_. 
+    It's an optional service in its own 
+    <a href="https://github.com/angular/in-memory-web-api" target="_blank" title="In-memory Web API"><i>angular-in-memory-web-api</i></a>
+    library installed with npm (see `package.json`).
+
+    See the
+    <a href="https://github.com/angular/in-memory-web-api/blob/master/README.md" target="_blank" title='In-memory Web API "README.md"'><i>README file</i></a>
+    for configuration options, default behaviors, and limitations.
 
 :marked
   The in-memory web API gets its data from !{_a_ca_class_with} a `createDb()`

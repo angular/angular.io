@@ -1,23 +1,20 @@
+/* tslint:disable:member-ordering */
 // #docplaster
-// #docregion full
-import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/core';
+// #docregion
+// #docregion imports
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+// #enddocregion imports
 
 @Directive({
   selector: '[myHighlight]'
 })
-// #docregion class
 export class HighlightDirective {
-  private _defaultColor = 'red';
 
-  constructor(private el: ElementRef, private renderer: Renderer) { }
-  // #enddocregion class
+  constructor(private el: ElementRef) { }
 
   // #docregion defaultColor
-  @Input() set defaultColor(colorName: string){
-    this._defaultColor = colorName || this._defaultColor;
-  }
+  @Input() defaultColor: string;
   // #enddocregion defaultColor
-  // #docregion class
 
   // #docregion color
   @Input('myHighlight') highlightColor: string;
@@ -25,21 +22,15 @@ export class HighlightDirective {
 
   // #docregion mouse-enter
   @HostListener('mouseenter') onMouseEnter() {
-    this.highlight(this.highlightColor || this._defaultColor);
+    this.highlight(this.highlightColor || this.defaultColor || 'red');
   }
   // #enddocregion mouse-enter
+
   @HostListener('mouseleave') onMouseLeave() {
     this.highlight(null);
   }
 
   private highlight(color: string) {
-    this.renderer.setElementStyle(this.el.nativeElement, 'backgroundColor', color);
+    this.el.nativeElement.style.backgroundColor = color;
   }
 }
-// #enddocregion class
-// #enddocregion full
-/*
-// #docregion highlight
-@Input() myHighlight: string;
-// #enddocregion highlight
-*/

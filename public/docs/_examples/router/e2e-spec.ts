@@ -30,10 +30,8 @@ describe('Router', function () {
       adminPreloadList: element.all(by.css('my-app > ng-component > ng-component > ul > li')),
       loginHref: hrefEles.get(3),
       loginButton: element.all(by.css('my-app > ng-component > p > button')),
-
       contactHref: hrefEles.get(4),
       contactCancelButton: element.all(by.buttonText('Cancel')),
-
       outletComponents: element.all(by.css('my-app > ng-component'))
     };
   }

@@ -6,11 +6,8 @@ include ../_util-fns
 
   We cover the router's primary features in this chapter, illustrating them through the evolution
   of a small application that we can <live-example>run live</live-example>.
-.l-sub-section
-  img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
-  :marked
-    To see the URL changes in the browser address bar,
-    pop out the preview window by clicking the blue 'X' button in the upper right corner.
+
+include ../../../_includes/_see-addr-bar
 
 .l-main-section
 :marked
@@ -37,6 +34,7 @@ include ../_util-fns
   * Setting the [base href](#base-href)
   * Importing from the [router library](#import)
   * [configuring the router](#route-config)
+  * handling unmatched URLs with a [wildcard route](#wildcard-route)
   * the [link parameters array](#link-parameters-array) that propels router navigation
   * navigating when the user clicks a data-bound [RouterLink](#router-link)
   * navigating under [program control](#navigate)
@@ -98,17 +96,17 @@ include ../_util-fns
     We cover other options in the [details below](#browser-url-styles).
 :marked
   ### Configuration
-  The application will have one *`router`*. When the browser's URL changes, the router looks for a corresponding **`Route`**
+  The application will have one, singleton instance of the *`Router`* service. 
+  When the browser's URL changes, that router looks for a corresponding **`Route`**
   from which it can determine the component to display.
 
   A router has no routes until we configure it.
-  We bootstrap our application with an array of routes that we'll provide to our **`RouterModule.forRoot`** function.
-
-  In the following example, we configure our application with four route definitions. The configured `RouterModule` is
-  add to the `AppModule`'s `imports` array.
+  In the following example, we create four route definitions, configure the router via the **`RouterModule.forRoot`** method,
+  and add the result to the `AppModule`'s `imports` array.
 
 +makeExcerpt('app/app.module.0.ts (excerpt)', 'route-config')
 
+<a id="example-config"></a>
 .l-sub-section
   :marked
     The `RouterModule` is provided an array of *routes* that describe how to navigate.
@@ -441,7 +439,7 @@ h4#define-routes Define routes
   unseen providers that the routing library requires. Once our application is bootstrapped, the `Router`
   will perform the initial navigation based on the current browser URL.
 
-+makeExcerpt('app/app.module.1.ts')
++makeExcerpt('app/app.module.1.ts', 'first-config')
 
 .l-sub-section
   :marked
@@ -471,7 +469,7 @@ a#router-outlet
   ### *RouterOutlet*
 
   `RouterOutlet` is a component from the router library.
-  The router displays views within the bounds of the `<router-outlet>` tags.
+  The router displays views immediately ***after*** each `<router-outlet>`'s corresponding closing tag.
 
 .l-sub-section
   :marked
@@ -520,6 +518,44 @@ h3#router-directives <i>Router Directives</i>
 
 +makeExcerpt('app/app.component.1.ts')
 
+h3#wildcard-route <i>Wildcard Routes</i>
+:marked
+  We've created two routes in our app so far, one to `/crisis-center` and the other to `/heroes`. We also
+  want to handle routes that don't exist in our current configuration. This protects us against users
+  entering invalid URLs, and makes sure we display an appropriate page in those situations. The `Router`
+  handles invalid routes by using a **wildcard** route, which is used as a catch-all route for any
+  routes not previously matched by a `path` in our route setup.
+
+  A `wildcard` route is configured with a **path** consisting of two asterisks. The `Router` will only match
+  this route if no other specific route has been found first. Wildcard routes can also be used to
+  [redirect](#redirect) to an existing route.
+
+.l-sub-section
+  :marked
+    Wildcard routes are the least specific routes in the route configuration and should be included
+    last in the configuration, as the `Router` uses a [first match wins](#example-config) strategy.
+
+:marked
+  We'll add a `RouterLink` to our `/heroes` page that navigates `/sidekicks`. We have not
+  built our sidekicks page or route yet, but our `wildcard` route will catch any navigation
+  attempt to this page.
+
++makeExcerpt('app/hero-list.component.ts')
+
+:marked
+  We'll create a simple `PageNotFoundComponent` to display when our users visit invalid URLs.
+
++makeExcerpt('app/not-found.component.ts (404 component)', '')
+
+:marked
+  We'll add a wildcard route to our configuration to serve a 404 page for any invalid URLs entered.
+  As with our other components, we'll add the `PageNotFoundComponent` to our `AppModule` declarations.
+
++makeExcerpt('app/app.module.1.ts')
+
+:marked
+  When the `/sidekicks` URL is visited, the browser URL will remain as `/sidekicks` but our 404 page will be displayed.
+
 :marked
   ### "Getting Started" wrap-up
 
@@ -531,7 +567,8 @@ h3#router-directives <i>Router Directives</i>
   * add a nav bar to the shell template with anchor tags, `routerLink`  and `routerLinkActive` directives
   * add a `router-outlet` to the shell template where views will be displayed
   * configure the router module with `RouterModule.forRoot`
-  * set the router to compose "HTML 5" browser URLs.
+  * set the router to compose "HTML 5" browser URLs
+  * handle invalid routes with a `wildcard` route
 
   The rest of the starter app is mundane, with little interest from a router perspective.
   Here are the details for readers inclined to build the sample through to this milestone.
@@ -546,6 +583,7 @@ h3#router-directives <i>Router Directives</i>
         .file app.module.ts
         .file crisis-list.component.ts
         .file hero-list.component.ts
+        .file not-found.component.ts
         .file main.ts
     .file node_modules ...
     .file index.html
@@ -561,6 +599,7 @@ h3#router-directives <i>Router Directives</i>
   router/ts/app/main.ts,
   router/ts/app/hero-list.component.ts,
   router/ts/app/crisis-list.component.ts,
+  router/ts/app/not-found.component.ts,
   router/ts/index.html`,
   ',,,,',
   `app.component.ts,
@@ -568,6 +607,7 @@ h3#router-directives <i>Router Directives</i>
   main.ts,
   hero-list.component.ts,
   crisis-list.component.ts,
+  not-found.component.ts,
   index.html`)
 
 .l-main-section#routing-module
@@ -1055,10 +1095,9 @@ figure.image-display
   The application still works. Clicking "back" returns to the hero list view.
 
   Look at the browser address bar.
-.l-sub-section
-  img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
-  :marked
-    When running in plunker, pop out the preview window by clicking the blue 'X' button in the upper right corner.
+
+include ../../../_includes/_see-addr-bar
+
 :marked
  It should look something like this, depending on where you run it:
 
@@ -1893,7 +1932,7 @@ h3#can-activate-child-guard <i>CanActivateChild</i>: guarding child routes
   Let's extend our `AuthGuard` to protect when navigating between our `admin` routes. First we'll open our
   `auth-guard.service.ts` and add `CanActivateChild` interface to our imported tokens from the router package.
 
-  Next, we'll implement the `canActivateChild` method with takes the same arguments as the `canActivate` method,
+  Next, we'll implement the `canActivateChild` method which takes the same arguments as the `canActivate` method,
   an `ActivatedRouteSnapshot` and `RouterStateSnapshot`. The `canActivateChild` behaves the same way the other
   guards do, returning an `Observable<boolean>` or `Promise<boolean>` for async checks and `boolean` for sync checks.
   We'll return a `boolean`
@@ -2031,9 +2070,9 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
   We'll update our `Crisis Detail` route to resolve our Crisis before loading the route, or if the user happens to
   navigate to an invalid crisis center `:id`, we'll navigate back to our list of existing crises.
 
-  Like the `CanActivate` and `CanDeactivate` guards, the **`Resolve`** guard is an interface we can implement as a service
-  to resolve route data synchronously or asynchronously. In `CrisisDetailComponent`, we used the `ngOnInit` to retrieve the `Crisis`
-  information. We also navigated the user away from the route if the `Crisis` was not found. It would be more efficient to perform this
+  The **`Resolve`** interface can be implemented as a service to resolve route data either synchronously or asynchronously.
+  In `CrisisDetailComponent`, we used the `ngOnInit` to retrieve the `Crisis` information.
+  We also navigated the user away from the route if the `Crisis` was not found. It would be more efficient to perform this
   action before the route is ever activated.
 
   We'll create a `CrisisDetailResolve` service that will handle retrieving the `Crisis` and navigating the user away if the `Crisis` does
@@ -2061,7 +2100,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
 +makeExcerpt('app/crisis-center/crisis-center-routing.module.4.ts (resolve)', 'crisis-detail-resolve')
 
 :marked
-  Now that we've added our `Resolve` guard to fetch data before the route loads, we no longer need to do this once we get into our `CrisisDetailComponent`.
+  Now that we've added our `Resolve` resolver to fetch data before the route loads, we no longer need to do this once we get into our `CrisisDetailComponent`.
   We'll update the `CrisisDetailComponent` to use the `ActivatedRoute` data, which is where our `crisis` property from our `Resolve` guard will be provided.
   Once activated, all we need to do is set our local `crisis` and `editName` properties from our resolved `Crisis` information. The `Crisis` is being provided
   at the time the route component is activated.
@@ -2072,7 +2111,7 @@ h3#resolve-guard <i>Resolve</i>: pre-fetching component data
   **Two critical points**
   1. The router interface is optional. We don't inherit from a base class. We simply implement the interface method or not.
 
-  1. We rely on the router to call the guard. We don't worry about all the ways that the user
+  1. We rely on the router to call the resolver. We don't worry about all the ways that the user
   could navigate away. That's the router's job.
   We simply write this class and let the router take it from there.
 
@@ -2148,10 +2187,7 @@ a#fragment
   For our updated *Crisis Admin* component we'll feed the `Observable` directly into our template using the `AsyncPipe`, which
   will handle _unsubscribing_ from the `Observable` for us when the component is destroyed.
 
-.l-sub-section
-  img(src='/resources/images/devguide/plunker-separate-window-button.png' alt="pop out the window" align="right" style="margin-right:-20px")
-  :marked
-    When running in plunker, pop out the preview window by clicking the blue 'X' button in the upper right corner.
+include ../../../_includes/_see-addr-bar
 
 :marked
   Following the steps in this process, we can click on the *Admin* button, that takes us to the *Login*
@@ -2193,7 +2229,7 @@ a#fragment
   so we'll use the `loadChildren` property in our route config where previously we used the `children` property to include our child routes.
 
   We'll also change our `admin` **path** in our `admin-routing.module.ts` to an empty path. The `Router` supports
-  *empty path* routes, which we can use for grouping routes together without adding anything additional paths to the URL. Our
+  *empty path* routes, which we can use for grouping routes together without adding any additional paths to the URL. Our
   users will still visit `/admin` and our `AdminComponent` still serves as our *Routing Component* which contains
   our child routes.
 

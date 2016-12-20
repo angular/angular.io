@@ -1,15 +1,26 @@
-/* tslint:disable:no-unused-variable */
+/* tslint:disable:no-unused-variable member-ordering */
+// #docplaster
 // #docregion
-import { Directive, ElementRef, HostListener, Input, Renderer } from '@angular/core';
+import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 
 @Directive({
   selector: '[myHighlight]'
 })
-
 export class HighlightDirective {
   // #docregion ctor
-  constructor(private el: ElementRef, private renderer: Renderer) { }
+  constructor(private el: ElementRef) { }
   // #enddocregion ctor
+  // #enddocregion
+
+  // #docregion color
+  @Input() highlightColor: string;
+  // #enddocregion color
+
+  // #docregion color-2
+  @Input() myHighlight: string;
+  // #enddocregion color-2
+
+  // #docregion
 
   // #docregion mouse-methods, host
   @HostListener('mouseenter') onMouseEnter() {
@@ -26,7 +37,7 @@ export class HighlightDirective {
   // #enddocregion host
 
   private highlight(color: string) {
-    this.renderer.setElementStyle(this.el.nativeElement, 'backgroundColor', color);
+    this.el.nativeElement.style.backgroundColor = color;
   }
   // #enddocregion mouse-methods
 

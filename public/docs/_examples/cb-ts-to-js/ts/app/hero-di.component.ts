@@ -1,7 +1,7 @@
+// #docregion
 import { Component }   from '@angular/core';
 import { DataService } from './data.service';
 
-// #docregion
 @Component({
   selector: 'hero-di',
   template: `<h1>Hero: {{name}}</h1>`

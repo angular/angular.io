@@ -1,6 +1,5 @@
 // #docplaster
-// #docregion
-// #docregion imports
+// #docregion , imports
 import { Component, OnInit } from '@angular/core';
 
 import { Hero } from './hero';

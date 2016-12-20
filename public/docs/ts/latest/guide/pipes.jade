@@ -162,14 +162,16 @@ figure.image-display
 figure.image-display
     img(src='/resources/images/devguide/pipes/power-booster.png' alt="Power Booster")
 
+- var _decls = _docsFor == 'dart' ? 'pipes' : 'declarations';
+- var _appMod = _docsFor == 'dart' ? '@Component' : 'AppModule';
 :marked
   Two things to note:
-  1. We use our custom pipe the same way we use the built-in pipes.
 
-  1. We must include our pipe in the `declarations` #{_array} of the AppModule.
+  1. We use our custom pipe the same way we use built-in pipes.
+  1. We must include our pipe in the `!{_decls}` #{_array} of the `!{_appMod}`.
 
 .callout.is-helpful
-  header Remember the declarations #{_array}!
+  header Remember the !{_decls} #{_array}!
   :marked
     Angular reports an error if we neglect to list our custom pipe.
     We didn't list the `DatePipe` in our previous example because all
@@ -186,7 +188,7 @@ figure.image-display
   We could upgrade the example to a "Power Boost Calculator" that combines
   our pipe and two-way data binding with `ngModel`.
 
-+makeExample('pipes/ts/app/power-boost-calculator.component.ts', null, '/app/power-boost-calculator.component.ts')(format='.')
++makeExample('app/power-boost-calculator.component.ts')
 
 figure.image-display
     img(src='/resources/images/devguide/pipes/power-boost-calculator-anim.gif' alt="Power Boost Calculator")
@@ -331,10 +333,16 @@ block pure-change
   The only difference is the `pure` flag in the pipe metadata.
 
   This is a good candidate for an impure pipe because the `transform` function is trivial and fast.
-+makeExample('pipes/ts/app/flying-heroes.pipe.ts','filter')(format='.')
 
-  We can derive a `FlyingHeroesImpureComponent` that we derive from the `FlyingHeroesComponent`.
-+makeExample('pipes/ts/app/flying-heroes-impure.component.html','template-flying-heroes','app/flying-heroes-impure.component.html (FlyingHeroesImpureComponent)')(format='.')
++makeExcerpt('app/flying-heroes.pipe.ts','filter', '')
+
+:marked
+  We can derive a `FlyingHeroesImpureComponent` from `FlyingHeroesComponent`.
+
+- var _fnSuffix = _docsFor == 'dart' ? '.component.ts' : '-impure.component.html';
+- var _region = _docsFor == 'dart' ? 'impure-component' : 'template-flying-heroes';
++makeExcerpt('app/flying-heroes' + _fnSuffix + ' (excerpt)', _region)
+
 :marked
   The only substantive change is the pipe in the template.
   We can confirm in the <live-example></live-example> that the _flying heroes_
@@ -365,40 +373,37 @@ h3#async-pipe The impure #[i AsyncPipe]
 
   ### An impure caching pipe
 
-  Let's write one more impure pipe, a pipe that makes an HTTP request to the server.
-  Normally, that's a horrible idea.
-  It's probably a horrible idea no matter what we do.
-  We're forging ahead anyway to make a point.
-  Remember that impure pipes are called every few microseconds.
+  Let's write one more impure pipe, a pipe that makes an HTTP request.
+
+  Remember that impure pipes are called every few milliseconds.
   If we're not careful, this pipe will punish the server with requests.
 
-  We are careful. Our pipe only makes a server call if the request URL has changed.
-  It caches the request URL and waits for a result which it also caches when it arrives.
-  The pipe returns the cached result (which is null while a request is in flight)
-  after every Angular call and only contacts the server as necessary.
+  We are careful. 
+  The pipe only calls the server when the request URL changes and it caches the server response.
+  Here's the code<span if-docs="ts">, which uses the [Angular http](server-communication.html) client to retrieve data</span>:
 
-  Here's the code, which uses the [Angular http](server-communication.html) facility
-  to retrieve a `heroes.json` file:
-
-+makeExample('pipes/ts/app/fetch-json.pipe.ts', null, 'app/fetch-json.pipe.ts')
++makeExample('app/fetch-json.pipe.ts')
 :marked
-  Then we demonstrate it in a harness component whose template defines two bindings to this pipe.
-+makeExample('pipes/ts/app/hero-list.component.ts', 'template', 'app/hero-list.component.ts (template)')
-:marked
-  Despite the two bindings and what we know to be frequent pipe calls,
-  the nework tab in the browser developer tools confirms that there is only one request for the file.
+  Then we demonstrate it in a harness component whose template defines two bindings to this pipe,
+  both requesting the heroes from the `heroes.json` file.
 
++makeExample('app/hero-list.component.ts')  
+:marked
   The component renders like this:
 
 figure.image-display
     img(src='/resources/images/devguide/pipes/hero-list.png' alt="Hero List")
 
 :marked
+  A breakpoint on the pipe's request for data shows that
+  * each binding gets its own pipe instance
+  * each pipe instance caches its own url and data
+  * each pipe instance only calls the server once
+
   ### *JsonPipe*
 
-  The second binding involving the `FetchPipe` uses more pipe chaining.
-  We take the same fetched results displayed in the first binding
-  and display them again, this time in JSON format by chaining through to the built-in `JsonPipe`.
+  The second `fetch` pipe binding above demonstrates more pipe chaining.
+  It displays the same hero data in JSON format by chaining through to the built-in `JsonPipe`.
 
 .callout.is-helpful
   header Debugging with the json pipe
@@ -407,12 +412,7 @@ figure.image-display
     provides an easy way to diagnosis a mysteriously failing data binding or
     inspect an object for future binding.
 
-:marked
-  Here's the complete component implementation:
-
-+makeExample('pipes/ts/app/hero-list.component.ts', null, 'app/hero-list.component.ts')
-
-a(id="pure-pipe-pure-fn")
+a#pure-pipe-pure-fn
 :marked
   ### Pure pipes and pure functions
 

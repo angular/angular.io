@@ -31,18 +31,23 @@ HeroComponent.prototype.getName = function() { return 'Windstorm'; };
 
 (function(app) {
 
-// #docregion dsl
-app.HeroDslComponent = ng.core.Component({
+  var old = app.HeroComponent;
+
+  // #docregion dsl
+  app.HeroComponent = ng.core.Component({
     selector: 'hero-view-dsl',
     template: '<h1>{{title}}: {{getName()}}</h1>',
   })
   .Class({
-    constructor: function HeroDslComponent() {
+    constructor: function HeroComponent() {
       this.title = "Hero Detail";
     },
 
     getName: function() { return 'Windstorm'; }
   });
-// #enddocregion dsl
+  // #enddocregion dsl
+
+  app.HeroDslComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});

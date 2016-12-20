@@ -1,23 +1,28 @@
 (function(app) {
 
-app.HeroIOComponent = HeroComponent;
+  var old = app.HeroComponent
 
-HeroComponent.annotations = [
-  new ng.core.Component({
-    selector: 'hero-io',
-    templateUrl: 'app/hero-io.component.html'
-  })
-];
+  app.HeroComponent = HeroComponent;
 
-function HeroComponent() { }
+  HeroComponent.annotations = [
+    new ng.core.Component({
+      selector: 'hero-io',
+      templateUrl: 'app/hero-io.component.html'
+    })
+  ];
 
-HeroComponent.prototype.onOk = function() {
-  this.okClicked = true;
-}
+  function HeroComponent() { }
 
-HeroComponent.prototype.onCancel = function() {
-  this.cancelClicked = true;
-}
+  HeroComponent.prototype.onOk = function() {
+    this.okClicked = true;
+  }
+
+  HeroComponent.prototype.onCancel = function() {
+    this.cancelClicked = true;
+  }
+
+  app.HeroIOComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
 
@@ -25,12 +30,14 @@ HeroComponent.prototype.onCancel = function() {
 
 (function(app) {
 
-app.HeroIODslComponent = ng.core.Component({
+  var old = app.HeroComponent
+
+  app.HeroComponent = ng.core.Component({
     selector: 'hero-io-dsl',
     templateUrl: 'app/hero-io-dsl.component.html'
   })
   .Class({
-    constructor: function HeroIODslComponent() { },
+    constructor: function HeroComponent() { },
     onOk: function() {
       this.okClicked = true;
     },
@@ -38,5 +45,8 @@ app.HeroIODslComponent = ng.core.Component({
       this.cancelClicked = true;
     }
   });
+
+  app.HeroIODslComponent = app.HeroComponent;
+  app.HeroComponent = old;
 
 })(window.app = window.app || {});
