@@ -1,11 +1,17 @@
 // #docplaster
-// #docregion
-import { NgModule }             from '@angular/core';
+// #docregion , v3
+import { NgModule }     from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PageNotFoundComponent }from './not-found.component';
+import { ComposeMessageComponent } from './compose-message.component';
 
 const appRoutes: Routes = [
-  { path: '**', component: PageNotFoundComponent }
+// #enddocregion v3
+  {
+    path: 'compose',
+    component: ComposeMessageComponent,
+    outlet: 'modal'
+  }
+// #docregion v3
 ];
 
 @NgModule({

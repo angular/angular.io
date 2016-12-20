@@ -12,8 +12,10 @@ import { Component } from '@angular/core';
       <a routerLink="/heroes" routerLinkActive="active">Heroes</a>
       <a routerLink="/admin" routerLinkActive="active">Admin</a>
       <a routerLink="/login" routerLinkActive="active">Login</a>
+      <a [routerLink]="[{ outlets: { modal: ['compose'] } }]">Contact</a>
     </nav>
     <router-outlet></router-outlet>
+    <router-outlet name="modal"></router-outlet>
   `
   // #enddocregion template
 })
