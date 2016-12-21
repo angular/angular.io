@@ -37,4 +37,3 @@ import { DialogService }           from './dialog.service';
 })
 export class AppModule {
 }
-// #enddocregion

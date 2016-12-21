@@ -10,7 +10,7 @@ const appRoutes: Routes = [
   {
     path: 'compose',
     component: ComposeMessageComponent,
-    outlet: 'modal'
+    outlet: 'popup'
   },
   { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }

@@ -8,11 +8,13 @@ import { PageNotFoundComponent }   from './not-found.component';
 
 const appRoutes: Routes = [
 // #enddocregion v3
+// #docregion compose
   {
     path: 'compose',
     component: ComposeMessageComponent,
-    outlet: 'modal'
+    outlet: 'popup'
   },
+// #enddocregion compose
 // #docregion v3
   { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }

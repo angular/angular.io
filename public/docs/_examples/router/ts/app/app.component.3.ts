@@ -46,5 +46,4 @@ import { Router }    from '@angular/router';
   `
 // #enddocregion template
 })
-export class AppComponent {
-}
+export class AppComponent { }
