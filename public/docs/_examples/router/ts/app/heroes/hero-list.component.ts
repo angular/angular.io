@@ -24,7 +24,7 @@ import { Hero, HeroService }  from './hero.service';
       </li>
     </ul>
 
-    <button routerLink="/sidekicks">Go To Sidekicks</button>
+    <button routerLink="/sidekicks">Go to sidekicks</button>
   `
   // #enddocregion template
 })

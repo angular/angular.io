@@ -8,20 +8,26 @@ import { FormsModule }          from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 // #enddocregion import-router
 
-import { AppComponent }         from './app.component';
-import { CrisisListComponent }  from './crisis-list.component';
-import { HeroListComponent }    from './hero-list.component';
+import { AppComponent }          from './app.component';
+import { CrisisListComponent }   from './crisis-list.component';
+import { HeroListComponent }     from './hero-list.component';
 // #enddocregion first-config
-import { PageNotFoundComponent }from './not-found.component';
+import { PageNotFoundComponent } from './not-found.component';
 // #docregion first-config
 
+// #docregion appRoutes
 const appRoutes: Routes = [
   { path: 'crisis-center', component: CrisisListComponent },
   { path: 'heroes', component: HeroListComponent },
 // #enddocregion first-config
+
+  { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
+// #docregion wildcard
   { path: '**', component: PageNotFoundComponent }
+// #enddocregion wildcard
 // #docregion first-config
 ];
+// #enddocregion appRoutes
 
 @NgModule({
   imports: [
@@ -39,6 +45,5 @@ const appRoutes: Routes = [
   ],
   bootstrap: [ AppComponent ]
 })
-export class AppModule {
-}
+export class AppModule { }
 // #enddocregion

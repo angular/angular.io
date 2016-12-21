@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 import 'rxjs/add/operator/switchMap';
 import { Component, OnInit }      from '@angular/core';
@@ -12,9 +11,10 @@ import { Crisis, CrisisService } from './crisis.service';
   template: `
     <ul class="items">
       <li *ngFor="let crisis of crises | async"
-        [class.selected]="isSelected(crisis)"
-        (click)="onSelect(crisis)">
-        <span class="badge">{{ crisis.id }}</span> {{ crisis.name }}
+        (click)="onSelect(crisis)"
+        [class.selected]="isSelected(crisis)">
+          <span class="badge">{{ crisis.id }}</span>
+          {{ crisis.name }}
       </li>
     </ul>
 
@@ -25,11 +25,13 @@ export class CrisisListComponent implements OnInit {
   crises: Observable<Crisis[]>;
   selectedId: number;
 
+  // #docregion ctor
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
+  // #enddocregion ctor
 
   isSelected(crisis: Crisis) {
     return crisis.id === this.selectedId;
@@ -43,12 +45,12 @@ export class CrisisListComponent implements OnInit {
       });
   }
 
-  // #docregion relative-navigation
+  // #docregion onSelect
   onSelect(crisis: Crisis) {
     this.selectedId = crisis.id;
 
     // Navigate with relative link
     this.router.navigate([crisis.id], { relativeTo: this.route });
   }
-  // #enddocregion relative-navigation
+  // #enddocregion onSelect
 }

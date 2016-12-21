@@ -9,7 +9,9 @@ import { AppRoutingModule }        from './app-routing.module';
 
 import { HeroesModule }            from './heroes/heroes.module';
 import { CrisisCenterModule }      from './crisis-center/crisis-center.module';
+
 import { ComposeMessageComponent } from './compose-message.component';
+import { PageNotFoundComponent } from './not-found.component';
 
 import { AdminModule }             from './admin/admin.module';
 import { DialogService }           from './dialog.service';
@@ -25,13 +27,12 @@ import { DialogService }           from './dialog.service';
   ],
   declarations: [
     AppComponent,
-    ComposeMessageComponent
+    ComposeMessageComponent,
+    PageNotFoundComponent
   ],
   providers: [
     DialogService
   ],
   bootstrap: [ AppComponent ]
 })
-export class AppModule {
-}
-// #enddocregion
+export class AppModule { }

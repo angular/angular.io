@@ -6,26 +6,28 @@ import { RouterModule, Routes } from '@angular/router';
 // #enddocregion import-router
 
 import { ComposeMessageComponent } from './compose-message.component';
-import { CanDeactivateGuard }      from './can-deactivate-guard.service';
-// #docregion can-load-guard
-import { AuthGuard }               from './auth-guard.service';
-// #enddocregion can-load-guard
+import { PageNotFoundComponent }   from './not-found.component';
 
-// #docregion lazy-load-admin, can-load-guard
+import { CanDeactivateGuard }      from './can-deactivate-guard.service';
+import { AuthGuard }               from './auth-guard.service';
+
 
 const appRoutes: Routes = [
   {
     path: 'compose',
     component: ComposeMessageComponent,
-    outlet: 'modal'
+    outlet: 'popup'
   },
+// #docregion admin, admin-1
   {
     path: 'admin',
     loadChildren: 'app/admin/admin.module#AdminModule',
-// #enddocregion lazy-load-admin
+// #enddocregion admin-1
     canLoad: [AuthGuard]
-// #docregion lazy-load-admin
+// #docregion admin-1
   },
+// #enddocregion admin, admin-1
+  { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];
 
