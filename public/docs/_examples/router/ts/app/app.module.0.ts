@@ -7,7 +7,6 @@ import { HeroListComponent }      from './hero-list.component';
 import { CrisisListComponent }    from './crisis-list.component';
 import { PageNotFoundComponent }  from './not-found.component';
 import { PageNotFoundComponent as HeroDetailComponent } from './not-found.component';
-import { PageNotFoundComponent as HomeComponent } from './not-found.component';
 
 // #docregion
 const appRoutes: Routes = [

@@ -9,11 +9,8 @@ import { ComposeMessageComponent } from './compose-message.component';
 import { PageNotFoundComponent }   from './not-found.component';
 
 import { CanDeactivateGuard }      from './can-deactivate-guard.service';
-// #docregion can-load-guard
 import { AuthGuard }               from './auth-guard.service';
-// #enddocregion can-load-guard
 
-// #docregion lazy-load-admin, can-load-guard
 
 const appRoutes: Routes = [
   {
@@ -21,13 +18,15 @@ const appRoutes: Routes = [
     component: ComposeMessageComponent,
     outlet: 'popup'
   },
+// #docregion admin, admin-1
   {
     path: 'admin',
     loadChildren: 'app/admin/admin.module#AdminModule',
-// #enddocregion lazy-load-admin
+// #enddocregion admin-1
     canLoad: [AuthGuard]
-// #docregion lazy-load-admin
+// #docregion admin-1
   },
+// #enddocregion admin, admin-1
   { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   { path: '**', component: PageNotFoundComponent }
 ];

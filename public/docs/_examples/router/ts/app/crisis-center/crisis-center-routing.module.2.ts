@@ -12,10 +12,10 @@ import { CrisisDetailComponent }     from './crisis-detail.component';
 // #docregion can-deactivate-guard
 import { CanDeactivateGuard }    from '../can-deactivate-guard.service';
 // #enddocregion can-deactivate-guard
-// #docregion crisis-detail-resolve
-import { CrisisDetailResolve }   from './crisis-detail-resolve.service';
+// #docregion crisis-detail-resolver
+import { CrisisDetailResolver }  from './crisis-detail-resolver.service';
 
-// #enddocregion crisis-detail-resolve
+// #enddocregion crisis-detail-resolver
 // #docregion routes
 
 const crisisCenterRoutes: Routes = [
@@ -43,11 +43,11 @@ const crisisCenterRoutes: Routes = [
             // #docregion can-deactivate-guard
             canDeactivate: [CanDeactivateGuard],
             // #enddocregion can-deactivate-guard
-            // #docregion crisis-detail-resolve
+            // #docregion crisis-detail-resolver
             resolve: {
-              crisis: CrisisDetailResolve
+              crisis: CrisisDetailResolver
             }
-            // #enddocregion crisis-detail-resolve
+            // #enddocregion crisis-detail-resolver
   // #docregion routes
           },
           {

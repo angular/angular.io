@@ -1,5 +1,4 @@
 // #docplaster
-// #docregion, admin-can-load
 import { Injectable }       from '@angular/core';
 import {
   CanActivate, Router,
@@ -25,12 +24,13 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
     return this.canActivate(route, state);
   }
 
+// #docregion, canLoad
   canLoad(route: Route): boolean {
     let url = `/${route.path}`;
 
     return this.checkLogin(url);
   }
-// #enddocregion admin-can-load
+// #enddocregion canLoad
 
   checkLogin(url: string): boolean {
     if (this.authService.isLoggedIn) { return true; }

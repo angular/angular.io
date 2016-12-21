@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 import { NgModule }       from '@angular/core';
 import { CommonModule }   from '@angular/common';
@@ -22,7 +21,4 @@ import { AdminRoutingModule }       from './admin-routing.module';
     ManageHeroesComponent
   ]
 })
-// #docregion admin-module-export
 export class AdminModule {}
-// #enddocregion admin-module-export
-// #enddocregion

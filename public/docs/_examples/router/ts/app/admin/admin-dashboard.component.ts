@@ -2,7 +2,8 @@
 import { Component, OnInit }    from '@angular/core';
 import { ActivatedRoute }       from '@angular/router';
 import { Observable }           from 'rxjs/Observable';
-import { PreloadSelectedModules } from '../selective-preload-strategy';
+
+import { SelectivePreloadingStrategy } from '../selective-preloading-strategy';
 
 import 'rxjs/add/operator/map';
 
@@ -27,7 +28,7 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private preloadStrategy: PreloadSelectedModules
+    private preloadStrategy: SelectivePreloadingStrategy
   ) {
     this.modules = preloadStrategy.preloadedModules;
   }

@@ -33,6 +33,4 @@ import { DialogService }           from './dialog.service';
   ],
   bootstrap: [ AppComponent ]
 })
-export class AppModule {
-}
-// #enddocregion
+export class AppModule { }

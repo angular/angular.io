@@ -5,10 +5,10 @@ import { PreloadingStrategy, Route } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 
 @Injectable()
-export class PreloadSelectedModules implements PreloadingStrategy {
+export class SelectivePreloadingStrategy implements PreloadingStrategy {
   preloadedModules: string[] = [];
 
-  preload(route: Route, load: Function): Observable<any> {
+  preload(route: Route, load: () => Observable<any>): Observable<any> {
     if (route.data && route.data['preload']) {
       // add the route path to our preloaded module array
       this.preloadedModules.push(route.path);

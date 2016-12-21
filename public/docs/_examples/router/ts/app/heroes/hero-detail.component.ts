@@ -3,7 +3,7 @@
 // #docregion rxjs-operator-import
 import 'rxjs/add/operator/switchMap';
 // #enddocregion rxjs-operator-import
-import { Component, OnInit, HostBinding}  from '@angular/core';
+import { Component, OnInit, HostBinding } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 
 import { slideInDownAnimation } from '../animations';

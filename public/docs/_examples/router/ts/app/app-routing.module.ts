@@ -8,7 +8,7 @@ import { PageNotFoundComponent }    from './not-found.component';
 
 import { CanDeactivateGuard }       from './can-deactivate-guard.service';
 import { AuthGuard }                from './auth-guard.service';
-import { PreloadSelectedModules }   from './selective-preload-strategy';
+import { SelectivePreloadingStrategy }   from './selective-preloading-strategy';
 
 const appRoutes: Routes = [
   {
@@ -25,9 +25,7 @@ const appRoutes: Routes = [
   {
     path: 'crisis-center',
     loadChildren: 'app/crisis-center/crisis-center.module#CrisisCenterModule',
-    data: {
-      preload: true
-    }
+    data: { preload: true }
   },
   // #enddocregion preload-v2
   { path: '',   redirectTo: '/heroes', pathMatch: 'full' },
@@ -38,7 +36,7 @@ const appRoutes: Routes = [
   imports: [
     RouterModule.forRoot(
       appRoutes,
-      { preloadingStrategy: PreloadSelectedModules }
+      { preloadingStrategy: SelectivePreloadingStrategy }
     )
   ],
   exports: [
@@ -46,7 +44,7 @@ const appRoutes: Routes = [
   ],
   providers: [
     CanDeactivateGuard,
-    PreloadSelectedModules
+    SelectivePreloadingStrategy
   ]
 })
 export class AppRoutingModule {}

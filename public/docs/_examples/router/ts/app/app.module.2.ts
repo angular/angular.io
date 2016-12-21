@@ -27,6 +27,5 @@ import { PageNotFoundComponent } from './not-found.component';
   bootstrap: [ AppComponent ]
 })
 // #enddocregion hero-import
-export class AppModule {
-}
+export class AppModule { }
 // #enddocregion

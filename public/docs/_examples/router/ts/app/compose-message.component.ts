@@ -1,8 +1,8 @@
 // #docregion
-import { Component, HostBinding} from '@angular/core';
-import { Router }                from '@angular/router';
+import { Component, HostBinding } from '@angular/core';
+import { Router }                 from '@angular/router';
 
-import { slideInDownAnimation }  from './animations';
+import { slideInDownAnimation }   from './animations';
 
 @Component({
   moduleId: module.id,

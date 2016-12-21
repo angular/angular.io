@@ -35,12 +35,14 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [
+    // #docregion forRoot
     RouterModule.forRoot(
       appRoutes
       // #enddocregion preload-v1
       , { preloadingStrategy: PreloadAllModules }
       // #docregion preload-v1
     )
+    // #enddocregion forRoot
   ],
   exports: [
     RouterModule

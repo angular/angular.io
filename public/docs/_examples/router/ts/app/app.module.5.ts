@@ -35,5 +35,4 @@ import { DialogService }           from './dialog.service';
   ],
   bootstrap: [ AppComponent ]
 })
-export class AppModule {
-}
+export class AppModule { }
