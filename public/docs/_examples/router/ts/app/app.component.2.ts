@@ -1,6 +1,4 @@
 /* Second Heroes version */
-// #docplaster
-
 // #docregion
 import { Component } from '@angular/core';
 
