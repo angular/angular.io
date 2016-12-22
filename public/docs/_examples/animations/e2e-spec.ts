@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by, ElementFinder } from 'protractor';
 import { logging, promise } from 'selenium-webdriver';
@@ -296,7 +296,7 @@ describe('Animation Tests', () => {
     it('fires a callback on start and done', () => {
       addActiveHero();
       browser.manage().logs().get(logging.Type.BROWSER)
-        .then((logs: webdriver.logging.Entry[]) => {
+        .then((logs: logging.Entry[]) => {
           const animationMessages = logs.filter((log) => {
             return log.message.indexOf('Animation') !== -1 ? true : false;
           });
