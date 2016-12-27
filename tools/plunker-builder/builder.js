@@ -284,7 +284,10 @@ class PlunkerBuilder {
       '!**/systemjs.config.js',
       '!**/wallaby.js',
       '!**/karma-test-shim.js',
-      '!**/karma.conf.js'
+      '!**/karma.conf.js',
+      // AoT related files
+      '!**/aot/**/*.*',
+      '!**/*-aot.*'
     ];
 
     // exclude all specs if no spec is mentioned in `files[]`
