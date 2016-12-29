@@ -26,7 +26,7 @@ export class WikiSmartComponent implements OnInit {
   // #enddocregion subject
 
   constructor (private wikipediaService: WikipediaService) {}
-  
+
   ngOnInit() {
     // #docregion observable-operators
     this.items = this.searchTermStream
@@ -34,6 +34,5 @@ export class WikiSmartComponent implements OnInit {
       .distinctUntilChanged()
       .switchMap((term: string) => this.wikipediaService.search(term));
     // #enddocregion observable-operators
-  }  
-  
+  }
 }
