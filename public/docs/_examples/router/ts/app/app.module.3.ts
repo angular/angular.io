@@ -11,12 +11,14 @@ import { CrisisListComponent }   from './crisis-list.component';
 import { PageNotFoundComponent } from './not-found.component';
 
 @NgModule({
+// #docregion module-imports
   imports: [
     BrowserModule,
     FormsModule,
     HeroesModule,
     AppRoutingModule
   ],
+// #enddocregion module-imports
   declarations: [
     AppComponent,
     CrisisListComponent,

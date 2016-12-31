@@ -47,6 +47,7 @@ include ../../../_includes/_see-addr-bar
   * Embedding critical information in the URL with [route parameters](#route-parameters)
   * Providing non-critical information in [optional route parameters](#optional-route-parameters)
   * Refactoring routing into a [routing module](#routing-module)
+  * [Importing routing modules in the proper order](#routing-module-order)
   * Add [child routes](#child-routing-component) under a feature section
   * [Grouping child routes](#component-less-route) without a component
   * Displaying [multiple routes](#named-outlets) in separate outlets
@@ -61,6 +62,7 @@ include ../../../_includes/_see-addr-bar
   * Loading feature areas [asynchronously](#asynchronous-routing)
   * Preloading feature areas [during navigation](#preloading)
   * Using a [custom strategy](#custom-preloading) to only preload certain features
+  * [Inspect the router's configuration](#inspect-config).
   * Choosing the "HTML5" or "hash" [URL style](#browser-url-styles)
 
 .l-main-section
@@ -362,7 +364,7 @@ a#base-href
   ### Set the *&lt;base href>*
 
   The router uses the browser's
-  [history.pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries)
+  <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" title="HTML5 browser history push-state">history.pushState</a>
   for navigation. Thanks to `pushState`, you can make in-app URL paths look the way you want them to
   look, e.g. `localhost:3000/crisis-center`. The in-app URLs can be indistinguishable from server URLs.
 
@@ -377,7 +379,8 @@ a#base-href
     older hash (#) style, if necessary.
 
 :marked
-  You must **add a [&lt;base href> element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base)**
+  You must **add a
+  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base" target="_blank" title="base href">&lt;base href&gt; element</a>**
   to the app's `index.html` for `pushState` routing to work.
   The browser uses the base `href` value to prefix *relative* URLs when referencing
   CSS files, scripts, and images.
@@ -432,7 +435,7 @@ a#route-config
   - When the browser's location URL changes to match the path segment `/crisis-center`, then
   the router activates an instance of the `CrisisListComponent` and displays its view.
 
-  - When the application requests navigation to the path `/crisis-center`, then the router
+  - When the application requests navigation to the path `/crisis-center`, the router
   activates an instance of `CrisisListComponent`, displays its view, and updates the
   browser's address location and history with the URL for that path.
 
@@ -478,8 +481,8 @@ a#router-outlet
 
 .l-sub-section
   :marked
-    The `<router-outlet>` element is rendered in the DOM.
-    The router inserts the outlet's view elements as siblings
+    The router adds the `<router-outlet>` element to the DOM
+    and subsequently inserts the navigated view element
     immediately _after_ the `<router-outlet>`.
 
 a#router-link
@@ -570,14 +573,14 @@ a#default-route
 :marked
   ### The _default_ route to heroes
 
-  When the application launches, an initial URL in the browser bar is something like:
+  When the application launches, the initial URL in the browser bar is something like:
 
 code-example.
   localhost:3000
 
 :marked
   That doesn't match any of the configured routes which means that the application won't display any component when it's launched.
-  The user must click one of the links to trigger a navigation and component display.
+  The user must click one of the links to trigger a navigation and display a component.
 
   It would be nicer if the application had a **default route** that displayed the list of heroes immediately,
   just as it will when the user clicks the "Heroes" link or pastes `localhost:3000/heroes` into the address bar.
@@ -586,7 +589,7 @@ a#redirect
 :marked
   ### Redirecting routes
 
-  The preferred solution is to add a `redirect` route that translates an initial relative URL (`''`)
+  The preferred solution is to add a `redirect` route that translates the initial relative URL (`''`)
   to the desired default path (`/heroes`). The browser address bar shows `.../heroes` as if you'd navigated there directly.
 
   Add the default route somewhere _above_ the wildcard route.
@@ -704,8 +707,6 @@ a#redirect
 
   Create a file named `app-routing.module.ts` in the `/app` folder to contain the routing module. 
 
-
-:marked
   Import the `CrisisListComponent` and the `HeroListComponent` components
   just like you did in the `app.module.ts`. Then move the `Router` imports
   and routing configuration, including `RouterModule.forRoot`, into this routing module.
@@ -724,6 +725,10 @@ a#redirect
    first importing the new-created `AppRoutingModule`from `app-routing.module.ts`,
    then replacing `RouterModule.forRoot` in the `imports` array with the `AppRoutingModule`.
 +makeExample('app/app.module.2.ts')
+.l-sub-section
+  :marked
+    Later in this guide you will create [multiple routing modules](#hero-routing-module) and discover that
+    you must import those routing modules [in the correct order](#routing-module-order).
 
 :marked
   The application continues to work just the same, and you can use `AppRoutingModule` as
@@ -762,9 +767,10 @@ a#why-routing-module
   * Navigate imperatively from one component to another
   * Pass required and optional information in route parameters
 
-  This example has capabilities very similar to the
-  [Tour of Heroes tutorial, Part 5](../tutorial/toh-pt5.html),
-  and you'll be copying much of the code from there.
+  This example recreates the heroes feature in the "Services" episode of the
+  [Tour of Heroes tutorial](../tutorial/toh-pt4.html "Tour of Heroes: Services"),
+  and you'll be copying much of the code 
+  from the <live-example name="toh-4" title="Tour of Heroes: Services example code"></live-example>.
 
   Here's how the user will experience this version of the app:
 
@@ -788,17 +794,20 @@ figure.image-display
   Follow these steps:
   
   - Create the `app/heroes` folder; you'll be adding files implementing *hero management* there.
-  - Create a `heroes.module.ts` in the heroes folder.
   - Delete the placeholder `hero-list.component.ts` that's in the `app` folder.
-  - Create a new `hero-list.component.ts` under `app/heroes`, and <br>
-    copy into it the contents of the final `heroes.component.ts` from the tutorial.
+  - Create a new `hero-list.component.ts` under `app/heroes`.
+  - Copy into it the contents of the `app.component.ts` from
+    the <live-example name="toh-4" title="Tour of Heroes: Services example code">"Services" tutorial</live-example>.
+  - Make a few minor but necessary changes:
+    - Delete the `selector` (routed component don't need them).
+    - Delete the `<h1>`.
+    - Relabel the `<h2>` to `<h2>HEROES</h2>`.
+    - Delete the `<my-hero-detail>` at the bottom of the template.
+    - Rename the `AppComponent` class to `HeroListComponent`.
   - Copy the `hero-detail.component.ts` and the `hero.service.ts` files into the `heroes` subfolder.
-  - Add the `HeroService` to the `providers` array of the `Heroes` module
-    so that it's available to all components within the module.
+  - Create a (pre-routing) `heroes.module.ts` in the heroes folder that looks like this:
 
-  The `Heroes` module is ready for routing.
-
-+makeExcerpt('app/heroes/heroes.module.1.ts')
++makeExample('app/heroes/heroes.module.ts', 'v1','app/heroes/heroes.module.ts (pre-routing)')
 
 :marked
   When you're done, you'll have these *hero management* files:
@@ -812,9 +821,6 @@ figure.image-display
     .file heroes.module.ts
 
 :marked
-  Refresh the browser and you should see heroes in the heroes list.
-  You can select heroes, but not yet view hero details. You'll address that next.
-
   ### *Hero* feature routing requirements
 
   The heroes feature has two interacting components, the hero list and the hero detail.
@@ -827,12 +833,14 @@ figure.image-display
   and show that hero.
   You tell the detail view which hero to display by including the selected hero's id in the route URL.
 
+a#hero-routing-module
+:marked
   ### *Hero* feature route configuration
 
   Create a new `heroes-routing.module.ts` in the `heroes` folder
   using the same techniques you learned while creating the `AppRoutingModule`.
 
-+makeExcerpt('app/heroes/heroes-routing.module.ts')
++makeExample('app/heroes/heroes-routing.module.ts','','app/heroes/heroes-routing.module.ts')
 
 .l-sub-section
   :marked
@@ -861,14 +869,92 @@ figure.image-display
     In any other module, you must call the `RouterModule.`**`forChild`** method to register additional routes.
 
 :marked
-  Import the `HeroRoutingModule` token from `heroes-routing.module.ts` into the `HeroesModule`,
-  just as you imported `AppRoutingModule` into the `AppModule`.
+  ### Add the routing module to the _HeroesModule_
+  Add the `HeroRoutingModule` to the `HeroModule`
+  just as you added `AppRoutingModule` to the `AppModule`.
 
-+makeExcerpt('app/heroes/heroes.module.ts (heroes routing)', 'heroes-routes')
+  Open `heroes.module.ts`.
+  Import the `HeroRoutingModule` token from `heroes-routing.module.ts` and 
+  add it to the `imports` array of the `HeroesModule`. 
+  The finished `HeroesModule` looks like this:
+
++makeExample('app/heroes/heroes.module.ts','','app/heroes/heroes.module.ts')
+
+:marked
+  ### Remove duplicate hero routes
+
+  The hero routes are currently defined in _two_ places: in the `HeroesRoutingModule`,
+  by way of the `HeroesModule, and in the `AppRoutingModule`.
+
+  Routes provided by feature modules are combined together into their imported module's routes by the router. 
+  This allows you to continue defining the feature module routes without modifying the main route configuration.
+
+  But you don't want to define the same routes twice.
+  Remove the `HeroListComponent` import and the /heroes`  route from the `app-routing.module.ts`.
+
+  **Leave the default and the wildcard routes!**
+  These are concerns at the top level of the application itself.
+
++makeExcerpt('app/app-routing.module.2.ts (v2)', '')
+
+a#merge-hero-routes 
+:marked
+  ### Import hero module into AppModule
+  The heroes feature module is ready, but the application doesn't know about the `HeroesModule` yet.
+  Open `app.module.ts` and revise it as follows.
+  
+  Import the `HeroesModule` and add it to the `imports` array in the `@NgModule` metadata of the `AppModule`
+  
+  Remove the `HeroListComponent` from the `AppModule`'s `declarations` because it's now provided by the `HeroesModule`.
+  This is important. There can be only _one_ owner for a declared component. 
+  In this case, the `Heroes` module is the owner of the `Heroes` components and is making them available to 
+  components in the `AppModule` via the `HeroesModule`.
+
+  As a result, the `AppModule` no longer has specific knowledge of the hero feature, its components, or its route details.
+  You can evolve the hero feature with more components and different routes.
+  That's a key benefit of creating a separate module for each feature area.  
+
+  After these steps, the `AppModule` should look like this:
+
++makeExample('app/app.module.3.ts','','app/app.module.ts')
+
+a#routing-module-order
+:marked
+  ### Module import order matters
+
+  Look at the module `imports` array. Notice that the `AppRoutingModule` is _last_.
+  Most importantly, it comes _after_ the `HeroesModule`.
++makeExample('app/app.module.3.ts','module-imports','app/app.module.ts (module-imports)')(format='.')
+
+:marked
+  The order of route configuration matters. 
+  The router accepts the first route that matches a navigation request path.
+
+  When all routes were in one `AppRoutingModule`, 
+  you put the default and [wildcard](#wildcard-route) routes last, after the `/heroes` route,
+  so that the router had a chance to match a URL to the `/heroes` route _before_
+  hitting the wildcard route and navigating to "Page not found".
+
+  The routes are no longer in one file. 
+  They are distributed across two modules, `AppRoutingModule` and `HeroesRoutingModule`.
+
+  Each routing module augments the route configuration _in the order of import_.
+  If you list `AppRoutingModule` first, the wildcard route will be registered
+  _before_ the hero routes.
+  The wildcard route &mdash; which matches _every_ URL &mdash; 
+  will intercept the attempt to navigate to a hero route.
+
+.l-sub-section
+  :marked
+    Reverse the routing modules and see for yourself that
+    a click of the heroes link results in "Page not found".
+    Learn about inspecting the runtime router configuration
+    [below](#inspect-config "Inspect the router config").
 
 :marked
   ### Route definition with a parameter
 
+  Return to the `HeroesRoutingModule` and look at the route definitions again.
   The route to `HeroDetailComponent` has a twist.
 
 +makeExcerpt('app/heroes/heroes-routing.module.ts (excerpt)', 'hero-detail-route')
@@ -878,7 +964,7 @@ figure.image-display
   In this case, the router will insert the `id` of a hero into that slot.
 
   If you tell the router to navigate to the detail component and display "Magneta", 
-  you'd expect a hero id to appear in the browser URL like this:
+  you expect a hero id to appear in the browser URL like this:
 
 code-example(format="nocode").
   localhost:3000/hero/15
@@ -896,15 +982,12 @@ code-example(format="nocode").
     the value `15` in the path clearly distinguishes the route to "Magneta" from
     a route for some other hero.
 
-    An [optional route parameter](#optional-route-parameters) might be a better choice if 
-    you were passing an *optional* value to `HeroDetailComponent`.
-
 a#navigate
 :marked
   ### Navigate to hero detail imperatively
 
-  Users *won't* navigate to the detail component by clicking a link
-  so you won't be adding a new `RouterLink` anchor tag to the shell.
+  Users *will not* navigate to the detail component by clicking a link
+  so you won't add a new `RouterLink` anchor tag to the shell.
 
   Instead, when the user *clicks* a hero in the list, you'll ask the router
   to navigate to the hero detail view for the selected hero.
@@ -951,7 +1034,7 @@ a#get-route-parameter
   ### Getting the route parameter in the details view
 
   How does the target `HeroDetailComponent` learn about that `id`?
-  It's not by analyzing the URL since that's the router's job.
+  Don't analyze the URL. Let the router do it.
 
   The router extracts the route parameter (`id:15`) from the URL and supplies it to
   the `HeroDetailComponent` via the `ActivatedRoute` service.
@@ -960,16 +1043,13 @@ a#activated-route
 :marked
   ### ActivatedRoute: the one-stop-shop for route information
 
-  Each route contains information about its path, data parameters, URL segment and much more.
-  All of this information is available in an injected service provided by the router called the
+  The route path and parameters are available through an injected router service called the
   [ActivatedRoute](../api/router/index/ActivatedRoute-interface.html).
-
-  The `ActivatedRoute` contains all the information you need from the current route component as well as ways to get information
-  about other activated routes in the `RouterState`.
+  It has a great deal of useful information including:
 
 .l-sub-section
   :marked
-    **`url`**: An `Observable` of the route path(s). The value is provided as an array of strings for each part of the route path.
+    **`url`**: An `Observable` of the route path(s), represented as an array of strings for each part of the route path.
 
     **`data`**: An `Observable` that contains the `data` object provided for the route. Also contains any resolved values from the [resolve guard](#resolve-guard).
 
@@ -1114,16 +1194,16 @@ code-example(format="nocode").
   localhost:3000/hero/15
 
 :marked
-  You may sometimes wish to add *optional* information to a route request.
+  You can also add *optional* information to a route request.
   For example, when returning to the heroes list from the hero detail view, 
-  it might be nice if the viewed hero was preselected in the list.
+  it would be nice if the viewed hero was preselected in the list.
 
 figure.image-display
   img(src='/resources/images/devguide/router/selected-hero.png' alt="Selected hero")
 
 :marked
-  This becomes possible if you can include the viewed hero's `id` in the URL when
-  returning from the `HeroDetailComponent`, a scenario you'll pursue in a moment.
+  You'll implement this feature in a moment by including the viewed hero's `id` 
+  in the URL as an optional parameter when returning from the `HeroDetailComponent`.
 
   Optional information takes other forms. Search criteria are often loosely structured, e.g., `name='wind*'`.
   Multiple values are common &mdash; `after='12/31/2015' & before='1/1/2017'` &mdash; in no particular order &mdash;
@@ -1317,41 +1397,6 @@ h3#route-animation Adding animations to the routed component
     Applying route animations to individual components is something you'd rather not do throughout the entire application.
     It would be better to animate routes based on _route paths_, a topic to cover in a future update to this guide.
 
-h3#merge-hero-routes Import hero module into AppModule
-:marked
-  The heroes feature module is ready, but the application doesn't know about the `HeroesModule` yet.
-  Open `app.module.ts` and revise it as follows.
-  
-  Import the `HeroesModule` and add it to the `imports` array in the `@NgModule` metadata of the `AppModule`
-  
-  Remove the `HeroListComponent` from the `AppModule`'s `declarations` because it's now provided by the `HeroesModule`.
-  This is important. There can be only _one_ owner for a declared component. 
-  In this case, the `Heroes` module is the owner of the `Heroes` components and is making them available to 
-  components in the `AppModule` via the `HeroesModule`.
-  
-  After these steps, the `AppModule` should look like this:
-
-+makeExcerpt('app/app.module.3.ts')
-
-:marked
-
-.l-sub-section
-  :marked
-    Routes provided by feature modules are combined together into their imported module's routes by the router. 
-    This allows you to continue defining the feature module routes without modifying the main route configuration.
-
-:marked
-  As a result, the `AppModule` no longer has specific knowledge of the hero feature, its components, or its route details.
-  You can evolve the hero feature with more components and different routes.
-  That's a key benefit of creating a separate module for each feature area.
-
-  Since the `Heroes` routes are defined within the feature module, you can also remove the initial `heroes` route from the `app-routing.module.ts`.
-
-  But leave the default and the wildcard routes!
-  These are concerns at the top level of the application itself.
-
-+makeExcerpt('app/app-routing.module.2.ts (v2)', '')
-
 :marked
   ### Milestone 3 wrap-up
 
@@ -1415,46 +1460,40 @@ a#milestone-4
   ## Milestone 4: Crisis center feature
 
   It's time to add real features to the app's current placeholder crisis center.
-  As a quick way to upgrade the basic functionality of the crisis center:
+  
+  Begin by imitating the heroes feature:
   
   - Delete the placeholder crisis center file.
   - Create !{_an} `!{_appDir}/crisis-center` folder.
   - Copy the files from `!{_appDir}/heroes` into the new crisis center folder, but
   - Change every mention of "hero" to "crisis", and "heroes" to "crises".
-  - Define the following mock crises:
+  
+  You'll turn the `CrisisService` into a purveyor of mock crises instead of mock heroes:
 
 +makeExcerpt('app/crisis-center/crisis.service.ts', 'mock-crises')
 
 :marked
-  This will result in, for example, a `Crisis` having an `id` and a `name`,
-  `CrisisListComponent` displaying lists of crises, etc.
-  Such a quick upgrade will free you to focus next on exploring new router
-  capabilities while adding crisis center features.
+  The resulting crisis center is a foundation for introducing a new concept &mdash; **child routing**.
+  You can leave *Heroes* in its current state as a contrast with the *Crisis Center*
+  and decide later if the differences are worthwhile.
 
-  This section introduces these new ideas and techniques into the crisis center design:
-
-  * The route URLs will branch into child route trees that parallel the component trees in the feature areas.
-  * In keeping with *Separation of Concerns*
-    changes to a feature module such as *Crisis Center* won't require changes to the `!{_AppModuleVsAppComp}` or
+.alert.is-helpful
+  :marked
+    In keeping with the
+    <a href="https://blog.8thlight.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html" target="_blank" title="Separation of Concerns">*Separation of Concerns* principle</a>,
+    changes to the *Crisis Center* won't affect the `!{_AppModuleVsAppComp}` or
     any other feature's component.
-//- These are actually only covered under milestone 5:
-  * The router will prevent navigation away from the detail view while there are pending, unsaved changes.
-  * The user will be able to cancel unwanted changes.
-  * The router will block access to certain features until the user logs-in.
-
-:marked
-  Leave *Heroes* in its current state as a contrast with the *Crisis Center*.
-  You can decide later if the differences are worthwhile.
 
 :marked
   ### A Crisis center with child routes
 
   You'll organize the crisis center to conform to the following recommended pattern for Angular applications:
 
-  * Each feature area in its own folder within a defined module
-  * Each area with its own area root component
-  * Each area root component with its own router outlet and child routes
-  * Area routes rarely (if ever) cross
+  * Each feature area resides in its own folder 
+  * Each feature has its own Angular feature module.
+  * Each area has its own area root component.
+  * Each area root component has its own router outlet and child routes.
+  * Feature area routes rarely (if ever) cross with routes of other features.
 
   If your app had many feature areas, the app component trees might look like this:
 
@@ -1477,7 +1516,7 @@ figure.image-display
   just as the `AppComponent` is a shell to manage the high-level workflow
 
   Like most shells, the `CrisisCenterComponent` class is very simple, simpler even than `AppComponent`:
-  it has no business logic, and it's template has no links, just a title and 
+  it has no business logic, and its template has no links, just a title and 
   `<router-outlet>` for the crisis center child views.
 
   Unlike `AppComponent`, and most other components, it _lacks a selector_.
@@ -1508,7 +1547,7 @@ figure.image-display
   These two routes navigate to the crisis center child components,
   `CrisisCenterHomeComponent` and `CrisisDetailComponent`, respectively.
 
-  Being _child routes_, there are some *important differences* in the way the router treats them.
+  There are *important differences* in the way the router treats these _child routes_.
 
   The router displays the components of these routes in the `RouterOutlet`
   of the `CrisisCenterComponent`, not in the `RouterOutlet` of the `AppComponent` shell.
@@ -1523,17 +1562,16 @@ figure.image-display
   At the top level, paths that begin with `/` refer to the root of the application.
   But child routes *extend* the path of the parent route.
   With each step down the route tree,
-  you add a slash followed by the route path, unless the route path is _empty_.
+  you add a slash followed by the route path, unless the path is _empty_.
 
-  For example, given that the parent path to the `CrisisCenterComponent` is `/crisis-center`
-  The router appends these child paths to the parent path to the `CrisisCenterComponent` (`/crisis-center`).
+  Apply that logic to navigation within the crisis center for which the parent path is `/crisis-center`.
 
-  * to navigate to the `CrisisCenterHomeComponent`, the full URL is `/crisis-center` (`/crisis-center` + `''` + `''`).
+  * To navigate to the `CrisisCenterHomeComponent`, the full URL is `/crisis-center` (`/crisis-center` + `''` + `''`).
 
-  * to navigate to the `CrisisDetailComponent` for a crisis with `id=2`, the full URL is
-  `/crisis-center/2` (`/crisis-center` + `''` + `'/2'`).
+  * To navigate to the `CrisisDetailComponent` for a crisis with `id=2`, the full URL is
+  `/crisis-center/2` (`/crisis-center` + `''` +  `'/2'`).
 
-  The absolute URL for the latter example, including the origin, is
+  The absolute URL for the latter example, including the `localhost` origin, is
 code-example.
   localhost:3000/crisis-center/2
 
@@ -1542,9 +1580,12 @@ code-example.
 
 +makeExcerpt('app/crisis-center/crisis-center-routing.module.1.ts', '')
 
-h3#import-crisis-module Import crisis center module into the *AppModule* routes
+a#import-crisis-module 
 :marked
-  As with the `Heroes` module, you must import the `Crisis Center` module into the `AppModule`:
+  ### Import crisis center module into the *AppModule* routes
+
+  As with the `HeroesModule`, you must add the `CrisisCenterModule` to the `imports` array of the `AppModule` 
+  _before_ the `AppRoutingModule`:
 
 +makeExcerpt('app/app.module.4.ts (import CrisisCenterModule)', 'crisis-center-module')
 
@@ -1557,6 +1598,7 @@ h3#import-crisis-module Import crisis center module into the *AppModule* routes
 +makeExcerpt('app/app-routing.module.3.ts (v3)')
 
 .l-main-section
+a#relative-navigation
 :marked
   ### Relative navigation
 
@@ -1627,7 +1669,8 @@ h3#import-crisis-module Import crisis center module into the *AppModule* routes
   Notice that the path goes up a level (`../`) syntax.
   If the current crisis `id` is `1`, the resulting path back to the crisis list is  `/crisis-center/;id=3;foo=foo`.
 
-.l-main-section#named-outlets
+a#named-outlets
+.l-main-section
 :marked
   ### Displaying multiple routes in named outlets
 
@@ -1641,7 +1684,8 @@ h3#import-crisis-module Import crisis center module into the *AppModule* routes
   Until now, you've defined a single outlet and you've nested child routes 
   under that outlet to group routes together.
   The router only supports one primary _unnamed_ outlet per template,
-  but a template can also have any number of _named_ outlets.
+  
+  A template can also have any number of _named_ outlets.
   Each named outlet has its own set of routes with their own components.
   Multiple outlets can be displaying different content, determined by different routes, all at the same time.
 
@@ -1737,10 +1781,10 @@ h3#secondary-route-navigation <i>Secondary Route Navigation</i>: merging routes 
   you should see something like the following URL in the browser address bar.
 
 code-example.
-    http://<host:port>/<something>/crisis-center(popup:compose)
+    http://.../crisis-center(popup:compose)
 
 :marked
-  The interesting part of the URL follows the `<something>`:
+  The interesting part of the URL follows the `...`:
   * The `crisis-center` is the primary navigation. 
   * Parentheses surround the secondary route.
   * The secondary route consist of an outlet name (`popup`), then a `colon` separator, followed with the secondary route path (`compose`)
@@ -1748,7 +1792,7 @@ code-example.
   Click the _Heroes_ link and look at the URL again.
 
 code-example.
-    http://<host:port>/<something>/heroes(popup:compose)
+    http://.../heroes(popup:compose)
 :marked
   The primary navigation part has changed; the secondary route is the same.
 
@@ -2390,8 +2434,9 @@ h3#can-load-guard <i>CanLoad Guard</i>: guarding unauthorized loading of feature
 +makeExample('router/ts/app/app-routing.module.5.ts', 'admin', 'app-routing.module.ts (lazy admin route)')
 
 
-h3#preloading <i>Preloading</i>: background loading of feature areas
+a#preloading
 :marked
+  ### _Preloading_: background loading of feature areas
   You've learned how to load modules on-demand.
   You can also load modules asynchronously with _preloading_.
 
@@ -2546,12 +2591,28 @@ a#custom-preloading
   Verify this by logging in to the `Admin` feature area and noting that the `crisis-center` is listed in the `Preloaded Modules`. 
   It's also logged to the browser's console. 
 
-<a id="final-app"></a>
+a#inspect-config
+.l-main-section
+:marked
+  ## Inspect the router's configuration
+
+  You put a lot of effort into configuring the router in several routing module files
+  and were careful to list them [in the proper order](#routing-module-order).
+  Are routes actually evaluated as you planned? 
+  How is the router really configured?
+  
+  You can inspect the router's current configuration any time by injecting it and
+  examining its `config` property. 
+  For example, update the `AppModule` as follows and look in the browser console window
+  to see the finished route configuration.
++makeExcerpt('app/app.module.ts (inspect the router config)', 'inspect-config')
+
+a#final-app
 .l-main-section
 :marked
   ## Wrap Up
 
-  We've covered a lot of ground in this guide and the application is too big to reprint here.
+  You've covered a lot of ground in this guide and the application is too big to reprint here.
   Please visit the <live-example title="Router Sample in Plunker"></live-example> and
   where you can download the final source code.
 
@@ -2639,7 +2700,7 @@ a#browser-url-styles
   and should not reload the page.
 
   Modern HTML 5 browsers support
-  [history.pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries),
+  <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" title="HTML5 browser history push-state">history.pushState</a>,
   a technique that changes a browser's location and history without triggering a server page request.
   The router can compose a "natural" URL that is indistinguishable from
   one that would otherwise require a page load.
@@ -2699,12 +2760,12 @@ code-example(format=".", language="bash").
   ### HTML 5 URLs and the  *&lt;base href>*
 
   While the router uses the 
-  [HTML 5 pushState](https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries)
+  <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" title="Browser history push-state">HTML 5 pushState</a>
   style by default, you *must* configure that strategy with a **base href**
 
   The preferred way to configure the strategy is to add a
-  [&lt;base href> element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base) tag
-  in the `<head>` of the `index.html`.
+  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base" target="_blank" title="base href">&lt;base href&gt; element</a>
+  tag in the `<head>` of the `index.html`.
 
 +makeExcerpt('index.html', 'base-href', '')
 
