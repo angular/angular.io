@@ -9,9 +9,9 @@ import { Component } from '@angular/core';
     <nav>
       <a routerLink="/crisis-center" routerLinkActive="active">Crisis Center</a>
       <a routerLink="/heroes" routerLinkActive="active">Heroes</a>
-   // #docregion contact-link
-     <a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
-   // #enddocregion contact-link
+      // #docregion contact-link
+      <a [routerLink]="[{ outlets: { popup: ['compose'] } }]">Contact</a>
+      // #enddocregion contact-link
     </nav>
     // #docregion outlets
     <router-outlet></router-outlet>
