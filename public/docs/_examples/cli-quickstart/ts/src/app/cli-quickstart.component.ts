@@ -6,8 +6,8 @@ import { Component } from '@angular/core';
 @Component({
   moduleId: module.id,
   selector: 'cli-quickstart-app',
-  templateUrl: 'cli-quickstart.component.html',
-  styleUrls: ['cli-quickstart.component.css']
+  templateUrl: './cli-quickstart.component.html',
+  styleUrls: ['./cli-quickstart.component.css']
 })
 // #enddocregion metadata
 // #docregion title, class

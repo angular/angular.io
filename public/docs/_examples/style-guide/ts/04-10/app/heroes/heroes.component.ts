@@ -10,7 +10,7 @@ import { FilterTextService } from '../shared/filter-text/filter-text.service';
   moduleId: module.id,
   // #docregion example
   selector: 'toh-heroes',
-  templateUrl: 'heroes.component.html'
+  templateUrl: './heroes.component.html'
 })
 export class HeroesComponent implements OnInit {
   // #enddocregion example

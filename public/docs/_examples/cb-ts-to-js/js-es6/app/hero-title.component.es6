@@ -18,7 +18,7 @@ HeroTitleComponent.annotations = [
   new Component({
     moduleId: module.id,
     selector: 'hero-title',
-    templateUrl: 'hero-title.component.html'
+    templateUrl: './hero-title.component.html'
   })
 ];
 // #enddocregion templateUrl

@@ -10,7 +10,7 @@ import { LoggerService } from '../core/logger.service';
   moduleId: module.id,
   // #docregion example
   selector: 'toh-heroes',
-  templateUrl: 'heroes.component.html'
+  templateUrl: './heroes.component.html'
 })
 export class HeroesComponent {
   // #enddocregion example

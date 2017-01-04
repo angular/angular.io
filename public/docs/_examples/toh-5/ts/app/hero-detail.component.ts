@@ -12,9 +12,9 @@ import { HeroService }  from './hero.service';
 @Component({
   moduleId: module.id,
   selector: 'my-hero-detail',
-  templateUrl: 'hero-detail.component.html',
+  templateUrl: './hero-detail.component.html',
   // #enddocregion metadata, v2
-  styleUrls: [ 'hero-detail.component.css' ]
+  styleUrls: [ './hero-detail.component.css' ]
   // #docregion metadata, v2
 })
 // #enddocregion metadata

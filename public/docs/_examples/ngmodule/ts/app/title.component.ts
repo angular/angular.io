@@ -9,7 +9,7 @@ import { UserService } from './user.service';
 @Component({
   moduleId: module.id,
   selector: 'app-title',
-  templateUrl: 'title.component.html',
+  templateUrl: './title.component.html',
 })
 export class TitleComponent {
   @Input() subtitle = '';

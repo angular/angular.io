@@ -77,7 +77,7 @@ export class DoCheckComponent implements DoCheck {
 @Component({
   moduleId: module.id,
   selector: 'do-check-parent',
-  templateUrl: 'do-check-parent.component.html',
+  templateUrl: './do-check-parent.component.html',
   styles: ['.parent {background: Lavender}']
 })
 export class DoCheckParentComponent {

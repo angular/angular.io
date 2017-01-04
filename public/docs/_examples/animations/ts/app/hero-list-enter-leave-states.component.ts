@@ -24,7 +24,7 @@ import { Heroes } from './hero.service';
     </ul>
   `,
   // #enddocregion template
-  styleUrls: ['hero-list.component.css'],
+  styleUrls: ['./hero-list.component.css'],
   /* The elements here have two possible states based
    * on the hero state, "active", or "inactive". We animate
    * six transitions: Between the two states in both directions,

@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
   moduleId: module.id,
   // #docregion example
   selector: '[tohHeroButton]',
-  templateUrl: 'hero-button.component.html'
+  templateUrl: './hero-button.component.html'
 })
 export class HeroButtonComponent {}
 // #enddocregion example

@@ -10,8 +10,8 @@ import { Hero } from './shared';
   moduleId: module.id,
   // #docregion example
   selector: 'toh-heroes',
-  templateUrl: 'heroes.component.html',
-  styleUrls:  ['heroes.component.css']
+  templateUrl: './heroes.component.html',
+  styleUrls:  ['./heroes.component.css']
 })
 export class HeroesComponent implements OnInit {
   heroes: Hero[];

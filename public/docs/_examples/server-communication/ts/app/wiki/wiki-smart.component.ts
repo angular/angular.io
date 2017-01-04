@@ -12,7 +12,7 @@ import { WikipediaService } from './wikipedia.service';
 @Component({
   moduleId: module.id,
   selector: 'my-wiki-smart',
-  templateUrl: 'wiki.component.html',
+  templateUrl: './wiki.component.html',
   providers: [ WikipediaService ]
 })
 export class WikiSmartComponent implements OnInit {

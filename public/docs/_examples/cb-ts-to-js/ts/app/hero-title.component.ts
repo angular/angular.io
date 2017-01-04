@@ -5,7 +5,7 @@ import { Attribute, Component, Inject, Optional } from '@angular/core';
 @Component({
   moduleId: module.id,
   selector: 'hero-title',
-  templateUrl: 'hero-title.component.html'
+  templateUrl: './hero-title.component.html'
 })
 // #enddocregion templateUrl
 export class HeroTitleComponent {
