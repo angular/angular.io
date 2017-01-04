@@ -1,23 +1,14 @@
-// #docplaster
 // #docregion
-// #docregion example
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { FilterTextService } from '../shared/filter-text/filter-text.service';
 
 @Component({
-  // #enddocregion example
   moduleId: module.id,
-  // #docregion example
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html'
 })
-export class HeroesComponent implements OnInit {
-  // #enddocregion example
-  // #docregion example
-  filteredHeroes: any[] = [];
-
-  constructor(private filterService: FilterTextService) { }
+export class HeroesComponent {
 
   heroes = [
     { id: 1, name: 'Windstorm' },
@@ -26,13 +17,12 @@ export class HeroesComponent implements OnInit {
     { id: 4, name: 'Tornado' }
   ];
 
+  filteredHeroes = this.heroes;
+
+  constructor(private filterService: FilterTextService) { }
+
   filterChanged(searchText: string) {
     this.filteredHeroes = this.filterService.filter(searchText, ['id', 'name'], this.heroes);
   }
-
-  ngOnInit() {
-    this.filteredHeroes = this.heroes;
-  }
 }
-// #enddocregion example
 

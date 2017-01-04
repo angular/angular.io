@@ -1,7 +1,8 @@
-// #docregion
 import { Component, OnInit } from '@angular/core';
+import { Observable }        from 'rxjs/Observable';
 
-import { Hero } from './shared/hero.model';
+import { Hero, HeroService } from './shared';
+
 // #docregion example
 /* avoid */
 
@@ -11,7 +12,7 @@ import { Hero } from './shared/hero.model';
     <div>
       <h2>My Heroes</h2>
       <ul class="heroes">
-        <li *ngFor="let hero of heroes">
+        <li *ngFor="let hero of heroes | async" (click)="selectedHero=hero">
           <span class="badge">{{hero.id}}</span> {{hero.name}}
         </li>
       </ul>
@@ -51,9 +52,13 @@ import { Hero } from './shared/hero.model';
   `]
 })
 export class HeroesComponent implements OnInit {
-  heroes: Hero[];
+  heroes: Observable<Hero[]>;
   selectedHero: Hero;
 
-  ngOnInit() {}
+ constructor(private heroService: HeroService) { }
+
+  ngOnInit() {
+    this.heroes = this.heroService.getHeroes();
+  }
 }
 // #enddocregion example

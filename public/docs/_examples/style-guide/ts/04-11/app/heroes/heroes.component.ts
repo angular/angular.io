@@ -1,21 +1,14 @@
-// #docplaster
-// #docregion
-// #docregion example
 import { Component } from '@angular/core';
 
-import { LoggerService } from '../core/logger.service';
+import { LoggerService }  from '../core/logger.service';
 import { SpinnerService } from '../core/spinner/spinner.service';
 
 @Component({
-  // #enddocregion example
   moduleId: module.id,
-  // #docregion example
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html'
 })
 export class HeroesComponent {
-  // #enddocregion example
-  // #docregion example
   heroes: any[];
 
   constructor(
@@ -38,4 +31,3 @@ export class HeroesComponent {
     }, 2000);
   }
 }
-// #enddocregion example
