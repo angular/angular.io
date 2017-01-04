@@ -7,6 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   template: `<button>{{label}}</button>`
 })
 export class HeroButtonComponent {
+  // No aliases
   @Output() change = new EventEmitter<any>();
   @Input() label: string;
 }

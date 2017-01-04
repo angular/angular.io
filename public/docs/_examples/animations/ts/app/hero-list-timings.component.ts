@@ -22,7 +22,7 @@ import { Heroes } from './hero.service';
       </li>
     </ul>
   `,
-  styleUrls: ['hero-list.component.css'],
+  styleUrls: ['./hero-list.component.css'],
   /* The element here always has the state "in" when it
    * is present. We animate two transitions: From void
    * to in and from in to void, to achieve an animated

@@ -7,7 +7,7 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 @Component({
   moduleId: module.id,
   selector: 'phone-list',
-  templateUrl: 'phone-list.template.html',
+  templateUrl: './phone-list.template.html',
 })
 // #enddocregion top
 export class PhoneListComponent {
