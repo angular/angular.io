@@ -65,7 +65,7 @@ describe('Component Communication Cookbook Tests', function () {
       let actual = getActual();
 
       let initialLabel = 'Version 1.23';
-      let initialLog = 'major changed to 1, minor changed to 23';
+      let initialLog = 'Initial value of major set to 1, Initial value of minor set to 23';
 
       expect(actual.label).toBe(initialLabel);
       expect(actual.count).toBe(1);

@@ -23,7 +23,7 @@ export class VersionChildComponent implements OnChanges {
       let changedProp = changes[propName];
       let to = JSON.stringify(changedProp.currentValue);
       if (changedProp.isFirstChange()) {
-        log.push(`${propName} changed to ${to}`);
+        log.push(`Initial value of ${propName} set to ${to}`);
       } else {
         let from = JSON.stringify(changedProp.previousValue);
         log.push(`${propName} changed from ${from} to ${to}`);
