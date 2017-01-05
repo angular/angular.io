@@ -1,10 +1,15 @@
 // #docplaster
 // #docregion
 // Promise Version
-import { Injectable }     from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Injectable }              from '@angular/core';
+import { Http, Response }          from '@angular/http';
 import { Headers, RequestOptions } from '@angular/http';
-import { Hero }           from './hero';
+
+// #docregion rxjs-imports
+import 'rxjs/add/operator/toPromise';
+// #enddocregion rxjs-imports
+
+import { Hero } from './hero';
 
 @Injectable()
 export class HeroService {
