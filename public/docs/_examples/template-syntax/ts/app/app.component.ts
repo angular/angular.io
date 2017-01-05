@@ -25,6 +25,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
     this.refreshHeroes();
+    this.setCurrentClasses();
+    this.setCurrentStyles();
   }
 
   ngAfterViewInit() {
@@ -56,14 +58,10 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   title = 'Template Syntax';
 
-  // DevMode memoization fields
-  private priorClasses: {};
-  private _priorStyles: {};
-
   getStyles(el: Element) {
     let styles = window.getComputedStyle(el);
     let showStyles = {};
-    for (let p in this.setStyles()) {
+    for (let p in this.currentStyles) { // only interested in these styles
       showStyles[p] = styles[p];
     }
     return JSON.stringify(showStyles);
@@ -141,57 +139,28 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   // #docregion setClasses
-  setClasses() {
-    let classes =  {
-      saveable: this.canSave,      // true
-      modified: !this.isUnchanged, // false
-      special: this.isSpecial,     // true
+  currentClasses: {};
+  setCurrentClasses() {
+    // CSS classes: added/removed per current state of component properties
+    this.currentClasses =  {
+      saveable: this.canSave,
+      modified: !this.isUnchanged,
+      special:  this.isSpecial
     };
-    // #enddocregion setClasses
-    // compensate for DevMode (sigh)
-    if (JSON.stringify(classes) === JSON.stringify(this.priorClasses)) {
-       return this.priorClasses;
-    }
-    this.priorClasses = classes;
-    // #docregion setClasses
-    return classes;
   }
   // #enddocregion setClasses
 
-
   // #docregion setStyles
-  setStyles() {
-    let styles = {
-      // CSS property names
-      'font-style':  this.canSave      ? 'italic' : 'normal',  // italic
-      'font-weight': !this.isUnchanged ? 'bold'   : 'normal',  // normal
-      'font-size':   this.isSpecial    ? '24px'   : '8px',     // 24px
+  currentStyles: {};
+  setCurrentStyles() {
+    this.currentStyles = {
+      // CSS styles: set per current state of component properties
+      'font-style':  this.canSave      ? 'italic' : 'normal',
+      'font-weight': !this.isUnchanged ? 'bold'   : 'normal',
+      'font-size':   this.isSpecial    ? '24px'   : '12px'
     };
-    // #enddocregion setStyles
-    // compensate for DevMode (sigh)
-    if (JSON.stringify(styles) === JSON.stringify(this._priorStyles)) {
-       return this._priorStyles;
-    }
-    this._priorStyles = styles;
-    // #docregion setStyles
-    return styles;
   }
   // #enddocregion setStyles
-
-  // #docregion NgStyle
-  isItalic = false;
-  isBold = false;
-  fontSize: string = 'large';
-  fontSizePx: number | string = 14;
-
-  setStyle() {
-    return {
-      'font-style': this.isItalic ? 'italic' : 'normal',
-      'font-weight': this.isBold ? 'bold' : 'normal',
-      'font-size': this.fontSize
-    };
-  }
-  // #enddocregion NgStyle
 
   toeChoice = '';
   toeChooser(picker: HTMLFieldSetElement) {
@@ -201,7 +170,6 @@ export class AppComponent implements AfterViewInit, OnInit {
       if (choice.checked) {return this.toeChoice = choice.value; }
     }
   }
-
 
   // #docregion trackByHeroes
   trackByHeroes(index: number, hero: Hero) { return hero.id; }
