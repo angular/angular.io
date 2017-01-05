@@ -1,7 +1,8 @@
 // #docregion
 import { Pipe, PipeTransform } from '@angular/core';
 import { Http }                from '@angular/http';
-import './rxjs-extensions';
+
+import 'rxjs/add/operator/map';
 
 // #docregion pipe-metadata
 @Pipe({
