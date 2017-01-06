@@ -4,12 +4,11 @@ import { NgModule }           from '@angular/core';
 import { BrowserModule }      from '@angular/platform-browser';
 
 /* App Root */
-import
 // #enddocregion
-       { AppComponent }       from './app.component.1b';
+import { AppComponent }       from './app.component.1b';
 /*
 // #docregion
-       { AppComponent }       from './app.component';
+import { AppComponent }       from './app.component';
 // #enddocregion
 */
 // #docregion
@@ -18,12 +17,11 @@ import { TitleComponent }     from './title.component';
 import { UserService }        from './user.service';
 
 /* Contact Imports */
-import
 // #enddocregion
-       { ContactComponent }   from './contact/contact.component.3';
+import { ContactComponent }   from './contact/contact.component.3';
 /*
 // #docregion
-       { ContactComponent }   from './contact/contact.component';
+import { ContactComponent }   from './contact/contact.component';
 // #enddocregion
 */
 // #docregion

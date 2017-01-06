@@ -6,12 +6,11 @@ import { FormsModule }        from '@angular/forms';
 
 import { AwesomePipe }        from './awesome.pipe';
 
-import
 // #enddocregion
-       { ContactComponent }   from './contact.component.3';
+import { ContactComponent }   from './contact.component.3';
 /*
 // #docregion
-       { ContactComponent }   from './contact.component';
+import { ContactComponent }   from './contact.component';
 // #enddocregion
 */
 // #docregion
