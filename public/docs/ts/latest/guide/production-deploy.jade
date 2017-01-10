@@ -6,7 +6,8 @@ include ../_util-fns
 a#toc
 :marked
   ## Table of contents
-  * [Simplest deployment possible](#simplest-deployment-possible)
+  * [Overview](#overview)
+  * [Simplest deployment possible](#dev-deploy)
   * [Optimize for production](#optimize)
     * [Ahead-of-Time (AOT) compilation](#aot)
     * [Webpack](#webpack)
@@ -16,39 +17,66 @@ a#toc
     * [The `base` tag](#base-tag)
     * [Enable production mode](#enableprodmode)
     * [Lazy loading](#lazy-loading)
-  * [Server configuration for routed apps](#server-configuration)
-    * [Why fallback to `index.html`?](#why-fallback-to-index-html-)  
-    * [Fallback configuration examples](#fallback-configuration-examples)  
-  * [Requesting services from a different server (CORS)](#cors)
+  * [Server configuration](#server-configuration)
+    * [Routed apps must fallback to `index.html`](#fallback)  
+    * [CORS: requesting services from a different server](#cors)
+
+a#overview
+.l-main-section
+:marked
+  ## Overview
+
+  This guide describes techniques for preparing and deploying an Angular application to a server running remotely.
+  The techniques progress from _easy but suboptimal_ to _more optimal and more involved_.
+
+  * The [simple way](#dev-deploy "Simplest deployment possible") is to copy the development environment to the server.
+
+  * [_Ahead of Time_ compilation (AOT)](#aot "AOT Compilation") is the first of 
+  [several optimization strategies](#optimize). 
+  You'll also want to read the [detailed instructions in the AOT Cookbook](aot-compiler.html "AOT Cookbook").
+  
+  * [Webpack](#webpack "Webpack Optimization") is a popular general purpose packaging tool with a rich ecosystem, including plugins for AOT.
+  The Angular [webpack guide](webpack.html "Webpack: an introduction") can get you started and
+  _this_ page provides additional optimization advice, but you'll probably have to learn more about webpack on your own.
+
+  * The [Angular configuration](#angular-configuration "Angular configuration") section calls attention to
+  specific client application changes that could improve performance.
+
+  * The [Server configuration](#server-configuration "Server configuration") section describes
+  server-side changes that may be necessary, _no matter how you deploy the application_.
 
 .l-main-section
+a#dev-deploy
 :marked
   ## Simplest deployment possible 
 
-  The simplest way to deploy your app is to publish it to a web server
-  directly out of your development environment.
-  It's already running locally. You're just moving it, almost _as is_, 
-  to a server others can reach.
+  The simplest way to deploy the app is to publish it to a web server
+  directly out of the development environment.
+  It's already running locally. You're just copying it, almost _as is_, 
+  to a non-local server that others can reach.
 
-  1. Copy _everything_ in your local project folder into a folder on your server.
+  1. Copy _everything_ (or [_almost_ everything](#node-modules "Loading npm packages from the web")) 
+  from the local project folder to a folder on the server.
 
-  2. If you're serving the app out of a subfolder,
+  1. If you're serving the app out of a subfolder,
   edit a version of `index.html` to set the `<base href>` appropriately. 
   For example, if the URL to `index.html` is `www.mysite.com/myapp/`, set the _base href_  to 
   `<base href="/myapp/">`.
   Otherwise, leave it alone.
   [More on this below](#base-tag).
 
-  3. Configure your server to redirect requests for missing files to `index.html` instead.
-  [More on this below](#server-configuration).
+  1. Configure the server to redirect requests for missing files to `index.html`.
+  [More on this below](#fallback).
 
-  4. Enable production mode as [described below](#enableprodmode) (optional).
+  1. Enable production mode as [described below](#enableprodmode) (optional).
 
   That's all it takes to publish your app!
 
-  ### Load third-party packages from the web (SystemJS)
+a#node-modules
+:marked
+  ### Load npm packages from the web (SystemJS)
 
-  The `node_modules` folder is huge and slow to upload to the server.
+  The `node_modules` folder of _npm packages_ is huge and slow to upload to the server.
   It's typically 20,500+ files and 180+ MB.
   The application itself requires a tiny fraction of that to run.
 
@@ -63,7 +91,7 @@ a#toc
   loads `systemjs.config.server.js`.
 +makeExample('index.html', 'systemjs-config', '')(format=".")
 :marked
-  (3) Add `systemjs.config.server.js` (shown in the code sample below) to your root folder.
+  (3) Add `systemjs.config.server.js` (shown in the code sample below) to the root folder.
   This alternative version configures _SystemJS_ to load _UMD_ versions of Angular 
   (and other third-party packages) from the web.
 
@@ -126,7 +154,7 @@ a#toc
   (although you wouldn't be able to recompile or launch `lite-server`
   until you restored it).
 
-  1. Deploy the sample to your server (minus the `node_modules` folder!).
+  1. Deploy the sample to the server (minus the `node_modules` folder!).
 
   When you have that working, try the same process on your application.
 
@@ -147,7 +175,7 @@ a#optimize
   can be significantly larger than is strictly necessary to execute the application.
 
   The many requests and large payloads mean
-  your app takes longer to launch than it would if you optimized it.
+  the app takes longer to launch than it would if you optimized it.
   Several seconds may pass (or worse) before the user can see or do anything userful.
   
   Does it matter? That depends upon business and technical factors you must evaluate for yourself.
@@ -183,7 +211,7 @@ a#aot
   * You don't download the Angular compiler, which is pretty big on its own.
   * The compiler discards unused Angular directives that a tree-shaking tool can then exclude.
 
-  Learn more about AOT Compilation in the [AOT Cookbook](AOT-compiler.html "AOT Cookbook")
+  Learn more about AOT Compilation in the [AOT Cookbook](aot-compiler.html "AOT Cookbook")
   which describes running the AOT compiler from the command line
   and using [_rollup_](#rollup) for bundling, minification, uglification and tree shaking.
   
@@ -193,6 +221,8 @@ a#webpack
 
   <a href="https://webpack.js.org/" target="_blank" title="Webpack 2">Webpack 2</a> is another
   great option for inlining templates and style-sheets, for bundling, minifying, and uglifying the application.
+  The "[Webpack: an introduction](webpack.html "Webpack: an introduction")" guide will get you started 
+  using webpack with Angular.
 
   Consider configuring _Webpack_ with the official
   <a href="https://github.com/angular/angular-cli/tree/master/packages/%40ngtools/webpack" target="_blank" title="Ahead-of-Time Webpack Plugin">
@@ -220,7 +250,7 @@ a#measure
   ### Measure performance first
 
   You can make better decisions about what to optimize and how when you have a clear and accurate understanding of
-  what's making your application slow.
+  what's making the application slow.
   The cause may not be what you think it is. 
   You can waste a lot of time and money optimizing something that has no tangible benefit or even makes the app slower.
   You should measure the app's actual behavior when running in the environments that are important to you.
@@ -234,7 +264,7 @@ a#angular-configuration
 :marked
   ## Angular configuration
 
-  Angular configuration can make the difference between whether your app launches quickly or doesn't load at all.
+  Angular configuration can make the difference between whether the app launches quickly or doesn't load at all.
 
 a#base-tag
 :marked
@@ -251,13 +281,13 @@ a#base-tag
     See also the [*APP_BASE_HREF*](../api/common/index/APP_BASE_HREF-let.html "API: APP_BASE_HREF") alternative.
 :marked
   In development, you typically start the server in the folder that holds `index.html`. 
-  That's your root folder and you'd add `<base href="/">` near the top of `index.html` because `/` is the root of your app.
+  That's the root folder and you'd add `<base href="/">` near the top of `index.html` because `/` is the root of the app.
   
-  But on your shared or production server, you might serve the app from a subfolder.
+  But on the shared or production server, you might serve the app from a subfolder.
   For example, when the URL to load the app is something like `http://www.mysite.com/myapp/`, 
   the subfolder is `myapp/` and you should add `<base href="/myapp/">` to the server version of the `index.html`.
 
-  When your `base` tag is misconfigured, the app fails to load and the browser console displays `404 - Not Found` errors
+  When the `base` tag is misconfigured, the app fails to load and the browser console displays `404 - Not Found` errors
   for the missing files. Look at where it _tried_ to find those files and adjust the base tag appropriately.
 
 a#enableProdMode
@@ -296,7 +326,7 @@ a#lazy-loading
   in a file that's eagerly loaded when the app starts, a file such as the root `AppModule`.
   If you do that, the module will be loaded immediately. 
 
-  Your bundling configuration must take lazy loading into consideration.
+  The bundling configuration must take lazy loading into consideration.
   Because lazy loaded modules aren't imported in JavaScript (as just noted), bundlers exclude them by default. 
   Bundlers don't know about the router configuration and won't create separate bundles for lazy loaded modules.
   You have to create these bundles manually.
@@ -309,16 +339,19 @@ a#lazy-loading
 a#server-configuration
 .l-main-section
 :marked
-  ## Server configuration for routed apps
+  ## Server configuration
+  
+  This section covers changes you may have make to the server or to files deployed to the server.
+
+a#fallback
+  ### Routed apps must fallback to `index.html`
 
   Angular apps are perfect candidates for serving with a simple static HTML server.
   You don't need a server-side engine to dynamically compose application pages because
   Angular does that on the client-side.
 
-  If your app uses the Angular router, you must configure the server 
+  If the app uses the Angular router, you must configure the server 
   to return the application's host page (`index.html`) when asked for a file that it does not have.
-
-  ### Why fallback to `index.html`?
 
 a#deep-link
 :marked
@@ -339,7 +372,7 @@ a#deep-link
   But it rejects `http://www.mysite.com/heroes/42` and returns a `404 - Not Found` error *unless* it is 
   configured to return `index.html` instead.
 
-  ### Fallback configuration examples
+  #### Fallback configuration examples
 
   There is no single configuration that works for every server.
   The following sections describe configurations for some of the most popular servers. 
@@ -434,7 +467,14 @@ a#cors
   to a server other than the application's own host server.
   Browsers forbid such requests unless the server permits them explicitly.
 
-  There isn't anything your client application can do about these errors.
-  The server must be configured to accept your application's requests. 
+  There isn't anything the client application can do about these errors.
+  The server must be configured to accept the application's requests. 
   Read about how to enable CORS for specific servers at
   <a href="http://enable-cors.org/server.html" target="_blank" title="Enabling CORS server">enable-cors.org</a>.
+
+a#next-steps
+.l-main-section
+:marked
+  ## Next steps
+   If you want to go beyond the [simple _copy-deploy_](#dev-deploy "Simplest deployment possible") approach,
+   read the [AOT Cookbook](aot-compiler.html "AOT Cookbook") next.
