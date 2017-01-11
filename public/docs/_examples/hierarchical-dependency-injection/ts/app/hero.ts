@@ -1,6 +1,7 @@
 // #docregion
 export class Hero {
-  name: string;
+  id:    number;
+  name:  string;
   power: string;
 }
 // #enddocregion

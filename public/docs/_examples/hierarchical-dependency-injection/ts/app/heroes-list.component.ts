@@ -1,49 +1,43 @@
 // #docregion
-import { Component } from '@angular/core';
+import { Component }  from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-import { EditItem } from './edit-item';
+import { Hero }          from './hero';
 import { HeroesService } from './heroes.service';
-import { Hero } from './hero';
 
 @Component({
   selector: 'heroes-list',
   template: `
     <div>
+      <h3>Heroes</h3>
       <ul>
-        <li *ngFor="let editItem of heroes">
-          <hero-card
-            [hidden]="editItem.editing"
-            [hero]="editItem.item">
-          </hero-card>
-          <button
-            [hidden]="editItem.editing"
-            (click)="editItem.editing = true">
-              edit
-          </button>
-          <hero-editor
-            (saved)="onSaved(editItem, $event)"
-            (canceled)="onCanceled(editItem)"
-            [hidden]="!editItem.editing"
-            [hero]="editItem.item">
-          </hero-editor>
+        <li *ngFor="let hero of heroes | async" (click)="addCard(hero)">
+          {{hero.name}} ({{hero.power}})
         </li>
       </ul>
-    </div>`
+      <hero-card
+        *ngFor="let selectedHero of selectedHeroes; let i = index"
+        [hero]="selectedHero"
+        (close)="closeCard(i)">
+      </hero-card>
+    </div>
+    `,
+  styles: [ 'li {cursor: pointer;}' ]
 })
 export class HeroesListComponent {
-  heroes: Array<EditItem<Hero>>;
-  constructor(heroesService: HeroesService) {
-    this.heroes = heroesService.getHeroes()
-                               .map(item => new EditItem(item));
+  heroes: Observable<Hero[]>;
+  selectedHeroes: Hero[] = [];
+
+  constructor(private heroesService: HeroesService) {
+    this.heroes = heroesService.getHeroes();
   }
 
-  onSaved (editItem: EditItem<Hero>, updatedHero: Hero) {
-    editItem.item = updatedHero;
-    editItem.editing = false;
+  addCard(hero: Hero) {
+    this.selectedHeroes.push(hero);
   }
 
-  onCanceled (editItem: EditItem<Hero>) {
-    editItem.editing = false;
+  closeCard(ix: number) {
+    this.selectedHeroes.splice(ix, 1);
   }
 }
 
