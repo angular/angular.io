@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule }   from '@angular/forms';
 
 import { AppComponent }          from './app.component';
-import { HeroCardComponent }     from './hero-card.component';
+import { HeroTaxReturnComponent }     from './hero-tax-return.component';
 import { HeroesListComponent }   from './heroes-list.component';
 import { HeroesService }         from './heroes.service';
 import { VillainsListComponent } from './villains-list.component';
@@ -24,7 +24,7 @@ import { carComponents, carServices } from './car.components';
     AppComponent,
     carComponents,
     HeroesListComponent,
-    HeroCardComponent,
+    HeroTaxReturnComponent,
     VillainsListComponent
   ],
   bootstrap: [ AppComponent ]

@@ -2,44 +2,47 @@
 import { Component }  from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { Hero }          from './hero';
-import { HeroesService } from './heroes.service';
+import { Hero, HeroTaxReturn } from './hero';
+import { HeroesService }       from './heroes.service';
 
 @Component({
   selector: 'heroes-list',
   template: `
     <div>
-      <h3>Heroes</h3>
+      <h3>Hero Tax Returns</h3>
       <ul>
-        <li *ngFor="let hero of heroes | async" (click)="addCard(hero)">
-          {{hero.name}} ({{hero.power}})
+        <li *ngFor="let hero of heroes | async"
+            (click)="showTaxReturn(hero)">{{hero.name}}
         </li>
       </ul>
-      <hero-card
-        *ngFor="let selectedHero of selectedHeroes; let i = index"
-        [hero]="selectedHero"
-        (close)="closeCard(i)">
-      </hero-card>
+      <hero-tax-return
+        *ngFor="let selected of selectedTaxReturns; let i = index"
+        [taxReturn]="selected"
+        (close)="closeTaxReturn(i)">
+      </hero-tax-return>
     </div>
     `,
   styles: [ 'li {cursor: pointer;}' ]
 })
 export class HeroesListComponent {
   heroes: Observable<Hero[]>;
-  selectedHeroes: Hero[] = [];
+  selectedTaxReturns: HeroTaxReturn[] = [];
 
   constructor(private heroesService: HeroesService) {
     this.heroes = heroesService.getHeroes();
   }
 
-  addCard(hero: Hero) {
-    this.selectedHeroes.push(hero);
+  showTaxReturn(hero: Hero) {
+    this.heroesService.getTaxReturn(hero)
+    .subscribe(htr => {
+      // show if not currently shown
+      if (!this.selectedTaxReturns.find(tr => tr.id === htr.id)) {
+        this.selectedTaxReturns.push(htr);
+      }
+    });
   }
 
-  closeCard(ix: number) {
-    this.selectedHeroes.splice(ix, 1);
+  closeTaxReturn(ix: number) {
+    this.selectedTaxReturns.splice(ix, 1);
   }
 }
-
-
-// #enddocregion

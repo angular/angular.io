@@ -29,8 +29,8 @@ block includes
   Consider this guide's variation on the Tour of Heroes application.
   At the top is the `AppComponent` which has some sub-components.
   One of them is the `HeroesListComponent`.
-  The `HeroesListComponent` holds and manages multiple instances of the `HeroCardComponent`.
-  The following diagram represents the state of the this guide's three-level component tree when there are three instances of `HeroCardComponent`
+  The `HeroesListComponent` holds and manages multiple instances of the `HeroTaxReturnComponent`.
+  The following diagram represents the state of the this guide's three-level component tree when there are three instances of `HeroTaxReturnComponent`
   open simultaneously.
 
 figure.image-display
@@ -108,63 +108,57 @@ figure.image-display
   For example, in a tax preparation application, the preparer could be working several tax returns,
   switching from one to the other throughout the day.
 
-  A `TaxReturnComponent` could delegate the working state of an open return to a dedicated instance of a `TaxReturnStateService`.
-  Each open tax return is managed in its own instance of a `TaxReturnComponent` with its own instance of the `TaxReturnStateService`.
-
   This guide demonstrates that scenario with an example in the Tour of Heroes theme.
   Imagine an outer `HeroListComponent` that displays a list of super heroes.
-  Each hero has a name and a super power.
 
-  To edit a hero, the user clicks on a hero name, which opens a card for editing that hero. 
-  Each selected hero opens in its own card and multiple cards can be open at the same time.
-  You can even open multiple cards for the same hero (probably not a great experience).
+  To open a hero's tax return, the preparer clicks on a hero name, which opens a component for editing that return. 
+  Each selected hero tax return opens in its own component and multiple returns can be open at the same time.
 
-  Each card
-  * is its own _hero editing session_.
-  * can change a hero without affecting a hero in another card ... even if that other card edits the "same" hero.
-  * has the ability to save the changes to its hero (thus updating the master list of heroes) or cancel them.
+  Each tax return component
+  * is its own tax return editing session.
+  * can change a tax return without affecting a return in another component.
+  * has the ability to save the changes to its tax return or cancel them.
 
 figure.image-display
-  img(src="/resources/images/devguide/dependency-injection/hid-sample-anim.gif" alt="Sample in action")
+  img(src="/resources/images/devguide/dependency-injection/hid-heroes-anim.gif" width="400" alt="Heroes in action")
 :marked
-  This implies that the card has logic to manage and restore changes. 
-  That's a pretty easy task for a simple `hero` class. 
-  In the real world, with complex entities (such as tax returns), the change management can be tricky.
+  One might suppose that the `TaxReturnComponent` has logic to manage and restore changes. 
+  That would be a pretty easy task for a simple hero tax return. 
+  In the real world, with a rich tax return data model, the change management would be tricky.
   You might delegate that management to a helper service, as this example does.
 
-  Here is the `HeroStateService`. It caches a single `Hero`, tracks changes to that hero, and 
-  can save or restore that hero.
-+makeExample('hierarchical-dependency-injection/ts/app/hero-state.service.ts', '', 'app/hero-state.service.ts')
+  Here is the `HeroTaxReturnService`. 
+  It caches a single `HeroTaxReturn`, tracks changes to that return, and can save or restore it.
+  It also delegates to the application-wide, singleton `HeroService`, which it gets by injection.
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.service.ts', '', 'app/hero-tax-return.service.ts')
 
 :marked
-  Notice that it also delegates to the application-wide, singleton `HeroService`, which it gets by injection.
-
-  Here is the `HeroCardComponent` that uses it.
-+makeExample('hierarchical-dependency-injection/ts/app/hero-card.component.ts', null, 'app/hero-card.component.ts')
+  Here is the `HeroTaxReturnComponent` that makes use of it.
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.component.ts', null, 'app/hero-tax-return.component.ts')
 
 :marked
-  The _hero-to-edit_ arrives via the input property which is implemented with getters and setters.
-  The setter initializes the component's own instance of the `HeroStateService` with the incoming hero.
+  The _tax-return-to-edit_ arrives via the input property which is implemented with getters and setters.
+  The setter initializes the component's own instance of the `HeroTaxReturnService` with the incoming return.
   The getter always returns what that service says is the current state of the hero.
-  The component also asks the service to save and restore this hero.
+  The component also asks the service to save and restore this tax return.
 
-  There'd be big trouble if _this_ service were an application wide singleton.
-  Every card would share the same service instance. 
-  Each card would overwrite the hero that belonged to another card.
+  There'd be big trouble if _this_ service were an application-wide singleton.
+  Every component would share the same service instance. 
+  Each component would overwrite the tax return that belonged to another hero.
   What a mess!
 
-  Look closely at the metadata for the `HeroCardComponent`. Notice the `providers` property.
+  Look closely at the metadata for the `HeroTaxReturnComponent`. Notice the `providers` property.
 
-+makeExample('hierarchical-dependency-injection/ts/app/hero-card.component.ts', 'providers')
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.component.ts', 'providers')
 :marked
-  The component has its own provider of the `HeroStateService`. 
+  The `HeroTaxReturnComponent` has its own provider of the `HeroTaxReturnService`. 
   Recall that every component _instance_ has its own injector. 
   Providing the service at the component level ensures that _every_ instance of the component gets its own, private instance of the service.
-  No hero overwriting. No mess.
+  No tax return overwriting. No mess.
   
 .l-sub-section
   :marked
-    The rest of the _hero_ scenario code relies on other Angular features and techniques that you can learn about elsewhere in the documentation.
+    The rest of the scenario code relies on other Angular features and techniques that you can learn about elsewhere in the documentation.
     You can review it and download it from the <live-example></live-example>
 
 :marked
