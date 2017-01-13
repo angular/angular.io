@@ -32,7 +32,6 @@ import * as s0502 from '../05-02/app/app.module';
 import * as s0503 from '../05-03/app/app.module';
 import * as s0504 from '../05-04/app/app.module';
 import * as s0512 from '../05-12/app/app.module';
-import * as s0513 from '../05-13/app/app.module';
 import * as s0514 from '../05-14/app/app.module';
 import * as s0515 from '../05-15/app/app.module';
 import * as s0516 from '../05-16/app/app.module';
@@ -68,7 +67,6 @@ const moduleMetadata = {
     s0503.AppModule,
     s0504.AppModule,
     s0512.AppModule,
-    s0513.AppModule,
     s0514.AppModule,
     s0515.AppModule,
     s0516.AppModule,
