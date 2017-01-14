@@ -1,13 +1,13 @@
 /* tslint:disable: member-ordering forin */
 // #docplaster
 // #docregion
-import { Component }        from '@angular/core';
-import { Observable }       from 'rxjs/Observable';
+import { Component, OnInit } from '@angular/core';
+import { Observable }        from 'rxjs/Observable';
 // #docregion import-subject
-import { Subject }          from 'rxjs/Subject';
+import { Subject }           from 'rxjs/Subject';
 // #enddocregion import-subject
 
-import { WikipediaService } from './wikipedia.service';
+import { WikipediaService }  from './wikipedia.service';
 
 @Component({
   moduleId: module.id,
@@ -15,7 +15,7 @@ import { WikipediaService } from './wikipedia.service';
   templateUrl: 'wiki.component.html',
   providers: [ WikipediaService ]
 })
-export class WikiSmartComponent {
+export class WikiSmartComponent implements OnInit {
   title   = 'Smarter Wikipedia Demo';
   fetches = 'Fetches when typing stops';
   items: Observable<string[]>;
@@ -25,7 +25,9 @@ export class WikiSmartComponent {
   search(term: string) { this.searchTermStream.next(term); }
   // #enddocregion subject
 
-  constructor (private wikipediaService: WikipediaService) {
+  constructor (private wikipediaService: WikipediaService) {}
+
+  ngOnInit() {
     // #docregion observable-operators
     this.items = this.searchTermStream
       .debounceTime(300)
@@ -33,4 +35,5 @@ export class WikiSmartComponent {
       .switchMap((term: string) => this.wikipediaService.search(term));
     // #enddocregion observable-operators
   }
+
 }
