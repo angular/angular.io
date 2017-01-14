@@ -1,51 +1,48 @@
 // #docregion
-import { Component } from '@angular/core';
+import { Component }  from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
-import { EditItem } from './edit-item';
-import { HeroesService } from './heroes.service';
-import { Hero } from './hero';
+import { Hero, HeroTaxReturn } from './hero';
+import { HeroesService }       from './heroes.service';
 
 @Component({
   selector: 'heroes-list',
   template: `
     <div>
+      <h3>Hero Tax Returns</h3>
       <ul>
-        <li *ngFor="let editItem of heroes">
-          <hero-card
-            [hidden]="editItem.editing"
-            [hero]="editItem.item">
-          </hero-card>
-          <button
-            [hidden]="editItem.editing"
-            (click)="editItem.editing = true">
-              edit
-          </button>
-          <hero-editor
-            (saved)="onSaved(editItem, $event)"
-            (canceled)="onCanceled(editItem)"
-            [hidden]="!editItem.editing"
-            [hero]="editItem.item">
-          </hero-editor>
+        <li *ngFor="let hero of heroes | async"
+            (click)="showTaxReturn(hero)">{{hero.name}}
         </li>
       </ul>
-    </div>`
+      <hero-tax-return
+        *ngFor="let selected of selectedTaxReturns; let i = index"
+        [taxReturn]="selected"
+        (close)="closeTaxReturn(i)">
+      </hero-tax-return>
+    </div>
+    `,
+  styles: [ 'li {cursor: pointer;}' ]
 })
 export class HeroesListComponent {
-  heroes: Array<EditItem<Hero>>;
-  constructor(heroesService: HeroesService) {
-    this.heroes = heroesService.getHeroes()
-                               .map(item => new EditItem(item));
+  heroes: Observable<Hero[]>;
+  selectedTaxReturns: HeroTaxReturn[] = [];
+
+  constructor(private heroesService: HeroesService) {
+    this.heroes = heroesService.getHeroes();
   }
 
-  onSaved (editItem: EditItem<Hero>, updatedHero: Hero) {
-    editItem.item = updatedHero;
-    editItem.editing = false;
+  showTaxReturn(hero: Hero) {
+    this.heroesService.getTaxReturn(hero)
+    .subscribe(htr => {
+      // show if not currently shown
+      if (!this.selectedTaxReturns.find(tr => tr.id === htr.id)) {
+        this.selectedTaxReturns.push(htr);
+      }
+    });
   }
 
-  onCanceled (editItem: EditItem<Hero>) {
-    editItem.editing = false;
+  closeTaxReturn(ix: number) {
+    this.selectedTaxReturns.splice(ix, 1);
   }
 }
-
-
-// #enddocregion

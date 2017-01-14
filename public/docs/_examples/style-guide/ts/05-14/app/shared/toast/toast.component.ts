@@ -14,7 +14,7 @@ export class ToastComponent implements OnInit {
   // private fields
   private defaults = {
     title: '',
-    message: 'May the Force be with You'
+    message: 'May the Force be with you'
   };
   private toastElement: any;
 

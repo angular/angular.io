@@ -2,6 +2,8 @@
 import { Injectable } from '@angular/core';
 import { Jsonp, URLSearchParams } from '@angular/http';
 
+import 'rxjs/add/operator/map';
+
 @Injectable()
 export class WikipediaService {
   constructor(private jsonp: Jsonp) {}

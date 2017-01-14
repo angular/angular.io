@@ -10,7 +10,7 @@ import { forbiddenNameValidator } from '../shared/forbidden-name.directive';
 @Component({
   moduleId:  module.id,
   selector: 'hero-form-reactive3',
-  templateUrl: 'hero-form-reactive.component.html'
+  templateUrl: './hero-form-reactive.component.html'
 })
 export class HeroFormReactiveComponent implements OnInit {
 

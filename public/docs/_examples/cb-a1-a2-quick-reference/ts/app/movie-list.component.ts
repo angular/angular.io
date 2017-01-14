@@ -10,10 +10,10 @@ import { MovieService } from './movie.service';
 @Component({
   moduleId: module.id,
   selector: 'movie-list',
-  templateUrl: 'movie-list.component.html',
+  templateUrl: './movie-list.component.html',
 // #enddocregion component
 // #docregion style-url
-  styleUrls: [ 'movie-list.component.css' ],
+  styleUrls: [ './movie-list.component.css' ],
 // #enddocregion style-url
 })
 // #enddocregion component

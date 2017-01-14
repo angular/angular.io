@@ -55,12 +55,6 @@ block demos-list
   The root `AppComponent` orchestrates these demos:
 +makeExample('server-communication/ts/app/app.component.ts', null, 'app/app.component.ts')
 
-+ifDocsFor('ts')
-  :marked
-    There is nothing remarkable here _except_ for the import of RxJS operators, which is
-    described [later](#rxjs).
-  +makeExample('server-communication/ts/app/app.component.ts', 'import-rxjs')(format='.')
-
 .l-main-section#http-providers
 :marked
   # Providing HTTP services
@@ -196,7 +190,7 @@ a#HeroService
   :marked
     <a id="rxjs"></a>
     If you are familiar with asynchronous methods in modern JavaScript, you might expect the `get` method to return a
-    [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" title="Promise">promise</a>.
     You'd expect to chain a call to `then()` and extract the heroes.
     Instead you're calling a `map()` method.
     Clearly this is not a promise.
@@ -207,47 +201,24 @@ a#HeroService
   .l-main-section
   :marked
     ## RxJS library
-    [RxJS](https://github.com/ReactiveX/RxJS) ("Reactive Extensions") is a 3rd party library, endorsed by Angular,
-    that implements the [*asynchronous observable*](https://www.youtube.com/watch?v=UHI0AzD_WfY "Rob Wormald on observables") pattern.
+    <a href="http://reactivex.io/rxjs" target="_blank" title="RxJS Reactive Extensions">RxJS</a>
+    is a third party library, endorsed by Angular, that implements the 
+    <a href="" target="_blank" title="Video: Rob Wormald on observables"><b>asynchronous observable</b></a> pattern.
 
-    All of the Developer Guide samples have installed the RxJS npm package and loaded via `system.js`
+    All of the Developer Guide samples have installed the RxJS npm package
     because observables are used widely in Angular applications.
-
-    The app needs it when working with the HTTP client.
-    Additionally, you must take a critical extra step to make RxJS observables usable.
+    _This_ app needs it when working with the HTTP client.
+    But you must take a critical extra step to make RxJS observables usable: 
+    you must import the RxJS operators individually.
 
     ### Enable RxJS operators
     The RxJS library is large.
     Size matters when building a production application and deploying it to mobile devices.
     You should include only necessary features.
 
-    Accordingly, Angular exposes a stripped down version of `Observable` in the `rxjs/Observable`
-    module that lacks most of the operators such as the `map` method you
-    called above in `getHeroes`.
-
-    It's up to you to add the operators you need.
-
-    You could add _every_ RxJS operator with a single import statement.
-    While that is the easiest thing to do, you'd pay a penalty in extended launch time
-    and application size because the full library is so big.
-
-    Since this app only uses a few operators, it's better to import each `Observable`
-    operator and static class method, one-by-one, for a custom *Observable*
-    implementation tuned
-    precisely to the app's requirements. Put the `import` statements in one `app/rxjs-operators.ts` file.
-  +makeExample('server-communication/ts/app/rxjs-operators.ts', null, 'app/rxjs-operators.ts')(format=".")
-  :marked
-    If you forget an operator, the TypeScript compiler warns that it's missing and you'll update this file.
-  .l-sub-section
-    :marked
-      The app doesn't need _all_ of these particular operators in the `HeroService` &mdash; just `map`, `catch` and `throw`.
-      The other operators are for later, in the *Wiki* example [below](#more-observables).
-  :marked
-    Finally, import `rxjs-operator` into `app.component.ts`:
-  +makeExample('server-communication/ts/app/app.component.ts', 'import-rxjs', 'app/app.component.ts (import rxjs)')(format=".")
-
-  :marked
-    Now continue to the next section to return to the `HeroService`.
+    Each code file should add the operators it needs by importing from an RxJS library.
+    The `getHeroes` method needs the `map` and `catch` operators so it imports them like this.
+  +makeExample('server-communication/ts/app/toh/hero.service.ts', 'rxjs-imports', 'app/app.component.ts (import rxjs)')(format=".")
 
 .l-main-section
 a#extract-data
@@ -521,15 +492,13 @@ block wikipedia-jsonp+
   :marked
     ### The WikiComponent
 
-    Now that you have a service that can query the Wikipedia API
-    turn to the component (template and class) that takes user input and displays search results.
-  +makeExample('server-communication/ts/app/wiki/wiki.component.html', null, 'app/wiki/wiki.component.html')
+    Now that you have a service that can query the Wikipedia API,
+    turn your attention to the component (template and class) that takes user input and displays search results.
   +makeExample('server-communication/ts/app/wiki/wiki.component.ts', null, 'app/wiki/wiki.component.ts')
   :marked
     The template presents an `<input>` element *search box* to gather search terms from the user,
     and calls a `search(term)` method after each `keyup` event.
-  +makeExample('server-communication/ts/app/wiki/wiki.component.html', 'keyup', 'wiki/wiki.component.html')(format='.')
-  :marked
+
     The component's `search(term)` method delegates to the `WikipediaService`, which returns an 
     observable array of string results (`Observable<string[]>`).
     Instead of subscribing to the observable inside the component, as in the `HeroListComponent`,
@@ -549,7 +518,7 @@ block wikipedia-jsonp+
     It is inefficient, and potentially expensive on mobile devices with limited data plans.
 
     ### 1. Wait for the user to stop typing
-    Presently, the code calls the server after every key stroke.
+    Presently, the code calls the server after every keystroke.
     It should only make requests when the user *stops typing* .
     Here's how it will work after refactoring:
   figure.image-display
@@ -569,66 +538,70 @@ block wikipedia-jsonp+
     The application issues two search requests, one for *angular* and one for *http*.
 
     Which response arrives first? It's unpredictable.
-    A load balancer could dispatch the requests to two different servers with different response times.
-    The results from the first *angular* request might arrive after the later *http* results.
-    The user will be confused if the *angular* results display to the *http* query.
-
     When there are multiple requests in-flight, the app should present the responses
-    in the original request order. That won't happen if *angular* results arrive last.
+    in the original request order. 
+    In this example, the app must always display the results for the *http* search
+    no matter which response arrives first.
 
     <a id="more-observables"></a>
     ## More fun with observables
-    You can address these problems and improve the app with the help of some nifty observable operators.
 
     You could make changes to the `WikipediaService`, but for a better
-    user experience, create a copy of the `WikiComponent` instead and make it smarter.
-    Here's the `WikiSmartComponent` which uses the same template.
+    user experience, create a copy of the `WikiComponent` instead and make it smarter,
+    with the help of some nifty observable operators.
 
-  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', null, 'app/wiki/wiki-smart.component.ts')
+    Here's the `WikiSmartComponent`, shown next to the original `WikiComponent`
+
+  +makeTabs(
+    `server-communication/ts/app/wiki/wiki-smart.component.ts,
+    server-communication/ts/app/wiki/wiki.component.ts`, 
+    null, 
+    `app/wiki/wiki-smart.component.ts,
+    app/wiki/wiki.component.ts`
+  )
   :marked
+    While the templates are virtually identical,
+    there's a lot more RxJS in the "smart" version, 
+    starting with `debounceTime`, `distinctUntilChanged`, and `switchMap` operators,
+    imported as [described above](#rxjs).
+
     ### Create a stream of search terms
 
-    The template still binds to the search box `keyup` event and passes the complete search box value
-    into the component's `search` method after every user keystroke.
-  +makeExample('server-communication/ts/app/wiki/wiki.component.html', 'keyup', 'app/wiki/wiki.component.html (input)')(format='.')
-  :marked
-    The `WikiSmartComponent` turns the search box values into an observable _stream of search terms_
-    with the help of a `Subject` which you import from the RxJS observable library:
-  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject', 'app/wiki/wiki-smart.component.ts')
+    The `WikiComponent` passes a new search term directly to the `WikipediaService` after every keystroke.
+
+    The `WikiSmartComponent` class turns the user's keystrokes into an observable _stream of search terms_
+    with the help of a `Subject`, which you import from RxJS:
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'import-subject')(format='.')
   :marked
     The component creates a `searchTermStream` as a `Subject` of type `string`.
     The `search` method adds each new search box value to that stream via the subject's `next` method.
 
-  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject', 'app/wiki/wiki-smart.component.ts')(format='.')
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'subject')(format='.')
 
   :marked
     ### Listen for search terms
-
-    Earlier, you passed each search term directly to the service and bound the template to the service results.
-
-    Now you listen to the *stream of search terms*, manipulating the stream before it reaches the `WikipediaService`.
-  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-operators', 
-  'app/wiki/wiki-smart.component.ts')(format='.')
+   
+    The `WikiSmartComponent` listens to the *stream of search terms* and 
+    processes that stream _before_ calling the service.
+  +makeExample('server-communication/ts/app/wiki/wiki-smart.component.ts', 'observable-operators')(format='.')
   :marked
-    Wait for the user to stop typing for at least 300 milliseconds
-    ([_debounceTime_](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md)).
-    Only changed search values make it through to the service
-    ([_distinctUntilChanged_](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md)).
+    * <a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md" target="_blank" title="debounce operator"><i>debounceTime</i></a>
+    waits for the user to stop typing for at least 300 milliseconds.
 
-    The `WikipediaService` returns a separate observable of string arrays (`Observable<string[]>`) for each request.
-    There could be multiple requests *in-flight*, all awaiting the server's reply,
-    which means multiple *observables-of-strings* could arrive at any moment in any order.
+    * <a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md" target="_blank" title="distinctUntilChanged operator"><i>distinctUntilChanged</i></a>
+    ensures that the service is called only when the new search term is different from the previous search term.
 
-    The [_switchMap_](https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md)
-    (formerly known as `flatMapLatest`) returns a new observable that combines these `WikipediaService` observables,
+    * The <a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md" target="_blank" title="switchMap operator"><i>switchMap</i></a>
+    calls the `WikipediaService` with a fresh, debounced search term and coordinates the stream(s) of service response.
+
+    The role of `switchMap` is particularly important.
+    The `WikipediaService` returns a separate observable of string arrays (`Observable<string[]>`) for each search request.
+    The user could issue multiple requests before a slow server has had time to reply,
+    which means a backlog of response observables could arrive at the client, at any moment, in any order.
+
+    The `switchMap` returns its own observable that _combines_ all `WikipediaService` response observables,
     re-arranges them in their original request order,
     and delivers to subscribers only the most recent search results.
-
-    The displayed list of search results stays in sync with the user's sequence of search terms.
-  .l-sub-section
-    :marked
-      You added the `debounceTime`, `distinctUntilChanged`, and `switchMap` operators to the RxJS `Observable` class
-      in `rxjs-operators` as [described above](#rxjs).
 
 a#xsrf
 .l-main-section

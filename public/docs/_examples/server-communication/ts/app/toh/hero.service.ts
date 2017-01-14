@@ -2,16 +2,21 @@
 // #docregion
 // Observable Version
 // #docregion v1
-import { Injectable }     from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Injectable }              from '@angular/core';
+import { Http, Response }          from '@angular/http';
 // #enddocregion v1
 // #docregion import-request-options
 import { Headers, RequestOptions } from '@angular/http';
 // #enddocregion import-request-options
 // #docregion v1
 
-import { Hero }           from './hero';
-import { Observable }     from 'rxjs/Observable';
+// #docregion rxjs-imports
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/map';
+// #enddocregion rxjs-imports
+
+import { Hero } from './hero';
 
 @Injectable()
 export class HeroService {

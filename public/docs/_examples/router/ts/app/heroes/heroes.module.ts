@@ -1,4 +1,6 @@
+// #docplaster
 // #docregion
+// #docregion v1
 import { NgModule }       from '@angular/core';
 import { CommonModule }   from '@angular/common';
 import { FormsModule }    from '@angular/forms';
@@ -8,23 +10,24 @@ import { HeroDetailComponent }  from './hero-detail.component';
 
 import { HeroService } from './hero.service';
 
-// #docregion heroes-routes
+// #enddocregion v1
 import { HeroRoutingModule } from './heroes-routing.module';
 
+// #docregion v1
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
+// #enddocregion v1
     HeroRoutingModule
+// #docregion v1
   ],
   declarations: [
     HeroListComponent,
     HeroDetailComponent
   ],
-  providers: [
-    HeroService
-  ]
+  providers: [ HeroService ]
 })
-// #enddocregion heroes-routes
 export class HeroesModule {}
+// #enddocregion v1
 // #enddocregion

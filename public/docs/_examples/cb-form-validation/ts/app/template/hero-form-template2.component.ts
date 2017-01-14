@@ -9,7 +9,7 @@ import { Hero }      from '../shared/hero';
 @Component({
   moduleId:  module.id,
   selector: 'hero-form-template2',
-  templateUrl: 'hero-form-template2.component.html'
+  templateUrl: './hero-form-template2.component.html'
 })
 export class HeroFormTemplate2Component implements AfterViewChecked {
 

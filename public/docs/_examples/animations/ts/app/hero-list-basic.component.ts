@@ -34,7 +34,7 @@ import { Heroes } from './hero.service';
     </ul>
   `,
   // #enddocregion template
-  styleUrls: ['hero-list.component.css'],
+  styleUrls: ['./hero-list.component.css'],
   // #enddocregion
   /**
    * Define two states, "inactive" and "active", and the end

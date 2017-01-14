@@ -1,4 +1,3 @@
-// #docplaster
 // #docregion
 // #docregion can-activate-child
 import { Injectable }       from '@angular/core';

@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 @Component({
   moduleId: module.id,
   selector: 'app-confirm',
-  templateUrl: 'confirm.component.html'
+  templateUrl: './confirm.component.html'
 })
 export class ConfirmComponent {
   @Input() okMsg = '';

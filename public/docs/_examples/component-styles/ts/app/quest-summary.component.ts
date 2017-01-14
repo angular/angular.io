@@ -7,8 +7,8 @@ import { Component, ViewEncapsulation } from '@angular/core';
   moduleId: module.id,
   selector: 'quest-summary',
   // #docregion urls
-  templateUrl: 'quest-summary.component.html',
-  styleUrls:  ['quest-summary.component.css']
+  templateUrl: './quest-summary.component.html',
+  styleUrls:  ['./quest-summary.component.css']
   // #enddocregion urls
 })
 export class QuestSummaryComponent { }

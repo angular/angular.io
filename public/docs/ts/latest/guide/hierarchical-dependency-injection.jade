@@ -2,170 +2,200 @@ block includes
   include ../_util-fns
 
 :marked
-  We learned the basics of Angular Dependency injection in the
-  [Dependency Injection](./dependency-injection.html) chapter.
+  You learned the basics of Angular Dependency injection in the
+  [Dependency Injection](./dependency-injection.html) guide.
 
-  Angular has a Hierarchical Dependency Injection system.
-  There is actually a tree of injectors
-  that parallel an application's component tree.
-  We can reconfigure the injectors at any level of that component tree with
-  interesting and useful results.
+  Angular has a _Hierarchical Dependency Injection_ system.
+  There is actually a tree of injectors that parallel an application's component tree.
+  You can reconfigure the injectors at any level of that component tree.
 
-  In this chapter we explore these points and write some code.
+  This guide explores this system and how to use it to your advantage.
 
   Try the <live-example></live-example>.
 
 .l-main-section
 :marked
-  ## The Injector Tree
+  ## The injector tree
 
-  In the [Dependency Injection](./dependency-injection.html) chapter
-  we learned how to configure a dependency injector and how to retrieve dependencies where we need them.
+  In the [Dependency Injection](./dependency-injection.html) guide,
+  you learned how to configure a dependency injector and how to retrieve dependencies where you need them.
 
-  We oversimplified. In fact, there is no such thing as ***the*** injector!
-  An application may have multiple injectors!
-
+  In fact, there is no such thing as *the* injector.
+  An application may have multiple injectors.
   An Angular application is a tree of components. Each component instance has its own injector!
   The tree of components parallels the tree of injectors.
 
-
-.l-sub-section
-  :marked
-    Angular doesn't *literally* create a separate injector for each component.
-    Every component doesn't need its own injector and it would be horribly inefficient to create
-    masses of injectors for no good purpose.
-
-    But it is true that every component ***has an injector*** (even if it shares that injector with another component)
-    and there may be many different injector instances operating at different levels of the component tree.
-
-    It is useful to pretend that every component has its own injector.
 :marked
-  Consider a simple variation on the Tour of Heroes application consisting of three different components:
-  `HeroesApp`, `HeroesListComponent` and `HeroesCardComponent`.
-  The `HeroesApp` holds a single instance of `HeroesListComponent`.
-  The new twist is that the `HeroesListComponent` may hold and manage multiple instances of the `HeroesCardComponent`.
-
-  The following diagram represents the state of the component tree when there are three instances of `HeroesCardComponent`
+  Consider this guide's variation on the Tour of Heroes application.
+  At the top is the `AppComponent` which has some sub-components.
+  One of them is the `HeroesListComponent`.
+  The `HeroesListComponent` holds and manages multiple instances of the `HeroTaxReturnComponent`.
+  The following diagram represents the state of the this guide's three-level component tree when there are three instances of `HeroTaxReturnComponent`
   open simultaneously.
 
 figure.image-display
-  img(src="/resources/images/devguide/dependency-injection/component-hierarchy.png" alt="injector tree" width="500")
+  img(src="/resources/images/devguide/dependency-injection/component-hierarchy.png" alt="injector tree" width="600")
 
 :marked
-  Each component instance gets its own injector and an injector at one level is a child injector of the injector above it in the tree.
+  Angular doesn't actually _create_ a separate injector for each component.
+  Every component doesn't need its own injector and it would be horribly inefficient to create
+  masses of injectors for no good purpose.
 
-  When a component at the bottom requests a dependency, Angular tries to satisfy that dependency with a provider registered in that component's own injector.
+  But every component _has an injector_, even if it shares that injector with another component or with the injector of the root `AppModule`.
+  And there _may_ be multiple injector instances operating at different levels of the component tree 
+  depending upon how the developer registers providers, which is the subject of this guide.
+
+  ### Injector bubbling  
+
+  When a component requests a dependency, Angular tries to satisfy that dependency with a provider registered in that component's own injector.
   If the component's injector lacks the provider, it passes the request up to its parent component's injector.
-  If that injector can't satisfy the request, it passes it along to *its* parent component's injector.
-  The requests keep bubbling up until we find an injector that can handle the request or run out of component ancestors.
-  If we run out of ancestors, Angular throws an error.
+  If that injector can't satisfy the request, it passes it along to *its* parent injector.
+  The requests keep bubbling up until Angular finds an injector that can handle the request or runs out of ancestor injectors.
+  If it runs out of ancestors, Angular throws an error.
 
 .l-sub-section
   :marked
-    There's a third possibility. An intermediate component can declare that it is the "host" component.
-    The hunt for providers will climb no higher than the injector for this host component.
-     We'll reserve discussion of this option for another day.
-:marked
-  Such a proliferation of injectors makes little sense until we consider the possibility that injectors at different levels can be
-  configured with different providers. We don't *have* to reconfigure providers at every level. But we *can*.
+    You can cap the bubbling. An intermediate component can declare that it is the "host" component.
+    The hunt for providers will climb no higher than the injector for that host component.
+    This a topic for another day.
 
-  If we don't reconfigure, the tree of injectors appears to be flat. All requests bubble up to the root 
-  <span if-docs="ts">NgModule</span> injector that we configured with the `!{_bootstrapModule}` method.
+:marked
+  ### Re-providing a service at different levels
+  You can re-register a provider for a particular dependency token at multiple levels of the injector tree.
+  You don't *have* to re-register providers. You shouldn't do so unless you have a good reason. 
+  But you *can*.
+
+  As the resolution logic works upwards, the first provider encountered wins.
+  Thus, a provider in an intermediate injector intercepts a request for a service from something lower in the tree.
+  It effectively "reconfigures" and "shadows" a provider at a higher level in the tree.
+
+  If you only specify providers at the top level (typically the root `AppModule`), the tree of injectors appears to be flat. 
+  All requests bubble up to the root <span if-docs="ts"><code>NgModule</code></span> injector that you configured with the `!{_bootstrapModule}` method.
+
+.l-main-section
+:marked
+  ## Component injectors
 
   The ability to configure one or more providers at different levels opens up interesting and useful possibilities.
 
-  Let’s return to our Car example.
-  Suppose we configured the root injector (marked as A) with providers for `Car`, `Engine` and `Tires`.
-  We create a child component (B) that defines its own providers for `Car` and `Engine`
-  This child is the parent of another component (C) that defines its own provider for `Car`.
+:marked
+  ### Scenario: service isolation
 
-  Behind the scenes each component sets up its own injector with one or more providers defined for that component itself.
+  Architectural reasons may lead you to restrict access to a service to the application domain where it belongs.
 
-  When we resolve an instance of `Car` at the deepest component (C),
+  The guide sample includes a `VillainsListComponent` that displays a list of villains.
+  It gets those villains from a `VillainsService`.
+
+  While you could provide `VillainsService` in the root `AppModule` (that's where you'll find the `HeroesService`), 
+  that would make the `VillainsService` available everywhere in the application, including the _Hero_ workflows.
+
+  If you later modify the `VillainsService`, you could break something in a hero component somewhere.
+  That's not supposed to happen but the way you've provided the service creates that risk.
+
+  Instead, provide the `VillainsService` in the `providers` metadata of the `VillainsListComponent` like this:
+
++makeExample('hierarchical-dependency-injection/ts/app/villains-list.component.ts', 'metadata','app/villains-list.component.ts (metadata)')(format='.')
+:marked
+  By providing `VillainsService` in the `VillainsListComponent` metadata &mdash; and nowhere else &mdash;, 
+  the service becomes available only in the `VillainsListComponent` and its sub-component tree.
+  It's still a singleton, but it's a singleton that exist solely in the _villain_ domain.
+
+  You are confident that a hero component can't access it. You've reduced your exposure to error.
+
+  ### Scenario: multiple edit sessions
+
+  Many applications allow users to work on several open tasks at the same time.
+  For example, in a tax preparation application, the preparer could be working several tax returns,
+  switching from one to the other throughout the day.
+
+  This guide demonstrates that scenario with an example in the Tour of Heroes theme.
+  Imagine an outer `HeroListComponent` that displays a list of super heroes.
+
+  To open a hero's tax return, the preparer clicks on a hero name, which opens a component for editing that return. 
+  Each selected hero tax return opens in its own component and multiple returns can be open at the same time.
+
+  Each tax return component
+  * is its own tax return editing session.
+  * can change a tax return without affecting a return in another component.
+  * has the ability to save the changes to its tax return or cancel them.
+
+figure.image-display
+  img(src="/resources/images/devguide/dependency-injection/hid-heroes-anim.gif" width="400" alt="Heroes in action")
+:marked
+  One might suppose that the `TaxReturnComponent` has logic to manage and restore changes. 
+  That would be a pretty easy task for a simple hero tax return. 
+  In the real world, with a rich tax return data model, the change management would be tricky.
+  You might delegate that management to a helper service, as this example does.
+
+  Here is the `HeroTaxReturnService`. 
+  It caches a single `HeroTaxReturn`, tracks changes to that return, and can save or restore it.
+  It also delegates to the application-wide, singleton `HeroService`, which it gets by injection.
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.service.ts', '', 'app/hero-tax-return.service.ts')
+
+:marked
+  Here is the `HeroTaxReturnComponent` that makes use of it.
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.component.ts', null, 'app/hero-tax-return.component.ts')
+
+:marked
+  The _tax-return-to-edit_ arrives via the input property which is implemented with getters and setters.
+  The setter initializes the component's own instance of the `HeroTaxReturnService` with the incoming return.
+  The getter always returns what that service says is the current state of the hero.
+  The component also asks the service to save and restore this tax return.
+
+  There'd be big trouble if _this_ service were an application-wide singleton.
+  Every component would share the same service instance. 
+  Each component would overwrite the tax return that belonged to another hero.
+  What a mess!
+
+  Look closely at the metadata for the `HeroTaxReturnComponent`. Notice the `providers` property.
+
++makeExample('hierarchical-dependency-injection/ts/app/hero-tax-return.component.ts', 'providers')
+:marked
+  The `HeroTaxReturnComponent` has its own provider of the `HeroTaxReturnService`. 
+  Recall that every component _instance_ has its own injector. 
+  Providing the service at the component level ensures that _every_ instance of the component gets its own, private instance of the service.
+  No tax return overwriting. No mess.
+  
+.l-sub-section
+  :marked
+    The rest of the scenario code relies on other Angular features and techniques that you can learn about elsewhere in the documentation.
+    You can review it and download it from the <live-example></live-example>
+
+:marked
+  ### Scenario: specialized providers
+
+  Another reason to re-provide a service is to substitute a _more specialized_ implementation of that service,
+  deeper in the component tree.
+
+  Consider again the Car example from the [Dependency Injection](./dependency-injection.html) guide.
+  Suppose you configured the root injector (marked as A) with _generic_ providers for 
+  `CarService`, `EngineService` and `TiresService`.
+
+  You create a car component (A) that displays a car constructed from these three generic services.
+
+  Then you create a child component (B) that defines its own, _specialized_ providers for `CarService` and `EngineService`
+  that have special capabilites suitable for whatever is going on in component (B).
+
+  Component (B) is the parent of another component (C) that defines its own, even _more specialized_ provider for `CarService`.
+
+figure.image-display
+  img(src="/resources/images/devguide/dependency-injection/car-components.png" alt="car components" width="220")
+
+:marked
+  Behind the scenes, each component sets up its own injector with zero, one, or more providers defined for that component itself.
+
+  When you resolve an instance of `Car` at the deepest component (C),
   its injector produces an instance of `Car` resolved by injector (C) with an `Engine` resolved by injector (B) and
   `Tires` resolved by the root injector (A).
 
 figure.image-display
-  img(src="/resources/images/devguide/dependency-injection/injector-tree.png" alt="injector tree" width="600")
+  img(src="/resources/images/devguide/dependency-injection/injector-tree.png" alt="car injector tree" width="600")
 
-.l-main-section
+.l-sub-section
+  :marked
+    The code for this _cars_ scenario is in the `car.components.ts` and `car.services.ts` files of the sample
+    which you can review and download from the <live-example></live-example>
 :marked
-  ## Component Injectors
-
-  In the previous section, we talked about injectors and how they are organized like a tree. Lookups follow the injector tree upwards until they find the requested thing to inject. But when do we actually want to provide providers on the root injector and when do we want to provide them on a child injector?
-
-  Consider you are building a component to show a list of super heroes that displays each super hero in a card with its name and superpower. There should also be an edit button that opens up an editor to change the name and superpower of our hero.
-
-  One important aspect of the editing functionality is that we want to allow multiple heroes to be in edit mode at the same time and that one can always either commit or cancel the proposed changes.
-
-  Let’s take a look at the `HeroesListComponent` which is the root component for this example.
-
-+makeExample('hierarchical-dependency-injection/ts/app/heroes-list.component.ts', null, 'app/heroes-list.component.ts')
-
-:marked
-  Notice that it imports the `HeroService` that we’ve used before so we can skip its declaration. The only difference is that we’ve used a more formal approach for our `Hero`model and defined it upfront as such.
-
-+makeExample('hierarchical-dependency-injection/ts/app/hero.ts', null, 'app/hero.ts')(format=".")
-
-:marked
-  Our `HeroesListComponent` defines a template that creates a list of `HeroCardComponent`s and `HeroEditorComponent`s, each bound to an instance of hero that is returned from the `HeroService`. Ok, that’s not entirely true. It actually binds to an `EditItem<Hero>` which is a simple generic datatype that can wrap any type and indicate if the item being wrapped is currently being edited or not.
-
-+makeExample('hierarchical-dependency-injection/ts/app/edit-item.ts', null, 'app/edit-item.ts')(format=".")
-
-:marked
-  But how is `HeroCardComponent` implemented? Let’s take a look.
-
-+makeExample('hierarchical-dependency-injection/ts/app/hero-card.component.ts', null, 'app/hero-card.component.ts')
-
-:marked
-  The `HeroCardComponent` is basically a component that defines a template to render a hero. Nothing more.
-
-  Let’s get to the interesting part and take a look at the `HeroEditorComponent`
-
-+makeExample('hierarchical-dependency-injection/ts/app/hero-editor.component.ts', null, 'app/hero-editor.component.ts')
-
-:marked
-  Now here it’s getting interesting. The `HeroEditorComponent`defines a template with an input to change the name of the hero and a `cancel` and a `save` button. Remember that we said we want to have the flexibility to cancel our editing and restore the old value? This means we need to maintain two copies of our `Hero` that we want to edit. Thinking ahead, this is a perfect use case to abstract it into its own generic service since we have probably more cases like this in our app.
-
-  And this is where the `RestoreService` enters the stage.
-
-+makeExample('hierarchical-dependency-injection/ts/app/restore.service.ts', null, 'app/restore.service.ts')
-
-:marked
-  All this tiny service does is define an API to set a value of any type which can be altered, retrieved or set back to its initial value. That’s exactly what we need to implement the desired functionality.
-
-  Our `HeroEditComponent` uses this services under the hood for its `hero` property. It intercepts the `get` and `set` method to delegate the actual work to our `RestoreService` which in turn makes sure that we won’t work on the original item but on a copy instead.
-
-  At this point we may be scratching our heads asking what this has to do with component injectors?
-  Look closely at the metadata for our `HeroEditComponent`. Notice the `providers` property.
-
-+makeExample('hierarchical-dependency-injection/ts/app/hero-editor.component.ts', 'providers')
-
-- var _root_NgModule = _docsFor == 'dart' ? '<code>bootstrap</code> arguments' : 'root <code>NgModule</code>'
-:marked
-  This adds a `RestoreService` provider to the injector of the `HeroEditComponent`.
-  Couldn’t we simply alter our !{_root_NgModule} to include this provider?
-
-+makeExcerpt(_appModuleTsVsMainTs, 'bad-alternative')
-
-:marked
-  Technically we could, but our component wouldn’t quite behave the way it is supposed to. Remember that each injector treats the services that it provides as singletons. However, in order to be able to have multiple instances of `HeroEditComponent` edit multiple heroes at the same time we need to have multiple instances of the `RestoreService`. More specifically, each instance of `HeroEditComponent` needs to be bound to its own instance of the `RestoreService`.
-
-  By configuring a provider for the `RestoreService` on the `HeroEditComponent`, we get exactly one new instance of the `RestoreService`per `HeroEditComponent`.
-
-  Does that mean that services aren’t singletons anymore in Angular? Yes and no.
-  There can be only one instance of a service type in a particular injector.
-  But we've learned that we can have multiple injectors operating at different levels of the application's component tree.
-  Any of those injectors could have its own instance of the service.
-
-  If we defined a `RestoreService` provider only on the root component,
-  we would have exactly one instance of that service and it would be shared across the entire application.
-
-  That’s clearly not what we want in this scenario. We want each component to have its own instance of the `RestoreService`.
-  Defining (or redefining) a provider at the component level creates a new instance of the service for each new instance
-  of that component. We've made the `RestoreService` a kind of "private" singleton for each `HeroEditComponent`,
-  scoped to that component instance and its child components.
-
 //- ## Advanced Dependency Injection in Angular
 //- Restrict Dependency Lookups
 //- [TODO] (@Host) This has been postponed for now until we come up with a decent use case
