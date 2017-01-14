@@ -14,6 +14,7 @@ a#toc
   * [Tree Shaking](#tree-shaking)
   * [Load the bundle](#load)
   * [Serve the app](#serve)
+  * [Workflow and convenience script](#workflow)
   * [Source Code](#source-code)
   * [Tour of Heroes](#toh)
 
@@ -104,7 +105,7 @@ a#compile
 
 :marked
   Install a few new npm dependencies with the following command: 
-code-example(format='.').
+code-example(language="none" class="code-shell").
   npm install @angular/compiler-cli @angular/platform-server --save
 :marked
   You will run the `ngc` compiler provided in the `@angular/compiler-cli` npm package
@@ -150,7 +151,7 @@ code-example(format='.').
   ### Compiling the application
 
   Initiate AOT compilation from the command line using the previously installed `ngc` compiler by executing:
-code-example(format='.').
+code-example(language="none" class="code-shell").
   node_modules/.bin/ngc -p tsconfig-aot.json
 .l-sub-section
   :marked
@@ -188,17 +189,21 @@ a#bootstrap
 
   Instead of bootstrapping `AppModule`, you bootstrap the application with the generated module factory, `AppModuleNgFactory`.
 
-  Switch from the `platformBrowserDynamic.bootstrap` used in JIT compilation to  
-  `platformBrowser().bootstrapModuleFactory` and pass in the `AppModuleNgFactory`.    
+  Make a copy of `main.ts` and name it `main-jit.ts`. 
+  This is the JIT version; set it aside as you may need it [later](#run-jit "Running with JIT").
 
-  Here is AOT bootstrap in `main.ts` next to the familiar JIT version:
+  Open `main.ts` and convert it to AOT compilation.
+  Switch from the `platformBrowserDynamic.bootstrap` used in JIT compilation to
+  `platformBrowser().bootstrapModuleFactory` and pass in the AOT-generated `AppModuleNgFactory`.
+
+  Here is AOT bootstrap in `main.ts` next to the original JIT version:
 
 +makeTabs(
   `cb-aot-compiler/ts/app/main.ts,
    cb-aot-compiler/ts/app/main-jit.ts`,
   null,
-  `app/main.ts (AOT),
-   app/main.ts (JIT)`
+  `app/main.ts,
+   app/main-jit.ts`
 )
 
 :marked
@@ -250,6 +255,8 @@ code-example(format='.').
 :marked
   It tells Rollup that the app entry point is `app/main.js` .
   The `dest` attribute tells Rollup to create a bundle called `build.js` in the `dist` folder.
+  It overrides the default `onwarn` method in order to skip annoying messages about the AOT compiler's use of the `this` keyword.
+
   Then there are plugins.
 
 :marked
@@ -288,15 +295,12 @@ code-example(format='.').
   Execute the Rollup process with this command:
 code-example(format='.').
   node_modules/.bin/rollup -c rollup-config.js
-
 .l-sub-section
   :marked
-    Rollup may log many lines with the following warning message:
-  code-example(format='.', language='bash').
-    The `this` keyword is equivalent to `undefined` at the top level of an ES module, and has been rewritten
-  :marked
-    You can safely ignore these warnings.
-
+    Windows users should surround the `rollup` command in double quotes:
+  code-example(format='.').
+    "node_modules/.bin/rollup"  -c rollup-config.js
+:marked
 a#load
 .l-main-section
 :marked
@@ -304,7 +308,7 @@ a#load
 
   Loading the generated application bundle does not require a module loader like SystemJS. 
   Remove the scripts that concern SystemJS.
-  Instead, load the bundle file using a single `script` tag:
+  Instead, load the bundle file using a single `script` tag **_after_** the `</body>` tag:
 
 +makeExample('cb-aot-compiler/ts/index.html','bundle','index.html (load bundle)')(format='.') 
 
@@ -315,11 +319,11 @@ a#serve
 
   You'll need a web server to host the application.
   Use the same _Lite Server_ employed elsewhere in the documentation:
-code-example(format='.').
+code-example(language="none" class="code-shell").
   npm run lite
 :marked
   The server starts, launches a browser, and the app should appear.
-
+  
 a#source-code
 .l-main-section
 :marked
@@ -341,6 +345,56 @@ a#source-code
    tsconfig-aot.json,
    rollup-config.js`
 )
+
+a#workflow
+.l-main-section
+:marked
+  ## Workflow and convenience script
+
+  You'll rebuild the AOT version of the application every time you make a change. 
+  Those _npm_ commands are long and difficult to remember.
+
+  Add the following _npm_ convenience script to the `package.json` so you can compile and rollup in one command.
++makeJson('cb-aot-compiler/ts/package.json', { paths: 'scripts.build:aot'}, "package.json (build:aot convenience script)")
+:marked
+  Open a terminal window and try it.
+code-example(language="none" class="code-shell").
+  npm run build:aot  
+
+a#run-jit
+:marked
+  ### And JIT too!
+
+  AOT compilation and rollup together take several seconds. 
+  You may be able to develop iteratively a little faster with SystemJS and JIT.
+  The same source code can be built both ways. Here's one way to do that.
+
+  * Make a copy of `index.html` and call it `index-jit.html`.
+  * Delete the script at the bottom of `index-jit.html` that loads `bundle.js`
+  * Restore the SystemJS scripts like this:
++makeExample('cb-aot-compiler/ts/index-jit.html','jit','index-jit.html (SystemJS scripts)')(format='.') 
+
+:marked
+  Notice the slight change to the `system.import` which now specifies `app/main-jit`.
+  That's the JIT version of the bootstrap file that we preserved [above](#bootstrap)
+
+:marked
+  Open a _different_ terminal window and enter.
+code-example(language="none" class="code-shell").
+  npm start
+:marked
+  That compiles the app with JIT and launches the server.
+  The server loads `index.html` which is still the AOT version (confirm in the browser console).
+  Change the address bar to `index-jit.html` and it loads the JIT version (confirm in the browser console).
+
+  Develop as usual.
+  The server and TypeScript compiler are in "watch mode" so your changes are reflected immediately in the browser.
+
+  To see those changes in AOT, switch to the original terminal and re-run `npm run build:aot`. 
+  When it finishes, go back to the browser and back-button to the AOT version in the (default) `index.html`.
+
+  Now you can develop JIT and AOT, side-by-side.
+
 
 a#toh
 .l-main-section
@@ -459,19 +513,18 @@ a#toh
    tsconfig-aot.json`)
 :marked
   Extend the `scripts` section of the `package.json` with these npm scripts:
-code-example(format='.').
-  "build:aot": "ngc -p tsconfig-aot.json && rollup -c rollup-config.js",
-  "lite:aot": "lite-server -c aot/bs-config.json",
++makeJson('cb-aot-compiler/ts/package.json', { paths: 'scripts.build:aot, scripts.lite:aot'}, "package.json (convenience scripts)")
+  
 :marked
   Copy the AOT distribution files into the `/aot` folder with the node script:
-code-example(format='.').
+code-example(language="none" class="code-shell").
   node copy-dist-files
 .l-sub-section
   :marked
     You won't do that again until there are updates to `zone.js` or the `core-js` shim for old browsers.
 :marked
   Now AOT-compile the app and launch it with the `lite` server:
-code-example(format='.').
+code-example(language="none" class="code-shell").
   npm run build:aot && npm run lite:aot
 
 :marked
@@ -483,12 +536,12 @@ code-example(format='.').
   tool can be quite revealing. 
 
   Install it:
-code-example(format='.').  
+code-example(language="none" class="code-shell").
   npm install source-map-explorer --save-dev
 :marked
   Run the following command to generate the map.
 
-code-example(format='.').
+code-example(language="none" class="code-shell").
   node_modules/.bin/source-map-explorer aot/dist/build.js
 
 :marked
