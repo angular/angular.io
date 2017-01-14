@@ -6,7 +6,7 @@ import { LoggerService }  from './logger.service';
 @Component({
   moduleId: module.id,
   selector: 'spy-parent',
-  templateUrl: 'spy.component.html',
+  templateUrl: './spy.component.html',
   styles: [
      '.parent {background: khaki;}',
      '.heroes {background: LightYellow; padding: 0 8px}'

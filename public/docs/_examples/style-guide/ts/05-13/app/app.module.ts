@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { HeroButtonComponent } from './heroes';
+import { HeroButtonComponent, HeroHighlightDirective } from './heroes';
 
 @NgModule({
   imports: [
@@ -10,7 +10,7 @@ import { HeroButtonComponent } from './heroes';
   ],
   declarations: [
     AppComponent,
-    HeroButtonComponent
+    HeroButtonComponent, HeroHighlightDirective
   ],
   exports: [ AppComponent ]
 })

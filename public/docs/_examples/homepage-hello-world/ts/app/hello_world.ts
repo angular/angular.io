@@ -9,7 +9,7 @@ import { Component } from '@angular/core';
   selector: 'hello-world',
 
   // Location of the template for this component
-  templateUrl: 'hello_world.html'
+  templateUrl: './hello_world.html'
 })
 export class HelloWorldComponent {
 

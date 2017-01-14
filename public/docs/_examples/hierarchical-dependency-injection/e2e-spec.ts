@@ -1,56 +1,103 @@
-import { browser, element, by } from 'protractor';
+'use strict'; // necessary for es6 output in node
 
-describe('Hierarchical dependency injection', function () {
+import { browser, by, element } from 'protractor';
 
-  beforeEach(function () {
+describe('Hierarchical dependency injection', () => {
+
+  beforeAll(() => {
     browser.get('');
   });
 
-  it('should open with a card view', function () {
-    expect(element.all(by.cssContainingText('button', 'edit')).get(0).isDisplayed()).toBe(true,
-      'edit button should be displayed');
+  describe('Heroes Scenario', () => {
+    let page = {
+      heroName: '',
+      income: '',
+
+      // queries
+      heroEl: element.all(by.css('heroes-list li')).get(0), // first hero
+      heroCardEl: element(by.css('heroes-list hero-tax-return')), // first hero tax-return
+      taxReturnNameEl: element.all(by.css('heroes-list hero-tax-return #name')).get(0),
+      incomeInputEl: element.all(by.css('heroes-list hero-tax-return input')).get(0),
+      cancelButtonEl: element(by.cssContainingText('heroes-list hero-tax-return button', 'Cancel')),
+      closeButtonEl: element(by.cssContainingText('heroes-list hero-tax-return button', 'Close')),
+      saveButtonEl: element(by.cssContainingText('heroes-list hero-tax-return button', 'Save'))
+    };
+
+    it('should list multiple heroes', () => {
+      expect(element.all(by.css('heroes-list li')).count()).toBeGreaterThan(1);
+    });
+
+    it('should show no hero tax-returns at the start', () => {
+      expect(element.all(by.css('heroes-list li hero-tax-return')).count()).toBe(0);
+    });
+
+    it('should open first hero in hero-tax-return view after click', () => {
+      page.heroEl.getText()
+        .then(val => {
+          page.heroName = val;
+        })
+        .then(() => page.heroEl.click())
+        .then(() => {
+          expect(page.heroCardEl.isDisplayed()).toBe(true);
+        });
+    });
+
+    it('hero tax-return should have first hero\'s name', () => {
+      // Not `page.tax-returnNameInputEl.getAttribute('value')` although later that is essential
+      expect(page.taxReturnNameEl.getText()).toEqual(page.heroName);
+    });
+
+    it('should be able to cancel change', () => {
+      page.incomeInputEl.clear()
+        .then(() => page.incomeInputEl.sendKeys('777'))
+        .then(() => {
+          expect(page.incomeInputEl.getAttribute('value')).toBe('777', 'income should be 777');
+          return page.cancelButtonEl.click();
+        })
+        .then(() => {
+          expect(page.incomeInputEl.getAttribute('value')).not.toBe('777', 'income should not be 777');
+        });
+    });
+
+    it('should be able to save change', () => {
+      page.incomeInputEl.clear()
+        .then(() => page.incomeInputEl.sendKeys('999'))
+        .then(() => {
+          expect(page.incomeInputEl.getAttribute('value')).toBe('999', 'income should be 999');
+          return page.saveButtonEl.click();
+        })
+        .then(() => {
+          expect(page.incomeInputEl.getAttribute('value')).toBe('999', 'income should still be 999');
+        });
+    });
+
+    it('should be able to close tax-return', () => {
+      page.saveButtonEl.click()
+        .then(() => {
+          expect(element.all(by.css('heroes-list li hero-tax-return')).count()).toBe(0);
+        });
+    });
+
   });
 
-  it('should have multiple heroes listed', function () {
-    expect(element.all(by.css('heroes-list li')).count()).toBeGreaterThan(1);
-  });
-
-  it('should change to editor view after selection', function () {
-    let editButtonEle = element.all(by.cssContainingText('button', 'edit')).get(0);
-    editButtonEle.click().then(function() {
-      expect(editButtonEle.isDisplayed()).toBe(false, 'edit button should be hidden after selection');
+  describe('Villains Scenario', () => {
+    it('should list multiple villains', () => {
+      expect(element.all(by.css('villains-list li')).count()).toBeGreaterThan(1);
     });
   });
 
-  it('should be able to save editor change', function () {
-    testEdit(true);
-  });
+  describe('Cars Scenario', () => {
 
-  it('should be able to cancel editor change', function () {
-    testEdit(false);
-  });
-
-  function testEdit(shouldSave: boolean) {
-    // select 2nd ele
-    let heroEle = element.all(by.css('heroes-list li')).get(1);
-    // get the 2nd span which is the name of the hero
-    let heroNameEle = heroEle.all(by.css('hero-card span')).get(1);
-    let editButtonEle = heroEle.element(by.cssContainingText('button', 'edit'));
-    editButtonEle.click().then(function() {
-      let inputEle = heroEle.element(by.css('hero-editor input'));
-      return inputEle.sendKeys('foo');
-    }).then(function() {
-      let buttonName = shouldSave ? 'save' : 'cancel';
-      let buttonEle = heroEle.element(by.cssContainingText('button', buttonName));
-      return buttonEle.click();
-    }).then(function() {
-      if (shouldSave) {
-        expect(heroNameEle.getText()).toContain('foo');
-      } else {
-        expect(heroNameEle.getText()).not.toContain('foo');
-      }
+    it('A-component should use expected services', () => {
+      expect(element(by.css('a-car')).getText()).toContain('C1-E1-T1');
     });
-  }
 
+    it('B-component should use expected services', () => {
+      expect(element(by.css('b-car')).getText()).toContain('C2-E2-T1');
+    });
 
+    it('C-component should use expected services', () => {
+      expect(element(by.css('c-car')).getText()).toContain('C3-E2-T1');
+    });
+  });
 });

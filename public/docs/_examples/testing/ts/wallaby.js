@@ -12,7 +12,6 @@ module.exports = function () {
 
       // Polyfills
       {pattern: 'node_modules/core-js/client/shim.min.js', instrument: false},
-      {pattern: 'node_modules/reflect-metadata/Reflect.js', instrument: false},
 
       // zone.js
       {pattern: 'node_modules/zone.js/dist/zone.js', instrument: false},

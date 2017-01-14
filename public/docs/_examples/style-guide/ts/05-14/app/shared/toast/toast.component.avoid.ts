@@ -7,7 +7,7 @@ export class ToastComponent implements OnInit {
 
   private defaults = {
     title: '',
-    message: 'May the Force be with You'
+    message: 'May the Force be with you'
   };
   message: string;
   title: string;

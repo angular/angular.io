@@ -8,7 +8,7 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 @Component({
   moduleId: module.id,
   selector: 'phone-detail',
-  templateUrl: 'phone-detail.template.html'
+  templateUrl: './phone-detail.template.html'
 })
 export class PhoneDetailComponent {
   phone: PhoneData;

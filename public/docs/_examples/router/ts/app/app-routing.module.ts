@@ -8,7 +8,7 @@ import { PageNotFoundComponent }    from './not-found.component';
 
 import { CanDeactivateGuard }       from './can-deactivate-guard.service';
 import { AuthGuard }                from './auth-guard.service';
-import { SelectivePreloadingStrategy }   from './selective-preloading-strategy';
+import { SelectivePreloadingStrategy } from './selective-preloading-strategy';
 
 const appRoutes: Routes = [
   {
@@ -47,4 +47,4 @@ const appRoutes: Routes = [
     SelectivePreloadingStrategy
   ]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

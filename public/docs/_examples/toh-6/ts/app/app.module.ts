@@ -1,9 +1,5 @@
 // #docplaster
 // #docregion
-// #docregion rxjs-extensions
-import './rxjs-extensions';
-// #enddocregion rxjs-extensions
-
 // #docregion v1, v2
 import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';

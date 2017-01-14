@@ -9,7 +9,7 @@ import { HeroService } from './heroes';
   template: `
       <toh-heroes></toh-heroes>
     `,
-  styleUrls: ['app.component.css'],
+  styleUrls: ['./app.component.css'],
   providers: [ HeroService ]
 })
 export class AppComponent { }

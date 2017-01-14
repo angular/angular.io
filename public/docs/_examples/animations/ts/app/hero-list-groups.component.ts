@@ -22,7 +22,7 @@ import { Heroes } from './hero.service';
       </li>
     </ul>
   `,
-  styleUrls: ['hero-list.component.css'],
+  styleUrls: ['./hero-list.component.css'],
   styles: [`
     li {
       padding: 0 !important;

@@ -1,7 +1,7 @@
 // #docregion
 // #docregion example
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Http }       from '@angular/http';
 
 import { Hero } from './hero.model';
 import { ExceptionService, SpinnerService, ToastService } from '../../core';
@@ -20,12 +20,12 @@ export class HeroService {
 
   getHero(id: number) {
     return this.http.get(`api/heroes/${id}`)
-      .map((res: Response) => res.json().data);
+      .map(response => response.json().data as Hero);
   }
 
   getHeroes() {
     return this.http.get(`api/heroes`)
-      .map((res: Response) => res.json().data);
+      .map(response => response.json().data as Hero[]);
   }
 
 }

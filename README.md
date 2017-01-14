@@ -152,7 +152,7 @@ gulp install-example-angular
 
 
 ## License
-Powered by Google ©2010-2016. Code licensed under an [MIT-style License](https://github.com/angular.io/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
+Powered by Google ©2010-2017. Code licensed under an [MIT-style License](https://github.com/angular.io/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
 
 [travis-badge]: https://travis-ci.org/angular/angular.io.svg?branch=master
 [travis-badge-url]: https://travis-ci.org/angular/angular.io

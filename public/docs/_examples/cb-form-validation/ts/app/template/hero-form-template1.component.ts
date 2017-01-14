@@ -9,7 +9,7 @@ import { Hero }      from '../shared/hero';
 @Component({
   moduleId:  module.id,
   selector: 'hero-form-template1',
-  templateUrl: 'hero-form-template1.component.html'
+  templateUrl: './hero-form-template1.component.html'
 })
 // #docregion class
 export class HeroFormTemplate1Component {

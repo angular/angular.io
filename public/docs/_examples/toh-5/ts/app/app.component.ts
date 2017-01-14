@@ -15,7 +15,7 @@ import { Component } from '@angular/core';
   `,
   // #enddocregion template
   // #docregion styleUrls
-  styleUrls: ['app.component.css'],
+  styleUrls: ['./app.component.css'],
   // #enddocregion styleUrls
 })
 export class AppComponent {

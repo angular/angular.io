@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
 @Component({
   moduleId: module.id,
   selector: 'inner-html-binding',
-  templateUrl: 'inner-html-binding.component.html',
+  templateUrl: './inner-html-binding.component.html',
 })
 // #docregion class
 export class InnerHtmlBindingComponent {

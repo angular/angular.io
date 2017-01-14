@@ -24,8 +24,8 @@ export class SomeAbsoluteComponent {
   moduleId: module.id,
   // #enddocregion module-id
   selector: 'relative-path',
-  templateUrl: 'some.component.html',
-  styleUrls:  ['some.component.css']
+  templateUrl: './some.component.html',
+  styleUrls:  ['./some.component.css']
 })
 // #enddocregion relative-config
 
