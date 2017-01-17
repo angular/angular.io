@@ -1,18 +1,12 @@
-// #docplaster
-// #docregion important
-import { bootstrap } from '@angular/platform-browser-dynamic';
+import './polyfills.ts';
 
-// #enddocregion important
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode } from '@angular/core';
-import { environment } from './app/';
-// #docregion important
-import { CliQuickstartAppComponent } from './app/';
-// #enddocregion important
+import { environment } from './environments/environment';
+import { AppModule } from './app/app.module';
+
 if (environment.production) {
   enableProdMode();
 }
 
-// #docregion important
-
-bootstrap(CliQuickstartAppComponent);
-// #enddocregion important
+platformBrowserDynamic().bootstrapModule(AppModule);

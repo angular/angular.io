@@ -4,14 +4,13 @@ import { Component } from '@angular/core';
 
 // #docregion metadata
 @Component({
-  moduleId: module.id,
-  selector: 'cli-quickstart-app',
-  templateUrl: './cli-quickstart.component.html',
-  styleUrls: ['./cli-quickstart.component.css']
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
 // #enddocregion metadata
 // #docregion title, class
-export class CliQuickstartAppComponent {
+export class AppComponent {
   title = 'My First Angular App';
 }
 // #enddocregion title, class
