@@ -1,0 +1,218 @@
+block includes
+  include ../_util-fns
+
+// The docs standard h4 style uppercases, making code terms unreadable. Override it.
+style.
+  h4 {font-size: 17px !important; text-transform: none !important;}
+  .syntax { font-family: Consolas, 'Lucida Sans', Courier, sans-serif; color: black; font-size: 85%; }
+
+:marked
+  This guide has been withdrawn. 
+  The essential information about this feature
+  is in the [Structural Directives](structural-directives.html#ngcontainer) guide.
+  The original draft has been retained for possible future use.
+//
+  :marked
+    The `<ng-container>` tags are part of Angular template syntax.
+    They help you group HTML template content under a phantom _root_ element
+    that you can manipulate with [structural directives](#structural-directives.html).
+
+    This guide explains how `<ng-container>` solves certain layout problems.
+
+    ### Table of contents
+
+    - [Introduction](#introduction)
+    - [The problem](#problem)
+    - [Troublesome CSS](#CSS)
+    - [Restrictive layout](#restrictive-layout)
+    - [&lt;ng-container&gt; is excluded from DOM](#excluded)
+    - [&lt;ng-container&gt; is not &lt;ng-content&gt;](#ng-content)
+    - [Summary](#summary)
+
+    Try the <live-example></live-example>.
+
+  a#introduction
+  .l-main-section
+  :marked
+    ## Introduction
+
+    Structural directives are responsible for HTML layout.
+    They shape or reshape the DOM's _structure_, typically by adding and removing
+    other elements and their children.
+
+    Two of the common, built-in structural directives are
+    [NgIf](template-syntax.html#ngIf) and [NgFor](template-syntax.html#ngFor).
+    You apply these directives to elements that Angular should add and remove.
+    Usually there's _one_ obvious element to receive the directive.
+
+    Sometimes you need to add or remove a _group of sibling elements_.
+    You want to apply the directive to the group, not just one of them.
+
+    As this guide explains, you can wrap the elements in an `<ng-container>` and apply the directive to the `<ng-container>`.
+
+    The `<ng-container>` is Angular template syntax for grouping elements,
+    like the curly braces that group statements in a JavaScript `if` block:
+
+  code-example(language="javascript").
+    if (someCondition) {
+      statement1;
+      statement2;
+      statement3;
+    } 
+  :marked
+    Without those braces JavaScript could only execute the first statement1
+    when you intend to conditionally execute all (or none) of the statements as a single block.
+    The `<ng-container>` satisfies a similar need in Angular templates.
+
+    The `<ng-container>` _is not_ a directive. 
+    It's not a class or interface or anything you could find in the [API guide](../api "API guide").
+    It's just grouping syntax recognized by the Angular parser.
+
+    *Why bother?* Why not wrap the group in standard HTML container element
+    such as `<span>` or `<div>`?
+
+    The rest of this guide answers these questions after stepping back and reframing the problem in a bit more detail.
+    
+  a#problem
+  .l-main-section
+  :marked
+    ## The problem
+
+    There's often a _root_ element that can and should host the structural directive.
+    In the following example, the table row (`<tr>`) should appear only when showing structural directives (when `strucDirs` is `true`).
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngif-tr')(format=".")
+
+  :marked
+    When there isn't a host element, you can usually wrap the content in a native HTML container element, such as a `<div>`,
+    and attach the directive to that wrapper.
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngif')(format=".")
+
+  :marked
+    Introducing another container element is usually harmless. 
+    _Usually_ ... but not _always_.
+
+  a#css
+  :marked
+    ### Troublesome CSS
+
+    CSS styles can be persnickety about HTML structure, making it difficult to introduce intermediate container elements.
+
+    Suppose you want to display a paragraph with a single sentence that describes the traits of a hero.
+  figure.image-display
+    img(src='/resources/images/devguide/ngcontainer/hero-traits-good.png' alt="hero traits")
+  :marked
+    For reasons unknown, you can't do the obvious thing and construct the text in a component property.
+    You must build the sentence in the template instead.
+    You try a combination of `<span>` wrappers, `*ngIf`, and `*ngFor` and write this.
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngif-span-2')(format=".")
+
+  :marked
+    Unfortunately, there's a style that kicks in when a `<p>`aragraph contains a `<span>`.
+  +makeExample('ngcontainer/ts/src/app/app.component.css', 'p-span')(format=".")
+
+  :marked
+    So the sentence renders the spanned text in tiny, red type like this.
+  figure.image-display
+    img(src='/resources/images/devguide/ngcontainer/hero-traits-bad.png' alt="hero traits (oops)")
+  :marked
+    You could try to fix the CSS ... if you have permission to do so.
+    The far easier approach is to use `<ng-container>` instead of `<span>` like this.
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngif-ngcontainer-2')(format=".")
+
+  a#excluded
+  :marked
+    ### &lt;ng-container&gt; is excluded from the DOM
+    That works.  There are no `<span>` tags to trigger the unwanted style.
+    
+    Does Angular add an `<ng-container>` to the DOM?
+    If it did, you'd trip over a similar problem someday, because the introduction of _any_
+    HTML for layout purposes is a potential hazard.
+
+    Fortunately, Angular _replaces_ `<ng-container>` _with comments_, which have no effect on styles or layout.
+
+    Inspect the rendered HTML in the browser tools. 
+    You'll see many comments like this:
+
+  code-example(language="html" escape="html").
+    &lt;!--template bindings={
+      "ng-reflect-ng-if": "true"
+    }--&gt;
+    &lt;!--template bindings={} --&gt;
+
+  :marked
+    You won't find `<ng-container>`.
+    That's especially important when applying structural directives 
+    to the children of certain troublesome HTML elements.
+
+  a#restrictive-layout
+  :marked
+    ### &lt;ng-container&gt; and restrictive layout
+
+    Some HTML elements are picky about their children.
+    
+    For example, all children of a `<select>` tag must be `<option>` elements.
+    You can't wrap a set of _options_ in an HTML container element and
+    conditionally include or exclude them.
+
+    The following example tries to use `<scan>` and fails. 
+    Most browsers silently ignore the nested default trait options.
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'select-span-2')(format=".")
+
+  :marked
+    Use `<ng-container>` instead and `showDefaultTraits` has the intended effect. 
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'select-ngcontainer-2')(format=".")
+
+  :marked
+    The <live-example></live-example> demonstrates this _options_ use case and a similar challenge with
+    conditional inclusion of `<table>` rows.
+
+  a#ng-content
+  :marked
+    ### &lt;ng-container&gt; is not &lt;ng-content&gt;
+
+    **Do not confuse `<ng-container>` with `ng-content`.**
+
+    The `ng-content` element is an _anchor_ tag that identifies a location
+    where _projected_ content should go.
+  +makeExample('ngcontainer/ts/src/app/content.component.ts', 'template', 'content.component.ts (template)')(format=".")
+
+  :marked
+    You use the component as follows.
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'content-comp')(format=".")  
+  :marked
+    Angular _projects_ the "Projected content" into the space marked by the `<ng-content>`.
+
+    Unlike `<ng-container>`, it is illegal to put anything between the `ng-content` tags.
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngcontent-bad')(format=".")
+  :marked
+    Whereas, placing content between `<ng-container>` is expected. 
+    Of course you're supposed to apply a structural directive as well.
+    The following is perfectly legal, albeit pointless.
+
+  +makeExample('ngcontainer/ts/src/app/app.component.html', 'ngcontainer-bare')(format=".")
+
+  a#summary
+  .l-main-section
+  :marked
+    ## Summary
+    You can both try and download the source code for this guide in the <live-example></live-example>.  
+    
+    Here is a subset of the source, all from the `app/` folder.
+
+  +makeTabs(`
+    ngcontainer/ts/src/app/app.component.ts,
+    ngcontainer/ts/src/app/app.component.html,
+    ngcontainer/ts/src/app/app.component.css,
+    ngcontainer/ts/src/app/hero.ts
+    `,
+    null,`
+    app.component.ts,
+    app.component.html,
+    app.component.css,
+    hero.ts
+    `)

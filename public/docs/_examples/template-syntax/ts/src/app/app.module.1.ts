@@ -1,18 +1,15 @@
 // #docregion
 import { NgModule } from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; // <--- JavaScript import from Angular
 
-import { AppComponent } from './app.component';
+/* Other imports */
 
 @NgModule({
   imports: [
     BrowserModule,
-    FormsModule
+    FormsModule  // <--- import into the NgModule
   ],
-  declarations: [
-    AppComponent
-  ],
-  bootstrap: [ AppComponent ]
+  /* Other module metadata */
 })
 export class AppModule { }

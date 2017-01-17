@@ -2,6 +2,8 @@
 <a id="toc"></a>
 <h1>Template Syntax</h1>
 <a href="#interpolation">Interpolation</a><br>
+<a href="#expression-context">Expression context</a><br>
+<a href="#statement-context">Statement context</a><br>
 <a href="#mental-model">Mental Model</a><br>
 <a href="#buttons">Buttons</a><br>
 <a href="#prop-vs-attrib">Properties vs. Attributes</a><br>
@@ -22,15 +24,14 @@
   <a href="#ngClass">NgClass Binding</a><br>
   <a href="#ngStyle">NgStyle Binding</a><br>
   <a href="#ngIf">NgIf</a><br>
-  <a href="#ngSwitch">NgSwitch</a><br>
   <a href="#ngFor">NgFor</a><br>
   <div style="margin-left:8px">
     <a href="#ngFor-index">NgFor with index</a><br>
     <a href="#ngFor-trackBy">NgFor with trackBy</a><br>
   </div>
+  <a href="#ngSwitch">NgSwitch</a><br>
 </div>
 <br>
-<a href="#star-prefix">* prefix and &lt;template&gt;</a><br>
 <a href="#ref-vars">Template reference variables</a><br>
 <a href="#inputs-and-outputs">Inputs and outputs</a><br>
 <a href="#pipes">Pipes</a><br>
@@ -41,7 +42,7 @@
 <hr><h2 id="interpolation">Interpolation</h2>
 
 <!-- #docregion first-interpolation -->
-<p>My current hero is {{currentHero.firstName}}</p>
+<p>My current hero is {{currentHero.name}}</p>
 <!-- #enddocregion first-interpolation -->
 
 <!-- #docregion title+image -->
@@ -60,6 +61,68 @@
 <!-- "The sum of 1 + 1 is not 4" -->
 <p>The sum of 1 + 1 is not {{1 + 1 + getVal()}}</p>
 <!-- #enddocregion sum-2 -->
+
+<a class="to-toc" href="#toc">top</a>
+
+<hr><h2 id="expression-context">Expression context</h2>
+
+<p>Component expression context (&#123;&#123;title&#125;&#125;, [hidden]="isUnchanged")</p>
+<div class="context">
+  <!-- #docregion context-component-expression -->
+  {{title}}
+  <span [hidden]="isUnchanged">changed</span>
+  <!-- #enddocregion context-component-expression -->
+</div>
+
+
+<p>Template input variable expression context (let hero)</p>
+<!-- template hides the following; plenty of examples later -->
+<template>
+  <!-- #docregion context-var -->
+  <div *ngFor="let hero of heroes">{{hero.name}}</div>
+  <!-- #enddocregion context-var -->
+</template>
+
+<p>Template reference variable expression context (#heroInput)</p>
+<div (keyup)="0" class="context">
+  Type something:
+  <!-- #docregion context-var -->
+  <input #heroInput> {{heroInput.value}}
+  <!-- #enddocregion context-var -->
+</div>
+
+<a class="to-toc" href="#toc">top</a>
+
+<hr><h2 id="statement-context">Statement context</h2>
+
+<p>Component statement context ( (click)="onSave() )
+<div class="context">
+  <!-- #docregion context-component-statement -->
+  <button (click)="deleteHero()">Delete hero</button>
+  <!-- #enddocregion context-component-statement -->
+</div>
+
+<p>Template $event statement context</p>
+<div class="context">
+  <!-- #docregion context-var-statement -->
+  <button (click)="onSave($event)">Save</button>
+  <!-- #enddocregion context-var-statement -->
+</div>
+
+<p>Template input variable statement context (let hero)</p>
+<!-- template hides the following; plenty of examples later -->
+<div class="context">
+  <!-- #docregion context-var-statement -->
+  <button *ngFor="let hero of heroes" (click)="deleteHero(hero)">{{hero.name}}</button>
+  <!-- #enddocregion context-var-statement -->
+</div>
+
+<p>Template reference variable statement context (#heroForm)</p>
+<div class="context">
+  <!-- #docregion context-var-statement -->
+  <form #heroForm (ngSubmit)="onSubmit(heroForm)"> ... </form>
+  <!-- #enddocregion context-var-statement -->
+</div>
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -105,16 +168,17 @@
 <!-- #docregion event-binding-syntax-1 -->
 <button (click) = "onSave()">Save</button>
 <hero-detail (deleteRequest)="deleteHero()"></hero-detail>
-<div (myClick)="clicked=$event">click me</div>
+<div (myClick)="clicked=$event" clickable>click me</div>
 <!-- #enddocregion event-binding-syntax-1 -->
 {{clicked}}
 <br><br>
 
 <div>
+  Hero Name:
   <!-- #docregion 2-way-binding-syntax-1 -->
   <input [(ngModel)]="heroName">
   <!-- #enddocregion 2-way-binding-syntax-1 -->
-  Hero Name: {{heroName}}
+  {{heroName}}
 </div>
 <br><br>
 
@@ -205,6 +269,10 @@ button</button>
 <!-- #enddocregion property-binding-vs-interpolation -->
 
 <!-- #docregion property-binding-vs-interpolation-sanitization -->
+<!--
+  Angular generates warnings for these two lines as it sanitizes them
+  WARNING: sanitizing HTML stripped some content (see http://g.co/ng/security#xss).
+ -->
 <p><span>"{{evilTitle}}" is the <i>interpolated</i> evil title.</span></p>
 <p>"<span [innerHTML]="evilTitle"></span>" is the <i>property bound</i> evil title.</p>
 <!-- #enddocregion property-binding-vs-interpolation-sanitization -->
@@ -307,7 +375,7 @@ button</button>
 <!-- #docregion event-binding-3 -->
 <!-- `myClick` is an event on the custom `ClickDirective` -->
 <!-- #docregion myClick -->
-<div (myClick)="clickMessage=$event">click with myClick</div>
+<div (myClick)="clickMessage=$event" clickable>click with myClick</div>
 <!-- #enddocregion myClick -->
 <!-- #enddocregion event-binding-3 -->
 {{clickMessage}}
@@ -326,26 +394,25 @@ button</button>
 </big-hero-detail>
 
 <!-- #docregion event-binding-bubbling -->
-<div class="parent-div" (click)="onClickMe($event)">Click me
+<div class="parent-div" (click)="onClickMe($event)" clickable>Click me
   <div class="child-div">Click me too!</div>
 </div>
 <!-- #enddocregion event-binding-bubbling -->
-<br><br>
 
 <!-- #docregion event-binding-no-propagation -->
 <!-- Will save only once -->
-<div (click)="onSave()">
+<div (click)="onSave()" clickable>
   <button (click)="onSave()">Save, no propagation</button>
 </div>
 <!-- #enddocregion event-binding-no-propagation -->
-<br><br>
+
 <!-- #docregion event-binding-propagation -->
 <!-- Will save twice -->
-<div (click)="onSave()">
+<div (click)="onSave()" clickable>
   <button (click)="onSave() || true">Save w/ propagation</button>
 </div>
 <!-- #enddocregion event-binding-propagation -->
-<br><br>
+
 <a class="to-toc" href="#toc">top</a>
 
 <hr><h2 id="two-way">Two-way Binding</h2>
@@ -363,7 +430,6 @@ button</button>
   <my-sizer [size]="fontSizePx" (sizeChange)="fontSizePx=$event"></my-sizer>
   <!-- #enddocregion two-way-2 -->
 </div>
-<br><br>
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -371,38 +437,37 @@ button</button>
     passing the changed display value to the event handler via `$event` -->
 <hr><h2 id="ngModel">NgModel (two-way) Binding</h2>
 
-<h3>Result: {{currentHero.firstName}}</h3>
+<h3>Result: {{currentHero.name}}</h3>
 
 <!-- #docregion without-NgModel -->
-<input [value]="currentHero.firstName"
-       (input)="currentHero.firstName=$event.target.value" >
+<input [value]="currentHero.name"
+       (input)="currentHero.name=$event.target.value" >
 <!-- #enddocregion without-NgModel -->
 without NgModel
 <br>
 <!-- #docregion NgModel-1 -->
-<input [(ngModel)]="currentHero.firstName">
+<input [(ngModel)]="currentHero.name">
 <!-- #enddocregion NgModel-1 -->
 [(ngModel)]
 <br>
 <!-- #docregion NgModel-2 -->
-<input bindon-ngModel="currentHero.firstName">
+<input bindon-ngModel="currentHero.name">
 <!-- #enddocregion NgModel-2 -->
 bindon-ngModel
 <br>
 <!-- #docregion NgModel-3 -->
 <input
-  [ngModel]="currentHero.firstName"
-  (ngModelChange)="currentHero.firstName=$event">
+  [ngModel]="currentHero.name"
+  (ngModelChange)="currentHero.name=$event">
 <!-- #enddocregion NgModel-3 -->
-(ngModelChange) = "...firstName=$event"
+(ngModelChange) = "...name=$event"
 <br>
 <!-- #docregion NgModel-4 -->
 <input
-  [ngModel]="currentHero.firstName"
-  (ngModelChange)="setUpperCaseFirstName($event)">
+  [ngModel]="currentHero.name"
+  (ngModelChange)="setUppercaseName($event)">
 <!-- #enddocregion NgModel-4 -->
-(ngModelChange) = "setUpperCaseFirstName($event)"
-<br>
+(ngModelChange) = "setUppercaseName($event)"
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -417,7 +482,7 @@ bindon-ngModel
 <!-- not used in chapter -->
 <br>
 <label>saveable   <input type="checkbox" [(ngModel)]="canSave"></label> |
-<label>modified: <input type="checkbox" [value]="!isUnchanged" (change)="isUnchanged=!isUnchanged"></label> |
+<label>modified:  <input type="checkbox" [value]="!isUnchanged" (change)="isUnchanged=!isUnchanged"></label> |
 <label>special:   <input type="checkbox" [(ngModel)]="isSpecial"></label>
 <button (click)="setCurrentClasses()">Refresh currentClasses</button>
 <br><br>
@@ -462,7 +527,6 @@ bindon-ngModel
   This div should be {{ canSave ? "italic": "plain"}},
                   {{ isUnchanged ? "normal weight" : "bold" }} and,
                   {{ isSpecial ? "extra large": "normal size"}} after clicking "refresh".</div>
-<br>
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -470,21 +534,17 @@ bindon-ngModel
 <hr><h2 id="ngIf">NgIf Binding</h2>
 
 <!-- #docregion NgIf-1 -->
-<div *ngIf="currentHero">Hello, {{currentHero.firstName}}</div>
+<hero-detail *ngIf="isActive"></hero-detail>
 <!-- #enddocregion NgIf-1 -->
 
 <!-- #docregion NgIf-2 -->
-<!-- because of the ngIf guard
-    `nullHero.firstName` never has a chance to fail -->
-<div *ngIf="nullHero">Hello, {{nullHero.firstName}}</div>
-
-<!-- Hero Detail is not in the DOM because isActive is false-->
-<hero-detail *ngIf="isActive"></hero-detail>
+<div *ngIf="currentHero">Hello, {{currentHero.name}}</div>
+<div *ngIf="nullHero">Hello, {{nullHero.name}}</div>
 <!-- #enddocregion NgIf-2 -->
 
 <!-- NgIf binding with template (no *) -->
 
-<template [ngIf]="currentHero">Add {{currentHero.firstName}} with template</template>
+<template [ngIf]="currentHero">Add {{currentHero.name}} with template</template>
 
 <!-- Does not show because isActive is false! -->
 <div>Hero Detail removed from DOM (via template) because isActive is false</div>
@@ -506,170 +566,117 @@ bindon-ngModel
 
 <a class="to-toc" href="#toc">top</a>
 
-<!-- NgSwitch binding -->
-<hr><h2 id="ngSwitch">NgSwitch Binding</h2>
-
-<fieldset #toePicker (click)="toeChooser(toePicker)" >
-  <input type="radio" name="toes" value="Eenie">Eenie
-  <input type="radio" name="toes" value="Meanie">Meanie
-  <input type="radio" name="toes" value="Miney">Miney
-  <input type="radio" name="toes" value="Moe">Moe
-  <input type="radio" name="toes" value="???">???
-</fieldset>
-
-<div class="toe">
-  <div *ngIf="!toeChoice">Pick a toe</div>
-  <div *ngIf="toeChoice">
-    You picked ...
-    <!-- #docregion NgSwitch, NgSwitch-expanded -->
-    <span [ngSwitch]="toeChoice">
-      <!-- #enddocregion NgSwitch -->
-
-      <!-- with *NgSwitch -->
-      <!-- #docregion NgSwitch -->
-      <span *ngSwitchCase="'Eenie'">Eenie</span>
-      <span *ngSwitchCase="'Meanie'">Meanie</span>
-      <span *ngSwitchCase="'Miney'">Miney</span>
-      <span *ngSwitchCase="'Moe'">Moe</span>
-      <span *ngSwitchDefault>other</span>
-      <!-- #enddocregion NgSwitch -->
-
-      <!-- with <template> -->
-      <template [ngSwitchCase]="'Eenie'"><span>Eenie</span></template>
-      <template [ngSwitchCase]="'Meanie'"><span>Meanie</span></template>
-      <template [ngSwitchCase]="'Miney'"><span>Miney</span></template>
-      <template [ngSwitchCase]="'Moe'"><span>Moe</span></template>
-      <template ngSwitchDefault><span>other</span></template>
-
-      <!-- #docregion NgSwitch -->
-    </span>
-    <!-- #enddocregion NgSwitch, NgSwitch-expanded -->
-  </div>
-</div>
-
-<a class="to-toc" href="#toc">top</a>
-
 <!-- NgFor binding -->
 <hr><h2 id="ngFor">NgFor Binding</h2>
 
 <div class="box">
-  <!-- #docregion NgFor-1 -->
-  <div *ngFor="let hero of heroes">{{hero.fullName}}</div>
-  <!-- #enddocregion NgFor-1 -->
+  <!-- #docregion NgFor-1, NgFor-1-2 -->
+  <div *ngFor="let hero of heroes">{{hero.name}}</div>
+  <!-- #enddocregion NgFor-1, NgFor-1-2 -->
 </div>
 <br>
 
 <div class="box">
   <!-- *ngFor w/ hero-detail Component -->
-  <!-- #docregion NgFor-2 -->
+  <!-- #docregion NgFor-2, NgFor-1-2 -->
   <hero-detail *ngFor="let hero of heroes" [hero]="hero"></hero-detail>
-  <!-- #enddocregion NgFor-2 -->
+  <!-- #enddocregion NgFor-2, NgFor-1-2 -->
 </div>
 
 <a class="to-toc" href="#toc">top</a>
 
-<h4 id="ngFor-index">NgFor with index</h4>
+<h4 id="ngFor-index">*ngFor with index</h4>
 <p>with <i>semi-colon</i> separator</p>
 <div class="box">
   <!-- #docregion NgFor-3 -->
-  <div *ngFor="let hero of heroes; let i=index">{{i + 1}} - {{hero.fullName}}</div>
+  <div *ngFor="let hero of heroes; let i=index">{{i + 1}} - {{hero.name}}</div>
   <!-- #enddocregion NgFor-3 -->
 </div>
 
 <p>with <i>comma</i> separator</p>
 <div class="box">
-  <!-- Ex: "1 - Hercules Son of Zeus"" -->
-  <div *ngFor="let hero of heroes, let i=index">{{i + 1}} - {{hero.fullName}}</div>
+  <!-- Ex: "1 - Hercules" -->
+  <div *ngFor="let hero of heroes, let i=index">{{i + 1}} - {{hero.name}}</div>
 </div>
 
 <a class="to-toc" href="#toc">top</a>
 
-<h4 id="ngFor-trackBy">NgForTrackBy</h4>
-<button (click)="refreshHeroes()">Refresh heroes</button>
-<p>First hero: <input [(ngModel)]="heroes[0].firstName"></p>
+<h4 id="ngFor-trackBy">*ngFor trackBy</h4>
+<button (click)="resetHeroes()">Reset heroes</button>
+<button (click)="changeIds()">Change ids</button>
+<button (click)="clearTrackByCounts()">Clear counts</button>
 
 <p><i>without</i> trackBy</p>
-<div #noTrackBy class="box">
-  <!-- #docregion NgForTrackBy-1 -->
-  <div *ngFor="let hero of heroes">({{hero.id}}) {{hero.fullName}}</div>
-  <!-- #enddocregion NgForTrackBy-1 -->
-</div>
-<div id="noTrackByCnt" *ngIf="heroesNoTrackByChangeCount" style="background-color:bisque">
-  Hero DOM elements change #<span style="background-color:gold">{{heroesNoTrackByChangeCount}}</span> without trackBy
+<div class="box">
+  <div #noTrackBy *ngFor="let hero of heroes">({{hero.id}}) {{hero.name}}</div>
+
+  <div id="noTrackByCnt" *ngIf="heroesNoTrackByCount" >
+    Hero DOM elements change #{{heroesNoTrackByCount}} without trackBy
+  </div>
 </div>
 
-<p>with trackBy and <i>semi-colon</i> separator</p>
-<div #withTrackBy class="box">
-  <!-- #docregion NgForTrackBy-2 -->
-  <div *ngFor="let hero of heroes; trackBy:trackByHeroes">({{hero.id}}) {{hero.fullName}}</div>
-  <!-- #enddocregion NgForTrackBy-2 -->
+<p>with trackBy</p>
+<div class="box">
+  <div #withTrackBy *ngFor="let hero of heroes; trackBy: trackByHeroes">({{hero.id}}) {{hero.name}}</div>
+
+  <div id="withTrackByCnt" *ngIf="heroesWithTrackByCount">
+    Hero DOM elements change #{{heroesWithTrackByCount}} with trackBy
+  </div>
 </div>
-<div id="withTrackByCnt" *ngIf="heroesWithTrackByChangeCount" style="background-color:bisque">
-  Hero DOM elements change #<span style="background-color:gold">{{heroesWithTrackByChangeCount}}</span> with trackBy
+
+<br><br><br>
+
+<p>with trackBy and <i>semi-colon</i> separator</p>
+<div class="box">
+  <!-- #docregion trackBy -->
+  <div *ngFor="let hero of heroes; trackBy: trackByHeroes">
+    ({{hero.id}}) {{hero.name}}
+  </div>
+  <!-- #enddocregion trackBy -->
 </div>
 
 <p>with trackBy and <i>comma</i> separator</p>
 <div class="box">
-  <div *ngFor="let hero of heroes, trackBy:trackByHeroes">({{hero.id}}) {{hero.fullName}}</div>
+  <div *ngFor="let hero of heroes, trackBy: trackByHeroes">({{hero.id}}) {{hero.name}}</div>
 </div>
 
 <p>with trackBy and <i>space</i> separator</p>
 <div class="box">
-  <div *ngFor="let hero of heroes trackBy:trackByHeroes">({{hero.id}}) {{hero.fullName}}</div>
+  <div *ngFor="let hero of heroes trackBy: trackByHeroes">({{hero.id}}) {{hero.name}}</div>
 </div>
 
 <p>with <i>generic</i> trackById function</p>
 <div class="box">
-  <div *ngFor="let hero of heroes, trackBy:trackById">({{hero.id}}) {{hero.fullName}}</div>
+  <div *ngFor="let hero of heroes, trackBy: trackById">({{hero.id}}) {{hero.name}}</div>
 </div>
 
 <a class="to-toc" href="#toc">top</a>
 
-<!-- * and template -->
-<hr><h2 id="star-prefix">* prefix and &lt;template&gt;</h2>
+<!-- NgSwitch binding -->
+<hr><h2 id="ngSwitch">NgSwitch Binding</h2>
 
-<h3>*ngIf expansion</h3>
-<p><i>*ngIf</i></p>
-<!-- #docregion Template-1 -->
-<hero-detail *ngIf="currentHero" [hero]="currentHero"></hero-detail>
-<!-- #enddocregion Template-1 -->
+<div>Pick your favorite hero</div>
+<p>
+  <ng-container *ngFor="let h of heroes">
+    <label>
+      <input type="radio" name="heroes" [(ngModel)]="currentHero" [value]="h">{{h.name}}
+    </label>
+  </ng-container>
+</p>
 
-<p><i>expand to template = "..."</i></p>
-<!-- #docregion Template-2a -->
-<hero-detail template="ngIf:currentHero" [hero]="currentHero"></hero-detail>
-<!-- #enddocregion Template-2a -->
-
-<p><i>expand to &lt;template&gt;</i></p>
-<!-- #docregion Template-2 -->
-<template [ngIf]="currentHero">
-  <hero-detail [hero]="currentHero"></hero-detail>
-</template>
-<!-- #enddocregion Template-2 -->
-
-<h3>*ngFor expansion</h3>
-<p><i>*ngFor</i></p>
-  <!-- *ngFor w/ hero-detail Component -->
-  <!-- #docregion Template-3a -->
-  <hero-detail *ngFor="let hero of heroes; trackBy:trackByHeroes" [hero]="hero"></hero-detail>
-  <!-- #enddocregion Template-3a -->
-
-<p><i>expand to template = "..."</i></p>
-<div class="box">
-  <!-- ngFor w/ hero-detail Component and a template "attribute" directive -->
-  <!-- #docregion Template-3 -->
-  <hero-detail template="ngFor let hero of heroes; trackBy:trackByHeroes" [hero]="hero"></hero-detail>
-  <!-- #enddocregion Template-3 -->
+<!-- #docregion NgSwitch -->
+<div [ngSwitch]="currentHero.emotion">
+  <happy-hero    *ngSwitchCase="'happy'"    [hero]="currentHero"></happy-hero>
+  <sad-hero      *ngSwitchCase="'sad'"      [hero]="currentHero"></sad-hero>
+  <confused-hero *ngSwitchCase="'confused'" [hero]="currentHero"></confused-hero>
+<!-- #enddocregion NgSwitch -->
+  <!-- #docregion NgSwitch-div -->
+  <div *ngSwitchCase="'confused'">Are you as confused as {{currentHero.name}}?</div>
+  <!-- #enddocregion NgSwitch-div -->
+<!-- #docregion NgSwitch -->
+  <unknown-hero  *ngSwitchDefault           [hero]="currentHero"></unknown-hero>
 </div>
-
-<p><i>expand to &lt;template&gt;</i></p>
-<div class="box">
-  <!-- ngFor w/ hero-detail Component inside a template element -->
-  <!-- #docregion Template-4 -->
-  <template ngFor let-hero [ngForOf]="heroes" [ngForTrackBy]="trackByHeroes">
-    <hero-detail [hero]="hero"></hero-detail>
-  </template>
-  <!-- #enddocregion Template-4 -->
-</div>
+<!-- #enddocregion NgSwitch -->
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -677,33 +684,26 @@ bindon-ngModel
 <hr><h2 id="ref-vars">Template reference variables</h2>
 
 <!-- #docregion ref-phone -->
-<!-- phone refers to the input element; pass its `value` to an event handler -->
+<!-- #docregion ref-var -->
 <input #phone placeholder="phone number">
-<button (click)="callPhone(phone.value)">Call</button>
+<!-- #enddocregion ref-var -->
 
-<!-- fax refers to the input element; pass its `value` to an event handler -->
-<input ref-fax placeholder="fax number">
-<button (click)="callFax(fax.value)">Fax</button>
+<!-- lots of other elements -->
+
+<!-- phone refers to the input element; pass its `value` to an event handler -->
+<button (click)="callPhone(phone.value)">Call</button>
 <!-- #enddocregion ref-phone -->
 
-<h4>Example Form</h4>
-<!-- #docregion ref-form -->
-<!-- #docregion ref-form-a -->
-<form (ngSubmit)="onSubmit(theForm)" #theForm="ngForm">
-<!-- #enddocregion ref-form-a -->
-  <div class="form-group">
-    <label for="name">Name</label>
-    <input class="form-control" name="name" required [(ngModel)]="currentHero.firstName">
-  </div>
-<!-- #docregion ref-form-a -->
-  <button type="submit" [disabled]="!theForm.form.valid">Submit</button>
-</form>
-<!-- #enddocregion ref-form-a -->
-<!-- #enddocregion ref-form -->
-<br><br>
+<!-- #docregion ref-fax -->
+<input ref-fax placeholder="fax number">
+<button (click)="callFax(fax.value)">Fax</button>
+<!-- #enddocregion ref-fax -->
 
 <!-- btn refers to the button element; show its disabled state -->
 <button #btn disabled [innerHTML]="'disabled by attribute: '+btn.disabled"></button>
+
+<h4>Example Form</h4>
+<hero-form [hero]="currentHero"></hero-form>
 
 <a class="to-toc" href="#toc">top</a>
 
@@ -720,7 +720,7 @@ bindon-ngModel
 </hero-detail>
 <!-- #enddocregion io-2 -->
 
-<div (myClick)="clickMessage2=$event">myClick2</div>
+<div (myClick)="clickMessage2=$event" clickable>myClick2</div>
 {{clickMessage2}}
 
 <a class="to-toc" href="#toc">top</a>
@@ -769,42 +769,41 @@ bindon-ngModel
 
 <div>
   <!-- #docregion safe-2 -->
-  The current hero's name is {{currentHero?.firstName}}
+  The current hero's name is {{currentHero?.name}}
   <!-- #enddocregion safe-2 -->
 </div>
 
 <div>
   <!-- #docregion safe-3 -->
-  The current hero's name is {{currentHero.firstName}}
+  The current hero's name is {{currentHero.name}}
   <!-- #enddocregion safe-3 -->
 </div>
 
 
 <!--
-The null hero's name is {{nullHero.firstName}}
+The null hero's name is {{nullHero.name}}
 
 See console log:
-  TypeError: Cannot read property 'firstName' of null in [null]
+  TypeError: Cannot read property 'name' of null in [null]
 -->
 
 <!-- #docregion safe-4 -->
 <!--No hero, div not displayed, no error -->
-<div *ngIf="nullHero">The null hero's name is {{nullHero.firstName}}</div>
+<div *ngIf="nullHero">The null hero's name is {{nullHero.name}}</div>
 <!-- #enddocregion safe-4 -->
 
 <div>
 <!-- #docregion safe-5 -->
-The null hero's name is {{nullHero && nullHero.firstName}}
+The null hero's name is {{nullHero && nullHero.name}}
 <!-- #enddocregion safe-5 -->
 </div>
 
 <div>
   <!-- #docregion safe-6 -->
   <!-- No hero, no problem! -->
-  The null hero's name is {{nullHero?.firstName}}
+  The null hero's name is {{nullHero?.name}}
   <!-- #enddocregion safe-6 -->
 </div>
-
 
 <a class="to-toc" href="#toc">top</a>
 

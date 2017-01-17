@@ -2,7 +2,6 @@
 // #docplaster
 
 import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { NgForm } from '@angular/forms';
 
 import { Hero } from './hero';
 
@@ -19,19 +18,25 @@ export enum Color {Red, Green, Blue};
 @Component({
   moduleId: module.id,
   selector: 'my-app',
-  templateUrl: './app.component.html'
+  templateUrl: './app.component.html',
+  styleUrls: [ './app.component.css' ]
 })
 export class AppComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
-    this.refreshHeroes();
+    this.resetHeroes();
     this.setCurrentClasses();
     this.setCurrentStyles();
   }
 
   ngAfterViewInit() {
-    this.detectNgForTrackByEffects();
+    // Detect effects of NgForTrackBy
+    trackChanges(this.heroesNoTrackBy,   () => this.heroesNoTrackByCount += 1);
+    trackChanges(this.heroesWithTrackBy, () => this.heroesWithTrackByCount += 1);
   }
+
+  @ViewChildren('noTrackBy')   heroesNoTrackBy:   QueryList<ElementRef>;
+  @ViewChildren('withTrackBy') heroesWithTrackBy: QueryList<ElementRef>;
 
   actionName = 'Go for it';
   alert = alerter;
@@ -42,19 +47,39 @@ export class AppComponent implements AfterViewInit, OnInit {
   callPhone(value: string) {this.alert(`Calling ${value} ...`); }
   canSave =  true;
 
+  changeIds() {
+    this.resetHeroes();
+    this.heroes.forEach(h => h.id += 10 * this.heroIdIncrement++);
+    this.heroesWithTrackByCountReset = -1;
+  }
+
+  clearTrackByCounts() {
+    const trackByCountReset = this.heroesWithTrackByCountReset;
+    this.resetHeroes();
+    this.heroesNoTrackByCount = -1;
+    this.heroesWithTrackByCount = trackByCountReset;
+    this.heroIdIncrement = 1;
+  }
+
+  clicked = '';
+  clickMessage = '';
+  clickMessage2 = '';
+
   Color = Color;
   color = Color.Red;
   colorToggle() {this.color = (this.color === Color.Red) ? Color.Blue : Color.Red; }
 
-  currentHero = Hero.MockHeroes[0];
+  currentHero: Hero;
 
   deleteHero(hero: Hero) {
-    this.alert('Deleted hero: ' + (hero && hero.firstName));
+    this.alert(`Delete ${hero ? hero.name : 'the hero'}.`);
   }
 
   // #docregion evil-title
   evilTitle = 'Template <script>alert("evil never sleeps")</script>Syntax';
   // #enddocregion evil-title
+
+  fontSizePx = 16;
 
   title = 'Template Syntax';
 
@@ -69,22 +94,26 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   getVal() { return this.val; }
 
+  hero: Hero; // defined to demonstrate template context precedence
   heroes: Hero[];
+
+  // trackBy change counting
+  heroesNoTrackByCount   = 0;
+  heroesWithTrackByCount = 0;
+  heroesWithTrackByCountReset = 0;
+
+  heroIdIncrement = 1;
 
   // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
   // Public Domain terms of use: http://www.wpclipart.com/terms.html
   heroImageUrl = 'images/hero.png';
 
-  // iconUrl = 'https://angular.io/resources/images/logos/standard/shield-large.png';
-  clicked = '';
-  clickMessage = '';
-  clickMessage2 = '';
   iconUrl = 'images/ng-logo.png';
   isActive = false;
   isSpecial = true;
   isUnchanged = true;
 
-  nullHero: Hero = null; // or undefined
+  nullHero: Hero = null;
 
   onCancel(event: KeyboardEvent) {
     let evtMsg = event ? ' Event target is ' + (<HTMLElement>event.target).innerHTML : '';
@@ -101,26 +130,20 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.alert('Saved.' + evtMsg);
   }
 
-  onSubmit(form: NgForm) {
-    let evtMsg = form.valid ?
-      ' Form value is ' + JSON.stringify(form.value) :
-      ' Form is invalid';
-    this.alert('Form submitted.' + evtMsg);
-  }
+  onSubmit() { /* referenced but not used */}
 
   product = {
     name: 'frimfram',
     price: 42
   };
 
-  // #docregion refresh-heroes
-  // update this.heroes with fresh set of cloned heroes
-  refreshHeroes() {
-    this.heroes = Hero.MockHeroes.map(hero => Hero.clone(hero));
+  // updates with fresh set of cloned heroes
+  resetHeroes() {
+    this.heroes = Hero.heroes.map(hero => hero.clone());
+    this.currentHero = this.heroes[0];
+    this.heroesWithTrackByCountReset = 0;
   }
-  // #enddocregion refresh-heroes
 
-  // #docregion same-as-it-ever-was
   private samenessCount = 5;
   moreOfTheSame() { this.samenessCount++; };
   get sameAsItEverWas() {
@@ -131,11 +154,9 @@ export class AppComponent implements AfterViewInit, OnInit {
     //   return {id:id, text: 'same as it ever was ...'};
     // });
   }
-  // #enddocregion same-as-it-ever-was
 
-  setUpperCaseFirstName(firstName: string) {
-    // console.log(firstName);
-    this.currentHero.firstName = firstName.toUpperCase();
+  setUppercaseName(name: string) {
+    this.currentHero.name = name.toUpperCase();
   }
 
   // #docregion setClasses
@@ -162,69 +183,31 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
   // #enddocregion setStyles
 
-  toeChoice = '';
-  toeChooser(picker: HTMLFieldSetElement) {
-    let choices = picker.children;
-    for (let i = 0; i < choices.length; i++) {
-      let choice = <HTMLInputElement>choices[i];
-      if (choice.checked) {return this.toeChoice = choice.value; }
-    }
-  }
-
   // #docregion trackByHeroes
-  trackByHeroes(index: number, hero: Hero) { return hero.id; }
+  trackByHeroes(index: number, hero: Hero): number { return hero.id; }
   // #enddocregion trackByHeroes
 
   // #docregion trackById
-  trackById(index: number, item: any): string { return item['id']; }
+  trackById(index: number, item: any): number { return item['id']; }
   // #enddocregion trackById
 
   val = 2;
   // villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
   // Public Domain terms of use http://www.clker.com/disclaimer.html
   villainImageUrl = 'images/villain.png';
-
-
-  //////// Detect effects of NgForTrackBy ///////////////
-  @ViewChildren('noTrackBy') childrenNoTrackBy: QueryList<ElementRef>;
-  @ViewChildren('withTrackBy') childrenWithTrackBy: QueryList<ElementRef>;
-
-  private _oldNoTrackBy: HTMLElement[];
-  private _oldWithTrackBy: HTMLElement[];
-
-  heroesNoTrackByChangeCount = 0;
-  heroesWithTrackByChangeCount = 0;
-
-  private detectNgForTrackByEffects() {
-    this._oldNoTrackBy   = toArray(this.childrenNoTrackBy);
-    this._oldWithTrackBy = toArray(this.childrenWithTrackBy);
-
-    this.childrenNoTrackBy.changes.subscribe((changes: any) => {
-      let newNoTrackBy = toArray(changes);
-      let isSame = this._oldNoTrackBy.every((v: any, i: number) => v === newNoTrackBy[i]);
-      if (!isSame) {
-        this._oldNoTrackBy = newNoTrackBy;
-        this.heroesNoTrackByChangeCount++;
-      }
-    });
-
-    this.childrenWithTrackBy.changes.subscribe((changes: any) => {
-      let newWithTrackBy = toArray(changes);
-      let isSame = this._oldWithTrackBy.every((v: any, i: number) => v === newWithTrackBy[i]);
-      if (!isSame) {
-        this._oldWithTrackBy = newWithTrackBy;
-        this.heroesWithTrackByChangeCount++;
-      }
-    });
-  }
-  ///////////////////
-
 }
 
-// helper to convert viewChildren to an array of HTMLElements
-function toArray(viewChildren: QueryList<ElementRef>) {
-  let result: HTMLElement[] = [];
-  let children = viewChildren.toArray()[0].nativeElement.children;
-  for (let i = 0; i < children.length; i++) { result.push(children[i]); }
-  return result;
+// helper to track changes to viewChildren
+function trackChanges(views: QueryList<ElementRef>, changed: () => void) {
+  let oldRefs = views.toArray();
+  views.changes.subscribe((changes: QueryList<ElementRef>) => {
+      const changedRefs = changes.toArray();
+      // Is every changed ElemRef the same as old and in the same position
+      const isSame = oldRefs.every((v, i) => v === changedRefs[i]);
+      if (!isSame) {
+        oldRefs = changedRefs;
+        // wait a tick because called after views are constructed
+        setTimeout(changed, 0);
+      }
+  });
 }
