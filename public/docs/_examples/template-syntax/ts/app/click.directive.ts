@@ -27,7 +27,7 @@ export class ClickDirective {
   outputs: ['clicks:myClick']  // propertyName:alias
 })
 // #enddocregion output-myClick2
-export class ClickDirective2 {
+export class Click2Directive {
   clicks = new EventEmitter<string>();
   toggle = false;
 
