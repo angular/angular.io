@@ -3,6 +3,7 @@
 
 include {$ relativePath(doc.path, '_util-fns') $}
 
+// DESCRIPTION BANNER
 {%- if doc.whatItDoes %}
 div(class="banner")
   p.text-body
@@ -10,28 +11,52 @@ div(class="banner")
 {$ doc.whatItDoes | indentForMarkdown(6) $}
 {% endif %}
 
-article(class="l-content-small grid-fluid docs-content")
-  {% include "layout/_security-notes.html" %}
-  {% include "layout/_deprecated-notes.html" %}
-  {% include "layout/_how-to-use.html" %}
+article(class="docs-content")
+
+  // SECURITY NOTES
+  {% if doc.showSecurityNotes and doc.security %}
+    h2 Security Risk
+    :marked
+  {$ doc.security | indentForMarkdown(6) $}
+  {% endif %}
+
+  // DEPRECATED NOTES
+  {% if doc.showDeprecatedNotes %}
+    h2 Deprecation Notes
+    :marked
+    {%- if doc.deprecated %}
+  {$ doc.deprecated | indentForMarkdown(6) $}
+    {% else %}
+      *Not yet documented*
+    {% endif %}
+  {% endif %}
+
+  // HOW TO USE
+  {%- if doc.howToUse %}
+    h2(class="h2-api-docs") How to use
+    :marked
+  {$ doc.howToUse | indentForMarkdown(6) $}
+  {% endif %}
 
 
-  h2(class="h2-api-docs") Description
+{%- if doc.description %}
+  h2 Description
     :marked
       {%- if not doc.notYetDocumented %}
 {$ doc.description | indentForMarkdown(6) | trimBlankLines $}
       {% endif %}
+{% endif %}
 
 
 {% if doc.metadataDoc and doc.metadataDoc.members.length %}
 
-  h2(class="h2-api-docs") Metadata Properties
-  div(class="code-links" flex="80" flex-xs="100")
-    {% for metadata in doc.metadataDoc.members %}{% if not metadata.internal %}
-    a(name="{$ metadata.name $}-anchor" class="anchor-offset")
-    pre(class="prettyprint no-bg" ng-class="{ 'anchor-focused': appCtrl.isApiDocMemberFocused('{$ metadata.name $}') }")
-      code(class="api-doc-code").
-        {$ metadata.name $}{$ params.paramList(metadata.parameters) | indent(8, false) | trim $}{$ params.returnType(metadata.returnType) $}
+  h2 Metadata Properties
+
+  {% for metadata in doc.metadataDoc.members %}{% if not metadata.internal %}
+  a(name="{$ metadata.name $}-anchor" class="anchor-offset")
+  pre(class="prettyprint no-bg" ng-class="{ 'anchor-focused': appCtrl.isApiDocMemberFocused('{$ metadata.name $}') }")
+    code(class="api-doc-code").
+      {$ metadata.name $}{$ params.paramList(metadata.parameters) | indent(8, false) | trim $}{$ params.returnType(metadata.returnType) $}
 
     :marked
       {%- if not metadata.notYetDocumented %}
@@ -47,7 +72,7 @@ article(class="l-content-small grid-fluid docs-content")
 
 {% block body %}{% endblock %}
 
-
+// CONTRIBUTORS
 footer.contributors.
   exported from {@link {$ doc.moduleDoc.id $} {$doc.moduleDoc.id $} } defined in {$ github.githubViewLink(doc, versionInfo) $}
 
