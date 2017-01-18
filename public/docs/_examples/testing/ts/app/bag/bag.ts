@@ -346,7 +346,7 @@ export class MyIfChildComponent implements OnInit, OnChanges, OnDestroy {
     <label>Parent value:
       <input [(ngModel)]="parentValue">
     </label>
-    <button (click)='clicked()'>{{toggleLabel}} Child</button><br>
+    <button (click)="clicked()">{{toggleLabel}} Child</button><br>
     <div *ngIf="showChild"
          style="margin: 4px; padding: 4px; background-color: aliceblue;">
       <my-if-child-1  [(value)]="parentValue"></my-if-child-1>
