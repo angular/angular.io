@@ -18,7 +18,7 @@ import { UserService } from './user.service';
     <h2>User</h2>
     <p id="user">
       {{userInfo}}
-      <button (click)='nextUser()'>Next User</button>
+      <button (click)="nextUser()">Next User</button>
     <p>
     <my-heroes id="authorized" *ngIf="isAuthorized"></my-heroes>
     <my-heroes id="unauthorized" *ngIf="!isAuthorized"></my-heroes>
