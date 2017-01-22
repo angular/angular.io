@@ -1,12 +1,17 @@
 include ../_util-fns
 
+// The docs standard h4 style uppercases, making code terms unreadable. Override it.
+style.
+  h4 {font-size: 17px !important; text-transform: none !important;}
+  .syntax { font-family: Consolas, 'Lucida Sans', Courier, sans-serif; color: black; font-size: 85%; }
+
 :marked
   [**Webpack**](https://webpack.github.io/) is a popular module bundler,
   a tool for bundling application source code in convenient _chunks_ 
   and for loading that code from a server into a browser.
   
-  It's an excellent alternative to the *SystemJS* approach we use throughout the documentation.
-  In this guide we get a taste of Webpack and how to use it with Angular applications.
+  It's an excellent alternative to the *SystemJS* approach used elsewhere in the documentation.
+  This guide offers a taste of Webpack and explains how to use it with Angular applications.
   
   <a id="top"></a>
   ## Table of contents
@@ -40,17 +45,17 @@ include ../_util-fns
 
   Webpack roams over your application source code, 
   looking for `import` statements, building a dependency graph, and emitting one (or more) _bundles_.
-  With plugin "loaders" Webpack can preprocess and minify different non-JavaScript files such as TypeScript, SASS, and LESS files. 
+  With plugins and rules, Webpack can preprocess and minify different non-JavaScript files such as TypeScript, SASS, and LESS files. 
 
-  We determine what Webpack does and how it does it with a JavaScript configuration file, `webpack.config.js`.
+  You determine what Webpack does and how it does it with a JavaScript configuration file, `webpack.config.js`.
   
 a(id="entries-outputs")
 .l-main-section
 :marked
   ### Entries and outputs
   
-  We feed Webpack with one or more *entry* files and let it find and incorporate the dependencies that radiate from those entries. 
-  In this example, we start from the application's root file, `src/app.ts`:
+  You supply Webpack with one or more *entry* files and let it find and incorporate the dependencies that radiate from those entries. 
+  The one entry point file in this example is the application's root file, `src/app.ts`:
   
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'one-entry', 'webpack.config.js (single entry)')(format=".")
   
@@ -60,38 +65,37 @@ a(id="entries-outputs")
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'app-example', 'src/app.ts')(format=".")
 
 :marked
-  Here it sees that we're importing *@angular/core* so it adds that to its dependency list for (potential) inclusion in the bundle.
-  It opens *@angular/core* and follows _its_ network of `import` statements until it has built the complete dependency graph from `app.ts` down.
+  It sees that you're importing *@angular/core* so it adds that to its dependency list for (potential) inclusion in the bundle.
+  It opens the *@angular/core* file and follows _its_ network of `import` statements until it has built the complete dependency graph from `app.ts` down.
   
   Then it **outputs** these files to the `app.js` _bundle file_ designated in configuration:
   
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'one-output', 'webpack.config.js (single output)')(format=".")
 
 :marked
-  This `app.js` output bundle is a single JavaScript file that contains our application source and its dependencies. 
-  We'll load it later with a &lt;script&gt; tag in our index.html. 
+  This `app.js` output bundle is a single JavaScript file that contains the application source and its dependencies. 
+  You'll load it later with a `<script>` tag in the `index.html`. 
   
   #### Multiple bundles
-  We probably do not want one giant bundle of everything.
-  We'll likely prefer to separate our volatile application app code from comparatively stable vendor code modules.
+  You probably don't want one giant bundle of everything.
+  It's preferable to separate the volatile application app code from comparatively stable vendor code modules.
   
-  We change the configuration so that we have two entry points, `app.ts` and `vendor.ts`:
+  Change the configuration so that it has two entry points, `app.ts` and `vendor.ts`:
 
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'two-entries','webpack.config.js (two entries)')(format=".")
 :marked
   Webpack constructs two separate dependency graphs
-  and emits *two* bundle files, one called `app.js` containing only our application code and 
+  and emits *two* bundle files, one called `app.js` containing only the application code and 
   another called `vendor.js` with all the vendor dependencies.
  
 .l-sub-section
   :marked
-    The `[name]` in the output name is a Webpack *placeholder* that is replaced with the entry names.
-    `app` and `vendor` respectively.
-    
-    We need a plugin to make this work; we'll [cover that later](#commons-chunk-plugin) in the chapter.
+    The `[name]` in the output name is a *placeholder* that a Webpack plugin replaces with the entry names,
+    `app` and `vendor`. Plugins are [covered later](#commons-chunk-plugin) in the guide.
 
 :marked
-  We met `app.ts` earlier. We wrote `vendor.ts` such that it imports the vendor modules we need:
+  To tell Webpack what belongs in the vendor bundle, 
+  add a `vendor.ts` file that only imports the application's third-party modules:
 +makeExample('webpack/ts/src/vendor.ts', null,'src/vendor.ts')(format=".")
 
 
@@ -101,9 +105,9 @@ a(id="loaders")
   ### Loaders
 
   Webpack can bundle any kind of file: JavaScript, TypeScript, CSS, SASS, LESS, images, html, fonts, whatever.
-  Webpack itself doesn't know what to do with a non-JavaScript file.
-  We teach it to process such files into JavaScript with *loaders*. 
-  Here we configure loaders for TypeScript and CSS:
+  Webpack _itself_ only understands JavaScript files.
+  Teach it to transform non-JavaScript file into their JavaScript equivalents with *loaders*. 
+  Configure loaders for TypeScript and CSS as follows.
   
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'loaders', 'webpack.config.js (two entries)')(format=".")
 
@@ -118,7 +122,7 @@ a(id="loaders")
   The first `import` file matches the `.ts` pattern so Webpack processes it with the `awesome-typescript-loader`.
   The imported file doesn't match the second pattern so its loader is ignored. 
   
-  The second `import` matches the second `.css` pattern for which we have *two* loaders chained by the (!) character. 
+  The second `import` matches the second `.css` pattern for which you have *two* loaders chained by the (!) character. 
   Webpack applies chained loaders *right to left* so it applies 
   the `css` loader first (to flatten CSS `@import` and `url(...)` statements) and
    then the `style` loader (to append the css inside *&lt;style&gt;* elements on the page).
@@ -129,7 +133,7 @@ a(id="plugins")
   ### Plugins
   
   Webpack has a build pipeline with well-defined phases.
-  We tap into that pipeline with plugins such as the `uglify` minification plugin:
+  Tap into that pipeline with plugins such as the `uglify` minification plugin:
   
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'plugins')(format=".")
   
@@ -138,12 +142,12 @@ a(id="configure-webpack")
 :marked
   ## Configure Webpack
   
-  After that brief orientation, we are ready to build our own Webpack configuration for Angular apps. 
+  After that brief orientation, you are ready to build your own Webpack configuration for Angular apps. 
   
   Begin by setting up the development environment.
   
   Create a **new project folder**
-code-example(format="").
+code-example(language="sh" class="code-shell").
   mkdir angular-webpack
   cd    angular-webpack
 
@@ -165,79 +169,114 @@ code-example(format="").
 )
 .l-sub-section
   :marked
-    Many of these files and much of their content should be familiar from other Angular documentation chapters.
-    
-    Learn about the `package.json` in the [npm packages](../guide/npm-packages.html) chapter.
-    We require packages for Webpack use in addition to the ones listed in that chapter.
-    
-    Learn about `tsconfig.json` in the [Typescript configuration](../guide/typescript-configuration.html) chapter.
+    Many of these files should be familiar from other Angular documentation guides,
+    especially the [_Typescript configuration_](../guide/typescript-configuration.html) and
+    [_npm packages_](../guide/npm-packages.html) guides.
+
+    Webpack, the plugins, and the loaders are also installed as packages. 
+    They are listed in the updated `packages.json`.
+
 :marked
-  Open a terminal/console window and install the *npm* packages with `npm install`.
- 
-  
+  Open a terminal window and (re)install the *npm* packages
+code-example(language="sh" class="code-shell").
+  npm install
+
+a#polyfills
+.l-main-section
+:marked
+  ### Polyfills
+
+  You'll need polyfills to run an Angular application in most browsers as explained
+  in the [_Browser Support_](browser-support.html) guide.
+
+  Polyfills should be bundled separately from the application and vendor bundles.
+  Add a `polyfills.ts` like this one to the `src/` folder.
+
++makeExample('webpack/ts/src/polyfills.ts', '', 'src/polyfills.ts')(format=".")
+
+.callout.is-critical
+  header Loading polyfills
+  :marked
+    Load `zone.js` early within `polyfills.ts`, immediately after the other ES6 and metadata shims.
+
+:marked
+  Because this bundle file will load first, `polyfills.ts` is also a good place to configure the browser environment 
+  for production or development.
+
 a(id="common-configuration")
 .l-main-section
 :marked
   ### Common Configuration
   
-  We will define separate configurations for development, production, and test environments.
-  All three have some configuration in common.
-  We'll gather that common configuration in a separate file called `webpack.common.js`.
-  
-  Let's see the entire file and then walk through it a section at a time:
+  Developers typically have separate configurations for development, production, and test environments.
+  All three have a lot of configuration in common.
+
+  Gather the common configuration in a file called `webpack.common.js`.
   
 +makeExample('webpack/ts/config/webpack.common.js', null, 'config/webpack.common.js')(format=".")
 
 :marked
-  Webpack is a NodeJS-based tool so its configuration is a JavaScript _commonjs_ module file 
-  that begins with `require` statements as such files do. 
-  
-  The configuration exports several objects, beginning with the *entries* described earlier:
+  ### Inside _webpack.common.js_
+  Webpack is a NodeJS-based tool that reads configuration from a JavaScript _commonjs_ module file.
+
+  The configuration imports dependencies with `require` statements
+  and exports several objects as properties of a `module.exports` object.
+
+  * [`entries`](#common-entries) - the entry-point files that define the bundles.
+  * [`resolve`](#common-resolve) - how to resolve file names when they lack extensions.
+  * [`module.rules`](#common-rules) - `module` is an object with `rules` for deciding how files are loaded.
+  * [`plugins`](#common-plugins) - creates instances of the plugins.
+
+a#common-entries
+:marked
+  #### _entries_
+
+  The first export is the *entries* object, described above:
   
 +makeExample('webpack/ts/config/webpack.common.js', 'entries', 'config/webpack.common.js')(format=".")
 :marked
-  We are splitting our application into three bundles:
+  This *entries* object defines the three bundles:
   
-  * polyfills - the standard polyfills we require to run Angular applications in most modern browsers.
-  * vendor - the vendor files we need: Angular, lodash, bootstrap.css...
-  * app - our application code.
-  
-.callout.is-critical
-  header Loading polyfills
-  :marked
-    Load Zone.js early, immediately after the other ES6 and metadata shims.
-  
+  * polyfills - the polyfills needed to run Angular applications in most modern browsers.
+  * vendor - the third-party dependencies such as Angular, lodash, and bootstrap.css.
+  * app - the application code.
+
+a#common-resolve
 :marked
-  Our app will `import` dozens if not hundreds of JavaScript and TypeScript files. 
-  We _might_ write `import` statements with explicit extensions as in this example:
+  #### _resolve_ extension-less imports
+
+  The app will `import` dozens if not hundreds of JavaScript and TypeScript files. 
+  You could write `import` statements with explicit extensions like this example:
 +makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'single-import')(format=".")
 
 :marked
-  But most of our `import` statements won't mention the extension at all.
-  So we  tell Webpack to _resolve_ module file requests by looking for matching files with
-  
-  * an explicit extension (signified by the empty extension string, `''`) or 
-  * `.js` extension (for regular JavaScript files and pre-compiled TypeScript files) or 
-  * `.ts` extension.
+  But most `import` statements don't mention the extension at all.
+  Tell Webpack to resolve extension-less file requests by looking for matching files with
+  `.ts` extension or `.js` extension (for regular JavaScript files and pre-compiled TypeScript files).
   
 +makeExample('webpack/ts/config/webpack.common.js', 'resolve', 'config/webpack.common.js')(format=".")
 .l-sub-section
   :marked
-    We could add  `.css` and `.html` later if we want Webpack to resolve extension-less files with _those_ extension too.
+    If Webpack should resolve extension-less files for styles and HTML,
+    add `.css` and `.html` to the list.
+
+a#common-rules
 :marked
-  Next we specify the loaders:
+:marked
+  #### _module.rules_
+  Rules tell Webpack which loaders to use for each file (AKA _module_):
   
 +makeExample('webpack/ts/config/webpack.common.js', 'loaders', 'config/webpack.common.js')(format=".")
 
 :marked
-  * awesome-typescript-loader - a loader to transpile our Typescript code to ES5, guided by the `tsconfig.json` file
+  * awesome-typescript-loader - a loader to transpile the Typescript code to ES5, guided by the `tsconfig.json` file
   * angular2-template-loader - loads angular components' template and styles
   * html - for component templates
   * images/fonts - Images and fonts are bundled as well.
   * css - The pattern matches application-wide styles; the second handles component-scoped styles (the ones specified in a component's `styleUrls` metadata property)
 .l-sub-section
   :marked
-    The first pattern excludes `.css` files within the `/src/app` directories where our component-scoped styles sit.
+    The first pattern excludes `.css` files within the `/src/app` directories where the component-scoped styles sit.
     It includes only `.css` files located at or above `/src`; these are the application-wide styles.
     The `ExtractTextPlugin` (described below) applies the `style` and `css` loaders to these files.
     
@@ -246,10 +285,13 @@ a(id="common-configuration")
 
 .l-sub-section
   :marked
-    Multiple loaders can be also chained using the array notation.
+    Multiple loaders can be chained using the array notation.
 
+a#common-plugins
 :marked
-  Finally we add two plugins:
+:marked
+  #### _plugins_
+  Finally, create instances of three plugins:
   
 +makeExample('webpack/ts/config/webpack.common.js', 'plugins', 'config/webpack.common.js')(format=".")
 
@@ -257,23 +299,24 @@ a(id="commons-chunk-plugin")
 :marked
   #### *CommonsChunkPlugin*
   
-  We want the `app.js` bundle to contain only app code and the `vendor.js` bundle to contain only the vendor code. 
+  The `app.js` bundle should contain only application code. All vendor code belongs in the `vendor.js` bundle. 
   
-  Our application code `imports` vendor code. Webpack is not smart enough to keep the vendor code out of the `app.js` bundle.
-  We rely on the `CommonsChunkPlugin` to do that job. 
+  Of course the application code `imports` vendor code. 
+  Webpack itself is not smart enough to keep the vendor code out of the `app.js` bundle.
+  The `CommonsChunkPlugin` does that job. 
 .l-sub-section
   :marked
-    It identifies the hierarchy among three _chunks_: `app` -> `vendor` -> `polyfills`. 
+    The `CommonsChunkPlugin` identifies the hierarchy among three _chunks_: `app` -> `vendor` -> `polyfills`. 
     Where Webpack finds that `app` has shared dependencies with `vendor`, it removes them from `app`.
-    It would do the same if `vendor` and `polyfills` had shared dependencies (which they don't).
+    It would remove `polyfills` from `vendor` if they shared dependencies (which they don't).
 
 a(id="html-webpack-plugin")
 :marked
   #### *HtmlWebpackPlugin*
   
   Webpack generates a number of js and css files. 
-  We _could_ insert them into our `index.html` _manually_. That would be tedious and error-prone.
-  Webpack can inject those scripts and links for us with the `HtmlWebpackPlugin`.
+  You _could_ insert them into the `index.html` _manually_. That would be tedious and error-prone.
+  Webpack can inject those scripts and links for you with the `HtmlWebpackPlugin`.
   
 a(id="environment-configuration")
 .l-main-section
@@ -281,8 +324,8 @@ a(id="environment-configuration")
   ### Environment-specific configuration
   
   The `webpack.common.js` configuration file does most of the heavy lifting. 
-  We create separate, environment-specific configuration files that build on `webpack.common`
-  by merging into it the peculiarities particular to their target environments.
+  Create separate, environment-specific configuration files that build on `webpack.common`
+  by merging into it the peculiarities particular to the target environments.
   
   These files tend to be short and simple.
   
@@ -291,29 +334,29 @@ a(id="development-configuration")
 :marked
   ### Development Configuration
   
-  Here is the development configuration file, `webpack.dev.js`
+  Here is the `webpack.dev.js` development configuration file. 
   
 +makeExample('webpack/ts/config/webpack.dev.js', null, 'config/webpack.dev.js')(format=".")
 
 :marked
-  The development build relies on the Webpack development server which we configure near the bottom of the file.
+  The development build relies on the Webpack development server, configured near the bottom of the file.
   
-  Although we tell Webpack to put output bundles in the `dist` folder,
+  Although you tell Webpack to put output bundles in the `dist` folder,
   the dev server keeps all bundles in memory; it doesn't write them to disk.
-  So we won't find any files in the `dist` folder (at least not any generated from `this development build`).
+  You won't find any files in the `dist` folder (at least not any generated from `this development build`).
   
   
   The `HtmlWebpackPlugin` (added in `webpack.common.js`) use the *publicPath* and the *filename* settings to generate 
   appropriate &lt;script&gt; and &lt;link&gt; tags into the `index.html`.
   
-  Our CSS are buried inside our Javascript bundles by default. The `ExtractTextPlugin` extracts them into
+  The CSS styles are buried inside the Javascript bundles by default. The `ExtractTextPlugin` extracts them into
   external `.css` files that the `HtmlWebpackPlugin` inscribes as &lt;link&gt; tags into the `index.html`.
   
   Refer to the Webpack documentation for details on these and other configuration options in this file
   
   Grab the app code at the end of this guide and try:
   
-code-example(format="").
+code-example(language="sh" class="code-shell").
   npm start
   
 a(id="production-configuration")
@@ -326,29 +369,30 @@ a(id="production-configuration")
 +makeExample('webpack/ts/config/webpack.prod.js', null, 'config/webpack.prod.js')(format=".")
 
 :marked
-  We don't use a development server. We're expected to deploy the application and its dependencies to a real production server.
+  You'll deploy the application and its dependencies to a real production server.
+  You won't deploy the artifacts needed only in development.
   
-  This time the output bundle files are physically placed in the `dist` folder.
+  Put the production output bundle files in the `dist` folder.
   
   Webpack generates file names with cache-busting hash.
-  Thanks to the `HtmlWebpackPlugin` we don't have to update the `index.html` file when the hashes changes.
+  Thanks to the `HtmlWebpackPlugin`, you don't have to update the `index.html` file when the hashes changes.
   
   There are additional plugins:
   
-  * **NoErrorsPlugin** - stops the build if there is any error.
-  * **DedupePlugin** - detects identical (and nearly identical) files and removes them from the output.
+  * **NoEmitOnErrorsPlugin** - stops the build if there is an error.
   * **UglifyJsPlugin** - minifies the bundles.
   * **ExtractTextPlugin** - extracts embedded css as external files, adding cache-busting hash to the filename.
-  * **DefinePlugin** - use to define environment variables that we can reference within our application.
+  * **DefinePlugin** - use to define environment variables that you can reference within the application.
+  * **LoaderOptionsPlugins** - to override options of certain loaders.
   
-  Thanks to the *DefinePlugin* and the `ENV` variable defined at top, we can enable Angular production mode like this:
+  Thanks to the *DefinePlugin* and the `ENV` variable defined at top, you can enable Angular production mode like this:
   
 +makeExample('webpack/ts/src/main.ts', 'enable-prod')(format=".")
   
 :marked
   Grab the app code at the end of this guide and try:
   
-code-example(format="").
+code-example(language="sh" class="code-shell").
   npm run build
   
 a(id="test-configuration")
@@ -356,25 +400,23 @@ a(id="test-configuration")
 :marked
   ### Test Configuration
   
-  We don't need much configuration to run unit tests. 
-  We don't need the loaders and plugins that we declared for our development and production builds.
-  We probably don't need to load and process the application-wide styles files for unit tests and doing so would slow us down;
-  we'll use the `null` loader for those CSS.
+  You don't need much configuration to run unit tests. 
+  You don't need the loaders and plugins that you declared for your development and production builds.
+  You probably don't need to load and process the application-wide styles files for unit tests and doing so would slow you down;
+  you'll use the `null` loader for those CSS files.
   
-  We could merge our test configuration into the `webpack.common` configuration and override the parts we don't want or need.
+  You could merge the test configuration into the `webpack.common` configuration and override the parts you don't want or need.
   But it might be simpler to start over with a completely fresh configuration.
   
 +makeExample('webpack/ts/config/webpack.test.js', null, 'config/webpack.test.js')(format=".")
 
 :marked
-  Here's our karma configuration:
+  Reconfigure karma to use webpack to run the tests:
   
 +makeExample('webpack/ts/config/karma.conf.js', null, 'config/karma.conf.js')(format=".")
 
 :marked
-  We're telling Karma to use webpack to run the tests. 
-  
-  We don't precompile our TypeScript; Webpack transpiles our Typescript files on the fly, in memory, and feeds the emitted JS directly to Karma.
+  You don't precompile the TypeScript; Webpack transpiles the Typescript files on the fly, in memory, and feeds the emitted JS directly to Karma.
   There are no temporary files on disk.
   
   The `karma-test-shim` tells Karma what files to pre-load and 
@@ -383,23 +425,23 @@ a(id="test-configuration")
 +makeExample('webpack/ts/config/karma-test-shim.js', null, 'config/karma-test-shim.js')(format=".")
 
 :marked
-  Notice that we do _not_ load our application code explicitly.
-  We tell Webpack to find and load our test files (the files ending in `.spec.ts`).
+  Notice that you do _not_ load the application code explicitly.
+  You tell Webpack to find and load the test files (the files ending in `.spec.ts`).
   Each spec file imports all &mdash; and only &mdash; the application source code that it tests.
-  Webpack loads just _those_ specific application files and ignores the other files that we aren't testing.
+  Webpack loads just _those_ specific application files and ignores the other files that you aren't testing.
   
 :marked
   Grab the app code at the end of this guide and try:
   
-code-example(format="").
+code-example(language="sh" class="code-shell").
   npm test
 
 <a id="try"></a>
 :marked
   ## Trying it out
   
-  Here is the source code for a small application that we can bundle with the
-  Webpack techniques we learned in this chapter.
+  Here is the source code for a small application that bundles with the
+  Webpack techniques covered in this guide.
   
 +makeTabs(
   `webpack/ts/src/index.html,
@@ -431,13 +473,15 @@ p.
   <a href="https://raw.githubusercontent.com/angular/angular.io/master/public/resources/images/logos/angular2/angular.png" target="_blank">
   <img src="/resources/images/logos/angular2/angular.png" height="40px" title="download Angular logo"></a>.
 
-
+a#bundle-ts
+:marked
+  Here again are the TypeScript entry-point files that define the `polyfills` and `vendor` bundles.
 +makeTabs(
-  `webpack/ts/src/vendor.ts,
-  webpack/ts/src/polyfills.ts`,
+  `webpack/ts/src/polyfills.ts,
+   webpack/ts/src/vendor.ts`,
   null,
-  `src/vendor.ts,
-  src/polyfills.ts`
+  `src/polyfills.ts,
+   src/vendor.ts`
 )
 <a id="highlights"></a>
 :marked
@@ -450,7 +494,8 @@ p.
 
   * The `AppComponent` itself has its own html template and css file. WebPack loads them with calls to `require()`. 
   Webpack stashes those component-scoped files in the `app.js` bundle too.
-  We don't see those calls in our source code; they're added behind the scenes by the `angular2-template-loader` plug-in. 
+  You don't see those calls in the source code; 
+  they're added behind the scenes by the `angular2-template-loader` plug-in. 
   
   * The `vendor.ts` consists of vendor dependency `import` statements that drive the `vendor.js` bundle.
   The application imports these modules too; they'd be duplicated in the `app.js` bundle
@@ -460,9 +505,9 @@ p.
 :marked
   ## Conclusions
   
-  We've learned just enough Webpack to configurate development, test and production builds 
+  You've learned just enough Webpack to configurate development, test and production builds 
   for a small Angular application.
   
-  _We could always do more_. Search the web for expert advice and expand your Webpack knowledge.
+  _You could always do more_. Search the web for expert advice and expand your Webpack knowledge.
   
   [Back to top](#top)

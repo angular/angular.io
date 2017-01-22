@@ -32,14 +32,14 @@ output: {
 // #enddocregion two-entries
 
 // #docregion loaders
-loaders: [
+rules: [
   {
     test: /\.ts$/
-    loaders: 'ts'
+    loader: 'awesome-typescript-loader'
   },
   {
     test: /\.css$/
-    loaders: 'style!css'
+    loaders: 'style-loader!css-loader'
   }
 ]
 // #enddocregion loaders
