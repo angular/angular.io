@@ -1,7 +1,49 @@
-{% extends 'layout/api.template.html' %}
+{% import "lib/githubLinks.html" as github -%}
+{% import "lib/paramList.html" as params -%}
+{% extends 'layout/_layout-plain.html' %}
 
 {% block body %}
+include {$ relativePath(doc.path, '_util-fns') $}
+
+{% include "_includes/_banner.html" %}
+
+{% include "_includes/_info-bar.html" %}
+
 {% include "_includes/_jump-nav.html" %}
 
-  p This is a TEST
+{% include "_includes/_quick-reference.html" %}
+
+{% include "layout/_security-notes.html" %}
+
+{% include "layout/_deprecated-notes.html" %}
+
+
+h2(id="api-description") Description
+div(class="code-links" flex="80" flex-xs="100")
+  :marked
+    {%- if not doc.notYetDocumented %}
+{$ doc.description | indentForMarkdown(4) | trimBlankLines $}
+    {% endif %}
+
+{% if doc.metadataDoc and doc.metadataDoc.members.length %}
+h2(id="meta-properties") Metadata Properties
+
+{% for metadata in doc.metadataDoc.members %}{% if not metadata.internal %}
+
+a(name="{$ metadata.name $}-anchor" class="anchor-offset")
+
+pre(class="prettyprint no-bg" ng-class="{ 'anchor-focused': appCtrl.isApiDocMemberFocused('{$ metadata.name $}') }")
+  code(class="api-doc-code").
+    {$ metadata.name $}{$ params.paramList(metadata.parameters) | indent(8, false) | trim $}{$ params.returnType(metadata.returnType) $}
+
+:marked
+  {%- if not metadata.notYetDocumented %}
+{$ metadata.description | indentForMarkdown(2) | replace('### Example', '') | replace('## Example', '') | replace('# Example', '') | trimBlankLines $}
+  {% endif -%}
+
+{% endif %}{% endfor %}
+{% endif %}
+
+{% include "_includes/_footer.html" %}
+
 {% endblock %}
