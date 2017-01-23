@@ -89,7 +89,8 @@ var _exampleBoilerplateFiles = [
   'styles.css',
   'systemjs.config.js',
   'tsconfig.json',
-  'tslint.json'
+  'tslint.json',
+  'angular-cli.json'
 ];
 
 var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
@@ -152,6 +153,24 @@ function isDartPath(path) {
 
 function excludeDartPaths(paths) {
   return paths.filter(function (p) { return !isDartPath(p); });
+}
+
+// Load example config and set defaults
+function getExampleConfig(appDir){
+  var exampleConfig = {};
+  try {
+    exampleConfig = fs.readJsonSync(`${appDir}/${_exampleConfigFilename}`);
+  } catch (e) { }
+
+  exampleConfig.build = exampleConfig.build || 'tsc';
+  exampleConfig.run = exampleConfig.run || 'http-server:e2e';
+
+  // Override config if the cli flag is set for tests
+  if (argv.cli){
+    exampleConfig.build = 'build:cli';
+    exampleConfig.run = 'http-server:cli';
+  }
+  return exampleConfig;
 }
 
 /**
@@ -249,10 +268,31 @@ function findAndRunE2eTests(filter, outputFile) {
     localExamplePaths = localExamplePaths.filter(function (fn) {
       return fn.match('/'+lang+'(?:-[^/]*)?$') != null;
     });
+
     localExamplePaths.forEach(function(examplePath) {
       examplePaths.push(examplePath);
     })
   });
+
+  // Filter suites that
+  if (argv.cli){
+    var cliSuitesSkipped = [];
+    examplePaths = examplePaths.filter(function (appDir) {
+      var config = getExampleConfig(appDir);
+      if (config.skipCli){ cliSuitesSkipped.push(appDir); }
+      return !config.skipCli;
+    });
+    if (cliSuitesSkipped.length > 0){
+      var log = [''];
+      log.push(`Suites skipped due to "skipCli" in ${_exampleConfigFilename}:`);
+      cliSuitesSkipped.forEach(function(val) {
+        log.push('  ' + val);
+      });
+      log = log.join('\n');
+      gutil.log(log);
+      fs.appendFileSync(outputFile, log);
+    }
+  }
 
   // run the tests sequentially
   var status = { passed: [], failed: [] };
@@ -275,24 +315,13 @@ function findAndRunE2eTests(filter, outputFile) {
 // fileName; then shut down the example.  All protractor output is appended
 // to the outputFile.
 function runE2eTsTests(appDir, outputFile) {
-  // Grab protractor configuration or defaults to systemjs config.
-  try {
-    var exampleConfig = fs.readJsonSync(`${appDir}/${_exampleConfigFilename}`);
-  } catch (e) {
-    exampleConfig = {};
-  }
-
-  var config = {
-    build: exampleConfig.build || 'tsc',
-    run: exampleConfig.run || 'http-server:e2e'
-  };
-
+  var config = getExampleConfig(appDir);
   var appBuildSpawnInfo = spawnExt('npm', ['run', config.build], { cwd: appDir });
   var appRunSpawnInfo = spawnExt('npm', ['run', config.run, '--', '-s'], { cwd: appDir });
 
   var run = runProtractor(appBuildSpawnInfo.promise, appDir, appRunSpawnInfo, outputFile);
 
-  if (fs.existsSync(appDir + '/aot/index.html')) {
+  if (fs.existsSync(appDir + '/aot/index.html') && !argv.cli) {
     run = run.then(() => runProtractorAoT(appDir, outputFile));
   }
   return run;

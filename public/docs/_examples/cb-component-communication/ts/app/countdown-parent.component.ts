@@ -18,8 +18,7 @@ import { CountdownTimerComponent }  from './countdown-timer.component';
   <button (click)="timer.stop()">Stop</button>
   <div class="seconds">{{timer.seconds}}</div>
   <countdown-timer #timer></countdown-timer>
-  `,
-  styleUrls: ['demo.css']
+  `
 })
 export class CountdownLocalVarParentComponent { }
 // #enddocregion lv
@@ -34,8 +33,7 @@ export class CountdownLocalVarParentComponent { }
   <button (click)="stop()">Stop</button>
   <div class="seconds">{{ seconds() }}</div>
   <countdown-timer></countdown-timer>
-  `,
-  styleUrls: ['demo.css']
+  `
 })
 export class CountdownViewChildParentComponent implements AfterViewInit {
 
