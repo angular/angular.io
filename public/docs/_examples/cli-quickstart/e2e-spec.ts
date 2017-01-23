@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -8,7 +8,7 @@ describe('cli-quickstart App', () => {
   });
 
   it('should display message saying app works', () => {
-    let pageTitle = element(by.css('cli-quickstart-app h1')).getText();
+    let pageTitle = element(by.css('app-root h1')).getText();
     expect(pageTitle).toEqual('My First Angular App');
   });
 });
