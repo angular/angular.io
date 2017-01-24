@@ -12,6 +12,7 @@ a#toc
     * [Ahead-of-Time (AOT) compilation](#aot)
     * [Webpack](#webpack)
     * [Tree shaking with _rollup_](#rollup)
+    * [Pruned libraries](#prune)
     * [Measure performance first](#measure)
   * [Angular configuration](#angular-configuration)
     * [The `base` tag](#base-tag)
@@ -53,10 +54,7 @@ a#dev-deploy
   The simplest way to deploy the app is to publish it to a web server
   directly out of the development environment.
 
-  It's not optimized and it won't be very fast for users.
-  But for some situations - like demos - all you need is to put your project online.
-
-  It's already running locally. You're just copying it, almost _as is_, 
+  It's already running locally. You'll just copy it, almost _as is_, 
   to a non-local server that others can reach.
 
   1. Copy _everything_ (or [_almost_ everything](#node-modules "Loading npm packages from the web")) 
@@ -75,21 +73,27 @@ a#dev-deploy
   1. Enable production mode as [described below](#enableprodmode) (optional).
 
   That's the simplest deployment you can do.
-  It's not optimized, but it's online.
+
+.alert.is-helpful
+  :marked
+    This is _not_ a production deployment. It's not optimized and it won't be fast for users.
+    It might be good enough for sharing your progress and ideas internally with managers, teammates, and other stakeholders.
+    Be sure to read about [optimizing for production](#optimize "Optimizing for production") below.
 
 
 a#node-modules
 :marked
-  ### Load npm packages from the web (SystemJS)
+  ### Load npm package files from the web (SystemJS)
 
   The `node_modules` folder of _npm packages_ contains much more code 
-  than what is needed to actually run your app in the browser.
-  More code mean longer upload and download times.
-  
-  `node_modules` for the Quickstart is typically 20,500+ files and 180+ MB.
+  than is needed to actually run your app in the browser.
+  The `node_modules` for the Quickstart installation is typically 20,500+ files and 180+ MB.
   The application itself requires a tiny fraction of that to run.
 
-  Load the _npm packages_ from the web instead.
+  It takes a long time to upload all of that useless bulk and 
+  users will wait unnecessarily while library files download piecemeal.
+
+  Load the few files you need from the web instead.
 
   (1) Make a copy of `index.html` for deployment and replace all `node_module` scripts
   with versions that load from the web. It might look like this.
@@ -129,13 +133,13 @@ a#node-modules
   The following trivial router sample app shows these changes.
 
 +makeTabs(
-  `production-deploy/ts/index.html,
-   production-deploy/ts/systemjs.config.server.js,
-   production-deploy/ts/app/main.ts,
-   production-deploy/ts/app/app.module.ts,
-   production-deploy/ts/app/app.component.ts,
-   production-deploy/ts/app/crisis-list.component.ts,
-   production-deploy/ts/app/hero-list.component.ts
+  `deployment/ts/index.html,
+   deployment/ts/systemjs.config.server.js,
+   deployment/ts/app/main.ts,
+   deployment/ts/app/app.module.ts,
+   deployment/ts/app/app.component.ts,
+   deployment/ts/app/crisis-list.component.ts,
+   deployment/ts/app/hero-list.component.ts
   `, 
   null,
   `index.html,
@@ -196,17 +200,12 @@ a#optimize
   - Inlining: pulls template html and css into the components.
   - Minification: removes excess whitespace, comments, and optional tokens.
   - Uglification: rewrites code to use short, cryptic variable and function names.
-  - Dead code elimination: removes unused code.
-  - Tree shaking: removes unreferenced modules.
-  - Performance measurement tools.
+  - Dead code elimination: removes unreferenced modules and unused code.
+  - Pruned libraries: drop unused libraries and pare others down to the features you need.
+  - Performance measurement: focus on optimizations that make a measurable difference.
 
   Each tool does something different. 
   They work best in combination and are mutually reinforcing.
-
-  All of these work over your original source code, so don't forget to optimize that as well!
-  Don't use more libraries than you need to.
-  For libraries that allow you to import only parts of it, do so.
-  A good example is RxJs, where you can import operators individually instead of the whole library.
 
   You can use any build system you like.
   Whatever system you choose, be sure to automate it so that 
@@ -247,10 +246,13 @@ a#webpack
 
 a#rollup
 :marked
-  ### _Tree shaking_ with _rollup_
+  ### Dead code elimination with _rollup_
 
-  Tree shaking reduces the total size of the application by removing entire exports from JavaScript modules.
-  If a library exports something that the application doesn't import, a tree shaking tool can remove it from the code base.
+  Any code that you don't call is _dead code_.
+  You can reduce the total size of the application substantially by removing dead code from the application and from third-party libraries.
+  
+  _Tree shaking_ is a _dead code elimination_ technique that removes entire exports from JavaScript modules.
+  If a library exports something that the application doesn't import, a tree shaking tool removes it from the code base.
 
   Tree shaking was popularized by
   <a href="http://rollupjs.org/" target="_blank" title="Rollup">Rollup</a>, a popular tool with an ecosystem of 
@@ -258,6 +260,19 @@ a#rollup
   Learn more about tree shaking and dead code elmination in
   <a href="https://medium.com/@Rich_Harris/tree-shaking-versus-dead-code-elimination-d3765df85c80#.15ih9cyvl" target="_blank" title="Tree-shaking and Dead Code Elimination">
   this post</a> by rollup-creator, Rich Harris.
+
+a#prune
+:marked
+  ### Pruned libraries
+
+  Don't count on automation to remove all dead code.
+
+  Remove libraries that you don't use, especially unnecessary scripts in `index.html`.
+  Consider smaller alternatives to the libraries that you do use.
+
+  Some libraries offer facilities for building a custom, skinny version with just the features you need.
+  Other libraries let you import features _a la carte_.
+  **RxJS** is a good example; import RxJS `Observable` operators individually instead of the entire library.
 
 a#measure
 :marked
@@ -273,8 +288,8 @@ a#measure
   <a href="https://developers.google.com/web/tools/chrome-devtools/network-performance/understanding-resource-timing" target="_blank" title="Chrome DevTools Network Performance">
   Chrome DevTools Network Performance page</a> is a good place to start learning about measuring performance. 
 
-  Another good performance test is [WebPageTest](https://www.webpagetest.org/),
-  which you can also use it to make sure your deployment was successful
+  The [WebPageTest](https://www.webpagetest.org/) tool is another good choice 
+  that can also help verify that your deployment was successful.
 
 a#angular-configuration
 .l-main-section
@@ -361,6 +376,7 @@ a#server-configuration
   This section covers changes you may have make to the server or to files deployed to the server.
 
 a#fallback
+:marked
   ### Routed apps must fallback to `index.html`
 
   Angular apps are perfect candidates for serving with a simple static HTML server.
