@@ -6,7 +6,9 @@ import { RouterModule }   from '@angular/router';
 
 import { AppComponent }        from './app.component';
 import { HeroDetailComponent } from './hero-detail.component';
+// #docregion import-dashboard
 import { DashboardComponent }  from './dashboard.component';
+// #enddocregion import-dashboard
 import { HeroesComponent }     from './heroes.component';
 import { HeroService }         from './hero.service';
 
