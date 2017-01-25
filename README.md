@@ -4,7 +4,7 @@
 Angular.io is site for Angular **documentation** . 
 
 This site also includes links to other helpful angular resources including 
-Angular 2, Angular 1, Angular Material, and AngularFire.
+AngularJS, Angular Material, and AngularFire.
 
 ## Issues
 
@@ -140,7 +140,8 @@ gulp install-example-angular
 
 
 ## Technology Used
-- Angular 1.x: The production ready version of Angular
+- Angular: Current Angular
+- AngularJS: A v.1.x version of Angular 
 - Angular Material: An implementation of Material Design in Angular.js
 - Gulp: node-based tooling
 - Harp: The static web server with built-in preprocessing.

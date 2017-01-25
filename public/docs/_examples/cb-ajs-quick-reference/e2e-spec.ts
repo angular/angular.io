@@ -1,8 +1,8 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
-describe('Angular 1 to 2 Quick Reference Tests', function () {
+describe('AngularJS to Angular Quick Reference Tests', function () {
 
   beforeAll(function () {
     browser.get('');
