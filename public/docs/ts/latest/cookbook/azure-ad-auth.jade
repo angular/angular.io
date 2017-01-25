@@ -1,0 +1,201 @@
+include ../_util-fns
+  
+:marked
+  This cookbook describes how to write a simple Angular app
+  that allows you to authenticate against AzureAD  and run a simple REST command.
+  The same principles can be extended to work against Office 365 APIs or any API protected by AzureAD.
+a#toc
+:marked
+  ## Table of Contents
+ 
+a#overview
+.l-main-section
+:marked
+  ## Overview
+
+  Azure Active Directory (Azure AD) is Microsoft’s multi-tenant 
+  cloud based directory and identity management service. 
+  It is a cloud based service that lets you work with standards 
+  based authentication providers, and offers standards based 
+  authentication to both apps and users.
+
+  ## Registering your app
+  
+  While covering the basics of AzureAD is beyond the scope of 
+  [this article](https://azure.microsoft.com/en-us/documentation/articles/active-directory-integrating-applications/), 
+  I would encourage you to read this article on basics of how to register an app in Azure AD. 
+  Specifically, you need to register,
+  1. A native app your organization is developing
+  2. This native app should have a redirect URI that you control, usually your app itself. For this example, we will use http://localhost:3000/status. 
+  3. Enable OAuth2 implicit flow ([how?](https://azure.microsoft.com/en-us/documentation/articles/active-directory-application-manifest/))
+  4.	Allow this app to call the Azure AD graph
+
+  ## OAuth2 implicit flow
+  The scenario we wish to use here is native application to web api. Azure AD graph APIs are Web APIs. 
+  And native applications can encompass truly native applications, such as iOS, Android, 
+  or Windows apps written in Swift, ObjectiveC, Java, C# etc. 
+  Or cordova applications that take advantage of plugins written in such native languages. 
+  Or, pure JavaScript applications, running in NodeJS, or a browser.
+
+  In this article, we will use a JavaScript application written in Angular running in the browser.
+
+  Could browser based apps use other authentication protocols? Certainly! 
+  But OAuth2 implicit flow is the most logical choice. 
+  Before we go much further, lets understand some basics about OAuth2 implicit flow.
+
+  There are the following main steps involved in our authentication process. 
+  Note that these steps are shown here with some details omitted for simplification reasons. 
+  For instance, every request has a state, and a nonce, which I have not shown here.
+
+  ### Step1, is to request an authorization code.
+  This is a simple HTTPS redirect to https://login.microsoftonline.com/{tenant}/oauth2/authorize
+
+  Amongst the query strings is also the redirect URI and client ID (the ID of the app). 
+  The purpose here is that you wish to inform AzureAD that your app is “listening” for the tokens at a certain URL. 
+  AzureAD will not send back the token, unless such as URL is pre-registered for the requested app. 
+  The v2 app model is similar with one big difference – that you can request for specific resources at this point, 
+  or after authentication. So you can request for access when you need – not during registration of the app, and not just during login.
+
+  ### Step2 – receive the authorization code.
+
+  At this point, the user will need to login. 
+  If the app is not registered in your tenancy, the user will be asked to grant access to the app. 
+  As long as the user has the access that the app is asking for, and the administrator has not disabled 
+  3rd party registrations globally, the user can choose to trust the app.
+  The user will not be asked to trust the app if the app already has permissions to the Azure AD tenancy.
+
+  Once the user is authenticated, and the app is trusted, AzureAD will reply back to the pre-registered redirect URI with an authorization code.
+
+  The request looks like this,
+
+code-example(format='.').
+  GET HTTP/1.1 302 Found  
+  Location: http://{redirecturi}?code={authorization_code}
+
+:marked
+  ### Step3 - request access token
+  The authorization code, is like a refresh token – except it’s much shorter duration. 
+  But it works very similar to a refresh token. Using this authorization code, you can request for access tokens for specific resources. 
+  An example resource could be mail, or files, or calendar, or contacts etc. 
+  In our example, the resource is simply AzureAD.
+  A good place to get started with the various resources and possibilities is [here](https://graph.microsoft.io/en-us/docs). 
+  Using the authorization code, you can request for access tokens. 
+  And you do so, using a request similar to as shown below,
+
+code-example(format='.').
+  POST common/oauth2/token
+  Host: https://login.microsoftonline.com
+  Content-Type: application/x-www-form-urlencoded
+  grant_type=authorization_code&
+  client_id={guid}&
+  code={authorization_code}&
+  redirect_uri={your app redirect uri}&
+  resource={resource for access token}
+
+:marked
+  The reply to the above call is the access token.
+
+  ### Step4 - make authenticated call.
+  And once you receive such an access token, you can make a call to the appropriate resource, with an authorization header as below,
+code-example(format='.').
+  authorization: Bearer access_token
+:marked
+  Great! So with these basics behind us, lets write up a simple app that makes use of all this.
+
+  ## Structure of the app
+  The app is intentionally very simple. It makes use two injected services,
+  1. `AuthenticatedHttpService` – which allows you to make simple get/post requests, 
+  but instead of making a plain HTTP call, it picks the latest available access_token from local storage, 
+  and puts it in the authorization header. 
+  This has been intentionally written generically, since the same service could be used with say, google API, or any other OAuth2 protected resource.
+  2. `AzureADAuthService`: This service is responsible for putting the access token, along with the authentication dance that I described above.
+
+  We pass both of these services into the app module as shown below,
+
++makeExample('cb-azure-ad-auth/ts/app/app.module.ts', null, 'app.module.ts')
+
+:marked
+  As is evident, from the app.module.ts, we are passing in an instance of AzureADServiceConstants to the constructor of AzureADService. 
+  This is information the AzureADService needs in order to provide authentication for you. This includes, 
+  1.	The identity of the app (clientID)
+  2.	The tenant
+  3.	Redirect URL
+  4.	The API, for which you are requesting an access token.
+
+  Now, this is a very simple example implementation. 
+  In the real world, where your app may seamlessly call multiple APIs, you probably want to reuse the authorization code, for multiple APIs. 
+  But I am keeping things exemplary and simple here.
+
+  Additionally, our app uses routes, which can be seen in the app.routing.ts file
+
++makeExample('cb-azure-ad-auth/ts/app/app.routing.ts', null, 'app.routing.ts')
+  
+:marked
+  You could also use guards to protect entire routes here. But we are not doing that in this article.
+  With these in place, the app.component.ts simply is a collection of router links pointing to these routes, alongwith a router-outlet.
+
+  1.	The login.component.ts shows a login UI, 
+  2.	The status.component.ts shows whether or not the user is currently logged in, and allows you to make a simple authenticated call.
+  3.	The home.component.ts just shows a simple text message explaining what the app does.
+
+  Lets look at the login component, and the status component in depth next.
+
++makeExample('cb-azure-ad-auth/ts/app/login/login.component.ts', null, 'login.component.ts')
+:marked
+  The login.component.ts simply calls the authentication service’s login method. 
+  It is also sending a state in – our authentication service is wired so that after authentication it returns you to whatever URL you pass in as state.
+
++makeExample('cb-azure-ad-auth/ts/app/status/status.component.ts', null, 'status.component.ts')
+:marked
+  As can be seen from the template, we are showing a different UX depending upon the user’s login status, which the auth service makes it easy to get.
+  If the user is not logged in, we show them an appropriate message.
+  If the user is logged in, we allow them to either logout, or run an authenticated command. 
+  Logout simply calls authService.logOut. The Run Command method calls the REST endpoint using the authenticated http service instance.
+  
+  With this place, now lets look at the more interesting bits, the authenticated http service, and our authentication service.
+ 
++makeExample('cb-azure-ad-auth/ts/app/ngAuth/AuthenticatedHttpService.ts', null, 'AuthenticatedHttpService.ts')
+:marked
+  The AuthenticatedHttpService is a really simple, standard Angular service. 
+  It wraps get and post HTTP commands, and all it does, it stick the access token in the authorization header of those commands. That’s it!
+
+  With all this behind us, now lets look at the meat of the authentication code, which is the AzureADAuthService.ts.
+
+  ## AzureADAuthService
+  
+  And this is where things get interesting. This service has a constructor that accepts service constants. The constructor looks like as shown below,
+
++makeExample('cb-azure-ad-auth/ts/app/ngAuth/authenticators/AzureADAuthService.ts', 'ctor', 'AzureADAuthService constructor')
+:marked
+  If you observe closely, this contructor is parsing the querystring, and is trying to decipher, if 
+  1. We already have an access token – if we do, then create a hidden Iframe to renew the access token. 
+  Remember, the access token is good for only a short duration. 
+  So before it expires, you should silently renew it, and we achieve this with a simple hidden Iframe 
+  that holds some simple javascript code that does a refresh of the access token, 5 minutes before the access token expires. 
+  For sake of brevity, I am not showing that code here, but you can grab the code in entirety in the included code example.
+  2. If we do not have an access token, then we check to see if the query string contains an id_token – this is your authorization code. 
+  If we do get an authorization code, we do a redirect to request an access token.
+  3. And if the querystring does contain an access token, we save it to local storage.
+
+  With this in place, the login method is simply a call to the authentication endpoint, as shown below,
+
++makeExample('cb-azure-ad-auth/ts/app/ngAuth/authenticators/AzureADAuthService.ts', 'login', 'AzureADAuthService login')
+:marked
+  And the getUserName method is a matter of parsing the access token, the getAccessToken method is a 
+  matter of reading it from the local storage variable, and the isUserAuthenticated is checking for the presence and validity of the access token.
+  The entire source code for the AzureADAuthService.ts is shown as below,
++makeExample('cb-azure-ad-auth/ts/app/ngAuth/authenticators/AzureADAuthService.ts', null, 'AzureADAuthService.ts')
+:marked
+  With this much in place, you are now ready to authenticate against AzureAD, 
+  and call protected APIs such as Azure AD Graph, Office 365 APIs and Microsoft Graph, or your own custom APIs registered in Azure AD. 
+  You can see a full running example in the associated code for this article. 
+  
+  ## Summary
+    This article demonstrated how you can write a simple application to authenticate against AzureAD and 
+    call AzureAD protected APIs such as the Microsoft Graph. There are many further possible enhancements here. 
+    For instance, your authentication could include claims, which could light up different parts of your application. 
+    Your access token may contain roles, which could activate different guards in your routing logic. 
+    You could enhance this code sample to support multiple resources. Or you could enhance it to support multiple authentication types. 
+    For instance, wouldn’t it be amazing to write an app that authenticates against both google and Microsoft identities, 
+    and reads and writes mails or contacts from both? There are numerous possibilities and enhancements possible. 
+    But I hope this article got you started on a simple authentication example against AzureAD identities.
