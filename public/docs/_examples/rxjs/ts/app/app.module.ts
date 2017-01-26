@@ -11,7 +11,7 @@ import { LoadingComponent }           from './loading.component';
 import { HeroSearchComponent }        from './hero-search.component';
 import { HeroDetailComponent }        from './hero-detail.component';
 import { HeroListComponent }          from './hero-list.component';
-
+import { HeroCounterComponent }       from './hero-counter.component';
 import { LoadingService }             from './loading.service';
 import { HeroService }                from './hero.service';
 
@@ -34,7 +34,8 @@ import { ApiErrorHandlerService } from './api-error-handler.service';
     LoadingComponent,
     HeroSearchComponent,
     HeroDetailComponent,
-    HeroListComponent
+    HeroListComponent,
+    HeroCounterComponent
   ],
   providers: [
     HeroService,

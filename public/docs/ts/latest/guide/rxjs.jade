@@ -16,46 +16,16 @@ block includes
   ## Table of Contents
   * [The Observable](#definition "")
   * [Observables and Promises](#promises "")
-  * [Observable Lifecycle](#lifecycle "")
-  * [Observer](#lifecycle "")
-  * [Subscriptions](#subscriptions "")
-  * [Creating Observables](#creating "")
-  * [Operators](#transforming "")
-  * [Error Handling](#error-handling "")
   * [Framework APIs](#apis "")
-  * [Impact on Change Detection](#change-detection "")
+  * [Error Handling](#error-handling "")
   * [Further Reading](#reading "")
 
 :marked
   The Observable: a function at its core
 
-  An Observable, simply put, is a specific type of function with a specific purpose. Its a function that accepts an `Observer` to produce values and
+  An Observable, simply put, is a specific type of function with a specific purpose. It’s a function that accepts an `Observer` to produce values and
   returns a function for cancellation. It represents an action that can be performed. This action may be performed right now, or at some point
-  in the future.
-
-  An action can be anything, from simply "return a constant" to "make an HTTP request". Here’s a simple "action" function that increments a counter
-  and returns the new value.
-
-  // Example of simple counter
-
-  The same functionality can be produced with an Observable. Observables don't return values directly, as they can be produced synchronously asynchronously.
-  An Observer is used by an Observable to consume its produced values.
-
-  // Example of observable counter
-
-  There is a key difference between these two examples. In the first counter example, the results of the action were produced when the function was called.
-  In the Observable counter, the Observable was created, with the [Observer](https://en.wikipedia.org/wiki/Observer_pattern) to produce values and the value incremented but the action hasn't been performed yet.
-  It represents an action we've defined, but it hasn't been executed.
-
-  // Example of subscribing to observable counter
-
-  Observable streams are **cold** or **lazy** by nature, meaning that until you invoke them, they will not produce
-  any values. Invoking an Observable is done using the `subscribe` method, which makes the Observable **hot** and calls the observer's method to produce
-  values. The `subscribe` function also returns an object with an `unsubscribe` from an Observable and no longer receive the values it produces.
-
-  // Example of unsubscribing
-
-  Managing the lifecycle of an Observable will be discussed later in the chapter.
+  in the future. An action can be anything, from simply "return a constant", "make an HTTP request" or "navigate to another page".
 
 :marked
   Observables and Promises: More different than alike
@@ -76,107 +46,160 @@ block includes
   * Resolve synchronously/asynchronously
   * Multicast when needed
 
-  The strength of Observables is producing and handling values over time, which is something a Promise wasn't designed to do. Observables also provide mechanisms
+  One of the strengths of Observables is producing and handling values over time, which is something a Promise wasn't designed to do. Observables also provide mechanisms
   for easy cancellation, retrying upon failure and transformations. Observables include a rich library of operators, along with the extensibility to provide a more powerful
-  tool to handle the various streams of events in an application. So does this mean Promises are no longer needed? Absolutely not. Promises will continue to serve a purpose as the right tool for the job in some situations.
-  The good news is Observables support conversion to a Promise for instances where a one-off value needs to be produced without managing the lifecycle
-  of an Observable.
+  tool to handle the various streams of events in an application. So does this mean Promises are no longer needed? Absolutely not. Promises will continue to serve a purpose as
+  the right tool for the job in some situations.
 
 :marked
-  Observable Anatomy: Next, Error, and Complete
+  Basic Principles
 
-  Even though an Observable is a function that performs an action, it has a lifecycle. An Observable has 3 types of notifications it produces through its
-  lifetime: `next`, `error`, and `complete`.
-
-  The `next` is called whenever the observable produces a new value, notifying the Observer
-  that some value was produced. The `next` Observables may produce a single value, or multiple values over time. These values can be a number, string, object
-
-
-  Let's modify the HeroesReadyComponent to produce two values when subscribed.
-
-  // Example of Observable that produces 2 values
-
-  When click the `increment` button this time and subscribes to the Observable, the counter will be incremented twice and produce two values.
-
-  Whenever an Observable produces an error, it uses the `error` event. An error event can only happen once during the invocation of an Observable action.
-
-  // Example of Observable that errors
-
-  The Observable notifies its Observer through that an error has occurred.
-
-  Observables can also notify observers of completion. A completion event signals that no more values will be produced by the Observable. Like the error event,
-  a completion event can only happen once.
-
-  // Example of Observable that produces values, then completes
+  * Subscribe/unsubscribe
+  * Observer
+  * next/error/complete
 
 :marked
-  Observer: The Observable's Consumer
-  An Observer is provided to an Observable to consume its values produced. An observer provides callbacks for the notification types produced by an Observable: `next`,
-  `error`, and `complete`.
+  Managing Subscriptions
 
-  An Observer is provided to an Observable through the `subscribe` method in 2 ways
+  Observables like any other instance use resources and those resources add to the overall resources used in your application. Observables
+  provide a `Subscription` for each `Subscriber` of the Observable that comes with a way to _unsubscribe_ or clean up any resources used
+  while listening for values produced by the Observable. We'll look at a simple example of how to unsubscribe from and Observable once
+  its no longer needed.
 
-  * As a single object containing 3 callbacks for each notification.
-  * As 3 arguments in the subscribe method for each notification
+  We'll create a component named `HeroCounterComponent` that will do a simple task of increasing a total of heroes. We'll simulate
+  that this hero counter is running as long as the component is active an in view. Once the component is destroyed, we no longer
+  want to listen for any changes coming from the Observable counter.
 
-  // Example of single object and logging out each notification
+  // Example of hero counter
 
-  // Example of 3 arguments to subscribe method
+  Since you know Angular has lifecycle hooks, we can use the `ngOnDestroy` lifecycle hook to unsubscribe from this Observable counter
+  and clean up its resources.
 
-:marked
-  Subscription: Maintaining of resources
+  // Example of unsubscribe
 
-  As mentioned earlier, an Observable is not invoked until its `subscribed` to. This starts the execution of the Observable to produce values or events to an Observer.
-  This subscription is an allocation of resources for the action performed by the Observable. Naturally, you want to clean up resources used by the Observable when
-  finished with its execution. Each time an Observable is subscribed, it returns a `Subscription`. The `Subscription` is an object that handles the resources provided
-  by the Observable, along with the `unsubscribe`. The `unsubscribe` method provided by the `Subscription` disposes of the resources allocated by the Observable.
+  Disposing of a single subscription when your component is destroyed is very manageable, but as you use more Observables managing
+  multiple subscriptions can get unwieldy. We can use a better approach to managing subscriptions. Observables have `operators`
+  that can cancel other observable streams. We can end multiple observable streams with one observable using the `takeUntil` operator.
+  The `takeUntil` operator takes an Observable and when that observable emits a value, the Observables that are producing values will
+  stop emitting values and complete.
 
-  // Example of unsubscribing
+  Let's update our hero counter example to use the `takeUntil` operator. In order to use the `takeUntil` operator, we must add it
+  to the base Observable prototype. We'll import the operator which will add it to the observable.
 
-  As a general rule and good practice, resources that are allocated and used must be cleaned up, and the Observable subscription is no different. Angular provides
-  APIs that manage Observable lifecycles without the need to unsubscribe, but for those Observables you create, cleanup of resources is a must to protect against
-  memory leaks and other unwanted side effects.
+  // Example of import for takeUntil operator
 
-  // Example of unsubscribe in ngOnDestroy
+  Since we need an Observable that emits a value, we can use a `Subject`. We'll cover streams you can create on your own later in
+  the chapter, as a `Subject` is a special type of Observable. We'll create a `destroy$` observable using the Subject.
 
-  In this example, only one subscription is used and disposed of. Managing multiple subscriptions using the `unsubscribe` method
-  has the potential to get unwieldy. You'll learn about different ways to to end subscriptions of multiple Observables later in the chapter.
+  // Example of new Subject()
 
-  // Example of unsubscribe using a Subject
+  Now we can add the `takeUntil` operator to our Observable and once the `destroy$` Observable produces a value,
+  the counter Observable will complete and will no longer produce any values.
 
-:marked
-  Operators: Observable functions
+  // example of destroy$ in ngOnDestroy
 
-  The Observable prototype contains many `operators`, which are methods that perform an operation. Operators are **pure functions**
-  that are stateless. Stateless operators are less error-prone as they are provided an Observable, in which an operation is performed on,
-  and return a new Observable, without modifying the original Observable. The Observable prototype comes with a minimal set of operators by default,
-  with a large set of operators that can be added. Operators are also used to (create Observable instances) from existing events.
-
-  There are different ways to access the operators provided by RxJS: By patching the Observable prototype or by importing the operator functions directly.
-  Each operator only needs to be patched on the prototype once, but where you choose to patch the Observable requires consideration. We'll examine a
-  few options below:
-
-  // Example of importing entire rxjs/Rx library
-
-  By importing `rxjs/Rx`, the **entire** set of RxJS operators are added to the Observable prototype. In most cases, you will only use a subset of
-  the available operators and adding the entire set increases the overall bundle size of your application. This is
-  only recommended for sample apps, and in testing environments.
-
-  // Example of patching the Observable prototype
-
-  Since minimizing bundle size is a recommended practice, you should only import the operators you need, where you need them.
-  This approach includes importing operators multiple times in different files, but safeguards against using operators
-  without having patched the Observable prototype first. Since feature areas can be loaded lazily, this also allows you the benefit
-  of keeping certain operators in separate bundles and only loaded them when needed.
-
-  // Example of importing operators directly
-
-  // Note about tree-shaking when pat
-
-  NOTE: Operators patched onto the Observable prototype that are unused will not be tree-shaken.
-
-  Operators can also be directly imported and used without patching the Observable prototype. This is the
-  recommended option for third-party libraries, staying with the approach to only import what you need. It
-  is also more suited for tree-shaking when bundling your Angular application.
+  This approach scales and you can use a single observable to trigger completion across multiple subscriptions.
 
 :marked
+  Async Pipe: Less is more
+
+  We can manage Observables imperatively through manually subscribing and unsubscribing when needed but we can also
+  manage them declaratively in our templates using the `Async Pipe`. The async pipe can also take care of our Subscription
+  management, as it can take an Observable or a Promise, listen for its emitted values and will destroy its subscriptions
+  with the disposing of the component. This allows us to use Observables with less boilerplate and that's always a good thing.
+
+  We'll create another component that displays a list of heroes using these two options. Our component will retrieve a list of
+  Heroes from our `HeroService` and subscribe to set them to a variable in the component.
+
+  // example of hero list component
+
+  As you can see, we called and subscribed to the `getHeroes` function in our HeroService which returned an Observable provided
+  by the HTTP client and the `ngFor` directive is set up to display the heroes. In the `subscribe` function we assign the returned heroes to the heroes variable. Here we are only assigning
+  the `heroes` value to bind it to our template. The `Async Pipe` lets us skip the manual subscription, as it will handle this
+  for us. The updated template is below.
+
+  // example of hero list with async pipe
+
+  When our component is rendered, the async pipe will subscribe to the Observable to listen for emitted values. Once the values
+  are produced it will wire bind those values to the same `ngFor` directive. If we were to initiate another sequence of heroes
+  the pipe would handle updated the retrieved values along with destroying the Observable subscription once the component is destroyed.
+
+:marked
+  Data sharing
+
+:marked
+  Error Handling
+
+:marked
+  Stream Integration
+:marked
+  Framework APIs: Angular-provided streams
+
+  Angular makes use of Observables internally and externally through its APIs template syntax using the Async pipe, user input
+  with Reactive or Model-Driven Forms, making external requests using Http and route information with the Router.
+  By using Observables underneath, these APIs provide a consistent way for you to use and become more comfortable
+  with using Observables in your application to handle your streams of data that are produced over time.
+  Another major advantage of the streams provided by Angular is that they are managed for you,
+  so no need to unsubscribe to clean up subscriptions.
+
+  Http
+
+  Making external requests from our application is a very common action in every application. You make a request,
+  handle the success or failure of that request and wait for the request to be made again. Sometimes it’s not as
+  simple as that as you need the be able to retry, cancel or delay requests. Being efficient with requests to save
+  on data transferred is vital when every byte counts. HTTP requests are not a one-off action as many elements of
+  your application is driven by external data. The Http client in Angular is built on top of Observables which
+  provide the ability to handle one single request or multiple requests seamlessly, along with retrying and
+  cancellations of requests.
+
+  Example: Use hero service to make a request, make it fail to show retries, conditional retry.
+
+  Async Pipe
+
+  As we’ve talked about previously, Observables must be subscribed to in order to handle the data they produce,
+  and must be unsubscribed from in order to clean up the resources they have used. You’ve gone through how to
+  subscribe to an Observable, get its data and provide that data through a variable in your class. There is also
+  a built-in pipe available for use with template syntax to manage Observable subscriptions called the Async Pipe.
+  When used in a template, the async pipe will subscribe to the Observable or evaluate a Promise, receive its
+  emitted values and dispose of its subscription once the component is destroyed. The pipe also ties into Change Detection,
+  so that when new values are produced, the component is marked for detection in order to determine whether it’s changes
+  need to be reflected in your user interface. This is useful as it reduces the amount of boilerplate you need when setting
+  up data to be fetched and provided to your template. We’ll learn later about cases where using an async pipe is beneficial
+  versus managing your own subscription manually.
+
+  Example: Fetching heroes using a service, subscribing/unsubscribing manually then removing the subscription and delegating responsibility to the async pipe. Another example would be showing hero details with multiple async pipes, but instead using a single subscription.
+
+  Forms
+  With many applications, user input is required to initiate or complete an action. Whether it be logging in or filling out
+  an information page, user data is another stream that needs to be handled. In contrast to template-driven forms where the
+  responsibility is on the developer to gather the pieces of data from the form, the model-driven/Reactive forms uses
+  Observables to easily provide a continuous stream of user input. By using the reactive approach, our form will be ready
+  to handle user input streams from form fields, as well as provide that form data seamlessly to another stream for
+  processing.
+
+  Example: Simple form that displays form status/value changes over time. Also displays creating an Observable from an existing event. valueChanges on individual field/entire form
+
+  Router
+
+  The browser URL is another stream of information. It provides you with a canonical link to the application view you are
+  displaying at any given moment, along with information about what data to display. The Angular Router uses the browser URL
+  to provide you with multiple streams that hook into the navigation process, URL data provided through your route
+  configuration, parameters provided for context and path information. These pieces of data are provided by the Router
+  through Observables, since we are certain that these streams happen in a continuous fashion as a user navigates throughout
+  your Angular application.
+
+  Router Observables: Events, Parameters, Data, URL Segments
+
+  Example: Use router events to build a small loading service and component.
+
+  The Observables provided by these area can be used together. The same set of functionality and extensibility can be combined together in a very powerful and practical way. In order to demonstrate how these work together, you’re going to build a hero search component. Let’s start by gathering some requirements about what your typeahead will need.
+
+  Take input from the user
+  Make a search based on that input
+  Only search when the user has changed the search terms
+  Cancel any in-progress requests if you user initiates a new search
+  Only make a request after the user hasn’t interacted within a certain time frame
+  Display search results
+  Sync the user’s search terms in the browser URL
+
+  Example: Hero search typeahead component
