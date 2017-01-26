@@ -1,6 +1,5 @@
 // #docplaster
-// #docregion
-// #docregion first, final
+// #docregion , v1, final
 import { Component } from '@angular/core';
 
 import { Hero }    from './hero';
@@ -26,21 +25,29 @@ export class HeroFormComponent {
   // #enddocregion final
   // TODO: Remove this when we're done
   get diagnostic() { return JSON.stringify(this.model); }
-  // #enddocregion first
+  // #enddocregion v1
 
-  // #docregion final
-  // #docregion new-hero
+  // #docregion final, new-hero
   newHero() {
     this.model = new Hero(42, '', '');
   }
-  // #enddocregion new-hero
-  // #enddocregion final
+  // #enddocregion final, new-hero
+
+  skyDog(): Hero {
+    // #docregion SkyDog
+    let myHero =  new Hero(42, 'SkyDog',
+                           'Fetch any object at any distance',
+                           'Leslie Rollover');
+    console.log('My hero is called ' + myHero.name); // "My hero is called SkyDog"
+    // #enddocregion SkyDog
+    return myHero;
+  }
+
   //////// NOT SHOWN IN DOCS ////////
 
   // Reveal in html:
   //   Name via form.controls = {{showFormControls(heroForm)}}
   showFormControls(form: any) {
-
     return form && form.controls['name'] &&
     // #docregion form-controls
     form.controls['name'].value; // Dr. IQ
@@ -49,6 +56,5 @@ export class HeroFormComponent {
 
   /////////////////////////////
 
-  // #docregion first, final
+  // #docregion v1, final
 }
-// #enddocregion first, final
