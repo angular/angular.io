@@ -9,7 +9,7 @@ describe('Upgrade Tests', function () {
     setProtractorToHybridMode();
   });
 
-  describe('NG1 Auto-bootstrap', function() {
+  describe('AngularJS Auto-bootstrap', function() {
 
     beforeAll(function () {
       browser.get('/index-ng-app.html');
@@ -21,7 +21,7 @@ describe('Upgrade Tests', function () {
 
   });
 
-  describe('NG1 JavaScript Bootstrap', function() {
+  describe('AngularJS JavaScript Bootstrap', function() {
 
     beforeAll(function () {
       browser.get('/index-bootstrap.html');
@@ -33,10 +33,10 @@ describe('Upgrade Tests', function () {
 
   });
 
-  describe('NG1-2 Hybrid Bootstrap', function() {
+  describe('AngularJS-Angular Hybrid Bootstrap', function() {
 
     beforeAll(function () {
-      browser.get('/index-1-2-hybrid-bootstrap.html');
+      browser.get('/index-ajs-a-hybrid-bootstrap.html');
     });
 
     it('bootstraps as expected', function () {
@@ -113,7 +113,7 @@ describe('Upgrade Tests', function () {
   describe('Downgraded component with content projection', function() {
 
     beforeAll(function () {
-      browser.get('/index-1-to-2-projection.html');
+      browser.get('/index-ajs-to-a-projection.html');
     });
 
     it('can be transcluded into', function () {
@@ -126,7 +126,7 @@ describe('Upgrade Tests', function () {
   describe('Upgraded component with transclusion', function() {
 
     beforeAll(function () {
-      browser.get('/index-2-to-1-transclusion.html');
+      browser.get('/index-a-to-ajs-transclusion.html');
     });
 
     it('can be projected into', function () {
@@ -136,10 +136,10 @@ describe('Upgrade Tests', function () {
   });
 
 
-  describe('Upgrading NG1 Providers', function() {
+  describe('Upgrading AngularJS Providers', function() {
 
     beforeAll(function () {
-      browser.get('/index-1-to-2-providers.html');
+      browser.get('/index-ajs-to-a-providers.html');
     });
 
     it('works', function () {
@@ -149,10 +149,10 @@ describe('Upgrade Tests', function () {
   });
 
 
-  describe('Downgrading NG2 Providers', function() {
+  describe('Downgrading Angular Providers', function() {
 
     beforeAll(function () {
-      browser.get('/index-2-to-1-providers.html');
+      browser.get('/index-a-to-ajs-providers.html');
     });
 
     it('works', function () {
