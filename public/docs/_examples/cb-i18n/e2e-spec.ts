@@ -19,7 +19,7 @@ describe('i18n E2E Tests', () => {
 
   it('should display the translated title attribute', function () {
     const title = element(by.css('img')).getAttribute('title');
-    expect(title).toBe('Logo de Angular 2');
+    expect(title).toBe('Logo de Angular');
   });
 
   it('should display the plural of: a horde of wolves', function () {

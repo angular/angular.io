@@ -1,5 +1,4 @@
 // #docregion
-
 angular.
   module('core').
   filter('checkmark', function() {

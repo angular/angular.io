@@ -20,7 +20,7 @@ export class AppComponent {
   movie: IMovie = null;
   movies: IMovie[] = [];
   showImage = true;
-  title: string = 'A1-A2 Quick Ref Cookbook';
+  title: string = 'AngularJS to Angular Quick Ref Cookbook';
   toggleImage(event: UIEvent) {
     this.showImage = !this.showImage;
     this.eventType = (event && event.type) || 'not provided';
