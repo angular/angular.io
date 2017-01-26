@@ -40,6 +40,7 @@ export class HeroFormComponent {
                            'Leslie Rollover');
     console.log('My hero is called ' + myHero.name); // "My hero is called SkyDog"
     // #enddocregion SkyDog
+    return myHero;
   }
 
   //////// NOT SHOWN IN DOCS ////////
