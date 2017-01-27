@@ -194,7 +194,7 @@ export class Provider8Component {
   template: template,
   /*
    // #docregion providers-9-interface
-   // FAIL!  Can't use interface as provider token
+   // FAIL! Can't use interface as provider token
    [{ provide: AppConfig, useValue: HERO_DI_CONFIG })]
    // #enddocregion providers-9-interface
    */
