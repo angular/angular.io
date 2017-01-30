@@ -1,3 +1,5 @@
+// #docplaster
+// #docregion
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/distinctUntilChanged';
 import { Injectable } from '@angular/core';

@@ -1,13 +1,10 @@
 // #docplaster
 // #docregion
-import { Component, OnInit }   from '@angular/core';
+import { Component, OnInit, OnDestroy }   from '@angular/core';
 import { Subject } from 'rxjs/Subject';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
 import { Subscription } from 'rxjs/Subscription';
-
-import { HeroService }   from './hero.service';
-import { Hero }          from './hero';
 
 @Component({
   selector: 'hero-counter',
@@ -18,7 +15,7 @@ import { Hero }          from './hero';
     </p>
   `
 })
-export class HeroCounterComponent implements OnInit {
+export class HeroCounterComponent implements OnInit, OnDestroy {
   count: number = 0;
   counter$: Observable<number>;
   sub: Subscription;
@@ -26,7 +23,7 @@ export class HeroCounterComponent implements OnInit {
 
   ngOnInit() {
     this.counter$ = Observable.create((observer: Observer<number>) => {
-      const interval = setInterval(() => {
+      setInterval(() => {
         observer.next(this.count++);
       }, 1000);
     });

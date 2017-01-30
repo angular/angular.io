@@ -1,5 +1,6 @@
-import 'rxjs/add/operator/delay';
-import { Component, OnInit } from '@angular/core';
+// #docplaster
+// #docregion
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 import { LoadingService } from './loading.service';
 
@@ -11,7 +12,7 @@ import { LoadingService } from './loading.service';
   `,
   styleUrls: ['./loading.component.css']
 })
-export class LoadingComponent implements OnInit {
+export class LoadingComponent implements OnInit, OnDestroy {
   loading: boolean = true;
   sub: Subscription;
 
