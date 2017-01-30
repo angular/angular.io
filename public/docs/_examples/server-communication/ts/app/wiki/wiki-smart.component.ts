@@ -11,9 +11,10 @@ import 'rxjs/add/operator/switchMap';
 
 // #docregion import-subject
 import { Subject } from 'rxjs/Subject';
+
 // #enddocregion import-subject
 
-import { WikipediaService } from './wikipedia.service';
+import { WikipediaService }  from './wikipedia.service';
 
 @Component({
   moduleId: module.id,
@@ -28,6 +29,7 @@ import { WikipediaService } from './wikipedia.service';
   providers: [ WikipediaService ]
 })
 export class WikiSmartComponent implements OnInit {
+
   items: Observable<string[]>;
 
   constructor (private wikipediaService: WikipediaService) {}
@@ -37,6 +39,8 @@ export class WikiSmartComponent implements OnInit {
   search(term: string) { this.searchTermStream.next(term); }
   // #enddocregion subject
 
+  constructor (private wikipediaService: WikipediaService) {}
+
   ngOnInit() {
     // #docregion observable-operators
     this.items = this.searchTermStream
@@ -45,4 +49,5 @@ export class WikiSmartComponent implements OnInit {
       .switchMap((term: string) => this.wikipediaService.search(term));
     // #enddocregion observable-operators
   }
+
 }
