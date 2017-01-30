@@ -271,7 +271,7 @@ function runE2eTsTests(appDir, outputFile) {
   }
 
   var config = {
-    build: exampleConfig.build || 'tsc',
+    build: exampleConfig.build || 'build',
     run: exampleConfig.run || 'serve:e2e'
   };
 
