@@ -1,5 +1,5 @@
 // #docregion example
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { Hero, HeroService } from '../shared';
 
@@ -7,16 +7,23 @@ import { Hero, HeroService } from '../shared';
   selector: 'toh-hero-list',
   template: `...`
 })
-export class HeroListComponent implements OnInit {
+export class HeroListComponent implements OnInit, OnDestroy {
   heroes: Hero[];
+
   constructor(private heroService: HeroService) {}
+
   getHeroes() {
     this.heroes = [];
     this.heroService.getHeroes()
-      .subscribe(heroes => this.heroes = heroes);
+        .subscribe(heroes => this.heroes = heroes);
   }
+
   ngOnInit() {
     this.getHeroes();
+  }
+
+  ngOnDestroy() {
+    this.heroService.getHeroes().unsubscribe();
   }
 }
 // #enddocregion example
