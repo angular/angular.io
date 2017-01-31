@@ -338,7 +338,7 @@ function runProtractorAoT(appDir, outputFile) {
     promise = promise.then(() =>
      spawnExt('node', [copyFileCmd], { cwd: appDir }).promise );
   }
-  var aotRunSpawnInfo = spawnExt('npm', ['run', 'serve:e2e', 'aot', '--', '-s'], { cwd: appDir });
+  var aotRunSpawnInfo = spawnExt('npm', ['run', 'serve:aot'], { cwd: appDir });
   return runProtractor(promise, appDir, aotRunSpawnInfo, outputFile);
 }
 
