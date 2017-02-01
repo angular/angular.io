@@ -20,7 +20,7 @@ export class KeyUpComponent_v1 {
 // #enddocregion key-up-component-1-class, key-up-component-1-class-no-type
   /*
   // #docregion key-up-component-1-class-no-type
-  onKey(event:any) { // without type info
+  onKey(event: any) { // without type info
     this.values += event.target.value + ' | ';
   }
   // #enddocregion key-up-component-1-class-no-type
