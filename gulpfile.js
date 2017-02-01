@@ -94,7 +94,7 @@ var _exampleBoilerplateFiles = [
 ];
 
 var _exampleUnitTestingBoilerplateFiles = [
-  'browser-test-shim.js',
+  'src/browser-test-shim.js',
   'karma-test-shim.js',
   'karma.conf.js'
 ];
