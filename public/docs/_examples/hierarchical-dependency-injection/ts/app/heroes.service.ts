@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs/Observable';
-import { Subscriber } from 'rxjs/Subscriber';
+import { Observer } from 'rxjs/Observer';
 
 import { Hero, HeroTaxReturn } from './hero';
 
@@ -18,30 +18,30 @@ export class HeroesService {
   ];
 
   getHeroes(): Observable<Hero[]> {
-    return new Observable<Hero[]>((subscriber: Subscriber<Hero[]>) => {
-      subscriber.next(this.heroes);
-      subscriber.complete();
+    return new Observable<Hero[]>((observer: Observer<Hero[]>) => {
+      observer.next(this.heroes);
+      observer.complete();
     });
   }
 
   getTaxReturn(hero: Hero): Observable<HeroTaxReturn> {
-    return new Observable<HeroTaxReturn>((subscriber: Subscriber<HeroTaxReturn>) => {
+    return new Observable<HeroTaxReturn>((observer: Observer<HeroTaxReturn>) => {
       const htr = this.heroTaxReturns.find(t => t.hero.id === hero.id);
-      subscriber.next(htr || new HeroTaxReturn(0, hero));
-      subscriber.complete();
+      observer.next(htr || new HeroTaxReturn(0, hero));
+      observer.complete();
     });
   }
 
   saveTaxReturn(heroTaxReturn: HeroTaxReturn): Observable<HeroTaxReturn> {
-    return new Observable<HeroTaxReturn>((subscriber: Subscriber<HeroTaxReturn>) => {
+    return new Observable<HeroTaxReturn>((observer: Observer<HeroTaxReturn>) => {
       const htr = this.heroTaxReturns.find(t => t.id === heroTaxReturn.id);
       if (htr) {
         heroTaxReturn = Object.assign(htr, heroTaxReturn); // demo: mutate
       } else {
         this.heroTaxReturns.push(heroTaxReturn);
       }
-      subscriber.next(heroTaxReturn);
-      subscriber.complete();
+      observer.next(heroTaxReturn);
+      observer.complete();
     });
   }
 }
