@@ -9,6 +9,7 @@ a#top
     * [Angular and i18n template translation](#angular-i18n)
     * [Mark text with the _i18n_ attribute](#i18n-attribute)
     * [Add _i18n-..._ translation attributes](#translate-attributes)
+    * [Set translation ids explicitly](#explicit-id)
     * [Handle singular and plural](#cardinality)
     * [Select among alternative texts](#select)
     * [Create a translation source file with the **_ng-xi18n_ extraction tool**](#ng-xi18n)
@@ -81,7 +82,7 @@ a#i18n-attribute
 +makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute', 'app/app.component.html')(format=".")
 
 :marked
-  ### Help the translator with a _description_ and _intent_
+  ### Help the translator with a _description_ and _meaning_
 
   In order to translate it accurately, the translator may 
   need a description of the message.
@@ -91,12 +92,12 @@ a#i18n-attribute
 
 :marked
   In order to deliver a correct translation, the translator may need to 
-  know your _intent_&mdash;the true _meaning_ of the text 
-  within _this particular_ application context.
-  In front of the description, add some contextual meaning to the assigned string,
-  separating it from the description with the `|` character (`<meaning>|<description>`):
+  know the _meaning_ or _intent_ of the text within _this particular_ application context.
+
+  You add context by beginning the string with the _meaning_ and
+  separating it from the _description_ with the `|` character (`<meaning>|<description>`):
   
-+makeExample('cb-i18n/ts/app/app.component.html', 'i18n-attribute-meaning', 'app/app.component.html')(format=".")
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute-meaning', 'app/app.component.html')(format=".")
 
 :marked
   While all appearances of a message with the _same_ meaning have the _same_ translation, 
@@ -104,6 +105,29 @@ a#i18n-attribute
   The Angular extraction tool preserves both the _meaning_ and the _description_ in the translation source file
   to facilitiate contextually-specific translations.
 
+a#explicit-id
+:marked
+  ### Consider setting a custom _id_ explicitly to improve search and maintenance
+
+  By default, the angular _i18n_ extractor tool generates a unique ID for each `i18n` attribute in a template.
+  This _id_ is ugly, arbitrary, and unfit for humans.
+  
+  Worse, when you change the translatable text, perhaps to fix a typo, 
+  the extractor tool generates a new _id_ for that translation.
+  The new _id_ most likely breaks the application and it certainly [complicates maintenance](a#maintenance).
+
+  Consider specifying your own, meaninful _id_ in the `i18n` attribute, **prefixed with `@@`**.
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute-solo-id', 'app/app.component.html')(format=".")
+:marked
+  The extractor tool and compiler will use your _id_ and never change it.
+  Here is the attribute with a _definition_, followed by the explicit `id`:
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute-id', 'app/app.component.html')(format=".")
+
+:marked
+  Here is a _meaning_ and a _description_ and the _id_ at the end:
++makeExample('cb-i18n/ts/app/app.component.1.html', 'i18n-attribute-meaning-and-id', 'app/app.component.html')(format=".")
+
+:marked
   ### Translate text without creating an element
 
   Suppose there is a stretch of text that you'd like to translate.
@@ -329,17 +353,19 @@ a#localization-folder
   replace the `<target/>` tag with the Spanish greeting:
 +makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-hello', 'locale/messages.es.xlf (<trans-unit>, after translation)')(format=".")
 
-.alert.is-important
-  :marked
-    Note that the tool generates the `id`. **Don't touch it.**
-    Its value depends on the content of the message and its assigned meaning.
-    Change either factor and the `id` changes as well.
-    See the **[translation file maintenance discussion](#maintenance)**.
-
 :marked
   Translate the other text nodes the same way:
 
 +makeExample('cb-i18n/ts/locale/messages.es.xlf.html', 'translated-other-nodes', 'locale/messages.es.xlf (<trans-unit>)')(format=".")
+
+.callout.is-critical
+  header.
+    Beware of generated ids
+  :marked
+    **The tool generated the `id`s for these translation units. Don't touch them.**
+    Each `id` depend upon the content of the message and its assigned meaning.
+    Change either factor and the `id` changes as well.
+    See the **[translation file maintenance discussion](#maintenance)**.
 
 a#translate-plural-select
 :marked
@@ -561,16 +587,21 @@ a#maintenance
     
   As the application evolves, you will change the _i18n_ markup 
   and re-run the `ng-xi18n` extraction tool many times.
-  The _new_ markup that you add is not a problem;
-  but _most_ changes to _existing_ markup trigger 
-  generation of _new_ `id`s for the affected translation units.
+  The _new_ markup that you add is not a problem.
+  But the `id` _can be a serious problem!_
+
+  If the `id` is generated by the tool, _most_ changes to _existing_ markup 
+  cause the tool to generate a _new_ `id` for the affected translation unit.
   
   After an `id` changes, the translation files are no longer in-sync.
   **All translated versions of the application will fail** during re-compilation. 
   The error messages identify the old `id`s that are no longer valid but 
   they don't tell you what the new `id`s should be.
+
+  You can avoid this problem by supplying your own [custom id explicitly](#explicit-id "Set a custom id explicitly").
+  The tooling preserves your `id` as you make changes to the corresponding translation unit. 
   
-  **Commit all translation message files to source control**, 
+  Whether you use generated or explicit `ids`, **always commit all translation message files to source control**, 
   especially the English source `messages.xlf`.
   The difference between the old and the new `messages.xlf` file
-   help you find and update `id` changes across your translation files.
+  help you find and update `id` and other changes across your translation files.
