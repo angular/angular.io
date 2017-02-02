@@ -84,25 +84,22 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 });
 
 var _exampleBoilerplateFiles = [
-  'a2docs.css',
+  'src/styles.css',
+  'src/systemjs.config.js',
+  'src/tsconfig.json',
+  'bs-config.json',
+  'bs-config.e2e.json',
   'package.json',
-  'styles.css',
-  'systemjs.config.js',
-  'tsconfig.json',
   'tslint.json'
 ];
 
-var _exampleDartWebBoilerPlateFiles = ['a2docs.css', 'styles.css'];
-
 var _exampleUnitTestingBoilerplateFiles = [
-  'browser-test-shim.js',
+  'src/browser-test-shim.js',
   'karma-test-shim.js',
   'karma.conf.js'
 ];
 
 var _exampleConfigFilename = 'example-config.json';
-
-var _styleLessName = 'a2docs.less';
 
 // Gulp flags:
 //
@@ -182,21 +179,12 @@ function runE2e() {
     // fast; skip all setup
     promise = Promise.resolve(true);
   } else  {
-    /*
-       // Not 'fast'; do full setup
-    var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
-    promise = spawnInfo.promise.then(function() {
-      copyExampleBoilerplate();
-      spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
-      return spawnInfo.promise;
-    });
-    */
     // Not 'fast'; do full setup
     gutil.log('runE2e: install _examples stuff');
     var spawnInfo = spawnExt('npm', ['install'], { cwd: EXAMPLES_PATH});
     promise = spawnInfo.promise
+      .then(copyExampleBoilerplate)
       .then(function() {
-        buildStyles(copyExampleBoilerplate, _.noop);
         gutil.log('runE2e: update webdriver');
         spawnInfo = spawnExt('npm', ['run', 'webdriver:update'], {cwd: EXAMPLES_PATH});
         return spawnInfo.promise;
@@ -283,8 +271,8 @@ function runE2eTsTests(appDir, outputFile) {
   }
 
   var config = {
-    build: exampleConfig.build || 'tsc',
-    run: exampleConfig.run || 'http-server:e2e'
+    build: exampleConfig.build || 'build',
+    run: exampleConfig.run || 'serve:e2e'
   };
 
   var appBuildSpawnInfo = spawnExt('npm', ['run', config.build], { cwd: appDir });
@@ -350,7 +338,7 @@ function runProtractorAoT(appDir, outputFile) {
     promise = promise.then(() =>
      spawnExt('node', [copyFileCmd], { cwd: appDir }).promise );
   }
-  var aotRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', 'aot', '--', '-s'], { cwd: appDir });
+  var aotRunSpawnInfo = spawnExt('npm', ['run', 'serve:aot'], { cwd: appDir });
   return runProtractor(promise, appDir, aotRunSpawnInfo, outputFile);
 }
 
@@ -364,7 +352,7 @@ function runE2eDartTests(appDir, outputFile) {
   gutil.log('AppDir for Dart e2e: ' + appDir);
   gutil.log('Deploying from: ' + deployDir);
 
-  var appRunSpawnInfo = spawnExt('npm', ['run', 'http-server:e2e', '--', deployDir, '-s'], { cwd: httpLaunchDir });
+  var appRunSpawnInfo = spawnExt('npm', ['run', 'serve:e2e', '--', deployDir, '-s'], { cwd: httpLaunchDir });
   if (!appRunSpawnInfo.proc.pid) {
     gutil.log('http-server failed to launch over ' + deployDir);
     return false;
@@ -448,7 +436,7 @@ gulp.task('help', taskListing.withFilters(function(taskName) {
 }));
 
 // requires admin access because it adds symlinks
-gulp.task('add-example-boilerplate', function(done) {
+gulp.task('add-example-boilerplate', function() {
   var realPath = path.join(EXAMPLES_PATH, '/node_modules');
   var nodeModulesPaths = excludeDartPaths(getNodeModulesPaths(EXAMPLES_PATH));
 
@@ -457,55 +445,31 @@ gulp.task('add-example-boilerplate', function(done) {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  return buildStyles(copyExampleBoilerplate, done);
+  return copyExampleBoilerplate();
 });
 
 
 // copies boilerplate files to locations
 // where an example app is found
 gulp.task('_copy-example-boilerplate', function (done) {
-  return argv.fast ? done() : buildStyles(copyExampleBoilerplate, done);
+  return argv.fast ? done() : copyExampleBoilerplate();
 });
-
-//Builds Angular Docs CSS file from Bootstrap npm LESS source
-//and copies the result to the _examples folder to be included as
-//part of the example boilerplate.
-function buildStyles(cb, done){
-  gulp.src(path.join(STYLES_SOURCE_PATH, _styleLessName))
-    .pipe(less())
-    .pipe(gulp.dest(BOILERPLATE_PATH)).on('end', function(){
-      cb().then(function() { done(); });
-    });
-}
 
 // copies boilerplate files to locations
 // where an example app is found
 // also copies certain web files (e.g., styles.css) to ~/_examples/**/dart/**/web
 function copyExampleBoilerplate() {
   gutil.log('Copying example boilerplate files');
-  var sourceFiles = _exampleBoilerplateFiles.map(function(fn) {
-    return path.join(BOILERPLATE_PATH, fn);
-  });
   var examplePaths = excludeDartPaths(getExamplePaths(EXAMPLES_PATH));
-
-  var dartWebSourceFiles = _exampleDartWebBoilerPlateFiles.map(function(fn){
-    return path.join(BOILERPLATE_PATH, fn);
-  });
-  var dartExampleWebPaths = getDartExampleWebPaths(EXAMPLES_PATH);
 
   // Make boilerplate files read-only to avoid that they be edited by mistake.
   var destFileMode = '444';
-  return copyFiles(sourceFiles, examplePaths, destFileMode)
-    .then(function() {
-      return copyFiles(dartWebSourceFiles, dartExampleWebPaths, destFileMode);
-    })
+  return copyFiles(_exampleBoilerplateFiles, BOILERPLATE_PATH, examplePaths, destFileMode)
     // copy the unit test boilerplate
     .then(function() {
-      var unittestSourceFiles =
-        _exampleUnitTestingBoilerplateFiles
-          .map(function(name) { return path.join(EXAMPLES_TESTING_PATH, name); });
       var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
-      return copyFiles(unittestSourceFiles, unittestPaths, destFileMode);
+      return copyFiles(_exampleUnitTestingBoilerplateFiles,
+        EXAMPLES_TESTING_PATH, unittestPaths, destFileMode);
     })
     .catch(function(err) {
       gutil.log(err);
@@ -582,9 +546,6 @@ function deleteExampleBoilerPlate() {
   var unittestPaths = getUnitTestingPaths(EXAMPLES_PATH);
 
   return deleteFiles(_exampleBoilerplateFiles, examplePaths)
-    .then(function() {
-      return deleteFiles(_exampleDartWebBoilerPlateFiles, dartExampleWebPaths);
-    })
     .then(function() {
       return deleteFiles(_exampleUnitTestingBoilerplateFiles, unittestPaths);
     });
@@ -1053,15 +1014,15 @@ function harpJsonSetJade2NgTo(v) {
 // Copies fileNames into destPaths, setting the mode of the
 // files at the destination as optional_destFileMode if given.
 // returns a promise
-function copyFiles(fileNames, destPaths, optional_destFileMode) {
+function copyFiles(fileNames, originPath, destPaths, optional_destFileMode) {
   var copy = Q.denodeify(fsExtra.copy);
   var chmod = Q.denodeify(fsExtra.chmod);
   var copyPromises = [];
   destPaths.forEach(function(destPath) {
     fileNames.forEach(function(fileName) {
-      var baseName = path.basename(fileName);
-      var destName = path.join(destPath, baseName);
-      var p = copy(fileName, destName, { clobber: true});
+      var originName = path.join(originPath, fileName);
+      var destName = path.join(destPath, fileName);
+      var p = copy(originName, destName, { clobber: true});
       if(optional_destFileMode !== undefined) {
         p = p.then(function () {
           return chmod(destName, optional_destFileMode);

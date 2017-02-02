@@ -26,7 +26,8 @@ class PlunkerBuilder {
     this._getPlunkerFiles();
     var errFn = this.options.errFn || function(e) { console.log(e); };
     var plunkerPaths = path.join(this.basePath, '**/*plnkr.json');
-    var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
+    var fileNames = globby.sync(plunkerPaths,
+      { ignore: ['**/node_modules/**', '**/_boilerplate/**'] });
     fileNames.forEach((configFileName) => {
       try {
         this._buildPlunkerFrom(configFileName);
@@ -207,9 +208,9 @@ class PlunkerBuilder {
   }
 
   _getPlunkerFiles() {
-    var systemJsConfigPath = '/_boilerplate/systemjs.config.web.js';
+    var systemJsConfigPath = '/_boilerplate/src/systemjs.config.web.js';
     if (this.options.build) {
-      systemJsConfigPath = '/_boilerplate/systemjs.config.web.build.js';
+      systemJsConfigPath = '/_boilerplate/src/systemjs.config.web.build.js';
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
 
@@ -244,10 +245,11 @@ class PlunkerBuilder {
   }
 
   _initConfigAndCollectFileNames(configFileName) {
-    var basePath = path.dirname(configFileName);
+    var configDir = path.dirname(configFileName);
     var configSrc = fs.readFileSync(configFileName, 'utf-8');
     try {
       var config = (configSrc && configSrc.trim().length) ? JSON.parse(configSrc) : {};
+      config.basePath = config.basePath ? path.resolve(configDir, config.basePath) : configDir;
     } catch (e) {
       throw new Error(`Plunker config - unable to parse json file: ${configFileName}\n${e}`);
     }
@@ -266,15 +268,14 @@ class PlunkerBuilder {
     var gpaths = config.files.map(function(fileName) {
       fileName = fileName.trim();
       if (fileName.substr(0,1) == '!') {
-        return "!" + path.join(basePath, fileName.substr(1));
+        return "!" + path.join(config.basePath, fileName.substr(1));
       } else {
         includeSpec = includeSpec || /.*\.spec.(ts|js)$/.test(fileName);
-        return path.join(basePath, fileName);
+        return path.join(config.basePath, fileName);
       }
     });
 
     var defaultExcludes = [
-      '!**/a2docs.css',
       '!**/tsconfig.json',
       '!**/*plnkr.*',
       '!**/package.json',
@@ -298,7 +299,6 @@ class PlunkerBuilder {
     Array.prototype.push.apply(gpaths, defaultExcludes);
 
     config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
-    config.basePath = basePath;
 
     return config;
   }
