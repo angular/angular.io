@@ -1,6 +1,6 @@
 import { browser } from 'protractor';
 
-export var appLang = {
+export let appLang = {
   appIsTs: false,
   appIsJs: false,
   appIsDart: false,

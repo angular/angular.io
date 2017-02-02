@@ -1,7 +1,7 @@
 // #docregion
 import { Hero } from './hero';
 
-export var HEROES: Hero[] = [
+export let HEROES: Hero[] = [
   { id: 11, isSecret: false, name: 'Mr. Nice' },
   { id: 12, isSecret: false, name: 'Narco' },
   { id: 13, isSecret: false, name: 'Bombasto' },

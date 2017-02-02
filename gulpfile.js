@@ -845,9 +845,10 @@ gulp.task('lint', function() {
     ])
     .pipe(tslint({
       rulesDirectory: ['node_modules/codelyzer'],
-      configuration: require('./tslint.json')
+      configuration: require('./tslint.json'),
+      formatter: 'prose'
     }))
-    .pipe(tslint.report('prose', {
+    .pipe(tslint.report({
       summarizeFailureOutput: true
     }));
 });
