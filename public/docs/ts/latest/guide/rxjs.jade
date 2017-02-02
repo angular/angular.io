@@ -16,9 +16,13 @@ block includes
   ## Table of Contents
   * [The Observable](#definition "")
   * [Observables and Promises](#observables-vs-promises "")
-  * [Framework APIs](#apis "")
+  * [Using Operators](#operators "")
+  * [Managing Subscriptions](#managing-subscriptions "")
+  * [Sharing Data](#sharing-data "")
   * [Error Handling](#error-handling "")
-  * [Further Reading](#reading "")
+  * [Framework APIs](#framework-apis "")
+  * [Stream Integration](#integration "")
+  * [Further Reading](#further-reading "")
 
 h3#definition The Observable: a function at its core
 
@@ -61,10 +65,59 @@ h3#observables-vs-promises Observables and Promises: More different than alike
   tool to handle the various streams of events in an application. So does this mean Promises are no longer needed? Absolutely not. Promises will continue to serve a purpose as
   the right tool for the job in some situations.
 
+h3#operators Operators: Import them and use them
+
+:marked
+  Operators are pure functions that extend the Observable interface, allow you to perform an action against the Observable
+  and return a new Observable. An Observable comes with very few built-in operators and the rest of the operators are
+  added to the Observable on demand. There are multiple approaches to make these operators available for use.
+  One approach is to import the entire RxJS library.
+
++makeExcerpt('app/heroes-filtered.component.1.ts', 'import-all')
+
+:marked
+  This is the **least recommended** method, as it brings in **all** the Observables operators,
+  even ones you never use. While convenient, this method is inefficient and can greatly impact the size of your application,
+  which is always a concern. This method is mainly reserved for prototyping and testing, where such concerns are less important.
+
+  The second method is to import operators selectively by patching the Observable prototype. This allows you to chain
+  operators together, as each operator returns a new Observable. Below is an example of importing the `filter` and `do` operators.
+  The `filter` operator filters elements produced by an Observable based on a predicate function that returns a boolean. The `do` operator
+  provides the Observable value to perform an arbitrary action, such as console logging.
+
++makeExcerpt('app/heroes-filtered.component.1.ts', 'operator-import')
+
+:marked
+  Had you not imported these common operators before using them with the Observable returned by `getHeroes`,
+  the Observable would fail to perform these actions as it these functions don't exist on the Observable yet.
+
+  Another common example is two components with incomplete operator imports. Both files have components that use Observable operators
+  but only one file imports the operators it needs. Interestingly enough if you load the component with the imported operators first and then
+  load the second component, everything works fine. Conversely, loading the component without the imported operators first blows up because the
+  operators aren't available on the Observable.
+
+  Another approach is to import the Observable operators directly and call them individually on the Observable. Let's
+  update your filtered heroes component to use direct imports.
+
++makeExcerpt('app/heroes-filtered.component.2.ts (direct operator imports)', '')
+
+:marked
+  This approach has no side-effects as you're not patching the Observable prototype. It also is
+  more conducive to tree shaking versus patching the Observable prototype, which can't be tree-shaken. You're also only importing what you need where you need it,
+  but this approach doesn't give you the option to chain operators together. If you were building a third-party
+  library, this would be the recommended approach as you don't want your library to produce any side-effects
+  to the Observable for consumers of your library but for an application, its less desirable.
+
+  The recommended approach is to import the operators in the file where you use them. Yes, this may lead to
+  duplicate imports of operators in multiple files, but more importantly this ensures that the operators
+  that are needed are provided by that file. This becomes especially important with lazy loading, where
+  certain feature areas may only make use of certain operators. Importing the operators this way ensures
+  the operators are available regardless of where and when you use them.
+
 h3#managing-subscriptions Managing Subscriptions
 
 :marked
-  Observables like any other instance use resources and those resources add to the overall resources used in your application. Observables
+  Observables like any other instance use resources and those resources add to the overall weight of your application over time. Observables
   provide a `Subscription` for each `Subscriber` of the Observable that comes with a way to _unsubscribe_ or clean up any resources used
   while listening for values produced by the Observable. We'll look at a simple example of how to unsubscribe from and Observable once
   its no longer needed.
@@ -249,9 +302,9 @@ h3#framework-apis Framework APIs: Angular-provided streams
 
 h3#integration Stream Integration
 :marked
-  The Observables provided by these area can be used together. The same set of functionality and extensibility can be combined together in a very powerful and
-  practical way. In order to demonstrate how these work together, you’re going to build a hero search component. Let’s start by gathering some requirements about
-  what your typeahead will need.
+  The Observables provided by these areas can be used together. The same set of functionality and extensibility can be combined together
+  in a very powerful and practical way. A prime example is a hero search component that implements a typeahead search feature.
+  Let’s start by gathering some requirements about what your typeahead will need.
 
   * Take input from the user
   * Make a search based on that input
