@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -78,7 +78,7 @@ describe('Server Communication', function () {
     }
   });
 
-  describe('Smarter Wikipedia Demo', function () {
+  xdescribe('Smarter Wikipedia Demo', function () {
 
     it('should initialize the demo with empty result list', function () {
       let myWikiSmartComp = element(by.tagName('my-wiki-smart'));
