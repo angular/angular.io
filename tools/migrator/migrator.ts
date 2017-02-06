@@ -13,9 +13,10 @@ abstract class Rule {
 export class Migrator {
   rules = [
     new RemoveRule(/include \.\.\/_util-fns[\s\n\r]*/),
-    new RemoveRule(/\.l-main-section[\s\n\r]*/),
+    new RemoveBlockRule('.l-main-section'),
+    new RemoveBlockRule('.l-sub-section'),
     new ComponentRule('alert'),
-    new RemoveBlockRule('marked')
+    new RemoveBlockRule(':marked')
   ];
 
   process(content: string) {
@@ -43,43 +44,36 @@ class ComponentRule extends Rule {
     const lines = content.split('\n');
     const output = [];
     let index = 0;
+
+    let inComponent = false;
+    let outerIndent;
+
     while(index < lines.length) {
       let line = lines[index];
-      const outerIndent = countIndent(line);
-      if (line.indexOf('.' + this.cssClass) === outerIndent) {
+      let indent = countIndent(line);
 
-        // found a "component"
-        const cssClasses = line.substr(outerIndent);
-        output.push('~~~ {' + cssClasses + '}\n');
-
-        // now extract the content
-        // the first line indicates the inner indent
-        index++;
-        line = lines[index];
-        const innerIndent = countIndent(line);
-        output.push(line.substr(innerIndent-outerIndent));
-
-        // extract the rest of the content until we hit something that is less indented
-        index++;
-        while(index < lines.length) {
-          line = lines[index];
-          if (line.length === 0 || countIndent(line) >= innerIndent) {
-            output.push(line.substr(innerIndent-outerIndent));
-            index++;
-          } else {
-            break;
-          }
+      if (inComponent) {
+        if (line.length === 0 || indent > outerIndent) {
+          output.push(line.substring(indent-outerIndent));
+        } else {
+          output.push('~~~\n');
+          inComponent = false;
         }
-        // Add in an extra empty line if there isn't already one
-        if (output[output.length-1].trim() !== '') {
-          output.push('')
+      }
+
+      if (!inComponent) {
+        if (line.indexOf('.' + this.cssClass) === indent) {
+          outerIndent = indent;
+          inComponent = true;
+          output.push('~~~ {' + line.substring(indent) + '}\n')
+        } else {
+          output.push(line);
         }
-        output.push('~~~\n');
       }
-      if (index < lines.length) {
-        output.push(line);
-        index++;
-      }
+      index++;
+    }
+    if (inComponent) {
+      output.push('\n~~~\n');
     }
     return output.join('\n');
   }
@@ -111,7 +105,7 @@ class RemoveBlockRule extends Rule {
       }
 
       if (!inMarkdown) {
-        if (line.indexOf(':' + this.blockName) === indent) {
+        if (line.indexOf(this.blockName) === indent) {
           outerIndent = indent;
           inMarkdown = true;
         } else {

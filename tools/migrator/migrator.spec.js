@@ -1,5 +1,5 @@
 require('ts-node/register');
-var expect = require('expect.js');
+var expect = require('chai').expect;
 
 const Migrator = require('./migrator').Migrator;
 
@@ -18,7 +18,7 @@ describe('migrator', () => {
     ));
   });
 
-  it('should remove `.l-main-section`', () => {
+  it('should remove and unindent `.l-main-section`', () => {
     expect(migrator.process(_(
       'Some content',
       '',
@@ -31,7 +31,20 @@ describe('migrator', () => {
     ));
   });
 
-  it('should convert alerts', () => {
+  it('should remove and unindent `.l-sub-section`', () => {
+    expect(migrator.process(_(
+      'Some content',
+      '',
+      '.l-sub-section',
+      '  ## some heading'
+    ))).to.equal(_(
+      'Some content',
+      '',
+      '## some heading'
+    ));
+  })
+
+  it('should convert `.alert` components', () => {
     expect(migrator.process(_(
       '.alert.is-important',
       '  abc',
@@ -64,7 +77,7 @@ describe('migrator', () => {
     ));
   });
 
-  it('should remove `:marked` blocks', () => {
+  it('should remove and unindent `:marked` blocks', () => {
     expect(migrator.process(_(
       'some-element',
       '  :marked',
