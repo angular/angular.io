@@ -8,7 +8,7 @@ import { Component } from '@angular/core';
 
 import { Phone, PhoneData } from '../core/phone/phone.service';
 // #enddocregion initialclass
-import { RouteParams } from '../ng1-upgraded-providers';
+import { RouteParams } from '../ajs-upgraded-providers';
 
 // #docregion initialclass
 @Component({

@@ -11,7 +11,7 @@ var resources = [
   'app/img/',
   'app/phones/',
   // app files
-  'app/app.module.ng1.js',
+  'app/app.module.ajs.js',
   'app/app.config.js',
   'app/app.animations.js',
   'app/core/core.module.js',

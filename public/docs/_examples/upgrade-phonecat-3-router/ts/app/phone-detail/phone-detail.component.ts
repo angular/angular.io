@@ -5,7 +5,7 @@ import { downgradeComponent } from '@angular/upgrade/static';
 import { Component } from '@angular/core';
 
 import { Phone, PhoneData } from '../core/phone/phone.service';
-import { RouteParams } from '../ng1-upgraded-providers';
+import { RouteParams } from '../ajs-upgraded-providers';
 
 @Component({
   moduleId: module.id,
