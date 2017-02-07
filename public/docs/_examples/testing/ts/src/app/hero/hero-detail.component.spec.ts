@@ -191,7 +191,7 @@ function heroModuleSetup() {
     }));
 
     // #docregion title-case-pipe
-    it('should convert hero name to Title Case', fakeAsync(() => {
+    it('should convert hero name to Title Case', () => {
       const inputName = 'quick BROWN  fox';
       const titleCaseName = 'Quick Brown  Fox';
 
@@ -205,7 +205,7 @@ function heroModuleSetup() {
       fixture.detectChanges();
 
       expect(page.nameDisplay.textContent).toBe(titleCaseName);
-    }));
+    });
     // #enddocregion title-case-pipe
   // #enddocregion selected-tests
   // #docregion route-good-id

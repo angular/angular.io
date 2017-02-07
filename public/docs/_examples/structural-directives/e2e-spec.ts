@@ -1,68 +1,58 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
 describe('Structural Directives', function () {
 
-  // tests interact - so we need beforeEach instead of beforeAll
-  beforeEach(function () {
+  beforeAll(function () {
     browser.get('');
   });
 
-  it('should be able to use ngFor, ngIf and ngWhen together', function () {
-    let allDivEles = element.all(by.css('structural-directives > div'));
-    expect(allDivEles.get(0).getText()).toEqual('Mr. Nice');
-    expect(allDivEles.get(1).getText()).toEqual('Mr. Nice');
-    expect(allDivEles.get(4).getText()).toEqual('Ready');
+  it('first div should show hero name with *ngIf', function () {
+    const allDivs = element.all(by.tagName('div'));
+    expect(allDivs.get(0).getText()).toEqual('Mr. Nice');
   });
 
-  it('should be able to toggle ngIf with a button', function () {
-    let setConditionButtonEle = element.all(by.css('button')).get(0);
-    let conditionTrueEles = element.all(by.cssContainingText('p', 'condition is true'));
-    let conditionFalseEles = element.all(by.cssContainingText('p', 'condition is false'));
-    expect(conditionTrueEles.count()).toBe(2, 'should be two condition true elements');
-    expect(conditionFalseEles.count()).toBe(0, 'should be no condition false elements');
-    setConditionButtonEle.click().then(function() {
-      expect(conditionTrueEles.count()).toBe(0, 'should be no condition true elements');
-      expect(conditionFalseEles.count()).toBe(2, 'should be two condition false elements');
+  it('first li should show hero name with *ngFor', function () {
+    const allLis = element.all(by.tagName('li'));
+    expect(allLis.get(0).getText()).toEqual('Mr. Nice');
+  });
+
+  it('ngSwitch have three <happy-hero> instances', function () {
+    const happyHeroEls = element.all(by.tagName('happy-hero'));
+    expect(happyHeroEls.count()).toEqual(3);
+  });
+
+  it('should toggle *ngIf="hero" with a button', function () {
+    const toggleHeroButton = element.all(by.cssContainingText('button', 'Toggle hero')).get(0);
+    const paragraph = element.all(by.cssContainingText('p', 'I turned the corner'));
+    expect(paragraph.get(0).getText()).toContain('I waved');
+    toggleHeroButton.click().then(() => {
+      expect(paragraph.get(0).getText()).not.toContain('I waved');
     });
   });
 
-  it('should be able to compare use of ngIf with changing css visibility', function () {
-    let setConditionButtonEle = element.all(by.css('button')).get(0);
-    let ngIfButtonEle = element(by.cssContainingText('button', 'if | !if'));
-    let ngIfParentEle = ngIfButtonEle.element(by.xpath('..'));
-    let ngIfSiblingEle = ngIfParentEle.element(by.css('heavy-loader'));
-    let cssButtonEle = element(by.cssContainingText('button', 'show | hide'));
-    let cssSiblingEle = cssButtonEle.element(by.xpath('..')).element(by.css('heavy-loader'));
-    let setConditionText: string;
-    setConditionButtonEle.getText().then(function(text: string) {
-      setConditionText = text;
-      expect(ngIfButtonEle.isPresent()).toBe(true, 'should be able to find ngIfButton');
-      expect(cssButtonEle.isPresent()).toBe(true, 'should be able to find cssButton');
-      expect(ngIfParentEle.isPresent()).toBe(true, 'should be able to find ngIfButton parent');
-      expect(ngIfSiblingEle.isPresent()).toBe(true, 'should be able to find ngIfButton sibling');
-      expect(cssSiblingEle.isPresent()).toBe(true, 'should be able to find cssButton sibling');
-      return ngIfButtonEle.click();
-    }).then(function() {
-      expect(ngIfSiblingEle.isPresent()).toBe(false, 'now should NOT be able to find ngIfButton sibling');
-      expect(setConditionButtonEle.getText()).not.toEqual(setConditionText);
-      return cssButtonEle.click();
-    }).then(function() {
-      expect(cssSiblingEle.isPresent()).toBe(true, 'now should still be able to find cssButton sibling');
-      expect(cssSiblingEle.isDisplayed()).toBe(false, 'now cssButton sibling should NOT be visible');
-      return ngIfButtonEle.click();
-    }).then(function() {
-      expect(setConditionButtonEle.getText()).toEqual(setConditionText);
-    });
+  it('should have only one "Hip!" (the other is erased)', function () {
+    const paragraph = element.all(by.cssContainingText('p', 'Hip!'));
+    expect(paragraph.count()).toEqual(1);
   });
 
-  it('should be able to use *ngIf ', function () {
-    let setConditionButtonEle = element.all(by.css('button')).get(0);
-    let displayEles = element.all(by.cssContainingText('p', 'Our heroes are true!'));
-    expect(displayEles.count()).toBe(2, 'should be displaying two ngIf elements');
-    setConditionButtonEle.click().then(function() {
-      expect(displayEles.count()).toBe(0, 'should nog longer be displaying ngIf elements');
+  it('myUnless should show 3 paragraph (A)s and (B)s at the start', function () {
+    const paragraph = element.all(by.css('p.unless'));
+    expect(paragraph.count()).toEqual(3);
+    for (let i = 0; i < 3; i++) {
+      expect(paragraph.get(i).getText()).toContain('(A)');
+    }
+  });
+
+  it('myUnless should show 1 paragraph (B) after toggling condition', function () {
+    const toggleConditionButton = element.all(by.cssContainingText('button', 'Toggle condition')).get(0);
+    const paragraph = element.all(by.css('p.unless'));
+
+    toggleConditionButton.click().then(() => {
+      expect(paragraph.count()).toEqual(1);
+      expect(paragraph.get(0).getText()).toContain('(B)');
     });
   });
 });
+
