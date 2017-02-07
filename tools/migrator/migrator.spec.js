@@ -91,7 +91,42 @@ describe('migrator', () => {
       '',
       '  a paragraph'
     ));
-  })
+  });
+
+  it('should convert +makeExample(...)', () => {
+    expect(migrator.process(_(
+      '+makeExample(\'cb-component-relative-paths/ts/src/app/some.component.ts\',\'module-id\')(format=\'.\')'
+    ))).to.equal(_(
+      '{@example \'cb-component-relative-paths/ts/src/app/some.component.ts\' region=\'module-id\' linenums=\'false\'}'
+    ));
+  });
+
+  it('should convert +makeTabs(...)', () => {
+    expect(migrator.process(_(
+      '+makeTabs(',
+      '  `cb-component-relative-paths/ts/src/app/some.component.ts,',
+      '  cb-component-relative-paths/ts/src/app/some.component.html,',
+      '  cb-component-relative-paths/ts/src/app/some.component.css,',
+      '  cb-component-relative-paths/ts/src/app/app.component.ts`,',
+      '  null,',
+      '  `src/app/some.component.ts, src/app/some.component.html, src/app/some.component.css, src/app/app.component.ts`)'
+    ))).to.equal(_(
+      '<md-tab-group>',
+      '  <md-tab label="src/app/some.component.ts">',
+      '    {@example \'cb-component-relative-paths/ts/src/app/some.component.ts\'}',
+      '  </md-tab>',
+      '  <md-tab label="src/app/some.component.html">',
+      '    {@example \'cb-component-relative-paths/ts/src/app/some.component.html\'}',
+      '  </md-tab>',
+      '  <md-tab label="src/app/some.component.css">',
+      '    {@example \'cb-component-relative-paths/ts/src/app/some.component.css\'}',
+      '  </md-tab>',
+      '  <md-tab label="src/app/app.component.ts">',
+      '    {@example \'cb-component-relative-paths/ts/src/app/app.component.ts\'}',
+      '  </md-tab>',
+      '</md-tab-group>'
+      ));
+  });
 });
 
 function _(...lines) {
