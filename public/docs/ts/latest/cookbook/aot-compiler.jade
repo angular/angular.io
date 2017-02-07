@@ -1,7 +1,7 @@
 include ../_util-fns
   
 :marked
-  This cookbook describes how to radically improve performance by compiling _Ahead of Time_ (AoT) 
+  This cookbook describes how to radically improve performance by compiling _Ahead of Time_ (AOT) 
   during a build process.
 
 a#toc
@@ -9,53 +9,58 @@ a#toc
   ## Table of Contents
   * [Overview](#overview)
   * [_Ahead-of-Time_ vs _Just-in-Time_](#aot-jit)
-  * [Compile with AoT](#compile)
+  * [Compile with AOT](#compile)
   * [Bootstrap](#bootstrap)
   * [Tree Shaking](#tree-shaking)
   * [Load the bundle](#load)
   * [Serve the app](#serve)
+  * [Workflow and convenience script](#workflow)
   * [Source Code](#source-code)
+  * [Tour of Heroes](#toh)
 
 a#overview
 .l-main-section
 :marked
   ## Overview
-  Angular component templates consist of a mix of standard html and Angular syntax (e.g. `ngIf`, `ngFor`). 
-  
-  Expressions like `ngIf` and `ngFor` are specific to Angular. The browser cannot execute them directly.
-  
-  Before the browser can render the application, Angular components and their templates must be converted to executable JavaScript. 
-  We refer to this step as _Angular compilation_ or just plain _compilation_.
 
-  You can compile the app in the browser, at runtime, as the application loads, using the _Just-in-Time_ (JiT) compiler. 
+  An Angular application consist largely of components and their HTML templates.
+  Before the browser can render the application, 
+  the components and templates must be converted to executable JavaScript by the _Angular compiler_.
+.l-sub-section
+  :marked
+    <a href="https://www.youtube.com/watch?v=kW9cJsvcsGo" target="_blank">Watch compiler author Tobias Bosch explain the Angular Compiler</a> at AngularConnect 2016.
+:marked
+  You can compile the app in the browser, at runtime, as the application loads, using the **_Just-in-Time_ (JIT) compiler**. 
   This is the standard development approach shown throughout the documentation.
+  It's great .. but it has shortcomings.
 
-  JiT compilation incurs a runtime performance penalty. 
+  JIT compilation incurs a runtime performance penalty. 
   Views take longer to render because of the in-browser compilation step. 
   The application is bigger because it includes the Angular compiler 
   and a lot of library code that the application won't actually need.
   Bigger apps take longer to transmit and are slower to load.
   
-  This cookbook describes how to improve performance by compiling at build time instead,
-  using a process called _Ahead-of-Time_ compilation (AoT).
+  Compilation can uncover many component-template binding errors.
+  JIT compilation discovers them at runtime which is later than we'd like.
+  
+  The **_Ahead-of-Time_ (AOT) compiler** can catch template errors early and improve performance 
+  by compiling at build time as you'll learn in this chapter.
 
 
 a#aot-jit
 .l-main-section
 :marked
-  ## _Ahead-of-time_ (AoT) vs _Just-in-time_ (JiT)
+  ## _Ahead-of-time_ (AOT) vs _Just-in-time_ (JIT)
 
-  There is actually only one Angular compiler. The difference between AoT and JiT is a matter of timing and tooling. 
-  With AoT, the compiler runs once at build time using one set of libraries; 
-  With JiT it runs every time for every user at runtime using a different set of libraries.  
+  There is actually only one Angular compiler. The difference between AOT and JIT is a matter of timing and tooling. 
+  With AOT, the compiler runs once at build time using one set of libraries; 
+  With JIT it runs every time for every user at runtime using a different set of libraries.  
 
-  ### Why do AoT compilation?
-
-  The performance improvement from doing AoT compilation can be significant for three reasons:
+  ### Why do AOT compilation?
 
   *Faster rendering*
 
-  With AoT, the browser downloads a pre-compiled version of the application. 
+  With AOT, the browser downloads a pre-compiled version of the application. 
   The browser loads executable code so it can render the application immediately, without waiting to compile the app first.
 
   *Fewer asynchronous requests*
@@ -68,27 +73,39 @@ a#aot-jit
   There's no need to download the Angular compiler if the app is already compiled. 
   The compiler is roughly half of Angular itself, so omitting it dramatically reduces the application payload.
 
+
+  *Detect template errors earlier*
+
+  The AOT compiler detects and reports template binding errors during the build step
+  before users can see them.
+
+
+  *Better security*
+
+  AOT compiles HTML templates and components into JavaScript files long before they are served to the client.
+  With no templates to read and no risky client-side HTML or JavaScript evaluation,
+  there are fewer opportunities for injection attacks.
+
 a#compile
 .l-main-section
 :marked
-  ## Compile with AoT
+  ## Compile with AOT
 
   ### Prepare for offline compilation
-
-  This cookbook takes the <a href='/docs/ts/latest/quickstart.html'>QuickStart</a> as its starting point.
+  Take the <a href='../guide/setup.html'>Setup</a> as a starting point.
   A few minor changes to the lone `app.component` lead to these two class and html files:
 
 +makeTabs(
-  `cb-aot-compiler/ts/app/app.component.html,
-   cb-aot-compiler/ts/app/app.component.ts`,
+  `cb-aot-compiler/ts/src/app/app.component.html,
+   cb-aot-compiler/ts/src/app/app.component.ts`,
   null,
-  `app/app.component.html,
-   app/app.component.ts`
-)
+  `src/app/app.component.html,
+   src/app/app.component.ts`
+)(format='.')
 
 :marked
   Install a few new npm dependencies with the following command: 
-code-example(format='.').
+code-example(language="none" class="code-shell").
   npm install @angular/compiler-cli @angular/platform-server --save
 :marked
   You will run the `ngc` compiler provided in the `@angular/compiler-cli` npm package
@@ -96,8 +113,9 @@ code-example(format='.').
 
   `ngc` is a drop-in replacement for `tsc` and is configured much the same way.  
 
-  `ngc` requires its own `tsconfig.json` with AoT-oriented settings.
-  Copy the original `tsconfig.json` to a file called `tsconfig-aot.json`, then modify it to look as follows.
+  `ngc` requires its own `tsconfig.json` with AOT-oriented settings.
+  Copy the original `src/tsconfig.json` to a file called `tsconfig-aot.json` (on the project root), 
+  then modify it to look as follows.
 
 +makeExample('cb-aot-compiler/ts/tsconfig-aot.json', null, 'tsconfig-aot.json')(format='.')
 
@@ -113,11 +131,34 @@ code-example(format='.').
   The `"skipMetadataEmit" : true` property prevents the compiler from generating metadata files with the compiled application. 
   Metadata files are not necessary when targeting TypeScript files, so there is no reason to include them.
 
+:marked
+  ***Component-relative Template URLS***
+
+  The AOT compiler requires that `@Component` URLS for external templates and css files be _component-relative_.
+  That means that the value of `@Component.templateUrl` is a URL value _relative_ to the component class file.
+  For example, an `'app.component.html'` URL means that the template file is a sibling of its companion `app.component.ts` file.
+
+  While JIT app URLs are more flexible, stick with _component-relative_ URLs for compatibility with AOT compilation.
+  
+  JIT-compiled applications that use the SystemJS loader and _component-relative_ URLs *must set the* `@Component.moduleId` *property to* `module.id`.
+  The `module` object is undefined when an AOT-compiled app runs. 
+  The app fails with a null reference error unless you assign a global `module` value in the `index.html` like this:
++makeExample('cb-aot-compiler/ts/src/index.html','moduleId')(format='.')  
+.l-sub-section
+  :marked
+    Setting a global `module` is a temporary expedient. 
+
+:marked
   ### Compiling the application
 
-  Initiate AoT compilation from the command line using the previously installed `ngc` compiler by executing:
-code-example(format='.').
+  Initiate AOT compilation from the command line using the previously installed `ngc` compiler by executing:
+code-example(language="none" class="code-shell").
   node_modules/.bin/ngc -p tsconfig-aot.json
+.l-sub-section
+  :marked
+    Windows users should surround the `ngc` command in double quotes:
+  code-example(format='.').
+    "node_modules/.bin/ngc" -p tsconfig-aot.json
 :marked
   `ngc` expects the `-p` switch to point to a `tsconfig.json` file or a folder containing a `tsconfig.json` file.
 
@@ -132,8 +173,8 @@ code-example(format='.').
     The curious can open the `aot/app.component.ngfactory.ts` to see the original Angular template syntax
     in its intermediate, compiled-to-TypeScript form.
 
-    JiT compilation generates these same _NgFactories_ in memory where they are largely invisible.
-    AoT compilation reveals them as separate, physical files.
+    JIT compilation generates these same _NgFactories_ in memory where they are largely invisible.
+    AOT compilation reveals them as separate, physical files.
 
 :marked
 .alert.is-important
@@ -145,21 +186,25 @@ a#bootstrap
 :marked
   ## Bootstrap
 
-  The AoT path changes application bootstrapping.
+  The AOT path changes application bootstrapping.
 
   Instead of bootstrapping `AppModule`, you bootstrap the application with the generated module factory, `AppModuleNgFactory`.
 
-  Switch from the `platformBrowserDynamic.bootstrap` used in JiT compilation to  
-  `platformBrowser().bootstrapModuleFactory` and pass in the `AppModuleNgFactory`.    
+  Make a copy of `main.ts` and name it `main-jit.ts`. 
+  This is the JIT version; set it aside as you may need it [later](#run-jit "Running with JIT").
 
-  Here is AoT bootstrap in `main.ts` next to the familiar JiT version:
+  Open `main.ts` and convert it to AOT compilation.
+  Switch from the `platformBrowserDynamic.bootstrap` used in JIT compilation to
+  `platformBrowser().bootstrapModuleFactory` and pass in the AOT-generated `AppModuleNgFactory`.
+
+  Here is AOT bootstrap in `main.ts` next to the original JIT version:
 
 +makeTabs(
-  `cb-aot-compiler/ts/app/main.ts,
-   cb-aot-compiler/ts/app/main-jit.ts`,
+  `cb-aot-compiler/ts/src/main.ts,
+   cb-aot-compiler/ts/src/main-jit.ts`,
   null,
-  `app/main.ts (AoT),
-   app/main.ts (JiT)`
+  `src/main.ts,
+   src/main-jit.ts`
 )
 
 :marked
@@ -169,7 +214,7 @@ a#tree-shaking
 :marked
   ## Tree Shaking
 
-  AoT compilation sets the stage for further optimization through a process called _Tree Shaking_.
+  AOT compilation sets the stage for further optimization through a process called _Tree Shaking_.
   A Tree Shaker walks the dependency graph, top to bottom, and _shakes out_ unused code like
   dead needles in a Christmas tree.
 
@@ -180,9 +225,9 @@ a#tree-shaking
   For example, this demo application doesn't use anything from the `@angular/forms` library.
   There is no reason to download Forms-related Angular code and tree shaking ensures that you don't.
 
-  Tree Shaking and AoT compilation are separate steps. 
+  Tree Shaking and AOT compilation are separate steps. 
   Tree Shaking can only target JavaScript code. 
-  AoT compilation converts more of the application to JavaScript, 
+  AOT compilation converts more of the application to JavaScript, 
   which in turn makes more of the application "Tree Shakable".
 
   ### Rollup
@@ -203,13 +248,16 @@ a#tree-shaking
 code-example(format='.').
   npm install rollup rollup-plugin-node-resolve rollup-plugin-commonjs rollup-plugin-uglify --save-dev
 :marked
-  Next, create a configuration file to tell Rollup how to process the application. 
-  The configuration file in this cookbook is named `rollup.js` and looks like this.
+  Next, create a configuration file (`rollup-config.js`)
+  in the project root directory to tell Rollup how to process the application. 
+  The cookbook configuration file looks like this.
 
-+makeExample('cb-aot-compiler/ts/rollup.js', null, 'rollup.js')(format='.')
++makeExample('cb-aot-compiler/ts/rollup-config.js', null, 'rollup-config.js')(format='.')
 :marked
-  It tells Rollup that the app entry point is `app/main.js` .
+  It tells Rollup that the app entry point is `src/app/main.js` .
   The `dest` attribute tells Rollup to create a bundle called `build.js` in the `dist` folder.
+  It overrides the default `onwarn` method in order to skip annoying messages about the AOT compiler's use of the `this` keyword.
+
   Then there are plugins.
 
 :marked
@@ -228,7 +276,7 @@ code-example(format='.').
   to use the ES `import` and `export` statements that Rollup requires.
   Rollup then preserves in the final bundle the parts of `RxJS` referenced by the application.
 
-+makeExample('cb-aot-compiler/ts/rollup.js','commonjs','rollup.js (CommonJs to ES2015 Plugin)')(format='.')     
++makeExample('cb-aot-compiler/ts/rollup-config.js','commonjs','rollup-config.js (CommonJs to ES2015 Plugin)')(format='.')     
 
 :marked
   *Minification* 
@@ -236,7 +284,7 @@ code-example(format='.').
   Rollup Tree Shaking reduces code size considerably.  Minification makes it smaller still.
   This cookbook relies on the _uglify_ Rollup plugin to minify and mangle the code.
 
-+makeExample('cb-aot-compiler/ts/rollup.js','uglify','rollup.js (CommonJs to ES2015 Plugin)')(format='.') 
++makeExample('cb-aot-compiler/ts/rollup-config.js','uglify','rollup-config.js (CommonJs to ES2015 Plugin)')(format='.') 
 
 .l-sub-section
   :marked
@@ -247,16 +295,13 @@ code-example(format='.').
   ### Run Rollup
   Execute the Rollup process with this command:
 code-example(format='.').
-  node_modules/.bin/rollup -c rollup.js
-
+  node_modules/.bin/rollup -c rollup-config.js
 .l-sub-section
   :marked
-    Rollup may log many lines with the following warning message:
-  code-example(format='.', language='bash').
-    The `this` keyword is equivalent to `undefined` at the top level of an ES module, and has been rewritten
-  :marked
-    You can safely ignore these warnings.
-
+    Windows users should surround the `rollup` command in double quotes:
+  code-example(format='.').
+    "node_modules/.bin/rollup"  -c rollup-config.js
+:marked
 a#load
 .l-main-section
 :marked
@@ -264,9 +309,9 @@ a#load
 
   Loading the generated application bundle does not require a module loader like SystemJS. 
   Remove the scripts that concern SystemJS.
-  Instead, load the bundle file using a single `script` tag:
+  Instead, load the bundle file using a single `script` tag **_after_** the `</body>` tag:
 
-+makeExample('cb-aot-compiler/ts/index.html','bundle','index.html (load bundle)')(format='.') 
++makeExample('cb-aot-compiler/ts/src/index.html','bundle','index.html (load bundle)')(format='.') 
 
 a#serve
 .l-main-section
@@ -275,29 +320,234 @@ a#serve
 
   You'll need a web server to host the application.
   Use the same _Lite Server_ employed elsewhere in the documentation:
-code-example(format='.').
+code-example(language="none" class="code-shell").
   npm run lite
 :marked
   The server starts, launches a browser, and the app should appear.
-
+  
 a#source-code
 .l-main-section
 :marked
-  ## Source Code
+  ## AOT QuickStart Source Code
 
-  Here is the pertinent AoT source code for this cookbook:
+  Here's the pertinent source code:
 +makeTabs(
-  `cb-aot-compiler/ts/app/app.component.html,
-   cb-aot-compiler/ts/app/app.component.ts,
-   cb-aot-compiler/ts/app/main.ts,
-   cb-aot-compiler/ts/index.html,
+  `cb-aot-compiler/ts/src/app/app.component.html,
+   cb-aot-compiler/ts/src/app/app.component.ts,
+   cb-aot-compiler/ts/src/main.ts,
+   cb-aot-compiler/ts/src/index.html,
    cb-aot-compiler/ts/tsconfig-aot.json,
-   cb-aot-compiler/ts/rollup.js`,
+   cb-aot-compiler/ts/rollup-config.js`,
   null,
-  `app/app.component.html,
-   app/app.component.ts,
-   app/main.ts,
-   index.html,
+  `src/app/app.component.html,
+   src/app/app.component.ts,
+   src/main.ts,
+   src/index.html,
    tsconfig-aot.json,
-   rollup.js`
+   rollup-config.js`
 )
+
+a#workflow
+.l-main-section
+:marked
+  ## Workflow and convenience script
+
+  You'll rebuild the AOT version of the application every time you make a change. 
+  Those _npm_ commands are long and difficult to remember.
+
+  Add the following _npm_ convenience script to the `package.json` so you can compile and rollup in one command.
++makeJson('cb-aot-compiler/ts/package.json', { paths: 'scripts.build:aot'}, "package.json (build:aot convenience script)")
+:marked
+  Open a terminal window and try it.
+code-example(language="none" class="code-shell").
+  npm run build:aot  
+
+a#run-jit
+:marked
+  ### And JIT too!
+
+  AOT compilation and rollup together take several seconds. 
+  You may be able to develop iteratively a little faster with SystemJS and JIT.
+  The same source code can be built both ways. Here's one way to do that.
+
+  * Make a copy of `index.html` and call it `index-jit.html`.
+  * Delete the script at the bottom of `index-jit.html` that loads `bundle.js`
+  * Restore the SystemJS scripts like this:
++makeExample('cb-aot-compiler/ts/src/index-jit.html','jit','src/index-jit.html (SystemJS scripts)')(format='.') 
+
+:marked
+  Notice the slight change to the `system.import` which now specifies `src/app/main-jit`.
+  That's the JIT version of the bootstrap file that we preserved [above](#bootstrap)
+
+:marked
+  Open a _different_ terminal window and enter.
+code-example(language="none" class="code-shell").
+  npm start
+:marked
+  That compiles the app with JIT and launches the server.
+  The server loads `index.html` which is still the AOT version (confirm in the browser console).
+  Change the address bar to `index-jit.html` and it loads the JIT version (confirm in the browser console).
+
+  Develop as usual.
+  The server and TypeScript compiler are in "watch mode" so your changes are reflected immediately in the browser.
+
+  To see those changes in AOT, switch to the original terminal and re-run `npm run build:aot`. 
+  When it finishes, go back to the browser and back-button to the AOT version in the (default) `index.html`.
+
+  Now you can develop JIT and AOT, side-by-side.
+
+
+a#toh
+.l-main-section
+:marked
+  ## Tour of Heroes
+
+  The sample above is a trivial variation of the QuickStart app. 
+  In this section you apply what you've learned about AOT compilation and Tree Shaking 
+  to an app with more substance, the tutorial [_Tour of Heroes_](../tutorial/toh-pt6.html).
+
+  ### JIT in development, AOT in production
+
+  Today AOT compilation and Tree Shaking take more time than is practical for development. That will change soon.
+  For now, it's best to JIT compile in development and switch to AOT compilation before deploying to production.
+
+  Fortunately, the source code can be compiled either way without change _if_ you account for a few key differences.
+
+  ***index.html***
+
+  The JIT and AOT apps require their own `index.html` files because they setup and launch so differently. 
+  
+  Here they are for comparison:
+
++makeTabs(
+  `toh-6/ts/aot/index.html,
+   toh-6/ts/src/index.html`,
+  null,
+  `aot/index.html (AOT),
+   src/index.html (JIT)`
+)
+
+:marked
+  The JIT version relies on `SystemJS` to load individual modules. 
+  Its scripts appear in its `index.html`.
+
+  The AOT version loads the entire application in a single script, `aot/dist/build.js`.
+  It does not need `SystemJS`, so that script is absent from its `index.html`
+  
+  ***main.ts***
+  
+  JIT and AOT applications boot in much the same way but require different Angular libraries to do so.
+  The key differences, covered in the [Bootstrap](#bootstrap) section above,
+  are evident in these `main` files which can and should reside in the same folder: 
+
++makeTabs(
+  `toh-6/ts/src/main-aot.ts,
+   toh-6/ts/src/main.ts`,
+  null,
+  `main-aot.ts (AOT),
+   main.ts (JIT)`
+)
+
+:marked
+  ***TypeScript configuration***
+
+  JIT-compiled applications transpile to `commonjs` modules.
+  AOT-compiled applications transpile to _ES2015_/_ES6_ modules to facilitate Tree Shaking. 
+  AOT requires its own TypeScript configuration settings as well.
+
+  You'll need separate TypeScript configuration files such as these:
+
++makeTabs(
+  `toh-6/ts/tsconfig-aot.json,
+   toh-6/ts/src/tsconfig.json`,
+  null,
+  `tsconfig-aot.json (AOT),
+   src/tsconfig.json (JIT)`
+)
+
+.callout.is-helpful
+  header @Types and node modules
+  :marked
+    In the file structure of _this particular sample project_,
+    the `node_modules` folder happens to be two levels up from the project root. 
+    Therefore, `"typeRoots"` must be set to `"../../node_modules/@types/"`. 
+    
+    In a more typical project, `node_modules` would be a sibling of `tsconfig-aot.json`
+    and `"typeRoots"` would be set to `"node_modules/@types/"`.
+    Edit your `tsconfig-aot.json` to fit your project's file structure.
+
+:marked
+  ### Tree Shaking
+
+  Rollup does the Tree Shaking as before.
+  
++makeExample('toh-6/ts/rollup-config.js',null,'rollup-config.js')(format='.')  
+
+:marked
+  ### Running the application
+
+.alert.is-important
+  :marked
+    The general audience instructions for running the AOT build of the Tour of Heroes app are not ready.
+
+    The following instructions presuppose that you have cloned the 
+    <a href="https://github.com/angular/angular.io" target="_blank">angular.io</a> 
+    github repository and prepared it for development as explained in the repo's README.md.
+
+    The _Tour of Heroes_ source code is in the `public/docs/_examples/toh-6/ts` folder.
+:marked
+  Run the JIT-compiled app with `npm start` as for all other JIT examples.
+
+  Compiling with AOT presupposes certain supporting files, most of them discussed above.
++makeTabs(
+  `toh-6/ts/src/index.html,
+   toh-6/ts/copy-dist-files.js,
+   toh-6/ts/rollup-config.js,
+   toh-6/ts/tsconfig-aot.json`,
+  null,
+  `src/index.html,
+   copy-dist-files.js,
+   rollup-config.js,
+   tsconfig-aot.json`)
+:marked
+  Extend the `scripts` section of the `package.json` with these npm scripts:
++makeJson('cb-aot-compiler/ts/package.json', { paths: 'scripts.build:aot, scripts.serve:aot'}, "package.json (convenience scripts)")
+  
+:marked
+  Copy the AOT distribution files into the `/aot` folder with the node script:
+code-example(language="none" class="code-shell").
+  node copy-dist-files
+.l-sub-section
+  :marked
+    You won't do that again until there are updates to `zone.js` or the `core-js` shim for old browsers.
+:marked
+  Now AOT-compile the app and launch it with the `lite` server:
+code-example(language="none" class="code-shell").
+  npm run build:aot && npm run serve:aot
+
+:marked
+  ### Inspect the Bundle
+
+  It's fascinating to see what the generated JavaScript bundle looks like after Rollup. 
+  The code is minified, so you won't learn much from inspecting the bundle directly.
+  But the <a href="https://github.com/danvk/source-map-explorer/blob/master/README.md" target="_blank">source-map-explorer</a> 
+  tool can be quite revealing. 
+
+  Install it:
+code-example(language="none" class="code-shell").
+  npm install source-map-explorer --save-dev
+:marked
+  Run the following command to generate the map.
+
+code-example(language="none" class="code-shell").
+  node_modules/.bin/source-map-explorer aot/dist/build.js
+
+:marked
+  The `source-map-explorer` analyzes the source map generated with the bundle and draws a map of all dependencies,
+  showing exactly which application and Angular modules and classes are included in the bundle.
+
+  Here's the map for _Tour of Heroes_. 
+
+a(href="/resources/images/cookbooks/aot-compiler/toh6-bundle.png", target="_blank", title="View larger image")
+  figure.image-display
+    img(src="/resources/images/cookbooks/aot-compiler/toh6-bundle.png" alt="TOH-6-bundle")   

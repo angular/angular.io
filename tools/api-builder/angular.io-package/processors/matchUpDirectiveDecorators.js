@@ -5,7 +5,7 @@ var _ = require('lodash');
  * @description
  *
  */
-module.exports = function matchUpDirectiveDecoratorsProcessor(aliasMap) {
+module.exports = function matchUpDirectiveDecoratorsProcessor() {
 
   return {
     $runAfter: ['ids-computed', 'paths-computed'],
@@ -20,7 +20,7 @@ module.exports = function matchUpDirectiveDecoratorsProcessor(aliasMap) {
         if (doc.docType === 'directive') {
           doc.selector = doc.directiveOptions.selector;
 
-          for(decoratorName in decoratorMappings) {
+          for(var decoratorName in decoratorMappings) {
             var propertyName = decoratorMappings[decoratorName];
             doc[propertyName] = getDecoratorValues(doc.directiveOptions[propertyName], decoratorName, doc.members);
           }
@@ -31,7 +31,7 @@ module.exports = function matchUpDirectiveDecoratorsProcessor(aliasMap) {
 };
 
 function getDecoratorValues(classDecoratorValues, memberDecoratorName, members) {
-  var optionMap = {};
+
   var decoratorValues = {};
 
   // Parse the class decorator

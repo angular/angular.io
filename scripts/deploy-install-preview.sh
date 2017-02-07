@@ -3,4 +3,4 @@
 set -ex -o pipefail
 
 ./scripts/deploy-install.sh
-(cd ../angular && git checkout master)
+(cd ../angular && git checkout $PREVIEW_BRANCH)

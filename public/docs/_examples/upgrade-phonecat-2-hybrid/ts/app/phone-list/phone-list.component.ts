@@ -1,14 +1,21 @@
-// #docplaster
+// #docregion downgrade-component
+declare var angular: angular.IAngularStatic;
+import { downgradeComponent } from '@angular/upgrade/static';
+
+// #enddocregion downgrade-component
+
 // #docregion initialclass
 import { Component } from '@angular/core';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
+// #docregion downgrade-component
 @Component({
   moduleId: module.id,
   selector: 'phone-list',
   templateUrl: 'phone-list.template.html'
 })
 export class PhoneListComponent {
+  // #enddocregion downgrade-component
   phones: PhoneData[];
   query: string;
   orderProp: string;
@@ -54,6 +61,13 @@ export class PhoneListComponent {
     return phones;
   }
   // #enddocregion getphones
-  // #docregion initialclass
+  // #docregion initialclass, downgrade-component
 }
 // #enddocregion initialclass
+
+angular.module('phoneList')
+  .directive(
+    'phoneList',
+    downgradeComponent({component: PhoneListComponent}) as angular.IDirectiveFactory
+  );
+// #enddocregion downgrade-component

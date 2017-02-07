@@ -1,26 +1,50 @@
 /**
 * Angular.io Live Example Directive
 *
-* Renders a link to a live/host example of the doc chapter
+* Renders a link to a live/host example of the doc page
 * app this directive is contained in.
 *
 * Usage:
-*   <live-example [name="..."] [plnkr='...'] [noSource] [embedded] [srcText="..."]>text</live-example>
+*   <live-example
+*      [name="..."]
+*      [plnkr='...']
+*      [noSource]
+*      [embedded]
+*      [embedded-style | flat-style]
+*      [srcText="..."]
+*      [title="..."]>text</live-example>
 * Example:
 *   <p>Run <live-example>Try the live example</live-example></p>.
-*   // ~/resources/live-examples/{chapter}/ts/plnkr.html
+*   // ~/resources/live-examples/{page}/ts/plnkr.html
 *
 *   <p>Run <live-example name="toh-1">this example</live-example></p>.
-*   // ~/resources/live-examples/toh-1/ts/minimal.plnkr.html
+*   // ~/resources/live-examples/toh-1/ts/plnkr.html
+*
+*   // Link to the default plunker in the toh-1 sample
+*   // The title overrides default ("live example") with "Tour of Heroes - Part 1"
+*   <p>Run <live-example name="toh-1" title="Tour of Heroes - Part 1"></live-example></p>.
+*   // ~/resources/live-examples/toh-1/ts/plnkr.html
 *
 *   <p>Run <live-example plnkr="minimal"></live-example></p>.
-*   // ~/resources/live-examples/{chapter}/ts/minimal.plnkr.html
+*   // ~/resources/live-examples/{page}/ts/minimal.plnkr.html
 *
-*   <live-example embedded></live-example>
-*   // ~/resources/live-examples/{chapter}/ts/eplnkr.html
+*   // Embed the current page's default plunker
+*   // Text within tag is "live example"
+*   // No title (no tooltip)
+*   <live-example embedded title=""></live-example>
+*   // ~/resources/live-examples/{page}/ts/eplnkr.html
 *
-*   <live-example embedded plnkr="minimal"></live-example>
-*   // ~/resources/live-examples/{chapter}/ts/minimal.eplnkr.html
+*   // Links to a *new* tab as an embedded style plunker editor
+*   <live-example embedded-style>this example</live-example>
+*   // ~/resources/live-examples/{page}//ts/eplnkr.html
+*
+*   // Links to a *new* tab in the flat (original editor) style plunker editor
+*   <live-example flat-style>this example</live-example>
+*   // ~/resources/live-examples/{page}//ts/eplnkr.html
+*
+*   // Displays in *same* tab as an embedded style plunker editor
+*   <live-example name="toh-1" embedded plnkr="minimal" img="toh>Tour of Heroes - Part 1</live-example>
+*   // ~/resources/live-examples/toh-1/ts/minimal.eplnkr.html
 */
 angularIO.directive('liveExample', ['$location', function ($location) {
 
@@ -43,11 +67,14 @@ angularIO.directive('liveExample', ['$location', function ($location) {
     restrict: 'E',
     scope: true,
     compile: function (tElement, attrs) {
+      var href, template;
       var text = tElement.text() || 'live example';
+      if (attrs['title'] == undefined) { tElement[0].setAttribute('title', text); } // set default title (tooltip)
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var embedded = attrs.hasOwnProperty('embedded');
-      var plnkr = embedded ? 'eplnkr' : 'plnkr';
-      var href, template;
+      var flatStyle = attrs.hasOwnProperty('flatstyle') || attrs.hasOwnProperty('flatStyle');
+      var embeddedStyle = embedded || attrs.hasOwnProperty('embeddedstyle') || attrs.hasOwnProperty('embeddedStyle');
+      var plnkr = (embeddedStyle || !flatStyle) ? 'eplnkr' : 'plnkr';
       var imageBase  = '/resources/images/';
       var defaultImg = 'plunker/placeholder.png';
 

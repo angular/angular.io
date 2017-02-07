@@ -1,4 +1,4 @@
-'use strict'; // necessary for es6 output in node 
+'use strict'; // necessary for es6 output in node
 
 import { browser, element, by } from 'protractor';
 
@@ -30,4 +30,14 @@ describe('Template Syntax', function () {
     let specialButtonEle = element(by.cssContainingText('div.special~button', 'button'));
     expect(specialButtonEle.getAttribute('style')).toMatch('color: red');
   });
+
+  it('should two-way bind to sizer', async () => {
+    let div = element(by.css('div#two-way-1'));
+    let incButton = div.element(by.buttonText('+'));
+    let input = div.element(by.css('input'));
+    let initSize = await input.getAttribute('value');
+    incButton.click();
+    expect(input.getAttribute('value')).toEqual((+initSize + 1).toString());
+  });
 });
+

@@ -19,6 +19,18 @@ var _rxRules = {
     from: '/<link rel="stylesheet" href=".*%tag%".*>/',
     to:    '<link rel="stylesheet" href="%tag%">'
   },
+  systemjs: {
+    from: /<script src="systemjs.config.js"><\/script>/,
+    to:   '<script src="https://cdn.rawgit.com/angular/angular.io/b3c65a9/public/docs/_examples/_boilerplate/systemjs.config.web.js"></script>'
+  },
+  // Clear script like this:
+  // <script>
+  //   System.import('app').catch(function(err){ console.error(err); });
+  // </script>
+  system_strip_import_app: {
+   from: /<script>[^]?\s*System.import\('app'\)[^]*\/script>/,
+   to:   ''
+  },
   system_extra_main: {
     from: /main:\s*[\'|\"]index.js[\'|\"]/,
     to:   'main: "index.ts"'
@@ -45,22 +57,17 @@ var _rxData = [
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://unpkg.com/zone.js@0.6.25?main=browser'
-  },
-  {
-    pattern: 'script',
-    from: 'node_modules/reflect-metadata/Reflect.js',
-    to:   'https://unpkg.com/reflect-metadata@0.1.3'
+    to:   'https://unpkg.com/zone.js@0.7.4?main=browser'
   },
   {
     pattern: 'script',
     from: 'node_modules/rxjs/bundles/Rx.js',
-    to:   'https://unpkg.com/rxjs@5.0.0-beta.12/bundles/Rx.js'
+    to:   'https://unpkg.com/rxjs@5.0.1/bundles/Rx.js'
   },
   {
     pattern: 'script',
     from: 'node_modules/systemjs/dist/system.src.js',
-    to:   'https://unpkg.com/systemjs@0.19.27/dist/system.src.js'
+    to:   'https://unpkg.com/systemjs@0.19.39/dist/system.src.js'
   },
   {
     pattern: 'script',
@@ -71,6 +78,8 @@ var _rxData = [
   // Test libraries
 
   // Plunker recommends getting jasmine from cloudfare
+  // Don't upgrade to 2.5.x until following issue resolved
+  // https://github.com/jasmine/jasmine/issues/1231
   {
     pattern: 'script',
     from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.js',
@@ -91,20 +100,18 @@ var _rxData = [
     from: 'node_modules/jasmine-core/lib/jasmine-core/jasmine.css',
     to:   'https://cdnjs.cloudflare.com/ajax/libs/jasmine/2.4.1/jasmine.css'
   },
-
-
-  {
-    pattern: 'link',
-    from: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    // Official source per http://getbootstrap.com/getting-started/
-    to:   'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'
-  },
   {
     pattern: 'angular_pkg',
   },
   {
     pattern: 'zone_pkg',
   },
+  {
+    pattern: 'systemjs',
+  },
+  // {
+  //   pattern: 'system_strip_import_app',
+  // },
   {
     pattern: 'system_extra_main'
   },

@@ -21,7 +21,7 @@ module.exports = {
 buildCopyrightStrings();
 
 function buildCopyrightStrings() {
-  var COPYRIGHT = 'Copyright 2016 Google Inc. All Rights Reserved.\n'
+  var COPYRIGHT = 'Copyright 2017 Google Inc. All Rights Reserved.\n'
     + 'Use of this source code is governed by an MIT-style license that\n'
     + 'can be found in the LICENSE file at http://angular.io/license';
   var pad = '\n\n';
@@ -33,7 +33,8 @@ function buildPlunkers(basePath, destPath, options) {
   getPlunkerFiles(basePath, options);
   var errFn = options.errFn || function(e) { console.log(e); };
   var plunkerPaths = path.join(basePath, '**/*plnkr.json');
-  var fileNames = globby.sync(plunkerPaths, { ignore: "**/node_modules/**"});
+  var fileNames = globby.sync(plunkerPaths,
+    { ignore: ['**/node_modules/**', '**/_boilerplate/**'] });
   fileNames.forEach(function(configFileName) {
     try {
       buildPlunkerFrom(configFileName, basePath, destPath);
@@ -114,10 +115,11 @@ function getPlunkerFiles(basePath, options) {
 }
 
 function initConfigAndCollectFileNames(configFileName) {
-  var basePath = path.dirname(configFileName);
+  var configDir = path.dirname(configFileName);
   var configSrc = fs.readFileSync(configFileName, 'utf-8');
   try {
     var config = (configSrc && configSrc.trim().length) ? JSON.parse(configSrc) : {};
+    config.basePath = config.basePath ? path.resolve(configDir, config.basePath) : configDir;
   } catch (e) {
     throw new Error("Plunker config - unable to parse json file: " + configFileName + '\n  ' + e);
   }
@@ -136,23 +138,20 @@ function initConfigAndCollectFileNames(configFileName) {
   var gpaths = config.files.map(function(fileName) {
     fileName = fileName.trim();
     if (fileName.substr(0,1) == '!') {
-      return "!" + path.join(basePath, fileName.substr(1));
+      return "!" + path.join(config.basePath, fileName.substr(1));
     } else {
       includeSpec = includeSpec || /.*\.spec.(ts|js)$/.test(fileName);
-      return path.join(basePath, fileName);
+      return path.join(config.basePath, fileName);
     }
   });
 
   // var defaultExcludes = [ '!**/node_modules/**','!**/typings/**','!**/tsconfig.json', '!**/*plnkr.json', '!**/*plnkr.html', '!**/*plnkr.no-link.html' ];
   var defaultExcludes = [
-    '!**/typings/**',
-    '!**/typings.json',
     '!**/tsconfig.json',
     '!**/*plnkr.*',
     '!**/package.json',
     '!**/example-config.json',
     '!**/tslint.json',
-    '!**/.editorconfig',
     '!**/systemjs.config.js',
     '!**/wallaby.js',
     '!**/karma-test-shim.js',
@@ -165,7 +164,6 @@ function initConfigAndCollectFileNames(configFileName) {
   Array.prototype.push.apply(gpaths, defaultExcludes);
 
   config.fileNames = globby.sync(gpaths, { ignore: ["**/node_modules/**"] });
-  config.basePath = basePath;
 
   return config;
 }

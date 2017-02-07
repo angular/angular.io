@@ -154,6 +154,7 @@ function getCommentInfo(extension) {
   switch (extension) {
     case 'ts':
     case 'js':
+    case 'es6':
     case 'dart':
       commentInfo = {
         prefix: '//',

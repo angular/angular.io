@@ -17,7 +17,7 @@ angularIO.directive('apiList', function () {
   return {
     restrict: 'E',
     template:
-      '<div ng-cloak="ng-cloak" class="banner is-plain api-filter clearfix">' +
+      '<div ng-cloak="ng-cloak" class="l-flex-wrap banner is-plain api-filter">' +
       '  <div class="form-select-menu">' +
       '    <button ng-repeat="type in $ctrl.types" ng-if="$ctrl.type === type.matches[0]" class="form-select-button has-symbol" ng-click="$ctrl.toggleMenu(\'type\')"><strong>Type:</strong><span class="symbol {{type.cssClass}}" ng-if="type.cssClass !== \'stable\'" ></span>{{type.title}}</button>'+
       '    <button class="form-select-button is-default" ng-if="$ctrl.type === null" ng-click="$ctrl.toggleMenu(\'type\')"><strong>Type: All</strong></button>'+
@@ -44,7 +44,7 @@ angularIO.directive('apiList', function () {
       '  </div>' +
       '</div>' +
       '      ' +
-      '<article class="l-content-small grid-fluid docs-content">' +
+      '<article class="l-content-small docs-content">' +
       '  <div ng-repeat="section in $ctrl.groupedSections" ng-if="$ctrl.filterSections(section)" ng-cloak="ng-cloak">' +
       '    <h2>{{ section.title }}</h2>' +
       '    <ul class="api-list">' +

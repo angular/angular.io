@@ -6,7 +6,7 @@ var NgIoUtil = (function () {
 
     NgIoUtil.isDoc = function ($location, lang) {
         var loc = $location.absUrl();
-        return loc.includes('/docs/' + lang + '/');
+        return loc.indexOf('/docs/' + lang + '/') >= 0;
     };
 
     // The following util functions are adapted from _utils-fn.jade.
@@ -19,7 +19,7 @@ var NgIoUtil = (function () {
          *
          * - app/main.ts -> web/main.dart
          * - displaying-data/ts/app/app.component.2.ts -> displaying-data/dart/lib/app_component.dart
-         * 
+         *
          * Notice that the '.2' is dropped from the name.
          */
         if (!_path) return _path;
@@ -77,7 +77,7 @@ var NgIoUtil = (function () {
             // TODO: use $location.path() instead(?). It seems to be empty.
             var loc = $location.absUrl();
             // E.g., https://example.com/docs/dart/latest/guide/displaying-data.html
-            var matches = loc.match(/.*\/([\w\.\-]+)\.html/);
+            var matches = loc.match(/.*\/([\w\-]+)(\.html)?/);
             if (matches) NgIoUtil.setExampleName(matches[1]); // cache name
         }
         return NgIoUtil._exampleName;

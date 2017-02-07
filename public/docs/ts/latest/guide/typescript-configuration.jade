@@ -23,8 +23,8 @@ a(id="tsconfig")
     For details about `tsconfig.json`, see the official
     [TypeScript wiki](http://www.typescriptlang.org/docs/handbook/tsconfig-json.html).
 :marked
-  We created the following `tsconfig.json` for [QuickStart](../quickstart.html):
-+makeJson('quickstart/ts/tsconfig.1.json', null, 'tsconfig.json')(format=".")
+  We created the following `tsconfig.json` during [Setup](setup.html):
++makeJson('quickstart/ts/src/tsconfig.1.json', null, 'tsconfig.json')(format=".")
 :marked
   This file contains options and flags that are essential for Angular applications.
   
@@ -36,11 +36,10 @@ a(id="tsconfig")
   But your choice now can make a difference in larger projects, so it merits discussion.
 
   When the `noImplicitAny` flag is `false` (the default), and if
-  the compiler cannot infer the variable type based on how it's used, the compiler silently defaults the type to `any`. That's what is meant by *implicit `any`*.
-
-  In the QuickStart exercise, the `noImplicitAny` flag is initialized to `false`
-  to make learning TypeScript development easier.
+  the compiler cannot infer the variable type based on how it's used, 
+  the compiler silently defaults the type to `any`. That's what is meant by *implicit `any`*.
   
+  The documentation setup sets the `noImplicitAny` flag to `true`.
   When the `noImplicitAny` flag is `true` and the TypeScript compiler cannot infer
   the type, it still generates the JavaScript files, but it also **reports an error**.
   Many seasoned developers prefer this stricter setting because type checking catches more
@@ -48,12 +47,14 @@ a(id="tsconfig")
   
   You can set a variable's type to `any` even when the `noImplicitAny` flag is `true`.
 
-  If you set the `noImplicitAny` flag to `true`, you may get *implicit index errors* as well.
+  When the `noImplicitAny` flag is `true, you may get *implicit index errors* as well.
   Most developers feel that *this particular error* is more annoying than helpful.
   You can suppress them with the following additional flag:
 code-example(format=".").
   "suppressImplicitAnyIndexErrors":true
 
+:marked
+  The documentation setup sets this flag to `true` as well.
 
 a(id="typings")
 .l-main-section
@@ -73,50 +74,38 @@ a(id="typings")
   The `node_modules/@angular/core/` folder of any Angular application contains several `d.ts` files that describe parts of Angular.
   
   **You need do nothing to get *typings* files for library packages that include `d.ts` files&mdash;as all Angular packages do.**
-  
+
+  ### lib.d.ts
+
+  TypeScript includes a special declaration file called `lib.d.ts`. This file contains the ambient declarations for various common JavaScript constructs present in JavaScript runtimes and the DOM.
+
+  Based on the `--target`, TypeScript adds _additional_ ambient declarations like `Promise` if our target is `es6`.
+
+  Since the QuickStart is targeting `es5`, we can override the list of declaration files to be included:
+
+code-example(format=".")
+  "lib": ["es2015", "dom"]
+
+:marked
+  Thanks to that, we have all the `es6` typings even when targeting `es5`.
+
   ### Installable typings files
   Many libraries&mdash;jQuery, Jasmine, and Lodash among them&mdash;do *not* include `d.ts` files in their npm packages.
   Fortunately, either their authors or community contributors have created separate `d.ts` files for these libraries and 
   published them in well-known locations.
-  The *typings* tool can find and fetch these files for you.
-  
-  After installing the [typings](https://github.com/typings/typings/blob/master/README.md) tool 
-  with npm (it's listed among the *devDependencies* in the `package.json`), add an npm script (`postinstall`)
-  to run that tool automatically, after *npm* installation finishes.
-+makeJson('quickstart/ts/package.1.json', {paths: 'scripts.postinstall'}, 'package.json (postinstall)')(format=".")
+
+  We can install these typings via `npm` using the 
+  [`@types/*` scoped package](http://www.typescriptlang.org/docs/handbook/declaration-files/consumption.html) 
+  and Typescript (starting at 2.0) will automatically recognize them.
+
+  For instance, to install typings for `jasmine` we could do `npm install @types/jasmine --save-dev`.
+
 :marked
-  This *typings* tool command, `typings install`, installs the `d.ts` files into the **typings** folder.
-  You created a `typings.json` file in the [QuickStart](../quickstart.html):
-+makeJson('quickstart/ts/typings.1.json', null, 'typings.json')(format=".")
-:marked
-  QuickStart identified three *typings* (`d.ts`) files:
-  
-  * [core-js](https://github.com/zloirock/core-js/blob/master/README.md)
-  brings ES2015/ES6 capabilities to ES5 browsers
-  
+  QuickStart identified two *typings* (`d.ts`) files:
+
   * [jasmine](http://jasmine.github.io/) typings for the Jasmine test framework
   
-  * [node](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/node/node.d.ts) for code that references objects in the *nodejs* environment; 
+  * [node](https://www.npmjs.com/package/@types/node) for code that references objects in the *nodejs* environment; 
   You can view an example in the [webpack](./webpack.html) page.
   
   QuickStart doesn't require these typings but many of the samples do.
-
-  You can also run the *typings* tool yourself.
-  If the `postInstall` command fails to (re)install the typings files, run the following command to do so.
-code-example(format="").
-  npm run typings install
-:marked
-  Run this command to list the installed typings files:
-code-example(format="").
-  npm run typings list
-:marked
-  The following command installs or updates the typings file for the Jasmine test library from the *DefinitelyTyped* repository,
-  and updates the `typings.json` file so you receive it automatically the next time you install typings.
-code-example(format="").
-  npm run typings -- install dt~jasmine --save --global
-.l-sub-section
-  :marked
-    The [&ndash;&ndash; option](https://docs.npmjs.com/cli/run-script) tells npm to pass all arguments to the right of `--` to the *typings* command.
-    
-    Read about the features of the *typings* tool at its [site on github](https://github.com/typings/typings/blob/master/README.md).
-
