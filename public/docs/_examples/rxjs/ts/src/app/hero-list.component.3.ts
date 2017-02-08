@@ -28,7 +28,7 @@ export class HeroListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.heroes$ = this.service.getFailedHeroes()
+    this.heroes$ = this.service.getHeroes()
       .retry(3)
       .catch(error => {
         console.log(`An error occurred: ${error}`);

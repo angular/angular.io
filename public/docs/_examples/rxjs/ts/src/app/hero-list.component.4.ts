@@ -1,8 +1,8 @@
 // #docplaster
 // #docregion
-// #docregion retry-operator
-import 'rxjs/add/operator/retry';
-// #enddocregion retry-operator
+// #docregion retry-when-operator
+import 'rxjs/add/operator/retryWhen';
+// #enddocregion retry-when-operator
 import 'rxjs/add/observable/of';
 import { Component, OnInit }   from '@angular/core';
 import { Observable }          from 'rxjs/Observable';
@@ -29,7 +29,19 @@ export class HeroListComponent implements OnInit {
 
   ngOnInit() {
     this.heroes$ = this.service.getFailedHeroes()
-      .retry(3)
+      .retryWhen((errors: any) => {
+        return errors.scan((errorCount, err) => {
+          if (errorCount >= 2) {
+            throw err;
+          }
+
+          if (err.status !== 500) {
+            return errorCount;
+          } else {
+            return errorCount + 1;
+          }
+        }, 0);
+      })
       .catch(error => {
         console.log(`An error occurred: ${error}`);
 

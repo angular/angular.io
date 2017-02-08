@@ -20,7 +20,7 @@ export class HeroCounterComponent implements OnInit, OnDestroy {
   count: number = 0;
   counter$: Observable<number>;
   sub: Subscription;
-  destroy$ = new Subject();
+  onDestroy$ = new Subject();
 
   ngOnInit() {
     this.counter$ = Observable.create((observer: Observer<number>) => {
@@ -30,12 +30,12 @@ export class HeroCounterComponent implements OnInit, OnDestroy {
     });
 
     this.counter$
-      .takeUntil(this.destroy$)
+      .takeUntil(this.onDestroy$)
       .subscribe();
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
+    this.onDestroy$.complete();
   }
 }
 // #enddocregion

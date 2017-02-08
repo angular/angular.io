@@ -73,7 +73,7 @@ h3#operators Operators: Import them and use them
   added to the Observable on demand. There are multiple approaches to make these operators available for use.
   One approach is to import the entire RxJS library.
 
-+makeExcerpt('app/heroes-filtered.component.1.ts', 'import-all')
++makeExcerpt('src/app/heroes-filtered.component.1.ts', 'import-all')
 
 :marked
   This is the **least recommended** method, as it brings in **all** the Observables operators,
@@ -85,7 +85,7 @@ h3#operators Operators: Import them and use them
   The `filter` operator filters elements produced by an Observable based on a predicate function that returns a boolean. The `do` operator
   provides the Observable value to perform an arbitrary action, such as console logging.
 
-+makeExcerpt('app/heroes-filtered.component.1.ts', 'operator-import')
++makeExcerpt('src/app/heroes-filtered.component.1.ts', 'operator-import')
 
 :marked
   Had you not imported these common operators before using them with the Observable returned by `getHeroes`,
@@ -99,15 +99,19 @@ h3#operators Operators: Import them and use them
   Another approach is to import the Observable operators directly and call them individually on the Observable. Let's
   update your filtered heroes component to use direct imports.
 
-+makeExcerpt('app/heroes-filtered.component.2.ts (direct operator imports)', '')
++makeExcerpt('src/app/heroes-filtered.component.2.ts (direct operator imports)', '')
 
 :marked
   This approach has no side-effects as you're not patching the Observable prototype. It also is
   more conducive to tree shaking versus patching the Observable prototype, which can't be tree-shaken. You're also only importing what you need where you need it,
-  but this approach doesn't give you the option to chain operators together. If you were building a third-party
-  library, this would be the recommended approach as you don't want your library to produce any side-effects
-  to the Observable for consumers of your library but for an application, its less desirable.
+  but this approach doesn't give you the option to chain operators together.
 
+.l-sub-section
+  :marked
+    If you are building a third-party Angular library, this would be the recommended approach as you don't want your library to produce any side-effects
+    to the Observable for consumers of your library.
+
+:marked
   The recommended approach is to import the operators in the file where you use them. Yes, this may lead to
   duplicate imports of operators in multiple files, but more importantly this ensures that the operators
   that are needed are provided by that file. This becomes especially important with lazy loading, where
@@ -156,7 +160,7 @@ h3#managing-subscriptions Managing Subscriptions
 
   This approach scales and you can use a single observable to trigger completion across multiple subscriptions.
 
-+makeExcerpt('app/hero-counter.component.ts', '')
++makeExcerpt('src/app/hero-counter.component.ts', '')
 
 h3#async-pipe Async Pipe: Less is more
 :marked
@@ -168,7 +172,7 @@ h3#async-pipe Async Pipe: Less is more
   You will create another component that displays a list of heroes using these two options. Our component will retrieve a list of
   Heroes from our `HeroService` and subscribe to set them to a variable in the component.
 
-+makeExcerpt('app/hero-list.component.1.ts (subscribe)', '')
++makeExcerpt('src/app/hero-list.component.1.ts (subscribe)', '')
 
 :marked
   As you can see, we called and subscribed to the `getHeroes` function in our HeroService which returned an Observable provided
@@ -176,7 +180,7 @@ h3#async-pipe Async Pipe: Less is more
   Here you are only assigning the `heroes` value to bind it to our template. The `Async Pipe` lets us skip the manual subscription,
   as it will handle this for you. The updated template is below.
 
-+makeExcerpt('app/hero-list.component.ts (async pipe)', '')
++makeExcerpt('src/app/hero-list.component.ts (async pipe)', '')
 
   When your component is rendered, the async pipe will subscribe to the Observable to listen for emitted values. Once the values
   are produced it will wire those values to the same `ngFor` directive. If you were to initiate another sequence of heroes
@@ -197,46 +201,97 @@ h3#sharing-data Sharing data with a stream
 
   You'll import the `Injectable` decorator from `@angular/core` and the `BehaviorSubject` from the RxJS library to use it in the service.
 
-+makeExcerpt('app/event-aggregator.service.ts (event interface)', 'imports')
++makeExcerpt('src/app/event-aggregator.service.ts (event interface)', 'imports')
 
 :marked
    You'll need an interface to provide consumers with to add messages to the event log.
 
-+makeExcerpt('app/event-aggregator.service.ts (event interface)', 'event-interface')
++makeExcerpt('src/app/event-aggregator.service.ts (event interface)', 'event-interface')
 
 :marked
    Next, you'll create your service. Since a `BehaviorSubject` keeps the latest value for subscribers, you'll need to provide it with an initial value also.
    There is the `add` method for adding additional events to the log and `clear` method for clearing the message. You'll notice that the `notify` method
    calls the `events$.next` method to notify the subscribers of a new value pushed to the stream.
 
-+makeExcerpt('app/event-aggregator.service.ts', '')
++makeExcerpt('src/app/event-aggregator.service.ts', '')
 
 :marked
   Now that you have a central place to collect events, you can inject the `EventAggregatorService` throughout your application. In order to display
   the message log, you'll create a simple message component to display the aggregated events. You can use the `Async Pipe` here also to wire up the
   stream to the template.
 
-+makeExcerpt('app/message-log.component.ts (message log component)', '')
++makeExcerpt('src/app/message-log.component.ts (message log component)', '')
 
 :marked
    As with other services, you'll import the `EventAggregatorService` and `MessageLogComponent` and add it to the `AppModule` providers and declarations
    arrays respectively.
 
-+makeExcerpt('app/app.module.ts', '')
++makeExcerpt('src/app/app.module.ts', '')
 
 :marked
   To see your message bus in action, you'll import and inject the `EventAggregatorService` in the `AppComponent` and add an event when the Application
   starts and add the `message-log` component to the `AppComponent` template.
 
-+makeExcerpt('app/app.component.ts (message log)', '')
++makeExcerpt('src/app/app.component.ts (message log)', '')
 
 h3#error-handling Error Handling
 :marked
+  As often as you strive for perfect conditions, errors will happen. Servers go down, invalid data is sent and other issues cause errors to happen
+  when processing data. While you can do your best to prevent these errors, its also wise to be ready for them when they do happen. The scenario
+  this is most likely to happen in is when you're making data requests to an external API. This is a common task done with the Angular HTTP client.
+  The HTTP client provides methods that return requests as Observables, which in turn can handle errors. Now you may wonder why you would want
+  to use an Observable when HTTP requests are usually a one-and-done operation, but an Observable provides robust error handling that wouldn't be
+  able to easily do with a Promise. Let's simulate a failed request in your in your `HeroListComponent` when retrieving heroes from the `HeroService`.
 
-+makeExcerpt('app/api-error-handler.service.ts', '')
++makeExcerpt('src/app/hero.service.1.ts (failed heroes)', '')
 
-h3#framework-apis Framework APIs: Angular-provided streams
 :marked
+  Now you can update your HeroListComponent to make the failed request.
+
++makeExcerpt('src/app/hero-list.component.2.ts (failed heroes)', 'failed-heroes')
+
+:marked
+  This is what the `HeroListComponent` currently looks like with no error handling.
+  With this current setup, you have no way to recover and that's less than ideal. So let's add some error handling with the `catch` operator. You don't
+  need to patch the Observable to use the `catch` operator, as its in the basic set of included operators.
+
+  You'll also import the `of` operator, which lets you create an Observable sequence from a list of arguments. In this case, you're returning an empty array
+  of `Heroes` when an error occurs.
+
++makeExcerpt('src/app/hero-list.component.2.ts (catch and return)', '')
+
+:marked
+  Now we have a path of recovery. The `catch` operator will continue the observable sequence even after an exception occurs. Since you know that each
+  Observable operator returns a new Observable, you can use this to return an empty array or even a new Observable HTTP request.
+
+h3#retry Retry Failed Observable
+:marked
+  This is a simple path of recovery, but we can go further. What if you also wanted to _retry_ a failed request? With Observables, this is as easy as adding a new operator,
+  aptly named `retry`.
+
+  Of course you'll need to import the operator first.
+
++makeExcerpt('src/app/hero-list.component.3.ts (retry operator)', 'retry-operator')
+
+:marked
+  You can add the `retry` operator to the Observable sequence. The retry operator takes an argument of the number of times you want to retry the sequence before completing.
+
++makeExcerpt('src/app/hero-list.component.ts', '')
+
+:marked
+  Now your request will be attempted 3 times before giving up and going into the error sequence.
+
+// h3#retry-when Conditional Retry
+// :marked
+  You've seen how to catch an error, how to retry an error a certain number of times, but you can also retry conditionally. This is useful
+  when you only want to retry under certain conditions like when a request returns a 500 error. This type of error would be out of your control
+  and could resolve itself quickly. The `retryWhen` operator does this seamlessly. You wouldn't use this on a login request for fear of being locked
+  out but for retrieving list of data, it can be very useful.
+
+// +makeExcerpt('src/app/api-error-handler.service.ts', '')
+
+// h3#framework-apis Framework APIs: Angular-provided streams
+// :marked
   Angular makes use of Observables internally and externally through its APIs template syntax using the Async pipe, user input
   with Reactive or Model-Driven Forms, making external requests using Http and route information with the Router.
   By using Observables underneath, these APIs provide a consistent way for you to use and become more comfortable
@@ -255,9 +310,9 @@ h3#framework-apis Framework APIs: Angular-provided streams
   cancellations of requests.
 
   Example: Use hero service to make a request, make it fail to show retries, conditional retry.
-+makeExcerpt('app/hero-list.component.1.ts', '')
+// +makeExcerpt('src/app/hero-list.component.1.ts', '')
 
-:marked
+// :marked
   Async Pipe
 
   As we’ve talked about previously, Observables must be subscribed to in order to handle the data they produce,
@@ -272,9 +327,9 @@ h3#framework-apis Framework APIs: Angular-provided streams
   versus managing your own subscription manually.
 
   Example: Fetching heroes using a service, subscribing/unsubscribing manually then removing the subscription and delegating responsibility to the async pipe. Another example would be showing hero details with multiple async pipes, but instead using a single subscription.
-+makeExcerpt('app/hero-detail.component.ts', '')
+// +makeExcerpt('src/app/hero-detail.component.ts', '')
 
-:marked
+// :marked
   Forms
   With many applications, user input is required to initiate or complete an action. Whether it be logging in or filling out
   an information page, user data is another stream that needs to be handled. In contrast to template-driven forms where the
@@ -297,11 +352,11 @@ h3#framework-apis Framework APIs: Angular-provided streams
   Router Observables: Events, Parameters, Data, URL Segments
 
   Example: Use router events to build a small loading service and component.
-+makeExcerpt('app/loading.service.ts', '')
-+makeExcerpt('app/loading.component.ts', '')
+// +makeExcerpt('src/app/loading.service.ts', '')
+// +makeExcerpt('src/app/loading.component.ts', '')
 
-h3#integration Stream Integration
-:marked
+// h3#integration Stream Integration
+// :marked
   The Observables provided by these areas can be used together. The same set of functionality and extensibility can be combined together
   in a very powerful and practical way. A prime example is a hero search component that implements a typeahead search feature.
   Let’s start by gathering some requirements about what your typeahead will need.
@@ -315,7 +370,7 @@ h3#integration Stream Integration
   * Sync the user’s search terms in the browser URL
 
   Example: Hero search typeahead component
-+makeExcerpt('app/hero-search.component.ts', '')
+// +makeExcerpt('src/app/hero-search.component.ts', '')
 
 h3#further-reading Further Reading
 :marked
