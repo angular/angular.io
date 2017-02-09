@@ -9,7 +9,9 @@ var fs = require("fs");
 var globby = require('globby');
 var mkdirp = require('mkdirp');
 
-var indexHtmlTranslator = require('./indexHtmlTranslator');
+var fileTranslator = require('./translator/fileTranslator');
+var indexHtmlRules = require('./translator/rules/indexHtml');
+var systemjsConfigExtrasRules = require('./translator/rules/systemjsConfigExtras');
 var regionExtractor = require('../doc-shredder/regionExtractor');
 
 class PlunkerBuilder {
@@ -141,7 +143,7 @@ class PlunkerBuilder {
       }
 
       if (relativeFileName == 'index.html') {
-        content = indexHtmlTranslator.translate(content);
+        content = fileTranslator.translate(content, indexHtmlRules);
         if (config.description == null) {
           // set config.description to title from index.html
           var matches = /<title>(.*)<\/title>/.exec(content);
@@ -150,6 +152,11 @@ class PlunkerBuilder {
           }
         }
       }
+
+      if (relativeFileName == 'systemjs.config.extras.js') {
+        content = fileTranslator.translate(content, systemjsConfigExtrasRules);
+      }
+
       content = regionExtractor.removeDocTags(content, extn.substr(1));
 
       this.options.addField(postData, relativeFileName, content);
