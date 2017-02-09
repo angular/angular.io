@@ -39,10 +39,8 @@ class PlunkerBuilder {
 
   _addPlunkerFiles(config, postData) {
     if (config.basePath.indexOf('/ts') > -1) {
-      if (config.includeSystemConfig) {
-        // uses systemjs.config.js so add plunker version
-        this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
-      }
+      // uses systemjs.config.js so add plunker version
+      this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
     }
   }
 
