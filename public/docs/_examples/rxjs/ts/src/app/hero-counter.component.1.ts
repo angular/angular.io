@@ -1,30 +1,40 @@
-// // #docplaster
-// // #docregion
-// import { Component, OnInit }   from '@angular/core';
-//
-// import { HeroService }   from './hero.service';
-// import { Hero }          from './hero';
-//
-// @Component({
-//   template: `
-//     <h2>HEROES</h2>
-//     <ul class="items">
-//       <li *ngFor="let hero of heroes">
-//         <span class="badge">{{ hero.id }}</span> {{ hero.name }}
-//       </li>
-//     </ul>
-//   `
-// })
-// export class HeroListComponent implements OnInit {
-//   heroes: Hero[];
-//
-//   constructor(
-//     private service: HeroService
-//   ) {}
-//
-//   ngOnInit() {
-//     this.service.getHeroes()
-//       .subscribe(heroes => this.heroes = heroes);
-//   }
-// }
-// // #enddocregion
+// #docplaster
+// #docregion
+// #docregion counter-unsubscribe
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
+import { Subscription } from 'rxjs/Subscription';
+
+@Component({
+  selector: 'hero-counter',
+  template: `
+    <h2>HERO COUNTER</h2>
+    <p>
+      Heroes {{ count }}
+    </p>
+  `
+})
+export class HeroCounterComponent implements OnInit, OnDestroy {
+  count: number = 0;
+  counter$: Observable<number>;
+  sub: Subscription;
+
+  ngOnInit() {
+    this.counter$ = Observable.create((observer: Observer<number>) => {
+      setInterval(() => {
+        observer.next(this.count++);
+      }, 1000);
+    });
+
+    this.sub = this.counter$.subscribe();
+  }
+// #enddocregion counter-unsubscribe
+// #docregion ngOnDestroy-unsubscribe
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+// #enddocregion ngOnDestroy-unsubscribe  
+// #docregion counter-unsubscribe
+}
+// #enddocregion
