@@ -1,5 +1,5 @@
 // #docregion
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { HeroesService } from './heroes.service';
 import { Hero } from '../hero';
 
@@ -11,7 +11,7 @@ import { Hero } from '../hero';
 })
 export class HeroDetailComponent {
   hero: Hero;
-  constructor(@Inject('heroes') heroes: HeroesService) {
+  constructor(heroes: HeroesService) {
     this.hero = heroes.get()[0];
   }
 }
