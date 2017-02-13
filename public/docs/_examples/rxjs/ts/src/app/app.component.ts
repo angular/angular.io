@@ -10,8 +10,6 @@ import { EventAggregatorService } from './event-aggregator.service';
 
     <a routerLink="/heroes">Heroes</a><br>
     <a routerLink="/hero/counter">Hero Counter</a><br>
-    <a routerLink="/heroes/add">Add Hero</a><br>
-    <a routerLink="/heroes/search">Hero Search</a>
 
     <router-outlet></router-outlet>
 

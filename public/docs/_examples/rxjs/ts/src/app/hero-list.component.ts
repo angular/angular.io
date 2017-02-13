@@ -1,9 +1,5 @@
 // #docplaster
 // #docregion
-// #docregion retry-operator
-import 'rxjs/add/operator/retry';
-// #enddocregion retry-operator
-import 'rxjs/add/observable/of';
 import { Component, OnInit }   from '@angular/core';
 import { Observable }          from 'rxjs/Observable';
 
@@ -28,13 +24,7 @@ export class HeroListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.heroes$ = this.service.getFailedHeroes()
-      .retry(3)
-      .catch(error => {
-        console.log(`An error occurred: ${error}`);
-
-        return Observable.of([]);
-      });
+    this.heroes$ = this.service.getHeroes();
   }
 }
 // #enddocregion

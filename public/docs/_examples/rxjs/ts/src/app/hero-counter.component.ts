@@ -37,11 +37,19 @@ export class HeroCounterComponent implements OnInit, OnDestroy {
       }, 1000);
     });
 
-    this.counter$
+    let counter1Sub = this.counter$
+      .takeUntil(this.onDestroy$)
+      .subscribe();
+
+    let counter2Sub = this.counter$
+      .takeUntil(this.onDestroy$)
+      .subscribe();
+
+    let counter3Sub = this.counter$
       .takeUntil(this.onDestroy$)
       .subscribe();
   }
-  
+
 // #docregion ngOnDestroy-complete
   ngOnDestroy() {
     this.onDestroy$.complete();

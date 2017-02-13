@@ -10,7 +10,7 @@ block includes
   new data as its received, or many other examples, each of these events happen over time. Observables provide a interface to
   handle the many different sources of events and help to transform these events as they flow throughout an application.
 
-  This guide will serve as an introductory chapter to Observables, common uses cases for Observables in an Angular application
+  This guide will serve as a reference for common uses cases for Observables in an Angular application
   and how Observables are used and provided by the Angular framework.
 
   ## Table of Contents
@@ -31,13 +31,13 @@ h3#definition The Observable: a function at its core
   returns a function for cancellation. It represents an action that can be performed. This action may be performed right now, or at some point
   in the future. An action can be anything, from simply "return a constant", "make an HTTP request" or "navigate to another page".
 
-:marked
-  TODO Overview of basic principles
+  Using Observables starts with an understanding of the basic principles, in which there are a wealth of resources that cover these in-depth. You should
+  become more familiar with these principles, as it will help you with how to use these concepts in your Angular application. Below are a few resources
+  to guide you in the concepts of an Observable and reactivity in general.
 
-  * Subscribe/unsubscribe
-  * Observer - next/error/complete
-
-  Link to official RxJS docs
+  * [Learning Observable By Building Observable](https://medium.com/@benlesh/learning-observable-by-building-observable-d5da57405d87#.3lun8dyt7)
+  * [Thinking Reactively](https://www.youtube.com/watch?v=3LKMwkuK0ZE)
+  * [RxJS Official Documentation](http://reactivex.io/rxjs/)
 
 h3#observables-vs-promises Observables and Promises: More different than alike
 
@@ -89,7 +89,7 @@ h3#operators Operators: Import them and use them
 
 :marked
   Had you not imported these common operators before using them with the Observable returned by `getHeroes`,
-  the Observable would fail to perform these actions as it these functions don't exist on the Observable yet.
+  the Observable would fail to perform these actions as these functions don't exist on the Observable instance yet.
 
   Another common example is two components with incomplete operator imports. Both files have components that use Observable operators
   but only one file imports the operators it needs. Interestingly enough if you load the component with the imported operators first and then
@@ -168,12 +168,12 @@ h3#managing-subscriptions Managing Subscriptions
 
 +makeExcerpt('src/app/hero-counter.component.ts', '')
 
-h3#async-pipe Async Pipe: Less is more
+h3#async-pipe Async Pipe: Declarative Subscription Management
 :marked
   You can manage Observables imperatively through manually subscribing and unsubscribing when needed but you can also
   manage them declaratively in our templates using the `Async Pipe`. The async pipe can also take care of our Subscription
   management, as it can take an Observable or a Promise, listen for its emitted values and will destroy its subscriptions
-  with the disposing of the component. This allows us to use Observables with less boilerplate and that's always a good thing.
+  with the disposing of the component. This allows us to use Observables with less boilerplate and that's a good thing.
 
   You will create another component that displays a list of heroes using these two options. Our component will retrieve a list of
   Heroes from our `HeroService` and subscribe to set them to a variable in the component.
@@ -186,10 +186,17 @@ h3#async-pipe Async Pipe: Less is more
   Here you are only assigning the `heroes` value to bind it to our template. The `Async Pipe` lets us skip the manual subscription,
   as it will handle this for you. The updated template is below.
 
-+makeExcerpt('src/app/hero-list.component.ts (async pipe)', '')
++makeExcerpt('src/app/hero-list.component.2.ts (async pipe)', 'async-pipe')
 
+:marked
+  You will also update the `heroes` variable and name it `heroes$`, with the **$** denoting that its an Observable value. Its also
+  necessary to update the type from `Hero[]` to `Observable<Hero[]>` since the Observable is being passed directly to the template.
+
++makeExcerpt('src/app/hero-list.component.2.ts (observable heroes)', 'observable-heroes')
+
+:marked
   When your component is rendered, the async pipe will subscribe to the Observable to listen for emitted values. Once the values
-  are produced it will wire those values to the same `ngFor` directive. If you were to initiate another sequence of heroes
+  are produced it will bind those values to the same `ngFor` directive. If you were to initiate another sequence of heroes
   the pipe would handle updated the retrieved values along with destroying the Observable subscription once the component is destroyed.
 
 h3#sharing-data Sharing data with a stream
@@ -232,8 +239,6 @@ h3#sharing-data Sharing data with a stream
    As with other services, you'll import the `EventAggregatorService` and `MessageLogComponent` and add it to the `AppModule` providers and declarations
    arrays respectively.
 
-+makeExcerpt('src/app/app.module.ts', '')
-
 :marked
   To see your message bus in action, you'll import and inject the `EventAggregatorService` in the `AppComponent` and add an event when the Application
   starts and add the `message-log` component to the `AppComponent` template.
@@ -245,58 +250,50 @@ h3#error-handling Error Handling
   As often as you strive for perfect conditions, errors will happen. Servers go down, invalid data is sent and other issues cause errors to happen
   when processing data. While you can do your best to prevent these errors, its also wise to be ready for them when they do happen. The scenario
   this is most likely to happen in is when you're making data requests to an external API. This is a common task done with the Angular HTTP client.
-  The HTTP client provides methods that return requests as Observables, which in turn can handle errors. Now you may wonder why you would want
-  to use an Observable when HTTP requests are usually a one-and-done operation, but an Observable provides robust error handling that wouldn't be
-  able to easily do with a Promise. Let's simulate a failed request in your in your `HeroListComponent` when retrieving heroes from the `HeroService`.
+  The HTTP client provides methods that return requests as Observables, which in turn can handle errors. Let's simulate a failed request in your in the `HeroService`.
 
-+makeExcerpt('src/app/hero.service.1.ts (failed heroes)', '')
++makeExcerpt('src/app/hero.service.2.ts (failed heroes)', 'getHeroes-failed')
 
 :marked
-  Now you can update your HeroListComponent to make the failed request.
+  This is what the `HeroListComponent` currently looks like with no error handling and the simulated error.
 
-+makeExcerpt('src/app/hero-list.component.2.ts (failed heroes)', 'failed-heroes')
++makeExcerpt('src/app/hero-list.component.3.ts (failed heroes)', '')
 
 :marked
-  This is what the `HeroListComponent` currently looks like with no error handling.
-  With this current setup, you have no way to recover and that's less than ideal. So let's add some error handling with the `catch` operator. You don't
-  need to patch the Observable to use the `catch` operator, as its in the basic set of included operators.
+  With this current setup, you have no way to recover and that's less than ideal. So let's add some error handling with the `catch` operator. You need
+  to import the `catch` operator. The `catch` operator will continue the observable sequence even after an exception occurs. Since you know that each
+  Observable operator returns a new Observable, you can use this to return an empty array or even a new Observable HTTP request.
 
   You'll also import the `of` operator, which lets you create an Observable sequence from a list of arguments. In this case, you're returning an empty array
   of `Heroes` when an error occurs.
 
-+makeExcerpt('src/app/hero-list.component.2.ts (catch and return)', '')
++makeExcerpt('src/app/hero.service.2.ts (catch and return)', '')
 
 :marked
-  Now we have a path of recovery. The `catch` operator will continue the observable sequence even after an exception occurs. Since you know that each
-  Observable operator returns a new Observable, you can use this to return an empty array or even a new Observable HTTP request.
+  Now we have a path of recovery. When the `getHeroes` request is made and fails, an error notification is produced, which will be handled
+  in the `catch` operation. This error handling is simplified, so returning an Observable with an empty array will suffice.
 
 h3#retry Retry Failed Observable
 :marked
   This is a simple path of recovery, but we can go further. What if you also wanted to _retry_ a failed request? With Observables, this is as easy as adding a new operator,
-  aptly named `retry`.
+  aptly named `retry`. If you've ever done this with a Promise, its definitely not a painless operation.
 
   Of course you'll need to import the operator first.
 
-+makeExcerpt('src/app/hero-list.component.3.ts (retry operator)', 'retry-operator')
++makeExcerpt('src/app/hero.service.3.ts (retry operator)', 'retry-import')
 
 :marked
   You can add the `retry` operator to the Observable sequence. The retry operator takes an argument of the number of times you want to retry the sequence before completing.
 
-+makeExcerpt('src/app/hero-list.component.ts', '')
++makeExcerpt('src/app/hero.service.3.ts', '')
 
 :marked
-  Now your request will be attempted 3 times before giving up and going into the error sequence.
+  The `retry` operator will re-subscribe to the source Observable, in this case is the Observable returned by the `http.get` method. Instead of failing on the
+  first error produced by the Observable, now the request will be attempted 3 times before giving up and going into the error sequence.
 
-// h3#retry-when Conditional Retry
-// :marked
-  You've seen how to catch an error, how to retry an error a certain number of times, but you can also retry conditionally. This is useful
-  when you only want to retry under certain conditions like when a request returns a 500 error. This type of error would be out of your control
-  and could resolve itself quickly. The `retryWhen` operator does this seamlessly. You wouldn't use this on a login request for fear of being locked
-  out but for retrieving list of data, it can be very useful.
+// TODO Diagram for retry sequence
 
-// +makeExcerpt('src/app/api-error-handler.service.ts', '')
-
-// h3#framework-apis Framework APIs: Angular-provided streams
+h3#framework-apis Framework APIs: Angular-provided Observables
 // :marked
   Angular makes use of Observables internally and externally through its APIs template syntax using the Async pipe, user input
   with Reactive or Model-Driven Forms, making external requests using Http and route information with the Router.
