@@ -30,13 +30,17 @@ export class HeroDetailComponent implements OnInit {
   // #docregion ng-on-init
   ngOnInit(): void {
     // get hero when `id` param changes
-    this.route.params.map(p => p['id'])
-      .forEach(id => this.getHero(id))
-      .catch(() => this.hero = new Hero()); // no id; should edit new hero
+    this.route.params.subscribe(p => this.getHero(p && p['id']));
   }
   // #enddocregion ng-on-init
 
   private getHero(id: string): void {
+    // when no id or id===0, create new hero
+    if (!id) {
+      this.hero = new Hero();
+      return;
+    }
+
     this.heroDetailService.getHero(id).then(hero => {
       if (hero) {
         this.hero = hero;
