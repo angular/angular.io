@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-unused-variable
 import { async, fakeAsync, tick } from '@angular/core/testing';
 
 import { Observable } from 'rxjs/Observable';
@@ -31,26 +32,37 @@ describe('Angular async helper', () => {
     p.catch(() => { actuallyDone = true; });
   }));
 
-  // Fail message: Cannot use setInterval from within an async zone test
+  // Use done. Cannot use setInterval with async or fakeAsync
   // See https://github.com/angular/angular/issues/10127
-  xit('should run async test with successful delayed Observable', async(() => {
+  it('should run async test with successful delayed Observable', done => {
     const source = Observable.of(true).delay(10);
     source.subscribe(
       val => actuallyDone = true,
-      err => fail(err)
+      err => fail(err),
+      done
     );
-  }));
+  });
 
-  // Fail message: Error: 1 periodic timer(s) still in the queue
+  // Cannot use setInterval from within an async zone test
   // See https://github.com/angular/angular/issues/10127
-  xit('should run async test with successful delayed Observable', fakeAsync(() => {
-    const source = Observable.of(true).delay(10);
-    source.subscribe(
-      val => actuallyDone = true,
-      err => fail(err)
-    );
+  // xit('should run async test with successful delayed Observable', async(() => {
+  //   const source = Observable.of(true).delay(10);
+  //   source.subscribe(
+  //     val => actuallyDone = true,
+  //     err => fail(err)
+  //   );
+  // }));
 
-    tick();
-  }));
+  // // Fail message: Error: 1 periodic timer(s) still in the queue
+  // // See https://github.com/angular/angular/issues/10127
+  // xit('should run async test with successful delayed Observable', fakeAsync(() => {
+  //   const source = Observable.of(true).delay(10);
+  //   source.subscribe(
+  //     val => actuallyDone = true,
+  //     err => fail(err)
+  //   );
+
+  //   tick();
+  // }));
 
 });
