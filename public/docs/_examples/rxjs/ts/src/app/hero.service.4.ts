@@ -6,14 +6,15 @@ import 'rxjs/add/operator/catch';
 // #docregion retry-import
 import 'rxjs/add/operator/retry';
 // #enddocregion retry-import
-import { Injectable }     from '@angular/core';
-import { Http }           from '@angular/http';
-import { Observable }     from 'rxjs/Observable';
+import { Injectable }              from '@angular/core';
+import { Http, Response, Headers } from '@angular/http';
+import { Observable }              from 'rxjs/Observable';
 
 import { Hero } from './hero';
 
 @Injectable()
 export class HeroService {
+  private headers = new Headers({'Content-Type': 'application/json'});
   private heroesUrl = 'api/heroes';
 
   constructor(
@@ -33,5 +34,17 @@ export class HeroService {
         return Observable.of([]);
       });
   // #docregion getHeroes-failed
+  }
+
+  addHero(name: string): Observable<Response> {
+    return this.http
+      .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers});
+  }
+
+  isNameAvailable(name: string): Observable<boolean> {
+    return this.http
+      .get(`api/heroes/?name=${name}`)
+      .map(response => response.json().data)
+      .map(heroes => heroes.length === 0);
   }
 }

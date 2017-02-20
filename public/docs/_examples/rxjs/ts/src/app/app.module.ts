@@ -10,6 +10,7 @@ import { HeroListComponent }          from './hero-list.component';
 import { HeroCounterComponent }       from './hero-counter.component';
 import { MessageLogComponent }        from './message-log.component';
 import { LoadingComponent }           from './loading.component';
+import { AddHeroComponent }           from './add-hero.component';
 
 import { LoadingService }             from './loading.service';
 import { HeroService }                from './hero.service';
@@ -35,7 +36,8 @@ import { InMemoryDataService }  from './in-memory-data.service';
     HeroCounterComponent,
     HeroListComponent,
     MessageLogComponent,
-    LoadingComponent
+    LoadingComponent,
+    AddHeroComponent
   ],
   providers: [
     HeroService,

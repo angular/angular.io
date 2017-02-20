@@ -35,4 +35,16 @@ export class HeroService {
       });
   // #docregion getHeroes-failed
   }
+
+  addHero(name: string): Observable<Response> {
+    return this.http
+      .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers});
+  }
+
+  isNameAvailable(name: string): Observable<boolean> {
+    return this.http
+      .get(`app/heroes/?name=${name}`)
+      .map(response => response.json().data)
+      .map(heroes => !heroes.find((hero: Hero) => hero.name === name));
+  }
 }

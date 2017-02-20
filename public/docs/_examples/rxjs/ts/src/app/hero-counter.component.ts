@@ -6,7 +6,6 @@ import 'rxjs/add/operator/takeUntil';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Observer } from 'rxjs/Observer';
-import { Subscription } from 'rxjs/Subscription';
 
 // #docregion import-subject
 import { Subject } from 'rxjs/Subject';
@@ -24,7 +23,6 @@ import { Subject } from 'rxjs/Subject';
 export class HeroCounterComponent implements OnInit, OnDestroy {
   count: number = 0;
   counter$: Observable<number>;
-  sub: Subscription;
 
 // #docregion onDestroy-subject
   onDestroy$ = new Subject();
@@ -37,15 +35,15 @@ export class HeroCounterComponent implements OnInit, OnDestroy {
       }, 1000);
     });
 
-    let counter1Sub = this.counter$
+    this.counter$
       .takeUntil(this.onDestroy$)
       .subscribe();
 
-    let counter2Sub = this.counter$
+    this.counter$
       .takeUntil(this.onDestroy$)
       .subscribe();
 
-    let counter3Sub = this.counter$
+    this.counter$
       .takeUntil(this.onDestroy$)
       .subscribe();
   }

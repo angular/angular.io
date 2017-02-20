@@ -8,6 +8,7 @@ import { EventAggregatorService } from './event-aggregator.service';
   template: `
     <h1 class="title">RxJS in Angular</h1>
 
+    <a routerLink="/hero/add">Add Hero</a><br>
     <a routerLink="/heroes">Heroes</a><br>
     <a routerLink="/hero/counter">Hero Counter</a><br>
 
