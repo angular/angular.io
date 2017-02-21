@@ -58,7 +58,7 @@ const crisisCenterRoutes: Routes = [
       }
     ]
   }
-  // #docregion routes
+  // #enddocregion routes
 ];
 
 @NgModule({
@@ -70,4 +70,3 @@ const crisisCenterRoutes: Routes = [
   ]
 })
 export class CrisisCenterRoutingModule { }
-// #enddocregion

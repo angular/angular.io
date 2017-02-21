@@ -144,5 +144,5 @@ function tests() {
 
     expect(heroesLink.navigatedTo).toBe('/heroes');
   });
-  // #docregion tests
+  // #enddocregion tests
 }

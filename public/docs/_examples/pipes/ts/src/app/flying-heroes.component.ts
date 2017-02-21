@@ -60,4 +60,4 @@ export class FlyingHeroesComponent {
 export class FlyingHeroesImpureComponent extends FlyingHeroesComponent {
   title = 'Flying Heroes (impure pipe)';
 }
-// #docregion impure-component
+// #enddocregion impure-component

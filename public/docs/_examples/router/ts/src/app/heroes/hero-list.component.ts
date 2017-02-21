@@ -39,7 +39,6 @@ export class HeroListComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router
   ) {}
-  // #enddocregion ctor
 
   ngOnInit() {
     this.heroes = this.route.params
