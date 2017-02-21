@@ -14,7 +14,6 @@ const CRISES = [
 
 let crisesPromise = Promise.resolve(CRISES);
 
-// #docregion
 import { Injectable } from '@angular/core';
 
 @Injectable()

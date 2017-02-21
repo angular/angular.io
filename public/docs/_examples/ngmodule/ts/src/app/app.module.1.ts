@@ -43,7 +43,7 @@ import {
     AwesomePipe,
     ContactComponent,
     ContactHighlightDirective
-// #docregion declarations, directive, component
+// #docregion directive, component
   ],
 // #enddocregion declarations, directive, component
 // #docregion providers

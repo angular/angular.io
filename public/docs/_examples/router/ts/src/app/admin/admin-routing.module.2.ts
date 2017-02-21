@@ -8,7 +8,7 @@ import { AdminDashboardComponent }  from './admin-dashboard.component';
 import { ManageCrisesComponent }    from './manage-crises.component';
 import { ManageHeroesComponent }    from './manage-heroes.component';
 
-// #docregion admin-route, can-activate-child
+// #docregion admin-route
 import { AuthGuard }                from '../auth-guard.service';
 
 const adminRoutes: Routes = [
@@ -25,7 +25,6 @@ const adminRoutes: Routes = [
           { path: '', component: AdminDashboardComponent }
         ],
         // #enddocregion admin-route
-        // #docregion can-activate-child
         canActivateChild: [AuthGuard]
         // #docregion admin-route
       }

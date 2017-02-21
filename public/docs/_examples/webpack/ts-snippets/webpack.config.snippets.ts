@@ -56,4 +56,3 @@ plugins: [
   new webpack.optimize.UglifyJsPlugin()
 ]
 // #enddocregion plugins
-// #enddocregion

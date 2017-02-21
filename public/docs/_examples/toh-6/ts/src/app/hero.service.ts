@@ -75,7 +75,7 @@ export class HeroService {
       .then(() => hero)
       .catch(this.handleError);
   }
-  // #enddocregion put, update
+  // #enddocregion update
 
   // #docregion getHeroes, handleError
   private handleError(error: any): Promise<any> {

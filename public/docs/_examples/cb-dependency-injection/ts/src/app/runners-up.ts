@@ -7,7 +7,7 @@ import { HeroService } from './hero.service';
 
 // #docregion runners-up
 export const RUNNERS_UP = new OpaqueToken('RunnersUp');
-// #docregion runners-up
+// #enddocregion runners-up
 
 // #docregion factory-synopsis
 export function runnersUpFactory(take: number) {

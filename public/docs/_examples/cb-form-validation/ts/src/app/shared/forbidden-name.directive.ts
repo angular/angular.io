@@ -39,5 +39,5 @@ export class ForbiddenValidatorDirective implements Validator, OnChanges {
     return this.valFn(control);
   }
 }
-// #docregion directive
+// #enddocregion directive
 

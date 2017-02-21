@@ -34,7 +34,6 @@ import { HeroService }         from './hero.service';
         component: HeroDetailComponent
       },
       // #enddocregion hero-detail
-      // #docregion heroes
       // #docregion heroes, routing
       {
         path: 'heroes',

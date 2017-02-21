@@ -54,7 +54,6 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     PhoneListComponent,
     // #enddocregion phonelist
     PhoneDetailComponent
-    // #enddocregion phonedetail
   ],
   // #docregion phone, routeparams
   providers: [
@@ -64,7 +63,7 @@ import { PhoneDetailComponent } from './phone-detail/phone-detail.component';
     // #docregion phone
   ]
   // #enddocregion routeparams
-// #docregion bare, upgrademodule, httpmodule, phone, phonelist
+// #docregion bare, upgrademodule, httpmodule, phonelist
 })
 export class AppModule {
   // #enddocregion bare
