@@ -21,7 +21,7 @@ block includes
   * [Sharing Data](#sharing-data "")
   * [Error Handling](#error-handling "")
   * [Framework APIs](#framework-apis "")
-  * [Stream Integration](#integration "")
+  * [Stream Integration](#stream-integration "")
   * [Further Reading](#further-reading "")
 
 h3#definition The Observable: a function at its core
@@ -30,6 +30,12 @@ h3#definition The Observable: a function at its core
   An Observable, simply put, is a specific type of function with a specific purpose. It’s a function that accepts an `Observer` to produce values and
   returns a function for cancellation. It represents an action that can be performed. This action may be performed right now, or at some point
   in the future. An action can be anything, from simply "return a constant", "make an HTTP request" or "navigate to another page".
+
+  Angular makes extensive use of Observables internally and externally through its APIs to provide you
+  with built-in streams to use in your Angular application. These APIs also manage their provided Observables
+  efficiently. This means you don't need to unsubscribe from these provided Observables as their subscriptions
+  are managed locally and will be destroyed when your components are destroyed. Observable streams are made available through the HTTP client,
+  reactive forms, the router and view querying APIs.
 
   Using Observables starts with an understanding of the basic principles, in which there are a wealth of resources that cover these in-depth. You should
   become more familiar with these principles, as it will help you with how to use these concepts in your Angular application. Below are a few resources
@@ -293,93 +299,37 @@ h3#retry Retry Failed Observable
 
 // TODO Diagram for retry sequence
 
-h3#framework-apis Framework APIs: Angular-provided Observables
+h3#stream-integration Stream Integration
 :marked
-  Angular makes extensive use of Observables internally and externally through its APIs to provide you
-  with built-in streams to use in your Angular application. Along with the `Async Pipe`, and the HTTP Client,
-  observable streams are made available through Reactive Forms, the Router and View Querying APIs.
+  Knowing Angular provides multiple Observables through different APIs is good, but putting those
+  streams together in a valuable way is what you will be striving for. With a consistent interface
+  provided by Observables, its easy to combine streams together. Let's look at building
+  a form to add a Hero to your existing list. When adding a Hero, you'll want to check to see if the hero
+  name is available before adding the hero, as well as checking validation while the form is being filled out.
+  These definitely sound like streams of data we can tap into.
 
-//:marked  
-  are provided  template syntax using the Async pipe, user input
-  with Reactive or Model-Driven Forms, making external requests using Http and route information with the Router.
-  By using Observables underneath, these APIs provide a consistent way for you to use and become more comfortable
-  with using Observables in your application to handle your streams of data that are produced over time.
-  Another major advantage of the streams provided by Angular is that they are managed for you,
-  so no need to unsubscribe to clean up subscriptions.
+  Let's start by adding a hero form component that uses a `Reactive Form`. You'll begin with a simple
+  form template to enter and save the new hero.
 
-  Http
++makeExcerpt('src/app/add-hero.component.1.ts (hero form component)', '')
 
-  Making external requests from our application is a very common action in every application. You make a request,
-  handle the success or failure of that request and wait for the request to be made again. Sometimes it’s not as
-  simple as that as you need the be able to retry, cancel or delay requests. Being efficient with requests to save
-  on data transferred is vital when every byte counts. HTTP requests are not a one-off action as many elements of
-  your application is driven by external data. The Http client in Angular is built on top of Observables which
-  provide the ability to handle one single request or multiple requests seamlessly, along with retrying and
-  cancellations of requests.
+:marked
+  The hero form template is just getting started also.
 
-  Example: Use hero service to make a request, make it fail to show retries, conditional retry.
-// +makeExcerpt('src/app/hero-list.component.1.ts', '')
++makeExcerpt('src/app/add-hero.component.1.html (hero form template)', '')
 
-// :marked
-  Async Pipe
+:marked
+  You'll need to add a new method to the `HeroService` for adding a new hero. As mentioned earlier, the HTTP client returns an Observable
+  `Response` that you can use the process the request and operate on if needed. You'll add this request to the `AddHeroComponent` when
+  ready to save the hero data.
 
-  As we’ve talked about previously, Observables must be subscribed to in order to handle the data they produce,
-  and must be unsubscribed from in order to clean up the resources they have used. You’ve gone through how to
-  subscribe to an Observable, get its data and provide that data through a variable in your class. There is also
-  a built-in pipe available for use with template syntax to manage Observable subscriptions called the Async Pipe.
-  When used in a template, the async pipe will subscribe to the Observable or evaluate a Promise, receive its
-  emitted values and dispose of its subscription once the component is destroyed. The pipe also ties into Change Detection,
-  so that when new values are produced, the component is marked for detection in order to determine whether it’s changes
-  need to be reflected in your user interface. This is useful as it reduces the amount of boilerplate you need when setting
-  up data to be fetched and provided to your template. We’ll learn later about cases where using an async pipe is beneficial
-  versus managing your own subscription manually.
++makeExcerpt('src/app/hero.service.4.ts (add hero)', '')
 
-  Example: Fetching heroes using a service, subscribing/unsubscribing manually then removing the subscription and delegating responsibility to the async pipe. Another example would be showing hero details with multiple async pipes, but instead using a single subscription.
-// +makeExcerpt('src/app/hero-detail.component.ts', '')
-
-// :marked
-  Forms
-  With many applications, user input is required to initiate or complete an action. Whether it be logging in or filling out
-  an information page, user data is another stream that needs to be handled. In contrast to template-driven forms where the
-  responsibility is on the developer to gather the pieces of data from the form, the model-driven/Reactive forms uses
-  Observables to easily provide a continuous stream of user input. By using the reactive approach, our form will be ready
-  to handle user input streams from form fields, as well as provide that form data seamlessly to another stream for
-  processing.
-
-  Example: Simple form that displays form status/value changes over time. Also displays creating an Observable from an existing event. valueChanges on individual field/entire form
-
-  Router
-
-  The browser URL is another stream of information. It provides you with a canonical link to the application view you are
-  displaying at any given moment, along with information about what data to display. The Angular Router uses the browser URL
-  to provide you with multiple streams that hook into the navigation process, URL data provided through your route
-  configuration, parameters provided for context and path information. These pieces of data are provided by the Router
-  through Observables, since we are certain that these streams happen in a continuous fashion as a user navigates throughout
-  your Angular application.
-
-  Router Observables: Events, Parameters, Data, URL Segments
-
-  Example: Use router events to build a small loading service and component.
-// +makeExcerpt('src/app/loading.service.ts', '')
-// +makeExcerpt('src/app/loading.component.ts', '')
-
-// h3#integration Stream Integration
-// :marked
-  The Observables provided by these areas can be used together. The same set of functionality and extensibility can be combined together
-  in a very powerful and practical way. A prime example is a hero search component that implements a typeahead search feature.
-  Let’s start by gathering some requirements about what your typeahead will need.
-
-  * Take input from the user
-  * Make a search based on that input
-  * Only search when the user has changed the search terms
-  * Cancel any in-progress requests if you user initiates a new search
-  * Only make a request after the user hasn’t interacted within a certain time frame
-  * Display search results
-  * Sync the user’s search terms in the browser URL
-
-  Example: Hero search typeahead component
-// +makeExcerpt('src/app/hero-search.component.ts', '')
-
+:marked
+  If you look at the template closer, you'll see the `showErrors` boolean, which hides the error messages until you're ready to display them.
+  A good form waits until the user has interacted with the fields before displaying any errors, and you'll want to follow that same rule. So
+  how can you display errors once an interaction has happened? Reactive form controls provide an Observable stream of `valueChanges` whenever
+  the form input changes and we can subscribe to that. Let's add
 h3#further-reading Further Reading
 :marked
   TODO

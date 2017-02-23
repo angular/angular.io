@@ -6,7 +6,7 @@ import 'rxjs/add/observable/merge';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/takeUntil';
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
@@ -24,9 +24,9 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('heroName', { read: ElementRef }) heroName: ElementRef;
 
   form: FormGroup;
-  onDestroy$ = new Subject();
   showErrors: boolean = false;
   success: boolean;
+  onDestroy$ = new Subject();
 
   constructor(
     private formBuilder: FormBuilder,

@@ -38,12 +38,12 @@ export class HeroService {
 
   addHero(name: string): Observable<Response> {
     return this.http
-      .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers});
+      .post(this.heroesUrl, { name }, {headers: this.headers});
   }
 
   isNameAvailable(name: string): Observable<boolean> {
     return this.http
-      .get(`app/heroes/?name=${name}`)
+      .get(`${this.heroesUrl}/?name=${name}`)
       .map(response => response.json().data)
       .map(heroes => !heroes.find((hero: Hero) => hero.name === name));
   }

@@ -38,13 +38,6 @@ export class HeroService {
 
   addHero(name: string): Observable<Response> {
     return this.http
-      .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers});
-  }
-
-  isNameAvailable(name: string): Observable<boolean> {
-    return this.http
-      .get(`api/heroes/?name=${name}`)
-      .map(response => response.json().data)
-      .map(heroes => heroes.length === 0);
+      .post(this.heroesUrl, { name }, {headers: this.headers});
   }
 }
