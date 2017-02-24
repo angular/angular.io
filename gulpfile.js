@@ -71,13 +71,13 @@ var _devguideShredJadeOptions =  {
 
 var _apiShredOptions =  {
   lang: 'ts',
-  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'modules/@angular/examples'),
+  examplesDir: path.join(ANGULAR_PROJECT_PATH, 'packages/examples'),
   fragmentsDir: path.join(DOCS_PATH, '_fragments/_api'),
   zipDir: path.join(RESOURCES_PATH, 'zips/api'),
   logLevel: _dgeniLogLevel
 };
 
-var _excludePatterns = ['**/node_modules/**', '**/packages/**'];
+var _excludePatterns = ['**/node_modules/**'];
 
 var _excludeMatchers = _excludePatterns.map(function(excludePattern){
   return new Minimatch(excludePattern)
@@ -1197,7 +1197,7 @@ function devGuideExamplesWatch(shredOptions, postShredAction, focus) {
   // var excludePattern = '!' + path.join(shredOptions.examplesDir, '**/node_modules/**/*.*');
   // gulp.watch([includePattern, excludePattern], {readDelay: 500}, function (event, done) {
   var ignoreThese = [ '**/node_modules/**', '**/_fragments/**', '**/dist/**',
-                      '**/dart/.pub/**', '**/dart/build/**', '**/dart/packages/**'];
+                      '**/dart/.pub/**', '**/dart/build/**'];
   ignoreThese = ignoreThese.concat(_exampleBoilerplateFiles.map((file) => `public/docs/_examples/*/*/${file}`));
   var files = globby.sync( [includePattern], { ignore: ignoreThese });
   gulp.watch([files], {readDelay: 500}, function (event, done) {

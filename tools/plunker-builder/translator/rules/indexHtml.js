@@ -49,7 +49,7 @@ var rulesToApply = [
   {
     pattern: 'script',
     from: 'node_modules/zone.js/dist/zone.js',
-    to:   'https://unpkg.com/zone.js@0.7.4?main=browser'
+    to:   'https://unpkg.com/zone.js@0.8.4?main=browser'
   },
   {
     pattern: 'script',

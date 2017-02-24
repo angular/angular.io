@@ -1,12 +1,14 @@
 import {
   Component,
-  Input,
+  Input
+} from '@angular/core';
+import {
   trigger,
   state,
   style,
   animate,
   transition
-} from '@angular/core';
+} from '@angular/animations';
 
 import { Heroes } from './hero.service';
 
@@ -16,7 +18,7 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          [@flyInOut]="'in'">
+          [@flyInOutEnterLeave]="'in'">
         {{hero.name}}
       </li>
     </ul>
@@ -31,7 +33,7 @@ import { Heroes } from './hero.service';
    */
   // #docregion animationdef
   animations: [
-    trigger('flyInOut', [
+    trigger('flyInOutEnterLeave', [
       state('in', style({transform: 'translateX(0)'})),
       transition('void => *', [
         style({transform: 'translateX(-100%)'}),

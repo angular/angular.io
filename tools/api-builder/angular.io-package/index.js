@@ -44,29 +44,32 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   if (!fs.existsSync(angular_repo_path)) {
     throw new Error('build-api-docs task requires the angular repo to be at ' + angular_repo_path);
   }
-  readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'modules');
+  readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'packages');
   readTypeScriptModules.ignoreExportsMatching = [/^_/];
 
   readTypeScriptModules.sourceFiles = [
-    '@angular/common/index.ts',
-    '@angular/common/testing/index.ts',
-    '@angular/core/index.ts',
-    '@angular/core/testing/index.ts',
-    '@angular/forms/index.ts',
-    '@angular/http/index.ts',
-    '@angular/http/testing/index.ts',
-    '@angular/platform-browser/index.ts',
-    '@angular/platform-browser/testing/index.ts',
-    '@angular/platform-browser-dynamic/index.ts',
-    '@angular/platform-browser-dynamic/testing/index.ts',
-    '@angular/platform-server/index.ts',
-    '@angular/platform-server/testing/index.ts',
-    '@angular/platform-webworker/index.ts',
-    '@angular/platform-webworker-dynamic/index.ts',
-    '@angular/router/index.ts',
-    '@angular/router/testing/index.ts',
-    '@angular/upgrade/index.ts',
-    '@angular/upgrade/static.ts'
+    'animations/index.ts',
+    'animations/browser/index.ts',
+    'common/index.ts',
+    'common/testing/index.ts',
+    'core/index.ts',
+    'core/testing/index.ts',
+    'forms/index.ts',
+    'http/index.ts',
+    'http/testing/index.ts',
+    'platform-browser/index.ts',
+    'platform-browser/animations/index.ts',
+    'platform-browser/testing/index.ts',
+    'platform-browser-dynamic/index.ts',
+    'platform-browser-dynamic/testing/index.ts',
+    'platform-server/index.ts',
+    'platform-server/testing/index.ts',
+    'platform-webworker/index.ts',
+    'platform-webworker-dynamic/index.ts',
+    'router/index.ts',
+    'router/testing/index.ts',
+    'upgrade/index.ts',
+    'upgrade/static.ts'
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
