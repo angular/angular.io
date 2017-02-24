@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationModule } from '@angular/platform-browser/animations';
 
 import { HeroTeamBuilderComponent } from './hero-team-builder.component';
 import { HeroListBasicComponent } from './hero-list-basic.component';
@@ -14,7 +15,7 @@ import { HeroListMultistepComponent } from './hero-list-multistep.component';
 import { HeroListTimingsComponent } from './hero-list-timings.component';
 
 @NgModule({
-  imports: [ BrowserModule ],
+  imports: [ BrowserModule, BrowserAnimationModule ],
   declarations: [
     HeroTeamBuilderComponent,
     HeroListBasicComponent,
