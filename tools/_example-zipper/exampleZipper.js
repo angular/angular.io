@@ -22,9 +22,9 @@ class ExampleZipper {
       return configFileName.indexOf('ts') != -1;
     });
     configFileNames.forEach((configFileName) => {
-      this._zipExample(configFileName, sourceDirName, outputDirName);
+      // this._zipExample(configFileName, sourceDirName, outputDirName);
     });
-    // this._zipExample(configFileNames[26], sourceDirName, outputDirName);
+    this._zipExample(configFileNames[48], sourceDirName, outputDirName);
   }
 
   _changeTypeRoots(tsconfig) {
@@ -64,7 +64,7 @@ class ExampleZipper {
     let exampleZipName = jsonFileName.replace(/(plnkr|zipper).json/, relativeDirName);
     const outputFileName = path.join(outputDirName, relativeDirName, exampleZipName + '.zip');
     let defaultIncludes = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
-    let extraIncludes = ['bs-config.json', 'tslint.json', 'karma-test-shim.js', 'karma.conf.js', 'src/testing/**/*'];
+    let alwaysIncludes = ['bs-config.json', 'tslint.json', 'karma-test-shim.js', 'karma.conf.js', 'src/testing/**/*'];
     var defaultExcludes = [
       '!**/bs-config.e2e.json',
       '!**/*plnkr.*',
@@ -97,13 +97,15 @@ class ExampleZipper {
 
         if (json.files[0].substr(0, 1) === '!') {
           json.files = defaultIncludes.concat(json.files);
-        } else {
-          json.files = extraIncludes.concat(json.files);
         }
       }
     } else {
       json.files = defaultIncludes;
     }
+
+    json.files = json.files.concat(alwaysIncludes);
+
+    console.log(json.files);
 
     let gpaths = json.files.map((fileName) => {
       fileName = fileName.trim();
