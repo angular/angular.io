@@ -22,9 +22,8 @@ class ExampleZipper {
       return configFileName.indexOf('ts') != -1;
     });
     configFileNames.forEach((configFileName) => {
-      // this._zipExample(configFileName, sourceDirName, outputDirName);
+      this._zipExample(configFileName, sourceDirName, outputDirName);
     });
-    this._zipExample(configFileNames[48], sourceDirName, outputDirName);
   }
 
   _changeTypeRoots(tsconfig) {
@@ -104,8 +103,6 @@ class ExampleZipper {
     }
 
     json.files = json.files.concat(alwaysIncludes);
-
-    console.log(json.files);
 
     let gpaths = json.files.map((fileName) => {
       fileName = fileName.trim();

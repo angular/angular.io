@@ -46,7 +46,7 @@ var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
 var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
-var ExampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
+var ExampleZipper = require(path.resolve(TOOLS_PATH, 'example-zipper/exampleZipper'));
 var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPlunker'));
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
@@ -572,9 +572,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   watchAndSync({localFiles: true}, cb);
 });
 
-gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers']);
-// Stop zipping examples Feb 28, 2016
-//gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
+gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', 'zip-examples']);
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
 
@@ -786,7 +784,7 @@ gulp.task('_shred-clean-api', function(cb) {
   return del([ cleanPath, '!**/*.ovr.*' ]);
 });
 
-gulp.task('_zip-examples', function() {
+gulp.task('zip-examples', function() {
   new ExampleZipper(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
   // exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
 });
