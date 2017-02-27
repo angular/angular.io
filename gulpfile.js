@@ -46,7 +46,7 @@ var LIVE_EXAMPLES_PATH = path.join(RESOURCES_PATH, 'live-examples');
 var STYLES_SOURCE_PATH = path.join(TOOLS_PATH, 'styles-builder/less');
 
 var docShredder = require(path.resolve(TOOLS_PATH, 'doc-shredder/doc-shredder'));
-var exampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
+var ExampleZipper = require(path.resolve(TOOLS_PATH, '_example-zipper/exampleZipper'));
 var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPlunker'));
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
@@ -787,8 +787,8 @@ gulp.task('_shred-clean-api', function(cb) {
 });
 
 gulp.task('_zip-examples', function() {
-  exampleZipper.zipExamples(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
-  exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
+  new ExampleZipper(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
+  // exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
 });
 
 
