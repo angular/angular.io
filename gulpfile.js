@@ -572,7 +572,7 @@ gulp.task('build-and-serve', ['build-docs'], function (cb) {
   watchAndSync({localFiles: true}, cb);
 });
 
-gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', 'zip-examples']);
+gulp.task('build-docs', ['build-devguide-docs', 'build-api-docs', 'build-plunkers', '_zip-examples']);
 
 gulp.task('build-api-docs', ['build-js-api-docs', 'build-ts-api-docs']);
 
@@ -784,7 +784,7 @@ gulp.task('_shred-clean-api', function(cb) {
   return del([ cleanPath, '!**/*.ovr.*' ]);
 });
 
-gulp.task('zip-examples', function() {
+gulp.task('_zip-examples', function() {
   new ExampleZipper(_devguideShredOptions.examplesDir, _devguideShredOptions.zipDir);
   // exampleZipper.zipExamples(_apiShredOptions.examplesDir, _apiShredOptions.zipDir);
 });
