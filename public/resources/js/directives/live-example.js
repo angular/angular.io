@@ -73,6 +73,7 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       if (attrs['title'] == undefined) { tElement[0].setAttribute('title', text); } // set default title (tooltip)
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var embedded = attrs.hasOwnProperty('embedded');
+      var noDownload = attrs.hasOwnProperty('nodownload') || attrs.hasOwnProperty('noDownload');
       var flatStyle = attrs.hasOwnProperty('flatstyle') || attrs.hasOwnProperty('flatStyle');
       var embeddedStyle = embedded || attrs.hasOwnProperty('embeddedstyle') || attrs.hasOwnProperty('embeddedStyle');
       var plnkr = (embeddedStyle || !flatStyle) ? 'eplnkr' : 'plnkr';
@@ -101,7 +102,11 @@ angularIO.directive('liveExample', ['$location', function ($location) {
           : '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html'
 
         // Link to live example.
-        var template = a(text, { href: href, target: '_blank' }) + ' / ' + a('downloadable example', { href: zipHref, target: '_blank' });
+        var template = a(text, { href: href, target: '_blank' });
+
+        if (!noDownload) {
+          template += ' / ' + a('downloadable example', { href: zipHref, target: '_blank' });
+        }
 
         // The hosted example and sources are in different locations for Dart.
         // Also show link to sources for Dart, unless noSource is specified.
