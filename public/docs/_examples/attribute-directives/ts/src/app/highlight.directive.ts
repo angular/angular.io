@@ -1,7 +1,5 @@
 /* tslint:disable:member-ordering */
-// #docplaster
-// #docregion
-// #docregion imports
+// #docregion imports, 
 import { Directive, ElementRef, HostListener, Input } from '@angular/core';
 // #enddocregion imports
 
