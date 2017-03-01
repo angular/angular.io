@@ -33,7 +33,7 @@ export class HeroFormReactiveComponent implements OnInit {
   // to be removed/re-added in a tick via NgIf
   // TODO: Workaround until NgForm has a reset method (#6822)
   active = true;
-// #docregion
+// #docregion class
   // #docregion add-hero
   addHero() {
     this.hero = new Hero(42, '', '');

@@ -12,7 +12,7 @@ let heroServiceFactory = (logger: Logger, userService: UserService) => {
 
 // #docregion provider
 export let heroServiceProvider =
-  { provide: HeroService,
+  { provide: HeroService,
     useFactory: heroServiceFactory,
     deps: [Logger, UserService]
   };

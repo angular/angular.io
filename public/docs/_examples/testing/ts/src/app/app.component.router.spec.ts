@@ -174,7 +174,7 @@ class Page {
   }
 
   constructor() {
-    router.events.forEach(e => this.recordedEvents.push(e));
+    router.events.subscribe(e => this.recordedEvents.push(e));
     const links = fixture.debugElement.queryAll(By.directive(RouterLinkWithHref));
     this.aboutLinkDe     = links[2];
     this.dashboardLinkDe = links[0];

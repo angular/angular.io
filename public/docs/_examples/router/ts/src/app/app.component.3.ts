@@ -5,7 +5,6 @@ import { Router }    from '@angular/router';
 
 @Component({
   selector: 'my-app',
-// #enddocregion
   /* Typical link
   // #docregion h-anchor
   <a [routerLink]="['/heroes']">Heroes</a>

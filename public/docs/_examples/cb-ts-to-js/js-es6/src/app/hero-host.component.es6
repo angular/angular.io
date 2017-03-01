@@ -46,5 +46,5 @@ HeroHostComponent.annotations = [
     styles: ['.active {background-color: yellow;}']
   })
 ];
-// #docregion metadata
+// #enddocregion metadata
 // #enddocregion

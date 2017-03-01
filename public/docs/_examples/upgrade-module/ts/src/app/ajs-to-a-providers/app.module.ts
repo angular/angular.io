@@ -6,18 +6,17 @@ import { UpgradeModule, downgradeComponent } from '@angular/upgrade/static';
 
 import { HeroDetailComponent } from './hero-detail.component';
 import { HeroesService } from './heroes.service';
-
 // #docregion register
+import { heroesServiceProvider } from './ajs-upgraded-providers';
+
 @NgModule({
   imports: [
     BrowserModule,
     UpgradeModule
   ],
-  providers: [{
-    provide: 'heroes',
-    useFactory: (i: any) => i.get('heroes'),
-    deps: ['$injector']
-  }],
+  providers: [
+    heroesServiceProvider
+  ],
   // #enddocregion register
   declarations: [
     HeroDetailComponent
@@ -38,7 +37,6 @@ angular.module('heroApp', [])
     'heroDetail',
     downgradeComponent({component: HeroDetailComponent}) as angular.IDirectiveFactory
   );
-
 
 platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
   const upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;

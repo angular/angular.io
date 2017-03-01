@@ -56,11 +56,12 @@ angularIO.directive('liveExample', ['$location', function ($location) {
 
   function span(text) { return '<span>' + text + '</span>'; }
 
-  function embeddedTemplate(src, img) {
+  function embeddedTemplate(src, img, zipHref) {
     return '<div ng-if="embeddedShow">' +
         '<iframe frameborder="0" width="100%" height="100%" src="' + src + '"></iframe>' +
       '</div>' +
-      '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="' + img + '" alt="plunker">';
+      '<img ng-click="toggleEmbedded()" ng-if="!embeddedShow" src="' + img + '" alt="plunker">' +
+      '<p>You can also <a href="' + zipHref +'">download this example.</p>';
   }
 
   return {
@@ -72,24 +73,29 @@ angularIO.directive('liveExample', ['$location', function ($location) {
       if (attrs['title'] == undefined) { tElement[0].setAttribute('title', text); } // set default title (tooltip)
       var ex = attrs.name || NgIoUtil.getExampleName($location);
       var embedded = attrs.hasOwnProperty('embedded');
+      var noDownload = attrs.hasOwnProperty('nodownload') || attrs.hasOwnProperty('noDownload');
       var flatStyle = attrs.hasOwnProperty('flatstyle') || attrs.hasOwnProperty('flatStyle');
       var embeddedStyle = embedded || attrs.hasOwnProperty('embeddedstyle') || attrs.hasOwnProperty('embeddedStyle');
       var plnkr = (embeddedStyle || !flatStyle) ? 'eplnkr' : 'plnkr';
+      var zipHref = ex;
       var imageBase  = '/resources/images/';
       var defaultImg = 'plunker/placeholder.png';
 
       if (attrs.plnkr) {
         plnkr = attrs.plnkr + '.' + plnkr;
+        zipHref = attrs.plnkr + '.' + zipHref;
       }
 
       var isForDart = attrs.lang === 'dart' || NgIoUtil.isDoc($location, 'dart');
       var isForJs = attrs.lang === 'js' || NgIoUtil.isDoc($location, 'js');
       var exLang = isForDart ? 'dart' : isForJs ? 'js' : 'ts';
 
+      zipHref = '/resources/zips/' + ex + '/' + zipHref + '.zip';
+
       if (embedded && !isForDart) {
         href = '/resources/live-examples/' + ex + '/' + exLang + '/' + plnkr + '.html';
         img = imageBase + (attrs.img || defaultImg);
-        template = embeddedTemplate(href, img);
+        template = embeddedTemplate(href, img, zipHref);
       } else {
         var href = isForDart
           ? 'http://angular-examples.github.io/' + ex
@@ -97,6 +103,10 @@ angularIO.directive('liveExample', ['$location', function ($location) {
 
         // Link to live example.
         var template = a(text, { href: href, target: '_blank' });
+
+        if (!noDownload) {
+          template += ' / ' + a('downloadable example', { href: zipHref, target: '_blank' });
+        }
 
         // The hosted example and sources are in different locations for Dart.
         // Also show link to sources for Dart, unless noSource is specified.

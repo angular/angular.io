@@ -11,7 +11,6 @@ import { MovieService } from './movie.service';
   moduleId: module.id,
   selector: 'movie-list',
   templateUrl: './movie-list.component.html',
-// #enddocregion component
 // #docregion style-url
   styleUrls: [ './movie-list.component.css' ],
 // #enddocregion style-url

@@ -72,14 +72,14 @@ describe('use inject helper in beforeEach', () => {
     );
   }));
 
-  // #enddocregion FancyService
-  // See https://github.com/angular/angular/issues/10127
-  xit('test should wait for FancyService.getObservableDelayValue', async(() => {
-    service.getObservableDelayValue().subscribe(
-      value => expect(value).toBe('observable delay value')
-    );
-  }));
-  // #docregion FancyService
+  // Must use done. See https://github.com/angular/angular/issues/10127
+  it('test should wait for FancyService.getObservableDelayValue', done => {
+    service.getObservableDelayValue().subscribe(value => {
+      expect(value).toBe('observable delay value');
+      done();
+    });
+  });
+
   it('should allow the use of fakeAsync', fakeAsync(() => {
     let value: any;
     service.getAsyncValue().then((val: any) => value = val);

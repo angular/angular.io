@@ -20,7 +20,6 @@ import { AppRoutingModule } from './app-routing.module';
     BrowserModule,
     ContactModule,
 // #enddocregion v4
-// #enddocregion
 // #enddocregion import-for-root
 /*
 // #docregion v4
@@ -28,7 +27,6 @@ import { AppRoutingModule } from './app-routing.module';
 // #enddocregion v4
 */
 // #docregion import-for-root
-// #docregion
     CoreModule.forRoot({userName: 'Miss Marple'}),
 // #docregion v4
     AppRoutingModule

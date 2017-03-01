@@ -28,7 +28,6 @@ import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
   providers: [
     CrisisService
   ]
-  // #enddocregion crisis-detail-resolver
 })
 // #docregion crisis-center-module-export
 export class CrisisCenterModule {}

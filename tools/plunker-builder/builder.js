@@ -9,7 +9,9 @@ var fs = require("fs");
 var globby = require('globby');
 var mkdirp = require('mkdirp');
 
-var indexHtmlTranslator = require('./indexHtmlTranslator');
+var fileTranslator = require('./translator/fileTranslator');
+var indexHtmlRules = require('./translator/rules/indexHtml');
+var systemjsConfigExtrasRules = require('./translator/rules/systemjsConfigExtras');
 var regionExtractor = require('../doc-shredder/regionExtractor');
 
 class PlunkerBuilder {
@@ -39,15 +41,13 @@ class PlunkerBuilder {
 
   _addPlunkerFiles(config, postData) {
     if (config.basePath.indexOf('/ts') > -1) {
-      if (config.includeSystemConfig) {
-        // uses systemjs.config.js so add plunker version
-        this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
-      }
+      // uses systemjs.config.js so add plunker version
+      this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
     }
   }
 
   _buildCopyrightStrings() {
-    var copyright = 'Copyright 2016 Google Inc. All Rights Reserved.\n'
+    var copyright = 'Copyright 2017 Google Inc. All Rights Reserved.\n'
       + 'Use of this source code is governed by an MIT-style license that\n'
       + 'can be found in the LICENSE file at http://angular.io/license';
     var pad = '\n\n';
@@ -143,7 +143,7 @@ class PlunkerBuilder {
       }
 
       if (relativeFileName == 'index.html') {
-        content = indexHtmlTranslator.translate(content);
+        content = fileTranslator.translate(content, indexHtmlRules);
         if (config.description == null) {
           // set config.description to title from index.html
           var matches = /<title>(.*)<\/title>/.exec(content);
@@ -152,6 +152,11 @@ class PlunkerBuilder {
           }
         }
       }
+
+      if (relativeFileName == 'systemjs.config.extras.js') {
+        content = fileTranslator.translate(content, systemjsConfigExtrasRules);
+      }
+
       content = regionExtractor.removeDocTags(content, extn.substr(1));
 
       this.options.addField(postData, relativeFileName, content);
