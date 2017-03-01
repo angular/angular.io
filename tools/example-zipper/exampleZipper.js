@@ -1,3 +1,5 @@
+'use strict';
+
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
 var path = require('canonical-path');
 var jsonfile = require('jsonfile');
