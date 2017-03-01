@@ -34,11 +34,11 @@ output: {
 // #docregion loaders
 rules: [
   {
-    test: /\.ts$/
+    test: /\.ts$/,
     loader: 'awesome-typescript-loader'
   },
   {
-    test: /\.css$/
+    test: /\.css$/,
     loaders: 'style-loader!css-loader'
   }
 ]
@@ -56,4 +56,3 @@ plugins: [
   new webpack.optimize.UglifyJsPlugin()
 ]
 // #enddocregion plugins
-// #enddocregion

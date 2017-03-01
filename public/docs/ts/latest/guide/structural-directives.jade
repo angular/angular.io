@@ -1,336 +1,582 @@
 block includes
   include ../_util-fns
 
-:marked
-  One of the defining features of a single page application is its manipulation
-  of the DOM tree. Instead of serving a whole new page every time a user
-  navigates, whole sections of the DOM appear and disappear according
-  to the application state. In this chapter we'll look at how Angular
-  manipulates the DOM and how we can do it ourselves in our own directives.
+// The docs standard h4 style uppercases, making code terms unreadable. Override it.
+style.
+  h4 {font-size: 17px !important; text-transform: none !important;}
+  .syntax { font-family: Consolas, 'Lucida Sans', Courier, sans-serif; color: black; font-size: 85%; }
 
-  In this chapter we will
-  - [learn what structural directives are](#definition)
-  - [study *ngIf*](#ngIf)
-  - [discover the &lt;template> element](#template)
-  - [understand the asterisk (\*) in **ngFor*](#asterisk)
-  - [write our own structural directive](#unless)
+:marked
+  This guide looks at how Angular manipulates the DOM with **structural directives** and 
+  how you can write your own structural directives to do the same thing.
+
+  ### Table of contents
+
+  - [What are structural directives?](#definition)
+  - [*NgIf* case study](#ngIf)
+  - [Group sibling elements with &lt;ng-container&gt;](#ng-container)
+  - [The asterisk (\*) prefix](#asterisk)
+  - [Inside *NgFor*](#ngfor)
+    - [microsyntax](#microsyntax)
+    - [template input variables](#template-input-variable)
+    - [one structural directive per element](#one-per-element)
+  - [Inside the *NgSwitch* directives](#ngSwitch)
+  - [Prefer the (\*) prefix](#prefer-asterisk)
+  - [The &lt;template> element](#template)
+  - [Write a structural directive](#unless)
 
   Try the <live-example></live-example>.
 
-<a id="definition"></a>
+a#definition
 .l-main-section
 :marked
   ## What are structural directives?
 
-  There are three kinds of Angular directives:
-  1. Components
-  1. Attribute directives
-  1. Structural directives
+  Structural directives are responsible for HTML layout.
+  They shape or reshape the DOM's _structure_, typically by adding, removing, or manipulating
+  elements.
 
-  The *Component* is really a directive with a template.
-  It's the most common of the three directives and we write lots of them as we build our application.
+  As with other directives, you apply a structural directive to a _host element_. 
+  The directive then does whatever it's supposed to do with that host element and its descendents.
 
-  The [*Attribute* directive](attribute-directives.html) changes the appearance or behavior of an element.
-  The built-in [NgStyle](template-syntax.html#ngStyle) directive, for example,
-  can change several element styles at the same time.
-  We can use it to render text bold, italic, and lime green by binding to a
-  component property that requests such a sickening result.
+  Structural directives are easy to recognize. 
+  An asterisk (\*) precedes the directive attribute name as in this example.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif')(format=".")
+:marked
+  No brackets. No parentheses. Just `*ngIf` set to a string.
 
-  A *Structural* directive changes the DOM layout by adding and removing DOM elements.
-  We've seen three of the built-in structural directives in other chapters: [ngIf](template-syntax.html#ngIf),
-  [ngSwitch](template-syntax.html#ngSwitch) and [ngFor](template-syntax.html#ngFor).
+  You'll learn in this guide that the [asterisk (\*) is a convenience notation](#asterisk)
+  and the string is a [_microsyntax_](#microsyntax) rather than the usual [template expression](template-syntax.html#template-expressions).
+  Angular "de-sugars" this notation into a marked-up `<template>` that surrounds the
+  host element and its descendents. 
+  Each structural directive does something different with that template.
 
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'structural-directives')(format=".")
+  Three of the common, built-in structural directives&mdash;[NgIf](template-syntax.html#ngIf), 
+  [NgFor](template-syntax.html#ngFor), and [NgSwitch...](template-syntax.html#ngSwitch)&mdash;are 
+  described in the [_Template Syntax_](template-syntax.html) guide and seen in samples throughout the Angular documentation. 
+  Here's an example of them in a template:
 
++makeExample('structural-directives/ts/src/app/app.component.html', 'built-in')(format=".")
+:marked
+  This guide won't repeat how to _use_ them. But it does explain _how they work_
+  and how to [write your own](#unless) structural directive.
 
-<a id="ngIf"></a>
+.callout.is-helpful
+  header Directive spelling
+  :marked
+     Throughout this guide, you'll see a directive spelled in both _UpperCamelCase_ and _lowerCamelCase_.
+     Already you've seen `NgIf` and `ngIf`.
+     There's a reason. `NgIf` refers to the directive _class_; 
+     `ngIf` refers to the directive's _attribute name_. 
+     
+     A directive _class_ is spelled in _UpperCamelCase_ (`NgIf`).
+     A directive's _attribute name_ is spelled in _lowerCamelCase_ (`ngIf`).
+     The guide refers to the directive _class_ when talking about its properties and what the directive does.
+     The guide refers to the _attribute name_ when describing how
+     you apply the directive to an element in the HTML template.
+
+.l-sub-section
+  :marked
+    There are two other kinds of Angular directives, described extensively elsewhere: (1)&nbsp;components and (2)&nbsp;attribute directives.
+  
+    A *component* manages a region of HTML in the manner of a native HTML element.
+    Technically it's a directive with a template. 
+
+    An [*attribute* directive](attribute-directives.html) changes the appearance or behavior
+    of an element, component, or another directive.
+    For example, the built-in [`NgStyle`](template-syntax.html#ngStyle) directive
+    changes several element styles at the same time.
+
+    You can apply many _attribute_ directives to one host element.
+    You can [only apply one](#one-per-element) _structural_ directive to a host element.
+
+a#ngIf
 .l-main-section
 :marked
   ## NgIf Case Study
 
-  Let's focus on `ngIf`. It's a great example of a structural
-  directive: it takes a boolean and makes an entire chunk of DOM appear
-  or disappear.
+  `NgIf` is the simplest structural directive and the easiest to understand.
+  It takes a boolean value and makes an entire chunk of the DOM appear or disappear.
 
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'ngIf')(format=".")
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif-true')(format=".")
 
 :marked
-  The `ngIf` directive does not hide the element.
-  Using browser developer tools we can see that, when the condition is true, the top
-  paragraph is in the DOM and the bottom disused paragraph is completely
-  absent from the DOM! In its place are empty `<script>` tags.
+  The `ngIf` directive doesn't hide elements with CSS. It adds and removes them physically from the DOM.
+  Confirm that fact using browser developer tools to inspect the DOM.
 
 figure.image-display
-  img(src='/resources/images/devguide/structural-directives/element-not-in-dom.png' alt="element not in dom")
+  img(src='/resources/images/devguide/structural-directives/element-not-in-dom.png' alt="ngIf=false element not in DOM")
 
 :marked
+  The top paragraph is in the DOM. The bottom, disused paragraph is not; 
+  in its place is a comment about "template bindings" (more about that [later](#asterisk)).
+  
+  When the condition is false, `NgIf` removes its host element from the DOM,
+  detaches it from DOM events (the attachments that it made),
+  detaches the component from Angular change detection, and destroys it.
+  The component and DOM nodes can be garbage-collected and free up memory.
+
   ### Why *remove* rather than *hide*?
-  We could hide the unwanted paragraph by setting its css `display` style to `none`.
-  The element would remain in the DOM while invisible. Instead we removed it with `ngIf`.
 
-  The difference matters. When we hide an element,
-  the component's behavior continues.
-  It remains attached to its DOM element. It continues to listen to events.
-  Angular keeps checking for changes that could affect data bindings.
-  Whatever the component was doing, it keeps doing it.
+  A directive could hide the unwanted paragraph instead by setting its `display` style to `none`.
++makeExample('structural-directives/ts/src/app/app.component.html', 'display-none')(format=".")
 
-  Although invisible, the component &mdash; and all of its descendant components &mdash;
-  tie up resources that might be more useful elsewhere.
-  The performance and memory burden can be substantial and the user may not benefit at all.
-
-  On the positive side, showing the element again is very quick.
-  The component's previous state is preserved and ready to display.
-  The component doesn't re-initialize &mdash; an operation that could be expensive.
-
-  `ngIf` is different.
-  Setting `ngIf` to false **does** affect the component's resource consumption.
-  Angular removes the element from DOM, stops change detection for the associated component,
-  detaches it from DOM events (the attachments that it made) and destroys the component.
-  The component can be garbage-collected (we hope) and free up memory.
-
-  Components often have child components which themselves have children.
-  All of them are destroyed when `ngIf` destroys the common ancestor.
-  This cleanup effort is usually a good thing.
-
-  Of course it isn't *always* a good thing.
-  It might be a bad thing if we need that particular component again soon.
-
-  The component's state might be expensive to re-construct.
-  When `ngIf` becomes `true` again, Angular recreates the component and its subtree.
-  Angular runs every component's initialization logic again. That could be expensive ... as when
-  a component re-fetches data that had been in memory just moments ago.
-.l-sub-section
-  :marked
-    *Design thought*: minimize initialization effort and consider caching state in a
-    companion service.
 :marked
-  Although there are pros and cons to each approach,
-  in general it is best to use `ngIf` to remove unwanted components rather than
-  hide them.
+  While invisible, the element remains in the DOM. 
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/element-display-in-dom.png' alt="hidden element still in DOM")
+:marked
+  The difference between hiding and removing doesn't matter for a simple paragraph. 
+  It does matter when the host element is attached to a resource intensive component.
+  Such a component's behavior continues even when hidden.
+  The component stays attached to its DOM element. It keeps listening to events.
+  Angular keeps checking for changes that could affect data bindings.
+  Whatever the component was doing, it keeps doing.
+
+  Although invisible, the component&mdash;and all of its descendant components&mdash;tie up resources.
+  The performance and memory burden can be substantial, responsiveness can degrade, and the user sees nothing.
+
+  On the positive side, showing the element again is quick.
+  The component's previous state is preserved and ready to display.
+  The component doesn't re-initialize&mdash;an operation that could be expensive.
+  So hiding and showing is sometimes the right thing to do.
+
+  But in the absence of a compelling reason to keep them around, 
+  your preference should be to remove DOM elements that the user can't see
+  and recover the unused resources with a structural directive like `NgIf` .
 
   **These same considerations apply to every structural directive, whether built-in or custom.**
-  We should ask ourselves &mdash; and the users of our directives &mdash; to think carefully
-  about the consequences of adding and removing elements and of creating and destroying components.
+  Before applying a structural directive, you might want to pause for a moment 
+  to consider the consequences of adding and removing elements and of creating and destroying components.
 
-  Let's see these dynamics at work. For fun, we'll stack the deck *against*
-  our recommendation and consider a component called `heavy-loader` that
-  ***pretends*** to load a ton of data when initialized.
+a#ngcontainer
+a#ng-container
+.l-main-section
+:marked
+  ## Group sibling elements with &lt;ng-container&gt;
 
-  We'll display two instances of the component.  We toggle the visibility of the first one with CSS.
-  We toggle the second into and out of the DOM with `ngIf`.
+  There's often a _root_ element that can and should host the structural directive.
+  The list element (`<li>`) is a typical host element of an `NgFor` repeater.
 
-+makeTabs(
-    `structural-directives/ts/app/structural-directives.component.html,
-    structural-directives/ts/app/heavy-loader.component.ts`,
-    'message-log,',
-    'template (excerpt), heavy-loader.component.ts')
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngfor-li')(format=".")
 
 :marked
-  We also log when a component is created or destroyed
-  using the built-in `ngOnInit` and `ngOnDestroy` [lifecycle hooks](lifecycle-hooks.html).
-  Here it is in action:
+  When there isn't a host element, you can usually wrap the content in a native HTML container element,
+  such as a `<div>`, and attach the directive to that wrapper.
 
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif')(format=".")
+
+:marked
+  Introducing another container element&mdash;typically a `<span>` or `<div>`&mdash;to 
+  group the elements under a single _root_ is usually harmless. 
+  _Usually_ ... but not _always_.
+
+  The grouping element may break the template appearance because CSS styles 
+  neither expect nor accommodate the new layout.
+  For example, suppose you have the following paragraph layout.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif-span')(format=".")
+:marked
+  You also have a CSS style rule that happens to apply to a `<span>` within a `<p>`aragraph.
++makeExample('structural-directives/ts/src/app/app.component.css', 'p-span')(format=".")
+:marked
+  The constructed paragraph renders strangely.
 figure.image-display
-  img(src='/resources/images/devguide/structural-directives/heavy-loader-toggle.gif' alt="heavy loader toggle")
-
+  img(src='/resources/images/devguide/structural-directives/bad-paragraph.png' alt="spanned paragraph with bad style")
 :marked
-  Both components are in the DOM at the start.
-  First we toggle the component's visibility repeatedly. The component never leaves the DOM.
-  When visible it's always the same instance and the log is quiet.
+  The `p span` style, intended for use elsewhere, was inadvertently applied here.
+  
+  Another problem: some HTML elements require all immediate children to be of a specific type.
+  For example, the `<select>` tag requires `<option>` children. 
+  You can't wrap the _options_ in a conditional `<div>` or a `<span>`.
 
-  Then we toggle the second component with `ngIf`.
-  We create a new instance every time and the log shows that we're paying
-  a heavy price to create and destroy it.
-
-  If we really expected to "wink" the component like this, toggling visibility would be the better choice.
-  In most UIs, when we "close" a component we're unlikely to see it again for a long time, if ever.
-  The `ngIf` would be preferred in that case.
-
-<a id="template"></a>
-.l-main-section
+  When you try this,
++makeExample('structural-directives/ts/src/app/app.component.html', 'select-span')(format=".")
 :marked
-  ## The *&lt;template>* tag
-
-  Structural directives, like `ngIf`, do their magic by using the
-  [HTML 5 template tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template).
-
-  Outside of an Angular app, the `<template>` tag's default CSS `display` property is `none`.
-  It's contents are ***invisible*** within
-  a hidden [document fragment](https://developer.mozilla.org/en/docs/Web/API/DocumentFragment).
-
-  Inside of an app, Angular ***removes*** the`<template>` tags and their children.
-  The contents are gone &mdash; but not forgotten as we'll see soon.
-
-  We can confirm these effects by wrapping the middle "hip" of the phrase "Hip! Hip! Hooray!" within a `<template>` tag.
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'template-tag')(format=".")
-:marked
-  The display is a 'Hip! Hooray!', short of perfect enthusiasm. The DOM effects are different when Angular is in control.
+  the drop down is empty.
 figure.image-display
-  img(src='/resources/images/devguide/structural-directives/template-in-out-of-a2.png' alt="template outside angular")
+  img(src='/resources/images/devguide/structural-directives/bad-select.png' alt="spanned options don't work")
+:marked
+  The browser won't display an `<option>` within a `<span>`.
+
+  ### &lt;ng-container&gt; to the rescue
+
+  The Angular `<ng-container>` is a grouping element that doesn't interfere with styles or layout
+  because Angular _doesn't put it in the DOM_. 
+
+  Here's the conditional paragraph again, this time using `<ng-container>`.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif-ngcontainer')(format=".")
+:marked
+  It renders properly.
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/good-paragraph.png' alt="ngcontainer paragraph with proper style")
+:marked
+  Now conditionally exclude a _select_ `<option>` with `<ng-container>`.
++makeExample('structural-directives/ts/src/app/app.component.html', 'select-ngcontainer')(format=".")
+:marked
+  The drop down works properly.
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/select-ngcontainer-anim.gif' alt="ngcontainer options work properly")
 
 :marked
-  Evidently Angular replaces the `<template>` tag and its contents with empty `<script>` tags.
-  That's just its default behavior.
-  It can do something different as we saw when applying a variety of `ngSwitch` directives to `<template>` tags:
+  The `<ng-container>` is a syntax element recognized by the Angular parser.
+  It's not a directive, component, class, or interface. 
+  It's more like the curly braces in a JavaScript `if`-block:
 
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'ngSwitch')(format=".")
+code-example(language="javascript").
+  if (someCondition) {
+    statement1;
+    statement2;
+    statement3;
+  } 
 :marked
-  When one of those `ngSwitch` conditions is true, Angular inserts the template's content into the DOM.
+  Without those braces JavaScript could only execute the first statement
+  when you intend to conditionally execute all of them as a single block.
+  The `<ng-container>` satisfies a similar need in Angular templates.
 
-  What does this have to do with `ngIf` and `ngFor`?  We didn't use a `<template>` tag with those directives.
-
-<a id="asterisk"></a>
+a#asterisk
 .l-main-section
 :marked
-  ## The asterisk (\*) effect
-  Here are those directives again. See the difference?
+  ## The asterisk (\*) prefix
+  
+  Surely you noticed the asterisk (\*) prefix to the directive name
+  and wondered why it is necessary and what it does.
+  
+  Here is `*ngIf` displaying the hero's name if `hero` exists.
 
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'asterisk')(format=".")
++makeExample('structural-directives/ts/src/app/app.component.html', 'asterisk')(format=".")
 :marked
-  We're prefixing these directive names with an asterisk (\*).
+  The asterisk is "syntactic sugar" for something a bit more complicated.
+  Internally, Angular "de-sugars" it in two stages.
+  First, it translates the `*ngIf="..."` into a template _attribute_, `template="ngIf ..."`,&nbsp; like this.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif-template-attr')(format=".")
+:marked
+  Then it translates the template _attribute_ into a template _element_, wrapped around the host element, like this.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngif-template')(format=".")
 
-  The asterisk is "syntactic sugar". It simplifies `ngIf` and `ngFor` for both the writer and the reader.
-  Under the hood, Angular replaces the asterisk version with a more verbose `<template>` form.
-
-  The next two `ngIf` examples are effectively the same and we may write in either style:
-
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'ngIf-template')(format=".")
+// We should discourage writing <template> syntax in favor of <ng-container>
+  block remember-the-brackets
+    .alert.is-critical
+      :marked
+        Write `[ngIf]="hero"`, not `ngIf="hero"`!
+        The latter incorrectly assigns the *string* `"hero"` to `ngIf`.
+        A non-empty string is _truthy_, so `ngIf` is always `true` and Angular 
+        always tries to show the content … even when there is no `hero`.
 
 :marked
-  Most of us would rather write in style (A).
+  * The `*ngIf` directive moved to the `<template>` tag where it became a property binding,`[ngIf]`.
+  * The rest of the `<div>`, including its class attribute, moved inside the `<template>` tag.
+  
+  None of these forms are actually rendered. 
+  Only the finished product ends up in the DOM.
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/hero-div-in-dom.png' alt="hero div in DOM")
 
-  It's worth knowing that Angular expands style (A) into style (B).
-  It moves the paragraph and its contents inside a `<template>` tag.
-  It moves the directive up to the `<template>` tag where it becomes a property binding,
-  surrounded in square brackets. The boolean value of the host component's `condition` property
-  determines whether the templated content is displayed or not.
-
-  Angular transforms `*ngFor` in a similar manner:
-
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'ngFor-template')(format=".")
 :marked
-  The basic pattern is the same:&nbsp; create a `<template>`, relocate the content,
-  and move the directive onto the `<template>`.
+  Angular consumed the `<template>` content during its actual rendering and 
+  replaced the `<template>` with a diagnostic comment.
 
-  There are extra nuances stemming from
-  Angular's [ngFor micro-syntax](template-syntax.html#ngForMicrosyntax) which expands
-  into an additional `ngForOf` property binding (the iterable) and
-  the `hero` template input variable (the current item in each iteration).
-
-<a id="unless"></a>
+  The [`NgFor`](#ngfor) and [`NgSwitch...`](#ngswitch) directives follow the same pattern.
+  
+a#ngfor
 .l-main-section
 :marked
-  ## Make a structural directive
-  Let's write our own structural directive, an `Unless` directive, the not-so-evil twin of `ngIf`.
+  ## Inside _*ngFor_
 
-  Unlike `ngIf` which displays the template content when `true`,
-  our directive displays the content when the condition is ***false***.
+  Angular transforms the `*ngFor` in similar fashion from asterisk (\*) syntax through
+  template _attribute_ to template _element_. 
+
+  Here's a full-featured application of `NgFor`, written all three ways:
++makeExample('structural-directives/ts/src/app/app.component.html', 'inside-ngfor')(format=".")
+
+:marked
+  This is manifestly more complicated than `ngIf` and rightly so.
+  The `NgFor` directive has more features, both required and optional, than the `NgIf` shown in this guide.
+  At minimum `NgFor` needs a looping variable (`let hero`) and a list (`heroes`).
+
+  You enable these features in the string assigned to `ngFor`, which you write in Angular's [microsyntax](microsyntax). 
+  
+.alert.is-helpful
+  :marked
+    Everything _outside_ the `ngFor` string stays with the host element 
+    (the `<div>`) as it moves inside the `<template>`. 
+    In this example, the `[ngClass]="odd"` stays on the `<div>`.
+
+a#microsyntax
+:marked
+  ### microsyntax
+  The Angular microsyntax lets you configure a directive in a compact, friendly string.
+  The microsyntax parser translates that string into attributes on the `<template>`:
+
+  * The `let` keyword declares a [_template input variable_](#template-input-variable) 
+  that you reference within the template. The input variables in this example are `hero`, `i`, and `odd`.
+  The parser translates `let hero`, `let i`, and `let odd` into variables named, 
+  `let-hero`, `let-i`, and `let-odd`.
+
+  * The microsyntax parser takes `of` and `trackby`, title-cases them (`of` -> `Of`, `trackBy` -> `TrackBy`), 
+  and prefixes them with the directive's attribute name (`ngFor`), yielding the names `ngForOf` and `ngForTrackBy`.
+  Those are the names of two `NgFor` _input properties_ .
+  That's how the directive learns that the list is `heroes` and the track-by function is `trackById`.
+
+  * As the `NgFor` directive loops through the list, it sets and resets properties of its own _context_ object.
+  These properties include `index` and `odd` and a special property named `$implicit`.
+
+  * The `let-i` and `let-odd` variables were defined as `let i=index` and `let odd=odd`.
+  Angular sets them to the current value of the context's `index` and `odd` properties.
+
+  * The context property for `let-hero` wasn't specified. 
+  It's intended source is implicit. 
+  Angular sets `let-hero` to the value of the context's `$implicit` property
+  which `NgFor` has initialized with the hero for the current iteration.
+
+  * The [API guide](../api/common/index/NgFor-directive.html "API: NgFor") 
+  describes additional `NgFor` directive properties and context properties.
+
+  These microsyntax mechanisms are available to you when you write your own structural directives.
+  Studying the source code for `NgIf` and `NgFor` is a great way to learn more.
+
+
+a#template-input-variable
+a#template-input-variables
+:marked
+  ### Template input variable
+
+  A _template input variable_ is a variable whose value you can reference _within_ a single instance of the template.
+  There are several such variables in this example: `hero`, `li`, and `odd`.
+  All are preceded by the keyword `let`.
+
+  A _template input variable_ is **_not_** the same as a 
+  [template _reference_ variable](template-syntax.html#ref-vars),
+  neither _semantically_ nor _syntactically_.
+
+  You declare a template _input_ variable declaration with the `let` keyword (`let hero`). 
+  The variable's scope is limited to a _single instance_ of the repeated template.
+  You can use the same variable name again in the definition of other structural directives.
+
+  You declare a template _reference_ variable declaration by prefixing the variable name with `#` (`#var`).
+  A _reference_ variable refers to its attached element, component or directive.
+  It can be accessed _anywhere_ in the _entire template_.
+
+  Template _input_ and _reference_ variable names have their own namespaces. The `hero` in `let hero` is never the same
+  variable as the `hero` declared as `#hero`.
+
+a#one-per-element
+:marked
+  ### One structural directive per host element
+
+  Someday you'll want to to repeat a block of HTML but only when a particular condition is true.
+  You'll _try_ to put both an `*ngFor` and an `*ngIf` on the same host element.
+  Angular won't let you. You may apply only one _structural_ directive to an element. 
+  
+  The reason is simplicity. Structural directives can do complex things with the host element and its descendents.
+  When two directives lay claim to the same host element, which one takes precedence? 
+  Which should go first, the `NgIf` or the `NgFor`? Can the `NgIf` cancel the effect of the `NgFor`?
+  If so (and it seems like it should be so), how should Angular generalize the ability to cancel for other structural directives?
+  
+  There are no easy answers to these questions. Prohibiting multiple structural directives makes them moot.
+  There's an easy solution for this use case: put the `*ngIf` on a container element that wraps the `*ngFor` element.
+  One or both elements can be an [`ng-container`](#ngcontainer) so you don't have to introduce extra levels of HTML.
+
+a#ngswitch
+.l-main-section
+:marked
+  ## Inside the _NgSwitch_ directives
+
+  The Angular _NgSwitch_ is actually a set of cooperating directives: `NgSwitch`, `NgSwitchCase`, and `NgSwitchDefault`.
+
+  Here's an example.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngswitch')(format=".")
+
+:marked
+  The switch value assigned to `NgSwitch` (`hero.emotion`) determines which
+  (if any) of the switch cases are displayed.
+  
+  `NgSwitch` itself is not a structural directive. 
+  It's an _attribute_ directive that controls the behavior of the other two switch directives.
+  That's why you write `[ngSwitch]`, never `*ngSwitch`.
+
+  `NgSwitchCase` and `NgSwitchDefault` _are_ structural directives. 
+  You attach them to elements using the asterisk (\*) prefix notation. 
+  An `NgSwitchCase` displays its host element when its value matches the switch value.
+  The `NgSwitchDefault` displays its host element when no sibling `NgSwitchCase` matches the switch value.
+
+.l-sub-section
+  :marked
+    The element to which you apply a directive is its _host_ element. 
+    The `<happy-hero>` is the host element for the happy `*ngSwitchCase`.
+    The `<unknown-hero>` is the host element for the `*ngSwitchDefault`.
+
+:marked
+  As with other structural directives, the `NgSwitchCase` and `NgSwitchDefault` 
+  can be "de-sugared" into the template _attribute_ form.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngswitch-template-attr')(format=".")
+:marked
+  That, in turn, can be "de-sugared" into the `<template>` element form.
++makeExample('structural-directives/ts/src/app/app.component.html', 'ngswitch-template')(format=".")
+
+a#prefer-asterisk
+:marked
+  ## Prefer the asterisk (\*) syntax.
+
+  The asterisk (\*) syntax is more clear than the other "de-sugared" forms.
+  Use [&lt;ng-container&gt;](#ng-container) when there's no single element
+  to host the directive.
+  
+  While there's rarely a good reason to apply a structural directive in template _attribute_ or _element_ form,
+  it's still important to know that Angular creates a `<template>` and to understand how it works.
+  You'll refer to the `<template>` when you [write your own structural directive](#unless).
+
+a#template
+.l-main-section
+:marked
+  ## The *&lt;template&gt;*
+
+  The <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template" target="_blank" title="MDN: Template Tag">HTML 5 &lt;template&gt;</a>
+  is a formula for rendering HTML.
+  It is never displayed directly. 
+  In fact, before rendering the view, Angular _replaces_ the `<template>` and its contents with a comment.
+  
+  If there is no structural directive, if you merely wrap some elements in a `<template>` and do nothing with it, 
+  those elements disappear.
+  That's the fate of the middle "hip" in the phrase "Hip! Hip! Hooray!".
++makeExample('structural-directives/ts/src/app/app.component.html', 'template-tag')(format=".")
+:marked
+  Angular erases the middle "hip", leaving the cheer a bit less enthusiastic.
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/template-rendering.png' width="350" alt="template tag rendering")
+
+:marked
+  A structural directive puts a `<template>` to work
+  as you'll see when you write your own structural directive.
+
+a#unless
+.l-main-section
+:marked
+  ## Write a structural directive
+  In this section, you write a `UnlessDirective` structural directive
+  that does the opposite of `NgIf`.
+  `NgIf` displays the template content when the condition is `true`.
+  `UnlessDirective` displays the content when the condition is ***false***.
+
++makeExample('structural-directives/ts/src/app/app.component.html', 'myUnless-1')(format=".")
+:marked
 
 block unless-intro
   :marked
     Creating a directive is similar to creating a component.
-    * import the `Directive` decorator.
 
-    * add a CSS **attribute selector** (in brackets) that identifies our directive.
+    * Import the `Directive` decorator (instead of the `Component` decorator).
 
-    * specify the name of the public `input` property for binding
-    (typically the name of the directive itself).
+    * Import the `Input`, `TemplateRef`, and `ViewContainerRef` symbols; you'll them need for _any_ structural directive.
 
-    * apply the decorator to our implementation class.
+    * Apply the decorator to to the directive class.
 
-    Here is how we begin:
+    * Set the CSS *attribute selector* that identifies the directive when applied to an element in a template.
 
-+makeExample('structural-directives/ts/app/unless.directive.ts', 'unless-declaration', 'unless.directive.ts (excerpt)')(format=".")
+    Here's how you might begin:
+
++makeExample('structural-directives/ts/src/app/unless.directive.ts', 'skeleton', 'unless.directive.ts (skeleton)')(format=".")
+
+:marked
+  The directive's _selector_ is typically the directive's **attribute name** in square brackets.`[myUnless]`.
+  The brackets define a CSS
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors" target="_blank" title="MDN: Attribute selectors">attribute selector</a>.
+  
+  The directive _attribute name_ should be spelled in _lowerCamelCase_ and begin with a prefix.
+  Don't use `ng`. That prefix belongs to Angular.
+  Pick something short that fits you or your company.
+  In this example, the prefix is `my`.
+
+:marked
+  The directive _class_ name ends in `Directive` per the [style guide](style-guide.html#02-03 "Angular Style Guide").
+  Angular's own directives do not.
+
+  ### _TemplateRef_ and _ViewContainerRef_
+
+  A simple structural directive like this one creates an 
+  [_embedded view_](../api/core/index/EmbeddedViewRef-class.html "API: EmbeddedViewRef")
+  from the Angular-generated `<template>` and inserts that view in a 
+  [_view container_](../api/core/index/ViewContainerRef-class.html "API: ViewContainerRef")
+  adjacent to the directive's original `<p>` host element.
+
+  You'll acquire the `<template>` contents with a
+  [`TemplateRef`](../api/core/index/TemplateRef-class.html "API: TemplateRef")
+  and access the _view container_ through a
+  [`ViewContainerRef`](../api/core/index/ViewContainerRef-class.html "API: ViewContainerRef").
+
+  You inject both in the directive constructor as private variables of the class.
+
++makeExample('structural-directives/ts/src/app/unless.directive.ts', 'ctor')(format=".")
+
+:marked
+  ### The _myUnless_ property
+
+  The directive consumer expects to bind a true/false condition to `[myUnless]`.
+  That means the directive needs a `myUnless` property, decorated with `@Input` 
 .l-sub-section
   :marked
-    ### Selector brackets [&nbsp;]
-    The CSS syntax for selecting an attribute is a name in square brackets.
-    We surround our directive name in square brackets. See *Directive configuration* on the
-    [cheatsheet](cheatsheet.html).
+    Read about `@Input` in the [_Template Syntax_](template-syntax.html#inputs-outputs) guide.
 
-    ### Selector name prefixes
-
-    We recommend picking a selector name with a prefix to ensure
-    that it cannot conflict with any standard HTML attribute, now or in the future.
-
-    We do **not** prefix our `unless` directive name with **`ng`**.
-    That prefix belongs to Angular and
-    we don't want to confuse our directives with their directives.
-
-    Our prefix is `my`.
++makeExample('structural-directives/ts/src/app/unless.directive.ts', 'set')(format=".")
 :marked
-  We'll need access to the template *and* something that can render its contents.
-  We access the template with a `TemplateRef`.  The renderer is a `ViewContainerRef`.
-  We inject both into our constructor as private variables.
+  Angular sets the  `myUnless` property whenever the value of the condition changes.
+  Because the `myUnless` property does work, it needs a setter.
 
-+makeExample('structural-directives/ts/app/unless.directive.ts', 'unless-constructor')(format=".")
+  * If the condition is falsy and the view hasn't been created previously,
+  tell the _view container_ to create the _embedded view_ from the template.
+
+  * If the condition is truthy and the view is currently displayed, 
+  clear the container which also destroys the view.
+
+  Nobody reads the `myUnless` property so it doesn't need a getter.
+  
+  The completed directive code looks like this:
+
++makeExample('structural-directives/ts/src/app/unless.directive.ts', 'no-docs', 'unless.directive.ts')
 
 :marked
-  The consumer of our directive will bind a boolean value to our directive's `myUnless` input property.
-  The directive adds or removes the template based on that value.
+  Add this directive to the `!{_declsVsDirectives}` !{_array} of the !{_AppModuleVsAppComp}.
 
-  Let's add the `myUnless` property now as a setter-only property.
-
-+makeExample('structural-directives/ts/app/unless.directive.ts', 'unless-set')(format=".")
-.l-sub-section
-  :marked
-    The `@Input()` annotation marks this property as an input for the directive.
+  Then create some HTML to try it.
++makeExample('structural-directives/ts/src/app/app.component.html', 'myUnless')(format=".")
 :marked
-  Nothing fancy here: if the condition is false,
-  we render the template, otherwise we clear the element content.
-
-  The end result should look like this:
-
-+makeExample('structural-directives/ts/app/unless.directive.ts', null, 'unless.directive.ts')
-
-:marked
-  Now we add it to the `!{_declsVsDirectives}` !{_array} of the !{_AppModuleVsAppComp} and try it.
-  First we add some test HTML to the template:
-
-+makeExample('structural-directives/ts/app/structural-directives.component.html', 'myUnless')(format=".")
-:marked
-  We run it and it behaves as expected, doing the opposite of `ngIf`.
-  When `condition` is `true`, the top paragraph is removed (replaced by `<script>` tags) and the bottom paragraph appears.
+  When the `condition` is falsy, the top (A) paragraph appears and the bottom (B) paragraph disappears.
+  When the `condition` is truthy, the top (A) paragraph is removed and the bottom (B) paragraph appears.
 figure.image-display
-  img(src='/resources/images/devguide/structural-directives/myUnless-is-true.png' alt="myUnless is true" )
+  img(src='/resources/images/devguide/structural-directives/unless-anim.gif' alt="UnlessDirective in action" )
 
-:marked
-  Our `myUnless` directive is dead simple. Surely we left something out.
-  Surely `ngIf` is more complex?
-
-  [Look at the source code](https://github.com/angular/angular/blob/master/modules/%40angular/common/src/directives/ng_if.ts).
-  It's well documented and we shouldn't be shy
-  about consulting the source when we want to know how something works.
-
-  `ngIf` isn't much different! There are a few
-  additional checks to improve performance (don't clear or recreate the
-  view unless necessary) but otherwise it's much the same.
-
+a#summary
 .l-main-section
 :marked
-  ## Wrap up
-  Here is the pertinent source for this chapter.
+  ## Summary
+  You can both try and download the source code for this guide in the <live-example></live-example>.  
+  
+  Here is the source from the `app/` folder.
 
 +makeTabs(`
-  structural-directives/ts/app/unless.directive.ts,
-  structural-directives/ts/app/heavy-loader.component.ts,
-  structural-directives/ts/app/structural-directives.component.ts,
-  structural-directives/ts/app/structural-directives.component.html
+  structural-directives/ts/src/app/app.component.ts,
+  structural-directives/ts/src/app/app.component.html,
+  structural-directives/ts/src/app/app.component.css,
+  structural-directives/ts/src/app/app.module.ts,
+  structural-directives/ts/src/app/hero.ts,
+  structural-directives/ts/src/app/hero-switch.components.ts,
+  structural-directives/ts/src/app/unless.directive.ts
   `,
   null,
-  `unless.directive.ts,
-   heavy-loader.component.ts,
-   structural-directives.component.ts,
-   structural-directives.component.html
-   `)
+  `app.component.ts,
+   app.component.html,
+   app.component.css,
+   app.module.ts, 
+   hero.ts,
+   hero-switch.components.ts,
+   unless.directive.ts
+  `)
+
 :marked
-  We learned that we can manipulate our HTML layout with
-  structural directives like `ngFor` and `ngIf` and we
-  wrote our own structural directive, `myUnless`, to do something similar.
-
-  Angular offers more sophisticated techniques for managing layout
-  such as *structural components* that can take external content
-  and incorporate that content within their own templates.
-  Tab and tab pane controls are good examples.
-
-  We'll learn about structural components in a future chapter.
+  You learned
+  * that structural directives manipulate HTML layout.
+  * to use [`<ng-container>`](#ngcontainer) as a grouping element when there is no suitable host element.
+  * that the angular "de-sugars" [asterisk (\*) syntax](#asterisk) into a `<template>`.
+  * how that works for the `NgIf`, `NgFor` and `NgSwitch` built-in directives.
+  * about the [_microsyntax_](#microsyntax) that expands into a [`<template>`](#template).
+  * to write a [custom structural directive](#unless), `UnlessDirective`.

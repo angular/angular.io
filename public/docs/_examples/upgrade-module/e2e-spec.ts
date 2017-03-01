@@ -98,7 +98,7 @@ describe('Upgrade Tests', function () {
       expect(element.all(by.css('h2')).first().getText()).toEqual('Windstorm details!');
     });
 
-    xit('has outputs', function () {
+    it('has outputs', function () {
       element.all(by.buttonText('Delete')).first().click();
       expect(element.all(by.css('h2')).first().getText()).toEqual('Ex-Windstorm details!');
     });
@@ -157,6 +157,24 @@ describe('Upgrade Tests', function () {
 
     it('works', function () {
       expect(element(by.css('h2')).getText()).toBe('1: Windstorm');
+    });
+
+  });
+
+  describe('Dividing routes', function() {
+
+    beforeAll(function () {
+      browser.get('/index-divide-routes.html');
+    });
+
+    it('allows ng1 routes', function () {
+      browser.get('/index-divide-routes.html#/villain');
+      expect(element(by.css('h2')).getText()).toBe('Mr. Nice - No More Mr. Nice Guy');
+    });
+
+    it('allows ng2 routes', function () {
+      browser.get('/index-divide-routes.html#/hero');
+      expect(element(by.css('h2')).getText()).toBe('Windstorm - Specific powers of controlling winds');
     });
 
   });
