@@ -4,7 +4,10 @@
 import { Component, Input, OnChanges }             from '@angular/core';
 import { FormBuilder, FormGroup, Validators }      from '@angular/forms';
 
+// #docregion import-address
 import { Address, Hero, states } from './data-model';
+// #enddocregion import-address
+
 // #enddocregion imports
 
 @Component({
