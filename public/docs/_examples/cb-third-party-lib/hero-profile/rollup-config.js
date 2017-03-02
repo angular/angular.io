@@ -1,10 +1,15 @@
 // #docregion
+import angularInline from 'rollup-plugin-angular-inline';
+
 export default {
-  entry: './public/docs/_examples/cb-third-party-lib/hero-profile/index.js',
-  dest: './public/docs/_examples/cb-third-party-lib/hero-profile/bundles/hero-profile.umd.js',
+  entry: './dist/index.js',
+  dest: './bundles/hero-profile.umd.js',
   format: 'umd',
-  moduleName: 'ng.heroProfile',
+  moduleName: 'heroProfile',
   globals: {
     '@angular/core': 'ng.core'
-  }
+  },
+  plugins: [
+    angularInline({ include: './dist/**/*.component.js' })
+  ]
 }

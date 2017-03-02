@@ -51,8 +51,6 @@ var regularPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/regularPl
 var embeddedPlunker = require(path.resolve(TOOLS_PATH, 'plunker-builder/embeddedPlunker'));
 var fsUtils = require(path.resolve(TOOLS_PATH, 'fs-utils/fsUtils'));
 
-var publish = require(path.resolve(EXAMPLES_PATH + '/cb-third-party-lib/hero-profile/publish'));
-
 const WWW = argv.page ? 'www-pages' : 'www'
 
 const isSilent = !!argv.silent;
@@ -448,7 +446,7 @@ gulp.task('add-example-boilerplate', function() {
     fsUtils.addSymlink(realPath, linkPath);
   });
 
-  publish().then(() => copyExampleBoilerplate());
+  return copyExampleBoilerplate();
 });
 
 
