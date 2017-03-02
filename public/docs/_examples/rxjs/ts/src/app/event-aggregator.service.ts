@@ -1,6 +1,7 @@
 // #docplaster
 // #docregion
 // #docregion imports
+import 'rxjs/add/operator/scan';
 import { Injectable }       from '@angular/core';
 import { BehaviorSubject }  from 'rxjs/BehaviorSubject';
 // #enddocregion imports
@@ -14,25 +15,11 @@ export interface AppEvent {
 
 @Injectable()
 export class EventAggregatorService {
-  _events: AppEvent[] = [];
-  events$: BehaviorSubject<AppEvent[]>;
-
-  constructor() {
-    this._events = [];
-    this.events$ = new BehaviorSubject(this._events);
-  }
+  _events$: BehaviorSubject<AppEvent[]> = new BehaviorSubject<AppEvent[]>([]);
+  events$ = this._events$
+   .scan((events, event) => events.concat(event), []);
 
   add(event: AppEvent) {
-    this._events.push(event);
-    this.notify();
-  }
-
-  clear() {
-    this._events = [];
-    this.notify();
-  }
-
-  notify() {
-    this.events$.next(this._events);
+    this._events$.next([event]);
   }
 }

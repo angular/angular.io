@@ -57,10 +57,10 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
     )
     .debounceTime(300)
     .takeUntil(this.onDestroy$)
-    .subscribe(() => this.checkErrors());
+    .subscribe(() => this.checkForm());
   }
 
-  checkErrors() {
+  checkForm() {
     if (!this.form.valid) {
       this.showErrors = true;
     }

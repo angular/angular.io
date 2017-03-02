@@ -43,12 +43,13 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
       name: ['', [Validators.required]]
     });
   }
-// #docregion observable-event
+// #docregion value-changes
   ngAfterViewInit() {
     const controlBlur$: Observable<Event> = Observable.fromEvent(this.heroName.nativeElement, 'blur');
 
     Observable.merge(
-      controlBlur$
+      controlBlur$,
+      this.form.get('name').valueChanges
     )
     .takeUntil(this.onDestroy$)
     .subscribe(() => this.checkForm());
@@ -59,7 +60,7 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrors = true;
     }
   }
-// #enddocregion observable-event
+// #enddocregion value-changes
 
   ngOnDestroy() {
     this.onDestroy$.complete();
