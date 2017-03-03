@@ -13,9 +13,9 @@ import { Villain, VillainsService } from './villains.service';
 })
 // #enddocregion metadata
 export class VillainsListComponent {
-  villaines: Observable<Villain[]>;
+  villains: Observable<Villain[]>;
 
-  constructor(private villainesService: VillainsService) {
-    this.villaines = villainesService.getVillains();
+  constructor(private villainsService: VillainsService) {
+    this.villains = villainsService.getVillains();
   }
 }
