@@ -10,7 +10,7 @@ export class SelectivePreloadingStrategy implements PreloadingStrategy {
 
   preload(route: Route, load: () => Observable<any>): Observable<any> {
     if (route.data && route.data['preload']) {
-      // add the route path to our preloaded module array
+      // add the route path to the preloaded module array
       this.preloadedModules.push(route.path);
 
       // log the route path to the console
