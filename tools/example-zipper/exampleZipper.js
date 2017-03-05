@@ -1,21 +1,26 @@
 'use strict';
 
 // Canonical path provides a consistent path (i.e. always forward slashes) across different OSes
-var path = require('canonical-path');
-var jsonfile = require('jsonfile');
-var assert = require('assert-plus');
+const path = require('canonical-path');
+const jsonfile = require('jsonfile');
+const assert = require('assert-plus');
 // adm-zip does not work properly on Windows
-// var Zip = require('adm-zip');
-var archiver = require('archiver');
+// const Zip = require('adm-zip');
+const archiver = require('archiver');
 
-var fs = require('fs');
-var mkdirp = require('mkdirp');
-var globby = require('globby');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const globby = require('globby');
 
-var regionExtractor = require('../doc-shredder/regionExtractor');
+const PackageJsonCustomizer = require('./customizer/package-json/packageJsonCustomizer');
+const regionExtractor = require('../doc-shredder/regionExtractor');
 
 class ExampleZipper {
   constructor(sourceDirName, outputDirName) {
+    this.examplesSystemjsConfig = 'public/docs/_examples/_boilerplate/src/systemjs.config.js';
+    this.exampleTsconfig = 'public/docs/_examples/_boilerplate/src/tsconfig.json';
+    this.customizer = new PackageJsonCustomizer();
+
     let gpathPlnkr = path.join(sourceDirName, '**/*plnkr.json');
     let gpathZipper = path.join(sourceDirName, '**/zipper.json');
     let configFileNames = globby.sync([gpathPlnkr, gpathZipper], { ignore: ['**/node_modules/**'] });
@@ -55,14 +60,18 @@ class ExampleZipper {
 
   _zipExample(configFileName, sourceDirName, outputDirName) {
     let json = JSON.parse(fs.readFileSync(configFileName, 'utf-8'));
+    const exampleType = json.type || 'systemjs';
     const basePath = json.basePath || '';
     const jsonFileName = configFileName.replace(/^.*[\\\/]/, '');
     const relativeDirName = path.dirname(path.dirname(path.relative(sourceDirName, configFileName)));
     const exampleDirName = path.dirname(configFileName);
+<<<<<<< 6df8bea575824951ad80a82cb2e1310d4535f085
     const examplesPackageJson = 'public/docs/_examples/package.json';
     const examplesSystemjsConfig = 'public/docs/_examples/_boilerplate/src/systemjs.config.js';
     const examplesSystemjsLoaderConfig = 'public/docs/_examples/_boilerplate/src/systemjs-angular-loader.js';
     const exampleTsconfig = 'public/docs/_examples/_boilerplate/src/tsconfig.json';
+=======
+>>>>>>> chore: better package.json for zipper
     let exampleZipName = jsonFileName.replace(/(plnkr|zipper).json/, relativeDirName);
     const outputFileName = path.join(outputDirName, relativeDirName, exampleZipName + '.zip');
     let defaultIncludes = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
@@ -133,14 +142,14 @@ class ExampleZipper {
     });
 
     // we need the package.json from _examples root, not the _boilerplate one
-    zip.append(fs.readFileSync(examplesPackageJson, 'utf8'), { name: 'package.json' });
+    zip.append(this.customizer.generate(exampleType), { name: 'package.json' });
     // also a systemjs config
     if (!json.removeSystemJsConfig) {
       zip.append(fs.readFileSync(examplesSystemjsConfig, 'utf8'), { name: 'src/systemjs.config.js' });
       zip.append(fs.readFileSync(examplesSystemjsLoaderConfig, 'utf8'), { name: 'src/systemjs-angular-loader.js' });
     }
     // a modified tsconfig
-    let tsconfig = fs.readFileSync(exampleTsconfig, 'utf8');
+    let tsconfig = fs.readFileSync(this.exampleTsconfig, 'utf8');
     zip.append(this._changeTypeRoots(tsconfig), {name: 'src/tsconfig.json'});
 
     zip.finalize();
