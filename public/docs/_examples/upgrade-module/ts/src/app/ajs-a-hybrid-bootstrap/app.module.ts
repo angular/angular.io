@@ -11,10 +11,15 @@ import { UpgradeModule } from '@angular/upgrade/static';
   ]
 })
 export class AppModule {
-  ngDoBootstrap() {}
+  constructor(private upgrade: UpgradeModule) {}
+  ngDoBootstrap() {
+    this.upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
+  }
 }
 // #enddocregion ngmodule
+// #docregion ng1module
 angular.module('heroApp', [])
+// #enddocregion
   .controller('MainCtrl', function() {
     this.message = 'Hello world';
   });
@@ -22,8 +27,5 @@ angular.module('heroApp', [])
 // #docregion bootstrap
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
-  const upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
-  upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
-});
+platformBrowserDynamic().bootstrapModule(AppModule);
 // #enddocregion bootstrap

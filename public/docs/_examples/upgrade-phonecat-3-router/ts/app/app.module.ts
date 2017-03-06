@@ -38,5 +38,7 @@ import { routeParamsProvider } from './ajs-upgraded-providers';
   // #docregion bootstrap
   bootstrap: [ AppComponent ]
 })
-export class AppModule { }
+export class AppModule {
+  constructor(private upgrade: UpgradeModule) {}
+}
 // #enddocregion bootstrap
