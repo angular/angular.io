@@ -2,6 +2,7 @@
 // #docregion
 import { Component, OnInit } from '@angular/core';
 import { EventAggregatorService } from './event-aggregator.service';
+import { ObservablePrinciples }   from './observable-principles';
 
 @Component({
   selector: 'my-app',
@@ -19,12 +20,17 @@ import { EventAggregatorService } from './event-aggregator.service';
   `
 })
 export class AppComponent implements OnInit {
-  constructor(private eventService: EventAggregatorService) {}
+  constructor(
+    private eventService: EventAggregatorService,
+    private principles: ObservablePrinciples) {}
 
   ngOnInit() {
     this.eventService.add({
       type: 'init',
       message: 'Application Initialized'
     });
+
+    this.principles.callFunctionalExamples();
+    this.principles.callPromiseExamples();
   }
 }

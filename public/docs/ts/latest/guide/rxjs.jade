@@ -2,19 +2,29 @@ block includes
   include ../_util-fns
 
 :marked
-  **Observables** provided by the Reactive Extensions for Javascript (RxJS) library provide applications with an extensive API
-  for handling asynchronous and event-based values produced over time.
+  **Observables** are a programming technique for handling asynchronous and event-based values produced over time.
+  The <a href="https://github.com/benlesh/RxJS" target="_blank" title="Reactive Extensions for Javascript (RxJS) library">
+  Reactive Extensions for Javascript (RxJS) library</a> is a popular, third-party, open source implementation of _Observables_.
 
-  An application is made up of many different streams of information. Whether it be user input into
-  a form, navigating from one route another, making an HTTP request to fetch some data, updating the application view with
-  new data as its received, or many other examples, each of these events happen over time. Observables provide a interface to
-  handle the many different sources of events and help to transform these events as they flow throughout an application.
+  Angular makes extensive use of _observables_ internally and numerous Angular APIs return an `Observable` result.
+  Many Angular developers create their own _observables_ to handle application events
+  and facilitate communication among decoupled parts of the application.
 
-  This guide will serve as a reference for common uses cases for Observables in an Angular application
-  and how Observables are used and provided by the Angular framework.
+  This guide touches briefly on what _observables_ are and how _RxJS_ works before concentrating on common uses cases in Angular applications.
 
+.alert.is-critical
+  :marked
+    Somewhere in here we must distinguish RxJS v.4 from RxJS v.5.
+    It's really confusing but if we don't, they'll never understand why some of the stuff in v.4 is not in v.5
+    or behaves differently in v.5.
+
+    Refer to <a href="https://github.com/benlesh/RxJS/blob/master/MIGRATION.md" target="_blank">
+    Migrating from RxJS 4 to 5</a>.
+
+:marked
   ## Table of Contents
-  * [The Observable](#definition "")
+  * [_Observables_](#definition "")
+  * [Learning _Observables_](#learning-observables "")
   * [Observables and Promises](#observables-vs-promises "")
   * [Using Operators](#operators "")
   * [Managing Subscriptions](#managing-subscriptions "")
@@ -22,58 +32,239 @@ block includes
   * [Error Handling](#error-handling "")
   * [Framework APIs](#framework-apis "")
   * [Stream Integration](#stream-integration "")
-  * [Further Reading](#further-reading "")
 
-h3#definition The Observable: a function at its core
+a#definition 
+:marked
+  ## _Observables_
+  Applications process streams of events, arriving over the course of a user session. 
+  These stream take many forms. 
+  They include user keystrokes and mouse actions, 
+  navigating from one page to another, 
+  responses from HTTP requests, 
+  and messages exchanged between parts of the application.
+  
+  The observable _pattern_ is a functional approach to processing event streams.
+  It is similar to the functional approach to arrays. 
+  Instead of writing `for...` statements you chain array operators like this.
+
++makeExcerpt('src/app/observable-principles.ts', 'functional-array')
+:marked
+  The `Observable` is a functional approach to _streams of events in time_ rather than _arrays of items in space_.
+
++makeExcerpt('src/app/observable-principles.ts', 'functional-events')
+:marked
+  The `Observable` _type_ is an _RxJS_ implementation of _observables in JavaScript_.
+  It conforms to a <a href="https://github.com/tc39/proposal-observable" target="_blank" title="TC39 Observable proposal">proposed <i>observable</i> extension to JavaScript</a> and adds many nifty features
+  including static helper methods like `interval` and a large number of operators such as `filter` and `map`.
 
 :marked
-  An Observable, simply put, is a specific type of function with a specific purpose. It’s a function that accepts an `Observer` to produce values and
-  returns a function for cancellation. It represents an action that can be performed. This action may be performed right now, or at some point
-  in the future. An action can be anything, from simply "return a constant", "make an HTTP request" or "navigate to another page".
+  ### _Observable_ is just a function
 
-  Angular makes extensive use of Observables internally and externally through its APIs to provide you
-  with built-in streams to use in your Angular application. These APIs also manage their provided Observables
-  efficiently. This means you don't need to unsubscribe from these provided Observables as their subscriptions
-  are managed locally and will be destroyed when your components are destroyed. Observable streams are made available through the HTTP client,
-  reactive forms, the router and view querying APIs.
+  At its core, an `Observable` is just a function representing an action that returns one or more events.
+  An action can be anything: "return a number", "make an HTTP request", "listen for keystrokes", or "navigate to another page".
+  
+  The results of an action may be available immediately ("here's the number") 
+  or at some point in the future ("the server responded", "the user hit a key"). 
 
-  Using Observables starts with an understanding of the basic principles, in which there are a wealth of resources that cover these in-depth. You should
-  become more familiar with these principles, as it will help you with how to use these concepts in your Angular application. Below are a few resources
-  to guide you in the concepts of an Observable and reactivity in general.
+  A new `Observable` takes an `Observer` argument.
+  The `Observer` is an object with three (optional) notification methods: `next`, `error`, and `complete`.
 
-  * [Learning Observable By Building Observable](https://medium.com/@benlesh/learning-observable-by-building-observable-d5da57405d87#.3lun8dyt7)
-  * [Thinking Reactively](https://www.youtube.com/watch?v=3LKMwkuK0ZE)
-  * [RxJS Official Documentation](http://reactivex.io/rxjs/)
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  When an action produces a value, the `Observable` tells the _observer_ about it by "emitting" the value, a fancy way of saying that it passes the value to the _observer's_ `next` method.
 
-h3#observables-vs-promises Observables and Promises: More different than alike
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  The `Observable` can tell the _observer_ when things go wrong or the action stops by
+  calling the _observer_'s `error` and `complete` methods.
+
+  We often say that the `Observer` _subscribes_ to the `Observable` or that the `Observer` is a `Subscriber`.
+  In fact, an `Observable` has a `subscribe` method that accepts an observer/subscriber object with these three methods.
+
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  The `Observable` _function_ returns a _cancellation_ function. 
+  You can call this function to tell the `Observer` to stop producing events and notifications.
+  Calling this function is also known as "unsubscribing".
+
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  The `Observable` is fundamentally that simple. It's fundamentally that wide open.
+  You can observe any source of events with an `Observable` function and consume those event with this API.
+
+  The real power of `Observable`  comes from chaining them together with _**operators**_.
+  An _operator_ takes a source `Observable`, observes its emitted values, transforms them, and returns a new `Observable` of those transformed values.
+  
+  The _RxJS_ library ships with a large number of _operators_ for standard tasks.
+  The `map` operator, for example, turns an input value into an output value. 
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  The `take` operator passes along a specified number of results (it may have to wait for them) before
+  signaling to the `Observer` that the sequence is complete.
+.alert.is-critical.
+  Code snippet needed.
+:marked
+  That's just two of the many operators you learn as you become acquainted with `Observables`.
+
+a#learn-observables 
+:marked
+  ### Learning about _Observables_
+
+  There are numererous ways to learn the concepts and details of _Observables_.
+  Here are a few external resources to get you started:
+
+  * <a href="https://medium.com/@benlesh/learning-observable-by-building-observable-d5da57405d87#.3lun8dyt7" target="_blank">Learning Observable By Building Observable</a>.
+  * <a href="https://www.youtube.com/watch?v=VLGCCpOWFFw" target="_blank">
+  Practical Guide to Observables in Angular with Rob Wormald (video)</a>.
+  * <a href="https://www.youtube.com/watch?v=3LKMwkuK0ZE" target="_blank">Thinking Reactively with Ben Lesh (video)</a>.
+  * <a href="http://reactivex.io/rxjs/" target="_blank">RxJS Official Documentation</a>.
+  * <a href="https://github.com/btroncone/learn-rxjs/blob/master/operators/complete.md" target="_blank">
+  RxJS Operators By Example</a>.
+
+  These links will lead you to many more presentations and videos to expand your knowledge.
+
+  This guide is more narrowly focused on using `Observable` in Angular applications. 
+
+a#observables-vs-promises 
+:marked
+  ### _Observables_ and _Promises_ are different
+
+  JavaScript has many asynchronous APIs, including mouse moves, keystrokes, and timers.
+  You don't block the UI and wait for these events. 
+  You attach a callback function to the event and let the event call your handler
+  whenever something happens.
+  Developers quickly understand that an `Observable` is a superior way to manage the flow of events coming from these high-volume sources.
+
+  But some asynchronous sources return at most _one value_.
+  When you make an HTTP request to the server to fetch or save data, you expect a single response.
+
+  Developers rely on an HTTP client to make such requests and, these days, most HTTP client methods return a `Promise` with a `then` method.
+  You pass your callback to the `then` method and the `Promise` invokes your callback when the HTTP response arrives.
+
+  The Angular `http` client returns an `Observable` instead.
+  You consume the `Observable` in a way that looks _superficially_ like a `Promise`.
+  You supply a callback to the `Observable.subscribe` method rather than to a `then` method.
+  
+  The `Observable` and the `Promise` are both techniques for coping with asynchronous processes.
+  You can use an `Observable` where you'd use a `Promise`.
+  
+  The similarity ends there. 
+  An `Observable` is not a `Promise`, 
+  it doesn't want to be a `Promise`, 
+  and you'll be confused and disappointed if you expect an `Observable` to behave like a `Promise`.
+
+  The `Promise` and the `Observable` are more different then alike:
+
+style.
+  td, th {vertical-align: top;}
+
+table(width="100%")
+  col(width="50%")
+  col(width="50%")
+  tr
+    th Promise
+    th Observable
+  tr
+    td
+      :marked
+        A `Promise` resolves to a single result (or error).
+    td
+      :marked
+        An `Observable` can emit any number of events. It may never stop emitting values.
+  tr
+    td
+      :marked
+        The source of the `Promise` executes immediately.
+    td
+      :marked
+        The `Observable` may emit events immediately ("hot") or wait until the first subscription ("cold").
+  tr
+    td
+      :marked
+        The `then` method always executes its callback _asynchronously_.
+    td
+      :marked
+        `Observable` methods and operators may execute _synchronously_ or _asynchronously_.
+  tr
+    td
+      :marked
+        You cannot _cancel_ or _retry_ the action.
+    td
+      :marked
+        You can _cancel_ or _retry_ the action.
+  tr
+    td
+      :marked
+        You chain a sequence of promises with the `then` method.
+    td
+      :marked
+        You chain observables with a variety of **operators**.
+  tr
+    td
+      :marked
+        A `Promise` returns the same result (or error) every time.
+        
+        Calling `then` a second time returns the same object as the first time.
+        It does _not_ re-execute the source of the promised value.
+        It does _not_ re-execute a `then` callback,
+        not the last one nor any in a chain of `then` calls.
+
+        In the language of _observables_ this is called "multicasting".
+    td
+      :marked
+        An `Observable` re-executes each time you subscribe to it.
+
+        If the `Observable` initiates the action, as `http.get` does, a second
+        subscription performs that action again.
+        Every operator in a chain of _observables_ re-executes its callback.
+        This is called "single casting".
+
+        You can choose to share the same values with all subscribers ("multicasting") instead
+        with the help of a `Subject` or a "multicasting" operator such as
+        `share`, `publish,` or `toPromise`. These operators use a `Subject` internally.
+  tr
+    td
+      :marked
+        `Promise` is native to JavaScript.
+        You don't need to import a library although you may need a shim for older browsers.
+    td
+      :marked
+        `Observable` is _not_ part of JavaScript and may never become a part of JavaScript.
+        Today it requires a third party library such as RxJS and `import` statements for every _observable_ class and operator.
+:marked
+  An `Observable` has a wider range of capabilities and uses than a `Promise`.
+  It can handle a stream of events; a `Promise` can't.
+  You can retry the `Observable` action if it fails simply by appending a `retry` operator.
+  You can't retry a `Promise`.
+  You can send a cancellation signal to the event producer simply by unsubscribing from the `Observable`.
+  You can't do that with a `Promise`; you cannot communicate with the event producer through a `Promise`.
+
+  On the other hand, the `Promise` is much simpler. It has a `then` method and that's it. It's always "hot", asynchronous, multicast, and resolves to a single value.
+  There is no way to _unsubscribe_ and, therefore, no danger in failing to unsubscribe.
+
+  `Promises` aren't bad. They aren't inferior. They're just different. 
+  Angular has APIs that return a `Promise` such as the application bootstrap method:
+
++makeExcerpt('src/main.ts', 'promise')
 
 :marked
-  RxJS and Observables have been around for a long time, and they aren't the first concept of handling asynchronous events. Before Observables became more prevalent,
-  the `Promise` was the primary way of handling asynchronous events. Promises and Observables share some similarities as they both handle asynchronous events,
-  both implement a function to handle execution and error handling, but they are more different then alike.
+  The simplicity of a `Promise` is perfectly suited to this use case. 
+  The asynchronous bootstrap action must start immediately, it can't be cancelled, and it has a single outcome.
 
-  ***Promises***
-  * Always eagerly evaluated
-  * Produce a value/error once
-  * Cannot be composed
-  * Are always resolved/rejected asynchronously
-  * Are always multicast to multiple receivers
+  You decide, on a case basis, whether and when to use a `Promise` instead of an `Observable`.
+  It's easy to convert an `Observable` to a `Promise` or from a `Promise` to an `Observable`.
 
-  ***Observables***
-  * Can be evaluated lazily
-  * Produce multiple values/errors
-  * Can be composed
-  * Resolve synchronously/asynchronously
-  * Multicast when needed using a Subject
++makeExcerpt('src/app/observable-principles.ts', 'toPromise')
++makeExcerpt('src/app/observable-principles.ts', 'fromPromise')
 
-  One of the strengths of Observables is producing and handling values over time, which is something a Promise wasn't designed to do. Observables also provide mechanisms
-  for easy cancellation, retrying upon failure and transformations. Observables include a rich library of operators, along with the extensibility to provide a more powerful
-  tool to handle the various streams of events in an application. So does this mean Promises are no longer needed? Absolutely not. Promises will continue to serve a purpose as
-  the right tool for the job in some situations.
-
-h3#operators Operators: Import them and use them
-
+a#operators 
 :marked
+  ### Operators: Import them and use them
   Operators are pure functions that extend the Observable interface, allow you to perform an action against the Observable
   and return a new Observable. An Observable comes with very few built-in operators and the rest of the operators are
   added to the Observable on demand. There are multiple approaches to make these operators available for use.
@@ -124,9 +315,27 @@ h3#operators Operators: Import them and use them
   certain feature areas may only make use of certain operators. Importing the operators this way ensures
   the operators are available regardless of where and when you use them.
 
-h3#managing-subscriptions Managing Subscriptions
-
+a#operator-info
 :marked
+  ### Finding the right operator
+
+  There are several web resources that can help you find the right operator.
+  * <a href="http://reactivex.io/documentation/operators.html#tree" target="_blank">
+  Operator decision tree</a> to chose operator by use case.
+
+  * "<a href="http://xgrommx.github.io/rx-book/content/which_operator_do_i_use/index.html" target="_blank">Which Operator do I use?</a>"" (RxJS v4. specific).
+  
+  These references describe the operators in RxJS v.4.
+  Some of the operators have been dropped, renamed, or changed in v.5.
+  You may need to refer to "<a href="https://github.com/benlesh/RxJS/blob/master/MIGRATION.md#operators-renamed-or-removed" target="_blank">Migrating from RxJS 4 to 5</a>".
+
+  See <a href="https://github.com/btroncone/learn-rxjs/blob/master/operators/complete.md" target="_blank">
+  RxJS 5 Operators By Example</a> to understand what an operator does.
+
+a#managing-subscriptions 
+:marked
+  ### Managing Subscriptions
+
   Observables like any other instance use resources and those resources add to the overall weight of your application over time. Observables
   provide a `Subscription` for each `Subscriber` of the Observable that comes with a way to _unsubscribe_ or clean up any resources used
   while listening for values produced by the Observable. We'll look at a simple example of how to unsubscribe from and Observable once
@@ -174,8 +383,10 @@ h3#managing-subscriptions Managing Subscriptions
 
 +makeExcerpt('src/app/hero-counter.component.ts', '')
 
-h3#async-pipe Async Pipe: Declarative Subscription Management
+a#async-pipe 
 :marked
+  ### Async Pipe: declarative subscription management
+
   You can manage Observables imperatively through manually subscribing and unsubscribing when needed but you can also
   manage them declaratively in our templates using the `Async Pipe`. The async pipe can also take care of our Subscription
   management, as it can take an Observable or a Promise, listen for its emitted values and will destroy its subscriptions
@@ -205,8 +416,10 @@ h3#async-pipe Async Pipe: Declarative Subscription Management
   are produced it will bind those values to the same `ngFor` directive. If you were to initiate another sequence of heroes
   the pipe would handle updated the retrieved values along with destroying the Observable subscription once the component is destroyed.
 
-h3#sharing-data Sharing data with a stream
+a#sharing-data 
 :marked
+  ### Sharing data with a stream
+
   As you build out your Angular application, you will start sharing data between multiple components. These components may span across multiple routes
   or application views in your application hierarchy. This allows you to centralize where that data comes from and allow multiple recipients of
   that data to handle it according to their needs. With Observables, you can push changes to this data and notify all of the subscribers so they can react
@@ -251,8 +464,9 @@ h3#sharing-data Sharing data with a stream
 
 +makeExcerpt('src/app/app.component.ts (message log)', '')
 
-h3#error-handling Error Handling
+a#error-handling 
 :marked
+  ### Error handling
   As often as you strive for perfect conditions, errors will happen. Servers go down, invalid data is sent and other issues cause errors to happen
   when processing data. While you can do your best to prevent these errors, its also wise to be ready for them when they do happen. The scenario
   this is most likely to happen in is when you're making data requests to an external API. This is a common task done with the Angular HTTP client.
@@ -279,8 +493,10 @@ h3#error-handling Error Handling
   Now we have a path of recovery. When the `getHeroes` request is made and fails, an error notification is produced, which will be handled
   in the `catch` operation. This error handling is simplified, so returning an Observable with an empty array will suffice.
 
-h3#retry Retry Failed Observable
+a#retry 
 :marked
+  ### Retry Failed Observable
+
   This is a simple path of recovery, but we can go further. What if you also wanted to _retry_ a failed request? With Observables, this is as easy as adding a new operator,
   aptly named `retry`. If you've ever done this with a Promise, its definitely not a painless operation.
 
@@ -299,8 +515,10 @@ h3#retry Retry Failed Observable
 
 // TODO Diagram for retry sequence
 
-h3#stream-integration Stream Integration
+a#stream-integration 
 :marked
+  ### Stream integration
+
   Knowing Angular provides multiple Observables through different APIs is good, but putting those
   streams together in a valuable way is what you will be striving for. With a consistent interface
   provided by Observables, its easy to combine streams together. Let's look at building
@@ -373,7 +591,3 @@ h3#stream-integration Stream Integration
   forms getter. Update the merged observables to include the name valueChanges.
 
 +makeExcerpt('src/app/add-hero.component.3.ts (Observable valueChanges)', 'value-changes')
-
-h3#further-reading Further Reading
-:marked
-  // TODO link some resources

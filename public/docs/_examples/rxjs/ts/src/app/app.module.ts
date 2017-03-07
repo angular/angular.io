@@ -12,6 +12,7 @@ import { MessageLogComponent }        from './message-log.component';
 import { LoadingComponent }           from './loading.component';
 import { AddHeroComponent }           from './add-hero.component';
 
+import { ObservablePrinciples }       from './observable-principles';
 import { LoadingService }             from './loading.service';
 import { HeroService }                from './hero.service';
 
@@ -40,6 +41,7 @@ import { InMemoryDataService }  from './in-memory-data.service';
     AddHeroComponent
   ],
   providers: [
+    ObservablePrinciples,
     HeroService,
     LoadingService,
     EventAggregatorService
