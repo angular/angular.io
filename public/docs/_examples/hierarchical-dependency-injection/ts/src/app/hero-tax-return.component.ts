@@ -15,10 +15,11 @@ import { HeroTaxReturnService } from './hero-tax-return.service';
 export class HeroTaxReturnComponent {
   message = '';
   @Output() close = new EventEmitter<void>();
-  @Input()
+
   get taxReturn(): HeroTaxReturn {
     return this.heroTaxReturnService.taxReturn;
   }
+  @Input()
   set taxReturn (htr: HeroTaxReturn) {
     this.heroTaxReturnService.taxReturn = htr;
   }
