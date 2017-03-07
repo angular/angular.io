@@ -10,17 +10,6 @@ export class HighlightDirective {
   // #docregion ctor
   constructor(private el: ElementRef) { }
   // #enddocregion ctor
-  // #enddocregion
-
-  // #docregion color
-  @Input() highlightColor: string;
-  // #enddocregion color
-
-  // #docregion color-2
-  @Input() myHighlight: string;
-  // #enddocregion color-2
-
-  // #docregion
 
   // #docregion mouse-methods, host
   @HostListener('mouseenter') onMouseEnter() {
@@ -39,7 +28,14 @@ export class HighlightDirective {
   private highlight(color: string) {
     this.el.nativeElement.style.backgroundColor = color;
   }
-  // #enddocregion mouse-methods
+  // #enddocregion mouse-methods, 
 
+  // #docregion color
+  @Input() highlightColor: string;
+  // #enddocregion color
+
+  // #docregion color-2
+  @Input() myHighlight: string;
+  // #enddocregion color-2
 }
-// #enddocregion
+

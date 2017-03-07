@@ -10,5 +10,3 @@ import { Component } from '@angular/core';
 export class AppComponent {
   color: string;
 }
-// #enddocregion class
-// #enddocregion
