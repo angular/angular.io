@@ -6,7 +6,6 @@ import { ActivatedRoute } from '@angular/router';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'phone-detail',
   templateUrl: './phone-detail.template.html'
 })

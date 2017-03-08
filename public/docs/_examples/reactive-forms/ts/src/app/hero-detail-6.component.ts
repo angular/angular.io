@@ -11,7 +11,6 @@ import { Hero, states } from './data-model';
 ////////// 6 ////////////////////
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-detail-6',
   templateUrl: './hero-detail-5.component.html'
 })

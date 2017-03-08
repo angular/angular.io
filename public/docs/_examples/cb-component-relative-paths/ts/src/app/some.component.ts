@@ -21,7 +21,6 @@ export class SomeAbsoluteComponent {
 // #docregion relative-config
 @Component({
   // #docregion module-id
-  moduleId: module.id,
   // #enddocregion module-id
   selector: 'relative-path',
   templateUrl: './some.component.html',

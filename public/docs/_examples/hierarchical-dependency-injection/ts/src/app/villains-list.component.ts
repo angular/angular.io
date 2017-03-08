@@ -6,7 +6,6 @@ import { Villain, VillainsService } from './villains.service';
 
 // #docregion metadata
 @Component({
-  moduleId: module.id,
   selector: 'villains-list',
   templateUrl: './villains-list.component.html',
   providers: [ VillainsService ]

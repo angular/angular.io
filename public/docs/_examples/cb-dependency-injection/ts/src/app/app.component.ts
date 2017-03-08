@@ -7,7 +7,6 @@ import { UserContextService } from './user-context.service';
 import { UserService }        from './user.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'my-app',
   templateUrl: './app.component.html',
 // #docregion providers

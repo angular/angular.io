@@ -49,7 +49,6 @@ export class OnChangesComponent implements OnChanges {
 /***************************************/
 
 @Component({
-  moduleId: module.id,
   selector: 'on-changes-parent',
   templateUrl: './on-changes-parent.component.html',
   styles: ['.parent {background: Lavender;}']

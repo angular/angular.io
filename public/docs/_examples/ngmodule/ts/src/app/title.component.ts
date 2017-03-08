@@ -7,7 +7,6 @@ import { UserService } from './user.service';
 // #docregion v1
 
 @Component({
-  moduleId: module.id,
   selector: 'app-title',
   templateUrl: './title.component.html',
 })

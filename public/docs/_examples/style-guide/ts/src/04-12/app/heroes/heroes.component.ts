@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 import { LoggerService } from '../core/logger.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html'
 })

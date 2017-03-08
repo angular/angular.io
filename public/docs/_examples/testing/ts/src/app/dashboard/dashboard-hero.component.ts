@@ -5,7 +5,6 @@ import { Hero } from '../model';
 
 // #docregion component
 @Component({
-  moduleId: module.id,
   selector:    'dashboard-hero',
   templateUrl: './dashboard-hero.component.html',
   styleUrls: [ './dashboard-hero.component.css' ]

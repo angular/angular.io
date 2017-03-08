@@ -4,7 +4,6 @@ import { Router }            from '@angular/router';
 import { Hero, HeroService } from '../model';
 
 @Component({
-  moduleId: module.id,
   selector: 'app-heroes',
   templateUrl: './hero-list.component.html',
   styleUrls: [ './hero-list.component.css' ]

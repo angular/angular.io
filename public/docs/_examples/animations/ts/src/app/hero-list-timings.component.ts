@@ -11,7 +11,6 @@ import {
 import { Heroes } from './hero.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-list-timings',
   template: `
     <ul>

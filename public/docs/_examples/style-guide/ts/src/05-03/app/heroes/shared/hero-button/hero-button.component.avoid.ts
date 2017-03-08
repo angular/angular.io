@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 /* avoid */
 
 @Component({
-  moduleId: module.id,
   selector: '[tohHeroButton]',
   templateUrl: './hero-button.component.html'
 })

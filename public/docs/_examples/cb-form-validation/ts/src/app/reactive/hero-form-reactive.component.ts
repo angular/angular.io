@@ -8,7 +8,6 @@ import { Hero }                   from '../shared/hero';
 import { forbiddenNameValidator } from '../shared/forbidden-name.directive';
 
 @Component({
-  moduleId:  module.id,
   selector: 'hero-form-reactive3',
   templateUrl: './hero-form-reactive.component.html'
 })

@@ -14,7 +14,6 @@ import {
 import { Heroes } from './hero.service';
 
 @Component({
- moduleId: module.id,
  selector: 'hero-list-twoway',
  // #docregion template
  template: `

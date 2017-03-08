@@ -5,7 +5,6 @@ import { Hero, HeroService } from './shared';
 
 // #docregion example
 @Component({
-  moduleId: module.id,
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html',
   styleUrls:  ['./heroes.component.css']

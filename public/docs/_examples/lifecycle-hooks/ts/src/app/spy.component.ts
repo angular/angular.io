@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { LoggerService }  from './logger.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'spy-parent',
   templateUrl: './spy.component.html',
   styles: [

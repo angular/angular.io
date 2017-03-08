@@ -2,7 +2,6 @@
 import { Component } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'inner-html-binding',
   templateUrl: './inner-html-binding.component.html',
 })

@@ -4,7 +4,6 @@ import { Component, ViewEncapsulation } from '@angular/core';
 
 // #docregion
 @Component({
-  moduleId: module.id,
   selector: 'quest-summary',
   // #docregion urls
   templateUrl: './quest-summary.component.html',

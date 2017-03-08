@@ -16,7 +16,6 @@ import { Subject } from 'rxjs/Subject';
 import { WikipediaService } from './wikipedia.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'my-wiki-smart',
   template: `
     <h1>Smarter Wikipedia Demo</h1>

@@ -4,7 +4,6 @@ import { LoggerService }  from '../core/logger.service';
 import { SpinnerService } from '../core/spinner/spinner.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html'
 })
