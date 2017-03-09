@@ -31,8 +31,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   ngAfterViewInit() {
     // Detect effects of NgForTrackBy
-    trackChanges(this.heroesNoTrackBy,   () => this.heroesNoTrackByCount += 1);
-    trackChanges(this.heroesWithTrackBy, () => this.heroesWithTrackByCount += 1);
+    trackChanges(this.heroesNoTrackBy,   () => this.heroesNoTrackByCount++);
+    trackChanges(this.heroesWithTrackBy, () => this.heroesWithTrackByCount++);
   }
 
   @ViewChildren('noTrackBy')   heroesNoTrackBy:   QueryList<ElementRef>;
@@ -42,6 +42,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   alert = alerter;
   badCurly = 'bad curly';
   classes = 'special';
+  help = '';
 
   callFax(value: string)   {this.alert(`Faxing ${value} ...`); }
   callPhone(value: string) {this.alert(`Calling ${value} ...`); }
@@ -83,17 +84,9 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   title = 'Template Syntax';
 
-  getStyles(el: Element) {
-    let styles = window.getComputedStyle(el);
-    let showStyles = {};
-    for (let p in this.currentStyles) { // only interested in these styles
-      showStyles[p] = styles[p];
-    }
-    return JSON.stringify(showStyles);
-  }
+  getVal(): number { return 2; }
 
-  getVal() { return this.val; }
-
+  name: string = Hero.heroes[0].name;
   hero: Hero; // defined to demonstrate template context precedence
   heroes: Hero[];
 
@@ -107,18 +100,16 @@ export class AppComponent implements AfterViewInit, OnInit {
   // heroImageUrl = 'http://www.wpclipart.com/cartoon/people/hero/hero_silhoutte_T.png';
   // Public Domain terms of use: http://www.wpclipart.com/terms.html
   heroImageUrl = 'images/hero.png';
+  // villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
+  // Public Domain terms of use http://www.clker.com/disclaimer.html
+  villainImageUrl = 'images/villain.png';
 
   iconUrl = 'images/ng-logo.png';
   isActive = false;
   isSpecial = true;
   isUnchanged = true;
 
-  nullHero: Hero = null;
-
-  onCancel(event: KeyboardEvent) {
-    let evtMsg = event ? ' Event target is ' + (<HTMLElement>event.target).innerHTML : '';
-    this.alert('Canceled.' + evtMsg);
-  }
+  get nullHero(): Hero { return null; }
 
   onClickMe(event: KeyboardEvent) {
     let evtMsg = event ? ' Event target class is ' + (<HTMLElement>event.target).className  : '';
@@ -128,9 +119,10 @@ export class AppComponent implements AfterViewInit, OnInit {
   onSave(event: KeyboardEvent) {
     let evtMsg = event ? ' Event target is ' + (<HTMLElement>event.target).innerText : '';
     this.alert('Saved.' + evtMsg);
+    if (event) { event.stopPropagation(); }
   }
 
-  onSubmit() { /* referenced but not used */}
+  onSubmit() {/* referenced but not used */}
 
   product = {
     name: 'frimfram',
@@ -142,17 +134,6 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.heroes = Hero.heroes.map(hero => hero.clone());
     this.currentHero = this.heroes[0];
     this.heroesWithTrackByCountReset = 0;
-  }
-
-  private samenessCount = 5;
-  moreOfTheSame() { this.samenessCount++; };
-  get sameAsItEverWas() {
-    let result: string[] = Array(this.samenessCount);
-    for ( let i = result.length; i-- > 0; ) { result[i] = 'same as it ever was ...'; }
-    return result;
-    // return [1,2,3,4,5].map(id => {
-    //   return {id:id, text: 'same as it ever was ...'};
-    // });
   }
 
   setUppercaseName(name: string) {
@@ -174,8 +155,8 @@ export class AppComponent implements AfterViewInit, OnInit {
   // #docregion setStyles
   currentStyles: {};
   setCurrentStyles() {
+    // CSS styles: set per current state of component properties
     this.currentStyles = {
-      // CSS styles: set per current state of component properties
       'font-style':  this.canSave      ? 'italic' : 'normal',
       'font-weight': !this.isUnchanged ? 'bold'   : 'normal',
       'font-size':   this.isSpecial    ? '24px'   : '12px'
@@ -190,11 +171,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   // #docregion trackById
   trackById(index: number, item: any): number { return item['id']; }
   // #enddocregion trackById
-
-  val = 2;
-  // villainImageUrl = 'http://www.clker.com/cliparts/u/s/y/L/x/9/villain-man-hi.png'
-  // Public Domain terms of use http://www.clker.com/disclaimer.html
-  villainImageUrl = 'images/villain.png';
 }
 
 // helper to track changes to viewChildren
