@@ -12,7 +12,7 @@ import { Hero } from './hero';
   inputs: ['hero'],
   outputs: ['deleteRequest'],
   // #enddocregion input-output-2
-  styles: ['button { margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
+  styles: ['button {margin-left: 8px} div {margin: 8px 0} img {height:24px}'],
   // #docregion template-1
   template: `
   <div>
@@ -34,7 +34,7 @@ export class HeroDetailComponent {
   lineThrough = '';
   @Input() prefix = '';
 
-// #docregion deleteRequest
+  // #docregion deleteRequest
   // This component make a request but it can't actually delete a hero.
   deleteRequest = new EventEmitter<Hero>();
 
@@ -44,7 +44,7 @@ export class HeroDetailComponent {
     this.lineThrough = this.lineThrough ? '' : 'line-through';
     // #docregion deleteRequest
   }
-// #enddocregion deleteRequest
+  // #enddocregion deleteRequest
 }
 
 @Component({
