@@ -1,7 +1,6 @@
 // #docplaster
 // #docregion
-// #docregion no-docs
-// #docregion skeleton
+// #docregion no-docs, skeleton
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
 
 // #enddocregion skeleton
@@ -18,7 +17,7 @@ import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
  * </div>
  *
  * ### Syntax
- * *
+ *
  * - `<div *myUnless="condition">...</div>`
  * - `<div template="myUnless condition">...</div>`
  * - `<template [myUnless]="condition"><div>...</div></template>`
@@ -50,6 +49,3 @@ export class UnlessDirective {
   // #enddocregion set
   // #docregion skeleton
 }
-// #enddocregion skeleton
-// #enddocregion no-docs
-// #enddocregion
