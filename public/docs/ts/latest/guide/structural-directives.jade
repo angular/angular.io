@@ -14,7 +14,6 @@ style.
 
   - [What are structural directives?](#definition)
   - [*NgIf* case study](#ngIf)
-  - [Group sibling elements with &lt;ng-container&gt;](#ng-container)
   - [The asterisk (*) prefix](#asterisk)
   - [Inside *NgFor*](#ngFor)
     - [microsyntax](#microsyntax)
@@ -23,6 +22,7 @@ style.
   - [Inside the *NgSwitch* directives](#ngSwitch)
   - [Prefer the (*) prefix](#prefer-asterisk)
   - [The &lt;template> element](#template)
+  - [Group sibling elements with &lt;ng-container&gt;](#ng-container)
   - [Write a structural directive](#unless)
 
   Try the <live-example></live-example>.
@@ -156,108 +156,6 @@ figure.image-display
   **These same considerations apply to every structural directive, whether built-in or custom.**
   Before applying a structural directive, you might want to pause for a moment 
   to consider the consequences of adding and removing elements and of creating and destroying components.
-
-a#ngcontainer
-a#ng-container
-.l-main-section
-:marked
-  ## Group sibling elements with &lt;ng-container&gt;
-
-  There's often a _root_ element that can and should host the structural directive.
-  The list element (`<li>`) is a typical host element of an `NgFor` repeater.
-
-+makeExcerpt('src/app/app.component.html', 'ngfor-li', '')
-
-:marked
-  When there isn't a host element, you can usually wrap the content in a native HTML container element,
-  such as a `<div>`, and attach the directive to that wrapper.
-
-+makeExcerpt('src/app/app.component.html', 'ngif', '')
-
-:marked
-  Introducing another container element&mdash;typically a `<span>` or `<div>`&mdash;to 
-  group the elements under a single _root_ is usually harmless. 
-  _Usually_ ... but not _always_.
-
-  The grouping element may break the template appearance because CSS styles 
-  neither expect nor accommodate the new layout.
-  For example, suppose you have the following paragraph layout.
-
-+makeExcerpt('src/app/app.component.html', 'ngif-span', '')
-
-:marked
-  You also have a CSS style rule that happens to apply to a `<span>` within a `<p>`aragraph.
-
-+makeExcerpt('src/app/app.component.css', 'p-span', '')
-
-:marked
-  The constructed paragraph renders strangely.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/bad-paragraph.png' alt="spanned paragraph with bad style")
-
-:marked
-  The `p span` style, intended for use elsewhere, was inadvertently applied here.
-  
-  Another problem: some HTML elements require all immediate children to be of a specific type.
-  For example, the `<select>` element requires `<option>` children. 
-  You can't wrap the _options_ in a conditional `<div>` or a `<span>`.
-
-  When you try this,
-
-+makeExcerpt('src/app/app.component.html', 'select-span', '')
-
-:marked
-  the drop down is empty.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/bad-select.png' alt="spanned options don't work")
-
-:marked
-  The browser won't display an `<option>` within a `<span>`.
-
-  ### &lt;ng-container&gt; to the rescue
-
-  The Angular `<ng-container>` is a grouping element that doesn't interfere with styles or layout
-  because Angular _doesn't put it in the DOM_. 
-
-  Here's the conditional paragraph again, this time using `<ng-container>`.
-
-+makeExcerpt('src/app/app.component.html', 'ngif-ngcontainer', '')
-
-:marked
-  It renders properly.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/good-paragraph.png' alt="ngcontainer paragraph with proper style")
-
-:marked
-  Now conditionally exclude a _select_ `<option>` with `<ng-container>`.
-
-+makeExcerpt('src/app/app.component.html', 'select-ngcontainer', '')
-
-:marked
-  The drop down works properly.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/select-ngcontainer-anim.gif' alt="ngcontainer options work properly")
-
-:marked
-  The `<ng-container>` is a syntax element recognized by the Angular parser.
-  It's not a directive, component, class, or interface. 
-  It's more like the curly braces in a JavaScript `if`-block:
-
-code-example(language="javascript").
-  if (someCondition) {
-    statement1;
-    statement2;
-    statement3;
-  } 
-
-:marked
-  Without those braces, JavaScript would only execute the first statement
-  when you intend to conditionally execute all of them as a single block.
-  The `<ng-container>` satisfies a similar need in Angular templates.
 
 a#asterisk
 .l-main-section
@@ -477,7 +375,109 @@ figure.image-display
 
 :marked
   A structural directive puts a `<template>` to work
-  as you'll see when you write your own structural directive.
+  as you'll see when you [write your own structural directive](#unless).
+
+a#ngcontainer
+a#ng-container
+.l-main-section
+:marked
+  ## Group sibling elements with &lt;ng-container&gt;
+
+  There's often a _root_ element that can and should host the structural directive.
+  The list element (`<li>`) is a typical host element of an `NgFor` repeater.
+
++makeExcerpt('src/app/app.component.html', 'ngfor-li', '')
+
+:marked
+  When there isn't a host element, you can usually wrap the content in a native HTML container element,
+  such as a `<div>`, and attach the directive to that wrapper.
+
++makeExcerpt('src/app/app.component.html', 'ngif', '')
+
+:marked
+  Introducing another container element&mdash;typically a `<span>` or `<div>`&mdash;to 
+  group the elements under a single _root_ is usually harmless. 
+  _Usually_ ... but not _always_.
+
+  The grouping element may break the template appearance because CSS styles 
+  neither expect nor accommodate the new layout.
+  For example, suppose you have the following paragraph layout.
+
++makeExcerpt('src/app/app.component.html', 'ngif-span', '')
+
+:marked
+  You also have a CSS style rule that happens to apply to a `<span>` within a `<p>`aragraph.
+
++makeExcerpt('src/app/app.component.css', 'p-span', '')
+
+:marked
+  The constructed paragraph renders strangely.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/bad-paragraph.png' alt="spanned paragraph with bad style")
+
+:marked
+  The `p span` style, intended for use elsewhere, was inadvertently applied here.
+  
+  Another problem: some HTML elements require all immediate children to be of a specific type.
+  For example, the `<select>` element requires `<option>` children. 
+  You can't wrap the _options_ in a conditional `<div>` or a `<span>`.
+
+  When you try this,
+
++makeExcerpt('src/app/app.component.html', 'select-span', '')
+
+:marked
+  the drop down is empty.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/bad-select.png' alt="spanned options don't work")
+
+:marked
+  The browser won't display an `<option>` within a `<span>`.
+
+  ### &lt;ng-container&gt; to the rescue
+
+  The Angular `<ng-container>` is a grouping element that doesn't interfere with styles or layout
+  because Angular _doesn't put it in the DOM_. 
+
+  Here's the conditional paragraph again, this time using `<ng-container>`.
+
++makeExcerpt('src/app/app.component.html', 'ngif-ngcontainer', '')
+
+:marked
+  It renders properly.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/good-paragraph.png' alt="ngcontainer paragraph with proper style")
+
+:marked
+  Now conditionally exclude a _select_ `<option>` with `<ng-container>`.
+
++makeExcerpt('src/app/app.component.html', 'select-ngcontainer', '')
+
+:marked
+  The drop down works properly.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/select-ngcontainer-anim.gif' alt="ngcontainer options work properly")
+
+:marked
+  The `<ng-container>` is a syntax element recognized by the Angular parser.
+  It's not a directive, component, class, or interface. 
+  It's more like the curly braces in a JavaScript `if`-block:
+
+code-example(language="javascript").
+  if (someCondition) {
+    statement1;
+    statement2;
+    statement3;
+  } 
+
+:marked
+  Without those braces, JavaScript would only execute the first statement
+  when you intend to conditionally execute all of them as a single block.
+  The `<ng-container>` satisfies a similar need in Angular templates.
 
 a#unless
 .l-main-section
