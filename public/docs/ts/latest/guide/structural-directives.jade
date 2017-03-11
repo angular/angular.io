@@ -14,7 +14,6 @@ style.
 
   - [What are structural directives?](#definition)
   - [*NgIf* case study](#ngIf)
-  - [Group sibling elements with &lt;ng-container&gt;](#ng-container)
   - [The asterisk (*) prefix](#asterisk)
   - [Inside *NgFor*](#ngFor)
     - [microsyntax](#microsyntax)
@@ -23,6 +22,7 @@ style.
   - [Inside the *NgSwitch* directives](#ngSwitch)
   - [Prefer the (*) prefix](#prefer-asterisk)
   - [The &lt;template> element](#template)
+  - [Group sibling elements with &lt;ng-container&gt;](#ng-container)
   - [Write a structural directive](#unless)
 
   Try the <live-example></live-example>.
@@ -157,6 +157,226 @@ figure.image-display
   Before applying a structural directive, you might want to pause for a moment 
   to consider the consequences of adding and removing elements and of creating and destroying components.
 
+a#asterisk
+.l-main-section
+:marked
+  ## The asterisk (*) prefix
+  
+  Surely you noticed the asterisk (*) prefix to the directive name
+  and wondered why it is necessary and what it does.
+  
+  Here is `*ngIf` displaying the hero's name if `hero` exists.
+
++makeExcerpt('src/app/app.component.html', 'asterisk', '')
+
+:marked
+  The asterisk is "syntactic sugar" for something a bit more complicated.
+  Internally, Angular desugars it in two stages.
+  First, it translates the `*ngIf="..."` into a template _attribute_, `template="ngIf ..."`,&nbsp; like this.
+
++makeExcerpt('src/app/app.component.html', 'ngif-template-attr', '')
+
+:marked
+  Then it translates the template _attribute_ into a template _element_, wrapped around the host element, like this.
+
++makeExcerpt('src/app/app.component.html', 'ngif-template', '')
+
+:marked
+  * The `*ngIf` directive moved to the `<template>` element where it became a property binding,`[ngIf]`.
+  * The rest of the `<div>`, including its class attribute, moved inside the `<template>` element.
+  
+  None of these forms are actually rendered. 
+  Only the finished product ends up in the DOM.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/hero-div-in-dom.png' alt="hero div in DOM")
+
+:marked
+  Angular consumed the `<template>` content during its actual rendering and 
+  replaced the `<template>` with a diagnostic comment.
+
+  The [`NgFor`](#ngFor) and [`NgSwitch...`](#ngSwitch) directives follow the same pattern.
+  
+a#ngFor
+.l-main-section
+:marked
+  ## Inside _*ngFor_
+
+  Angular transforms the `*ngFor` in similar fashion from asterisk (*) syntax through
+  template _attribute_ to template _element_. 
+
+  Here's a full-featured application of `NgFor`, written all three ways:
+
++makeExcerpt('src/app/app.component.html', 'inside-ngfor', '')
+
+:marked
+  This is manifestly more complicated than `ngIf` and rightly so.
+  The `NgFor` directive has more features, both required and optional, than the `NgIf` shown in this guide.
+  At minimum `NgFor` needs a looping variable (`let hero`) and a list (`heroes`).
+
+  You enable these features in the string assigned to `ngFor`, which you write in Angular's [microsyntax](#microsyntax). 
+  
+.alert.is-helpful
+  :marked
+    Everything _outside_ the `ngFor` string stays with the host element 
+    (the `<div>`) as it moves inside the `<template>`. 
+    In this example, the `[ngClass]="odd"` stays on the `<div>`.
+
+a#microsyntax
+:marked
+  ### Microsyntax
+
+  The Angular microsyntax lets you configure a directive in a compact, friendly string.
+  The microsyntax parser translates that string into attributes on the `<template>`:
+
+  * The `let` keyword declares a [_template input variable_](#template-input-variable) 
+  that you reference within the template. The input variables in this example are `hero`, `i`, and `odd`.
+  The parser translates `let hero`, `let i`, and `let odd` into variables named, 
+  `let-hero`, `let-i`, and `let-odd`.
+
+  * The microsyntax parser takes `of` and `trackby`, title-cases them (`of` -> `Of`, `trackBy` -> `TrackBy`), 
+  and prefixes them with the directive's attribute name (`ngFor`), yielding the names `ngForOf` and `ngForTrackBy`.
+  Those are the names of two `NgFor` _input properties_ .
+  That's how the directive learns that the list is `heroes` and the track-by function is `trackById`.
+
+  * As the `NgFor` directive loops through the list, it sets and resets properties of its own _context_ object.
+  These properties include `index` and `odd` and a special property named `$implicit`.
+
+  * The `let-i` and `let-odd` variables were defined as `let i=index` and `let odd=odd`.
+  Angular sets them to the current value of the context's `index` and `odd` properties.
+
+  * The context property for `let-hero` wasn't specified. 
+  It's intended source is implicit. 
+  Angular sets `let-hero` to the value of the context's `$implicit` property
+  which `NgFor` has initialized with the hero for the current iteration.
+
+  * The [API guide](../api/common/index/NgFor-directive.html "API: NgFor") 
+  describes additional `NgFor` directive properties and context properties.
+
+  These microsyntax mechanisms are available to you when you write your own structural directives.
+  Studying the source code for `NgIf` and `NgFor` is a great way to learn more.
+
+
+a#template-input-variable
+a#template-input-variables
+:marked
+  ### Template input variable
+
+  A _template input variable_ is a variable whose value you can reference _within_ a single instance of the template.
+  There are several such variables in this example: `hero`, `i`, and `odd`.
+  All are preceded by the keyword `let`.
+
+  A _template input variable_ is **_not_** the same as a 
+  [template _reference_ variable](template-syntax.html#ref-vars),
+  neither _semantically_ nor _syntactically_.
+
+  You declare a template _input_ variable using the `let` keyword (`let hero`). 
+  The variable's scope is limited to a _single instance_ of the repeated template.
+  You can use the same variable name again in the definition of other structural directives.
+
+  You declare a template _reference_ variable by prefixing the variable name with `#` (`#var`).
+  A _reference_ variable refers to its attached element, component or directive.
+  It can be accessed _anywhere_ in the _entire template_.
+
+  Template _input_ and _reference_ variable names have their own namespaces. The `hero` in `let hero` is never the same
+  variable as the `hero` declared as `#hero`.
+
+a#one-per-element
+:marked
+  ### One structural directive per host element
+
+  Someday you'll want to repeat a block of HTML but only when a particular condition is true.
+  You'll _try_ to put both an `*ngFor` and an `*ngIf` on the same host element.
+  Angular won't let you. You may apply only one _structural_ directive to an element. 
+  
+  The reason is simplicity. Structural directives can do complex things with the host element and its descendents.
+  When two directives lay claim to the same host element, which one takes precedence? 
+  Which should go first, the `NgIf` or the `NgFor`? Can the `NgIf` cancel the effect of the `NgFor`?
+  If so (and it seems like it should be so), how should Angular generalize the ability to cancel for other structural directives?
+  
+  There are no easy answers to these questions. Prohibiting multiple structural directives makes them moot.
+  There's an easy solution for this use case: put the `*ngIf` on a container element that wraps the `*ngFor` element.
+  One or both elements can be an [`ng-container`](#ngcontainer) so you don't have to introduce extra levels of HTML.
+
+a#ngSwitch
+.l-main-section
+:marked
+  ## Inside _NgSwitch_ directives
+
+  The Angular _NgSwitch_ is actually a set of cooperating directives: `NgSwitch`, `NgSwitchCase`, and `NgSwitchDefault`.
+
+  Here's an example.
+
++makeExcerpt('src/app/app.component.html', 'ngswitch', '')
+
+:marked
+  The switch value assigned to `NgSwitch` (`hero.emotion`) determines which
+  (if any) of the switch cases are displayed.
+  
+  `NgSwitch` itself is not a structural directive. 
+  It's an _attribute_ directive that controls the behavior of the other two switch directives.
+  That's why you write `[ngSwitch]`, never `*ngSwitch`.
+
+  `NgSwitchCase` and `NgSwitchDefault` _are_ structural directives. 
+  You attach them to elements using the asterisk (*) prefix notation. 
+  An `NgSwitchCase` displays its host element when its value matches the switch value.
+  The `NgSwitchDefault` displays its host element when no sibling `NgSwitchCase` matches the switch value.
+
+.l-sub-section
+  :marked
+    The element to which you apply a directive is its _host_ element. 
+    The `<happy-hero>` is the host element for the happy `*ngSwitchCase`.
+    The `<unknown-hero>` is the host element for the `*ngSwitchDefault`.
+
+:marked
+  As with other structural directives, the `NgSwitchCase` and `NgSwitchDefault` 
+  can be desugared into the template _attribute_ form.
+
++makeExcerpt('src/app/app.component.html', 'ngswitch-template-attr', '')
+
+:marked
+  That, in turn, can be desugared into the `<template>` element form.
+
++makeExcerpt('src/app/app.component.html', 'ngswitch-template', '')
+
+a#prefer-asterisk
+:marked
+  ## Prefer the asterisk (*) syntax.
+
+  The asterisk (*) syntax is more clear than the other desugared forms.
+  Use [&lt;ng-container&gt;](#ng-container) when there's no single element
+  to host the directive.
+  
+  While there's rarely a good reason to apply a structural directive in template _attribute_ or _element_ form,
+  it's still important to know that Angular creates a `<template>` and to understand how it works.
+  You'll refer to the `<template>` when you [write your own structural directive](#unless).
+
+a#template
+.l-main-section
+:marked
+  ## The *&lt;template&gt;*
+
+  The <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template" target="_blank" title="MDN: Template Tag">HTML 5 &lt;template&gt;</a>
+  is a formula for rendering HTML.
+  It is never displayed directly. 
+  In fact, before rendering the view, Angular _replaces_ the `<template>` and its contents with a comment.
+  
+  If there is no structural directive and you merely wrap some elements in a `<template>`,
+  those elements disappear.
+  That's the fate of the middle "Hip!" in the phrase "Hip! Hip! Hooray!".
+
++makeExcerpt('src/app/app.component.html', 'template-tag', '')
+
+:marked
+  Angular erases the middle "Hip!", leaving the cheer a bit less enthusiastic.
+
+figure.image-display
+  img(src='/resources/images/devguide/structural-directives/template-rendering.png' width="350" alt="template tag rendering")
+
+:marked
+  A structural directive puts a `<template>` to work
+  as you'll see when you [write your own structural directive](#unless).
+
 a#ngcontainer
 a#ng-container
 .l-main-section
@@ -258,226 +478,6 @@ code-example(language="javascript").
   Without those braces, JavaScript would only execute the first statement
   when you intend to conditionally execute all of them as a single block.
   The `<ng-container>` satisfies a similar need in Angular templates.
-
-a#asterisk
-.l-main-section
-:marked
-  ## The asterisk (*) prefix
-  
-  Surely you noticed the asterisk (*) prefix to the directive name
-  and wondered why it is necessary and what it does.
-  
-  Here is `*ngIf` displaying the hero's name if `hero` exists.
-
-+makeExcerpt('src/app/app.component.html', 'asterisk', '')
-
-:marked
-  The asterisk is "syntactic sugar" for something a bit more complicated.
-  Internally, Angular "desugars" it in two stages.
-  First, it translates the `*ngIf="..."` into a template _attribute_, `template="ngIf ..."`,&nbsp; like this.
-
-+makeExcerpt('src/app/app.component.html', 'ngif-template-attr', '')
-
-:marked
-  Then it translates the template _attribute_ into a template _element_, wrapped around the host element, like this.
-
-+makeExcerpt('src/app/app.component.html', 'ngif-template', '')
-
-:marked
-  * The `*ngIf` directive moved to the `<template>` element where it became a property binding,`[ngIf]`.
-  * The rest of the `<div>`, including its class attribute, moved inside the `<template>` element.
-  
-  None of these forms are actually rendered. 
-  Only the finished product ends up in the DOM.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/hero-div-in-dom.png' alt="hero div in DOM")
-
-:marked
-  Angular consumed the `<template>` content during its actual rendering and 
-  replaced the `<template>` with a diagnostic comment.
-
-  The [`NgFor`](#ngFor) and [`NgSwitch...`](#ngSwitch) directives follow the same pattern.
-  
-a#ngfor
-.l-main-section
-:marked
-  ## Inside _*ngFor_
-
-  Angular transforms the `*ngFor` in similar fashion from asterisk (*) syntax through
-  template _attribute_ to template _element_. 
-
-  Here's a full-featured application of `NgFor`, written all three ways:
-
-+makeExcerpt('src/app/app.component.html', 'inside-ngfor', '')
-
-:marked
-  This is manifestly more complicated than `ngIf` and rightly so.
-  The `NgFor` directive has more features, both required and optional, than the `NgIf` shown in this guide.
-  At minimum `NgFor` needs a looping variable (`let hero`) and a list (`heroes`).
-
-  You enable these features in the string assigned to `ngFor`, which you write in Angular's [microsyntax](#microsyntax). 
-  
-.alert.is-helpful
-  :marked
-    Everything _outside_ the `ngFor` string stays with the host element 
-    (the `<div>`) as it moves inside the `<template>`. 
-    In this example, the `[ngClass]="odd"` stays on the `<div>`.
-
-a#microsyntax
-:marked
-  ### Microsyntax
-
-  The Angular microsyntax lets you configure a directive in a compact, friendly string.
-  The microsyntax parser translates that string into attributes on the `<template>`:
-
-  * The `let` keyword declares a [_template input variable_](#template-input-variable) 
-  that you reference within the template. The input variables in this example are `hero`, `i`, and `odd`.
-  The parser translates `let hero`, `let i`, and `let odd` into variables named, 
-  `let-hero`, `let-i`, and `let-odd`.
-
-  * The microsyntax parser takes `of` and `trackby`, title-cases them (`of` -> `Of`, `trackBy` -> `TrackBy`), 
-  and prefixes them with the directive's attribute name (`ngFor`), yielding the names `ngForOf` and `ngForTrackBy`.
-  Those are the names of two `NgFor` _input properties_ .
-  That's how the directive learns that the list is `heroes` and the track-by function is `trackById`.
-
-  * As the `NgFor` directive loops through the list, it sets and resets properties of its own _context_ object.
-  These properties include `index` and `odd` and a special property named `$implicit`.
-
-  * The `let-i` and `let-odd` variables were defined as `let i=index` and `let odd=odd`.
-  Angular sets them to the current value of the context's `index` and `odd` properties.
-
-  * The context property for `let-hero` wasn't specified. 
-  It's intended source is implicit. 
-  Angular sets `let-hero` to the value of the context's `$implicit` property
-  which `NgFor` has initialized with the hero for the current iteration.
-
-  * The [API guide](../api/common/index/NgFor-directive.html "API: NgFor") 
-  describes additional `NgFor` directive properties and context properties.
-
-  These microsyntax mechanisms are available to you when you write your own structural directives.
-  Studying the source code for `NgIf` and `NgFor` is a great way to learn more.
-
-
-a#template-input-variable
-a#template-input-variables
-:marked
-  ### Template input variable
-
-  A _template input variable_ is a variable whose value you can reference _within_ a single instance of the template.
-  There are several such variables in this example: `hero`, `i`, and `odd`.
-  All are preceded by the keyword `let`.
-
-  A _template input variable_ is **_not_** the same as a 
-  [template _reference_ variable](template-syntax.html#ref-vars),
-  neither _semantically_ nor _syntactically_.
-
-  You declare a template _input_ variable using the `let` keyword (`let hero`). 
-  The variable's scope is limited to a _single instance_ of the repeated template.
-  You can use the same variable name again in the definition of other structural directives.
-
-  You declare a template _reference_ variable by prefixing the variable name with `#` (`#var`).
-  A _reference_ variable refers to its attached element, component or directive.
-  It can be accessed _anywhere_ in the _entire template_.
-
-  Template _input_ and _reference_ variable names have their own namespaces. The `hero` in `let hero` is never the same
-  variable as the `hero` declared as `#hero`.
-
-a#one-per-element
-:marked
-  ### One structural directive per host element
-
-  Someday you'll want to repeat a block of HTML but only when a particular condition is true.
-  You'll _try_ to put both an `*ngFor` and an `*ngIf` on the same host element.
-  Angular won't let you. You may apply only one _structural_ directive to an element. 
-  
-  The reason is simplicity. Structural directives can do complex things with the host element and its descendents.
-  When two directives lay claim to the same host element, which one takes precedence? 
-  Which should go first, the `NgIf` or the `NgFor`? Can the `NgIf` cancel the effect of the `NgFor`?
-  If so (and it seems like it should be so), how should Angular generalize the ability to cancel for other structural directives?
-  
-  There are no easy answers to these questions. Prohibiting multiple structural directives makes them moot.
-  There's an easy solution for this use case: put the `*ngIf` on a container element that wraps the `*ngFor` element.
-  One or both elements can be an [`ng-container`](#ngcontainer) so you don't have to introduce extra levels of HTML.
-
-a#ngswitch
-.l-main-section
-:marked
-  ## Inside _NgSwitch_ directives
-
-  The Angular _NgSwitch_ is actually a set of cooperating directives: `NgSwitch`, `NgSwitchCase`, and `NgSwitchDefault`.
-
-  Here's an example.
-
-+makeExcerpt('src/app/app.component.html', 'ngswitch', '')
-
-:marked
-  The switch value assigned to `NgSwitch` (`hero.emotion`) determines which
-  (if any) of the switch cases are displayed.
-  
-  `NgSwitch` itself is not a structural directive. 
-  It's an _attribute_ directive that controls the behavior of the other two switch directives.
-  That's why you write `[ngSwitch]`, never `*ngSwitch`.
-
-  `NgSwitchCase` and `NgSwitchDefault` _are_ structural directives. 
-  You attach them to elements using the asterisk (*) prefix notation. 
-  An `NgSwitchCase` displays its host element when its value matches the switch value.
-  The `NgSwitchDefault` displays its host element when no sibling `NgSwitchCase` matches the switch value.
-
-.l-sub-section
-  :marked
-    The element to which you apply a directive is its _host_ element. 
-    The `<happy-hero>` is the host element for the happy `*ngSwitchCase`.
-    The `<unknown-hero>` is the host element for the `*ngSwitchDefault`.
-
-:marked
-  As with other structural directives, the `NgSwitchCase` and `NgSwitchDefault` 
-  can be desugared into the template _attribute_ form.
-
-+makeExcerpt('src/app/app.component.html', 'ngswitch-template-attr', '')
-
-:marked
-  That, in turn, can be desugared into the `<template>` element form.
-
-+makeExcerpt('src/app/app.component.html', 'ngswitch-template', '')
-
-a#prefer-asterisk
-:marked
-  ## Prefer the asterisk (*) syntax.
-
-  The asterisk (*) syntax is more clear than the other desugared forms.
-  Use [&lt;ng-container&gt;](#ng-container) when there's no single element
-  to host the directive.
-  
-  While there's rarely a good reason to apply a structural directive in template _attribute_ or _element_ form,
-  it's still important to know that Angular creates a `<template>` and to understand how it works.
-  You'll refer to the `<template>` when you [write your own structural directive](#unless).
-
-a#template
-.l-main-section
-:marked
-  ## The *&lt;template&gt;*
-
-  The <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template" target="_blank" title="MDN: Template Tag">HTML 5 &lt;template&gt;</a>
-  is a formula for rendering HTML.
-  It is never displayed directly. 
-  In fact, before rendering the view, Angular _replaces_ the `<template>` and its contents with a comment.
-  
-  If there is no structural directive and you merely wrap some elements in a `<template>`,
-  those elements disappear.
-  That's the fate of the middle "Hip!" in the phrase "Hip! Hip! Hooray!".
-
-+makeExcerpt('src/app/app.component.html', 'template-tag', '')
-
-:marked
-  Angular erases the middle "Hip!", leaving the cheer a bit less enthusiastic.
-
-figure.image-display
-  img(src='/resources/images/devguide/structural-directives/template-rendering.png' width="350" alt="template tag rendering")
-
-:marked
-  A structural directive puts a `<template>` to work
-  as you'll see when you write your own structural directive.
 
 a#unless
 .l-main-section
@@ -583,6 +583,7 @@ a#summary
 .l-main-section
 :marked
   ## Summary
+
   You can both try and download the source code for this guide in the <live-example></live-example>.  
   
   Here is the source from the `src/app/` folder.
@@ -611,7 +612,7 @@ a#summary
 
   * that structural directives manipulate HTML layout.
   * to use [`<ng-container>`](#ngcontainer) as a grouping element when there is no suitable host element.
-  * that the Angular "desugars" [asterisk (*) syntax](#asterisk) into a `<template>`.
+  * that the Angular desugars [asterisk (*) syntax](#asterisk) into a `<template>`.
   * how that works for the `NgIf`, `NgFor` and `NgSwitch` built-in directives.
   * about the [_microsyntax_](#microsyntax) that expands into a [`<template>`](#template).
   * to write a [custom structural directive](#unless), `UnlessDirective`.
