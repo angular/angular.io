@@ -38,27 +38,27 @@ function processExportDoc(exportDoc) {
     stability = 'deprecated';
     exportDoc.showDeprecatedNotes = true;
   }
-  
+
   var howToUse = '';
   if(_.has(exportDoc, 'howToUse')) {
     var howToUseArray = exportDoc.tags.tags.filter(function(tag) {
       return tag.tagName === 'howToUse'
     });
-    
+
     // Remove line breaks, there should only be one tag
     howToUse = howToUseArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
   }
-  
+
   var whatItDoes = '';
   if(_.has(exportDoc, 'whatItDoes')) {
     var whatItDoesArray = exportDoc.tags.tags.filter(function(tag) {
       return tag.tagName === 'whatItDoes'
     });
-    
+
     // Remove line breaks, there should only be one tag
     whatItDoes = whatItDoesArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
   }
-  
+
   // SECURITY STATUS
   // Supported tags:
   // @security
@@ -68,13 +68,13 @@ function processExportDoc(exportDoc) {
     var securityArray = exportDoc.tags.tags.filter(function(tag) {
       return tag.tagName === 'security'
     });
-    
+
     // Remove line breaks, there should only be one tag
     security = securityArray[0].description.replace(/(\r\n|\n|\r)/gm," ");
-    
+
     exportDoc.showSecurityNotes = true;
   }
-  
+
   return {stability: stability, howToUse: howToUse, whatItDoes: whatItDoes, security: security};
 }
 
@@ -110,7 +110,7 @@ module.exports = function addJadeDataDocsProcessor() {
       *
       * Modules must be public and have content
       */
-      
+
       _.forEach(docs, function(doc) {
         if (doc.docType === 'module' && !doc.internal && doc.exports.length) {
           modules.push(doc);
@@ -124,15 +124,15 @@ module.exports = function addJadeDataDocsProcessor() {
             intro: doc.description.replace('"', '\"').replace(/\s*(\r?\n|\r)\s*/g," "),
             docType: 'module'
           }];
-  
+
           var decorators = {};
-  
+
           // GET DATA FOR EACH PAGE (CLASS, VARS, FUNCTIONS)
           var modulePageInfo  = _(doc.exports)
           .map(function(exportDoc) {
             // if it ends with "Decorator", we store it in the map
             // to later merge with the token
-            if (exportDoc.name.endsWith("Decorator")) {
+            if (exportDoc.name.endsWith("Decorator") && exportDoc.callMember) {
               var p = processExportDoc(exportDoc.callMember);
               decorators[exportDoc.name] = {
                 stability : p.stability,
@@ -146,7 +146,7 @@ module.exports = function addJadeDataDocsProcessor() {
 
             } else {
               var p = processExportDoc(exportDoc);
-              
+
               // Data inserted into jade-data.template.html
               var dataDoc = {
                 name: exportDoc.name + '-' + exportDoc.docType,
@@ -158,23 +158,23 @@ module.exports = function addJadeDataDocsProcessor() {
                 whatItDoes: p.whatItDoes,
                 security: p.security
               };
-  
+
               if (exportDoc.symbolTypeName) dataDoc.varType = titleCase(exportDoc.symbolTypeName);
               if (exportDoc.originalModule) dataDoc.originalModule = exportDoc.originalModule;
-              
+
               return dataDoc;
             }
           })
           .filter(function(s) { return !!s; }) // filter out all null values
           .sortBy('name')
           .value();
-          
+
           // find a matching symbol for every decorator item
           // and merge the data
           _.forEach(Object.keys(decorators), function(name) {
             var varToken = name.split("Decorator")[0];
             var c = modulePageInfo.filter(function(n) { return n.exportDoc.name === varToken; });
-            
+
             c[0].docType = decorators[name].docType;
             Object.assign(c[0].exportDoc, decorators[name]);
           });
