@@ -8,8 +8,6 @@ import { HeroService } from './hero.service';
 
 // #docregion renaming, metadata
 @Component({
-  // #enddocregion renaming
-  // #docregion renaming
   selector: 'my-heroes',
   // #enddocregion renaming
   templateUrl: './heroes.component.html',
