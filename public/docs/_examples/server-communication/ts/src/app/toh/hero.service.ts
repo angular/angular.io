@@ -21,7 +21,7 @@ import { Hero } from './hero';
 @Injectable()
 export class HeroService {
   // #docregion endpoint
-  private heroesUrl = 'app/heroes';  // URL to web API
+  private heroesUrl = 'api/heroes';  // URL to web API
   // #enddocregion endpoint
 
   // #docregion ctor
@@ -29,16 +29,16 @@ export class HeroService {
   // #enddocregion ctor
 
   // #docregion methods, error-handling, http-get
-  getHeroes (): Observable<Hero[]> {
+  getHeroes(): Observable<Hero[]> {
     return this.http.get(this.heroesUrl)
                     .map(this.extractData)
                     .catch(this.handleError);
   }
   // #enddocregion error-handling, http-get, v1
 
-  // #docregion addhero, addhero-sig
-  addHero (name: string): Observable<Hero> {
-  // #enddocregion addhero-sig
+  // #docregion create, create-sig
+  create(name: string): Observable<Hero> {
+  // #enddocregion create-sig
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
 
@@ -46,7 +46,7 @@ export class HeroService {
                     .map(this.extractData)
                     .catch(this.handleError);
   }
-  // #enddocregion addhero
+  // #enddocregion create
 
   // #docregion v1, extract-data
   private extractData(res: Response) {

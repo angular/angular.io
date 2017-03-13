@@ -110,33 +110,33 @@ block http-providers
     The newcomers are the `HttpModule` and the `JsonpModule` from the !{_Angular_http_library}. For more information about imports and related terminology, see the [MDN reference](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) on the `import` statement.
 
     To add these modules to the application, pass them to the `imports` array in the root `@NgModule`.
-.l-sub-section
-  :marked
-    The `HttpModule` is necessary for making HTTP calls.
-    Though the `JsonpModule` isn't necessary for plain HTTP,
-    there is a JSONP demo later in this page.
-    Loading its module now saves time.
-.l-main-section#http-client
+  .l-sub-section
+    :marked
+      The `HttpModule` is necessary for making HTTP calls.
+      Though the `JsonpModule` isn't necessary for plain HTTP,
+      there is a JSONP demo later in this page.
+      Loading its module now saves time.
+  .l-main-section#http-client
 :marked
   ## The Tour of Heroes HTTP client demo
 
   The first demo is a mini-version of the [tutorial](../tutorial)'s "Tour of Heroes" (ToH) application.
   This version gets some heroes from the server, displays them in a list, lets the user add new heroes, and saves them to the server.
-  The app uses the !{_Angular_Http} client to communicate via `XMLHttpRequest (XHR)`.
+  The app uses the !{_Angular_Http} client to communicate via **XMLHttpRequest (XHR)**.
 
   It works like this:
 figure.image-display
   img(src='/resources/images/devguide/server-communication/http-toh.gif' alt="ToH mini app" width="250")
 :marked
   This demo has a single component, the `HeroListComponent`.  Here's its template:
-+makeExample('server-communication/ts/src/app/toh/hero-list.component.html', null, 'src/app/toh/hero-list.component.html (template)')
++makeExample('server-communication/ts/src/app/toh/hero-list.component.html', null, 'src/app/toh/hero-list.component.html')
 :marked
   It presents the list of heroes with an `ngFor`.
   Below the list is an input box and an *Add Hero* button where you can enter the names of new heroes
   and add them to the database.
   A [template reference variable](template-syntax.html#ref-vars), `newHeroName`, accesses the
   value of the input box in the `(click)` event binding.
-  When the user clicks the button, that value passes to the component's `addHero` method and then
+  When the user clicks the button, that value is passed to the component's `addHero` method and then
   the event binding clears it to make it ready for a new hero name.
 
   Below the button is an area for an error message.
@@ -166,9 +166,9 @@ a#HeroListComponent
     This is a *best practice*.
     Components are easier to test and debug when their constructors are simple, and all real work
     (especially calling a remote server) is handled in a separate method.
-block getheroes-and-addhero
+block getheroes-and-create
   :marked
-    The service's `getHeroes()` and `addHero()` methods return an `Observable` of hero data that the !{_Angular_Http} client fetched from the server.
+    The service's `getHeroes()` and `create()` methods return an `Observable` of hero data that the !{_Angular_Http} client fetched from the server.
 
     Think of an `Observable` as a stream of events published by some source.
     To listen for events in this stream, ***subscribe*** to the `Observable`.
@@ -285,7 +285,7 @@ a#no-return-response-object
 :marked
   ### Do not return the response object
   The `getHeroes()` method _could_ have returned the HTTP response but this wouldn't
-  be a best practice.
+  follow best practices.
   The point of a data service is to hide the server interaction details from consumers.
   The component that calls the `HeroService` only wants heroes and is kept separate
   from getting them, the code dealing with where they come from, and the response object.
@@ -334,6 +334,7 @@ block hlc-error-handling
     Want to see it fail? In the `HeroService`, reset the api endpoint to a bad value. Afterward, remember to restore it.
 
 
+<a id="create"></a>
 <a id="update"></a>
 <a id="post"></a>
 .l-main-section
@@ -343,10 +344,10 @@ block hlc-error-handling
   So far you've seen how to retrieve data from a remote location using an HTTP service.
   Now you'll add the ability to create new heroes and save them in the backend.
 
-  You'll write a method for the `HeroListComponent` to call, an `addHero()` method, that takes
+  You'll write a method for the `HeroListComponent` to call, a `create()` method, that takes
   just the name of a new hero and returns an `Observable` of `Hero`. It begins like this:
 
-+makeExample('server-communication/ts/src/app/toh/hero.service.ts', 'addhero-sig')(format=".")
++makeExample('server-communication/ts/src/app/toh/hero.service.ts', 'create-sig')(format=".")
 
 :marked
   To implement it, you must know the server's API for creating heroes.
@@ -365,11 +366,11 @@ code-example(format="." language="javascript").
   of the new hero including its generated id. The hero arrives tucked inside a response object
   with its own `data` property.
 
-  Now that you know how the API works, implement `addHero()` as follows:
+  Now that you know how the API works, implement `create()` as follows:
 
 +ifDocsFor('ts')
   +makeExample('server-communication/ts/src/app/toh/hero.service.ts', 'import-request-options', 'src/app/toh/hero.service.ts (additional imports)')(format=".")
-+makeExample('server-communication/ts/src/app/toh/hero.service.ts', 'addhero', 'src/app/toh/hero.service.ts (addHero)')(format=".")
++makeExcerpt('src/app/toh/hero.service.ts', 'create')
 
 a#headers
 :marked
@@ -394,7 +395,7 @@ a#json-results
 
 block hero-list-comp-add-hero
   :marked
-    Back in the `HeroListComponent`, *its* `addHero()` method subscribes to the Observable returned by the *service's* `addHero()` method.
+    Back in the `HeroListComponent`, its `addHero()` method subscribes to the Observable returned by the service's `create()` method.
     When the data arrive it pushes the new hero object into its `heroes` array for presentation to the user.
 +makeExample('server-communication/ts/src/app/toh/hero-list.component.ts', 'addHero', 'src/app/toh/hero-list.component.ts (addHero)')(format=".")
 
@@ -455,7 +456,7 @@ block hero-list-comp-add-hero
 h2#cors Cross-Origin Requests: Wikipedia example
 :marked
   You just learned how to make `XMLHttpRequests` using the !{_Angular_Http} service.
-  This is the most common approach for server communication, but it doesn't work in all scenarios.
+  This is the most common approach to server communication, but it doesn't work in all scenarios.
 
   For security reasons, web browsers block `XHR` calls to a remote server whose origin is different from the origin of the web page.
   The *origin* is the combination of URI scheme, hostname, and port number.
@@ -685,18 +686,18 @@ a#override-default-request-options
  :marked
    Remember to include this provider during setup when unit testing the app's HTTP services.
 :marked
-  After this change, the `header` option setting in `HeroService.addHero()` is no longer necessary,
+  After this change, the `header` option setting in `HeroService.create()` is no longer necessary,
 
-+makeExample('server-communication/ts/src/app/toh/hero.service.ts', 'addhero', 'src/app/toh/hero.service.ts (addHero)')(format=".")
++makeExcerpt('src/app/toh/hero.service.ts', 'create')
 :marked
   You can confirm that `DefaultRequestOptions` is working by examing HTTP requests in the browser developer tools' network tab.
   If you're short-circuiting the server call with something like the [_in-memory web api_](#in-mem-web-api),
-  try commenting-out the `addHero` header option, 
+  try commenting-out the `create` header option, 
   set a breakpoint on the POST call, and step through the request processing
   to verify the header is there.
   
   Individual requests options, like this one, take precedence over the default `RequestOptions`.
-  It might be wise to keep the `addHero` request header setting for extra safety.
+  It might be wise to keep the `create` request header setting for extra safety.
 
 a#in-mem-web-api
 .l-main-section
