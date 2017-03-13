@@ -10,7 +10,6 @@
     },
     // map tells the System loader where to look for things
     map: {
-      'ng-loader': './systemjs-angular-loader.js',
       // our app is within the app folder
       'app': 'app',
 
@@ -36,7 +35,7 @@
         defaultExtension: 'js',
         meta: {
           './*.js': {
-            loader: 'ng-loader'
+            loader: 'systemjs-angular-loader.js'
           }
         }
       },

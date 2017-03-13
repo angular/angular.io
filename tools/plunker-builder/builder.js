@@ -43,6 +43,7 @@ class PlunkerBuilder {
     if (config.basePath.indexOf('/ts') > -1) {
       // uses systemjs.config.js so add plunker version
       this.options.addField(postData, 'systemjs.config.js', this.systemjsConfig);
+      this.options.addField(postData, 'systemjs-angular-loader.js', this.systemjsModulePlugin);
     }
   }
 
@@ -213,11 +214,13 @@ class PlunkerBuilder {
   }
 
   _getPlunkerFiles() {
+    var systemJsModulePlugin = '/_boilerplate/src/systemjs-angular-loader.js';
     var systemJsConfigPath = '/_boilerplate/src/systemjs.config.web.js';
     if (this.options.build) {
       systemJsConfigPath = '/_boilerplate/src/systemjs.config.web.build.js';
     }
     this.systemjsConfig = fs.readFileSync(this.basePath + systemJsConfigPath, 'utf-8');
+    this.systemjsModulePlugin = fs.readFileSync(this.basePath + systemJsModulePlugin, 'utf-8');
 
     // Copyright already added to web versions of systemjs.config
     // this.systemjsConfig +=  this.copyrights.jsCss;

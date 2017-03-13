@@ -6,7 +6,10 @@ module.exports.translate = function(load){
 
   var url = new URL(load.address);
 
-  var basePathParts = url.pathname.split('/');
+  var basePathParts = url.pathname.substr(1).split('/');
+
+  if (url.href.indexOf('plnkr') != -1) basePathParts.shift();
+
   basePathParts.pop();
   var basePath = basePathParts.join('/');
 
@@ -25,7 +28,7 @@ module.exports.translate = function(load){
 
       while ((match = stringRegex.exec(relativeUrls)) !== null) {
         if (match[2].startsWith('.')) {
-          urls.push(`'${basePath.substr(1)}${match[2].substr(1)}'`);
+          urls.push(`'${basePath}${match[2].substr(1)}'`);
         } else {
           urls.push(`'${match[2]}'`);
         }
