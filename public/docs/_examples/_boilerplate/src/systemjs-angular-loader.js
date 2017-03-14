@@ -6,13 +6,15 @@ module.exports.translate = function(load){
 
   var url = new URL(load.address);
 
-  var basePathParts = url.pathname.substr(1).split('/');
+  var basePathParts = url.pathname.split('/');
 
-  if (url.href.indexOf('plnkr') != -1) basePathParts.shift();
+  if (url.href.indexOf('plnkr') != -1) {
+    basePathParts.shift();
+    basePathParts.shift();
+  }
 
   basePathParts.pop();
   var basePath = basePathParts.join('/');
-
   load.source = load.source
     .replace(templateUrlRegex, function(match, quote, url){
       let resolvedUrl = url;
@@ -28,7 +30,7 @@ module.exports.translate = function(load){
 
       while ((match = stringRegex.exec(relativeUrls)) !== null) {
         if (match[2].startsWith('.')) {
-          urls.push(`'${basePath}${match[2].substr(1)}'`);
+          urls.push(`'${basePath.substr(1)}${match[2].substr(1)}'`);
         } else {
           urls.push(`'${match[2]}'`);
         }
