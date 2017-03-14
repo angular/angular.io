@@ -12,7 +12,6 @@ import { RouteParams } from '../ajs-upgraded-providers';
 
 // #docregion initialclass
 @Component({
-  moduleId: module.id,
   selector: 'phone-detail',
   templateUrl: './phone-detail.template.html',
   // #enddocregion initialclass

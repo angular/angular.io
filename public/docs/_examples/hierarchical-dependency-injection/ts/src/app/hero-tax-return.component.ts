@@ -4,7 +4,6 @@ import { HeroTaxReturn }        from './hero';
 import { HeroTaxReturnService } from './hero-tax-return.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-tax-return',
   templateUrl: './hero-tax-return.component.html',
   styleUrls: [ './hero-tax-return.component.css' ],

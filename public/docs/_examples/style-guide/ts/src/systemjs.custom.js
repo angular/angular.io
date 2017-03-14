@@ -39,7 +39,7 @@
 
   var packages = {};
   packageNames.forEach(function(pkgName) {
-    packages[pkgName] = { main: 'index.js', defaultExtension: 'js' };
+    packages[pkgName] = { main: 'index.js', defaultExtension: 'js', meta: { './*.js': { loader: 'systemjs-angular-loader.js' }} };
   });
 
   var config = {

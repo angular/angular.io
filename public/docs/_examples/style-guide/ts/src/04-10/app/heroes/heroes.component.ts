@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
 import { FilterTextService } from '../shared/filter-text/filter-text.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'toh-heroes',
   templateUrl: './heroes.component.html'
 })

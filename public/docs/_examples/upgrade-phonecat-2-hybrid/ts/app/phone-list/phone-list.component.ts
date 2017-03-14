@@ -10,7 +10,6 @@ import { Phone, PhoneData } from '../core/phone/phone.service';
 
 // #docregion downgrade-component
 @Component({
-  moduleId: module.id,
   selector: 'phone-list',
   templateUrl: 'phone-list.template.html'
 })

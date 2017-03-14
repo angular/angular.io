@@ -86,6 +86,7 @@ var _excludeMatchers = _excludePatterns.map(function(excludePattern){
 var _exampleBoilerplateFiles = [
   'src/styles.css',
   'src/systemjs.config.js',
+  'src/systemjs-angular-loader.js',
   'src/tsconfig.json',
   'bs-config.json',
   'bs-config.e2e.json',

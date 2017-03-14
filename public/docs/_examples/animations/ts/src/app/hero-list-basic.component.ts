@@ -15,7 +15,6 @@ import {
 import { Heroes } from './hero.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-list-basic',
   // #enddocregion
   /* The click event calls hero.toggleState(), which

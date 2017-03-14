@@ -5,7 +5,6 @@ import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browse
 
 @Component({
   selector: 'bypass-security',
-  moduleId: module.id,
   templateUrl: './bypass-security.component.html',
 })
 export class BypassSecurityComponent {

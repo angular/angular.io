@@ -5,7 +5,6 @@ import { Router }                 from '@angular/router';
 import { slideInDownAnimation }   from './animations';
 
 @Component({
-  moduleId: module.id,
   templateUrl: './compose-message.component.html',
   styles: [ ':host { position: relative; bottom: 10%; }' ],
   animations: [ slideInDownAnimation ]

@@ -6,7 +6,6 @@ import { Component } from '@angular/core';
 import { Phone, PhoneData } from '../core/phone/phone.service';
 
 @Component({
-  moduleId: module.id,
   templateUrl: 'phone-list.template.html'
 })
 export class PhoneListComponent {

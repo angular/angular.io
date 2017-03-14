@@ -6,9 +6,8 @@ import { Hero }        from './data-model';
 import { HeroService } from './hero.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'my-app',
-  templateUrl: 'demo.component.html'
+  templateUrl: './demo.component.html'
 })
 export class DemoComponent {
 

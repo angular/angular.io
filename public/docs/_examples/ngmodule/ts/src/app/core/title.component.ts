@@ -3,7 +3,6 @@ import { Component, Input } from '@angular/core';
 import { UserService }      from '../core/user.service';
 
 @Component({
-  moduleId: module.id,
   selector: 'app-title',
   templateUrl: './title.component.html',
 })

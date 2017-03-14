@@ -16,7 +16,6 @@ export enum Color {Red, Green, Blue};
  * Giant grab bag of stuff to drive the chapter
  */
 @Component({
-  moduleId: module.id,
   selector: 'my-app',
   templateUrl: './app.component.html',
   styleUrls: [ './app.component.css' ]

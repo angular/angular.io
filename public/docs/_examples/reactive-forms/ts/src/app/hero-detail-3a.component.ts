@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 // #enddocregion imports
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-detail-3',
   templateUrl: './hero-detail-3.component.html'
 })

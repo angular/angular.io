@@ -2,7 +2,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
-  moduleId: module.id,
   selector: 'toh-filter-text',
   template: '<input type="text" id="filterText" [(ngModel)]="filter" (keyup)="filterChanged($event)" />'
 })

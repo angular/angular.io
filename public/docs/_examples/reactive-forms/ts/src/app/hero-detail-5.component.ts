@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { states } from './data-model';
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-detail-5',
   templateUrl: './hero-detail-5.component.html'
 })

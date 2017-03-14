@@ -7,7 +7,6 @@ import { Address, Hero, states } from './data-model';
 // #enddocregion imports
 
 @Component({
-  moduleId: module.id,
   selector: 'hero-detail-8',
   templateUrl: './hero-detail-8.component.html'
 })
