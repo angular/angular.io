@@ -1,6 +1,34 @@
 **WIP - This guide covers Angular Universal. 
 In so doing, it also describes how to perform _Ahead of Time_ (AOT) compilation using Webpack.**
 
+## Table of Malcontents
+
+Overview
+    What is Universal
+        run app & render html on the server
+    Why it matters
+        discussion of slow devices
+        graphs of performance
+    The Example
+        discussion
+        directory structure
+Preparation
+    Installing packages
+    Component-relative Template URLs
+TypeScript Configuration
+    tsconfig-aot.json
+    Main entry point for aot
+    tsconfig-uni.json
+    Main entry point for universal
+Webpack Configuration
+    Loader
+    Plugin
+    Input
+    Output
+Server Configuration
+    Lite Server
+
+
 ## Overview
 
 In the [AOT Compiler cookbook](..cookbook/aot-compiler.html) you compiled an Angular app ahead of time using `ngc`,
@@ -107,7 +135,7 @@ You configure it using a JSON file similar to `tsconfig.json`.  There are a few 
  This creates JavaScript output with `import` statements (instead of `require()`) that can be compiled and bundled.
  - The `files` setting includes the app module and the main AOT bootstrapper.  See more about this in the section below.
  - There is a new `angularCompilerOptions` section with the following settings:
-     - `genDir` - the output directory that will contain the compiled code
+     - `genDir` - the output directory that will contain the compiled code.  When compiling via Webpack, no files are written here.
    - `entryModule` - the root module of the app, expressed as **path/to/file#ClassName**.
      - `skipMetadataEmit` - set to `true` because you don't need metadata in the bundled application
 
