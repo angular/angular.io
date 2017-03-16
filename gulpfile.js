@@ -528,7 +528,7 @@ function installExampleAngular() {
 
   gutil.log(`Installing Angular packages from ${build === 'npm' ? 'NPM' : 'BUILD ' + build}`);
 
-  var spawnInfo = spawnExt('rm', ['-rf', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
+  var spawnInfo = spawnExt('node', ['node_modules/rimraf/bin.js', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
   return spawnInfo.promise
     .then(() =>  {
       spawnInfo = spawnExt('npm', ['install', ...sources], {cwd: EXAMPLES_PATH});
