@@ -5,11 +5,6 @@ import { AfterViewInit, Component, ElementRef, OnInit, QueryList, ViewChildren }
 
 import { Hero } from './hero';
 
-// Alerter fn: monkey patch during test
-export function alerter(msg?: string) {
-  window.alert(msg);
-}
-
 export enum Color {Red, Green, Blue};
 
 /**
@@ -38,13 +33,13 @@ export class AppComponent implements AfterViewInit, OnInit {
   @ViewChildren('withTrackBy') heroesWithTrackBy: QueryList<ElementRef>;
 
   actionName = 'Go for it';
-  alert = alerter;
   badCurly = 'bad curly';
   classes = 'special';
   help = '';
 
-  callFax(value: string)   {this.alert(`Faxing ${value} ...`); }
-  callPhone(value: string) {this.alert(`Calling ${value} ...`); }
+  alert(msg?: string)      { window.alert(msg); }
+  callFax(value: string)   { this.alert(`Faxing ${value} ...`); }
+  callPhone(value: string) { this.alert(`Calling ${value} ...`); }
   canSave =  true;
 
   changeIds() {
