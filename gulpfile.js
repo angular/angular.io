@@ -502,7 +502,7 @@ function installExampleAngular() {
   var template;
   var libs = [
     'core', 'common', 'compiler', 'compiler-cli',
-    'platform-browser', 'platform-browser-dynamic',
+    'platform-browser', 'platform-browser-dynamic', 'platform-server',
     'forms', 'http', 'router', 'upgrade'];
 
   var build = argv.build;
