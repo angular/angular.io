@@ -522,7 +522,10 @@ function installExampleAngular() {
       : `git+https://github.com/angular/${lib}-builds${build}`;
   });
 
-  if (argv.build) { sources.push('@angular/tsc-wrapped');} // tsc-wrapped needed for builds
+  if (argv.build) { 
+    sources.push('@angular/tsc-wrapped'); // tsc-wrapped needed for builds
+    sources.push('typescript@2.2.1');     // recent builds need recent TypeScript
+  } 
 
   sources.push('@angular/router-deprecated');
 
