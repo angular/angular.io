@@ -18,5 +18,7 @@ import { Hero } from './hero';
   `
 })
 export class HeroDetailComponent {
+  // #docregion declaring-conponent-input
   @Input() hero: Hero;
+  // #enddocregion declaring-conponent-input
 }

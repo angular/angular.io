@@ -21,11 +21,14 @@ export class HeroDetailComponent implements OnInit {
     private location: Location
   ) {}
 
+  // #docregion service-fetch-by-id
   ngOnInit(): void {
     this.route.params
       .switchMap((params: Params) => this.heroService.getHero(+params['id']))
       .subscribe(hero => this.hero = hero);
   }
+  // #enddocregion service-fetch-by-id
+
 
   // #docregion save
   save(): void {
