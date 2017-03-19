@@ -8,13 +8,13 @@ module.exports.translate = function(load){
 
   var basePathParts = url.pathname.split('/');
 
-  if (url.href.indexOf('plnkr') != -1) {
-    basePathParts.shift();
-    basePathParts.shift();
-  }
-
   basePathParts.pop();
   var basePath = basePathParts.join('/');
+
+  var baseHref = new URL(this.baseURL).pathname;
+
+  basePath = basePath.replace(baseHref, '');
+
   load.source = load.source
     .replace(templateUrlRegex, function(match, quote, url){
       let resolvedUrl = url;
@@ -30,7 +30,7 @@ module.exports.translate = function(load){
 
       while ((match = stringRegex.exec(relativeUrls)) !== null) {
         if (match[2].startsWith('.')) {
-          urls.push(`'${basePath.substr(1)}${match[2].substr(1)}'`);
+          urls.push(`'${basePath}${match[2].substr(1)}'`);
         } else {
           urls.push(`'${match[2]}'`);
         }
