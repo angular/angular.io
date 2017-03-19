@@ -61,6 +61,7 @@ class ExampleZipper {
     const exampleDirName = path.dirname(configFileName);
     const examplesPackageJson = 'public/docs/_examples/package.json';
     const examplesSystemjsConfig = 'public/docs/_examples/_boilerplate/src/systemjs.config.js';
+    const examplesSystemjsLoaderConfig = 'public/docs/_examples/_boilerplate/src/systemjs-angular-loader.js';
     const exampleTsconfig = 'public/docs/_examples/_boilerplate/src/tsconfig.json';
     let exampleZipName = jsonFileName.replace(/(plnkr|zipper).json/, relativeDirName);
     const outputFileName = path.join(outputDirName, relativeDirName, exampleZipName + '.zip');
@@ -136,6 +137,7 @@ class ExampleZipper {
     // also a systemjs config
     if (!json.removeSystemJsConfig) {
       zip.append(fs.readFileSync(examplesSystemjsConfig, 'utf8'), { name: 'src/systemjs.config.js' });
+      zip.append(fs.readFileSync(examplesSystemjsLoaderConfig, 'utf8'), { name: 'src/systemjs-angular-loader.js' });
     }
     // a modified tsconfig
     let tsconfig = fs.readFileSync(exampleTsconfig, 'utf8');
