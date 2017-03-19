@@ -1,18 +1,20 @@
-// hacky express wrapper thingy.
+/**
+ * Express/Connect middleware for rendering pages using Angular Universal
+ */
 
 const fs = require('fs');
 import { renderModuleFactory } from '@angular/platform-server';
 
-const templateCache = {};
-const outputCache = {};
+const templateCache = {}; // cache for page templates
+const outputCache = {};   // cache for rendered pages
 
-export function ngExpressEngine(setupOptions: any) {
+export function ngUniversalEngine(setupOptions: any) {
 
-  return function (filePath: any, options: any, callback: any) {
+  return function (filePath: string, options: { req: Request }, callback: (err: Error, html: string) => void) {
     let url: string = options.req.url;
     let html: string = outputCache[url];
     if (html) {
-      // already built page for this url
+      // return already-built page for this url
       console.log('from cache: ' + url);
       callback(null, html);
       return;
@@ -23,8 +25,10 @@ export function ngExpressEngine(setupOptions: any) {
       let file = fs.readFileSync(filePath);
       templateCache[filePath] = file.toString();
     }
+
     // render the page via angular platform-server
-    renderModuleFactory(setupOptions.bootstrap[0], {
+    let appModuleFactory = setupOptions.bootstrap[0];
+    renderModuleFactory(appModuleFactory, {
       document: templateCache[filePath],
       url: options.req.url
     }).then(str => {

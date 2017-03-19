@@ -3,14 +3,14 @@ const ngtools = require('@ngtools/webpack');
 module.exports = {
 	devtool: 'source-map',
 	entry: {
-		main: ['./src/uni/app.server.ts', './src/uni/main.server-aot.ts']
+		main: ['./src/uni/app.server.ts', './src/uni/server-aot.ts']
 	},
 	resolve: {
       extensions: ['.ts', '.js']
     },
 	target: 'node',
 	output: {
-		path: 'universal',
+		path: 'src/dist',
 		filename: 'server.js'
 	},
 	plugins: [

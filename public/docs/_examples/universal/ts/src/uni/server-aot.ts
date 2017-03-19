@@ -1,16 +1,16 @@
 import 'zone.js/dist/zone-node';
 import { enableProdMode } from '@angular/core';
 // import { AppServerModule } from './app.server';
-import { AppServerModuleNgFactory } from '../../ngfactory/src/uni/app.server.ngfactory';
+import { AppServerModuleNgFactory } from '../../aot/src/uni/app.server.ngfactory';
 import * as express from 'express';
-import {ngExpressEngine} from './express-engine';
+import {ngUniversalEngine} from './universal-engine';
 
 enableProdMode();
 
 const app = express();
 
 // set our angular engine as the handler for html files.  (there is actually only one html file.)
-app.engine('html', ngExpressEngine({
+app.engine('html', ngUniversalEngine({
     baseUrl: 'http://localhost:3200',
     bootstrap: [AppServerModuleNgFactory]
 }));
@@ -18,17 +18,21 @@ app.engine('html', ngExpressEngine({
 // set default file extension to html.
 app.set('view engine', 'html');
 // set default view directory
-app.set('views', 'aot');
+app.set('views', 'src');
 
 // handle requests for routes in the app.  ngExpressEngine does the rendering.
 app.get(['/', '/dashboard', '/heroes', '/detail/:id'], (req, res) => {
-    res.render('index-uni', {req});
+    res.render('index-aot', {req});
 });
 
 // handle requests for static files
 app.get(['/*.js', '/*.css'], (req, res, next) => {
-  let options = { root: 'aot' };
-  let fileName = req.originalUrl;
+  let options = { root: 'src' };
+  let fileName: string = req.originalUrl;
+  console.log(fileName);
+  if (fileName.startsWith('/node_modules/')) {
+    options.root = '.';
+  }
   res.sendFile(fileName, options, function (err) {
     if (err) {
       next(err);

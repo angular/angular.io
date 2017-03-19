@@ -1,4 +1,5 @@
 const ngtools = require('@ngtools/webpack');
+const webpack = require('webpack');
 
 module.exports = {
 	devtool: 'source-map',
@@ -10,13 +11,14 @@ module.exports = {
     },
 	target: 'node',
 	output: {
-		path: 'aot/dist',
+		path: 'src/dist',
 		filename: 'build.js'
 	},
 	plugins: [
 		new ngtools.AotPlugin({
 			tsConfigPath: './tsconfig-aot.json'
-		})
+		}),
+		new webpack.optimize.UglifyJsPlugin({ sourceMap: true })
 	],
 	module: {
 		rules: [
