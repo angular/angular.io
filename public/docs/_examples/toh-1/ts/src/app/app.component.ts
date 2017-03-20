@@ -1,4 +1,4 @@
-// #docregion pt1
+// #docregion
 import { Component } from '@angular/core';
 
 // #docregion hero-class-1
@@ -10,6 +10,7 @@ export class Hero {
 
 @Component({
   selector: 'my-app',
+  // #docregion editing-Hero
   template: `
     <h1>{{title}}</h1>
     <h2>{{hero.name}} details!</h2>
@@ -19,6 +20,7 @@ export class Hero {
       <input [(ngModel)]="hero.name" placeholder="name">
     </div>
     `
+  // #enddocregion editing-Hero
 })
 export class AppComponent {
   title = 'Tour of Heroes';
@@ -29,4 +31,3 @@ export class AppComponent {
   };
   // #enddocregion hero-property-1
 }
-// #enddocregion pt1
