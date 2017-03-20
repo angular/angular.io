@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Location }               from '@angular/common';
 
 import { Apollo, ApolloQueryObservable } from 'apollo-angular';
-import { Subscription } from 'rxjs/Subscription';
+import { ISubscription } from 'rxjs/Subscription';
 import gql from 'graphql-tag';
 
 import { Hero }        from './hero';
@@ -17,7 +17,7 @@ import { Hero }        from './hero';
 export class HeroDetailComponent implements OnInit {
   hero: Hero;
 
-  private heroSubscription: Subscription;
+  private heroSubscription: ISubscription;
   private heroObservable: ApolloQueryObservable<any>;
 
   constructor(
