@@ -1,13 +1,13 @@
 module.exports = {
+  port: 3100,
   server: {
-    "port": 3100,
-    "baseDir": "src",
-    "routes": {
+    baseDir: "src",
+    routes: {
       "/node_modules": "node_modules"
     },
     middleware: {
       // overrides the fallback middleware to use index-aot
-      1: require('connect-history-api-fallback')({index: '/index-aot.html'})
+      1: require('connect-history-api-fallback')({ index: '/index-aot.html' })
     }
   }
   // ,"snippetOptions": {

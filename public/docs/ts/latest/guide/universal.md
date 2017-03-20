@@ -42,6 +42,8 @@ Angular Universal is a technology that lets Angular applications run outside of 
 
 Angular Universal works using _NgFactory_ classes created through [AOT Compilation](../cookbook/aot-compiler.html).  It's different from regular AOT because the app is compiled using `platform-server` instead of `platform-browser`.  This changes the app behavior to make it capable of rendering on the server.  For example, `platform-server` does not handle browser events, and it renders components to an HTML string instead of the browser DOM.
 
+In this guide, we will first use Webpack to create an AOT-compiled version of the app, and then build on that to create a Universal server for the app.
+
 ## Why Do It
 
 Why would you want to create a static version of your app?  There are two main reasons:
@@ -65,7 +67,7 @@ The recommended scenario is to serve a static version of the landing page, then 
 
 #### Startup Comparison
 
-> The graph / on the wall (the graph) / tells the story / of it all _- Depeche Mode_
+> The graph / on the wall / tells the story / of it all _- Depeche Mode_
 
 To illustrate the impact of Universal, we have used the [Timeline feature in Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/evaluate-performance/timeline-tool). Timeline offers many ways to inspect the performance of your app.  Here we have used it to compare the uncached startup performance of the _Tour of Heroes_ app.  Tour of Heroes is a simple demo app without much code or content, so it is probably smaller than the real apps you will build.  
 
@@ -141,68 +143,144 @@ The Universal app displays the Dashboard page in just 0.4 seconds, since it disp
 
 ## The Example
 
+This guide uses the _Tour of Heroes_ app as an example.  The app files remain the same, but additional support files are created to support building and serving the AOT and Universal versions.
 
-This guide uses the Tour of Heroes app as an example.  The app files remain the same, but some additional files and folders will be added to the directory structure to support the AOT configuration.  The folder structure will look like this:
+The AOT and Universal versions of the app are both compiled by the AOT compiler.  The difference is that AOT version gets compiled into a bundle that is sent to the client, while the Universal version is compiled into a web server that serves pages that are rendered from the app.
+
+To build and run the AOT version, you need to create:
+
+ - an `index-aot.html` file
+ - a main entry point, `main-aot.ts`
+ - a TypeScript config file, `tsconfig-aot.json`
+ - a Webpack config file, `webpack.config.aot.js`
+ - a lite-server config file, `bs-config.aot.js`
+
+ To build and run the Universal version, you need to create:
+
+ - a server-side app module, `app.server.ts`
+ - a Universal app renderer, `universal-engine.ts`
+ - an express web server to handle requests, `server-aot.ts`
+ - a TypeScript config file, `tsconfig-uni.json`
+ - a Webpack config file, `webpack.config.uni.js`
+
+The folder structure will look like this:
 
 ```shell
 src/  index.html                    index file for JIT version
-      index-aot.html                index file for AOT version
+      index-aot.html                index file for AOT version *
       main.ts                       bootstrapper for JIT version
-      main-aot.ts                   bootstrapper for AOT version
+      main-aot.ts                   bootstrapper for AOT version *
       style.css                     styles for JIT version
       systemjs.config.js            SystemJS configuration for JIT version
       systemjs-angular-loader.js    component loader that allows relative paths
       tsconfig.json                 TypeScript configuration for JIT version
       app/  app.module.ts           application code
-           (etc.)
-      uni/  app.server.ts           server-side application module
-            server-aot.ts           express web server
-            universal-engine.ts     server-side app renderer
-      dist/ build.js                AOT-compiled application bundle
-      dist/ server.js               AOT-compiled server bundle
+            ...                     ...
+      uni/  app.server.ts           server-side application module *
+            server-aot.ts           express web server *
+            universal-engine.ts     server-side app renderer *
+      dist/ build.js                AOT-compiled application bundle *
+            server.js               AOT-compiled server bundle *
 bs-config.json                      config file for lite server, JIT version
-bs-config.aot.js                    config file for lite server, AOT version
+bs-config.aot.js                    config file for lite server, AOT version *
 package.json                        npm configuration
-tsconfig-aot.json                   TypeScript configuration for AOT version
-webpack.config.aot.js               Webpack configuration for AOT version
-webpack.config.uni.js               Webpack configuration for AOT version
+tsconfig-aot.json                   TypeScript configuration for AOT version *
+tsconfig-uni.json                   TypeScript configuration for Universal version *
+webpack.config.aot.js               Webpack configuration for AOT version *
+webpack.config.uni.js               Webpack configuration for Universal version *
 ```
+The files marked with * are new and not in the original Tour of Heroes demo.  This guide covers the new files in the sections below.
 
-This guide covers the new files in the sections below
+# Preparation
 
-## Preparation
-
-### Installing the tools
+## Installing the tools
 
 To get started, you need to install the necessary modules for AOT and Webpack.
 
  - `@angular/compiler-cli` - The ngc compiler that compiles Angular applications 
  - `@angular/platform-server` - Server-side components needed for compilation
- - `webpack` - The JavaScript bundler
+ - `webpack` - The Webpack JavaScript bundler
  - `@ngtools/webpack` - The Webpack loader and plugin for bundling compiled applications
+ - `raw-loader` - The Webpack loader for text files
+ - `express` - The web server for serving the Universal application
 
-You can install them all at once with the following command:
+You can install them with the following commands:
 
 ```
-npm install @angular/compiler-cli @angular/platform-server webpack @ngtools/webpack --save-dev
+npm install @angular/compiler-cli @angular/platform-server --save-dev
+npm install webpack @ngtools/webpack raw-loader express --save-dev
 ```
 
-## Configuration
+## Component-relative Template URLs
 
-### Creating the tsconfig-aot.json
+The AOT compiler requires that `@Component` URLs for external templates and css files be *component-relative*.
+That means that the value of @Component.templateUrl is a URL value relative to the component class file.
+For example, an `'./app.component.html'` URL means that the template file is a sibling of its companion app.component.ts file.
+(The leading `./` is needed by Webpack to recognize that the string represents a path and not a module name.)
 
-The AOT compiler, `ngc`, compiles TypeScript (like `tsc`) and compiles your app's components, services, etc. into executable code. 
+SystemJS allows both absolute and relative URLs (via [systemjs-angular-loader]()), so you could have both in your app.  Before building your app with AOT and Universal, you will need to convert them.
+
+From this:
+
+```ts
+    @Component({
+        selector: 'my-component',
+        templateUrl: 'app/demo/components/my.component.html'
+    })
+```
+To this:
+
+```ts
+    @Component({
+        selector: 'my-component',
+        templateUrl: './my.component.html'
+    })
+```
+
+# Configuration - AOT
+
+## Main Entry Point
+
+In the JIT-compiled app, `main.ts` is the entry point that bootstraps the app module.  
+An AOT-compiled app bootstraps differently, using `platformBrowser` instead of `platformBrowserDynamic` and using the *factory* that is created by pre-compiling the app module.  A separate main entry point is needed.  
+
+In the `src` directory, create a `main-aot.ts` like the one shown here:
+
+```ts
+import { platformBrowser }    from '@angular/platform-browser';
+import { AppModuleNgFactory } from '../aot/src/app/app.module.ngfactory';
+
+platformBrowser().bootstrapModuleFactory(AppModuleNgFactory);
+```
+
+There's a chicken-and-egg problem here.
+The `AppModuleNgFactory` won't exist until the app is compiled, but the `main-aot.ts` won't compile because `AppModuleNgFactory` doesn't exist yet.
+
+One way around this problem is to compile `app.module.ts` before `main-aot.ts`.  You can tell the compiler to do that using the `files` array in the `tsconfig-aot.json`, which you will create in the next section.
+
+```json
+"files": [
+    "src/app/app.module.ts",
+    "src/main-aot.ts"
+],
+```
+
+Since `app.module.ts` appears first in the array, it will be compiled into an `ngfactory` first.  So `AppModuleNgFactory` will be available for `main-aot.ts`.
+
+## Creating the tsconfig-aot.json
+
+The AOT compiler transpiles TypeScript into JavaScript (like `tsc`), and compiles your app's components, services, etc. into executable JavaScript code. 
 You configure it using a JSON file similar to `tsconfig.json`.  There are a few differences:
 
  - The `module` setting must be `es2015`.
  This creates JavaScript output with `import` statements (instead of `require()`) that can be compiled and bundled.
  - The `files` setting includes the app module and the main AOT bootstrapper.  See more about this in the section below.
  - There is a new `angularCompilerOptions` section with the following settings:
-     - `genDir` - the output directory that will contain the compiled code.  When compiling via Webpack, no files are written here.
-   - `entryModule` - the root module of the app, expressed as **path/to/file#ClassName**.
-     - `skipMetadataEmit` - set to `true` because you don't need metadata in the bundled application
+    - `genDir` - the output directory that will contain the compiled `ngfactory` code.  When compiling via Webpack, this is used as a temporary directory.
+    - `entryModule` - the root module of the app, expressed as **path/to/file#ClassName**.
+    - `skipMetadataEmit` - set to `true` because you don't need metadata in the bundled application
 
-Create a `tsconfig-aot.json` file by copying your `tsconfig.json` and applying the changes described above.
+Create a `tsconfig-aot.json` file in the project rood directory by copying your `tsconfig.json` and applying the changes described above.  It should look like this:
 
 ```json
 {
@@ -232,108 +310,59 @@ Create a `tsconfig-aot.json` file by copying your `tsconfig.json` and applying t
 }
 ```
 
-### Main Entry Point
-
-In the JIT-compiled app, `main.ts` is the entry point that bootstraps the app module.  
-An AOT-compiled app bootstraps differently, using `platformBrowser` instead of `platformBrowserDynamic` and using the *factory* that is created by pre-compiling the app module.  
-
-Create a `main-aot.ts` like the one shown here:
-
-```ts
-import { platformBrowser }    from '@angular/platform-browser';
-import { AppModuleNgFactory } from '../aot/src/app/app.module.ngfactory';
-
-platformBrowser().bootstrapModuleFactory(AppModuleNgFactory);
-```
-
-There's a chicken-and-egg problem.
-The `AppModuleNgFactory` won't exist until the app is compiled, but the `main-aot.ts` won't compile because `AppModuleNgFactory` doesn't exist yet.
-
-One way around this problem is to compile `app.module.ts` before `main-aot.ts`.  Tell the compiler to do that using the `files` array in the `tsconfig-aot.json` as shown above.
-
-```json
-"files": [
-    "src/app/app.module.ts",
-    "src/main-aot.ts"
-],
-```
-
-### Component-relative Template URLs
-
-The AOT compiler requires that `@Component` URLS for external templates and css files be *component-relative*.
-That means that the value of @Component.templateUrl is a URL value relative to the component class file.
-For example, an `'./app.component.html'` URL means that the template file is a sibling of its companion app.component.ts file.
-(The leading `./` is needed by Webpack to recognize that the string represents a path and not a module name.)
-
-Before you convert all absolute URLs to relative, there is one caveat:  
-SystemJS requires the `moduleId` in order to resolve relative URLs, so if you want to enable both AOT and browser-side compilation,
-you will need to add the `moduleId: module.id` to each of your components.
-
-From this:
-
-```ts
-    @Component({
-        selector: 'my-component',
-        templateUrl: 'app/demo/components/my.component.html'
-    })
-```
-To this:
-```ts
-    @Component({
-        selector: 'my-component',
-        moduleId: module.id,
-        templateUrl: './my.component.html'
-    })
-```
-
 ## Webpack Configuration
 
 The [Webpack Introduction](webpack.html) explains how to configure Webpack to bundle your Angular application.
 Using Webpack for AOT is similar, but uses different [loaders](webpack.html#loaders) and [plugins](webpack.html#plugins).  
 
-Create a `webpack.config.aot.js` file like this.  The salient parts are described below.
+Create a `webpack.config.aot.js` file in the project root directory, and add the content shown below.  The salient parts are explained in the following sections.
 
-    const ngtools = require('@ngtools/webpack');
+```ts
+const ngtools = require('@ngtools/webpack');
+const webpack = require('webpack');
 
-    module.exports = {
-        devtool: 'source-map',
-        entry: {
-            main: './src/main-aot.ts'
-        },
-        resolve: {
-            extensions: ['.ts', '.js']
-        },
-        target: 'node',
-        output: {
-            path: 'aot/dist',
-            filename: 'build.js'
-        },
-        plugins: [
-            new ngtools.AotPlugin({
-                tsConfigPath: './tsconfig-aot.json'
-            })
-        ],
-        module: {
-            rules: [
-                { test: /\.css$/, loader: 'raw-loader' },
-                { test: /\.html$/, loader: 'raw-loader' },
-                { test: /\.ts$/, loader: '@ngtools/webpack' }
-            ]
-        }
-    }
-
+module.exports = {
+	devtool: 'source-map',
+	entry: {
+		main: './src/main-aot.ts'
+	},
+	resolve: {
+      extensions: ['.ts', '.js']
+    },
+	target: 'node',
+	output: {
+		path: 'src/dist',
+		filename: 'build.js'
+	},
+	plugins: [
+		new ngtools.AotPlugin({
+			tsConfigPath: './tsconfig-aot.json'
+		}),
+		new webpack.optimize.UglifyJsPlugin({ sourceMap: true })
+	],
+	module: {
+		rules: [
+    		{ test: /\.css$/, loader: 'raw-loader' },
+      		{ test: /\.html$/, loader: 'raw-loader' },
+      		{ test: /\.ts$/, loader: '@ngtools/webpack' }
+		]
+	}
+}
+```
 
 ### Loader
 For AOT, the **loader** to use for TypeScript files is `@ngtools/webpack`.
 This loads TypeScript files and interprets the Angular decorators to prepare for AOT compilation.
 Since it is used for TypeScript files, configure the loader for `*.ts`:
 
-    module: {
-        rules: [
-            ...
-            { test: /\.ts$/, loader: '@ngtools/webpack' } // use ngtools loader for typescript
-        ]
-    }
+```ts
+module: {
+    rules: [
+        ...
+        { test: /\.ts$/, loader: '@ngtools/webpack' } // use ngtools loader for typescript
+    ]
+}
+```
 
 When CSS and HTML files are encountered while processing the TypeScript, the [raw-loader](https://webpack.js.org/loaders/raw-loader/) is used.
 It simply loads the file as a string, allowing Webpack to include it in the bundle.
@@ -346,17 +375,21 @@ The AOT **plugin** is called `ngtools.AotPlugin`, and performs TypeScript compil
 using the same underlying compiler as `ngc`.
 The plugin accepts [several options](https://www.npmjs.com/package/@ngtools/webpack#options), but the only required option is `tsConfigPath`. 
 
-> Despite the [ngtools documentation](https://www.npmjs.com/package/@ngtools/webpack#options), the `entryModule` option must be in the `tsconfig-aot.json`.
+> Despite the [ngtools documentation](https://www.npmjs.com/package/@ngtools/webpack#options), the `entryModule` option must be in the `tsconfig-aot.json`, not inside the Webpack config.
 
-    plugins: [
-        new ngtools.AotPlugin({
-            tsConfigPath: './tsconfig-aot.json'
-        })
-    ],
-
+```ts
+plugins: [
+    new ngtools.AotPlugin({
+        tsConfigPath: './tsconfig-aot.json'
+    }),
+    new webpack.optimize.UglifyJsPlugin({ sourceMap: true })
+],
+```
 
 The `tsConfigPath` tells the plugin where to find the TypeScript configuration file to use when compiling.
 This should be the AOT-specific `tsconfig-aot.json` described above.
+
+The `UglifyJsPlugin` minifies the JavaScript output by removing spaces and shortening names.  It slows down the build, so you can leave it off during development.
 
 ### Input
 
@@ -368,9 +401,11 @@ When performing AOT, the entry point is the `main-aot.ts` file described above.
 Starting there, Webpack will pull in your app code and imported dependencies.
 It will pull in the Angular libraries used by the app, but it will *not* pull in the Angular compiler, since it's not needed in an AOT-compiled app.
 
-  entry: {
+```ts
+entry: {
     main: './src/main-aot.ts'
-  },
+},
+```
 
 The [Webpack Introduction](webpack.html#entries-outputs) describes how to create separate bundles for 
 app code, vendor libraries, and polyfills.  For simplicity, this example shows a single-bundle scenario.
@@ -380,29 +415,343 @@ app code, vendor libraries, and polyfills.  For simplicity, this example shows a
 After the plugin compiles the app files, Webpack bundles them into one or more output bundles.
 These are the JavaScript files that will be loaded by the browser to run the app.  Tell Webpack where to put the bundles:
 
-  output: {
-    path: 'dist',
+```ts
+output: {
+    path: 'src/dist',
     filename: 'build.js'
-  },
+},
+```
+
+We put them in a `dist` directory under `src`, so the server can find them.
+
+# Build - AOT
+
+Now that you've created the TypeScript and Webpack config files, you can build the application.  First add the build command to the `scripts` section of your `package.json`.
+
+```json
+"scripts": {
+    "build:aot": "webpack --config webpack.config.aot.js"
+    ...
+}
+```
+
+Then, from the command prompt, type
+
+```shell
+npm run build:aot
+```
+
+to build the output bundle.
+
+As configured above, this transpiles the TypeScript files, Angular-compiles the components, and 
+Webpacks the results into a single output file, `src/dist/build.js`.
+It also generates a [source map](https://webpack.js.org/configuration/devtool/), `src/dist/build.js.map` that 
+relates the bundle code to the source code.  
+
+## Source Maps
+
+Source maps let you use the browser's [dev tools](https://developers.google.com/web/tools/chrome-devtools/javascript/source-maps) to set breakpoints in your source code, even though the browser is actually running an AOT-compiled bundle.
+
+Examining the source map is a useful exercise because it shows the names of the files that are included in the bundle, 
+in the order that Webpack included them.
+
+Look at the `src/dist/build.js.map`:
+
+```js
+{"version":3,"sources":[
+"webpack:///webpack/bootstrap 097108a2a4bbafeb64bb",
+"webpack:///./~/rxjs/Observable.js",
+"webpack:///./~/rxjs/Subscriber.js",
+"webpack:///./~/@angular/core/@angular/core.es5.js",
+"webpack:///./~/@angular/common/@angular/common.es5.js",
+"webpack:///./~/@angular/router/@angular/router.es5.js",
+"webpack:///./~/rxjs/util/root.js",
+"webpack:///./~/@angular/http/@angular/http.es5.js",
+"webpack:///./src/app/hero.service.ts",
+...
+```
+
+This shows that Webpack has included `rxjs` and `@angular` libraries ahead of the app's own `hero.service.ts`.
+
+If you create [multiple bundles](webpack.html#multiple-bundles), 
+look at the source maps to make sure the same file isn't included in more than one bundle.
+
+# Serve - AOT
+
+Now you've built the app bundle, so its time to test out the app.
 
 ## Lite Server Configuration
 
 The [lite-server](https://github.com/johnpapa/lite-server) is used in the [Quickstart](../quickstart.html) and
 Tour of Heroes examples to run and test the application in development.
-To use it for the AOT app-compiled app, create a new configuration file, `bs-config.aot.json`.
-It's changed from the JIT version because it serves from the `aot` directory.
-You also give it a new port number so you can run the versions side-by-side.  Here's the file:
+To use it for the AOT app-compiled app, create a new configuration file, `bs-config.aot.js`.
+It's different from the JIT version because it uses the `index-aot.html` as its default file.
+It also uses a new port number so you can run the versions side-by-side.  Here's the file:
 
-    {
-        "open": true,
-        "port": 3100,
-        "server": {
-            "baseDir": "aot",
-            "routes": {
-                "/node_modules": "node_modules"
-            }
-        }
+```ts
+module.exports = {
+  port: 3100,
+  server: {
+    baseDir: "src",
+    routes: {
+      "/node_modules": "node_modules"
+    },
+    middleware: {
+      // overrides the fallback middleware to use index-aot
+      1: require('connect-history-api-fallback')({ index: '/index-aot.html' })
     }
+  }
+};
+```
+> Note that the above must be a JavaScript file, not JSON, because of the call to `require`.
+
+## Serve Command
+
+Add the serve command to the `scripts` section of your `package.json`.  The command launches lite-server using the configuration file created above.
+
+```json
+"scripts": {
+    "serve:aot": "lite-server -c=bs-config.aot.js",
+    ...
+}
+```
+
+Then, from the command prompt, type
+
+```shell
+npm run serve:aot
+```
+
+The server starts with BrowserSync, so it starts the browser and loads the page showing the Tour of Heroes app.  You can use the app and test that it behaves the same as the JIT version.
+
+Now you've built a working app using Webpack and AOT.  
+
+# Configuration - Universal
+
+Now you can use a similar approach to build the Universal app.
+
+## Server Code
+
+The code specific to Universal is in three files:
+
+ 1. The app server module
+ 2. The Universal engine
+ 3. The web server
+
+We'll go through these one at a time.
+
+### App Server Module
+
+The app server module is an Angular module that imports both the client-side app module and Angular's ServerModule.  It tells Angular how to bootstrap the application when running on the server.
+
+Create an `app.server.ts` file in the `src/uni` directory and add the following code:
+
+```ts
+import { NgModule } from '@angular/core';
+import { APP_BASE_HREF } from '@angular/common';
+import { ServerModule } from '@angular/platform-server';
+import { AppComponent } from '../app/app.component';
+import { AppModule } from '../app/app.module';
+
+@NgModule({
+  imports: [
+    ServerModule,
+    AppModule
+  ],
+  bootstrap: [
+    AppComponent
+  ],
+  providers: [
+    {provide: APP_BASE_HREF, useValue: '/'}
+  ]
+})
+export class AppServerModule {
+}
+```
+
+### Universal Engine
+
+The Universal Engine is the heart of a Universal application.  It is the code that takes an HTML template and a route url, and renders the HTML for the page.  The HTML output is the result of rendering the components that are displayed for the given route.
+
+The rendered output could be stored as static HTML files to be served later.  The demo code below serves the rendered pages directly, but it caches the output in memory, so that a given route only needs to be rendered once.
+
+Create the `universal-engine.ts` file in the `src/uni` directory, and add the following code:
+
+```ts
+import * as fs from 'fs';
+import { renderModuleFactory } from '@angular/platform-server';
+
+const templateCache = {}; // cache for page templates
+const outputCache = {};   // cache for rendered pages
+
+export function ngUniversalEngine(setupOptions: any) {
+
+  return function (filePath: string, options: { req: Request }, callback: (err: Error, html: string) => void) {
+    let url: string = options.req.url;
+    let html: string = outputCache[url];
+    if (html) {
+      // return already-built page for this url
+      console.log('from cache: ' + url);
+      callback(null, html);
+      return;
+    }
+
+    console.log('building: ' + url);
+    if (!templateCache[filePath]) {
+      let file = fs.readFileSync(filePath);
+      templateCache[filePath] = file.toString();
+    }
+
+    // render the page via angular platform-server
+    let appModuleFactory = setupOptions.bootstrap[0];
+    renderModuleFactory(appModuleFactory, {
+      document: templateCache[filePath],
+      url: url
+    }).then(str => {
+      outputCache[url] = str;
+      callback(null, str);
+    });
+  };
+}
+
+```
+
+### Web Server
+
+The web server accepts HTTP requests and sends back the response.  For requests that are routes within the app, it creates the response by calling the Universal engine to render a page.  For static file requests, it returns the file contents.
+
+This web server is based on the popular [Express](https://expressjs.com/) web framework.  Other web serving techniques would work for Universal, as long as they can send the appropriate requests to the universal engine.
+
+Create the `server-aot.ts` file in the `src/uni` directory, and add the following code:
+
+```ts
+import 'zone.js/dist/zone-node';
+import { enableProdMode } from '@angular/core';
+import { AppServerModuleNgFactory } from '../../aot/src/uni/app.server.ngfactory';
+import * as express from 'express';
+import { ngUniversalEngine } from './universal-engine';
+
+enableProdMode();
+
+const server = express();
+
+// set our angular engine as the handler for html files, so it will be used to render them.
+server.engine('html', ngUniversalEngine({
+    bootstrap: [AppServerModuleNgFactory]
+}));
+
+// set default view directory
+server.set('views', 'src');
+
+// handle requests for routes in the app.  ngExpressEngine does the rendering.
+server.get(['/', '/dashboard', '/heroes', '/detail/:id'], (req, res) => {
+    res.render('index-aot.html', {req});
+});
+
+// handle requests for static files
+server.get(['/*.js', '/*.css'], (req, res, next) => {
+    let fileName: string = req.originalUrl;
+    console.log(fileName);
+    let root = fileName.startsWith('/node_modules/') ? '.' : 'src';
+    res.sendFile(fileName, { root: root }, function (err) {
+        if (err) {
+            next(err);
+        }
+    });
+});
+
+// start the server
+server.listen(3200, () => {
+    console.log('listening on port 3200...');
+});
+
+```
+
+Note that the server depends on `AppServerModuleNgFactory`, which has not been built yet.  We have a compilation problem similar to that faced in `main-aot.ts`.  We solve it the same way, in `tsconfig-uni.json`.
+
+## Creating the tsconfig-uni.json
+
+The TypeScript configuration file for Universal is almost the same as for AOT.  The difference is the `files` section.  For Universal, the `files` section lists the files for the server-side app module and the web server.
+
+Create a `tsconfig-uni.json` file in the project root directory by copying your `tsconfig-aot.json` and changing the `files` section as shown below.
+
+```json
+  "files": [
+    "src/uni/app.server.ts",
+    "src/uni/server-aot.ts"
+  ],
+ ```
+
+The `app.server.ts` file appears first, so it can be compiled before the `server-aot.ts` file requires it for its compilation.
+
+## Creating the webpack.config.uni.js
+
+The Webpack configuration file for Universal is almost the same as for AOT.  There are two differences:
+
+1. The entry points
+2. The output file name
+
+> You can share code between webpack configurations.  See the [Webpack Introduction](webpack.html#!#configure-webpack) for more information.
+
+Create a `webpack.config.uni.js` in the project root directory by copying the `webpack.config.aot.js`.  Then make the changes described in the sections below.
+
+### The entry points
+
+For Universal, we name two entry points: the app server module and the web server.  This ensures that the code for both appears in the final bundle.
+
+```ts
+	entry: {
+		main: ['./src/uni/app.server.ts', './src/uni/server-aot.ts']
+	},
+```
+
+### The output file
+
+The output contains the all the code necessary to run the web server and serve the app.  Put it in `src/dist` alongside the client AOT bundle.
+
+```ts
+	output: {
+		path: 'src/dist',
+		filename: 'server.js'
+	},
+```
+
+# Build and Serve - Universal
+
+Now you can build and run the Universal application.  First add the build and serve commands to the `scripts` section of your `package.json`.
+
+```json
+"scripts": {
+    "build:uni": "webpack --config webpack.config.uni.js",
+    "serve:uni": "node src/dist/server.js",
+   ...
+}
+```
+
+Then, from the command prompt, type
+
+```shell
+npm run build:uni
+```
+
+to build the server bundle.  Once it is created, type
+
+```shell
+npm run serve:uni
+```
+
+to start the server.
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Build and Serve
@@ -417,7 +766,7 @@ of the command from the project's own `node_modules` folder.  If you ever forget
 
     "scripts": {
         "build:aot": "webpack --config webpack.config.aot.js"
-        "serve:aot": "lite-server -c bs-config.aot.json",    
+        "serve:aot": "lite-server -c bs-config.aot.js",    
         ...
     }
 

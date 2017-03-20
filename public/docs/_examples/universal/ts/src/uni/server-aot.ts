@@ -3,43 +3,38 @@ import { enableProdMode } from '@angular/core';
 // import { AppServerModule } from './app.server';
 import { AppServerModuleNgFactory } from '../../aot/src/uni/app.server.ngfactory';
 import * as express from 'express';
-import {ngUniversalEngine} from './universal-engine';
+import { ngUniversalEngine } from './universal-engine';
 
 enableProdMode();
 
-const app = express();
+const server = express();
 
-// set our angular engine as the handler for html files.  (there is actually only one html file.)
-app.engine('html', ngUniversalEngine({
-    baseUrl: 'http://localhost:3200',
+// set our angular engine as the handler for html files, so it will be used to render them.
+server.engine('html', ngUniversalEngine({
     bootstrap: [AppServerModuleNgFactory]
 }));
 
-// set default file extension to html.
-app.set('view engine', 'html');
 // set default view directory
-app.set('views', 'src');
+server.set('views', 'src');
 
 // handle requests for routes in the app.  ngExpressEngine does the rendering.
-app.get(['/', '/dashboard', '/heroes', '/detail/:id'], (req, res) => {
-    res.render('index-aot', {req});
+server.get(['/', '/dashboard', '/heroes', '/detail/:id'], (req, res) => {
+    res.render('index-aot.html', {req});
 });
 
 // handle requests for static files
-app.get(['/*.js', '/*.css'], (req, res, next) => {
-  let options = { root: 'src' };
-  let fileName: string = req.originalUrl;
-  console.log(fileName);
-  if (fileName.startsWith('/node_modules/')) {
-    options.root = '.';
-  }
-  res.sendFile(fileName, options, function (err) {
-    if (err) {
-      next(err);
-    }
-  });
+server.get(['/*.js', '/*.css'], (req, res, next) => {
+    let fileName: string = req.originalUrl;
+    console.log(fileName);
+    let root = fileName.startsWith('/node_modules/') ? '.' : 'src';
+    res.sendFile(fileName, { root: root }, function (err) {
+        if (err) {
+            next(err);
+        }
+    });
 });
 
-app.listen(3200, () => {
+// start the server
+server.listen(3200, () => {
     console.log('listening on port 3200...');
 });

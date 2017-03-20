@@ -1,8 +1,7 @@
 /**
  * Express/Connect middleware for rendering pages using Angular Universal
  */
-
-const fs = require('fs');
+import * as fs from 'fs';
 import { renderModuleFactory } from '@angular/platform-server';
 
 const templateCache = {}; // cache for page templates
@@ -30,7 +29,7 @@ export function ngUniversalEngine(setupOptions: any) {
     let appModuleFactory = setupOptions.bootstrap[0];
     renderModuleFactory(appModuleFactory, {
       document: templateCache[filePath],
-      url: options.req.url
+      url: url
     }).then(str => {
       outputCache[url] = str;
       callback(null, str);
