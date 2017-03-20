@@ -6,57 +6,43 @@ In so doing, it also describes how to perform _Ahead of Time_ (AOT) compilation 
 
 ## Table of Contents
 
-Overview
-
-* How does it work?
-* Why do it?
-    * SEO / No JavaScript
-    * Startup Performance
-* The Example
-
-Preparation
-
-* Installing the tools
-* Component-relative URLs
-* Server Transition
-
-Configuration - AOT
-
-* Main Entry Point
-* Creating the tsconfig-aot.json
-* Webpack Configuration
-    * Loader
-    * Plugin
-    * Input
-    * Output
-
-Build - AOT
-
-* Source Maps
-
-Serve - AOT
-
-* Lite Server Configuration
-* Serve Command
-
-Configuration - Universal
-
-* Server Code
-    * App Server Module
-    * Universal Engine
-    * Web Server
-* Creating the tsconfig-uni.json
-* Creating the webpack.config.uni.js
-    * The entry points
-    * The output file
-
-Build and Serve - Universal
-
-* Exercising Universal
-    * Disabling the Client App
-    * Throttling
-
-Conclusion
+* Overview
+    * How does it work?
+    * Why do it?
+        * SEO / No JavaScript
+        * Startup Performance
+    * The Example
+* Preparation
+    * Installing the tools
+    * Component-relative URLs
+    * Server Transition
+* Configuration - AOT
+    * Main Entry Point
+    * Creating the tsconfig-aot.json
+    * Webpack Configuration
+        * Loader
+        * Plugin
+        * Input
+        * Output
+* Build - AOT
+    * Source Maps
+* Serve - AOT
+    * Lite Server Configuration
+    * Serve Command
+* Configuration - Universal
+    * Server Code
+        * App Server Module
+        * Universal Engine
+        * Web Server
+    * Creating the tsconfig-uni.json
+    * Creating the webpack.config.uni.js
+        * The entry points
+        * The output file
+* Build and Serve - Universal
+    * Exercising Universal
+        * Disabling the Client App
+        * Throttling
+* Conclusion
 
 # Overview
 
@@ -93,7 +79,7 @@ The recommended scenario is to serve a static version of the landing page, then 
 
 #### Startup Comparison
 
-To illustrate the impact of Universal, we have used the [Timeline feature in Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/evaluate-performance/timeline-tool). Timeline offers many ways to inspect the performance of your app.  Here we have used it to compare the uncached startup performance of the _Tour of Heroes_ app.  Tour of Heroes is a simple demo app without much code or content, so it is probably smaller than the real apps you will build.  
+To illustrate the impact of Universal, we have used the [Timeline feature in Chrome DevTools](https://developers.google.com/web/tools/chrome-devtools/evaluate-performance/timeline-tool). Timeline offers many ways to inspect the performance of your app.  Here we have used it to compare the uncached startup performance of the _Tour of Heroes_ app.  Tour of Heroes is a simple demo app without much code or content, so it is smaller than the real apps you will build.  
 
 The test was done by measuring the time from browser refresh until the Tour of Heroes Dashboard is fully displayed.  The numbers and bars below represent the time from the initial request until the Dashboard page is visible in the app, so lower numbers are better.
 
