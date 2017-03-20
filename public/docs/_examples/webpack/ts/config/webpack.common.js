@@ -1,3 +1,4 @@
+// #docplaster
 // #docregion
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -5,13 +6,16 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var helpers = require('./helpers');
 
 module.exports = {
-  // #docregion entries
+  // #docregion entries, one-entry, two-entries
   entry: {
+    // #enddocregion one-entry, two-entries
     'polyfills': './src/polyfills.ts',
+    // #docregion two-entries
     'vendor': './src/vendor.ts',
+    // #docregion one-entry
     'app': './src/main.ts'
   },
-  // #enddocregion
+  // #enddocregion entries, one-entry, two-entries
 
   // #docregion resolve
   resolve: {
