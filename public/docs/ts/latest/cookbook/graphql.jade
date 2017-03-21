@@ -27,7 +27,9 @@ include ../_util-fns
 
     - [Performing a mutation](#mutation)
 
-  - [Appendix: Setting up a GraphQL server](#server)
+  - [Appendix 1: Mocking a GraphQL server](#mock-server)
+  
+  - [Appendix 2: Setting up a GraphQL server](#server)
 
   - [Further resources](#resources)
 
@@ -224,7 +226,9 @@ a#http-heroes
     The full documentation can be found on the [Apollo Client website](http://dev.apollodata.com/).
 
 :marked
-  The starting point for the app is the [Tour of Heroes tutorial](https://github.com/Urigo/quickstart/archive/graphql-start.zip) app at its end state.
+  The starting point for the app is the Tour of Heroes tutorial app at its end state.
+  
+  **Download the <live-example name="heroes-graphql-starter"></live-example>**.
 
   This guide shows you how to migrate that app from REST to GraphQL.
 
@@ -254,6 +258,19 @@ code-example(language="sh" class="code-shell").
 +makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-apollo-client-packages', 'under packages: { (excerpt)')  
 
 :marked
+  Because you also have a running server on your app with more dependencies, you will need to add additional configurations to
+  `systemjs.config.js` as well.
+
+  Add the following configuration to your `systemjs.config.js` file under the `map` key:
+
++makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-graphql-server-map', 'under map: { (excerpt)')
+
+:marked
+  and the following configuration to your `systemjs.config.js` file under the `packages` key:
+
++makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-graphql-server-packages', 'under packages: { (excerpt)')    
+
+:marked
   Next, initialize the client by creating a new file called `client.ts` and 
   pasting in the following code:
 
@@ -268,7 +285,7 @@ code-example(language="sh" class="code-shell").
 .l-sub-section
   :marked
     ### To use a different URI for the Apollo Client
-    For this cookbook we would use the default `/graphql` endpoint,
+    For this cookbook you would use the default `/graphql` endpoint,
     but it's good to know it is possible to change those settings.
     To change the [settings](http://dev.apollodata.com/core/apollo-client-api.html#ApolloClient\.constructor) 
     of `ApolloClient`, call its constructor with different parameters. 
@@ -277,15 +294,18 @@ code-example(language="sh" class="code-shell").
 :marked
   Usually you need to query an existing server.
   The server for this guide is based on the [Tour of Heroes](ts/latest/tutorial/) app.
-  The starter app already has an in-memory GraphQL server prepared. 
-  
+  The starter app (<live-example name="heroes-graphql-starter"></live-example>) already has an in-memory GraphQL server prepared. 
+
   Now all that's left is to connect the in-memory server to the Apollo Client configuration 
   by importing `networkInterface` and adding it to the `client` constant in `client.ts`.
 +makeExample('heroes-graphql/ts/src/app/client.ts', '', 'client.ts')
 .l-sub-section
   :marked
     In order to learn how to create the GraphQL server for this example, follow the instructions on 
-    [Appendix: Setting up a GraphQL server](#server).
+    [Appendix 2: Setting up a GraphQL server](#server).
+
+    Another important ability of Apollo is to create a mock server in one line of code based on a GraphQL schema.
+    Check out the [Appendix 1: Mocking a GraphQL server](#mock-server) to learn about that as well.
 
 :marked
   After initializing the Apollo Client, import the `ApolloModule` and `getClient` 
@@ -297,7 +317,7 @@ code-example(language="sh" class="code-shell").
   is an initialization function that accepts the Apollo configuration 
   you created earlier as an argument and creates a new Apollo instance for the app.
 
-+makeExample('heroes-graphql/ts/src/app/app.module.ts', 'apollo-ngmodule', 'app.module.ts (excerpt)')
++makeExample('heroes-graphql/ts/src/app/app.module.1.ts', 'apollo-ngmodule', 'app.module.ts (excerpt)')
 
 :marked
   Now Apollo is initialized and ready for use in the app. 
@@ -317,10 +337,17 @@ code-example(language="sh" class="code-shell").
 
   Here is the schema the Tour of Heroes server in the app use:
 
-+makeExample('heroes-graphql/ts/src/app/in-memory-graphql.ts', 'graphql-schema', 'Tour of heroes schema')  
++makeExample('heroes-graphql/ts/src/app/schema.ts', '', 'schema.ts')
 
 :marked
-  Once you have a server, which is prepared already in this app, to start querying data, begin by importing `Apollo` into `heroes.component.ts`,
+  Once you have a server, which is prepared already in this app, to start querying data.
+  
+  You will convert the `heroes.component` from quering the data from the REST endpoint to the GraphQL server.
+
+  First remove all references of the exisitng `HeroService`:
++makeExample('heroes-graphql-starter/ts/src/app/heroes.component.1.ts', '', 'heroes.component.ts')
+:marked
+  Now begin adding Apollo importing `Apollo` into `heroes.component.ts`,
   and injecting it into the constructor:
 +makeExample('heroes-graphql/ts/src/app/heroes.component.ts', 'import-apollo', 'heroes.component.ts (excerpt)')
 +makeExample('heroes-graphql/ts/src/app/heroes.component.ts', 'inject-apollo', 'heroes.component.ts (excerpt)')
@@ -350,12 +377,12 @@ code-example(language="sh" class="code-shell").
   For more information on GraphQL queries, see the GraphQL documentation on 
   [Queries and Mutations](http://graphql.org/learn/queries/).
 :marked
-  Next, update the template so it displays the results of the query.
+  Now, the same template that worked before will still displays the results of the new query:
 +makeExample('heroes-graphql/ts/src/app/heroes.component.1.html', 'render-heroes', 'heroes.component.html')
 
 :marked
-  At this point, if you have a running [GraphQL server](#server), the browser displays the 
-  fetched data.
+  At this point, if you go to the `heroes` tab, and you have a running [GraphQL server](#server),
+  the browser displays the fetched data.
 
 .l-main-section
 <a id="mutation"></a>
@@ -405,10 +432,10 @@ code-example(language="json").
     documentation](http://graphql.org/learn/queries/#mutations) 
     at [GraphQL.org](http://graphql.org).
 :marked
-  To use a mutation, first update the template with a function to add a hero:
+  To use a mutation, you can use the same existing template with a function to add a hero:
 +makeExample('heroes-graphql/ts/src/app/heroes.component.html', 'add', 'heroes.component.html')
 :marked
-  In the component class, create the `add()` function. It expects a name argument of type `string` 
+  In the component class, there is already an `add()` function. It expects a name argument of type `string` 
   and is `void` because it returns nothing.  
 +makeExample('heroes-graphql/ts/src/app/heroes.component.1.ts', 'add', 'heroes.component.ts')
 :marked
@@ -445,9 +472,64 @@ figure.image-display
   img(src='/resources/images/cookbooks/heroes-graphql/heroes- graphql-mutation.gif' alt="Heroes GraphQL Mutation")
 
 .l-main-section
+<a id="mock-server"></a>
+:marked
+  ## Appendix 1: Mocking a GraphQL server
+
+  When writing a GraphQL Angular app, you are quering a shared Schema. 
+  Both the client and the server agree on a single schema that describes the data the client can query and the actions it can perform
+  on the server.
+  
+  Once you have that schema, there is no need for an actual server and you can mock your server with one line of code.
+  That mocking is good for day to day development as well as for automatic tests for your Angular app.
+
+  Let's create the schema that is based on the [Tour of Heroes](ts/latest/tutorial/) app.
+
+  Create a file called `schema.ts` in the `app` directory and paste in the following schema:
++makeExample('heroes-graphql/ts/src/app/schema.ts', '', 'schema.ts')
+:marked
+  Now that you have the schema, let's mock the server so you would be able to use actual data in your app.
+  First install the `Apollo Test Utils` library:
+
+code-example(language="sh" class="code-shell").
+    npm install apollo-test-utils --save
+
+.l-sub-section
+  :marked
+    This example uses `system.js` so you need to also add the configuration to it.
+    With other build systems, or when running on Node, the following process will be different and 
+    maybe easier.  
+
+:marked
+  Add the following configuration to your `systemjs.config.js` file under the `map` key:
+
++makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-apollo-test-utils-map', 'under map: { (excerpt)')
+
+:marked
+  and the following configuration to your `systemjs.config.js` file under the `packages` key:
+
++makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-apollo-test-utils-packages', 'under packages: { (excerpt)')  
+:marked
+  Now you need to create a mocked network interface that will use `apollo-test-utils` and the schema you created.
+
+  Create a file called `mockedNetworkInterface.ts` and import the schema and the tools to create a mock network interface:
++makeExample('heroes-graphql/ts/src/app/mockedNetworkInterface.ts', 'imports', 'imports')
+:marked
+  Now you need to make the schema executable, add the mocking functions to it, create the network interface and export it:
++makeExample('heroes-graphql/ts/src/app/mockedNetworkInterface.ts', 'create-interface', 'Create Network Interface')
+:marked
+  Now all you need to do is use that network interface in your Apollo Client instead of your regular network interface:
++makeExample('heroes-graphql/ts/src/app/client.3.ts', 'import-and-use', 'Use Network Interface')
+
+:marked
+  Now every time you will query Apollo Client it will return a mocked data for your client.
+
+  To dive deeper to more advanced mocking, check out the [Apollo-Test-Utils repository](https://github.com/apollographql/apollo-test-utils).
+
+.l-main-section
 <a id="server"></a>
 :marked
-  ## Appendix: Setting up a GraphQL server
+  ## Appendix 2: Setting up a GraphQL server
 
   This example shows how to run a GraphQL in the browser but running a GraphQL server on 
   Node.js or in the browser is very similar.
@@ -466,7 +548,7 @@ figure.image-display
 
     Additionally, there are a few GraphQL backend-as-a-service platforms available, 
     similar to Firebase, but based on the GraphQL API spec.
-    For help on getting up and running, see [Scaphold](https://www.scaphold.io/) and [Graphcool](https://www.graph.cool/).
+    For help on getting up and running, see [Scaphold.io](https://www.scaphold.io/) and [Graph.Cool](https://www.graph.cool/).
 
 :marked
   In order to create a GraphQL schema, you need the `graphql-tools` library.
@@ -499,10 +581,10 @@ code-example(language="sh" class="code-shell").
 +makeExample('heroes-graphql/ts/src/systemjs.config.extras.js', 'systemjs-graphql-server-packages', 'under packages: { (excerpt)')  
 
 :marked
-  Next, create a file called `in-memory-graphql.ts` in the `app` directory 
+  Next, create a file called `schema.ts` in the `app` directory 
   and paste in the following schema:
 
-+makeExample('heroes-graphql/ts/src/app/in-memory-graphql.ts', 'graphql-schema', 'in-memory-graphql.ts')
++makeExample('heroes-graphql/ts/src/app/schema.ts', '', 'schema.ts')
 :marked
   The schema starts with a represention of the model of data the server exposes. 
   Then the schema specifies what queries are allowed on that data, followed by 
@@ -514,7 +596,10 @@ code-example(language="sh" class="code-shell").
     While the schema includes the major points covered in this cookbook, 
     you can read more in the [GraphQL.org Introduction to GraphQL](http://graphql.org/learn/).
 :marked
-  Now, create your in-memory data:
+  Now, create another file called `in-memory-graphql.ts` and import the schema into it:
++makeExample('heroes-graphql/ts/src/app/in-memory-graphql.ts', 'graphql-schema', 'in-memory-graphql.ts')  
+:marked
+  next, create your in-memory data:
 +makeExample('heroes-graphql/ts/src/app/in-memory-graphql.ts', 'heroes-array', 'in-memory-graphql.ts (excerpt)')
 :marked
   The next step is writing a server that _resolves_ 
@@ -605,6 +690,7 @@ code-example(language="sh" class="code-shell").
   - What is GraphQL and why it can benefit Angular developers.
   - How to create a basic GraphQL query.
   - How to create a basic GraphQL mutation.
+  - How to mock a GraphQL server.
   - How to build a GraphQL server.
   - Resources to dive deeper.
 
