@@ -42,7 +42,7 @@ export class HeroesComponent implements OnInit {
         }
       `
     }).subscribe((queryResult: ApolloQueryResult<{ heroes: Hero[] }>) => {
-      this.heroes = queryResult.data.heroes;
+      this.heroes = queryResult.data.heroes.slice();
     });
   }
   // #enddocregion query-heroes

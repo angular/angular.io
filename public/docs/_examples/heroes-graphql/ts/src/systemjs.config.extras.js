@@ -18,6 +18,9 @@ System.config({
     'redux':                              'npm:redux/dist/redux.min.js',
     // #enddocregion systemjs-apollo-client-map
 
+    // #docregion systemjs-apollo-test-utils-map
+    'apollo-test-utils':                              'npm:apollo-test-utils',
+
     // #docregion systemjs-graphql-server-map
     'graphql':                            'npm:graphql',
     'graphql-tools':                      'npm:graphql-tools',
@@ -27,6 +30,7 @@ System.config({
     'iterall':                            'npm:iterall',
     'lodash':                             'npm:lodash'
     // #enddocregion systemjs-graphql-server-map
+    // #enddocregion systemjs-apollo-test-utils-map
   },
   packages: {
 
@@ -40,6 +44,9 @@ System.config({
       defaultExtension: 'js'
     },
     // #enddocregion systemjs-apollo-client-packages
+
+    // #docregion systemjs-apollo-test-utils-packages
+    'apollo-test-utils':          { main: '/dist/src/index.js', defaultExtension: 'js' },
 
     // #docregion systemjs-graphql-server-packages
     'graphql':     {
@@ -64,5 +71,6 @@ System.config({
     'iterall':                    { main: './index.js', defaultExtension: 'js' },
     'lodash':                     { main: './index.js', defaultExtension: 'js' }
     // #enddocregion systemjs-graphql-server-packages
+    // #enddocregion systemjs-apollo-test-utils-packages
   }
 });

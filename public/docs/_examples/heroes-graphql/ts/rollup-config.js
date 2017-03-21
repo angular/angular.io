@@ -42,7 +42,7 @@ export default {
       namedExports: {
         'node_modules/graphql-tools/dist/index.js': ['makeExecutableSchema' ],
         'node_modules/graphql/index.js': ['execute' ],
-        'node_modules/graphql-tag/printer.js': ['print'],
+        'node_modules/graphql-tag/bundledPrinter.js': ['print'],
         'node_modules/lodash/lodash.js': ['find', 'omit', 'assign', 'isFunction'],
       }
     }),
