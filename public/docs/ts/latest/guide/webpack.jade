@@ -57,22 +57,26 @@ a(id="entries-outputs")
   ### Entries and outputs
   
   You supply Webpack with one or more *entry* files and let it find and incorporate the dependencies that radiate from those entries. 
-  The one entry point file in this example is the application's root file, `src/app.ts`:
+  The one entry point file in this example is the application's root file, `src/main.ts`:
   
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'one-entry', 'webpack.config.js (single entry)')(format=".")
++makeExample('webpack/ts/config/webpack.common.js', 'one-entry', 'webpack.config.js (single entry)')(format=".")
   
 :marked
   Webpack inspects that file and traverses its `import` dependencies recursively.
   
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'app-example', 'src/app.ts')(format=".")
++makeExample('webpack/ts/src/app/app.component.ts', 'component', 'src/main.ts')(format=".")
 
 :marked
   It sees that you're importing *@angular/core* so it adds that to its dependency list for (potential) inclusion in the bundle.
-  It opens the *@angular/core* file and follows _its_ network of `import` statements until it has built the complete dependency graph from `app.ts` down.
+  It opens the *@angular/core* file and follows _its_ network of `import` statements until it has built the complete dependency graph from `main.ts` down.
   
   Then it **outputs** these files to the `app.js` _bundle file_ designated in configuration:
   
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'one-output', 'webpack.config.js (single output)')(format=".")
+.code-example
+  code-example(name="webpack.config.js (single output)" language="javascript").
+    output: {
+      filename: 'app.js'
+    }
 
 :marked
   This `app.js` output bundle is a single JavaScript file that contains the application source and its dependencies. 
@@ -82,9 +86,19 @@ a(id="entries-outputs")
   You probably don't want one giant bundle of everything.
   It's preferable to separate the volatile application app code from comparatively stable vendor code modules.
   
-  Change the configuration so that it has two entry points, `app.ts` and `vendor.ts`:
+  Change the configuration so that it has two entry points, `main.ts` and `vendor.ts`:
 
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'two-entries','webpack.config.js (two entries)')(format=".")
+.code-example
+  code-example(language="javascript").
+    entry: {
+      app: 'src/app.ts',
+      vendor: 'src/vendor.ts'
+    },
+
+    output: {
+      filename: '[name].js'
+    }
+
 :marked
   Webpack constructs two separate dependency graphs
   and emits *two* bundle files, one called `app.js` containing only the application code and 
@@ -110,13 +124,28 @@ a(id="loaders")
   Webpack _itself_ only understands JavaScript files.
   Teach it to transform non-JavaScript file into their JavaScript equivalents with *loaders*. 
   Configure loaders for TypeScript and CSS as follows.
-  
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'loaders', 'webpack.config.js (two entries)')(format=".")
+
+.code-example
+  code-example(language="javascript").
+    rules: [
+      {
+        test: /\.ts$/,
+        loader: 'awesome-typescript-loader'
+      },
+      {
+        test: /\.css$/,
+        loaders: 'style-loader!css-loader'
+      }
+    ]
 
 :marked
   As Webpack encounters `import` statements like these ...
-  
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'imports')(format=".")
+
+.code-example
+  code-example(language="typescript").
+    import { AppComponent } from './app.component.ts';
+    
+    import 'uiframework/dist/uiframework.css';
 
 :marked
   ... it applies the `test` RegEx patterns. When a pattern matches the filename, Webpack processes the file with the associated loader. 
@@ -137,7 +166,11 @@ a(id="plugins")
   Webpack has a build pipeline with well-defined phases.
   Tap into that pipeline with plugins such as the `uglify` minification plugin:
   
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'plugins')(format=".")
+.code-example
+  code-example(language="javascript").
+    plugins: [
+      new webpack.optimize.UglifyJsPlugin()
+    ]
   
 a(id="configure-webpack")
 .l-main-section
@@ -249,7 +282,10 @@ a#common-resolve
 
   The app will `import` dozens if not hundreds of JavaScript and TypeScript files. 
   You could write `import` statements with explicit extensions like this example:
-+makeExample('webpack/ts-snippets/webpack.config.snippets.ts', 'single-import')(format=".")
+
+.code-example
+  code-example(language="typescript").
+    import { AppComponent } from './app.component.ts';
 
 :marked
   But most `import` statements don't mention the extension at all.
