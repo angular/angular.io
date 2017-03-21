@@ -8,11 +8,9 @@ include ../_util-fns
   inject it into the components that need it.
   Using a separate service keeps components lean and focused on supporting the view,
   and makes it easy to unit-test components with a mock service.
-  
-  Because data services are invariably asynchronous, 
+
+  Because data services are invariably asynchronous,
   you'll finish the page with a *!{_Promise}*-based version of the data service.
-  <!-- CF: What do the characters !{_ } around "Promise" represent? In the output,
-  it just appears as "Promise". Is that the expected output? -->
 
   When you're done with this page, the app should look like this <live-example></live-example>.
 
@@ -53,21 +51,21 @@ code-example(language="sh" class="code-shell").
   The command simultaneously launches the app in a browser and refreshes the browser when the code changes.
 
   You can keep building the Tour of Heroes without pausing to recompile or refresh the browser.
-  
+
   ## Creating a hero service
-  The stakeholders want to show the heroes in various ways on different pages. 
+  The stakeholders want to show the heroes in various ways on different pages.
   Users can already select a hero from a list.
   Soon you'll add a dashboard with the top performing heroes and create a separate view for editing hero details.
-  All three views need hero data. 
-  
+  All three views need hero data.
+
   At the moment, the `AppComponent` defines mock heroes for display.
-  However, defining heroes is not the component's job, 
-  and you can't easily share the list of heroes with other components and views. 
-  In this page, you'll move the hero data acquisition business to a single service that provides the data and 
+  However, defining heroes is not the component's job,
+  and you can't easily share the list of heroes with other components and views.
+  In this page, you'll move the hero data acquisition business to a single service that provides the data and
   share that service with all components that need the data.
 
   ### Create the HeroService
-  Create a file in the `app` folder called `hero.service.ts`. 
+  Create a file in the `app` folder called `hero.service.ts`.
 .l-sub-section
   :marked
     The naming convention for service files is the service name in lowercase followed by `.service`.
@@ -85,9 +83,7 @@ code-example(language="sh" class="code-shell").
   :marked
     Don't forget the parentheses. Omitting them leads to an error that's difficult to diagnose.
 :marked
-  TypeScript sees the `@Injectable()` decorator and emits metadata about the service.
-  <!-- CF: I'd like to rewrite this sentence but I'm not sure I understand it. Would this preserve the meaning:
-  "The `@Injectable()` decorator tells TypeScript to emit metadata about the service."? -->
+  The `@Injectable()` decorator tells TypeScript to emit metadata about the service.
   The metadata specifies that Angular may need to inject other dependencies into this service.
 
   Although the `HeroService` doesn't have any dependencies at the moment,
@@ -99,26 +95,24 @@ code-example(language="sh" class="code-shell").
   Add a `getHeroes` method stub.
 
 +makeExample('toh-4/ts/src/app/hero.service.1.ts', 'getHeroes-stub', 'src/app/hero.service.ts (getHeroes stub)')(format=".")
-// CF: Could I merge the previous code snippet on line 74 with this code snippet (line 95)?
-  This code snippet has only one additional line of code. I think their discussions could be merged.
-  
+
+
 :marked
   The `HeroService` could get `Hero` data from anywhere&mdash;a
   web service, local storage, or a mock data source.
   Removing data access from the component means
   you can change your mind about the implementation anytime,
   without touching the components that need hero data.
-  
-  ### Move the mock hero data  
+
+  ### Move the mock hero data
   Cut the `HEROES` array from `app.component.ts` and paste it to a new file in the `app` folder named `mock-heroes.ts`.
   Additionally, copy the `import {Hero} ...` statement because the heroes array uses the `Hero` class.
 
 +makeExample('toh-4/ts/src/app/mock-heroes.ts', null, 'src/app/mock-heroes.ts')
 :marked
-
   The `HEROES` constant is exported so it can be imported elsewhere, such as the `HeroService`.
-  
-  In `app.component.ts`, where you cut the `HEROES` array, 
+
+  In `app.component.ts`, where you cut the `HEROES` array,
   add an uninitialized `heroes` property:
 +makeExample('toh-4/ts/src/app/app.component.1.ts', 'heroes-prop', 'src/app/app.component.ts (heroes property)')(format=".")
 :marked
@@ -141,43 +135,39 @@ code-example(language="sh" class="code-shell").
 +makeExample('toh-4/ts/src/app/app.component.1.ts', 'new-service')(format=".")
 
 :marked
-  However, this option isn't recommended for the following reasons:
- 
-  * The component has to know how to create a `HeroService`. 
-  If you change the `HeroService` constructor, 
+  However, this option isn't ideal for the following reasons:
+
+  * The component has to know how to create a `HeroService`.
+  If you change the `HeroService` constructor,
   you must find and update every place you created the service.
   Patching code in multiple places is error prone and adds to the test burden.
-  * You create a service each time you use `new`. 
+  * You create a service each time you use `new`.
   What if the service caches heroes and shares that cache with others?
   You couldn't do that.
-  <!-- CF: What actually happens if the service caches heroes and shares that cache with others?
-  I assume it's something bad, but should we be explicit rather than just state you couldn't do it? -->
   * With the `AppComponent` locked into a specific implementation of the `HeroService`,
   switching implementations for different scenarios, such as operating offline or using
   different mocked versions for testing, would be difficult.
-  
-  <!-- CF: I removed the "what if .... we get it" content. If it's important to make that 
-   point, let's clarify what concerns readers might have and come up with a clearer discussion. --> 
+
 
   ### Inject the *HeroService*
- 
+
   Instead of using the *new* line, you'll add two lines.
    * Add a constructor that also defines a private property.
    * Add to the component's `providers` metadata.
-  
+
   Add the constructor:
 +makeExample('toh-4/ts/src/app/app.component.1.ts', 'ctor', 'src/app/app.component.ts (constructor)')
 :marked
-  The constructor itself does nothing. The parameter simultaneously 
+  The constructor itself does nothing. The parameter simultaneously
   defines a private `heroService` property and identifies it as a `HeroService` injection site.
 :marked
-  Now Angular knows to supply an instance of the `HeroService` when it creates an `AppComponent`. 
+  Now Angular knows to supply an instance of the `HeroService` when it creates an `AppComponent`.
 
 .l-sub-section
   :marked
     Read more about dependency injection in the [Dependency Injection](../guide/dependency-injection.html) page.
 :marked
-  The *injector* doesn't know yet how to create a `HeroService`. 
+  The *injector* doesn't know yet how to create a `HeroService`.
   If you ran the code now, Angular would fail with this error:
 code-example(format="nocode").
     EXCEPTION: No provider for HeroService! (AppComponent -> HeroService)
@@ -201,67 +191,52 @@ a#child-component
 +makeExample('toh-4/ts/src/app/app.component.1.ts', 'get-heroes')(format=".")
 :marked
   You don't really need a dedicated method to wrap one line.  Write it anyway:
-//  CF: Why? Should I explain that? Is the content on lines 187-189 making an important point?
-    If so, can we discuss so I can clarify it? If not, can we just use the final code snippet on line 195?
-+makeExcerpt('toh-4/ts/ts/app/app.component.1.ts', 'getHeroes', 'app/app.component.ts')
+
++makeExcerpt('toh-4/ts/src/app/app.component.1.ts', 'getHeroes', 'src/app/app.component.ts')
 <a id="oninit"></a>
 :marked
   ### The *ngOnInit* lifecycle hook
   `AppComponent` should fetch and display hero data with no issues.
-  
+
    You might be tempted to call the `getHeroes` method in a constructor, but
   a constructor should not contain complex logic,
   especially a constructor that calls a server, such as as a data access method.
   The constructor is for simple initializations, like wiring constructor parameters to properties.
-  <!-- CF: Is this discussion necessary? -->
-    
+
   To have Angular call `getHeroes`, you can implement the Angular *ngOnInit lifecycle hook*.
   Angular offers interfaces for tapping into critical moments in the component lifecycle:
   at creation, after each change, and at its eventual destruction.
-  
+
   Each interface has a single method. When the component implements that method, Angular calls it at the appropriate time.
 .l-sub-section
   :marked
-
     Read more about lifecycle hooks in the [Lifecycle Hooks](../guide/lifecycle-hooks.html) page.
 :marked
   Here's the essential outline for the `OnInit` interface (don't copy this into your code):
-+makeExample('toh-4/ts/app/app.component.1.ts', 'on-init')(format=".")
-// CF: This is confusing. While all of this code technically appears in the final file contents shown at the end of the page, 
- the code doesn't all go in one place: 
- - the import statement, which already exists at this point, goes at the top of the file
- - the export statement, which is the only part of the code that's being changed, is at the end of the file
- - the export statement is missing seven lines of code that appear in the final version of the file
- Until now, each code snippet is for a specific part of the file, not multiple parts of the same file.
- I guess this is supposed to be theoretical and not something to copy into the file, 
- but one important change is made in this snippet that isn't documented anywhere else:
-  the "export class AppComponent" statement is appended with "implements OnInit". I added an instruction for that below.
++makeExample('toh-4/ts/src/app/app.component.1.ts', 'on-init')(format=".")
+
 :marked
   Add the implementation for the `OnInit` interface to your export statement:
-//  CF: How do I add a code snippet for the following code change in app/app.component.ts?
-  export class AppComponent implements OnInit {
+code-example(format="nocode").
+  export class AppComponent implements OnInit {}
 :marked
   Write an `ngOnInit` method with the initialization logic inside. Angular will call it
   at the right time. In this case, initialize by calling `getHeroes`.
-+makeExcerpt('toh-4/ts/app/app.component.1.ts', 'ng-on-init', 'app/app.component.ts')
++makeExcerpt('toh-4/ts/src/app/app.component.1.ts', 'ng-on-init', 'app/app.component.ts')
 :marked
   The app should run as expected, showing a list of heroes and a hero detail view
-  when you click on a hero name. But something isn't quite right.
-// CF: What specifically is not right? Is it important to state that here or can I strike that sentence? -->
+  when you click on a hero name.
 
 <a id="async"></a>
 :marked
   ## Async services and !{_Promise}s
   The `HeroService` returns a list of mock heroes immediately;
   its `getHeroes` signature is synchronous.
-+makeExample('toh-4/ts/app/app.component.1.ts', 'get-heroes')(format=".")
++makeExample('toh-4/ts/src/app/app.component.1.ts', 'get-heroes')(format=".")
 :marked
   Eventually, the hero data will come from a remote server.
   When using the remote server, users don't have to wait for the server to respond
   and you aren't able to block the UI during the wait.
-//  CF: Not sure if my reworded sentence captures the original meaning. The original sentence is:
-   "... we'll have to wait for the server to respond and we won't be able to block the UI while we wait,
-   even if we want to (which we shouldn't) because the browser won't block." -->
 
 :marked
   Instead, you can use *!{_Promise}s*, which is an asynchronous technique that changes the signature of the `getHeroes` method.
@@ -274,19 +249,16 @@ a#child-component
 .l-sub-section
   :marked
     This is a simplified explanation. Read more about ES2015 Promises in the
-    [Promises for asynchronous programming](http://exploringjs.com/es6/ch_promises.html) page of 
+    [Promises for asynchronous programming](http://exploringjs.com/es6/ch_promises.html) page of
     [Exploring ES6](http://http://exploringjs.com/es6.html).
-// CF: Kapunahele asked that links going to a section within a page should link to and name the section
-  as well as the page to give readers a better idea of where they'll land.
-  In this case the original link lands at the top of a page, but the page is a chapter in an online book.
-  Is it appropriate to include a link to the book as well? If not I'll remove it.
+
 :marked
   Update the `HeroService` with this !{_Promise}-returning `getHeroes` method:
 +makeExample('toh-4/ts/src/app/hero.service.ts', 'get-heroes', 'src/app/hero.service.ts (excerpt)')(format=".")
 :marked
   You're still mocking the data. You're simulating the behavior of an ultra-fast, zero-latency server,
   by returning an *immediately resolved !{_Promise}* with the mock heroes as the result.
-  
+
   ### Act on the !{_Promise}
 
   As a result of the change to `HeroService`, `this.heroes` is now set to a !{_Promise} rather than an array of heroes.
@@ -295,7 +267,7 @@ a#child-component
 :marked
   You have to change the implementation to *act on the !{_Promise} when it resolves*.
   When the !{_Promise} resolves successfully, you'll have heroes to display.
-  
+
   Pass the callback function as an argument to the !{_Promise}'s `then` method:
 +makeExample('toh-4/ts/src/app/app.component.ts', 'get-heroes', 'src/app/app.component.ts (getHeroes - revised)')(format=".")
 .l-sub-section
@@ -305,7 +277,7 @@ a#child-component
     in the callback is more succinct than the equivalent function expression and gracefully handles `this`.
 :marked
   The callback sets the component's `heroes` property to the array of heroes returned by the service.
-  
+
   The app is still running, showing a list of heroes, and
   responding to a name selection with a detail view.
 .l-sub-section
@@ -333,7 +305,7 @@ a#child-component
       .file styles.css
       .file systemjs.config.js
       .file tsconfig.json
-    .file node_modules ...   
+    .file node_modules ...
     .file package.json
 :marked
   Here are the code files discussed in this page.
@@ -363,19 +335,19 @@ a#child-component
   The Tour of Heroes has become more reusable using shared components and services.
   The next goal is to create a dashboard, add menu links that route between the views, and format data in a template.
   As the app evolves, you'll learn how to design it to make it easier to grow and maintain.
-  
+
   You learn about Angular component router and navigation among the views in the [next tutorial](toh-pt5.html) page.
-  
+
 .l-main-section
 <a id="slow"></a>
 :marked
   ## Appendix: Take it slow
-  To simulate a slow connection, 
+  To simulate a slow connection,
   import the `Hero` symbol and add the following `getHeroesSlowly` method to the `HeroService`.
 +makeExample('toh-4/ts/src/app/hero.service.ts', 'get-heroes-slowly', 'app/hero.service.ts (getHeroesSlowly)')(format=".")
 :marked
-  Like `getHeroes`, it also returns a !{_Promise}. 
+  Like `getHeroes`, it also returns a !{_Promise}.
   But this !{_Promise} waits two seconds before resolving the !{_Promise} with mock heroes.
-  
+
   Back in the `AppComponent`, replace `heroService.getHeroes` with `heroService.getHeroesSlowly`
   and see how the app behaves.

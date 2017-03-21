@@ -4,7 +4,7 @@ import { Component, Input } from '@angular/core';
 // #enddocregion import-input
 
 import { Hero } from './hero';
-
+// #docregion template
 @Component({
   selector: 'hero-detail',
   template: `
@@ -18,6 +18,7 @@ import { Hero } from './hero';
     </div>
   `
 })
+// #enddocregion template
 // #docregion class
 export class HeroDetailComponent {
 // #docregion hero

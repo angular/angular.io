@@ -8,12 +8,7 @@ import { Hero }        from './hero';
 import { HeroService } from './hero.service';
 
 @Component({
-<<<<<<< HEAD:public/docs/_examples/toh-6/ts/src/app/hero-detail.component.ts
-  selector: 'my-hero-detail',
-=======
-  moduleId: module.id,
   selector: 'hero-detail',
->>>>>>> docs(toh-3): heavy copy edit; my-hero-detail -> hero-detail:public/docs/_examples/toh-6/ts/app/hero-detail.component.ts
   templateUrl: './hero-detail.component.html',
   styleUrls: [ './hero-detail.component.css' ]
 })
