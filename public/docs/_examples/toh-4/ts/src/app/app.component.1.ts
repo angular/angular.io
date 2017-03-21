@@ -17,7 +17,7 @@ import { HeroService } from './hero.service.2';
   <div *ngFor="let hero of heroes" (click)="onSelect(hero)">
     {{hero.name}}
   </div>
-  <my-hero-detail [hero]="selectedHero"></my-hero-detail>
+  <hero-detail [hero]="selectedHero"></hero-detail>
   `,
   // #docregion providers
   providers: [HeroService]

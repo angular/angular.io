@@ -10,7 +10,7 @@ import { Hero }         from './hero';
 import { HeroService }  from './hero.service';
 // #docregion metadata
 @Component({
-  selector: 'my-hero-detail',
+  selector: 'hero-detail',
   templateUrl: './hero-detail.component.html',
   // #enddocregion metadata, v2
   styleUrls: [ './hero-detail.component.css' ]
