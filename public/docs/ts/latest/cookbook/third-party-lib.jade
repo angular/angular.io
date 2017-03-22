@@ -11,7 +11,7 @@ include ../_util-fns
   Modern web development has changed this process. 
   Instead of publishing a "one size fits all" bundle, developers want to only include the parts of the library they actually need and in the format they need it in.
 
-  This cookbook shows how to publish a third party library in a way that makes it possible to take advantage of techniques like Ahead of Time Compilation (AoT) and Tree Shaking.
+  This cookbook shows how to publish a third party library in a way that makes it possible to take advantage of techniques like Ahead of Time Compilation (AOT) and Tree Shaking.
 
 <a id="toc"></a>
 :marked
@@ -19,11 +19,11 @@ include ../_util-fns
 
   [Creating a Third Party Library](#third-party-lib)
 
-  [Supporting AoT](#aot)
+  [Supporting AOT](#AOT)
 
   [Preparing the library for Tree Shaking](#tree-shaking)
 
-  [Supporting JiT](#jit)
+  [Supporting JIT](#JIT)
 
   [Publish](#publish)
 
@@ -200,11 +200,12 @@ table(width="100%")
   In order to understand how to build and publish a library, you have to consider _how_ the library is going to be consumed.
 
   Some users need to add it as a `<script>` tag.
-  Others might be using SystemJS instead. 
-  Bundlers, like Webpack, are very popular as well. 
-  Typescript users need type definitions.
-  Rollup users make use of ECMAScript modules for tree-shaking.
-  AOT applications need library metadata to compile.
+  Others might be using [SystemJS](https://github.com/systemjs/systemjs) instead. 
+  Bundlers, like [Webpack](https://webpack.js.org/), are very popular as well. 
+  [Typescript](typescriptlang.org) users need type definitions.
+  [Rollup](https://github.com/rollup/rollup) users make use of ECMAScript modules for tree-shaking.
+  Both [Ahead-of-time](#appendix-supporting-aot) and [Just-in-time](#appendix-supporting-it)
+  compilation should be supported.
 
   It's daunting to think of all the ways your library might be used and how to accomodate it, 
   but you don't need to have a "one-size-fits-all" library.
@@ -248,7 +249,7 @@ code-example(language="json").
   - Compile with `ngc` for ES5 and ES2015.
   - Inline html and css inside the generated JavaScript files.
   - Copy typings, metatada, html and css.
-  - Create each bundle using rollup.
+  - Create each bundle using Rollup.
 
 .l-main-section
 :marked
@@ -284,6 +285,9 @@ code-example(language="json").
 :marked
   ## Publishing your library
 
+  The `.npmignore` file defines what files and folders will be published to NPM: `dist/`, 
+  `LICENSE`, `package.json` and `README.md`.
+
   Every package on NPM has a unique name, and so should yours. 
   If you haven't already, now is the time to change the name of your library.
 
@@ -314,7 +318,7 @@ code-example(language="json").
   You'll need to create a NPM account, login on your local machine, and then you can publish updated
   by running `npm publish`.
 
-  Remember to follow [Semantic Versioning](http://semver.org/)!
+  Remember to follow [Semantic Versioning](http://semver.org/) and document your library!
 
 .l-main-section
 :marked
@@ -336,58 +340,19 @@ code-example(language="json").
 
   content
 
-=============
-
 .l-main-section
-<a id="third-party-lib"></a>
 :marked
-  ## Creating a Third Party Library
+  ## Appendix: Supporting AOT
 
-  This cookbook shows how to create a simple Hero-Profile library and publish it with support for AoT compilation and Tree Shaking. 
-  
-  A version of the library intended for JiT compiled applications will also be included. 
+  AOT plays an important role in optimizing Angular applications. It's therefore important that third party libraries be published in a format compatible with AOT compilation. Otherwise it will not be possible to include the library in an AOT compiled application.
 
-  The code for the Hero-Profile library can be found below.
-
-  To support both AoT and JiT compilation there are two different tsconfig files.
-  
-  `tsconfig.json` for JiT compilation and `tsconfig-aot.json` for AoT compilation.
-
-+makeTabs(
-  `cb-third-party-lib/hero-profile/hero-profile.module.ts,
-   cb-third-party-lib/hero-profile/tsconfig-aot.json,
-   cb-third-party-lib/ts/tsconfig.json,
-   cb-third-party-lib/hero-profile/hero-profile.component.html,
-   cb-third-party-lib/hero-profile/hero-profile.component.ts,
-   cb-third-party-lib/hero-profile/hero-profile.component.css,
-   cb-third-party-lib/hero-profile/hero.ts,
-   cb-third-party-lib/hero-profile/package.json`,
-  null,
-  `hero-profile.module.ts,
-   tsconfig-aot.json,
-   tsconfig.json,
-   hero-profile.component.html,
-   hero-profile.component.ts,
-   hero-profile.component.css,
-   hero.ts,
-   package.json`
-)(format='.')
-
-.l-main-section
-<a id="aot"></a>
-:marked
-  ## Supporting AoT
-
-  AoT plays an important role in optimizing Angular applications. It's therefore important that third party libraries be published in a format compatible with AoT compilation. Otherwise it will not be possible to include the library in an AoT compiled application.
-
-  Only code written in TypeScript can be AoT compiled.
+  Only code written in TypeScript can be AOT compiled.
    
   Before publishing the library must first be compiled using the `ngc` compiler. 
   
-  `ngc` extends the `tsc` compiler by adding extensions to support AoT compilation in addition to regular TypeScript compilation.   
+  `ngc` extends the `tsc` compiler by adding extensions to support AOT compilation in addition to regular TypeScript compilation.   
 
-:marked
-  AoT compilation outputs three files that must be included in order to be compatible with AoT.
+  AOT compilation outputs three files that must be included in order to be compatible with AOT.
 
   *Transpiled JavaScript*
 
@@ -405,7 +370,7 @@ code-example(language="json").
 
   ### NgFactories
 
-  `ngc` generates a series of files with an `.ngfactory` suffix as well. These files represent the AoT compiled source, but should not be included with the published library.
+  `ngc` generates a series of files with an `.ngfactory` suffix as well. These files represent the AOT compiled source, but should not be included with the published library.
   
   Instead the `ngc` compiler in the consuming application will generate `.ngfactory` files based on the JavaScript, Typings and meta data shipped with the library. 
 
@@ -417,143 +382,12 @@ code-example(language="json").
 
   Publishing plain JavaScript with typings and meta data allows the consuming application to remain agnostic of the library's build environment.
 
-<a id="tree-shaking"></a>
-:marked
-  ## Preparing the library for Tree Shaking
-
-  In addition to supporting AoT, the library code should also be "Tree Shakable". 
-  
-  Tree Shakers work best with `ES2015` JavaScript. 
-  
-  `ES2015` `import` and `export` statements make it easier to statically analyse the code to determine which modules are in use by the application.
-  
-  By setting the `module` attribute in `tsconfig-aot.json` to `es2015`, the transpiled JavaScript will use `ES2015` modules. 
-
-  The library is made up of several independent files. Bundler frameworks like `Rollup` and `Webpack` need a way to determine the entry point to the module. In this example the entry point is `index.js`, the transpiled version of the index.ts TypeScript barrel.
-
-  The entry point to the module is configured using the `module` attribute in `package.json`. In this case `module` is defined as `"module": "index.js"`.
-
-<a id="jit"></a>
-:marked
-  ## Supporting JiT
-
-  AoT compiled code is the prefered format for production builds, but due to the long compilation time, it may not be practical to use AoT during development.
-
-  To create a more flexible developer experience, a JiT compatible build of the library should be published as well. The format of the JiT bundle is `umd`, which stands for Universal Module Definition. Shipping the bundle as `umd` ensures compatibility with most common module loading formats.
-
-  The `umd` bundle will ship as a single file containing the JavaScript and inlined versions of any external templates or css. 
-  
-  The path to the `umd` file identified in package.json as `"main": "bundles/hero-profile.umd.js"` 
-  
-  In `tsconfig.json` the module for the `umd` bundle is specified as `commonjs`, not `es2015`. This is done to ensure that the bundle can be executed "as is", without further transpilation or bundling.   
-
-  To generate the bundle you will be using a framework called `Rollup`.
-
-  The JiT build assumes the following Rollup and TypeScript configuration.
-
-+makeTabs(
-  `cb-third-party-lib/hero-profile/rollup-config.js,
-   cb-third-party-lib/ts/tsconfig.json`,
-  null,
-  `rollup-config.js,
-   tsconfig.json`
-)(format='.')  
-:marked
-  Generate the `umd` bundle by running `node_modules/.bin/rollup -c rollup-config.js`.
-
-<a id="publish"></a>
-:marked
-  ## Publish
-
-:marked
-  `Rollup` outputs the `umd` bundle, but prior to bundling, all external templates or css files must be inlined. 
-  
-  There are a few options for how to do inlining. This cookbook uses an approach borrowed from `Angular Material 2`.
-
-  The idea is to create a node script that will walk the component code and replace `templateUrl` and `styleUrls` references with inlined html and css.
-
-  Additionally the script will remove references to `module.id` since it's no longer needed after templates and css have been inlined.  
-
-  Angular ships with its own set of `umd` bundles. These bundles can be referenced by Rollup when generating the `umd` bundle. 
-  
-  In this example there is a dependency on `@angular/core`. 
-  
-  By listing `@angular/core` as a `global` in the configuration, `Rollup` will point to the `@angular/core` umd bundle.
-
-  Normally third party libraries will be published to `npm`. This cookbook simulates publishing by executing all required steps in the `publish.js` script.
-
-  `publish.js` will do the following:
-
-  1) AoT compile the Hero-Profile library by running `node_modules/.bin/ngc -p tsconfig-aot.json`
-
-  2) Inline templates and css using the `inline-resources.js` script
-
-  3) Create an `umd` bundle by running `node_modules/.bin/rollup -c rollup-config.js`
-
-+makeTabs(
-  `cb-third-party-lib/hero-profile/publish.js,
-  cb-third-party-lib/hero-profile/inline-resources.js`,
-  null,
-  `publish.js,
-  inline-resources.js`
-)(format='.')    
-
 .l-main-section
-<a id="integrate-with-app"></a>
 :marked
-  ## Integrate with Application
+  ## Appendix: Supporting JIT
 
-  The library is now ready to be integrated with either AoT compiled applications or JiT compiled applications. The following sections describes how to configure both.
+  AOT compiled code is the prefered format for production builds, but due to the long compilation time, it may not be practical to use AOT during development.
 
-  For the purposes of this demo the JiT and the AoT versions are loaded using the same index.html page. 
+  To create a more flexible developer experience, a JIT compatible build of the library should be published as well. The format of the JIT bundle is `umd`, which stands for Universal Module Definition. Shipping the bundle as `umd` ensures compatibility with most common module loading formats.
 
-  ### AoT
-
-  AoT compiled applications will integrate the library in the compilation of the application as a whole.
-
-  As in the <a href="/docs/ts/latest/cookbook/aot-compiler.html">AoT compilation Cookbook</a> `ngc` is used in combination with `Rollup` to AoT and Tree Shake the application.
-
-  Run the command `ngc -p tsconfig-aot.json && rollup -c rollup-config.js` to execute the combined steps of AoT compilation and Tree Shaking.
-
-  `tsconfig-aot.json` and `rollup-config.js` contain the necessary configuration.
-
-+makeTabs(
-  `cb-third-party-lib/ts/rollup-config.js,
-   cb-third-party-lib/ts/tsconfig-aot.json`,
-  null,
-  `rollup-config.js,
-   tsconfig-aot.json`
-)(format='.')
-
-:marked
-  Inside `rollup-config` there is a `nodeResolve` section. This is where the `module` setting from `package.json` comes into play.
-
-  `nodeResolve` will look for either `module` or `jsnext` in `package.json` to determine how to bundle external libraries.
-
-+makeExample('cb-third-party-lib/ts/rollup-config.js', 'nodeResolve', 'rollup-config.js')(format=".")
-
-:marked
-  The combined output of `ngc` and `Rollup` is a single `build.js` JavaScript file. 
-  
-  `build.js` contains the entire application including all Angular dependencies and the third party Hero-Profile library.
-
-  To run the application in AoT mode, include `build.js` as a script tag and the `my-aot-app` root level component tag in `index.html`
-
-  ### JiT
-
-  JiT applications load the `umd` bundle using `SystemJS`. This requires a minor tweak to `systemjs.config.js` to register the `umd` bundle with `SystemJS`.
-
-  Simply add `'hero-profile': 'npm:hero-profile/bundles/hero-profile.umd.js'` to the map section of `systemjs.config.js`. 
-
-.l-main-section
-<a id="final-app"></a>
-:marked
-   ## Final Application 
-
-   If you have cloned the `Angular.io` repo, all the steps described in this cookbook can be executed by running the following command:
-
-   `gulp add-example-boilerplate && npm run build:aot:jit && npm run lite`
-
-   After loading both the JiT and AoT versions of the library the final application looks like this:
-figure.image-display
-   img(src="/resources/images/cookbooks/third-party-lib/third-party-lib.png" alt="Third-Party-Library")
+  The `umd` bundle will ship as a single file containing ES5 JavaScript and inlined versions of any external templates or css. 
