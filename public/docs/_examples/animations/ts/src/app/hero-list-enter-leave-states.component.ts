@@ -1,12 +1,14 @@
 import {
   Component,
-  Input,
+  Input
+} from '@angular/core';
+import {
   trigger,
   state,
   style,
   animate,
   transition
-} from '@angular/core';
+} from '@angular/animations';
 
 import { Heroes } from './hero.service';
 
@@ -17,7 +19,7 @@ import { Heroes } from './hero.service';
     <ul>
       <li *ngFor="let hero of heroes"
           (click)="hero.toggleState()"
-          [@heroState]="hero.state">
+          [@heroStateEnterLeave]="hero.state">
         {{hero.name}}
       </li>
     </ul>
@@ -33,7 +35,7 @@ import { Heroes } from './hero.service';
    */
   // #docregion animationdef
   animations: [
-    trigger('heroState', [
+    trigger('heroStateEnterLeave', [
       state('inactive', style({transform: 'translateX(0) scale(1)'})),
       state('active',   style({transform: 'translateX(0) scale(1.1)'})),
       transition('inactive => active', animate('100ms ease-in')),

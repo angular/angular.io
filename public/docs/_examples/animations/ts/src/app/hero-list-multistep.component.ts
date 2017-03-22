@@ -1,14 +1,16 @@
 import {
   Component,
   Input,
+  AnimationTransitionEvent
+} from '@angular/core';
+import {
   trigger,
   state,
   style,
   animate,
   transition,
-  keyframes,
-  AnimationTransitionEvent
-} from '@angular/core';
+  keyframes
+} from '@angular/animations';
 
 import { Heroes } from './hero.service';
 
@@ -18,9 +20,9 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          (@flyInOut.start)="animationStarted($event)"
-          (@flyInOut.done)="animationDone($event)"
-          [@flyInOut]="'in'">
+          (@flyInOutMultiStep.start)="animationStarted($event)"
+          (@flyInOutMultiStep.done)="animationDone($event)"
+          [@flyInOutMultiStep]="'in'">
         {{hero.name}}
       </li>
     </ul>
@@ -36,7 +38,7 @@ import { Heroes } from './hero.service';
    */
   // #docregion animationdef
   animations: [
-    trigger('flyInOut', [
+    trigger('flyInOutMultiStep', [
       state('in', style({transform: 'translateX(0)'})),
       transition('void => *', [
         animate(300, keyframes([

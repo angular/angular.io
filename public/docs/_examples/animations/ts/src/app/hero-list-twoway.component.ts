@@ -2,13 +2,15 @@
 // #docregion imports
 import {
   Component,
-  Input,
+  Input
+} from '@angular/core';
+import {
   trigger,
   state,
   style,
-  transition,
-  animate
-} from '@angular/core';
+  animate,
+  transition
+} from '@angular/animations';
 // #enddocregion imports
 
 import { Heroes } from './hero.service';
@@ -19,7 +21,7 @@ import { Heroes } from './hero.service';
  template: `
    <ul>
      <li *ngFor="let hero of heroes"
-         [@heroState]="hero.state"
+         [@heroStateTwoWay]="hero.state"
          (click)="hero.toggleState()">
        {{hero.name}}
      </li>
@@ -35,7 +37,7 @@ import { Heroes } from './hero.service';
   */
  // #docregion animationdef
  animations: [
-   trigger('heroState', [
+   trigger('heroStateTwoWay', [
      state('inactive', style({
        backgroundColor: '#eee',
        transform: 'scale(1)'
