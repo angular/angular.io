@@ -1,6 +1,6 @@
 // #docregion
 // #docregion imports
-import { 
+import {
   makeExecutableSchema,
   addMockFunctionsToSchema
 } from 'graphql-tools';
