@@ -61,7 +61,7 @@ export class HeroService {
     return this.http
       .post(this.heroesUrl, JSON.stringify({name: name}), {headers: this.headers})
       .toPromise()
-      .then(res => res.json().data)
+      .then(res => res.json().data as Hero)
       .catch(this.handleError);
   }
   // #enddocregion create
