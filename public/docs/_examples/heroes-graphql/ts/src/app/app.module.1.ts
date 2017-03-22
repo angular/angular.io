@@ -10,6 +10,8 @@ import { HttpModule }    from '@angular/http';
 import { AppRoutingModule } from './app-routing.module';
 
 // #enddocregion v1
+import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
+import { InMemoryDataService }  from './in-memory-data.service';
 
 // #docregion import-apollo
 import { ApolloModule } from 'apollo-angular';
