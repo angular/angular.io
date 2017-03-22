@@ -289,6 +289,9 @@ code-example(language="json").
   In addition to integration tests, you can also run unit tests in watch mode via `npm run test`,
   or single-run via `npm run test:once`.
 
+  You can also test your library by installing it in another local repository you have. 
+  To do so, first build your lib via `npm run build`.
+  Then install it from your other repo using a relative path: `npm install relative/path/to/lib`.
 
 .l-main-section
 :marked
@@ -327,9 +330,15 @@ code-example(language="json").
   You'll need to create a NPM account, login on your local machine, and then you can publish updated
   by running `npm publish`.
 
-  Remember to document your library, follow [Semantic Versioning](http://semver.org/) and
-  setup a Continuous Integration solution to test your library (included is a `travis.yml` 
-  file for [Travis CI](https://docs.travis-ci.com/user/getting-started/))!
+.l-sub-section
+  :marked
+    ### Be a good library maintainer
+
+    Remember to document your library, 
+    [manage your dependencies properly](appendix-dependency-management),
+    follow [Semantic Versioning](http://semver.org/) and
+    setup a Continuous Integration solution to test your library (included is a `travis.yml` 
+    file for [Travis CI](https://docs.travis-ci.com/user/getting-started/))!
 
 
 .l-main-section
@@ -384,3 +393,46 @@ code-example(language="json").
   To create a more flexible developer experience, a JIT compatible build of the library should be published as well. The format of the JIT bundle is `umd`, which stands for Universal Module Definition. Shipping the bundle as `umd` ensures compatibility with most common module loading formats.
 
   The `umd` bundle will ship as a single file containing ES5 JavaScript and inlined versions of any external templates or css. 
+
+
+.l-main-section
+:marked
+  ## Appendix: Dependency Management
+
+  As a library maintainer, it's important to properly manage your dependencies in `package.json`.
+
+  There are [three kinds of dependencies](https://docs.npmjs.com/files/package.json#dependencies):
+   `dependencies`, `devDependencies` and `peerDependencies`.
+
+  - `dependencies`: here go all the other libraries yours depends on when being used.
+  A good way to figure out these is to go through your library source code (in `src/lib` **only**)
+  and list all the libraries there.
+  - `devDependencies`: libraries that you need while developing, testing and building your app
+  go here.
+  When a user installs your library, these won't be installed. 
+  Users don't need to develop, build or test your library, they just need to run it.
+  your app.
+  - `peerDependencies`: these are similar to `dependencies` since your library expects them to be
+  there at runtime.
+  The difference is that you don't want to install a new version of these, but instead use
+  the one already available. 
+
+  A good example of a peer dependency is `@angular/core` and all other main Angular libraries.
+  If you listed these in `dependencies`, a new one - with a different version! - could be installed
+  for your library to use.
+  This isn't what you wanted though. You want your library to use *the exact same* `@angular/core`
+  that the app is using.
+
+  You'll usually used `@angular/*` libraries listed in both `devDependencies` and 
+  `peerDependencies`.
+  This is normal and expected, because when you're developing your library also need a copy of
+  them installed.
+
+  Another thing to remember is to keep your dependencies from changing too much unexpectedly.
+  Different versions of libraries can have different features, and if you inadvertently are too
+  lenient with allowed versions your library might stop working because a dependency changed.
+
+  You can choose what versions you allow by using [ranges](https://docs.npmjs.com/misc/semver).
+
+  A good rule of thumb is to have all `dependencies` specified with a tilde `~`(`~1.2.3`),
+  while your `peerDependencies` have a range (`"@angular/core": ">=4.0.0 <5.0.0 || >=4.0.0-beta <5.0.0"`).
