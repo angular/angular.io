@@ -149,6 +149,8 @@ a#seed
 
   Libraries do not run by themselves, so it's very useful to have this "demo" app while developing 
   to see how your library would look like to consumers.
+
+  When you run `npm start`, the demo application is served.
   
   The following are all in `src/`
 
@@ -173,7 +175,7 @@ table(width="100%")
     td <ngio-ex>lib/component/app.component.ts</ngio-ex>
     td
       :marked
-        A sample library component that renders an `h2` tag.
+        A sample library component that renders an `<h2>` tag.
   tr
     td <code>lib/service/lib.service.ts</code>
     td
@@ -191,31 +193,94 @@ table(width="100%")
         The library's main `NgModule`, `LibModule`.
 
 
-
 .l-main-section
 :marked
-  ## Rename your library
+  ## Entry points
 
-  Every package on NPM has a unique name, and so should yours. 
+  In order to understand how to build and publish a library, you have to consider _how_ the library is going to be consumed.
 
-  -- rename lib
+  Some users need to add it as a `<script>` tag.
+  Others might be using SystemJS instead. 
+  Bundlers, like Webpack, are very popular as well. 
+  Typescript users need type definitions.
+  Rollup users make use of ECMAScript modules for tree-shaking.
+  AOT applications need library metadata to compile.
+
+  It's daunting to think of all the ways your library might be used and how to accomodate it, 
+  but you don't need to have a "one-size-fits-all" library.
+
+  You can configure `package.json` with more entry points besides [main](https://docs.npmjs.com/files/package.json#main).
+
+  The **Quickstart Library** seed uses a similar set of entry points as Angular itself, 
+  aimed at maximizing compatibility:
+
+  - `main` (default): an ES5 [UMD](https://github.com/umdjs/umd) bundle that can be consumed anywhere.
+  - `module`: a flat ECMAScript module (FESM) bundle containing ES5 code.
+  - `es2015`: a FESM containing ES2015 bundle.
+  - `typings`: TypeScript and the AOT compiler will look at this entry for metadata.
+
+code-example(language="json").
+  "main": "./dist/angular-quickstart-lib.umd.js",
+  "module": "./dist/angular-quickstart-lib.es5.js",
+  "es2015": "./dist/angular-quickstart-lib.js",
+  "typings": "./dist/angular-quickstart-lib.d.ts",
+
+:marked
+  There is also a minified UMD bundle (`angular-quickstart-lib.umd.min.js`) for smaller payloads
+  in Plunkers and script tags.
 
 .l-sub-section
   :marked
-    ### Next Step
-
-    If you're new to Angular, we recommend staying on the [learning path](learning-angular.html "Angular learning path").
-
+    A flat ECMAScript module (FESM) is a bundled ECMAScript module where all imports were followed 
+    copied onto the same file file.
+    It always contains ES module import/export statements but can have different levels of ES code
+    inside.
 
 .l-main-section
 :marked
-  ## Appendix: library-setup-anatomy
+  ## The build step
+
+  You can build the library by running `npm run build`. 
+  This will generate a `dist/` directory with all the entry points described above.
+
+  All the logic for creating the build can be found in `./build.js`. It consists of roughly 4 steps:
+
+  - Compile with `ngc` for ES5 and ES2015.
+  - Inline html and css inside the generated JavaScript files.
+  - Copy typings, metatada, html and css.
+  - Create each bundle using rollup.
+
+.l-main-section
+:marked
+  ## Testing
 
   content
 
 .l-main-section
 :marked
-  ## Appendix: testing libraries
+  ## Publishing your library
+
+  Every package on NPM has a unique name, and so should yours. 
+
+  -- rename lib
+
+.l-main-section
+:marked
+  ## title
+
+  content
+
+
+.l-main-section
+:marked
+  ## title
+
+  content
+
+
+.l-main-section
+:marked
+  ## Appendix: Library Setup Anatomy
 
   content
 
