@@ -26,11 +26,11 @@ include ../_util-fns
 :marked
   ## Table of contents
 
+  [Library package format](#library-package-format)
+
   [Setup a local development environment](#setup-a-local-development-environment)
 
   [What's in the QuickStart Library seed?](#what-s-in-the-quickstart-library-seed-)
-
-  [Entry points](#entry-points)
 
   [The build step](#the-build-step)
 
@@ -44,14 +44,64 @@ include ../_util-fns
 
   [Appendix: Dependency Management](#appendix-dependency-management)
 
-  TODO finish this
 
 .l-main-section
 :marked
-  ## Setup a local development environment
+  ## Library package format
+
+  In order to understand how to build and publish a library, you have to consider _how_ the library is going to be consumed.
+
+  Some users need to add it as a `<script>` tag.
+  Others might prefer to use a module loader like [SystemJS](https://github.com/systemjs/systemjs) 
+  or the native Node one.
+  Bundlers, like [Webpack](https://webpack.js.org/) are very popular as well.
+  [Typescript](typescriptlang.org) users need type definitions.
+  [Rollup](https://github.com/rollup/rollup) users make use of ECMAScript modules for tree-shaking.
+  Even though [Ahead-of-time](#appendix-supporting-aot) is preferred, 
+  [Just-in-time](#appendix-supporting-jit) compilation should be supported.
+
+  It's daunting to think of all the ways your library might be used and how to accommodate it, 
+  but you don't need to have a "one-size-fits-all" library.
+
+  You can configure `package.json` with more entry points besides [main](https://docs.npmjs.com/files/package.json#main).
+
+  The **Quickstart Library** seed uses a similar set of entry points as Angular itself, 
+  aimed at maximizing compatibility:
+
+  - `main` (default): an ES5 [UMD](https://github.com/umdjs/umd) bundle that can be consumed anywhere.
+  - `module`: a flat ECMAScript module (FESM) bundle containing ES5 code.
+  - `es2015`: a FESM containing ES2015 bundle.
+  - `typings`: TypeScript and the AOT compiler will look at this entry for metadata.
+
+code-example(language="json").
+  "main": "./dist/angular-quickstart-lib.umd.js",
+  "module": "./dist/angular-quickstart-lib.es5.js",
+  "es2015": "./dist/angular-quickstart-lib.js",
+  "typings": "./dist/angular-quickstart-lib.d.ts",
+
+:marked
+  There is also a minified UMD bundle (`angular-quickstart-lib.umd.min.js`) for smaller payloads
+  in Plunkers and script tags.
+
+
+.l-sub-section
+  :marked
+    A flat ECMAScript module (FESM) is a bundled ECMAScript module where all imports were followed 
+    copied onto the same file file.
+    It always contains ES module import/export statements but can have different levels of ES code
+    inside.
+
+
+.l-main-section
+:marked
+  ## The QuickStart Library seed
 
   Setting up a new library project on your machine is quick and easy with the **QuickStart Library seed**,
-  maintained [on github](https://github.com/angular/quickstart-lib "Install the github QuickStart Library repo"). 
+  maintained [on github](https://github.com/angular/quickstart-lib "Install the github QuickStart Library repo").
+
+  This example repository has an implemention of the described package format but is by no means
+  the only way you should publish a library.
+  Any setup that builds the necessary package format works just as well for a consumer.
 
 :marked
   Make sure you have at least Node 6.9 and NPM 3.0 installed.
@@ -209,52 +259,6 @@ table(width="100%")
 
 .l-main-section
 :marked
-  ## Entry points
-
-  In order to understand how to build and publish a library, you have to consider _how_ the library is going to be consumed.
-
-  Some users need to add it as a `<script>` tag.
-  Others might be using [SystemJS](https://github.com/systemjs/systemjs) instead. 
-  Bundlers, like [Webpack](https://webpack.js.org/), are very popular as well. 
-  [Typescript](typescriptlang.org) users need type definitions.
-  [Rollup](https://github.com/rollup/rollup) users make use of ECMAScript modules for tree-shaking.
-  Both [Ahead-of-time](#appendix-supporting-aot) and [Just-in-time](#appendix-supporting-it)
-  compilation should be supported.
-
-  It's daunting to think of all the ways your library might be used and how to accommodate it, 
-  but you don't need to have a "one-size-fits-all" library.
-
-  You can configure `package.json` with more entry points besides [main](https://docs.npmjs.com/files/package.json#main).
-
-  The **Quickstart Library** seed uses a similar set of entry points as Angular itself, 
-  aimed at maximizing compatibility:
-
-  - `main` (default): an ES5 [UMD](https://github.com/umdjs/umd) bundle that can be consumed anywhere.
-  - `module`: a flat ECMAScript module (FESM) bundle containing ES5 code.
-  - `es2015`: a FESM containing ES2015 bundle.
-  - `typings`: TypeScript and the AOT compiler will look at this entry for metadata.
-
-code-example(language="json").
-  "main": "./dist/angular-quickstart-lib.umd.js",
-  "module": "./dist/angular-quickstart-lib.es5.js",
-  "es2015": "./dist/angular-quickstart-lib.js",
-  "typings": "./dist/angular-quickstart-lib.d.ts",
-
-:marked
-  There is also a minified UMD bundle (`angular-quickstart-lib.umd.min.js`) for smaller payloads
-  in Plunkers and script tags.
-
-
-.l-sub-section
-  :marked
-    A flat ECMAScript module (FESM) is a bundled ECMAScript module where all imports were followed 
-    copied onto the same file file.
-    It always contains ES module import/export statements but can have different levels of ES code
-    inside.
-
-
-.l-main-section
-:marked
   ## The build step
 
   You can build the library by running `npm run build`. 
@@ -262,7 +266,7 @@ code-example(language="json").
 
   All the logic for creating the build can be found in `./build.js`. It consists of roughly 4 steps:
 
-  - Compile with `ngc` for ES5 and ES2015.
+  - Compile with the Ahead of Time Compiler (AOT compiler or `ngc`) for ES5 and ES2015.
   - Inline html and css inside the generated JavaScript files.
   - Copy typings, metatada, html and css.
   - Create each bundle using Rollup.
@@ -361,7 +365,7 @@ code-example(language="json").
 
   Only code written in TypeScript can be AOT compiled.
    
-  Before publishing the library must first be compiled using the `ngc` compiler. 
+  Before publishing the library must first be compiled using the Ahead of Time compiler (`ngc`). 
   `ngc` extends the `tsc` compiler by adding extensions to support AOT compilation in addition to
   regular TypeScript compilation.   
 
