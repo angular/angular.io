@@ -65,13 +65,10 @@ class ExampleZipper {
     const jsonFileName = configFileName.replace(/^.*[\\\/]/, '');
     const relativeDirName = path.dirname(path.dirname(path.relative(sourceDirName, configFileName)));
     const exampleDirName = path.dirname(configFileName);
-<<<<<<< 6df8bea575824951ad80a82cb2e1310d4535f085
     const examplesPackageJson = 'public/docs/_examples/package.json';
     const examplesSystemjsConfig = 'public/docs/_examples/_boilerplate/src/systemjs.config.js';
     const examplesSystemjsLoaderConfig = 'public/docs/_examples/_boilerplate/src/systemjs-angular-loader.js';
     const exampleTsconfig = 'public/docs/_examples/_boilerplate/src/tsconfig.json';
-=======
->>>>>>> chore: better package.json for zipper
     let exampleZipName = jsonFileName.replace(/(plnkr|zipper).json/, relativeDirName);
     const outputFileName = path.join(outputDirName, relativeDirName, exampleZipName + '.zip');
     let defaultIncludes = ['**/*.ts', '**/*.js', '**/*.css', '**/*.html', '**/*.md', '**/*.json', '**/*.png'];
