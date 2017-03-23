@@ -3,7 +3,7 @@
 // is solely for containing the transitory state of the imports.
 
 // #docregion added-imports
-// Keep the Input import for now, we'll remove it later:
+// Keep the Input import for now, you'll remove it later:
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Params }   from '@angular/router';
 import { Location }                 from '@angular/common';
