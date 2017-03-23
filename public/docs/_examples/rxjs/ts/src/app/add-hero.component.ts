@@ -1,27 +1,32 @@
 // #docplaster
 // #docregion
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/observable/merge';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/switchMap';
+// #docregion rxjs-imports-1
 import 'rxjs/add/operator/takeUntil';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/fromEvent';
+// #enddocregion rxjs-imports-1
+// #docregion viewchild-imports
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
+// #enddocregion viewchild-imports
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { EventAggregatorService } from './event-aggregator.service';
+import { Hero } from './hero';
 import { HeroService } from './hero.service';
 
+// #docregion rxjs-imports-2
+import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+// #enddocregion rxjs-imports-2
+
+// #docregion viewchild-heroName
 @Component({
   moduleId: module.id,
-  templateUrl: 'add-hero.component.html',
+  templateUrl: './add-hero.component.html',
   styles: [ '.error { color: red }' ]
 })
 export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('heroName', { read: ElementRef }) heroName: ElementRef;
+// #enddocregion viewchild-heroName
 
   form: FormGroup;
   showErrors: boolean = false;
@@ -30,32 +35,22 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private heroService: HeroService,
-    private eventService: EventAggregatorService
+    private heroService: HeroService
   ) {}
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      name: ['', [Validators.required], [(control: FormControl) => {
-        return this.checkHeroName(control.value);
-      }]]
+      name: ['', [Validators.required]]
     });
   }
-
-  checkHeroName(name: string) {
-    return Observable.of(name)
-      .switchMap(heroName => this.heroService.isNameAvailable(heroName))
-      .map(available => available ? null : { taken: true });
-  }
-
+// #docregion value-changes
   ngAfterViewInit() {
-    const controlBlur$ = Observable.fromEvent(this.heroName.nativeElement, 'blur');
+    const controlBlur$: Observable<Event> = Observable.fromEvent(this.heroName.nativeElement, 'blur');
 
     Observable.merge(
-      this.form.valueChanges,
-      controlBlur$
+      controlBlur$,
+      this.form.get('name').valueChanges
     )
-    .debounceTime(300)
     .takeUntil(this.onDestroy$)
     .subscribe(() => this.checkForm());
   }
@@ -65,19 +60,16 @@ export class AddHeroComponent implements OnInit, OnDestroy, AfterViewInit {
       this.showErrors = true;
     }
   }
-
-  save(model: any) {
-    this.heroService.addHero(model.name)
-      .subscribe(() => {
-        this.success = true;
-        this.eventService.add({
-          type: 'hero',
-          message: 'Hero Added'
-        });
-      });
-  }
+// #enddocregion value-changes
 
   ngOnDestroy() {
     this.onDestroy$.complete();
+  }
+
+  save(model: Hero) {
+    this.heroService.addHero(model.name)
+      .subscribe(() => {
+        this.success = true;
+      });
   }
 }
