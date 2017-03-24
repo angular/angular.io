@@ -17,7 +17,7 @@ function configureBuilder(options) {
 
 function extraData(postData, config) {
   postData['source[type]'] = config.description || 'Angular example';
-  postData['source[url]'] = 'https://angular.io'
+  postData['source[url]'] = 'https://v2.angular.io'
 }
 
 function addField(postData, name, content) {

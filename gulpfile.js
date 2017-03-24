@@ -872,7 +872,7 @@ function linkChecker(options) {
   var excludeBad = argv.excludeBad ? new RegExp(argv.excludeBad) : (options.excludeBad || '');
 
   var previousPage;
-  var siteUrl = argv.url || options.url || 'https://angular.io/';
+  var siteUrl = argv.url || options.url || 'https://v2.angular.io/';
 
   // See https://github.com/stevenvachon/broken-link-checker#blcsitecheckeroptions-handlers
   var handlers = {

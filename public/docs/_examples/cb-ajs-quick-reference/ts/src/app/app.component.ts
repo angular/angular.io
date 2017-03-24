@@ -11,7 +11,7 @@ import { IMovie } from './movie';
 })
 export class AppComponent {
 
-  angularDocsUrl = 'https://angular.io/';
+  angularDocsUrl = 'https://v2.angular.io/';
   colorPreference = 'red';
   eventType = '<not clicked yet>';
   isActive = true;
