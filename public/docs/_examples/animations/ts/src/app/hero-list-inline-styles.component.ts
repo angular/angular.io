@@ -3,11 +3,13 @@
 import {
   Component,
   Input,
+} from '@angular/core';
+import {
   trigger,
   style,
-  transition,
-  animate
-} from '@angular/core';
+  animate,
+  transition
+} from '@angular/animations';
 // #enddocregion imports
 
 import { Heroes } from './hero.service';

@@ -1,6 +1,6 @@
 // #docplaster
 // #docregion
-import { Component, Injector }  from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 
 import { Car, Engine, Tires }   from './car/car';
 import { Hero }                 from './heroes/hero';
@@ -19,15 +19,21 @@ import { Logger }               from './logger.service';
   `,
   providers: [Car, Engine, Tires, heroServiceProvider, Logger]
 })
-export class InjectorComponent {
-  car: Car = this.injector.get(Car);
+export class InjectorComponent implements OnInit {
+  car: Car;
 
   // #docregion get-hero-service
-  heroService: HeroService = this.injector.get(HeroService);
+  heroService: HeroService;
   // #enddocregion get-hero-service
-  hero: Hero = this.heroService.getHeroes()[0];
+  hero: Hero;
 
   constructor(private injector: Injector) { }
+
+  ngOnInit() {
+    this.car = this.injector.get(Car);
+    this.heroService = this.injector.get(HeroService);
+    this.hero = this.heroService.getHeroes()[0];
+  }
 
   get rodent() {
     let rousDontExist = `R.O.U.S.'s? I don't think they exist!`;

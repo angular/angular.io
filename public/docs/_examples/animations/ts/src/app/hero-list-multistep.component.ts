@@ -1,14 +1,16 @@
 import {
   Component,
   Input,
+} from '@angular/core';
+import {
   trigger,
   state,
   style,
   animate,
   transition,
   keyframes,
-  AnimationTransitionEvent
-} from '@angular/core';
+  AnimationEvent
+} from '@angular/animations';
 
 import { Heroes } from './hero.service';
 
@@ -59,11 +61,11 @@ import { Heroes } from './hero.service';
 export class HeroListMultistepComponent {
   @Input() heroes: Heroes;
 
-  animationStarted(event: AnimationTransitionEvent) {
+  animationStarted(event: AnimationEvent) {
     console.warn('Animation started: ', event);
   }
 
-  animationDone(event: AnimationTransitionEvent) {
+  animationDone(event: AnimationEvent) {
     console.warn('Animation done: ', event);
   }
 }

@@ -5,6 +5,7 @@ import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
 // #docregion inspect-config
 import { Router } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // #enddocregion inspect-config
 import { AppComponent }            from './app.component';
@@ -24,7 +25,8 @@ import { DialogService }           from './dialog.service';
     FormsModule,
     HeroesModule,
     LoginRoutingModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserAnimationsModule
   ],
   declarations: [
     AppComponent,
