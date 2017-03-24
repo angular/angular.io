@@ -45,7 +45,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     throw new Error('build-api-docs task requires the angular repo to be at ' + angular_repo_path);
   }
   readTypeScriptModules.basePath = path.resolve(angular_repo_path, 'packages');
-  readTypeScriptModules.ignoreExportsMatching = [/^_/];
+  readTypeScriptModules.ignoreExportsMatching = [/^(_|ɵ)/];
 
   readTypeScriptModules.sourceFiles = [
     'animations/index.ts',
