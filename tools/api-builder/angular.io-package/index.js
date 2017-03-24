@@ -50,6 +50,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
   readTypeScriptModules.sourceFiles = [
     'animations/index.ts',
     'animations/browser/index.ts',
+    'animations/browser/testing.ts',
     'common/index.ts',
     'common/testing/index.ts',
     'core/index.ts',
