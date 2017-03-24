@@ -3,9 +3,12 @@
 import { NgModule }       from '@angular/core';
 import { BrowserModule }  from '@angular/platform-browser';
 import { FormsModule }    from '@angular/forms';
+// #docregion animations-module
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// #enddocregion animations-module
 // #docregion inspect-config
 import { Router } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 // #enddocregion inspect-config
 import { AppComponent }            from './app.component';
@@ -19,14 +22,18 @@ import { PageNotFoundComponent }   from './not-found.component';
 
 import { DialogService }           from './dialog.service';
 
+// #docregion animations-module
 @NgModule({
   imports: [
+    // #enddocregion animations-module
     BrowserModule,
     FormsModule,
     HeroesModule,
     LoginRoutingModule,
     AppRoutingModule,
+    // #docregion animations-module
     BrowserAnimationsModule
+    // #enddocregion animations-module
   ],
   declarations: [
     AppComponent,
