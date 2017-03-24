@@ -1,6 +1,8 @@
+// #docregion animations-module
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// #enddocregion animations-module
 
 import { HeroTeamBuilderComponent } from './hero-team-builder.component';
 import { HeroListBasicComponent } from './hero-list-basic.component';
@@ -14,8 +16,10 @@ import { HeroListGroupsComponent } from './hero-list-groups.component';
 import { HeroListMultistepComponent } from './hero-list-multistep.component';
 import { HeroListTimingsComponent } from './hero-list-timings.component';
 
+// #docregion animation-module
 @NgModule({
   imports: [ BrowserModule, BrowserAnimationsModule ],
+  // #enddocregion animation-module
   declarations: [
     HeroTeamBuilderComponent,
     HeroListBasicComponent,
