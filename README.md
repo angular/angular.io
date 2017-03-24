@@ -49,7 +49,7 @@ We strongly recommend running one of the gulp `serve-and-sync` commands [describ
 while editing content so you can see the effect of your changes *as you type*.
 
 The documentation relies on specific styles and mixins. 
-Learn about those in the [documentation styleguide](https://angular.io/docs/ts/latest/styleguide.html).
+Learn about those in the [documentation styleguide](https://v2.angular.io/docs/ts/latest/styleguide.html).
 
 The jade documentation files are language-specific directories under either `public/docs/`.
 For example, all of the TypeScript docs are in `public/docs/ts/latest`, e.g.
@@ -153,7 +153,7 @@ gulp install-example-angular
 
 
 ## License
-Powered by Google ©2010-2017. Code licensed under an [MIT-style License](https://github.com/angular.io/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
+Powered by Google ©2010-2017. Code licensed under an [MIT-style License](https://github.com/angular/angular.io/tree/v2/tree/v2/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
 
 [travis-badge]: https://travis-ci.org/angular/angular.io.svg?branch=master
 [travis-badge-url]: https://travis-ci.org/angular/angular.io

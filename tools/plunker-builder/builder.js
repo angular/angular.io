@@ -50,7 +50,7 @@ class PlunkerBuilder {
   _buildCopyrightStrings() {
     var copyright = 'Copyright 2017 Google Inc. All Rights Reserved.\n'
       + 'Use of this source code is governed by an MIT-style license that\n'
-      + 'can be found in the LICENSE file at http://angular.io/license';
+      + 'can be found in the LICENSE file at http://v2.angular.io/license';
     var pad = '\n\n';
     this.copyrights.jsCss = `${pad}/*\n${copyright}\n*/`;
     this.copyrights.html = `${pad}<!-- \n${copyright}\n-->`;
