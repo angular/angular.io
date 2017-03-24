@@ -28,7 +28,7 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          [@heroStateBasic]="hero.state"
+          [@heroState]="hero.state"
           (click)="hero.toggleState()">
         {{hero.name}}
       </li>
@@ -46,7 +46,7 @@ import { Heroes } from './hero.service';
   // #docregion
   // #docregion animationdef
   animations: [
-    trigger('heroStateBasic', [
+    trigger('heroState', [
       // #docregion states
       state('inactive', style({
         backgroundColor: '#eee',

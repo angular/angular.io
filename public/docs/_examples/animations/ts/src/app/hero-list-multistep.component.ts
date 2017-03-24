@@ -20,9 +20,9 @@ import { Heroes } from './hero.service';
   template: `
     <ul>
       <li *ngFor="let hero of heroes"
-          (@flyInOutMultiStep.start)="animationStarted($event)"
-          (@flyInOutMultiStep.done)="animationDone($event)"
-          [@flyInOutMultiStep]="'in'">
+          (@flyInOut.start)="animationStarted($event)"
+          (@flyInOut.done)="animationDone($event)"
+          [@flyInOut]="'in'">
         {{hero.name}}
       </li>
     </ul>
@@ -38,7 +38,7 @@ import { Heroes } from './hero.service';
    */
   // #docregion animationdef
   animations: [
-    trigger('flyInOutMultiStep', [
+    trigger('flyInOut', [
       state('in', style({transform: 'translateX(0)'})),
       transition('void => *', [
         animate(300, keyframes([

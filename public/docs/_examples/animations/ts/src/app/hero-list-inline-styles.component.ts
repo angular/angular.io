@@ -20,7 +20,7 @@ import { Heroes } from './hero.service';
  template: `
    <ul>
      <li *ngFor="let hero of heroes"
-         [@heroStateInline]="hero.state"
+         [@heroState]="hero.state"
          (click)="hero.toggleState()">
        {{hero.name}}
      </li>
@@ -38,7 +38,7 @@ import { Heroes } from './hero.service';
   */
  // #docregion animationdef
  animations: [
-   trigger('heroStateInline', [
+   trigger('heroState', [
      // #docregion transitions
      transition('inactive => active', [
        style({
