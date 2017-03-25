@@ -25,5 +25,5 @@ export class HeroDetailComponent {
   @Input() hero: Hero;
 // #enddocregion hero
 }
-// #docregion class
+// #enddocregion class
 
