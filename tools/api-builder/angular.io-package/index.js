@@ -17,6 +17,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 .processor(require('./processors/addJadeDataDocsProcessor'))
 .processor(require('./processors/matchUpDirectiveDecorators'))
 .processor(require('./processors/filterMemberDocs'))
+.processor(require('./processors/tagDiagnostics'))
 
 // overrides base packageInfo and returns the one for the 'angular/angular' repo.
 .factory(require('./services/packageInfo'))
