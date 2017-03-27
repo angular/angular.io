@@ -18,6 +18,8 @@ include ../_util-fns
   This cookbook shows how to publish a third party library in a way that makes it possible to 
   fully benefit from techniques like Ahead of Time Compilation (AOT) and Tree Shaking.
 
+  The  **QuickStart Library seed**
+
 .alert.is-important
   :marked
     The setup shown in this cookbook is only for Angular version 4 (and up) libraries.
@@ -28,9 +30,7 @@ include ../_util-fns
 
   [Library package format](#library-package-format)
 
-  [Published file layout](#published-file-layout)
-
-  [Setup a local development environment](#setup-a-local-development-environment)
+  [Building your library](#building-your-library)
 
   [What's in the QuickStart Library seed?](#what-s-in-the-quickstart-library-seed-)
 
@@ -95,37 +95,61 @@ table(width="100%")
     td ESM+ES2015
     td
       :marked 
-        `angular-library-name.js`
+        `library-name.js`
   tr
     td Angular CLI / Webpack/ Rollup
     td ESM+ES5
     td
       :marked 
-        `angular-library-name.es5.js`
+        `library-name.es5.js`
   tr
     td Plunker / Fiddle / ES5 / script tag
     td UMD
     td
       :marked 
-        Requires manual resolution to `bundles/angular-library-name.umd.js`/`bundles/angular-library-name.umd.min.js`
+        Requires manual resolution to `bundles/library-name.umd.js`/`bundles/library-name.umd.min.js`
   tr
     td Node.js
     td UMD
     td
       :marked 
-        `bundles/angular-library-name.umd.js`
+        `bundles/library-name.umd.js`
   tr
     td TypeScript
     td ESM+*.d.ts
     td
       :marked 
-        `angular-library-name.d.ts`
+        `library-name.d.ts`
   tr
     td AOT compilation
     td *.metadata.json
     td
       :marked 
-        `angular-library-name.metadata.json`
+        `library-name.metadata.json`
+
+:marked
+  A library should have the following file layout when published:
+
+.filetree
+.file node_modules/library-name
+.children
+  .file bundles
+    .children
+    .file library-name.umd.js ('main' entry point)
+    .file library-name.umd.js.map
+    .file library-name.umd.min.js
+    .file library-name.umd.min.js.map
+  .file src/*.d.ts
+  .file library-name.d.ts ('typings' entry point)
+  .file library-name.es5.js ('module' entry point)
+  .file library-name.es5.js.map
+  .file library-name.js ('es2015' entry point)
+  .file library-name.js.map
+  .file library-name.metadata.json
+  .file index.d.ts
+  .file LICENSE
+  .file package.json (lists all entry points)
+  .file README.md
 
 .l-sub-section
   :marked
@@ -133,35 +157,54 @@ table(width="100%")
     copied onto the same file file.
     It always contains ES module import/export statements but can have different levels of ES code
     inside.
-      
+
 
 .l-main-section
 :marked
-  ## Published file layout
+  ## Building your library
 
-  A library should have the following file layout when published:
+  You can use any set of tools you choose to package your library.
+  The only tool that is mandatory is the AOT compiler `ngc`, which should have the following 
+  configuration in the used `tsconfig.json`:
 
-.filetree
-.file node_modules/angular-library-name
-.children
-  .file bundles
-    .children
-    .file angular-library-name.umd.js ('main' entry point)
-    .file angular-library-name.umd.js.map
-    .file angular-library-name.umd.min.js
-    .file angular-library-name.umd.min.js.map
-  .file src/*.d.ts
-  .file angular-library-name.d.ts ('typings' entry point)
-  .file angular-library-name.es5.js ('module' entry point)
-  .file angular-library-name.es5.js.map
-  .file angular-library-name.js ('es2015' entry point)
-  .file angular-library-name.js.map
-  .file angular-library-name.metadata.json
-  .file index.d.ts
-  .file LICENSE
-  .file package.json (lists all entry points)
-  .file README.md
+code-example(language="json").
+  {
+    "compilerOptions": { ... },
+    "angularCompilerOptions": {
+      "annotateForClosureCompiler": true,
+      "strictMetadataEmit": true,
+      "flatModuleOutFile": "library-name.js",
+      "flatModuleId": "library-name"
+    }
+  }
+  
+:marked
+  You should also have a `library-name.js` file to be overwritten by `ngc` in order to create
+  flat module, re-exporting the public API of your library.
 
+  This file is not used to build you library.
+  It is only used during editing by the TypeScript language service and during build for verification.
+  `ngc` replaces this file with production file when it rewrites private symbol names.
+
+  Below is a handy list for you to check if your entry points files are correctly build:
+
+  - common to all entry points:
+    - HTML and CSS templates inlined in your TypeScript files that will be compiled.
+    - sourcemaps all the way back to the source files.
+    - compiled using `"module": "es2015"` in `compilerOptions`
+  - `main` (`bundles/library-name.umd.js`)
+    - compiled with `ngc`, using `"target": "es5"`.
+    - bundled using a UMD format.
+    - also produce a minimized copy.
+  - `module` (`library-name.es5.js`)
+    - compiled with `ngc`, using `"target": "es5"`.
+    - bundled using ES modules format.
+  - `es2015` (`library-name.js`)
+    - compiled with `ngc`, using `"target": "es2015"`.
+    - bundled using ES modules format.
+  - `typings` (`library-name.d.ts`)
+    - compiled with `ngc`.
+    - only publish `*.d.ts` and `library-name.metadata.json` files.
 
 .l-main-section
 :marked
