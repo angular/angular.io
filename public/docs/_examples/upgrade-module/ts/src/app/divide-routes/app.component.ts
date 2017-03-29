@@ -1,6 +1,5 @@
 // #docregion
-import { Component, OnInit } from '@angular/core';
-import { UpgradeModule } from '@angular/upgrade/static';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'my-app',
@@ -9,10 +8,5 @@ import { UpgradeModule } from '@angular/upgrade/static';
     <div ng-view></div>
   `,
 })
-export class AppComponent implements OnInit {
-  constructor(private upgrade: UpgradeModule) {}
-
-  ngOnInit() {
-    this.upgrade.bootstrap(document.body.querySelector('[ng-view]'), ['heroApp'], {strictDi: true});
-  }
+export class AppComponent {
 }

@@ -41,7 +41,6 @@ include ../_util-fns
       7. [Making AngularJS Dependencies Injectable to Angular](#making-angularjs-dependencies-injectable-to-angular)
       8. [Making Angular Dependencies Injectable to AngularJS](#making-angular-dependencies-injectable-to-angularjs)
       9. [Using Ahead-of-time compilation with hybrid apps](#using-ahead-of-time-compilation-with-hybrid-apps)
-      10. [Dividing routes between Angular and AngularJS](#dividing-routes-between-angular-and-angularjs)
   3. [PhoneCat Upgrade Tutorial](#phonecat-upgrade-tutorial)
       1. [Switching to TypeScript](#switching-to-typescript)
       2. [Installing Angular](#installing-angular)
@@ -826,61 +825,6 @@ figure
 :marked
   And that's all we need to get the full benefit of AoT for Angular apps!
 
-:marked
-  ## Dividing routes between Angular and AngularJS
-
-  Another important part of upgrading is upgrading routes.
-  We could upgrade our whole app while still using the AngularJS router and then
-  migrate all the routes in one fell swoop.
-  But it would be much better to migrate routes one by one as they become upgraded.
-
-  To do this we need to be able to run the AngularJS `ngRoute` service and the Angular Router
-  side-by-side. We will partition the URL so that each route is handled by exactly one of the routers.
-
-  In this dual router scenario we let Angular own the root template (e.g. index.html) and AngularJS
-  only owns the element containing the `ng-view` directive.
-
-  The first step is to add an Angular root `AppComponent`, which will be bootstrapped via the `AppModule`.
-
-+makeExample('upgrade-module/ts/src/app/divide-routes/app.component.ts', null, 'app.component.ts')
-
-:marked
-  This `AppComponent` has a template that contains a `router-outlet` and an element containing the
-  AngularJS `ng-view` directive.
-
-  Note that we are bootstrapping the AngularJS part of the app by calling `upgrade.bootstrap` inside
-  the `ngOnInit` hook of the `AppComponent`. We need the `AppComponent`'s template to be place
-  in the DOM so that AngularJS can bootstrap the `ng-view` element.
-
-  We place this component in the body of our `index.html` instead of an AngularJS component:
-
-+makeExample('upgrade-module/ts/src/index-divide-routes.html', 'body', 'app.component.ts (body)')
-
-:marked
-  Next we declare both AngularJS and Angular routes as normal:
-
-+makeExample('upgrade-module/ts/src/app/divide-routes/app.module.ts', 'ajs-route', 'app.module.ts (AngularJS route)')
-+makeExample('upgrade-module/ts/src/app/divide-routes/hero.module.ts', 'a-route', 'hero.module.ts (Angular route)')
-
-:marked
-  In our `app.module.ts` we need to add `AppComponent` to the declarations and boostrap array.
-
-  Finally we configure the router itself.
-
-  We want to use [hash navigation](./router.html#-hashlocationstrategy-) in Angular
-  because that's what we're also using in AngularJS.
-
-.alert.is-helpful
-  :marked
-    And most importantly, we want to use a custom `UrlHandlingStrategy` that will tell
-    the Angular router which routes it should render - and only those.
-
-+makeExample('upgrade-module/ts/src/app/divide-routes/app.module.ts', 'router-config', 'app.module.ts (router config)')
-
-:marked
-  That's it! Now we're running both routers at the same time.
-
-
 .l-main-section
 :marked
   ## PhoneCat Upgrade Tutorial
@@ -1285,7 +1229,7 @@ code-example(format="").
   In its constructor the class expects to get the `Http` service. It will
   be injected to it and it is stored as a private field. The service is then
   used in the two instance methods, one of which loads the list of all phones,
-  and the other the details of a particular phone:
+  and the other loads the details of a specified phone:
 
 +makeExample('upgrade-phonecat-2-hybrid/ts/app/core/phone/phone.service.ts', 'fullclass')
 
