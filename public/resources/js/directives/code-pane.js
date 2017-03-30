@@ -3,7 +3,7 @@
 *
 * @requires codeTab Directive
 *
-* Invidiual panes displayed in the the
+* Individual panes displayed in the
 * codeTab elements
 */
 
@@ -30,7 +30,7 @@ angularIO.directive('codePane', function() {
       return function(scope, element, attrs, controller) {
         scope.name = attrs.name;
 
-        //ADD PANE TO CONTROLLER
+        // ADD PANE TO CONTROLLER
         controller.addPane(scope);
       };
     }
