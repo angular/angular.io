@@ -6,39 +6,59 @@
 ## Table of Contents
 
 * [Overview](#overview)
+
     * [How does it work?](#how-does-it-work)
     * [Why do it?](#why-do-it)
+
         * [SEO / No JavaScript](#seo-no-javascript)
         * [Startup Performance](#startup-performance)
+
     * [The Example](#the-example)
+
 * [Preparation](#preparation)
+
     * [Installing the tools](#installing-the-tools)
     * [Component-relative URLs](#component-relative-urls)
     * [Server Transition](#server-transition)
+
 * [Configuration - AOT](#configuration-aot)
+
     * [Main Entry Point](#main-entry-point)
     * [Creating the tsconfig-aot.json](#creating-the-tsconfig-aot-json)
     * [Webpack Configuration](#webpack-configuration)
+
         * [Loader](#loader)
         * [Plugin](#plugin)
         * [Input](#input)
         * [Output](#output)
+
 * [Build - AOT](#build-aot)
+
     * [Source Maps](#source-maps)
+
 * [Serve - AOT](#serve-aot)
+
     * [Lite Server Configuration](#lite-server-configuration)
     * [Serve Command](#serve-command)
+
 * [Configuration - Universal](#configuration-universal)
+
     * [Server Code](#server-code)
+
         * [App Server Module](#app-server-module)
         * [Universal Engine](#universal-engine)
         * [Web Server](#web-server)
+
     * [Creating the tsconfig-uni.json](#creating-the-tsconfig-uni-json)
     * [Creating the webpack.config.uni.js](#creating-the-webpack-config-uni-js)
+
         * [The entry points](#the-entry-points)
         * [The output file](#the-output-file)
+
 * [Build and Serve - Universal](#build-and-serve-universal)
+
     * [Exercising Universal](#exercising-universal)
+
         * [Disabling the Client App](#disabling-the-client-app)
         * [Throttling](#throttling)
 * [Conclusion](#conclusion)
@@ -158,19 +178,19 @@ The AOT and Universal versions of the app are both compiled by the AOT compiler.
 
 To build and run the AOT version, you need to create:
 
- - an `index-aot.html` file
- - a main entry point, `main-aot.ts`
- - a TypeScript config file, `tsconfig-aot.json`
- - a Webpack config file, `webpack.config.aot.js`
- - a lite-server config file, `bs-config.aot.js`
+ * an `index-aot.html` file
+ * a main entry point, `main-aot.ts`
+ * a TypeScript config file, `tsconfig-aot.json`
+ * a Webpack config file, `webpack.config.aot.js`
+ * a lite-server config file, `bs-config.aot.js`
 
  To build and run the Universal version, you need to create:
 
- - a server-side app module, `app.server.ts`
- - a Universal app renderer, `universal-engine.ts`
- - an express web server to handle requests, `server-aot.ts`
- - a TypeScript config file, `tsconfig-uni.json`
- - a Webpack config file, `webpack.config.uni.js`
+ * a server-side app module, `app.server.ts`
+ * a Universal app renderer, `universal-engine.ts`
+ * an express web server to handle requests, `server-aot.ts`
+ * a TypeScript config file, `tsconfig-uni.json`
+ * a Webpack config file, `webpack.config.uni.js`
 
 The folder structure will look like this:
 
@@ -206,12 +226,12 @@ The files marked with * are new and not in the original Tour of Heroes demo.  Th
 
 To get started, you need to install the necessary modules for AOT and Webpack.
 
- - `@angular/compiler-cli` - The ngc compiler that compiles Angular applications 
- - `@angular/platform-server` - Server-side components needed for compilation
- - `webpack` - The Webpack JavaScript bundler
- - `@ngtools/webpack` - The Webpack loader and plugin for bundling compiled applications
- - `raw-loader` - The Webpack loader for text files
- - `express` - The web server for serving the Universal application
+ * `@angular/compiler-cli` - The ngc compiler that compiles Angular applications 
+ * `@angular/platform-server` - Server-side components needed for compilation
+ * `webpack` - The Webpack JavaScript bundler
+ * `@ngtools/webpack` - The Webpack loader and plugin for bundling compiled applications
+ * `raw-loader` - The Webpack loader for text files
+ * `express` - The web server for serving the Universal application
 
 You can install them with the following commands:
 
@@ -306,13 +326,14 @@ Since `app.module.ts` appears first in the array, it will be compiled into an `n
 The AOT compiler transpiles TypeScript into JavaScript (like `tsc`), and compiles your app's components, services, etc. into executable JavaScript code. 
 You configure it using a JSON file similar to `tsconfig.json`.  There are a few differences:
 
- - The `module` setting must be `es2015`.
+ * The `module` setting must be `es2015`.
  This creates JavaScript output with `import` statements (instead of `require()`) that can be compiled and bundled.
- - The `files` setting includes the app module and the main AOT bootstrapper.  See more about this in the section below.
- - There is a new `angularCompilerOptions` section with the following settings:
-    - `genDir` - the output directory that will contain the compiled `ngfactory` code.  When compiling via Webpack, this is used as a temporary directory.
-    - `entryModule` - the root module of the app, expressed as **path/to/file#ClassName**.
-    - `skipMetadataEmit` - set to `true` because you don't need metadata in the bundled application
+ * The `files` setting includes the app module and the main AOT bootstrapper.  See more about this in the section below.
+ * There is a new `angularCompilerOptions` section with the following settings:
+
+    * `genDir` - the output directory that will contain the compiled `ngfactory` code.  When compiling via Webpack, this is used as a temporary directory.
+    * `entryModule` - the root module of the app, expressed as **path/to/file#ClassName**.
+    * `skipMetadataEmit` - set to `true` because you don't need metadata in the bundled application
 
 Create a `tsconfig-aot.json` file in the project rood directory by copying your `tsconfig.json` and applying the changes described above.  It should look like this:
 
@@ -809,10 +830,3 @@ Now rename `build.tmp.js` back to `build.js` so the app can load again.  Then op
 # Conclusion <a name="conclusion"></a>
 
 Angular Universal can greatly improve the perceived startup performance of your app.  The slower the network, the more advantageous it becomes to have Universal display the first page to the user.
-
-
-
-
-
-
-
