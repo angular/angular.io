@@ -1,9 +1,9 @@
 /* tslint:disable:one-line:check-open-brace*/
 // #docplaster
 // #docregion opaque-token
-import { OpaqueToken } from '@angular/core';
+import { InjectionToken } from '@angular/core';
 
-export const TITLE = new OpaqueToken('title');
+export const TITLE = new InjectionToken<string>('title');
 // #enddocregion opaque-token
 
 // #docregion hero-of-the-month
