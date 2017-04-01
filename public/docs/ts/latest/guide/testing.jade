@@ -1,10 +1,5 @@
 block includes
   include ../_util-fns
-  - var _JavaScript = 'JavaScript';
-  //- Double underscore means don't escape var, use !{__var}.
-  - var __chaining_op = '<code>;</code> or <code>,</code>';
-  - var __new_op = '<code>new</code>';
-  - var __objectAsMap = 'object';
 
 :marked
   This guide offers tips and techniques for testing Angular applications.
@@ -14,86 +9,113 @@ block includes
 a#top
 :marked
   # Contents
+
   * [Live examples](#live-examples "Live examples of the tests in this guide")
   <br><br>
   * [Introduction to Angular testing](#testing-intro)
-    - [Tools and technologies](#tools-and-tech)
-    - [Setup](#setup)
-    - [Isolated unit tests vs. the Angular testing utilities](#isolated-v-testing-utilities)
+ 
+    * [Tools and technologies](#tools-and-tech)
+    * [Setup](#setup)
+    * [Isolated unit tests vs. the Angular testing utilities](#isolated-v-testing-utilities)
+
   * [The first karma test](#1st-karma-test)
-   - [Run with karma](#run-karma)
-   - [Test debugging](#test-debugging)
-   - [Try the live example](#live-karma-example)
+
+   * [Run with karma](#run-karma)
+   * [Test debugging](#test-debugging)
+   * [Try the live example](#live-karma-example)
+
   * [Test a component](#simple-component-test)
-    - [_TestBed_](#testbed)
-    - [_createComponent_](#create-component)
-    - [_ComponentFixture_, _DebugElement_, and _query(By.css)_](#component-fixture)
-    - [The tests](#the-tests)
-    - [_detectChanges_: Angular change detection within a test](#detect-changes)
-    - [Try the live example](#try-example)
-    - [Automatic change detection](#auto-detect-changes)
+
+    * [_TestBed_](#testbed)
+    * [_createComponent_](#create-component)
+    * [_ComponentFixture_, _DebugElement_, and _query(By.css)_](#component-fixture)
+    * [The tests](#the-tests)
+    * [_detectChanges_: Angular change detection within a test](#detect-changes)
+    * [Try the live example](#try-example)
+    * [Automatic change detection](#auto-detect-changes)
+
   * [Test a component with an external template](#component-with-external-template)
-    - [The first asynchronous _beforeEach_](#async-in-before-each)
-    - [_compileComponents_](#compile-components)
-    - [The second synchronous _beforeEach_](#second-before-each)
-    - [Waiting for _compileComponents_](#waiting-compile-components)
-    - [Try the live example](#live-external-template-example)
+
+    * [The first asynchronous _beforeEach_](#async-in-before-each)
+    * [_compileComponents_](#compile-components)
+    * [The second synchronous _beforeEach_](#second-before-each)
+    * [Waiting for _compileComponents_](#waiting-compile-components)
+    * [Try the live example](#live-external-template-example)
+
   * [Test a component with a service dependency](#component-with-dependency)
-    - [Provide service test doubles](#service-test-doubles)
-    - [Get injected services](#get-injected-service)
-    - [_TestBed.get_](#testbed-get)
-    - [Always get the service from an injector](#service-from-injector)
-    - [Final setup and tests](#welcome-spec-setup)
+
+    * [Provide service test doubles](#service-test-doubles)
+    * [Get injected services](#get-injected-service)
+    * [_TestBed.get_](#testbed-get)
+    * [Always get the service from an injector](#service-from-injector)
+    * [Final setup and tests](#welcome-spec-setup)
+
   * [Test a component with an async service](#component-with-async-service)
-    - [Spying on the real service](#service-spy)
-    - [Synchronous tests](#sync-tests)
-    - [The _async_ funciton in it](#async)
-    - [_whenStable_](#when-stable)
-    - [The _fakeAsync_ function](#fake-async)
-    - [The _tick_ function](#tick)
-    - [_jasmine.done_](#jasmine-done)
+
+    * [Spying on the real service](#service-spy)
+    * [Synchronous tests](#sync-tests)
+    * [The _async_ funciton in it](#async)
+    * [_whenStable_](#when-stable)
+    * [The _fakeAsync_ function](#fake-async)
+    * [The _tick_ function](#tick)
+    * [_jasmine.done_](#jasmine-done)
+
   * [Test a component with inputs and outputs](#component-with-input-output)
-    - [Test _DashboardHeroComponent_ stand-alone](#dashboard-standalone)
-    - [_triggerEventHandler_](#trigger-event-handler)
+
+    * [Test _DashboardHeroComponent_ stand-alone](#dashboard-standalone)
+    * [_triggerEventHandler_](#trigger-event-handler)
+
   * [Test a component inside a test host component](#component-inside-test-host)
-  <br><br>
+
   * [Test a routed component](#routed-component)
-    - [The _inject_ helper function](#inject)
-    - [Test a routed component with parameters](#routed-component-w-param)
-    - [Create an _Observable_ test double](#stub-observable)
-    - [Testing with the _Observable_ test double](#tests-w-observable-double)
+
+    * [The _inject_ helper function](#inject)
+    * [Test a routed component with parameters](#routed-component-w-param)
+    * [Create an _Observable_ test double](#stub-observable)
+    * [Testing with the _Observable_ test double](#tests-w-observable-double)
+
   * [Use a _page_ object to simplify setup](#page-object)
   * [Set up with module imports](#import-module)
   * [Import the feature module](#feature-module-import)
   <br><br>
   * [Override a component's providers](#component-override)
-    - [The _overrideComponent_ method](#override-component-method)
-    - [Provide a _spy-stub (HeroDetailServiceSpy)_](#spy-stub)
-    - [The override tests](#override-tests)
-    - [More overrides](#more-overrides)
+
+    * [The _overrideComponent_ method](#override-component-method)
+    * [Provide a _spy-stub (HeroDetailServiceSpy)_](#spy-stub)
+    * [The override tests](#override-tests)
+    * [More overrides](#more-overrides)
+
   * [Test a _RouterOutlet_ component](#router-outlet-component)
-    - [Stubbing unneeded components](#stub-component)
-    - [Stubbing the _RouterLink_](#router-link-stub)
-    - [_By.directive_ and injected directives](#by-directive)
-    - [What good are these tests?](#why-stubbed-routerlink-tests)
+
+    * [Stubbing unneeded components](#stub-component)
+    * [Stubbing the _RouterLink_](#router-link-stub)
+    * [_By.directive_ and injected directives](#by-directive)
+    * [What good are these tests?](#why-stubbed-routerlink-tests)
+
   * ["Shallow component tests" with  *NO\_ERRORS\_SCHEMA*](#shallow-component-test)
   <br><br>
   * [Test an attribute directive](#attribute-directive)
   <br><br>
   * [Isolated unit tests](#isolated-unit-tests "Unit testing without the Angular testing utilities")
-    - [Services](#isolated-service-tests)
-    - [Services with dependencies](#services-with-dependencies)
-    - [Pipes](#isolated-pipe-tests)
-    - [Write Angular tests too](#write-tests)
-    - [Components](#isolated-component-tests)
+
+    * [Services](#isolated-service-tests)
+    * [Services with dependencies](#services-with-dependencies)
+    * [Pipes](#isolated-pipe-tests)
+    * [Write Angular tests too](#write-tests)
+    * [Components](#isolated-component-tests)
+
   * [Angular testing utility APIs](#atu-apis)
-    - [_TestBed_ class summary](#testbed-class-summary)
-    - [The _ComponentFixture_](#component-fixture-api-summary)
-    - [_ComponentFixture_ properties](#component-fixture-properties)
-    - [The _ComponentFixture_ methods](#component-fixture-methods)
-    - [_DebugElement_](#debug-element-details)
+
+    * [_TestBed_ class summary](#testbed-class-summary)
+    * [The _ComponentFixture_](#component-fixture-api-summary)
+    * [_ComponentFixture_ properties](#component-fixture-properties)
+    * [The _ComponentFixture_ methods](#component-fixture-methods)
+    * [_DebugElement_](#debug-element-details)
+
   * [Test environment setup files](#setup-files)
-    - [npm packages](#npm-packages)
+
+    * [npm packages](#npm-packages)
+
   * [FAQ: Frequently asked questions](#faq "Frequently asked questions")
 :marked
   It’s a big agenda. Fortunately, you can learn a little bit at a time and put each lesson to use.
@@ -931,9 +953,10 @@ a#component-with-input-output
 :marked
   While testing a component this simple has little intrinsic value, it's worth knowing how.
   You can use one of these approaches:
-  - Test it as used by `DashboardComponent`.
-  - Test it as a stand-alone component.
-  - Test it as used by a substitute for `DashboardComponent`.
+
+  * Test it as used by `DashboardComponent`.
+  * Test it as a stand-alone component.
+  * Test it as used by a substitute for `DashboardComponent`.
 
   A quick look at the `DashboardComponent` constructor discourages the first approach:
 +makeExample('testing/ts/src/app/dashboard/dashboard.component.ts', 'ctor', 'src/app/dashboard/dashboard.component.ts (constructor)')(format='.')
@@ -1066,6 +1089,7 @@ a#component-inside-test-host
 +makeExample('testing/ts/src/app/dashboard/dashboard-hero.component.spec.ts', 'test-host-setup', 'src/app/dashboard/dashboard-hero.component.spec.ts (test host setup)')(format='.')
 :marked
   This testing module configuration shows two important differences:
+
   1. It _declares_ both the `DashboardHeroComponent` and the `TestHostComponent`.
   1. It _creates_ the `TestHostComponent` instead of the `DashboardHeroComponent`.
 
@@ -1126,6 +1150,7 @@ a#inject
   It injects services into the test function where you can alter, spy on, and manipulate them.
 
   The `inject` function has two parameters:
+
   1. An array of Angular dependency injection tokens.
   1. A test function whose parameters correspond exactly to each item in the injection token array.
 
@@ -1263,6 +1288,7 @@ figure.image-display
 +makeExample('testing/ts/src/app/hero/hero-detail.component.html', '', 'src/app/hero/hero-detail.component.html')(format='.')
 :marked
   To fully exercise the component, the test needs a lot of setup:
+
   * It must wait until a hero arrives before `*ngIf` allows any element in DOM.
   * It needs references to the title `<span>` and the name `<input>` so it can inspect their values.
   * It needs references to the two buttons so it can click them.
@@ -1308,6 +1334,7 @@ a#import-module
 
   The `HeroDetailComponent` requires a lot of help despite its small size and simple construction.
   In addition to the support it receives from the default testing module `CommonModule`, it needs:
+
   * `NgModel` and friends in the `FormsModule` to enable two-way data binding.
   * The `TitleCasePipe` from the `shared` folder.
   * Router services (which these tests are stubbing).
@@ -1655,6 +1682,7 @@ figure.image-display
   `By.css('*:not([highlight])')` finds _any_ element that does not have the directive.
 
 // Removed on 12/02/2016 when ceased public discussion of the `Renderer`. Revive in future?
+:marked
   * `DebugElement.styles` affords access to element styles even in the absence of a real browser, thanks to the `DebugElement` abstraction.
   But feel free to exploit the `nativeElement` when that seems easier or more clear than the abstraction.
 
@@ -1664,6 +1692,7 @@ figure.image-display
   and its `defaultColor`.
 
 // Removed on 12/02/2016 when ceased public discussion of the `Renderer`. Revive in future?
+:marked
   * `DebugElement.properties` affords access to the artificial custom property that is set by the directive.
 
 a(href="#top").to-top Back to top
@@ -1681,12 +1710,14 @@ a#isolated-unit-tests
   Such tests are often smaller and  easier to read, write, and maintain.
 
   They don't carry extra baggage:
+
   * Import from the Angular test libraries.
   * Configure a module.
   * Prepare dependency injection `providers`.
   * Call `inject` or `async` or `fakeAsync`.
 
   They follow patterns familiar to test developers everywhere:
+
   * Exhibit standard, Angular-agnostic testing techniques.
   * Create instances directly with `new`.
   * Substitute test doubles (stubs, spys, and mocks) for the real dependencies.
@@ -2297,6 +2328,7 @@ a#query-predicate
 
 :marked
   The Angular `By` class has three static methods for common predicates:
+
   * `By.all` - return all elements.
   * `By.css(selector)` - return elements with matching CSS selectors.
   * `By.directive(directive)` - return elements that Angular matched to an instance of the directive class.
@@ -2355,6 +2387,7 @@ a(href="#top").to-top Back to top
 a#setup-files
 :marked
   ## Test environment setup files
+
   Unit testing requires some configuration and bootstrapping that is captured in _setup files_.
   The setup files for this guide are provided for you when you follow the [Setup](setup.html) instructions.
   The CLI delivers similar files with the same purpose.
@@ -2433,6 +2466,7 @@ a(href="#top").to-top Back to top
 //
   :marked
     General
+
     * [When are end-to-end (e2e) tests a good choice?](#q-when-e2e)
     * [When to use the _TestBed_?](#q-why-testbed)
     * [When to write isolated unit tests without the _TestBed_?](#q-when-no-testbed)
@@ -2455,6 +2489,7 @@ a(href="#top").to-top Back to top
     * [How do I use the Jasmine HTML TestRunner in the browser?](#q-jasmine-browser-test-runner)
 
     Resources
+
     * [Where can I learn more about unit testing in JavaScript?](#q-js-unit-testing-resources)
     * [Where can I learn more about testing with Jasmine?](#q-jasmine-resources)
     * [Where can I learn more about testing with karma?](#q-karma-resources)
@@ -2470,11 +2505,12 @@ a(href="#top").to-top Back to top
 
   It's a good idea to put unit test spec files in the same folder
   as the application source code files that they test:
-  - Such tests are easy to find.
-  - You see at a glance if a part of your application lacks tests.
-  - Nearby tests can reveal how a part works in context.
-  - When you move the source (inevitable), you remember to move the test.
-  - When you rename the source file (inevitable), you remember to rename the test file.
+  
+  * Such tests are easy to find.
+  * You see at a glance if a part of your application lacks tests.
+  * Nearby tests can reveal how a part works in context.
+  * When you move the source (inevitable), you remember to move the test.
+  * When you rename the source file (inevitable), you remember to rename the test file.
 
 .l-hr
 

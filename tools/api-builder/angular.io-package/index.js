@@ -70,7 +70,7 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     'router/index.ts',
     'router/testing/index.ts',
     'upgrade/index.ts',
-    'upgrade/static.ts'
+    'upgrade/static/index.ts'
   ];
   readTypeScriptModules.hidePrivateMembers = true;
 
