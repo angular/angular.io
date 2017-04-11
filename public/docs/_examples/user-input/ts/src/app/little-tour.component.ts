@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   selector: 'little-tour',
   template: `
     <input #newHero
-      (keyup.enter)="addHero(newHero.value)"
+      (keyup.enter)="addHero(newHero.value); newHero.value='' "
       (blur)="addHero(newHero.value); newHero.value='' ">
 
     <button (click)="addHero(newHero.value)">Add</button>
