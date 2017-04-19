@@ -179,5 +179,11 @@ gulp install-example-angular
 ## License
 Powered by Google ©2010-2017. Code licensed under an [MIT-style License](https://github.com/angular.io/blob/master/LICENSE). Documentation licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/).
 
+## Translation
+
+  This style guide is also available in other languages:
+
+  - ![ko](https://raw.githubusercontent.com/gosquared/flags/master/flags/flags/shiny/24/South-Korea.png) **Korean**: [onyoon7/angular.io](https://github.com/onyoon7/angular.io)
+
 [travis-badge]: https://travis-ci.org/angular/angular.io.svg?branch=master
 [travis-badge-url]: https://travis-ci.org/angular/angular.io
