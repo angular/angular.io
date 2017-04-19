@@ -108,8 +108,8 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
 
   computePathsProcessor.pathTemplates.push({
     docTypes: EXPORT_DOC_TYPES,
-    pathTemplate: '${moduleDoc.moduleFolder}/${name}-${docType}.html',
-    outputPathTemplate:'${moduleDoc.moduleFolder}/${name}-${docType}.jade',
+    getPath: function(doc) { return doc.moduleDoc.moduleFolder + '/' + replaceLeadingChars(doc.name, '_', '-') + '-' + doc.docType + '.html'; },
+    getOutputPath: function(doc) { return doc.moduleDoc.moduleFolder + '/' + replaceLeadingChars(doc.name, '_', '-') + '-' + doc.docType + '.jade'; }
   });
 
 
@@ -156,3 +156,11 @@ module.exports = new Package('angular.io', [basePackage, targetPackage, cheatshe
     require('./rendering/indentForMarkdown')
   ]));
 });
+
+function replaceLeadingChars(source, from, to) {
+  var index = 0;
+  while(index < source.length && source.charAt(index) === from) {
+    index += 1;
+  }
+  return to.repeat(index) + source.slice(index);
+}
