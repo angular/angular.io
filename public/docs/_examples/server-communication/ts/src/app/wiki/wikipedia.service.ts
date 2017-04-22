@@ -10,7 +10,7 @@ export class WikipediaService {
 
   search (term: string) {
 
-    let wikiUrl = 'http://en.wikipedia.org/w/api.php';
+    let wikiUrl = 'https://en.wikipedia.org/w/api.php';
 
     // #docregion search-parameters
     let params = new URLSearchParams();
