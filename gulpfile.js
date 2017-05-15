@@ -502,7 +502,7 @@ function installExampleAngular() {
   var template;
   var libs = [
     'core', 'common', 'compiler', 'compiler-cli',
-    'platform-browser', 'platform-browser-dynamic', 'platform-server',
+    'platform-browser', 'platform-browser-dynamic',
     'forms', 'http', 'router', 'upgrade'];
 
   var build = argv.build;
@@ -522,16 +522,13 @@ function installExampleAngular() {
       : `git+https://github.com/angular/${lib}-builds${build}`;
   });
 
-  if (argv.build) { 
-    sources.push('@angular/tsc-wrapped'); // tsc-wrapped needed for builds
-    sources.push('typescript@2.2.1');     // recent builds need recent TypeScript
-  } 
+  if (argv.build) { sources.push('@angular/tsc-wrapped');} // tsc-wrapped needed for builds
 
   sources.push('@angular/router-deprecated');
 
   gutil.log(`Installing Angular packages from ${build === 'npm' ? 'NPM' : 'BUILD ' + build}`);
 
-  var spawnInfo = spawnExt('node', ['node_modules/rimraf/bin.js', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
+  var spawnInfo = spawnExt('rm', ['-rf', 'node_modules/@angular'], { cwd: EXAMPLES_PATH});
   return spawnInfo.promise
     .then(() =>  {
       spawnInfo = spawnExt('npm', ['install', ...sources], {cwd: EXAMPLES_PATH});
