@@ -8,4 +8,5 @@ import { Component } from '@angular/core';
     <div ng-view></div>
   `,
 })
-export class AppComponent { }
+export class AppComponent {
+}

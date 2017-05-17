@@ -1,5 +1,7 @@
-// #docregion
-import { Component } from '@angular/core';
+// #docplaster
+// #docregion bare, with-bootstrap
+import { Component, OnInit } from '@angular/core';
+import { UpgradeModule } from '@angular/upgrade/static';
 
 @Component({
   selector: 'phonecat-app',
@@ -10,4 +12,13 @@ import { Component } from '@angular/core';
     </div>
   `
 })
-export class AppComponent { }
+export class AppComponent implements OnInit {
+// #enddocregion bare
+  constructor(private upgrade: UpgradeModule) {}
+// #docregion bare
+  ngOnInit() {
+// #enddocregion bare
+    this.upgrade.bootstrap(document.documentElement.querySelector('[ng-view]'), ['phonecatApp']);
+// #docregion bare
+  }
+}

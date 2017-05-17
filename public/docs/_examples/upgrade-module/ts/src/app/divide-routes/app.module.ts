@@ -1,6 +1,6 @@
 // #docregion
 declare var angular: angular.IAngularStatic;
-import { NgModule } from '@angular/core';
+import { NgModule, Injector, NgZone } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { UpgradeModule } from '@angular/upgrade/static';
 
@@ -31,10 +31,17 @@ class HybridUrlHandlingStrategy implements UrlHandlingStrategy {
     // use custom url handling strategy
     { provide: UrlHandlingStrategy, useClass: HybridUrlHandlingStrategy }
   ],
-  declarations: [ AppComponent ],
-  bootstrap: [ AppComponent ]
+  entryComponents: [ AppComponent ]
 })
-export class AppModule { }
+export class AppModule extends UpgradeModule {
+  constructor(injector: Injector, zone: NgZone) {
+    super(injector, zone);
+  }
+
+  ngDoBootstrap() {
+    this.bootstrap(document.body, ['heroApp'], {strictDi: true});
+  }
+}
 // #enddocregion router-config
 
 import { Villain } from '../villain';

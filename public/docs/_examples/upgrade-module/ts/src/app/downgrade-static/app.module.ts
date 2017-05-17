@@ -21,7 +21,10 @@ import { HeroDetailComponent } from './hero-detail.component';
   ]
 })
 export class AppModule {
-  ngDoBootstrap() {}
+  constructor(private upgrade: UpgradeModule) {}
+  ngDoBootstrap() {
+    this.upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
+  }
 }
 // #enddocregion ngmodule
 // #docregion downgradecomponent
@@ -36,7 +39,4 @@ angular.module('heroApp', [])
 
 // #enddocregion downgradecomponent
 
-platformBrowserDynamic().bootstrapModule(AppModule).then(platformRef => {
-  const upgrade = platformRef.injector.get(UpgradeModule) as UpgradeModule;
-  upgrade.bootstrap(document.body, ['heroApp'], {strictDi: true});
-});
+platformBrowserDynamic().bootstrapModule(AppModule);
