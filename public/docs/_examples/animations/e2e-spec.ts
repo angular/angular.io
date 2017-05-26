@@ -146,7 +146,7 @@ describe('Animation Tests', () => {
       let li = host.element(by.css('li'));
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
 
-      removeHero();
+      removeHero(1000);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -175,7 +175,7 @@ describe('Animation Tests', () => {
       browser.driver.sleep(300);
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
 
-      removeHero();
+      removeHero(1000);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -195,7 +195,7 @@ describe('Animation Tests', () => {
       let li = host.element(by.css('li'));
       expect(li.getCssValue('height')).toBe('50px');
 
-      removeHero();
+      removeHero(1000);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -216,7 +216,7 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
       expect(li.getCssValue('opacity')).toMatch('1');
 
-      removeHero();
+      removeHero(1000);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -237,7 +237,7 @@ describe('Animation Tests', () => {
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
       expect(li.getCssValue('opacity')).toMatch('1');
 
-      removeHero();
+      removeHero(1000);
       expect(li.isPresent()).toBe(false);
     });
 
@@ -252,13 +252,13 @@ describe('Animation Tests', () => {
     });
 
     it('adds and removes element', () => {
-      addInactiveHero();
+      addInactiveHero(500);
 
       let li = host.element(by.css('li'));
       expect(li.getCssValue('transform')).toMatch(NO_TRANSFORM_MATRIX_REGEX);
       expect(li.getCssValue('opacity')).toMatch('1');
 
-      removeHero(700);
+      removeHero(1500);
       expect(li.isPresent()).toBe(false);
     });
 
