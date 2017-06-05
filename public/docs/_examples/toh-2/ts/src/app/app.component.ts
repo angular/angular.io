@@ -64,7 +64,7 @@ const HEROES: Hero[] = [
       height: 1.6em;
       border-radius: 4px;
     }
-    .heroes li.selected:hover {
+    .heroes li.selected {
       background-color: #BBD8DC !important;
       color: white;
     }
