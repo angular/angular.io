@@ -8,6 +8,7 @@ import { HeroService } from './hero.service';
 
 // #docregion metadata
 @Component({
+  moduleId: module.id,
   selector: 'my-dashboard',
   templateUrl: './dashboard.component.html',
   // #enddocregion metadata
