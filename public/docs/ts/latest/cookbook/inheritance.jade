@@ -1,0 +1,165 @@
+include ../_util-fns
+
+:marked
+  Inheritance does not play a very big role in Angular, which is a striking difference compared to many other object-oriented UI libraries. Angular itself never asks you to extend an Angular class.
+
+  But you can still use inheritance in your Angular applications when you think it's appropriate. While Angular never requires you to use inheritance, it will not get in the way either.
+
+  This cookbook describes the main inheritance patterns that usually come up in Angular applications, as well as a couple of gotchas that you may run into along the way. The examples that follow are based on components, but the same rules apply to other kinds of classes, whether they're directives, services, or pipes.
+
+  Here's a fairly typical example of inheritance: An abstract base class for different kinds of "list components" and two different concrete classes that extend it:
+
+block inherit-basic
+  +makeTabs(
+    `cb-inheritance/ts/src/app/basic/list-base.component.ts,
+     cb-inheritance/ts/src/app/basic/album-list.component.ts,
+     cb-inheritance/ts/src/app/basic/movie-list.component.ts,
+     cb-inheritance/ts/src/app/basic/basic-example.module.ts`,
+     ',',
+     `src/app/list-base.component.ts,
+      src/app/album-list.component.ts,
+      src/app/movie-list.component.ts,
+      src/app/basic-example.module.ts`)
+
+:marked
+  There are a few notable things about this:
+
+  * The base class defines an input property `list`, and a method `remove`. All classes that extend from this will have both of them.
+  * We've declared the base class `abstract`. This is not required but it's a nice way to communicate that you intend the class to never be instantiated directly. It's an example of [the inheritance features TypeScript adds on top of ES2015](http://www.typescriptlang.org/docs/handbook/classes.html).
+  * `AlbumListComponent` defines an additional `genre` input. So in total it has two inputs: `list` and `genre`.
+  * `MovieListComponent` overrides the `remove` method. This means it has to call `super.remove()` to execute the original behavior of the base class.
+  * The base class does not need to be decorated as a `@Component()`, nor does it need to be registered into an `NgModule`. There are cases when you will need to decorate it though, as we will see in [the section on constructors and dependency injection](#di).
+
+
+.l-main-section
+:marked
+  ## Redefine All Class Metadata In Subclasses
+
+  A class can only have one instance of each Angular decorator. For example, at most one `@Component()` decorator can be applied to any given component.
+
+  This has one very important effect on inheritance: When you have both a superclass and a subclass decorated as `@Component`s, Angular will only use one of those decorators. It always starts looking for one from the concrete subclass, and walks up the inheritance hierarchy until it finds one. The subclass decorator always wins and the superclass decorator **will be ignored**.
+
+  This means that you need to **redefine any properties from that superclass decorator again in your subclass decorator**.
+
+  Here's an example of one component, `SuperpowerListComponent` that inherits from another concrete component, `ListComponent`. Both classes have a `@Component` decorator:
+
+block inherit-class-metadata
+  +makeTabs(
+    `cb-inheritance/ts/src/app/class-metadata/list.component.ts,
+     cb-inheritance/ts/src/app/class-metadata/superpower-list.component.ts,
+     cb-inheritance/ts/src/app/class-metadata/class-metadata-example.module.ts`,
+     ',',
+     `src/app/list.component.ts, 
+      src/app/superpower-list.component.ts,
+      src/app/class-metadata-example.module.ts`)
+
+:marked
+  The `SuperpowerListComponent` **has to redeclare `templateUrl` in its decorator, even though the value for it is the same as in the superclass**. The same would be true for anything else, whether it was `styleUrls`, `providers`, `changeDetectionStrategy`, or any other decorator property.
+
+  This is because the `@Component` decorator of `SuperpowerListComponent` completely overrides the one in `ListComponent`. Angular does not try to merge decorator properties. It just ignores all but one of each type.
+
+.callout.is-critical
+  header Redefine decorator contents on override
+  :marked
+    When you override a class decorator such as `@Component`, `@Directive`, or `@Pipe`, you must redefine all of its contents.
+
+.l-main-section
+:marked
+  ## Property Metadata
+
+  Property metadata decorators, such as `@Input()`, `@Output()`, and `@ViewChildren()`, follow the same rule as class decorators: There can only be one decorator of each type for each property. When you override a property in a subclass and use the same decorator, the one in the subclass always wins.
+
+  In the first example we already saw how a base class `@Input()` gets inherited by subclasses. The same applies to other property decorators such as [`@ViewChild()`](../api/core/index/ViewChild-decorator.html), which we can use to grab a reference to an element in the component's view:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/full-size-base.component.ts', 'viewchild', 'src/app/full-size-base.component.html')(format=".")
+
+:marked
+  When you subclass `FullSizeBaseComponent`, you do not have to redeclare  the `child` property. As long as the subclass has a matching element in its view template, the reference will get populated.
+
+  But if you want to use a *different* view child query in a subclass, you can override the property and decorate it again:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/canvas.component.ts', 'viewchild', 'src/app/canvas.component.html')(format=".")
+
+:marked
+  Once you have done this, the `child` property of `CanvasComponent` is decorated with `@ViewChild('canvas')`, and **not** `@ViewChild('child')`. Again, the subclass decorator always wins.
+
+.l-main-section
+:marked
+  ## Lifecycle Hook Methods And Method Metadata
+
+  Methods in inherited classes follow the rules of class-based JavaScript method inheritance, which is, once again, "subclass wins". This also applies to [lifecycle hooks](../guide/lifecycle-hooks.html).
+
+  For example, you can have the `ngAfterViewInit` hook implemented in a base class:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/full-size-base.component.ts', 'afterviewinit', 'src/app/full-size-base.component.html')(format=".")
+
+:marked
+  All subclasses will automatically get this lifecycle hook. But if you then also implement the same hook in a subclass, that means you are replacing the hook implementation of the superclass. If you still want the superclass hook to be invoked **you must do it yourself by calling `super.ngAfterViewInit()`**:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/canvas.component.ts', 'afterviewinit', 'src/app/canvas.component.html')(format=".")
+
+.alert.is-helpful
+  :marked
+    TypeScript hook interfaces such as `AfterViewInit` have no effect on these rules. You can put `implements AfterViewInit` in the superclass, in the subclass, or both, or neither. As described in our [Lifecycle Hooks guide](../guide/lifecycle-hooks.html), Angular ignores these interfaces and they exist purely for your convenience.
+
+:marked
+  For *decorated methods*, similar rules apply. For example, you can have a `@HostListener()` method in a base class:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/full-size-base.component.ts', 'hostlistener', 'src/app/full-size-base.component.html')(format=".")
+
+:marked
+  This method will get invoked on window resizes for all subclasses as well. If you want to override and extend that method, you can do it in a subclass:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/canvas.component.ts', 'hostlistener', 'src/app/canvas.component.html')(format=".")
+
+:marked
+  Note that you do **not** have to reapply the `@HostListener()` decorator in the subclass (although you could if you wanted to). The method is already decorated in the superclass. Unless you need to apply the decorator to different [arguments](../api/core/index/HostListener-interface.html), there's no need to do it again.
+
+  But when the window now resizes, it is the `onResize()` method of the *subclass* that gets invoked, not the parent, because it has been overridden. Just like in the earlier lifecycle hook example, you need to call `super` if you want the parent's method to still be invoked.
+
+.l-sub-section
+  :marked
+    Even though they have slightly different consequences, the rules of inheritance for property decorators and method decorators are exactly the same: There can be one decorator of each type per property or method, and the one lowest in the inheritance hierarchy wins.
+
+    After all, from the point of view of the JavaScript language, methods are really just properties.
+
+<a id="di"></a>
+.l-main-section
+:marked
+  ## Constructors And Dependency Injection
+
+  Yet another instance of the "subclass wins" rule of inheritance is related to constructors. Classes in JavaScript have exactly one externally visible constructor:
+
+  * If you have not defined any constructors, the *default zero-argument constructor* is used.
+  * If you have an explicit constructor in a superclass but not in a subclass, *the superclass constructor* is used.
+  * But if you have an explicit constructor in both a superclass and a subclass, the *subclass constructor* is used. The superclass constructor is only called if the subclass constructor does so.
+
+  Since Angular uses constructors as the injection point for dependencies, these rules affect how dependency injection works.
+
+  Here's an example of an abstract superclass that defines a constructor with some dependencies:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/full-size-base.component.ts', 'di', 'src/app/full-size-base.component.html')(format=".")
+
+:marked
+  Any subclasses of this class will use this constructor as long as they don't define one of their own.
+
+.callout.is-critical
+  header Decorate The Superclass
+  :marked
+    Note that in this case the superclass **must have a class decorator** such as `@Component()`, even if it's abstract and not supposed to be used directly as a component. If there is no Angular class decorator present on the superclass, its constructor will not be used by Angular's injector.
+
+:marked
+  But the moment you introduce a constructor in a subclass, you will be overriding the parent's constructor. It will not get invoked by Angular's dependency injector. It is up to you to call `super()` from the subclass constructor, passing up all the dependencies of the superclass:
+
++makeExample('cb-inheritance/ts/src/app/property-metadata/canvas.component.ts', 'di', 'src/app/canvas.component.html')(format=".")
+
+:marked
+  Here's the full example code that illustrates the rules we have just seen for inheritance in property and method decorators, lifecycle hooks, and dependency injection:
+
+block inherit-rest
+  +makeTabs(
+    `cb-inheritance/ts/src/app/property-metadata/full-size-base.component.ts,
+     cb-inheritance/ts/src/app/property-metadata/canvas.component.ts`,
+    ',',
+    `src/app/full-size-base.component.ts,
+     src/app/canvas.component.ts`)
