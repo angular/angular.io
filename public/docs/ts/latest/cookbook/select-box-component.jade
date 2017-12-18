@@ -1,0 +1,167 @@
+include ../_util-fns
+
+:marked
+  We definitely need to see which hero is our favorite one, we are going to build a select box and then refactor it into a component.
+  
+  <a id="top"></a>
+  ## Table of contents
+  
+    [A heroes service](#hero-service)
+    
+    [A verbose component](#verbose-component)
+    
+    [Refactoring the select box into a component](#refactor)
+    
+    [Using the new component](#using)
+    
+:marked
+  **See the [live example](/resources/live-examples/cb-select-box-component/ts/plnkr.html)**.
+  
+.l-main-section
+<a id="hero-service"></a>
+:marked
+  ##  A heroes service
+  
+  We need heroes, lots of heroes. Let's use a service.
+  
++makeExample('cb-select-box-component/ts/app/hero-store.service.ts', null, 'hero-store.service.ts')(format=".")
+
+<a id="verbose-component"></a>
+:marked
+  ## A verbose component
+  
+  Our first implementation involves creating a `<select>` element with as many `<option>` as items to show.
+  
++makeExample('cb-select-box-component/ts/app/select-verbose.component.1.ts', null, 'select-verbose.component.ts')(format=".")
++makeExample('cb-select-box-component/ts/app/select-verbose.component.1.html', null, 'select-verbose.component.html')(format=".")
+
+:marked
+  Thanks to `*ngFor` we can create as many `<option>` as heroes we have in our list.
+  
+  If we just now consume our component, we can see it.
+  
++makeExample('cb-select-box-component/ts/app/app.component.1.ts', null, 'app.component.ts')(format=".")
+  
+figure.image-display
+  img(src="/resources/images/cookbooks/select-box-component/first-try.gif" alt="First Try")
+  
+:marked
+  We have a few problems. The `selected` hero in the select box doesn't match the one we chosed manually.
+  On `change` we are not triggering anything. And last, each entry needs a `value`.
+  
+  Thanks to property and event binding, we can fix those problems in a breeze.
+  
++makeExample('cb-select-box-component/ts/app/select-verbose.component.html', 'main-content', 'select-verbose.component.html')(format=".")
+
+:marked
+  Now each option has a `value`, a `selected` property to set the initially selected option
+  and also a `change` event to select our new favorite hero.
+  
+.l-sub-section
+  :marked
+    Learn more about property and event binding at the [Template Syntax](../guide/template-syntax.html) chapter.
+  
++makeExample('cb-select-box-component/ts/app/select-verbose.component.ts', 'select-methods', 'select-verbose.component.ts (class)')(format=".")
+
+figure.image-display
+  img(src="/resources/images/cookbooks/select-box-component/change-update.gif" alt="Change Updated")
+  
+:marked
+  Thanks to `ngFor` we can modify our items at runtime. Let's add a few buttons at the end of the template.
+  
++makeExample('cb-select-box-component/ts/app/select-verbose.component.html', null, 'select-verbose.component.html')(format=".")
+
+:marked
+  And just by changing our `heroes` collection on those methods, the select box gets updated.
+  
++makeExample('cb-select-box-component/ts/app/select-verbose.component.ts', 'buttons-methods', 'select-verbose.component.ts (class)')(format=".")
+
+figure.image-display
+  img(src="/resources/images/cookbooks/select-box-component/verbose-buttons.gif" alt="Verbose Buttons")
+  
+<a id="refactor"></a>
+:marked
+  ## Refactoring the select box into a component
+  
+  Our select box works good, but the implementation is hard coded. It is only for heroes and their names.
+  We can do better by refactoring it into a generic component.
+  
++makeExample('cb-select-box-component/ts/app/selector.component.ts', 'skeleton', 'select.component.ts (component)')(format=".")
+
+:marked
+  The template is pretty much what we had before, but this new component will work with any list, not just heroes.
+  To make it truly generic, it receives a variety of inputs:
+  
+  * **options** - The collection of items to show.
+  * **id** - An optional id for the select element.
+  * **display** - Which attribute to display inside the option element.
+  * **optionKey** - An attribute to identify each item.
+  * **key** - Attribute used to maintain the select box in sync with the selected element.
+  
+  It also emits two events when the option changes.
+  
++makeExample('cb-select-box-component/ts/app/selector.component.ts', 'selector-class', 'select.component.ts (class)')(format=".")
+
+<a id="using"></a>
+:marked
+  ## Using the new component
+
+  We are going to use the new component in two different ways in a new host component.
+  
++makeExample('cb-select-box-component/ts/app/selector-host.component.html', 'first-selector', 'select-host.component.html')(format=".")
+
+:marked
+  Notice how we use a `key` to input our selectedHero and how we use a `optionChange` event to override it.
+  It is the exact same behavior we had in the verbose example.
+  
+  To make things more fun, let's create a hero fan class.
+  
++makeExample('cb-select-box-component/ts/app/selector-host.component.ts', 'hero-fan', 'select-host.component.ts')(format=".")
+
+:marked
+  Let's use our selector again, but this time we just need the hero id, not the entire object.
+  
++makeExample('cb-select-box-component/ts/app/selector-host.component.html', 'second-selector', 'select-host.component.html')(format=".")
+
+:marked
+  Thanks to the two-way databinding functionality we added to the selector,
+  the *heroId* we pass as the `key` will be updated back when we select a new hero.
+  
+  Again, we can edit our list of heroes at runtime and our selector will see the changes.
+  
++makeExample('cb-select-box-component/ts/app/selector-host.component.html', 'buttons', 'select-host.component.html')(format=".")
+
+:marked
+  Here is the complete component.
+
++makeExample('cb-select-box-component/ts/app/selector-host.component.ts', 'component', 'select-host.component.ts')(format=".")
+
+:marked
+  If we consume now this host component, we can see it in action
+  
++makeExample('cb-select-box-component/ts/app/app.component.ts', null, 'app.component.ts')(format=".")
+
+figure.image-display
+  img(src="/resources/images/cookbooks/select-box-component/herofan.gif" alt="Hero Fan")
+  
+:marked
+  Here is the entire code
+  
++makeTabs(
+  `cb-select-box-component/ts/app/hero-store.service.ts,
+  cb-select-box-component/ts/app/select-verbose.component.ts,
+  cb-select-box-component/ts/app/select-verbose.component.html,
+  cb-select-box-component/ts/app/selector.component.ts,
+  cb-select-box-component/ts/app/selector-host.component.ts,
+  cb-select-box-component/ts/app/selector-host.component.html`,
+  null,
+  `hero-store.service.ts,
+  select-verbose.component.ts,
+  select-verbose.component.html,
+  selector.component.ts,
+  selector-host.component.ts,
+  selector-host.component.html`
+)
+
+:marked
+  [Back to top](#top)
