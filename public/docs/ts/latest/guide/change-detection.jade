@@ -1,0 +1,508 @@
+block includes
+  include ../_util-fns
+
+.l-main-section
+:marked
+  Change detection is one of Angular's defining features. It allows you to display
+  data in your component views that's *bound* to your data models. When the data changes,
+  you don't have to worry about keeping the view up to date. Angular does that for you.
+
+  Most of the time change detection just works and you don't really have to think about it.
+  But occasionally you may run into situations where you want to tweak something about it.
+  This is a guide for those situations.
+
+  # Contents
+
+  * [How Angular's Change Detection Works](#how-change-detection-works).
+    * [Change Detection is Performed for Data Bindings](#data-binding)
+    * [Change Detection Runs At Every Turn Of The NgZone](#zones)
+    * [Change Detection Runs Along The Component Tree](#tree)
+    * [Change Detection Is Single-Pass](#single-pass) 
+  * [Strategies for Customizing Change Detection](#strategies)
+    * [The `OnPush` Strategy](#onpush)
+      * [`OnPush` with Immutable Inputs](#onpush-immutable)
+      * [`OnPush` with Event Bindings](#onpush-event)
+      * [`OnPush` with Explicit Change Detection Triggering](#onpush-manual)
+    * [Taking Control By Detaching Change Detectors](#detach)
+      * [One-Time Binding](#detach-onetime)
+      * [Temporarily Disabling Change Detection](#detach-reattach)
+      * [Throttling Change Detection](#detach-throttle)
+      * [Flushing Changes To The View Synchronously](#detach-flush)
+    * [The Difference between `markForCheck()` and `detectChanges()`](#markforcheck-vs-detectchanges)
+    * [Skipping Change Detection For Asynchronous Work By Escaping The NgZone](#escape-ngzone)
+  * [Appendix: A Peek Into Change Detector Code Generation](#codegen)
+
+a(id="how-change-detection-works")
+.l-main-section
+:marked
+  ## How Angular's Change Detection Works
+
+  Change detection in Angular is performed by **change detectors** for all
+  **data bindings** in your components. These change detectors run after every turn of the
+  **NgZone**. Every component has its own change detector, and each detector
+  is **executed once per each turn** of the zone.
+
+a(id="data-binding")
+:marked
+  ### Change Detection is Performed for Data Bindings
+
+  Angular allows you to bind dynamic data into component views by using *expressions*. When you do that,
+  you can rest assured that the view will always display the latest version of the data. When the data changes,
+  there is no need to explicitly "tell" the component to update its view.
+
++makeExample('change-detection/ts/src/app/hero-counter.component.ts')(format='.')
+
+:marked
+  Change detection is in effect anywhere you might use an expression:
+
+  * When interpolating an expression into the view: `<p>{{ data }}</p>`
+  * When binding an expression to an attribute: `<div [style.width.px]="data">`
+  * In structural directive expressions: `<li *ngFor="let item in data">`
+  * When binding an expression to a component's host element: `@HostBinding('style.width.px') width: number` 
+
+  Common to all these examples is that you're referring to data that may
+  change over time. When the data changes, you'd like that change to be reflected
+  in your view without having to do manual work. This is the problem that Angular's
+  change detection solves.
+
+  This job is done by **change detectors**. There's a change detector inside every
+  Angular component. When Angular compiles your component, it finds all the data binding
+  expressions you have used in that component, and then it'll automatically keep checking for
+  changes in those expressions to ensure that the latest data has always been applied.
+
+figure.image-display
+ img(src="/resources/images/devguide/change-detection/change-detection-sequence.gif" alt="A Change Detector syncs a component view with the component's data")
+
+:marked
+  Change detectors are usually not something you see in your application code. They just do their work
+  behind the scenes. But there are cases where you may want to manually access change detectors,
+  as we will see later in this guide.
+
+a(id="zones")
+:marked
+  ### Change Detection Runs At Every Turn Of The NgZone
+
+  Since Angular promises to *always* keep your UI up to date, it needs to know about all the
+  situations in which data *might* change. There are many such situations:
+
+  * During the initial application load.
+  * As a response to user interactions such as clicks and keypresses.
+  * At scheduled times using JavaScript timeouts and intervals.
+  * When data is received from a server.
+
+  Whatever the cause of the potential changes, Angular needs to know about it and make sure the changes
+  are detected. It achieves this with the help of **Zones**.
+
+  Zones are a feature implemented by [the Zone.js library](https://github.com/angular/zone.js/),
+  which is always included in all Angular applications. Zones can be used to wrap code into an
+  *execution context* that can then be extended with different utilities. Angular makes use of this by
+  implementing a special **NgZone**, which is the execution context for all your Angular code.
+  The most important utility of the `NgZone` is that *whenever it's exited, change detection will be performed*.
+
+  So, whenever something happens in your Angular application, the following sequence of events takes place:
+
+img(src="/resources/images/devguide/change-detection/change-detection-in-zone.png" alt="Change detection is one upon leaving the NgZone" style="max-width: 600px; float: right")
+
+:marked
+  1. We enter the NgZone.
+  2. We run the code that needs to be run. This might be a click handler in one your components, a `setTimeout` function,
+     an HTTP response handler, etc.
+  3. When we're all done, Angular runs change detection just as the `NgZone` is exited.
+  4. We exit the `NgZone`, relinquishing control to the browser until the next event occurs.
+
+a(id="tree")
+:marked
+  ### Change Detection Runs Along The Component Tree
+
+img(src="/resources/images/devguide/change-detection/change-detection-tree.gif" alt="Change detection is performed along the component tree in a depth-first order" style="float: right; max-width: 400px; margin-left: 25px;")
+
+:marked
+  As mentioned, every Angular component has its own change detector, whose job is to
+  detect changes for all the data bindings inside that component.
+
+  After every turn of the NgZone, *Angular runs all of these change detectors*. This always
+  happens in the same order. Angular begins from the application's root component(s) and
+  then walks the component tree using a *depth-first traversal* order, running all the change detectors
+  along the way. 
+
+  The order of the traversal is significant, since it matches the direction of Angular's
+  component data flow, which is always downward. This ensures that components always have the
+  freshest data available: When you pass data from a parent component to a child component,
+  the parent's change detector makes the data available to the child before the child's own
+  change detector runs.
+
+.l-sub-section
+  :marked
+    There are several [component lifecycle hooks](lifecycle-hooks.html) you can use
+    to hook your own code to various points relative to the change detection process:
+    `ngOnChanges`, `ngDoCheck`, `ngAfterViewChecked`, and `ngAfterContentChecked`.
+
+a(id="single-pass")
+:marked
+  ### Change Detection Is Single-Pass 
+
+  Change detection is only performed **once for each expression** after every turn of the NgZone.
+  This allows it to be very fast. It also means that we cannot have binding expressions that change the
+  values of other expressions. For example, we cannot bind to a method that mutates data used in other
+  bindings.
+
++makeExample('change-detection/ts/src/app/hero-name-badge.broken.component.ts')(format='.')
+
+:marked
+  When Angular is run in development mode and it notices a situation like this, it will throw an _"Expression has
+  changed after it was checked"_ error, notifying you that data has changed *during* change detection, which is not
+  allowed.
+
+.alert.is-helpful
+  :marked
+    In development mode, Angular always runs change detection twice in a row so that it
+    can tell you about these problems. In production mode, these illegal changes simply remain
+    undetected.
+
+:marked
+  What makes this kind of code doubly problematic is that you do not *always* get this error message. Whether you see an
+  error or not depends on the order in which expressions are evaluated. In the example above,
+  if `{{ getDisplayName() }}` was bound before `{{ hero.name }}` there would be no error because the mutation
+  would already have occurred by the time we checked `{{ hero.name }}` for the first time. But the error
+  might pop up some time later, for example when you decided to refactor your template code.
+
+  For this reason, **always make data binding expressions free of side effects**.
+  Any code that is called from a bound Angular expression should not mutate data, initiate server calls, or do anything
+  else except return the value that is to be displayed.
+
++makeExample('change-detection/ts/src/app/hero-name-badge.component.ts')(format='.')
+
+.l-sub-section
+  :marked
+    The "Expression has changed after it was checked" error may also come up in combination with the `ngAfterViewInit`
+    lifecycle hook, because that hook runs after change detection. See the
+    [Lifecycle Hooks guide](lifecycle-hooks.html#!#wait-a-tick) for more on this.
+
+a(id="strategies")
+.l-main-section
+:marked
+  ## Strategies for Customizing Change Detection
+
+  The change detection mechanism described above is what is used in most applications most of the time.
+  We usually don't even have to think about it much, because it works and it [works fast](#codegen).
+
+  But there are times when you want more control over the change detection process.
+  What follows are several strategies with which you can influence how change detection is performed.
+
+a(id="onpush")
+:marked
+  ### The `OnPush` Strategy
+
+  As we've seen, the way Angular's change detection usually works is by checking all
+  data bindings to see if any of their values have changed. This is the most flexible
+  and reliable strategy, since it will detect changes no matter what they are and how 
+  they came to be.
+
+  There are times though when you know that a component's data may only change in limited
+  circumstances:
+
+  * When the component is given new data through its `@Input`s,
+  * When the component changes its internal state as a response to a user event, or
+  * When you explicitly tell the component that the data may have changed.
+
+  The `OnPush` change detection strategy is designed for these circumstances.
+  It allows the change detection system to *do less work* by skipping change detection
+  for some of your components in situations that don't match the above criteria. In
+  some applications this may end up being most of the time.
+
+a(id="onpush-immutable")
+:marked
+  #### `OnPush` with Immutable Inputs
+
+  Some components are fully stateless, meaning that their behavior is fully driven
+  by their `@Input`s. This is most often the case for "leaf-level" components at the
+  lowest levels of your component trees, because they tend to receive simple primitive
+  values such as strings and numbers as their inputs.
+
+  For example, you might have a `SearchResult` component whose job is to highlight search results. It
+  takes two string inputs, the search result and the search term, and it uses a background color
+  to highligh the search term inside the search result. You can use the `OnPush` strategy
+  for this component.
+
++makeExample('change-detection/ts/src/app/onpush/search-result.component.ts')(format='.')
+
+:marked
+  If you hadn't used `ChangeDetectionStrategy.OnPush`, this component would have executed all the code in `getPrefix()`,
+  `getMatch()`, and `getSuffix()` every time the application's change detection runs. But since you did use
+  `OnPush`, those methods only get invoked when either of the `searchResult` or `searchTerm` inputs changes.
+  The behavior of the component is exactly identical in both cases, but with `OnPush` less work is done.
+
+  This strategy applies to all kinds of inputs, not just primitives like strings and numbers.
+  But for changes to be detected, you need to treat the inputs as *immutable values*. This is because
+  `OnPush` uses a simple reference check (`oldValue !== newValue`) to see if an input
+  has changed. This means that for example, it will **not** detect items being added or removed inside an existing
+  array input.
+
+  As an example, you might have a `HeroListComponent` that lists an array of heroes and uses `OnPush`
+  change detection: 
+
++makeExample('change-detection/ts/src/app/onpush/hero-list.onpush.component.ts')(format='.')
+
+:marked
+  If you bind an array to `heroes` from the component's parent, you *cannot* expect the component
+  to update its contents if you merely `push` a new item into it.
+
++makeExample('change-detection/ts/src/app/onpush/hero-manager.mutable.component.ts', 'add-hero')(format='.')
+
+:marked
+  Although the *contents* of `this.heroes` change, the array itself does not. (`oldArray === newArray` will be `true`).
+  You must instead treat the array in an immutable fashion for changes like these to be detected.
+  This entails using methods and operators that return *new* arrays, such as `concat`, `slice`,
+  and the array spread operator.
+
++makeExample('change-detection/ts/src/app/onpush/hero-manager.immutable.component.ts', 'add-hero')(format='.')
+
+.l-sub-section
+  :marked
+    There are specialized immutable collections libraries such as
+    [Immutable.js](https://facebook.github.io/immutable-js/) that aim to make this coding style more
+    natural and efficient than it is with native JavaScript arrays and objects.
+
+a(id="onpush-event")
+:marked
+  #### `OnPush` with Event Bindings
+
+  The `OnPush` strategy will also detect changes in the component when one of its
+  [event bindings](template-syntax.html#!#event-binding) gets executed. This means
+  any code that is executed using the `(event)="doSomething()"` syntax in the component's
+  template.
+
+  For example, our earlier hero counter example will also work with the `OnPush` strategy,
+  even though its `heroCount` property is not an input. This is because the counter is
+  incremented and decremented as a response to click events, using `(click)` event bindings.
+
++makeExample('change-detection/ts/src/app/onpush/hero-counter.onpush.component.ts')(format='.')
+
+a(id="onpush-manual")
+:marked
+  #### `OnPush` with Explicit Change Detection Triggering
+  
+  If you switch the hero counter example to one that increments automatically using
+  a `setInterval`, you will see that changes are no longer detected!
+  
++makeExample('change-detection/ts/src/app/onpush/hero-counter-auto.broken.component.ts')(format='.')
+
+:marked
+  This is because neither of the requirement's for `OnPush` change detection apply:
+  The change is not coming from a component input, nor is it triggered by an event binding. 
+
+  In these cases, you can explicitly *tell the component's change detector that it should
+  be included in the next change detection*. You can do this by obtaining a reference to
+  the change detector by injecting a [ChangeDetectorRef](../api/core/index/ChangeDetectorRef-class.html), 
+  and then calling its `markForCheck()` method when you want changes to be detected.
+
++makeExample('change-detection/ts/src/app/onpush/hero-counter-auto.component.ts')(format='.')
+
+:marked
+  This strategy can be useful if you are integrating Angular with an evented data model
+  library such as Knockout, Backbone.js models, or Breeze. These libraries support callback
+  functions that always get invoked when the model has changed.
+  
+  You can combine such libraries with Angular's `OnPush` change detection strategy by calling
+  `markForCheck()` from those change callbacks. This way the component's change detector will never
+  get invoked unless the model library tells us something has changed. 
+
++makeExample('change-detection/ts/src/app/onpush/hero-name-badge-evented.component.ts')(format='.')
+
+.alert.is-helpful
+  :marked
+    Remember that if you used Angular's regular change detection instead of `OnPush`, changes would
+    still be detected without us having to subscribe to anything. You don't *have to* use the combination
+    of `OnPush` and `markForCheck()`. It is just an optimization strategy.
+
+a(id="detach")
+:marked
+  ### Taking Control By Detaching Change Detectors
+
+  We have seen how we can customize the behavior of Angular's change detection by switching the
+  change detection strategy between `Default` and `OnPush`.
+  
+img(src="/resources/images/devguide/change-detection/change-detection-tree-detached.gif" alt="When a change detector is detached, it is not executed with the rest of the component tree" style="float: right; max-width: 400px; margin-left: 25px;")
+
+:marked
+  You can get even more control over when exactly change detection is performed by *detaching* a
+  component's change detector from the change detector tree. When you do this, the change detector
+  will never be called during Angular's regular change detection turn because it is simply not
+  connected to the rest of the component tree. 
+
+  Note that because change detectors are organized into a tree, detaching a change detector also
+  effectively detaches everything below it. None of the child components of this component will
+  have their changes detected either.
+
+  What you can do instead is control these change detectors manually from your application code. There are
+  several things we can achive with this technique.
+
+a(id="detach-onetime")
+:marked
+  #### One-Time Binding
+
+  Sometimes you know that a component's data will never change as long as the
+  component exists. Running change detection on the component is entirely unnecessary
+  because there will never be changes.
+
+  In these cases you can detach the component's change detector in the component's `ngAfterViewInit`
+  [lifecycle hook](lifecycle-hooks.html), which is called after the component's view has been rendered
+  for the first time. This is effectively a "one-time binding" strategy. The component's data bindings
+  are evaluated once right after the component is created and then never again.
+
++makeExample('change-detection/ts/src/app/detach/hero-name-badge-detached.component.ts')(format='.')
+
+a(id="detach-reattach")
+:marked
+  #### Temporarily Disabling Change Detection
+
+  A detached change detector can also be  *reattached* later. By combining `detach()` and `reattach()`
+  you can disable change detection *temporarily* for a time during which you don't need to keep the
+  component's UI up to date.
+
+  For example, if you have data that changes with a high frequency, you can construct a component that
+  lets the user choose if they want a "live updating" view to the data or not. 
+
++makeExample('change-detection/ts/src/app/detach/hero-counter-live.component.ts')(format='.')
+
+a(id="detach-throttle")
+:marked
+  #### Throttling Change Detection
+
+  Another thing you can do with a detached change detector is to run it manually
+  at the time of your choosing. The `ChangeDetectorRef` class has a `detectChanges()`
+  method for exactly this purpose.
+
+  For example, you can author a component that refreshes itself on the screen once
+  every second even though its data might change a hundred times per second. This
+  translates to less work done by the change detection system with the trade-off
+  of having slightly out-of-date information on the screen.
+
++makeExample('change-detection/ts/src/app/detach/hero-counter-throttled.component.ts')(format='.')
+
+a(id="detach-flush")
+:marked
+  #### Flushing Changes To The View Synchronously
+
+  One additional thing to know about the `detectChanges()` method is that it runs change detection *immediately*
+  instead of waiting for the end of the current turn of the `NgZone`.
+
+  For example, if you have an HTML form that you need to submit to a third-party service, and you
+  use data bindings within that form, you can use `detectChanges()` to ensure that the
+  form field values are up to date in the DOM before you submit.
+
++makeExample('change-detection/ts/src/app/detach/hero-signature-form.component.ts')(format='.')
+ 
+:marked
+  If we did not call `detectChanges()` here, the `secret` field would not have the
+  freshly calculated secret in time for the form submission.
+
+a(id="markforcheck-vs-detectchanges")
+:marked
+  ### The Difference between `markForCheck()` and `detectChanges()`
+  
+  We have seen two different methods for manually telling a change detector that it
+  should run: `markForCheck()` and `detectChanges()`. Although similar, these methods
+  have some important differences.
+
+table
+  colgroup
+    col(width = "50%")
+    col(width = "50%")
+  tr
+    th
+      :marked
+        `markForCheck()`
+    th
+      :marked
+        `detectChanges()`
+  tr
+    td
+      :marked
+        **Asynchronous**: Schedules change detection for this component to run during the next turn of the `NgZone`. 
+    td
+      :marked
+        **Synchronous**: Performs change detection for this component *immediately*.
+  tr
+    td
+      :marked
+        **Upward**: Marks the current component and *all components up to the root* to be detected.
+        
+        Descendants may also be detected, but this depends on their own change detection strategy.
+    td
+      :marked
+        **Downward**: Only detects changes in the current component and its descendants.
+  tr
+    td
+      :marked
+        Most useful with change detectors that are **attached** but use the `OnPush` strategy.
+        Used to give a hint to Angular about changes inside the component.
+
+        Does nothing when the change detector has been detached.
+    td
+      :marked
+        Most useful with **detached** change detectors, that never run otherwise.
+
+        Can also be used with attached change detectors.
+
+a(id="escape-ngzone")
+:marked
+  ### Skipping Change Detection For Asynchronous Work By Escaping The NgZone
+
+  Sometimes you may have a need to skip change detection not for an entire component,
+  but for a specific asynchronous task that you want to perform.
+
+  For example, you may have an Observable based workflow that comprises many asynchronous
+  tasks, but you are only interested in its final result:
+
++makeExample('change-detection/ts/src/app/async-workflow.component.ts', 'inside-zone')(format='.')
+
+:marked
+  You know that you will only be interested in the final result of this workflow, and not
+  its intermediate steps. But because of the way zones work, Angular will still perform
+  change detection for the intermediate calculations because it cannot know when it is
+  safe to skip it.
+
+  What you can do to skip these intermediate change detection executions is to *explicitly schedule
+  the work to be done outside the `NgZone`*, by using its `runOutsideAngular()` method.
+  That work and any asynchronous tasks that it includes will not trigger Angular change detection,
+  until we explicitly *re-enter the NgZone* at the end of the work, which we can do with the `run()`
+  method.
+  
++makeExample('change-detection/ts/src/app/async-workflow.component.ts', 'outside-zone')(format='.')
+  
+a(id="codegen")
+.l-main-section
+:marked
+  ## Appendix: A Peek Into Change Detector Code Generation
+
+  Before your Angular application starts, all the components inside it are processed by the Angular compiler.
+  As described in our [Ahead-of-Time compilation guide](../cookbook/aot-compiler.html), this may happen either
+  inside the browser just before the application starts ("JIT compilation"), or as a build step before the application
+  is shipped ("AoT compilation").
+
+  One of the main tasks of the compiler is to *generate the change detection code* for each component. It does so by 
+  going through all the data binding expressions it finds in the component, and then by generating the JavaScript code
+  that will execute those expressions.
+
+  We can peek into what the generated change detection code looks like by looking at the `*.ngfactory.js`
+  files that the compiler creates. These files can either be found on disk (for AoT compilation) or using browser
+  developer tools (for JIT compilation). In the latter case you can see them under the "Sources" tab of Chrome
+  Developer Tools. The change detection code will be inside the `detectChangesInternal` method of these generated
+  classes.
+
+figure.image-display
+ img(src="/resources/images/devguide/change-detection/jit-files.png" alt="The generated change detection code in Chrome Developer Tools")
+
+:marked
+  The way this code is laid out explains a lot about why Angular's change detection is so fast:
+  
+  * Data access is done using *non-computed property lookups* such as
+  "`self.context.heroCount`", as opposed to making reflective calls such as `self.context[attributeName]`. This
+  enables JavaScript engines to optimize the code at runtime using techniques likes *inline caching*.
+  * Instead of looping over expressions, a flat code structure is generated that just checks expressions
+    one after another.
+  
+  This generated code is, for the most part, the kind of code you would write manually to gain maximum
+  performance, if only it wasn't so tedious to write and maintain! Luckily Angular does it for you.
+  And it does it in a way that leaves very little runtime performance overhead caused by the framework. 
