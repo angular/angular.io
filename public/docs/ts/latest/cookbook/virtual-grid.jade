@@ -1,0 +1,90 @@
+include ../_util-fns
+
+<a id="top"></a>
+:marked
+  Well, it's application season again, and as usual we have been inundated with applications from eager heroes. This year's surge in applications has forced us to improve the performance of the grid we use to display information about the heroes.
+  
+  In this cookbook we show how use virtualization to create a highly scalable grid, capable of handling thousands or records and still be responsive. Rendering elements to the DOM is slow, so the idea behind virtualization is to only render a fixed number of DOM elements based on a sliding window into the full dataset. Currently the grid supports basic features like sorting and key based navigation, but we might expand the feature set over time. 
+  
+<a id="toc"></a>
+:marked
+  ## Table of contents  
+  
+  [Grid Component](#grid-component)
+  
+  [Grid Service](#grid-service)
+  
+  [Grid Sorting](#grid-sorting)
+  
+  [Object Model](#object-model)
+  
+  [Key Codes](#key-codes)
+  
+  [Large Dataset](#large-dataset)
+  
+:marked
+  **See the [live example](/resources/live-examples/cb-virtual-grid/ts/plnkr.html)**.  
+  
+.l-main-section
+<a id="grid-component"></a>
+:marked
+  ## Grid Component
+  
+  The first step is to create a simple `HeroGridComponent` with support for arrow key navigation and sorting.
+  
+  `HeroGrid` defines the necessary template and binding logic to render the set of visible rows.
+  
++makeExample('cb-virtual-grid/ts/app/hero-grid.component.ts',null,'app/hero-grid.component.ts')(format='.')
+
+<a id="grid-component"></a>
+:marked
+  ## Grid Service
+
+:marked
+  Next we have defined `HeroGridService` to manage the entire set of rows and columns in the grid. `HeroGridService` controls the sliding window of currently visible rows. We will only render UI elements for visible rows. Based on user actions `HeroGridService` will recalculate the set of visible rows from the full dataset.
++makeExample('cb-virtual-grid/ts/app/hero-grid.service.ts',null,'app/hero-grid.service.ts')(format='.') 
+
+<a id="grid-sorting"></a>
+:marked
+  ## Grid Sorting
+
+:marked
+  We are doing the sorting in `HeroGridSortingService`.
++makeExample('cb-virtual-grid/ts/app/hero-grid-sorting.service.ts',null,'app/hero-grid-sorting.service.ts')(format='.') 
+
+<a id="object-model"></a>
+:marked
+  ## Object Model
+:marked
+  The grid is bound to an object model consisting of `Row` and `Column` objects.  
+  
++makeExample('cb-virtual-grid/ts/app/row.ts',null,'app/row.ts')(format='.')    
+
++makeExample('cb-virtual-grid/ts/app/column.ts',null,'app/column.ts')(format='.')  
+
+<a id="key-codes"></a>
+:marked
+  ## Key Codes
+
+:marked
+  The grid supports arrow key based navigation, so to map supported keys we have created `KeyCodeService`.
+  
++makeExample('cb-virtual-grid/ts/app/key-code.service.ts',null,'app/key-code.service.ts')(format='.')  
+
+<a id="large-dataset"></a>
+:marked
+  ## Large Dataset
+
+:marked
+  We are getting the list of applicants from `HeroDataService`. Typically this data would come from a database, but for demo purposes we are using `HeroDataService` to simulate a large datset. Despite the large dataset we can see that the grid performs really well when sorting and paging through the data. 
+  
+  Paging through the data does not cause the grid to render more UI elements, so if we inspect the DOM we will see that the number of `tr` elements remains fixed. Instead we data-bind a sliding window of `Row` and `Column` objects to the same set of `tr` elements. Not increasing the number of rows to render is key to performance since DOM rendering is the slowest operation.
++makeExample('cb-virtual-grid/ts/app/hero-data.service.ts',null,'app/hero-data.service.ts')(format='.')  
+
+:marked
+   The final grid looks like this:
+figure.image-display
+   img(src="/resources/images/cookbooks/virtual-grid/virtual-grid.png" alt="Virtual-Grid")
+
+:marked
+  [Back to top](#top)
